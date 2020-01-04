@@ -1,0 +1,335 @@
+{
+  "welcome" : "ようこそ\nに CAKE WALLET",
+  "first_wallet_text" : "素晴らしい財布\nために Monero",
+  "please_make_selection" : "以下を選択してください\nウォレットを作成または回復する.",
+  "create_new" : "新しく作る",
+  "restore_wallet" : "ウォレットを復元する",
+
+
+  "accounts" : "アカウント",
+  "edit" : "編集",
+  "account" : "アカウント",
+  "add" : "加える",
+
+
+  "address_book" : "住所録",
+  "contact" : "接触",
+  "please_select" : "選んでください:",
+  "cancel" : "キャンセル",
+  "ok" : "OK",
+  "contact_name" : "連絡先",
+  "reset" : "リセットする",
+  "save" : "セーブ",
+
+
+  "authenticated" : "認証済み",
+  "authentication" : "認証",
+  "failed_authentication" : "認証失敗. ${state_error}",
+
+
+  "wallet_menu" : "ウォレットメニュー",
+  "Blocks_remaining" : "${status} 残りのブロック",
+  "please_try_to_connect_to_another_node" : "別のノードに接続してみてください",
+  "xmr_hidden" : "XMR非表示",
+  "xmr_available_balance" : "XMR利用可能残高",
+  "xmr_full_balance" : "XMRフルバランス",
+  "send" : "送る",
+  "receive" : "受け取る",
+  "transactions" : "取引",
+  "incoming" : "着信",
+  "outgoing" : "発信",
+  "transactions_by_date" : "日付ごとの取引",
+  "trades" : "取引",
+  "filters" : "フィルター",
+  "today" : "今日",
+  "yesterday" : "昨日",
+  "received" : "受け取った",
+  "sent" : "送信済み",
+  "pending" : " (保留中)",
+  "rescan" : "再スキャン",
+  "reconnect" : "再接続",
+  "wallets" : "財布",
+  "show_seed" : "シードを表示",
+  "show_keys" : "キーを表示",
+  "address_book_menu" : "住所録",
+  "reconnection" : "再接続",
+  "reconnect_alert_text" : "再接続しますか？",
+
+
+  "exchange" : "交換する",
+  "clear" : "クリア",
+  "change_exchange_provider" : "Exchangeプロバイダーの変更",
+  "you_will_send" : "送ります",
+  "you_will_get" : "あなたが取得します",
+  "amount_is_guaranteed" : "受信金額は保証されています",
+  "amount_is_estimate" : "受け取り金額は見積もりです",
+  "powered_by" : "搭載 ${title}",
+  "error" : "エラー",
+  "estimated" : "推定",
+  "min_value" : "分: ${value} ${currency}",
+  "max_value" : "マックス: ${value} ${currency}",
+  "change_currency" : "通貨を変更する",
+
+
+  "copy_id" : "IDをコピー",
+  "exchange_result_write_down_trade_id" : "続行するには、取引IDをコピーまたは書き留めてください.",
+  "trade_id" : "取引ID:\n${id}",
+  "copied_to_clipboard" : "クリップボードにコピーしました",
+  "saved_the_trade_id" : "取引IDを保存しました",
+  "fetching" : "フェッチング",
+  "id" : "ID: ",
+  "amount" : "量: ",
+  "payment_id" : "支払いID: ",
+  "status" : "状態: ",
+  "offer_expires_in" : "で有効期限が切れます: ",
+  "trade_is_powered_by" : "この取引は ${provider}",
+  "copy_address" : "住所をコピー",
+  "exchange_result_confirm" : "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 上記のアドレスへ. または、外部ウォレットから上記のアドレス/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.\n\n",
+  "exchange_result_description" : "送信してください ${fetchingLabel} ${from} 上記のアドレスへ.\n\n'",
+  "exchange_result_write_down_ID" : "*上記のIDをコピーまたは書き留めてください.",
+  "confirm" : "確認する",
+  "confirm_sending" : "送信を確認",
+  "commit_transaction_amount_fee" : "トランザクションをコミット\n量: ${amount}\n費用: ${fee}",
+  "sending" : "送信",
+  "transaction_sent" : "トランザクションが送信されました！",
+  "expired" : "期限切れ",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "送る XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "PINを入力してください",
+  "loading_your_wallet" : "ウォレットをロードしています",
+
+
+  "new_wallet" : "新しいウォレット",
+  "wallet_name" : "ウォレット名",
+  "continue_text" : "持続する",
+
+
+  "node_new" : "新しいノード",
+  "node_address" : "ノードアドレス",
+  "node_port" : "ノードポート",
+  "login" : "ログイン",
+  "password" : "パスワード",
+  "nodes" : "ノード",
+  "node_reset_settings_title" : "設定をリセット",
+  "nodes_list_reset_to_default_message" : "設定をデフォルトにリセットしてもよろしいですか？",
+  "change_current_node" : "現在のノードを変更してよろしいですか ${node}?",
+  "change" : "変化する",
+  "remove_node" : "ノードを削除",
+  "remove_node_message" : "選択したノードを削除してもよろしいですか？",
+  "remove" : "削除する",
+  "delete" : "削除する",
+
+
+  "use" : "つかいます ",
+  "digit_pin" : "桁ピン",
+
+
+  "share_address" : "住所を共有する",
+  "receive_amount" : "量",
+  "subaddresses" : "サブアドレス",
+
+
+  "restore_restore_wallet" : "ウォレットを復元",
+  "restore_title_from_seed_keys" : "シード/キーから復元",
+  "restore_description_from_seed_keys" : "安全な場所に保存したシード/キーから財布を取り戻す",
+  "restore_next" : "次",
+  "restore_title_from_backup" : "バックアップファイルから復元する",
+  "restore_description_from_backup" : "Cake Walletアプリ全体を復元できます\nバックアップファイル",
+  "restore_seed_keys_restore" : "シード/キーの復元",
+  "restore_title_from_seed" : "シードから復元",
+  "restore_description_from_seed" : "25ワードからウォレットを復元します\nまたは13ワードの組み合わせコード",
+  "restore_title_from_keys" : "キーから復元する",
+  "restore_description_from_keys" : "生成されたウォレットを復元します\n秘密鍵から保存されたキーストローク",
+  "restore_wallet_name" : "ウォレット名",
+  "restore_address" : "住所",
+  "restore_view_key_private" : "ビューキー (プライベート)",
+  "restore_spend_key_private" : "キーを使う (プライベート)",
+  "restore_recover" : "回復します",
+  "restore_wallet_restore_description" : "ウォレットの復元",
+
+
+  "seed_title" : "シード",
+  "seed_share" : "シードを共有する",
+  "copy" : "コピー",
+
+
+  "seed_alert_first_text" : "次のページが表示されます\nあなたは種.",
+  "seed_alert_second_text" : "これらを書き留めてください \n電話を紛失した場合や拭いた場合.",
+  "seed_alert_third_text" : "また、種子を見ることができます\nの中に ",
+  "seed_alert_settings" : "設定",
+  "seed_alert_menu" : " メニュー.",
+  "seed_alert_understand" : "わかります",
+
+
+  "send_title" : "Moneroを送信",
+  "send_your_wallet" : "あなたの財布",
+  "send_monero_address" : "Monero 住所",
+  "send_payment_id" : "支払いID (オプショナル)",
+  "all" : "すべて",
+  "send_error_minimum_value" : "金額の最小値は0.01です",
+  "send_error_currency" : "通貨には数字のみを含めることができます",
+  "send_estimated_fee" : "見積手数料:",
+  "send_priority" : "現在、料金は ${transactionPriority} 優先度.\nトランザクションの優先度は設定で調整できます",
+  "send_creating_transaction" : "トランザクションを作成する",
+
+
+  "settings_title" : "設定",
+  "settings_nodes" : "ノード",
+  "settings_current_node" : "現在のノード",
+  "settings_wallets" : "財布",
+  "settings_display_balance_as" : "残高を表示",
+  "settings_currency" : "通貨",
+  "settings_fee_priority" : "料金優先",
+  "settings_save_recipient_address" : "受信者のアドレスを保存",
+  "settings_personal" : "パーソナル",
+  "settings_change_pin" : "PINを変更",
+  "settings_change_language" : "言語を変えてください",
+  "settings_allow_biometrical_authentication" : "生体認証を許可する",
+  "settings_dark_mode" : "ダークモード",
+  "settings_transactions" : "取引",
+  "settings_trades" : "取引",
+  "settings_display_on_dashboard_list" : "ダッシュボードリストに表示",
+  "settings_all" : "すべて",
+  "settings_only_trades" : "取引のみ",
+  "settings_only_transactions" : "トランザクションのみ",
+  "settings_none" : "なし",
+  "settings_support" : "サポート",
+  "settings_terms_and_conditions" : "規約と条件",
+  "pin_is_incorrect" : "PINが間違っています",
+
+
+  "setup_pin" : "PINのセットアップ",
+  "enter_your_pin_again" : "ピンをもう一度入力してください",
+  "setup_successful" : "PINは正常に設定されました!",
+
+
+  "wallet_keys" : "ウォレットキー",
+  "view_key_private" : "ビューキー (プライベート)",
+  "view_key_public" : "ビューキー (パブリック)",
+  "spend_key_private" : "キーを使う (プライベート)",
+  "spend_key_public" : "キーを使う (パブリック)",
+  "copied_key_to_clipboard" : "コピー済み ${key} クリップボードへ",
+
+
+  "new_subaddress_title" : "新しいサブアドレス",
+  "new_subaddress_label_name" : "ラベル名",
+  "new_subaddress_create" : "作成する",
+
+
+  "subaddress_title" : "サブアドレス一覧",
+
+
+  "trade_details_title" : "取引の詳細",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "状態",
+  "trade_details_fetching" : "フェッチング",
+  "trade_details_provider" : "プロバイダー",
+  "trade_details_created_at" : "で作成",
+  "trade_details_pair" : "ペア",
+  "trade_details_copied" : "${title} クリップボードにコピーしました",
+
+
+  "trade_history_title" : "取引履歴",
+
+
+  "transaction_details_title" : "取引の詳細",
+  "transaction_details_transaction_id" : "トランザクションID",
+  "transaction_details_date" : "日付",
+  "transaction_details_height" : "高さ",
+  "transaction_details_amount" : "量",
+  "transaction_details_copied" : "${title} クリップボードにコピーしました",
+  "transaction_details_recipient_address" : "受取人の住所",
+
+
+  "wallet_list_title" : "Monero 財布",
+  "wallet_list_create_new_wallet" : "新しいウォレットを作成",
+  "wallet_list_restore_wallet" : "ウォレットを復元",
+  "wallet_list_load_wallet" : "ウォレットをロード",
+  "wallet_list_loading_wallet" : "読み込み中 ${wallet_name} 財布",
+  "wallet_list_failed_to_load" : "読み込みに失敗しました ${wallet_name} 財布. ${error}",
+  "wallet_list_removing_wallet" : "取りはずし ${wallet_name} 財布",
+  "wallet_list_failed_to_remove" : "削除できませんでした ${wallet_name} 財布. ${error}",
+
+
+  "widgets_address" : "住所",
+  "widgets_restore_from_blockheight" : "ブロックの高さから復元",
+  "widgets_restore_from_date" : "日付から復元",
+  "widgets_or" : "または",
+  "widgets_seed" : "シード",
+
+
+  "router_no_route" : "ルートが定義されていません ${name}",
+
+
+  "error_text_account_name" : "アカウント名には文字のみを含めることができます \n1〜15文字である必要があります",
+  "error_text_contact_name" : "連絡先名に含めることはできません ` , ' \" シンボル\n長さは1〜32文字でなければなりません",
+  "error_text_address" : "ウォレットアドレスは、\n暗号通貨",
+  "error_text_node_address" : "iPv4アドレスを入力してください",
+  "error_text_node_port" : "ノードポートには、0〜65535の数字のみを含めることができます",
+  "error_text_payment_id" : "支払いIDには、16進数で16〜64文字しか含めることができません",
+  "error_text_xmr" : "XMR値は利用可能な残高を超えることはできません.\n小数桁数は12以下でなければなりません",
+  "error_text_fiat" : "金額は利用可能な残高を超えることはできません.\n小数桁の数は2以下でなければなりません",
+  "error_text_subaddress_name" : "サブアドレス名に含めることはできません` , ' \" シンボル\n1〜20文字の長さである必要があります",
+  "error_text_amount" : "金額には数字のみを含めることができます",
+  "error_text_wallet_name" : "ウォレット名には文字のみを含めることができます\n1〜15文字である必要があります",
+  "error_text_keys" : "ウォレットキーには、16進数で64文字しか含めることができません",
+  "error_text_crypto_currency" : "小数桁数\n12以下でなければなりません",
+
+
+  "auth_store_ban_timeout" : "禁止タイムアウト",
+  "auth_store_banned_for" : "禁止されています ",
+  "auth_store_banned_minutes" : " 数分",
+  "auth_store_incorrect_password" : "間違ったPIN",
+  "wallet_store_monero_wallet" : "Monero 財布",
+  "wallet_restoration_store_incorrect_seed_length" : "誤ったシード長s",
+
+
+  "full_balance" : "フルバランス",
+  "available_balance" : "利用可能残高",
+  "hidden_balance" : "隠れたバランス",
+
+
+  "sync_status_syncronizing" : "同期",
+  "sync_status_syncronized" : "同期された",
+  "sync_status_not_connected" : "接続されていません",
+  "sync_status_starting_sync" : "同期の開始",
+  "sync_status_failed_connect" : "ノードへの接続に失敗しました",
+  "sync_status_connecting" : "接続中",
+  "sync_status_connected" : "接続済み",
+
+
+  "transaction_priority_slow" : "スロー",
+  "transaction_priority_regular" : "レギュラー",
+  "transaction_priority_medium" : "中",
+  "transaction_priority_fast" : "速い",
+  "transaction_priority_fastest" : "最速",
+
+
+  "trade_for_not_created" : "取引 ${title} 作成されません",
+  "trade_not_created" : "作成されていない取引",
+  "trade_id_not_found" : "トレード ${tradeId} of ${title} 見つかりません",
+  "trade_not_found" : "取引が見つかりません",
+
+
+  "trade_state_pending" : "保留中",
+  "trade_state_confirming" : "確認中",
+  "trade_state_trading" : "トレーディング",
+  "trade_state_traded" : "取引済み",
+  "trade_state_complete" : "コンプリート",
+  "trade_state_to_be_created" : "作成される",
+  "trade_state_unpaid" : "未払い",
+  "trade_state_underpaid" : "支払不足",
+  "trade_state_paid_unconfirmed" : "未確認の支払い",
+  "trade_state_paid" : "有料",
+  "trade_state_btc_sent" : "送った",
+  "trade_state_timeout" : "タイムアウト",
+  "trade_state_created" : "作成した",
+  "trade_state_finished" : "完成した",
+
+  "change_language" : "言語を変えてください",
+  "change_language_to" : "言語を変更 ${language}?"
+}

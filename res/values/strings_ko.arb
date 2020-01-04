@@ -1,0 +1,335 @@
+{
+  "welcome" : "환영\n에 CAKE WALLET",
+  "first_wallet_text" : "멋진 지갑\n에 대한 Monero",
+  "please_make_selection" : "아래에서 선택하십시오\n지갑 만들기 또는 복구.",
+  "create_new" : "새로 만들기",
+  "restore_wallet" : "지갑 복원",
+
+
+  "accounts" : "계정",
+  "edit" : "편집하다",
+  "account" : "계정",
+  "add" : "더하다",
+
+
+  "address_book" : "주소록",
+  "contact" : "접촉",
+  "please_select" : "선택 해주세요:",
+  "cancel" : "취소",
+  "ok" : "승인",
+  "contact_name" : "담당자 이름",
+  "reset" : "다시 놓기",
+  "save" : "구하다",
+
+
+  "authenticated" : "인증",
+  "authentication" : "입증",
+  "failed_authentication" : "인증 실패. ${state_error}",
+
+
+  "wallet_menu" : "월렛 메뉴",
+  "Blocks_remaining" : "${status} 남은 블록",
+  "please_try_to_connect_to_another_node" : "다른 노드에 연결을 시도하십시오",
+  "xmr_hidden" : "XMR 숨김",
+  "xmr_available_balance" : "XMR 사용 가능한 잔액",
+  "xmr_full_balance" : "XMR 풀 밸런스",
+  "send" : "보내다",
+  "receive" : "받다",
+  "transactions" : "업무",
+  "incoming" : "들어오는",
+  "outgoing" : "나가는",
+  "transactions_by_date" : "날짜 별 거래",
+  "trades" : "거래",
+  "filters" : "필터",
+  "today" : "오늘",
+  "yesterday" : "어제",
+  "received" : "받았습니다",
+  "sent" : "보냄",
+  "pending" : " (보류 중)",
+  "rescan" : "재검색",
+  "reconnect" : "다시 연결",
+  "wallets" : "지갑",
+  "show_seed" : "종자 표시",
+  "show_keys" : "키 표시",
+  "address_book_menu" : "주소록",
+  "reconnection" : "재 연결",
+  "reconnect_alert_text" : "다시 연결 하시겠습니까?",
+
+
+  "exchange" : "교환",
+  "clear" : "명확한",
+  "change_exchange_provider" : "교환 공급자 변경",
+  "you_will_send" : "보내드립니다",
+  "you_will_get" : "당신은 얻을 것이다",
+  "amount_is_guaranteed" : "수신 금액이 보장됩니다",
+  "amount_is_estimate" : "수신 금액은 견적입니다",
+  "powered_by" : "에 의해 구동 ${title}",
+  "error" : "오류",
+  "estimated" : "예상",
+  "min_value" : "최소: ${value} ${currency}",
+  "max_value" : "맥스: ${value} ${currency}",
+  "change_currency" : "통화 변경",
+
+
+  "copy_id" : "부 ID",
+  "exchange_result_write_down_trade_id" : "계속하려면 거래 ID를 복사하거나 적어 두십시오..",
+  "trade_id" : "무역 ID:\n${id}",
+  "copied_to_clipboard" : "클립 보드에 복사",
+  "saved_the_trade_id" : "거래 ID를 저장했습니다",
+  "fetching" : "가져 오는 중",
+  "id" : "ID: ",
+  "amount" : "양: ",
+  "payment_id" : "지불 ID: ",
+  "status" : "지위: ",
+  "offer_expires_in" : "쿠폰 만료일: ",
+  "trade_is_powered_by" : "이 거래는 ${provider}",
+  "copy_address" : "주소 복사",
+  "exchange_result_confirm" : "확인을 누르면 전송됩니다 ${fetchingLabel} ${from} 지갑에서 ${walletName} 위에 표시된 주소로. 또는 외부 지갑에서 위의 주소 / QR 코드로 보낼 수 있습니다.\n\n확인을 눌러 계속하거나 금액을 변경하려면 돌아가십시오.\n\n",
+  "exchange_result_description" : "보내주세요 ${fetchingLabel} ${from} 위에 표시된 주소로.\n\n'",
+  "exchange_result_write_down_ID" : "*위에 표시된 ID를 복사하거나 적어 두십시오.",
+  "confirm" : "확인",
+  "confirm_sending" : "전송 확인",
+  "commit_transaction_amount_fee" : "커밋 거래\n양: ${amount}\n보수: ${fee}",
+  "sending" : "배상",
+  "transaction_sent" : "거래가 전송되었습니다!",
+  "expired" : "만료",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "보내다 XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "PIN을 입력하십시오",
+  "loading_your_wallet" : "지갑 넣기",
+
+
+  "new_wallet" : "새 월렛",
+  "wallet_name" : "지갑 이름",
+  "continue_text" : "잇다",
+
+
+  "node_new" : "새로운 노드",
+  "node_address" : "노드 주소",
+  "node_port" : "노드 포트",
+  "login" : "로그인",
+  "password" : "암호",
+  "nodes" : "노드",
+  "node_reset_settings_title" : "설정 초기화",
+  "nodes_list_reset_to_default_message" : "설정을 기본값으로 재설정 하시겠습니까?",
+  "change_current_node" : "현재 노드를 다음으로 변경 하시겠습니까 ${node}?",
+  "change" : "변화",
+  "remove_node" : "노드 제거",
+  "remove_node_message" : "선택한 노드를 제거 하시겠습니까?",
+  "remove" : "없애다",
+  "delete" : "지우다",
+
+
+  "use" : "용도 ",
+  "digit_pin" : "숫자 PIN",
+
+
+  "share_address" : "주소 공유",
+  "receive_amount" : "양",
+  "subaddresses" : "하위 주소",
+
+
+  "restore_restore_wallet" : "월렛 복원",
+  "restore_title_from_seed_keys" : "시드 / 키에서 복원",
+  "restore_description_from_seed_keys" : "안전한 장소에 저장 한 종자 / 키로 지갑을 되 찾으십시오.",
+  "restore_next" : "다음 것",
+  "restore_title_from_backup" : "백업 파일에서 복원",
+  "restore_description_from_backup" : "백업 파일에서 전체 Cake Wallet 앱을 복원 할 수 있습니다.",
+  "restore_seed_keys_restore" : "종자 / 키 복원",
+  "restore_title_from_seed" : "종자에서 복원",
+  "restore_description_from_seed" : "25 단어 또는 13 단어 조합 코드에서 지갑을 복원하십시오.",
+  "restore_title_from_keys" : "키에서 복원",
+  "restore_description_from_keys" : "개인 키에서 저장된 생성 된\n키 스트로크에서 월렛 복원",
+  "restore_wallet_name" : "지갑 이름",
+  "restore_address" : "주소",
+  "restore_view_key_private" : "키보기 (은밀한)",
+  "restore_spend_key_private" : "지출 키 (은밀한)",
+  "restore_recover" : "다시 덮다",
+  "restore_wallet_restore_description" : "월렛 복원 설명",
+
+
+  "seed_title" : "씨",
+  "seed_share" : "시드 공유",
+  "copy" : "부",
+
+
+  "seed_alert_first_text" : "다음 페이지가 표시됩니다\n당신은 씨앗.",
+  "seed_alert_second_text" : "아래에 적어주세요\n휴대 전화를 분실하거나 닦을 경우.",
+  "seed_alert_third_text" : "당신은 또한 씨앗을 다시 볼 수 있습니다\n에서 ",
+  "seed_alert_settings" : "설정",
+  "seed_alert_menu" : " 메뉴.",
+  "seed_alert_understand" : "이해 했어",
+
+
+  "send_title" : "모네로 보내기",
+  "send_your_wallet" : "지갑",
+  "send_monero_address" : "모네로 주소",
+  "send_payment_id" : "지불 ID (optional)",
+  "all" : "모든",
+  "send_error_minimum_value" : "금액의 최소값은 0.01입니다",
+  "send_error_currency" : "통화는 숫자 만 포함 할 수 있습니다",
+  "send_estimated_fee" : "예상 수수료:",
+  "send_priority" : "현재 수수료는 ${transactionPriority} 우선 순위.\n거래 우선 순위는 설정에서 조정할 수 있습니다",
+  "send_creating_transaction" : "거래 생성",
+
+
+  "settings_title" : "설정",
+  "settings_nodes" : "노드",
+  "settings_current_node" : "현재 노드",
+  "settings_wallets" : "지갑",
+  "settings_display_balance_as" : "잔액 표시",
+  "settings_currency" : "통화",
+  "settings_fee_priority" : "수수료 우선",
+  "settings_save_recipient_address" : "수신자 주소 저장",
+  "settings_personal" : "개인적인",
+  "settings_change_pin" : "PIN 변경",
+  "settings_change_language" : "언어 변경",
+  "settings_allow_biometrical_authentication" : "생체 인증 허용",
+  "settings_dark_mode" : "다크 모드",
+  "settings_transactions" : "업무",
+  "settings_trades" : "거래",
+  "settings_display_on_dashboard_list" : "대시 보드 목록에 표시",
+  "settings_all" : "모든",
+  "settings_only_trades" : "거래 만",
+  "settings_only_transactions" : "거래 만",
+  "settings_none" : "없음",
+  "settings_support" : "지원하다",
+  "settings_terms_and_conditions" : "이용 약관",
+  "pin_is_incorrect" : "PIN이 잘못되었습니다",
+
+
+  "setup_pin" : "설정 PIN",
+  "enter_your_pin_again" : "다시 핀을 입력",
+  "setup_successful" : "PIN이 성공적으로 설정되었습니다!",
+
+
+  "wallet_keys" : "지갑 키",
+  "view_key_private" : "키보기(은밀한)",
+  "view_key_public" : "키보기 (공공의)",
+  "spend_key_private" : "지출 키 (은밀한)",
+  "spend_key_public" : "지출 키 (공공의)",
+  "copied_key_to_clipboard" : "복사 ${key} 클립 보드로",
+
+
+  "new_subaddress_title" : "새로운 하위 주소",
+  "new_subaddress_label_name" : "라벨 이름",
+  "new_subaddress_create" : "몹시 떠들어 대다",
+
+
+  "subaddress_title" : "하위 주소 목록",
+
+
+  "trade_details_title" : "거래 세부 사항",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "상태",
+  "trade_details_fetching" : "가져 오는 중",
+  "trade_details_provider" : "공급자",
+  "trade_details_created_at" : "에 작성",
+  "trade_details_pair" : "쌍",
+  "trade_details_copied" : "${title} 클립 보드에 복사",
+
+
+  "trade_history_title" : "무역 역사",
+
+
+  "transaction_details_title" : "상세 거래 내역",
+  "transaction_details_transaction_id" : "트랜잭션 ID",
+  "transaction_details_date" : "날짜",
+  "transaction_details_height" : "신장",
+  "transaction_details_amount" : "양",
+  "transaction_details_copied" : "${title} 클립 보드에 복사",
+  "transaction_details_recipient_address" : "받는 사람 주소",
+
+
+  "wallet_list_title" : "모네로 월렛",
+  "wallet_list_create_new_wallet" : "새 월렛 만들기",
+  "wallet_list_restore_wallet" : "월렛 복원",
+  "wallet_list_load_wallet" : "지갑로드",
+  "wallet_list_loading_wallet" : "로딩 ${wallet_name} 지갑",
+  "wallet_list_failed_to_load" : "불러 오지 못했습니다 ${wallet_name} 지갑. ${error}",
+  "wallet_list_removing_wallet" : "풀이 ${wallet_name} 지갑",
+  "wallet_list_failed_to_remove" : "제거하지 못했습니다 ${wallet_name} 지갑. ${error}",
+
+
+  "widgets_address" : "주소",
+  "widgets_restore_from_blockheight" : "블록 높이에서 복원",
+  "widgets_restore_from_date" : "날짜에서 복원",
+  "widgets_or" : "또는",
+  "widgets_seed" : "씨",
+
+
+  "router_no_route" : "에 정의 된 경로가 없습니다 ${name}",
+
+
+  "error_text_account_name" : "계정 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다",
+  "error_text_contact_name" : "담당자 이름은 포함 할 수 없습니다 ` , ' \" 기호\n1 자에서 32 자 사이 여야합니다",
+  "error_text_address" : "지갑 주소는 유형과 일치해야합니다\n암호 화폐",
+  "error_text_node_address" : "iPv4 주소를 입력하십시오",
+  "error_text_node_port" : "노드 포트는 0에서 65535 사이의 숫자 만 포함 할 수 있습니다",
+  "error_text_payment_id" : "지불 ID는 16 ~ 64 자의 16 진 문자 만 포함 할 수 있습니다",
+  "error_text_xmr" : "XMR 값은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 12 이하 여야합니다",
+  "error_text_fiat" : "금액은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 2보다 작거나 같아야합니다",
+  "error_text_subaddress_name" : "하위 주소 이름은 포함 할 수 없습니다 ` , ' \" 기호 \n1 ~ 20 자 사이 여야합니다",
+  "error_text_amount" : "금액은 숫자 만 포함 할 수 있습니다",
+  "error_text_wallet_name" : "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다",
+  "error_text_keys" : "지갑 키는 16 진수로 64 자만 포함 할 수 있습니다",
+  "error_text_crypto_currency" : "소수 자릿수\n12 이하 여야합니다",
+
+
+  "auth_store_ban_timeout" : "타임 아웃 금지",
+  "auth_store_banned_for" : "금지",
+  "auth_store_banned_minutes" : " 의사록",
+  "auth_store_incorrect_password" : "잘못된 PIN",
+  "wallet_store_monero_wallet" : "모네로 월렛",
+  "wallet_restoration_store_incorrect_seed_length" : "시드 길이가 잘못되었습니다",
+
+
+  "full_balance" : "풀 밸런스",
+  "available_balance" : "사용 가능한 잔액",
+  "hidden_balance" : "숨겨진 균형",
+
+
+  "sync_status_syncronizing" : "동기화",
+  "sync_status_syncronized" : "동기화",
+  "sync_status_not_connected" : "연결되지 않은",
+  "sync_status_starting_sync" : "동기화 시작",
+  "sync_status_failed_connect" : "노드에 연결하지 못했습니다",
+  "sync_status_connecting" : "연결 중",
+  "sync_status_connected" : "연결됨",
+
+
+  "transaction_priority_slow" : "느린",
+  "transaction_priority_regular" : "정규병",
+  "transaction_priority_medium" : "매질",
+  "transaction_priority_fast" : "빠른",
+  "transaction_priority_fastest" : "가장 빠른",
+
+
+  "trade_for_not_created" : "거래 ${title} 생성되지 않습니다.",
+  "trade_not_created" : "거래가 생성되지 않았습니다.",
+  "trade_id_not_found" : "무역 ${tradeId} 의 ${title} 찾을 수 없습니다.",
+  "trade_not_found" : "거래를 찾을 수 없습니다.",
+
+
+  "trade_state_pending" : "대기 중",
+  "trade_state_confirming" : "확인 중",
+  "trade_state_trading" : "거래",
+  "trade_state_traded" : "거래",
+  "trade_state_complete" : "완전한",
+  "trade_state_to_be_created" : "만들려면",
+  "trade_state_unpaid" : "미지급",
+  "trade_state_underpaid" : "미지급",
+  "trade_state_paid_unconfirmed" : "미확인 유료",
+  "trade_state_paid" : "유료",
+  "trade_state_btc_sent" : "보냄",
+  "trade_state_timeout" : "타임 아웃",
+  "trade_state_created" : "만들어진",
+  "trade_state_finished" : "끝마친",
+
+  "change_language" : "언어 변경",
+  "change_language_to" : "언어를로 변경 ${language}?"
+}

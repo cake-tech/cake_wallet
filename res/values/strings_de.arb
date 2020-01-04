@@ -1,0 +1,334 @@
+{
+  "welcome" : "Willkommen\nzu CAKE WALLET",
+  "first_wallet_text" : "tolle Brieftasche\nzum Monero",
+  "please_make_selection" : "Bitte treffen Sie unten eine Auswahl zu\nErstellen oder Wiederherstellen Ihrer Brieftasche.",
+  "create_new" : "Erstelle neu",
+  "restore_wallet" : "Wallet wiederherstellen",
+
+
+  "accounts" : "Konten",
+  "edit" : "Bearbeiten",
+  "account" : "Konto",
+  "add" : "Hinzufügen",
+
+
+  "address_book" : "Adressbuch",
+  "contact" : "Kontakt",
+  "please_select" : "Bitte auswählen:",
+  "cancel" : "Abbrechen",
+  "ok" : "OK",
+  "contact_name" : "Name des Ansprechpartners",
+  "reset" : "Zurücksetzen",
+  "save" : "speichern",
+
+
+  "authenticated" : "Authentifiziert",
+  "authentication" : "Authentifizierung",
+  "failed_authentication" : "Authentifizierung fehlgeschlagen. ${state_error}",
+
+
+  "wallet_menu" : "Brieftaschen-Menü",
+  "Blocks_remaining" : "${status} Verbleibende Blöcke",
+  "please_try_to_connect_to_another_node" : "Bitte versuchen Sie, eine Verbindung zu einem anderen Knoten herzustellen",
+  "xmr_hidden" : "XMR versteckt",
+  "xmr_available_balance" : "XMR verfügbares Guthaben",
+  "xmr_full_balance" : "XMR Volle Balance",
+  "send" : "Senden",
+  "receive" : "Erhalten",
+  "transactions" : "Transaktionen",
+  "incoming" : "Eingehend",
+  "outgoing" : "Ausgehend",
+  "transactions_by_date" : "Transaktionen nach Datum",
+  "trades" : "Handel",
+  "filters" : "Filter",
+  "today" : "Heute",
+  "yesterday" : "Gestern",
+  "received" : "Empfangen",
+  "sent" : "Geschickt",
+  "pending" : " (steht aus)",
+  "rescan" : "Erneut scannen",
+  "reconnect" : "Erneut verbinden",
+  "wallets" : "Wallets",
+  "show_seed" : "Seed zeigen",
+  "show_keys" : "Schlüssel anzeigen",
+  "address_book_menu" : "Adressbuch",
+  "reconnection" : "Wiederverbindung",
+  "reconnect_alert_text" : "Sind Sie sicher, dass Sie die Verbindung wiederherstellen möchten?",
+
+
+  "exchange" : "Austausch",
+  "clear" : "klar",
+  "change_exchange_provider" : "Wechseln Sie den Exchange-Anbieter",
+  "you_will_send" : "Du wirst senden",
+  "you_will_get" : "Sie erhalten",
+  "amount_is_guaranteed" : "Der Empfangsbetrag ist garantiert",
+  "amount_is_estimate" : "Der empfangene Betrag ist eine Schätzung",
+  "powered_by" : "Unterstützt von ${title}",
+  "error" : "Error",
+  "estimated" : "Geschätzt",
+  "min_value" : "Mindest: ${value} ${currency}",
+  "max_value" : "Max: ${value} ${currency}",
+  "change_currency" : "Währung ändern",
+
+
+  "copy_id" : "ID kopieren",
+  "exchange_result_write_down_trade_id" : "Bitte kopieren oder notieren Sie die Handel-ID, um fortzufahren.",
+  "trade_id" : "Handel-ID:\n${id}",
+  "copied_to_clipboard" : "In die Zwischenablage kopiert",
+  "saved_the_trade_id" : "Ich habe die Geschäfts-ID gespeichert",
+  "fetching" : "holen",
+  "id" : "ID: ",
+  "amount" : "Menge: ",
+  "payment_id" : "Zahlungs ID: ",
+  "status" : "Status: ",
+  "offer_expires_in" : "Angebot läuft ab in: ",
+  "trade_is_powered_by" : "Dieser Handel wird betrieben von ${provider}",
+  "copy_address" : "Adresse kopieren",
+  "exchange_result_confirm" : "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die oben angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die oben angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.\n\n",
+  "exchange_result_description" : "Bitte senden ${fetchingLabel} ${from} an die oben angegebene Adresse.\n\n'",
+  "exchange_result_write_down_ID" : "*Bitte kopieren oder notieren Sie Ihren oben gezeigten Ausweis.",
+  "confirm" : "Bestätigen",
+  "confirm_sending" : "Bestätigen Sie das Senden",
+  "commit_transaction_amount_fee" : "Transaktion festschreiben\nMenge: ${amount}\nGebühr: ${fee}",
+  "sending" : "Senden",
+  "transaction_sent" : "Transaktion gesendet!",
+  "expired" : "Abgelaufen",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "Senden XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "PIN eingeben",
+  "loading_your_wallet" : "Laden Sie Ihre Brieftasche",
+
+
+  "new_wallet" : "Neues Wallet",
+  "wallet_name" : "Walletname",
+  "continue_text" : "Fortsetzen",
+
+
+  "node_new" : "Neuer Knoten",
+  "node_address" : "Knotenadresse",
+  "node_port" : "Knotenport",
+  "login" : "Einloggen",
+  "password" : "Passwort",
+  "nodes" : "Knoten",
+  "node_reset_settings_title" : "Einstellungen zurücksetzen",
+  "nodes_list_reset_to_default_message" : "Möchten Sie die Einstellungen wirklich auf die Standardeinstellungen zurücksetzen?",
+  "change_current_node" : "Möchten Sie den aktuellen Knoten wirklich auf ändern? ${node}?",
+  "change" : "Veränderung",
+  "remove_node" : "Knoten entfernen",
+  "remove_node_message" : "Möchten Sie den ausgewählten Knoten wirklich entfernen?",
+  "remove" : "Löschen",
+  "delete" : "Löschen",
+
+
+  "use" : "Verwenden ",
+  "digit_pin" : "-stelliger Pin",
+
+
+  "share_address" : "Adresse teilen ",
+  "receive_amount" : "Menge",
+  "subaddresses" : "Unteradressen",
+
+
+  "restore_restore_wallet" : "Wallet wiederherstellen",
+  "restore_title_from_seed_keys" : "Vom Seed / Schlüssel wiederherstellen",
+  "restore_description_from_seed_keys" : "Holen Sie sich Ihr Wallet von Seed / Schlüsseln zurück, die Sie an einem sicheren Ort aufbewahrt haben",
+  "restore_next" : "Nächster",
+  "restore_title_from_backup" : "Aus einer Sicherungsdatei wiederherstellen",
+  "restore_description_from_backup" : "Sie können die gesamte Cake Wallet-App von wiederherstellen \nIhre Sicherungsdatei",
+  "restore_seed_keys_restore" : "Seed / Schlüssel wiederherstellen",
+  "restore_title_from_seed" : "Aus Seed wiederherstellen",
+  "restore_description_from_seed" : "Stellen Sie Ihr Wallet aus den 25 Wörtern wieder her\noder 13-Wort-Kombinationscode",
+  "restore_title_from_keys" : "Wiederherstellen von Schlüsseln",
+  "restore_description_from_keys" : "Stellen Sie Ihr Wallet von generiert wieder her\nTastenanschläge, die von Ihren privaten Schlüsseln gespeichert wurden",
+  "restore_wallet_name" : "Walletname",
+  "restore_address" : "Adresse",
+  "restore_view_key_private" : "Schlüssel anzeigen(geheim)",
+  "restore_spend_key_private" : "Schlüssel ausgeben (geheim)",
+  "restore_recover" : "Genesen",
+  "restore_wallet_restore_description" : "Beschreibung zur Wiederherstellung der Brieftasche",
+
+
+  "seed_title" : "Seed",
+  "seed_share" : "Teilen Sie Seed",
+  "copy" : "Kopieren",
+
+
+  "seed_alert_first_text" : "Die nächste Seite wird angezeigt\nDu bist ein Seed.",
+  "seed_alert_second_text" : "Bitte schreiben Sie diese nur in\nFalls Sie Ihr Telefon verlieren oder abwischen.",
+  "seed_alert_third_text" : "Sie können den Seed auch wieder sehen\nin dem ",
+  "seed_alert_settings" : "die Einstellungen",
+  "seed_alert_menu" : " Speisekarte.",
+  "seed_alert_understand" : "ich verstehe",
+
+
+  "send_title" : "Senden Sie Monero",
+  "send_your_wallet" : "Deine Geldbörse",
+  "send_monero_address" : "Monero-Adresse",
+  "send_payment_id" : "Zahlungs ID (wahlweise)",
+  "all" : "ALLE",
+  "send_error_minimum_value" : "Der Mindestbetrag beträgt 0,01",
+  "send_error_currency" : "Die Währung kann nur Zahlen enthalten",
+  "send_estimated_fee" : "Geschätzte Gebühr:",
+  "send_priority" : "Derzeit ist die Gebühr auf festgelegt ${transactionPriority} priorität.\nDie Transaktionspriorität kann in den Einstellungen angepasst werden",
+  "send_creating_transaction" : "Transaktion erstellen",
+
+
+  "settings_title" : "die Einstellungen",
+  "settings_nodes" : "Knoten",
+  "settings_current_node" : "Aktueller Knoten",
+  "settings_wallets" : "Brieftaschen",
+  "settings_display_balance_as" : "Kontostand anzeigen als",
+  "settings_currency" : "Währung",
+  "settings_fee_priority" : "Gebührenpriorität",
+  "settings_save_recipient_address" : "Empfängeradresse speichern",
+  "settings_personal" : "persönlich",
+  "settings_change_pin" : "PIN ändern",
+  "settings_change_language" : "Sprache ändern",
+  "settings_allow_biometrical_authentication" : "Biometrische Authentifizierung zulassen",
+  "settings_dark_mode" : "Dunkler Modus",
+  "settings_transactions" : "Transaktionen",
+  "settings_trades" : "Handel",
+  "settings_display_on_dashboard_list" : "Anzeige in der Dashboard-Liste",
+  "settings_all" : "ALLE",
+  "settings_only_trades" : "Nur Trades",
+  "settings_only_transactions" : "Nur Transaktionen",
+  "settings_none" : "Keiner",
+  "settings_support" : "Unterstützung",
+  "settings_terms_and_conditions" : "Geschäftsbedingungen",
+  "pin_is_incorrect" : "PIN ist falsch",
+
+
+  "setup_pin" : "PIN einrichten",
+  "enter_your_pin_again" : "Geben Sie Ihre PIN erneut ein",
+  "setup_successful" : "Ihre PIN wurde erfolgreich eingerichtet!",
+
+
+  "wallet_keys" : "Wallet schlüssel",
+  "view_key_private" : "Schlüssel anzeigen (eheim)",
+  "view_key_public" : "Schlüssel anzeigen (Öffentlichkeit)",
+  "spend_key_private" : "Schlüssel ausgeben (geheim)",
+  "spend_key_public" : "Schlüssel ausgeben (Öffentlichkeit)",
+  "copied_key_to_clipboard" : "Kopiert ${key} Zur Zwischenablage",
+
+
+  "new_subaddress_title" : "Neue Unteradresse",
+  "new_subaddress_label_name" : "Markenname",
+  "new_subaddress_create" : "Erstellen",
+
+
+  "subaddress_title" : "Unteradressenliste",
+
+
+  "trade_details_title" : "Handel Einzelheiten",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Zustand",
+  "trade_details_fetching" : "Holen",
+  "trade_details_provider" : "Anbieter",
+  "trade_details_created_at" : "Hergestellt in",
+  "trade_details_pair" : "Paar",
+  "trade_details_copied" : "${title} in die Zwischenablage kopiert",
+
+
+  "trade_history_title" : "Handelsgeschichte",
+
+
+  "transaction_details_title" : "Transaktionsdetails",
+  "transaction_details_transaction_id" : "Transaktions-ID",
+  "transaction_details_date" : "Datum",
+  "transaction_details_height" : "Höhe",
+  "transaction_details_amount" : "Menge",
+  "transaction_details_copied" : "${title} in die Zwischenablage kopiert",
+  "transaction_details_recipient_address" : "Empfängeradresse",
+
+
+  "wallet_list_title" : "Monero Wallet",
+  "wallet_list_create_new_wallet" : "Neue Wallet erstellen",
+  "wallet_list_restore_wallet" : "Wallet wiederherstellen",
+  "wallet_list_load_wallet" : "Wallet einlegen",
+  "wallet_list_loading_wallet" : "Wird geladen ${wallet_name} Wallet",
+  "wallet_list_failed_to_load" : "Laden fehlgeschlagen ${wallet_name} Wallet. ${error}",
+  "wallet_list_removing_wallet" : "Entfernen ${wallet_name} Wallet",
+  "wallet_list_failed_to_remove" : "Fehler beim Entfernen ${wallet_name} Wallet. ${error}",
+
+
+  "widgets_address" : "Adresse",
+  "widgets_restore_from_blockheight" : "Aus Blockhöhe wiederherstellen",
+  "widgets_restore_from_date" : "Vom Datum wiederherstellen",
+  "widgets_or" : "oder",
+  "widgets_seed" : "Seed",
+
+
+  "router_no_route" : "Keine Route definiert für ${name}",
+
+
+  "error_text_account_name" : "Der Kontoname darf nur Wallet und Zahlen enthalten\nund muss zwischen 1 und 15 Zeichen lang sein",
+  "error_text_contact_name" : "Kontaktname darf nicht enthalten sein ` , ' \" Symbole\nund muss zwischen 1 und 32 Zeichen lang sein",
+  "error_text_address" : "Die Walletadresse muss dem Typ entsprechen\nder Kryptowährung",
+  "error_text_node_address" : "Bitte geben Sie eine iPv4-Adresse ein",
+  "error_text_node_port" : "Der Knotenport kann nur Nummern zwischen 0 und 65535 enthalten",
+  "error_text_payment_id" : "Die Zahlungs-ID kann nur 16 bis 64 hexadezimale Zeichen enthalten",
+  "error_text_xmr" : "Der XMR-Wert kann das verfügbare Guthaben nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 12 sein",
+  "error_text_fiat" : "Der Wert des Betrags darf den verfügbaren Kontostand nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 2 sein",
+  "error_text_subaddress_name" : "Der Name der Unteradresse darf nicht enthalten sein ` , ' \" symbole\nund muss zwischen 1 und 20 Zeichen lang sein",
+  "error_text_amount" : "Betrag kann nur Zahlen enthalten",
+  "error_text_wallet_name" : "Der Wallet darf nur Buchstaben und Zahlen enthalten\nund muss zwischen 1 und 15 Zeichen lang sein",
+  "error_text_keys" : "Walletschlüssel können nur 64 hexadezimale Zeichen enthalten",
+  "error_text_crypto_currency" : "Die Anzahl der Nachkommastellen\nmuss kleiner oder gleich 12 sein.",
+
+
+  "auth_store_ban_timeout" : "Auszeit verbieten",
+  "auth_store_banned_for" : "Gebannt für ",
+  "auth_store_banned_minutes" : " Protokoll",
+  "auth_store_incorrect_password" : "Falsches PIN",
+  "wallet_store_monero_wallet" : "Monero Wallet",
+  "wallet_restoration_store_incorrect_seed_length" : "Falsche Samenlänge",
+
+
+  "full_balance" : "Volle Balance",
+  "available_balance" : "Verfügbares Guthaben",
+  "hidden_balance" : "Verstecktes Gleichgewicht",
+
+
+  "sync_status_syncronizing" : "SYNCHRONISIERUNG",
+  "sync_status_syncronized" : "SYNCHRONISIERT",
+  "sync_status_not_connected" : "NICHT VERBUNDEN",
+  "sync_status_starting_sync" : "STARTEN DER SYNCHRONISIERUNG",
+  "sync_status_failed_connect" : "Verbindung zum Knoten fehlgeschlagen",
+  "sync_status_connecting" : "ANSCHLUSS",
+  "sync_status_connected" : "IN VERBINDUNG GEBRACHT",
+
+
+  "transaction_priority_slow" : "Schleppend",
+  "transaction_priority_regular" : "Regulär",
+  "transaction_priority_medium" : "Mittel",
+  "transaction_priority_fast" : "Schnell",
+  "transaction_priority_fastest" : "Am schnellsten",
+
+
+  "trade_for_not_created" : "Handel für ${title} wird nicht erstellt.",
+  "trade_not_created" : "Handel nicht angelegt.",
+  "trade_id_not_found" : "Handel ${tradeId} von ${title} nicht gefunden.",
+  "trade_not_found" : "Handel nicht gefunden.",
+
+
+  "trade_state_pending" : "Steht aus",
+  "trade_state_confirming" : "Bestätigung",
+  "trade_state_trading" : "Handel",
+  "trade_state_traded" : "Handeln",
+  "trade_state_complete" : "Komplett",
+  "trade_state_to_be_created" : "Geschaffen werden",
+  "trade_state_unpaid" : "Unbezahlt",
+  "trade_state_underpaid" : "Unterbezahlt",
+  "trade_state_paid_unconfirmed" : "Unbestätigt bezahlt",
+  "trade_state_paid" : "Bezahlt",
+  "trade_state_btc_sent" : "geschickt",
+  "trade_state_timeout" : "Auszeit",
+  "trade_state_created" : "Erstellt",
+  "trade_state_finished" : "Fertig",
+
+  "change_language" : "Sprache ändern",
+  "change_language_to" : "Ändern Sie die Sprache in ${language}?"}

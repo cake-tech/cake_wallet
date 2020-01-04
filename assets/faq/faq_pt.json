@@ -1,0 +1,58 @@
+[
+  {
+    "question" : "Qual é a diferença entre Saldo disponível e Saldo total?",
+    "answer" : "Depois de fazer uma transação ou receber alguns Monero, a transação ainda precisa ser confirmada. Em cerca de 20 minutos, seu \"saldo disponível\" deve ser atualizado!\nÀs vezes, quando você envia o Monero, seu saldo disponível diminui em mais do que o valor enviado. Isso é normal e é necessário para proteger sua privacidade. Seu \"equilíbrio total\" deve voltar ao normal em 20 minutos.\n"
+  },
+  {
+    "question" : "Como envio o Monero para uma troca que exige um ID de pagamento?",
+    "answer" : "Toque no botão \"enviar\" na tela da Carteira virtual. Em seguida, copie o endereço de depósito da bolsa e cole-o na caixa \"endereço\". Em seguida, copie o ID do pagamento fornecido pela central e cole-o na caixa ID do pagamento. Por fim, insira a quantia que você deseja enviar e pronto!\n"
+  },
+  {
+    "question" : "O que devo fazer se me esquecer do código de pagamento ao enviar o Monero para uma troca?",
+    "answer" : "Embora nosso suporte não possa ajudá-lo diretamente com esse problema, é um problema muito comum com o qual a maioria das trocas está acostumada. Basta entrar em contato com o suporte da bolsa, explicar que você esqueceu de incluir seu ID de pagamento e enviar a ele seu ID de transação como prova. Você pode encontrar o ID da transação tocando na transação na tela da Carteira virtual.\n"
+  },
+  {
+    "question" : "O que significam \"semente\" e \"chaves\"?",
+    "answer" : "Suas chaves codificam as informações privadas da sua carteira e são o que permite gastar moedas e ver as transações recebidas.\nSua semente é apenas uma versão da sua chave privada escrita de uma maneira mais fácil para você escrever. Suas sementes e chaves são na verdade a mesma coisa, apenas em formas diferentes!\nNunca dê sua semente ou chave a ninguém. Seus fundos serão roubados se você der suas sementes ou chaves. No entanto, anote sua semente e guarde-a em um local seguro (isso permitirá que você restaure sua carteira se perder o telefone.)\n"
+  },
+  {
+    "question" : "Quantas carteiras posso criar?",
+    "answer" : "Não há limite! Você pode criar quantas carteiras quiser.\n"
+  },
+  {
+    "question" : "Como posso restaurar minha carteira?",
+    "answer" : "Toque no menu •••, selecione \"Carteiras\" e escolha \"Restaurar carteira\". Em seguida, insira sua semente (ou suas chaves) e, opcionalmente, insira uma data antes da primeira transação na sua carteira (isso acelerará o processo de sincronização .) Pode ser necessário manter o aplicativo aberto por 15 a 30 minutos para restaurar completamente sua carteira.\n"
+  },
+  {
+    "question" : "O que posso fazer se perder minha semente?",
+    "answer" : "Se você esqueceu sua semente, provavelmente a anotou em algum lugar. Por favor, verifique suas anotações e olhe em volta no seu computador. Se você não conseguir encontrá-lo em nenhum lugar, pode ter feito o backup da Cake Wallet (nesse caso, poderá restaurar a partir desse backup.) Se nada disso funcionar, infelizmente não há nada que possamos fazer.\n"
+  },
+  {
+    "question" : "Você coleta alguma informação sobre minha carteira?",
+    "answer" : "Cake Wallet NÃO coleta nem registra nenhuma informação sobre sua carteira. Nós nos preocupamos com sua privacidade.\n"
+  },
+  {
+    "question" : "É possível reverter uma transação?",
+    "answer" : "Infelizmente, assim que uma transação foi enviada ao blockchain, não há como desfazê-lo. No entanto, você sempre pode cancelar a transação antes de ser enviada. Verifique sempre o endereço antes de enviar uma transação.\n"
+  },
+  {
+    "question" : "O que são \"sub-endereços\" e como os usamos?",
+    "answer" : "Um sub-endereço é basicamente um endereço exclusivo que você pode gerar a qualquer momento. As moedas enviadas ainda chegarão à sua carteira principal, mas a pessoa que está enviando as moedas não sabe qual é o seu endereço principal. Os sub-endereços sempre começam com \"8\".\nVocê pode criar um novo sub-endereço na tela Receber, tocando no botão \"+\" ao lado do botão Sub-endereços. Digite um nome para o sub-endereço e toque em \"Adicionar\". Em seguida, basta tocar no nome do sub-endereço quando quiser usá-lo!\nSe você é paranóico, provavelmente deve criar um novo sub-endereço toda vez que receber o Monero.\n"
+  },
+  {
+    "question" : "O que é um ID de transação?",
+    "answer" : "Um hash de transação, ou ID da transação, é uma maneira exclusiva de identificar qualquer transação. Cada transação possui seu próprio hash. Se você precisar fornecer um hash de transação a alguém, vá para a tela principal da Carteira virtual, toque na transação, pressione e segure na seção superior e selecione Copiar.\n"
+  },
+  {
+    "question" : "Não recebi meu XMR! O que eu posso fazer?",
+    "answer" : "Se você não recebeu seu Monero, toque no menu ••• e clique em Reconectar. Se isso não funcionar, entre no menu de configurações, toque na caixa 'Nó atual' e selecione um nó com um ponto verde próximo a ele.\n"
+  },
+  {
+    "question" : "Não recebi minhas moedas da troca no aplicativo. O que eu posso fazer?",
+    "answer" : "Se você estiver tendo problemas com uma troca, a melhor opção é entrar em contato com a troca. Somos parceiros do XMR.TO, Morph e ChangeNow, portanto, sua melhor aposta é ir para http://xmr.to, http://changenow.io ou http://morphtoken.com e entrar em contato com o suporte deles.\n"
+  },
+  {
+    "question" : "Como entro em contato com o suporte da Cake Wallet?",
+    "answer" : "Envie um e-mail para support@cakewallet.io, participe do Telegram em @cake_wallet ou envie um tweet para @CakeWalletXMR!\n"
+  }
+]

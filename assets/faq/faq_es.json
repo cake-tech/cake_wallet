@@ -1,0 +1,58 @@
+[
+  {
+    "question" : "¿Cuál es la diferencia entre el saldo disponible y el saldo total?",
+    "answer" : "Después de realizar una transacción o recibir algo de Monero, la transacción aún debe confirmarse. ¡En unos 20 minutos su \"saldo disponible\" debería actualizarse!\nA veces, cuando envía Monero, su saldo disponible disminuirá en más de la cantidad que envió. Esto es normal y es necesario para proteger su privacidad. Su \"saldo total\" debería volver a la normalidad en 20 minutos.\n"
+  },
+  {
+    "question" : "¿Cómo envío a Monero a un intercambio que requiere una ID de pago?",
+    "answer" : "Toque el botón \"enviar\" en la pantalla de Wallet. A continuación, copie la dirección de depósito del intercambio y péguela en el cuadro \"dirección\". Luego, copie la ID de pago proporcionada por el intercambio y péguela en el cuadro de ID de pago. Finalmente, ingrese la cantidad que desea enviar, ¡y listo!\n"
+  },
+  {
+    "question" : "¿Qué debo hacer si olvidé ingresar la ID de pago al enviar Monero a un intercambio?",
+    "answer" : "Si bien nuestro soporte no puede ayudarlo directamente con este problema, es un problema muy común que la mayoría de los intercambios están acostumbrados a resolver. Simplemente comuníquese con el soporte del intercambio, explique que olvidó incluir su ID de pago y luego envíeles su ID de transacción como prueba. Puede encontrar la ID de la transacción tocando la transacción en la pantalla de su billetera.\n"
+  },
+  {
+    "question" : "¿Qué significan \"semilla\" y \"claves\"?",
+    "answer" : "Sus claves codifican la información privada en su billetera y son las que le permiten gastar monedas y ver las transacciones entrantes.\nSu semilla es solo una versión de su clave privada escrita de una manera que le resulta más fácil de anotar. ¡Tu semilla y tus llaves son en realidad la misma cosa, solo que en diferentes formas!\nNunca le des tu semilla o llaves a nadie. Sus fondos serán robados si entrega su semilla o llaves. Sin embargo, escriba su semilla y guárdela en un lugar seguro (esto le permitirá restaurar su billetera si pierde su teléfono).\n"
+  },
+  {
+    "question" : "¿Cuántas billeteras puedo crear?",
+    "answer" : "¡No hay límite! Puede crear tantas billeteras como desee.\n"
+  },
+  {
+    "question" : "¿Cómo puedo restaurar mi billetera?",
+    "answer" : "Toque el menú •••, seleccione \"Carteras\", y luego elija \"Restaurar billetera\". Luego ingrese su semilla (o sus claves), y opcionalmente ingrese una fecha antes de la primera transacción en su billetera (esto acelerará el proceso de sincronización .) Es posible que deba mantener la aplicación abierta durante 15-30 minutos para restaurar completamente su billetera.\n"
+  },
+  {
+    "question" : "¿Qué puedo hacer si pierdo mi semilla?",
+    "answer" : "Si olvidó su semilla, probablemente la escribió en alguna parte. Verifique sus notas y mire a su alrededor en su computadora. Si no puede encontrarlo en ninguna parte, es posible que haya realizado una copia de seguridad de Cake Wallet (en cuyo caso podría restaurar desde esa copia de seguridad). Si ninguno de estos funciona, desafortunadamente no hay nada que podamos hacer.\n"
+  },
+  {
+    "question" : "¿Recopila información sobre mi billetera?",
+    "answer" : "Cake Wallet NO recopila ni registra ninguna información sobre su billetera. Nos preocupamos por su privacidad.\n"
+  },
+  {
+    "question" : "¿Es posible revertir una transacción?",
+    "answer" : "Desafortunadamente, tan pronto como se haya enviado una transacción a la cadena de bloques, no hay forma de deshacerla. Sin embargo, siempre puede cancelar la transacción antes de enviarla, así que siempre verifique la dirección antes de enviar una transacción.\n"
+  },
+  {
+    "question" : "¿Qué son las \"subdirecciones\" y cómo las uso?",
+    "answer" : "Una subdirección es básicamente una dirección única que puede generar en cualquier momento. Las monedas que se le envíen seguirán llegando a su billetera principal, pero la persona que envía las monedas no puede decir cuál es su dirección principal. Las subdirecciones siempre comienzan con \"8\".\nPuede hacer una nueva subdirección en la pantalla Recibir tocando el \"+\" al lado del botón Subdirecciones. Ingrese un nombre para la subdirección y toque “Agregar”. Luego, solo toca el nombre de la subdirección cuando quieras usarlo.\nSi eres paranoico, probablemente deberías crear una nueva subdirección cada vez que recibas Monero.\n"
+  },
+  {
+    "question" : "¿Qué es una ID de transacción?",
+    "answer" : "Un hash de transacción, o ID de transacción, es una forma única de identificar cualquier transacción. Cada transacción tiene su propio hash. Si necesita proporcionar un hash de transacción a alguien, simplemente vaya a la pantalla principal de Wallet, toque la transacción, mantenga presionada la sección superior y seleccione Copiar.\n"
+  },
+  {
+    "question" : "¡No recibí mi XMR! ¿Que puedo hacer?",
+    "answer" : "Si no recibió su Monero, puede tocar el menú ••• y presionar Volver a conectar. Si eso no funciona, vaya al menú de configuración, toque el cuadro 'Nodo actual' y seleccione un nodo con un punto verde al lado.\n"
+  },
+  {
+    "question" : "No recibí mis monedas del intercambio en la aplicación. ¿Que puedo hacer?",
+    "answer" : "Si tiene problemas con un intercambio, la mejor opción es ponerse en contacto con el intercambio en sí. Estamos asociados con XMR.TO, Morph y ChangeNow, por lo que su mejor opción es ir a http://xmr.to, http://changenow.io o http://morphtoken.com y contactar a su soporte.\n"
+  },
+  {
+    "question" : "¿Cómo contacto al soporte de Cake Wallet?",
+    "answer" : "¡Envíe un correo electrónico a support@cakewallet.io, únase al Telegram en @cake_wallet o envíe un tweet a @CakeWalletXMR!\n"
+  }
+]
