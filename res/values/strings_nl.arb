@@ -1,0 +1,335 @@
+{
+  "welcome" : "WELKOM\nBIJ CAKE WALLET",
+  "first_wallet_text" : "Geweldige portemonnee\nfvoor Monero",
+  "please_make_selection" : "Maak hieronder uw keuze tot\nmaak of herstel je portemonnee.",
+  "create_new" : "Maak nieuw",
+  "restore_wallet" : "Portemonnee herstellen",
+
+
+  "accounts" : "Accounts",
+  "edit" : "Bewerk",
+  "account" : "Account",
+  "add" : "Toevoegen",
+
+
+  "address_book" : "Adresboek",
+  "contact" : "Contact",
+  "please_select" : "Selecteer alstublieft:",
+  "cancel" : "Annuleer",
+  "ok" : "OK",
+  "contact_name" : "Contactnaam",
+  "reset" : "Reset",
+  "save" : "Opslaan",
+
+
+  "authenticated" : "Authenticated",
+  "authentication" : "Authenticatie",
+  "failed_authentication" : "Mislukte authenticatie. ${state_error}",
+
+
+  "wallet_menu" : "Portemonnee-menu",
+  "Blocks_remaining" : "${status} Resterende blokken",
+  "please_try_to_connect_to_another_node" : "Probeer verbinding te maken met een ander knooppunt",
+  "xmr_hidden" : "XMR Verborgen",
+  "xmr_available_balance" : "XMR Beschikbaar saldo",
+  "xmr_full_balance" : "XMR Volledig saldo",
+  "send" : "Sturen",
+  "receive" : "Krijgen",
+  "transactions" : "Transacties",
+  "incoming" : "inkomend",
+  "outgoing" : "Uitgaande",
+  "transactions_by_date" : "Transacties op datum",
+  "trades" : "Trades",
+  "filters" : "Filters",
+  "today" : "Vandaag",
+  "yesterday" : "Gisteren",
+  "received" : "Ontvangen",
+  "sent" : "Verzonden",
+  "pending" : " (in afwachting)",
+  "rescan" : "Opnieuw scannen",
+  "reconnect" : "Sluit",
+  "wallets" : "Portefeuilles",
+  "show_seed" : "Toon zaad",
+  "show_keys" : "Toon sleutels",
+  "address_book_menu" : "Adresboek",
+  "reconnection" : "Reconnection",
+  "reconnect_alert_text" : "Weet u zeker dat u opnieuw verbinding wilt maken?",
+
+
+  "exchange" : "Uitwisseling",
+  "clear" : "Duidelijk",
+  "change_exchange_provider" : "Wijzig Exchange Provider",
+  "you_will_send" : "Je zal versturen",
+  "you_will_get" : "Je zult krijgen",
+  "amount_is_guaranteed" : "Het ontvangen bedrag is gegarandeerd",
+  "amount_is_estimate" : "Het ontvangen bedrag is een schatting",
+  "powered_by" : "Aangedreven door ${title}",
+  "error" : "Fout",
+  "estimated" : "Geschatte",
+  "min_value" : "Min: ${value} ${currency}",
+  "max_value" : "Max: ${value} ${currency}",
+  "change_currency" : "Verander valuta",
+
+
+  "copy_id" : "ID kopiëren",
+  "exchange_result_write_down_trade_id" : "Kopieer of noteer de handels-ID om door te gaan.",
+  "trade_id" : "Trade ID:\n${id}",
+  "copied_to_clipboard" : "Gekopieerd naar het klembord",
+  "saved_the_trade_id" : "Ik heb de ruil-ID opgeslagen",
+  "fetching" : "Ophalen",
+  "id" : "ID: ",
+  "amount" : "Bedrag: ",
+  "payment_id" : "Betaling ID: ",
+  "status" : "Staat: ",
+  "offer_expires_in" : "Aanbieding verloopt over: ",
+  "trade_is_powered_by" : "Deze transactie wordt mogelijk gemaakt door ${provider}",
+  "copy_address" : "Adres kopiëren",
+  "exchange_result_confirm" : "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar bovenstaand adres. Of u kunt uw externe portemonnee naar bovenstaand adres / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.\n\n",
+  "exchange_result_description" : "Zend alstublieft ${fetchingLabel} ${from} naar bovenstaand adres.\n\n'",
+  "exchange_result_write_down_ID" : "*Kopieer of noteer uw hierboven getoonde ID.",
+  "confirm" : "Bevestigen",
+  "confirm_sending" : "Bevestig verzending",
+  "commit_transaction_amount_fee" : "Verricht transactie\nBedrag: ${amount}\nhonorarium: ${fee}",
+  "sending" : "Bezig met verzenden",
+  "transaction_sent" : "Transactie verzonden!",
+  "expired" : "Verlopen",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "Sturen XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "Voer uw pincode in",
+  "loading_your_wallet" : "Uw portemonnee laden",
+
+
+  "new_wallet" : "Nieuwe portemonnee",
+  "wallet_name" : "Portemonnee naam",
+  "continue_text" : "Doorgaan met",
+
+
+  "node_new" : "Nieuw knooppunt",
+  "node_address" : "Knooppunt adres",
+  "node_port" : "Knooppunt poort",
+  "login" : "Log in",
+  "password" : "Wachtwoord",
+  "nodes" : "Knooppunten",
+  "node_reset_settings_title" : "Reset instellingen",
+  "nodes_list_reset_to_default_message" : "Weet u zeker dat u de standaardinstellingen wilt herstellen?",
+  "change_current_node" : "Weet u zeker dat u het huidige knooppunt wilt wijzigen in ${node}?",
+  "change" : "Verandering",
+  "remove_node" : "Knoop verwijderen",
+  "remove_node_message" : "Weet u zeker dat u het geselecteerde knooppunt wilt verwijderen?",
+  "remove" : "Verwijderen",
+  "delete" : "Delete",
+
+
+  "use" : "Gebruik ",
+  "digit_pin" : "-cijferige PIN",
+
+
+  "share_address" : "Deel adres",
+  "receive_amount" : "Bedrag",
+  "subaddresses" : "Subadressen",
+
+
+  "restore_restore_wallet" : "Portemonnee herstellen",
+  "restore_title_from_seed_keys" : "Herstel van zaad / sleutels",
+  "restore_description_from_seed_keys" : "Ontvang uw portemonnee terug uit seed / keys die u hebt opgeslagen op een veilige plaats",
+  "restore_next" : "Volgende",
+  "restore_title_from_backup" : "Herstellen vanuit een back-upbestand",
+  "restore_description_from_backup" : "Je kunt de hele Cake Wallet-app herstellen van\nuw back-upbestand",
+  "restore_seed_keys_restore" : "Zaad / sleutels herstellen",
+  "restore_title_from_seed" : "Herstel van zaad",
+  "restore_description_from_seed" : "Herstel uw portemonnee van het 25 woord\nof 13 woord combinatiecode",
+  "restore_title_from_keys" : "Herstel van sleutels",
+  "restore_description_from_keys" : "Herstel uw portemonnee van gegenereerd\ntoetsaanslagen opgeslagen van uw privésleutels",
+  "restore_wallet_name" : "Portemonnee naam",
+  "restore_address" : "Adres",
+  "restore_view_key_private" : "Bekijk sleutel (privaat)",
+  "restore_spend_key_private" : "Sleutel uitgeven (privaat)",
+  "restore_recover" : "Herstellen",
+  "restore_wallet_restore_description" : "Portemonnee-herstelbeschrijving",
+
+
+  "seed_title" : "Zaad",
+  "seed_share" : "Deel zaad",
+  "copy" : "Kopiëren",
+
+
+  "seed_alert_first_text" : "De volgende pagina wordt getoond\njij een zaadje.",
+  "seed_alert_second_text" : "Noteer deze voor het geval dat\nje verliest of veegt je telefoon.",
+  "seed_alert_third_text" : "Je kunt het zaad ook weer zien\nin de ",
+  "seed_alert_settings" : "instellingen",
+  "seed_alert_menu" : " menu.",
+  "seed_alert_understand" : "Ik begrijp het",
+
+
+  "send_title" : "Stuur Monero",
+  "send_your_wallet" : "Uw portemonnee",
+  "send_monero_address" : "Monero-adres",
+  "send_payment_id" : "Betaling ID (facultatief)",
+  "all" : "ALLE",
+  "send_error_minimum_value" : "Minimale waarde van bedrag is 0,01",
+  "send_error_currency" : "Valuta kan alleen cijfers bevatten",
+  "send_estimated_fee" : "Geschatte vergoeding:",
+  "send_priority" : "Momenteel is de vergoeding vastgesteld op ${transactionPriority} prioriteit.\nTransactieprioriteit kan worden aangepast in de instellingen",
+  "send_creating_transaction" : "Transactie maken",
+
+
+  "settings_title" : "Instellingen",
+  "settings_nodes" : "knooppunten",
+  "settings_current_node" : "Huidige knooppunt",
+  "settings_wallets" : "Portemonnee",
+  "settings_display_balance_as" : "Toon saldo als",
+  "settings_currency" : "Valuta",
+  "settings_fee_priority" : "Tariefprioriteit",
+  "settings_save_recipient_address" : "Adres ontvanger opslaan",
+  "settings_personal" : "Persoonlijk",
+  "settings_change_pin" : "Verander pincode",
+  "settings_change_language" : "Verander de taal",
+  "settings_allow_biometrical_authentication" : "Biometrische authenticatie toestaan",
+  "settings_dark_mode" : "Donkere modus",
+  "settings_transactions" : "Transacties",
+  "settings_trades" : "Trades",
+  "settings_display_on_dashboard_list" : "Weergeven op dashboardlijst",
+  "settings_all" : "ALLE",
+  "settings_only_trades" : "Alleen handel",
+  "settings_only_transactions" : "Alleen transacties",
+  "settings_none" : "Geen",
+  "settings_support" : "Ondersteuning",
+  "settings_terms_and_conditions" : "Voorwaarden",
+  "pin_is_incorrect" : "PIN is onjuist",
+
+
+  "setup_pin" : "PIN instellen",
+  "enter_your_pin_again" : "Voer uw PIN opnieuw in",
+  "setup_successful" : "Uw PIN is succesvol ingesteld!",
+
+
+  "wallet_keys" : "Portemonnee sleutels",
+  "view_key_private" : "Bekijk sleutel (privaat)",
+  "view_key_public" : "Bekijk sleutel (openbaar)",
+  "spend_key_private" : "Sleutel uitgeven (privaat)",
+  "spend_key_public" : "Sleutel uitgeven (openbaar)",
+  "copied_key_to_clipboard" : "Gekopieerd ${key} naar het klembord",
+
+
+  "new_subaddress_title" : "Nieuw subadres",
+  "new_subaddress_label_name" : "Label naam",
+  "new_subaddress_create" : "Creëren",
+
+
+  "subaddress_title" : "Subadreslijst",
+
+
+  "trade_details_title" : "Handelsgegevens",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Staat",
+  "trade_details_fetching" : "Ophalen",
+  "trade_details_provider" : "Leverancier",
+  "trade_details_created_at" : "Gemaakt bij",
+  "trade_details_pair" : "Paar",
+  "trade_details_copied" : "${title} gekopieerd naar het klembord",
+
+
+  "trade_history_title" : "Handelsgeschiedenis",
+
+
+  "transaction_details_title" : "Transactie details",
+  "transaction_details_transaction_id" : "Transactie ID",
+  "transaction_details_date" : "Datum",
+  "transaction_details_height" : "Hoogte",
+  "transaction_details_amount" : "Bedrag",
+  "transaction_details_copied" : "${title} gekopieerd naar het klembord",
+  "transaction_details_recipient_address" : "Adres van de ontvanger",
+
+
+  "wallet_list_title" : "Monero portemonnee",
+  "wallet_list_create_new_wallet" : "Maak een nieuwe portemonnee",
+  "wallet_list_restore_wallet" : "Portemonnee herstellen",
+  "wallet_list_load_wallet" : "Portemonnee laden",
+  "wallet_list_loading_wallet" : "Bezig met laden ${wallet_name} portemonnee",
+  "wallet_list_failed_to_load" : "Laden mislukt ${wallet_name} portemonnee. ${error}",
+  "wallet_list_removing_wallet" : "Verwijderen ${wallet_name} portemonnee",
+  "wallet_list_failed_to_remove" : "Verwijderen mislukt ${wallet_name} portemonnee. ${error}",
+
+
+  "widgets_address" : "Adres",
+  "widgets_restore_from_blockheight" : "Herstel vanaf blockheight",
+  "widgets_restore_from_date" : "Herstel vanaf datum",
+  "widgets_or" : "of",
+  "widgets_seed" : "Zaad",
+
+
+  "router_no_route" : "Geen route gedefinieerd voor ${name}",
+
+
+  "error_text_account_name" : "Accountnaam mag alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn",
+  "error_text_contact_name" : "Naam contactpersoon kan niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 32 tekens lang zijn",
+  "error_text_address" : "Portemonnee-adres moet overeenkomen met het type\nvan cryptocurrency",
+  "error_text_node_address" : "Voer een iPv4-adres in",
+  "error_text_node_port" : "Knooppuntpoort kan alleen nummers tussen 0 en 65535 bevatten",
+  "error_text_payment_id" : "Betalings-ID kan alleen 16 tot 64 tekens bevatten in hexadecimale volgorde",
+  "error_text_xmr" : "XMR-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12",
+  "error_text_fiat" : "Waarde van bedrag kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 2",
+  "error_text_subaddress_name" : "Naam subadres mag niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 20 tekens lang zijn",
+  "error_text_amount" : "Bedrag kan alleen cijfers bevatten",
+  "error_text_wallet_name" : "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn",
+  "error_text_keys" : "Portefeuillesleutels kunnen maximaal 64 tekens bevatten in hexadecimale volgorde",
+  "error_text_crypto_currency" : "Het aantal breukcijfers\nmoet kleiner zijn dan of gelijk zijn aan 12",
+
+
+  "auth_store_ban_timeout" : "time-out verbieden",
+  "auth_store_banned_for" : "Verboden voor ",
+  "auth_store_banned_minutes" : " notulen",
+  "auth_store_incorrect_password" : "Incorrect PIN",
+  "wallet_store_monero_wallet" : "Monero portemonnee",
+  "wallet_restoration_store_incorrect_seed_length" : "Onjuiste zaadlengte",
+
+
+  "full_balance" : "Volledig saldo",
+  "available_balance" : "Beschikbaar saldo",
+  "hidden_balance" : "Verborgen balans",
+
+
+  "sync_status_syncronizing" : "SYNCHRONISEREN",
+  "sync_status_syncronized" : "SYNCHRONIZED",
+  "sync_status_not_connected" : "NIET VERBONDEN",
+  "sync_status_starting_sync" : "BEGINNEN MET SYNCHRONISEREN",
+  "sync_status_failed_connect" : "MISLUKT VERBINDING MET DE NODE",
+  "sync_status_connecting" : "AANSLUITING",
+  "sync_status_connected" : "VERBONDEN",
+
+
+  "transaction_priority_slow" : "Langzaam",
+  "transaction_priority_regular" : "Regelmatig",
+  "transaction_priority_medium" : "Medium",
+  "transaction_priority_fast" : "Snel",
+  "transaction_priority_fastest" : "Snelste",
+
+
+  "trade_for_not_created" : "Ruilen voor ${title} is niet gemaakt.",
+  "trade_not_created" : "Handel niet gecreëerd.",
+  "trade_id_not_found" : "Handel ${tradeId} van ${title} niet gevonden.",
+  "trade_not_found" : "Handel niet gevonden.",
+
+
+  "trade_state_pending" : "In afwachting",
+  "trade_state_confirming" : "Bevestiging",
+  "trade_state_trading" : "Handel",
+  "trade_state_traded" : "Traded",
+  "trade_state_complete" : "Compleet",
+  "trade_state_to_be_created" : "Om gecreëerd te worden",
+  "trade_state_unpaid" : "Onbetaald",
+  "trade_state_underpaid" : "Slecht betaald",
+  "trade_state_paid_unconfirmed" : "Niet bevestigd",
+  "trade_state_paid" : "Betaald",
+  "trade_state_btc_sent" : "Verzonden",
+  "trade_state_timeout" : "Time-out",
+  "trade_state_created" : "Gemaakt",
+  "trade_state_finished" : "Afgewerkt",
+
+  "change_language" : "Verander de taal",
+  "change_language_to" : "Verander de taal in ${language}?"
+}

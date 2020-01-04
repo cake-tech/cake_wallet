@@ -1,0 +1,335 @@
+{
+  "welcome" : "欢迎\nTO CAKE WALLET",
+  "first_wallet_text" : "很棒的钱包\n对于 Monero",
+  "please_make_selection" : "请在下面进行选择\nc创建或恢复您的钱包.",
+  "create_new" : "创建新的",
+  "restore_wallet" : "恢复钱包",
+
+
+  "accounts" : "帐目",
+  "edit" : "编辑",
+  "account" : "帐户",
+  "add" : "加",
+
+
+  "address_book" : "地址簿",
+  "contact" : "联系",
+  "please_select" : "请选择:",
+  "cancel" : "取消",
+  "ok" : "好",
+  "contact_name" : "联系人姓名",
+  "reset" : "重启",
+  "save" : "保存",
+
+
+  "authenticated" : "已认证",
+  "authentication" : "认证方式",
+  "failed_authentication" : "身份验证失败. ${state_error}",
+
+
+  "wallet_menu" : "钱包菜单",
+  "Blocks_remaining" : "${status} 剩余的块",
+  "please_try_to_connect_to_another_node" : "请尝试连接到另一个节点",
+  "xmr_hidden" : "XMR Hidden",
+  "xmr_available_balance" : "XMR 可用余额 ",
+  "xmr_full_balance" : "XMR 全部余额",
+  "send" : "发送",
+  "receive" : "接收",
+  "transactions" : "交易次数",
+  "incoming" : "传入",
+  "outgoing" : "外向",
+  "transactions_by_date" : "按日期交易",
+  "trades" : "交易",
+  "filters" : "筛选器",
+  "today" : "今天",
+  "yesterday" : "昨天",
+  "received" : "已收到",
+  "sent" : "已发送",
+  "pending" : " (待定)",
+  "rescan" : "重新扫描",
+  "reconnect" : "重新连接",
+  "wallets" : "皮夹",
+  "show_seed" : "显示种子",
+  "show_keys" : "显示按键",
+  "address_book_menu" : "地址簿",
+  "reconnection" : "重新连线",
+  "reconnect_alert_text" : "您确定要重新连接吗？",
+
+
+  "exchange" : "交换",
+  "clear" : "明确",
+  "change_exchange_provider" : "更改交易所提供商",
+  "you_will_send" : "您将发送",
+  "you_will_get" : "你会得到",
+  "amount_is_guaranteed" : "接收金额有保证",
+  "amount_is_estimate" : "收款金额为估算值",
+  "powered_by" : "供电 ${title}",
+  "error" : "错误",
+  "estimated" : "估计的",
+  "min_value" : "敏: ${value} ${currency}",
+  "max_value" : "最高: ${value} ${currency}",
+  "change_currency" : "更改币种",
+
+
+  "copy_id" : "复印ID",
+  "exchange_result_write_down_trade_id" : "请复制或写下交易编号以继续.",
+  "trade_id" : "贸易编号:\n${id}",
+  "copied_to_clipboard" : "复制到剪贴板",
+  "saved_the_trade_id" : "我已经保存了交易ID",
+  "fetching" : "正在取得",
+  "id" : "ID: ",
+  "amount" : "量: ",
+  "payment_id" : "付款 ID: ",
+  "status" : "状态: ",
+  "offer_expires_in" : "优惠有效期至 ",
+  "trade_is_powered_by" : "该交易由 ${provider}",
+  "copy_address" : "复制地址",
+  "exchange_result_confirm" : "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到上面显示的地址. 或者，您也可以从外部钱包发送上述地址/ QR码。\n\n请按确认继续或返回以更改金额\n\n",
+  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到上面显示的地址.\n\n'",
+  "exchange_result_write_down_ID" : "*请复制或写下您上面显示的ID.",
+  "confirm" : "确认",
+  "confirm_sending" : "确认发送",
+  "commit_transaction_amount_fee" : "提交交易\n量: ${amount}\nFee: ${fee}",
+  "sending" : "正在发送",
+  "transaction_sent" : "交易已发送",
+  "expired" : "已过期",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "发送 XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "输入密码",
+  "loading_your_wallet" : "装钱包",
+
+
+  "new_wallet" : "新钱包",
+  "wallet_name" : "钱包名称",
+  "continue_text" : "继续",
+
+
+  "node_new" : "新节点",
+  "node_address" : "节点地址",
+  "node_port" : "节点端口",
+  "login" : "登录",
+  "password" : "密码",
+  "nodes" : "节点数",
+  "node_reset_settings_title" : "重新设置",
+  "nodes_list_reset_to_default_message" : "您确定要将设置重设为默认值吗？",
+  "change_current_node" : "您确定将当前节点更改为 ${node}?",
+  "change" : "更改",
+  "remove_node" : "删除节点",
+  "remove_node_message" : "您确定要删除所选节点吗？",
+  "remove" : "去掉",
+  "delete" : "删除",
+
+
+  "use" : "使用 ",
+  "digit_pin" : "数字别针",
+
+
+  "share_address" : "分享地址",
+  "receive_amount" : "量",
+  "subaddresses" : "子地址",
+
+
+  "restore_restore_wallet" : "恢复钱包",
+  "restore_title_from_seed_keys" : "从种子/密钥还原",
+  "restore_description_from_seed_keys" : "从保存到安全地方的种子/钥匙取回钱包",
+  "restore_next" : "下一个",
+  "restore_title_from_backup" : "从备份文件还原",
+  "restore_description_from_backup" : "您可以从还原整个Cake Wallet应用\n您的备份文件",
+  "restore_seed_keys_restore" : "种子/密钥还原",
+  "restore_title_from_seed" : "从种子还原",
+  "restore_description_from_seed" : "从25个字中恢复您的钱包\n或13个字的组合码",
+  "restore_title_from_keys" : "从密钥还原",
+  "restore_description_from_keys" : "R从生成的电子钱包\n从您的私钥中保存的击键",
+  "restore_wallet_name" : "钱包名称",
+  "restore_address" : "地址",
+  "restore_view_key_private" : "查看金钥 (私人的)",
+  "restore_spend_key_private" : "支出金钥 (私人的)",
+  "restore_recover" : "恢复",
+  "restore_wallet_restore_description" : "钱包还原说明",
+
+
+  "seed_title" : "种子",
+  "seed_share" : "分享种子",
+  "copy" : "复制",
+
+
+  "seed_alert_first_text" : "下一页将显示\n你是种子.",
+  "seed_alert_second_text" : "请写下来以防万一\n万一您丢失或擦拭手机.",
+  "seed_alert_third_text" : "您也可以再次看到种子 \n在里面",
+  "seed_alert_settings" : "设定",
+  "seed_alert_menu" : " 菜单.",
+  "seed_alert_understand" : "我明白",
+
+
+  "send_title" : "发送门罗币",
+  "send_your_wallet" : "你的钱包",
+  "send_monero_address" : "门罗地址",
+  "send_payment_id" : "付款编号 (可选的)",
+  "all" : "所有",
+  "send_error_minimum_value" : "最小金额为0.01",
+  "send_error_currency" : "货币只能包含数字",
+  "send_estimated_fee" : "预估费用:",
+  "send_priority" : "目前，费用设置为 ${transactionPriority} 优先.\n交易优先级可以在设置中进行调整",
+  "send_creating_transaction" : "创建交易",
+
+
+  "settings_title" : "设定值",
+  "settings_nodes" : "节点数",
+  "settings_current_node" : "当前节点",
+  "settings_wallets" : "皮夹",
+  "settings_display_balance_as" : "将余额显示为",
+  "settings_currency" : "货币",
+  "settings_fee_priority" : "费用优先",
+  "settings_save_recipient_address" : "保存收件人地址",
+  "settings_personal" : "个人",
+  "settings_change_pin" : "更改密码",
+  "settings_change_language" : "改变语言",
+  "settings_allow_biometrical_authentication" : "允许生物特征认证",
+  "settings_dark_mode" : "暗模式",
+  "settings_transactions" : "交易次数",
+  "settings_trades" : "交易",
+  "settings_display_on_dashboard_list" : "显示在仪表板上",
+  "settings_all" : "所有",
+  "settings_only_trades" : "只交易",
+  "settings_only_transactions" : "仅交易",
+  "settings_none" : "没有",
+  "settings_support" : "支持",
+  "settings_terms_and_conditions" : "条款和条件",
+  "pin_is_incorrect" : "PIN码不正确",
+
+
+  "setup_pin" : "设定PIN码",
+  "enter_your_pin_again" : "再次输入您的PIN码",
+  "setup_successful" : "您的PIN码已成功设置!",
+
+
+  "wallet_keys" : "钱包钥匙",
+  "view_key_private" : "查看金钥 (私人的)",
+  "view_key_public" : "查看金钥 (public)",
+  "spend_key_private" : "支出金钥 (私人的)",
+  "spend_key_public" : "支出金钥 (public)",
+  "copied_key_to_clipboard" : "复制 ${key} 到剪贴板",
+
+
+  "new_subaddress_title" : "新子地址",
+  "new_subaddress_label_name" : "标签名称",
+  "new_subaddress_create" : "创建",
+
+
+  "subaddress_title" : "子地址清单",
+
+
+  "trade_details_title" : "交易明细",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "条件",
+  "trade_details_fetching" : "正在取得",
+  "trade_details_provider" : "提供者",
+  "trade_details_created_at" : "创建于",
+  "trade_details_pair" : "对",
+  "trade_details_copied" : "${title} 复制到剪贴板",
+
+
+  "trade_history_title" : "交易历史",
+
+
+  "transaction_details_title" : "交易明细",
+  "transaction_details_transaction_id" : "交易编号",
+  "transaction_details_date" : "日期",
+  "transaction_details_height" : "高度",
+  "transaction_details_amount" : "量",
+  "transaction_details_copied" : "${title} 复制到剪贴板",
+  "transaction_details_recipient_address" : "收件人地址",
+
+
+  "wallet_list_title" : "Monero 钱包",
+  "wallet_list_create_new_wallet" : "创建新钱包",
+  "wallet_list_restore_wallet" : "恢复钱包",
+  "wallet_list_load_wallet" : "装入钱包",
+  "wallet_list_loading_wallet" : "载入中 ${wallet_name} 钱包",
+  "wallet_list_failed_to_load" : "加载失败 ${wallet_name} 钱包. ${error}",
+  "wallet_list_removing_wallet" : "拆下 ${wallet_name} 钱包",
+  "wallet_list_failed_to_remove" : "删除失败 ${wallet_name} 钱包. ${error}",
+
+
+  "widgets_address" : "地址",
+  "widgets_restore_from_blockheight" : "从块高还原",
+  "widgets_restore_from_date" : "从日期还原",
+  "widgets_or" : "要么",
+  "widgets_seed" : "种子",
+
+
+  "router_no_route" : "未定义路线 ${name}",
+
+
+  "error_text_account_name" : "帐户名称只能包含字母数字\n且必须介于1到15个字符之间",
+  "error_text_contact_name" : "联系人姓名不能包含`，' \" 符号\n并且必须介于1到32个字符之间",
+  "error_text_address" : "钱包地址必须与类型对应\n加密货币",
+  "error_text_node_address" : "请输入一个iPv4地址",
+  "error_text_node_port" : "节点端口只能包含0到65535之间的数字",
+  "error_text_payment_id" : "付款ID只能包含16到64个字符（十六进制）",
+  "error_text_xmr" : "XMR值不能超过可用余额.\n小数位数必须小于或等于12",
+  "error_text_fiat" : "金额不能超过可用余额.\n小数位数必须小于或等于2",
+  "error_text_subaddress_name" : "子地址名称不能包含`，' \" 符号\n并且必须在1到20个字符之间",
+  "error_text_amount" : "金额只能包含数字",
+  "error_text_wallet_name" : "钱包名称只能包含字母，数字\n且必须介于1到15个字符之间",
+  "error_text_keys" : "钱包密钥只能包含16个字符的十六进制字符",
+  "error_text_crypto_currency" : "小数位数\n必须小于或等于12",
+
+
+  "auth_store_ban_timeout" : "禁止超时",
+  "auth_store_banned_for" : "禁止 ",
+  "auth_store_banned_minutes" : " 分钟",
+  "auth_store_incorrect_password" : "PIN码错误",
+  "wallet_store_monero_wallet" : "Monero 钱包",
+  "wallet_restoration_store_incorrect_seed_length" : "种子长度错误",
+
+
+  "full_balance" : "全部余额",
+  "available_balance" : "可用余额",
+  "hidden_balance" : "隐藏余额",
+
+
+  "sync_status_syncronizing" : "同步化",
+  "sync_status_syncronized" : "已同步",
+  "sync_status_not_connected" : "未连接",
+  "sync_status_starting_sync" : "开始同步",
+  "sync_status_failed_connect" : "无法连接到节点",
+  "sync_status_connecting" : "连接中",
+  "sync_status_connected" : "连接的",
+
+
+  "transaction_priority_slow" : "慢",
+  "transaction_priority_regular" : "定期",
+  "transaction_priority_medium" : "介质",
+  "transaction_priority_fast" : "快速",
+  "transaction_priority_fastest" : "最快的",
+
+
+  "trade_for_not_created" : "交易 ${title} 未创建.",
+  "trade_not_created" : "未建立交易.",
+  "trade_id_not_found" : "贸易方式 ${tradeId} 的 ${title} 未找到.",
+  "trade_not_found" : "找不到交易.",
+
+
+  "trade_state_pending" : "待定",
+  "trade_state_confirming" : "确认中",
+  "trade_state_trading" : "贸易",
+  "trade_state_traded" : "交易",
+  "trade_state_complete" : "完成",
+  "trade_state_to_be_created" : "待创建",
+  "trade_state_unpaid" : "未付",
+  "trade_state_underpaid" : "支付不足",
+  "trade_state_paid_unconfirmed" : "付费未确认",
+  "trade_state_paid" : "已付费",
+  "trade_state_btc_sent" : "已发送",
+  "trade_state_timeout" : "超时",
+  "trade_state_created" : "已建立",
+  "trade_state_finished" : "已完成",
+
+  "change_language" : "改變語言",
+  "change_language_to" : "將語言更改為 ${language}?"
+}

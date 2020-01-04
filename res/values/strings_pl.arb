@@ -1,0 +1,335 @@
+{
+  "welcome" : "WITAMY\nW CAKE WALLET",
+  "first_wallet_text" : "Niesamowity portfel\nfdla Monero",
+  "please_make_selection" : "Wybierz poniżej, aby\ncutwórz lub odzyskaj swój portfel.",
+  "create_new" : "Tworzyć nowe",
+  "restore_wallet" : "Przywróć portfel",
+
+
+  "accounts" : "Konta",
+  "edit" : "Edytować",
+  "account" : "Konto",
+  "add" : "Dodaj",
+
+
+  "address_book" : "Książka adresowa",
+  "contact" : "Kontakt",
+  "please_select" : "Proszę wybrać:",
+  "cancel" : "Anulować",
+  "ok" : "Dobrze",
+  "contact_name" : "Nazwa Kontaktu",
+  "reset" : "Nastawić",
+  "save" : "Zapisać",
+
+
+  "authenticated" : "Zalegalizowany",
+  "authentication" : "Poświadczenie",
+  "failed_authentication" : "Nieudane uwierzytelnienie. ${state_error}",
+
+
+  "wallet_menu" : "Menu portfela",
+  "Blocks_remaining" : "${status} Bloki pozostałe",
+  "please_try_to_connect_to_another_node" : "Spróbuj połączyć się z innym węzłem",
+  "xmr_hidden" : "XMR Ukryty",
+  "xmr_available_balance" : "XMR Dostępne saldo",
+  "xmr_full_balance" : "XMR Pełna równowaga",
+  "send" : "Wysłać",
+  "receive" : "Otrzymać",
+  "transactions" : "Transakcje",
+  "incoming" : "Przychodzące",
+  "outgoing" : "Towarzyski",
+  "transactions_by_date" : "Transakcje według daty",
+  "trades" : "Transakcje",
+  "filters" : "Filtry",
+  "today" : "Dzisiaj",
+  "yesterday" : "Wczoraj",
+  "received" : "Odebrane",
+  "sent" : "Wysłano",
+  "pending" : " (w oczekiwaniu)",
+  "rescan" : "Skanuj ponownie",
+  "reconnect" : "Na nowo połączyć",
+  "wallets" : "Portfele",
+  "show_seed" : "Pokaż nasiona",
+  "show_keys" : "Pokaż klucze",
+  "address_book_menu" : "Książka adresowa",
+  "reconnection" : "Ponowne połączenie",
+  "reconnect_alert_text" : "Czy na pewno ponownie się połączysz?",
+
+
+  "exchange" : "Wymieniać się",
+  "clear" : "Jasny",
+  "change_exchange_provider" : "Zmień dostawcę programu Exchange",
+  "you_will_send" : "Wyślesz",
+  "you_will_get" : "Dostaniesz",
+  "amount_is_guaranteed" : "Otrzymana kwota jest gwarantowana",
+  "amount_is_estimate" : "Otrzymana kwota jest wartością szacunkową",
+  "powered_by" : "Zasilany przez ${title}",
+  "error" : "Błąd",
+  "estimated" : "Oszacowano",
+  "min_value" : "Min: ${value} ${currency}",
+  "max_value" : "Max: ${value} ${currency}",
+  "change_currency" : "Change Currency",
+
+
+  "copy_id" : "ID kopii",
+  "exchange_result_write_down_trade_id" : "Skopiuj lub zanotuj identyfikator transakcji, aby kontynuować.",
+  "trade_id" : "Identyfikator handlu:\n${id}",
+  "copied_to_clipboard" : "Skopiowane do schowka",
+  "saved_the_trade_id" : "Zapisałem ID",
+  "fetching" : "Ujmujący",
+  "id" : "ID: ",
+  "amount" : "Ilość: ",
+  "payment_id" : "Płatności ID: ",
+  "status" : "Status: ",
+  "offer_expires_in" : "Oferta wygasa za ",
+  "trade_is_powered_by" : "Ten handel jest zasilany przez ${provider}",
+  "copy_address" : "Skopiuj adress",
+  "exchange_result_confirm" : "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} z twojego portfela. Lub możesz wysłać z zewnętrznego portfela na powyższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.\n\n",
+  "exchange_result_description" : "Proszę wyślij ${fetchingLabel} ${from} na adres podany powyżej.\n\n'",
+  "exchange_result_write_down_ID" : "*Skopiuj lub zanotuj swój identyfikator pokazany powyżej.",
+  "confirm" : "Potwierdzać",
+  "confirm_sending" : "Potwierdź wysłanie",
+  "commit_transaction_amount_fee" : "Zatwierdź transakcję\nIlość: ${amount}\nOpłata: ${fee}",
+  "sending" : "Wysyłanie",
+  "transaction_sent" : "Transakcja wysłana!",
+  "expired" : "Przedawniony",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "Wysłać XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "Wpisz Twój kod PIN",
+  "loading_your_wallet" : "Ładowanie portfela",
+
+
+  "new_wallet" : "Nowy portfel",
+  "wallet_name" : "Nazwa portfela",
+  "continue_text" : "Dalej",
+
+
+  "node_new" : "Nowy węzeł",
+  "node_address" : "Adres węzła",
+  "node_port" : "Port węzła",
+  "login" : "Zaloguj Się",
+  "password" : "Hasło",
+  "nodes" : "Węzły",
+  "node_reset_settings_title" : "Resetowanie ustawień",
+  "nodes_list_reset_to_default_message" : "Czy na pewno chcesz przywrócić ustawienia domyślne?",
+  "change_current_node" : "Czy na pewno chcesz przywrócić ustawienia domyślne? ${node}?",
+  "change" : "Zmiana",
+  "remove_node" : "Usuń węzeł",
+  "remove_node_message" : "Czy na pewno chcesz usunąć wybrany węzeł?",
+  "remove" : "Usunąć",
+  "delete" : "Kasować",
+
+
+  "use" : "Posługiwać się ",
+  "digit_pin" : "- znak PIN",
+
+
+  "share_address" : "Udostępnij adres",
+  "receive_amount" : "Ilość",
+  "subaddresses" : "Podadresy",
+
+
+  "restore_restore_wallet" : "Przywróć portfel",
+  "restore_title_from_seed_keys" : "Przywróć z nasion / kluczy",
+  "restore_description_from_seed_keys" : "Odzyskaj swój portfel z nasion / kluczy, które zapisałeś w bezpiecznym miejscu",
+  "restore_next" : "Kolejny",
+  "restore_title_from_backup" : "Przywróć z pliku kopii zapasowej",
+  "restore_description_from_backup" : "Możesz przywrócić całą aplikację Cake Wallet z\nplik kopii zapasowej",
+  "restore_seed_keys_restore" : "Przywracanie nasion / kluczy",
+  "restore_title_from_seed" : "Przywróć z nasion",
+  "restore_description_from_seed" : "Przywróć swój portfel z 25 słów\nlub 13-słowny kod kombinacji",
+  "restore_title_from_keys" : "Przywróć z kluczy",
+  "restore_description_from_keys" : "Przywróć swój portfel z wygenerowanego\nnaciśnięcia klawiszy zapisane z kluczy prywatnych",
+  "restore_wallet_name" : "Nazwa portfela",
+  "restore_address" : "Adres",
+  "restore_view_key_private" : "Wyświetl klucz (prywatny)",
+  "restore_spend_key_private" : "Wydaj klucz (prywatny)",
+  "restore_recover" : "Wyzdrowieć",
+  "restore_wallet_restore_description" : "Opis przywracania portfela",
+
+
+  "seed_title" : "Ziarno",
+  "seed_share" : "Udostępnij ziarno",
+  "copy" : "Kopiuj",
+
+
+  "seed_alert_first_text" : "Pojawi się następna strona\nziarno.",
+  "seed_alert_second_text" : "Zapisz je na wszelki wypadek\nzgubisz lub wyczyścisz telefon.",
+  "seed_alert_third_text" : "Możesz także ponownie zobaczyć ziarno\nw ",
+  "seed_alert_settings" : "ustawienia",
+  "seed_alert_menu" : " menu.",
+  "seed_alert_understand" : "rozumiem",
+
+
+  "send_title" : "Wyślij Monero",
+  "send_your_wallet" : "Twój portfel",
+  "send_monero_address" : "Adres Monero",
+  "send_payment_id" : "Identyfikator płatności (opcjonalny)",
+  "all" : "WSZYSTKO",
+  "send_error_minimum_value" : "Minimalna wartość kwoty to 0,01",
+  "send_error_currency" : "Waluta może zawierać tylko cyfry",
+  "send_estimated_fee" : "Szacowana opłata:",
+  "send_priority" : "Obecnie opłata ustalona jest na ${transactionPriority} priorytet.\nPriorytet transakcji można zmienić w ustawieniach",
+  "send_creating_transaction" : "Tworzenie transakcji",
+
+
+  "settings_title" : "Ustawienia",
+  "settings_nodes" : "Węzły",
+  "settings_current_node" : "Bieżący węzeł",
+  "settings_wallets" : "Portfele",
+  "settings_display_balance_as" : "Wyświetl saldo jako",
+  "settings_currency" : "Waluta",
+  "settings_fee_priority" : "Priorytet opłaty",
+  "settings_save_recipient_address" : "Zapisz adres odbiorcy",
+  "settings_personal" : "Osobisty",
+  "settings_change_pin" : "Zmień PIN",
+  "settings_change_language" : "Zmień język",
+  "settings_allow_biometrical_authentication" : "Zezwalaj na uwierzytelnianie biometryczne",
+  "settings_dark_mode" : "Tryb ciemny",
+  "settings_transactions" : "Transakcje",
+  "settings_trades" : "Transakcje",
+  "settings_display_on_dashboard_list" : "Wyświetl na liście kokpitu",
+  "settings_all" : "Cały",
+  "settings_only_trades" : "Tylko transakcje",
+  "settings_only_transactions" : "Tylko transakcje",
+  "settings_none" : "Żaden",
+  "settings_support" : "Wsparcie",
+  "settings_terms_and_conditions" : "Zasady i warunki",
+  "pin_is_incorrect" : "PPIN jest niepoprawny",
+
+
+  "setup_pin" : "Ustaw PIN",
+  "enter_your_pin_again" : "Wprowadź ponownie swój kod PIN",
+  "setup_successful" : "Twój kod PIN został pomyślnie skonfigurowany!",
+
+
+  "wallet_keys" : "Klucze portfela",
+  "view_key_private" : "Wyświetl klucz (prywatny)",
+  "view_key_public" : "Wyświetl klucz (publiczny)",
+  "spend_key_private" : "Wydaj klucz (prywatny)",
+  "spend_key_public" : "Wydaj klucz (publiczny)",
+  "copied_key_to_clipboard" : "Skopiowane ${key} do schowka",
+
+
+  "new_subaddress_title" : "Nowy podadres",
+  "new_subaddress_label_name" : "Nazwa etykiety",
+  "new_subaddress_create" : "Stwórz",
+
+
+  "subaddress_title" : "Lista podadresów",
+
+
+  "trade_details_title" : "Szczegóły handlu",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Stan",
+  "trade_details_fetching" : "Ujmujący",
+  "trade_details_provider" : "Dostawca",
+  "trade_details_created_at" : "Utworzono w",
+  "trade_details_pair" : "Para",
+  "trade_details_copied" : "${title} skopiowane do schowka",
+
+
+  "trade_history_title" : "Historia handlu",
+
+
+  "transaction_details_title" : "Szczegóły transakcji",
+  "transaction_details_transaction_id" : "Transakcja ID",
+  "transaction_details_date" : "Data",
+  "transaction_details_height" : "Wysokość",
+  "transaction_details_amount" : "Ilość",
+  "transaction_details_copied" : "${title} skopiowane do schowka",
+  "transaction_details_recipient_address" : "Adres odbiorcy",
+
+
+  "wallet_list_title" : "Portfel Monero",
+  "wallet_list_create_new_wallet" : "Utwórz nowy portfel",
+  "wallet_list_restore_wallet" : "Przywróć portfel",
+  "wallet_list_load_wallet" : "Załaduj portfel",
+  "wallet_list_loading_wallet" : "Ładuję ${wallet_name} portfel",
+  "wallet_list_failed_to_load" : "Nie udało się załadować ${wallet_name} portfel. ${error}",
+  "wallet_list_removing_wallet" : "Usuwanie ${wallet_name} portfel",
+  "wallet_list_failed_to_remove" : "Nie udało się usunąć ${wallet_name} portfel. ${error}",
+
+
+  "widgets_address" : "Adres",
+  "widgets_restore_from_blockheight" : "Przywróć z wysokości bloku",
+  "widgets_restore_from_date" : "Przywróć od daty",
+  "widgets_or" : "lub",
+  "widgets_seed" : "Ziarno",
+
+
+  "router_no_route" : "Brak zdefiniowanej trasy dla ${name}",
+
+
+  "error_text_account_name" : "Nazwa konta może zawierać tylko litery, cyfry\ni musi mieć od 1 do 15 znaków",
+  "error_text_contact_name" : "Nazwa kontaktu nie może zawierać` , ' \" symbolika\ni musi mieć od 1 do 32 znaków ",
+  "error_text_address" : "Wallet address must correspond to the type\nof cryptocurrency",
+  "error_text_node_address" : "Wpisz adres iPv4",
+  "error_text_node_port" : "Port węzła może zawierać tylko liczby od 0 do 65535",
+  "error_text_payment_id" : "ID może zawierać od 16 do 64 znaków w formacie szesnastkowym",
+  "error_text_xmr" : "Wartość XMR nie może przekraczać dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 12",
+  "error_text_fiat" : "Wartość kwoty nie może przekroczyć dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 2",
+  "error_text_subaddress_name" : "Nazwa podadresu nie może zawierać ` , ' \" symbolika\ni musi mieć od 1 do 20 znaków",
+  "error_text_amount" : "Kwota może zawierać tylko liczby",
+  "error_text_wallet_name" : "Nazwa portfela może zawierać tylko litery i cyfry\ni musi mieć od 1 do 15 znaków",
+  "error_text_keys" : "Klucze portfela mogą zawierać tylko 64 znaki w systemie szesnastkowym",
+  "error_text_crypto_currency" : "Liczba cyfr ułamkowych\nmusi być mniejsza lub równa 12",
+
+
+  "auth_store_ban_timeout" : "przekroczenie limitu czasu",
+  "auth_store_banned_for" : "Bzbanowany za ",
+  "auth_store_banned_minutes" : " minuty",
+  "auth_store_incorrect_password" : "Niepoprawny PIN",
+  "wallet_store_monero_wallet" : "Portfel Monero",
+  "wallet_restoration_store_incorrect_seed_length" : "Nieprawidłowa długość nasion",
+
+
+  "full_balance" : "Pełna równowaga",
+  "available_balance" : "Dostępne saldo",
+  "hidden_balance" : "Ukryta równowaga",
+
+
+  "sync_status_syncronizing" : "SYNCHRONIZACJA",
+  "sync_status_syncronized" : "SYNCHRONIZOWANY",
+  "sync_status_not_connected" : "NIE POŁĄCZONY",
+  "sync_status_starting_sync" : "ROZPOCZĘCIE SYNCHRONIZACJI",
+  "sync_status_failed_connect" : "NIE MOŻNA PODŁĄCZYĆ DO WĘZŁA",
+  "sync_status_connecting" : "ZŁĄCZONY",
+  "sync_status_connected" : "POŁĄCZONY",
+
+
+  "transaction_priority_slow" : "Powolny",
+  "transaction_priority_regular" : "Regularny",
+  "transaction_priority_medium" : "Średni",
+  "transaction_priority_fast" : "Szybki",
+  "transaction_priority_fastest" : "Najszybszy",
+
+
+  "trade_for_not_created" : "Zamienić się za ${title} nie jest tworzony.",
+  "trade_not_created" : "Handel nie utworzony.",
+  "trade_id_not_found" : "Handel ${tradeId} of ${title} nie znaleziono.",
+  "trade_not_found" : "Nie znaleziono handlu.",
+
+
+  "trade_state_pending" : "W oczekiwaniu",
+  "trade_state_confirming" : "Potwierdzam",
+  "trade_state_trading" : "Handlowy",
+  "trade_state_traded" : "Handlowane",
+  "trade_state_complete" : "Kompletny",
+  "trade_state_to_be_created" : "Zostać stworzonym",
+  "trade_state_unpaid" : "Nie zapłacony",
+  "trade_state_underpaid" : "Niedopłacone",
+  "trade_state_paid_unconfirmed" : "Płatne niepotwierdzone",
+  "trade_state_paid" : "Płatny",
+  "trade_state_btc_sent" : "Wysłane",
+  "trade_state_timeout" : "Koniec czasu",
+  "trade_state_created" : "Stworzony",
+  "trade_state_finished" : "Skończone",
+
+  "change_language" : "Zmień język",
+  "change_language_to" : "Zmień język na ${language}?"
+}

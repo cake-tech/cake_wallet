@@ -1,0 +1,58 @@
+[
+  {
+    "question" : "Wat is het verschil tussen beschikbaar saldo en volledig saldo?",
+    "answer" : "Nadat u een transactie heeft uitgevoerd of wat Monero heeft ontvangen, moet de transactie nog worden bevestigd. Over ongeveer 20 minuten zou uw \"beschikbare saldo\" moeten zijn bijgewerkt!\nWanneer u Monero verzendt, daalt uw beschikbare saldo soms met meer dan het bedrag dat u heeft verzonden. Dit is normaal en dit is noodzakelijk om uw privacy te beschermen. Uw \"volledige balans\" zou binnen 20 minuten weer normaal moeten zijn.\n"
+  },
+  {
+    "question" : "Hoe stuur ik Monero naar een beurs die een betalings-ID vereist?",
+    "answer" : "Tik op de knop \"Verzenden\" op het Wallet-scherm. Kopieer vervolgens het stortingsadres van de uitwisseling en plak het in het vak \"adres\". Kopieer vervolgens de betalings-ID van de centrale en plak deze in het vak Betalings-ID. Voer ten slotte het bedrag in dat u wilt verzenden en u bent klaar om te gaan!\n"
+  },
+  {
+    "question" : "Wat moet ik doen als ik ben vergeten de betalings-ID in te voeren wanneer ik Monero naar een beurs stuur?",
+    "answer" : "Hoewel onze ondersteuning u niet rechtstreeks met dit probleem kan helpen, is het een veel voorkomend probleem dat de meeste beurzen gewend zijn aan te pakken. Neem contact op met de ondersteuning van de beurs, leg uit dat u bent vergeten uw betalings-ID op te nemen en stuur ze vervolgens uw transactie-ID als bewijs. U kunt de transactie-ID vinden door op de transactie in uw Wallet-scherm te tikken.\n"
+  },
+  {
+    "question" : "Wat betekenen zaad en sleutels?",
+    "answer" : "Uw sleutels coderen de privé-informatie in uw portemonnee en stellen u in staat munten uit te geven en inkomende transacties te bekijken.\nUw seed is slechts een versie van uw privésleutel die zo is geschreven dat u deze gemakkelijker kunt opschrijven. Je zaad en sleutels zijn eigenlijk hetzelfde, alleen in verschillende vormen!\nGeef NOOIT uw zaad of sleutels aan iemand. Je geld wordt gestolen als je je zaad of sleutels weggeeft. Schrijf uw zaad echter op en bewaar het op een veilige plaats (hiermee kunt u uw portemonnee herstellen als u uw telefoon verliest.)\n"
+  },
+  {
+    "question" : "Hoeveel portefeuilles kan ik maken?",
+    "answer" : "Er is geen limiet! U kunt zoveel portefeuilles maken als u wilt.\n"
+  },
+  {
+    "question" : "Hoe kan ik mijn portemonnee herstellen?",
+    "answer" : "Tik op het ••• menu, selecteer \"Portefeuilles\" en kies vervolgens \"Portemonnee herstellen\". Voer vervolgens uw seed (of uw sleutels) in en voer optioneel een datum in vóór de eerste transactie in uw portefeuille (dit versnelt het synchronisatieproces .) Mogelijk moet u de app 15-30 minuten open houden om uw portemonnee volledig te herstellen.\n"
+  },
+  {
+    "question" : "Wat kan ik doen als ik mijn zaad verlies?",
+    "answer" : "Als je je zaad bent vergeten, heb je het waarschijnlijk ergens opgeschreven. Controleer uw aantekeningen en kijk rond op uw computer. Als je het nergens kunt vinden, heb je misschien een back-up gemaakt van Cake Wallet (in welk geval je in staat zou zijn om vanuit die back-up te herstellen.) Als geen van deze werken, kunnen we helaas niets doen.\n"
+  },
+  {
+    "question" : "Verzamel je informatie over mijn portemonnee?",
+    "answer" : "Cake Wallet verzamelt of registreert GEEN informatie over uw portemonnee. Wij geven om uw privacy.\n"
+  },
+  {
+    "question" : "Is het mogelijk om een transactie ongedaan te maken?",
+    "answer" : "Helaas is het niet mogelijk om een transactie ongedaan te maken zodra een transactie bij de blockchain is ingediend. U kunt de transactie echter altijd annuleren voordat deze wordt verzonden, dus controleer altijd het adres voordat u een transactie verzendt.\n"
+  },
+  {
+    "question" : "Wat zijn \"subadressen\" en hoe gebruik ik deze?",
+    "answer" : "Een subadres is eigenlijk een uniek adres dat u op elk gewenst moment kunt genereren. Munten die er naartoe worden verzonden, komen nog steeds in uw hoofdportemonnee, maar de persoon die de munten verzendt, kan niet zien wat uw hoofdadres is. Subadressen beginnen altijd met \"8\".\nU kunt een nieuw subadres maken in het scherm Ontvangen door te tikken op de \"+\" naast de knop Subadressen. Voer een naam in voor het subadres en tik op \"Toevoegen\". Tik vervolgens op de naam van het subadres wanneer u deze wilt gebruiken!\nAls u paranoïde bent, moet u waarschijnlijk elke keer dat u Monero ontvangt een nieuw subadres maken.\n"
+  },
+  {
+    "question" : "Wat is een transactie-ID?",
+    "answer" : "Een transactie-hash of transactie-ID is een unieke manier om een transactie te identificeren. Elke transactie heeft zijn eigen hash. Als u iemand een transactie-hash moet geven, gaat u gewoon naar het hoofdscherm van Wallet, tikt u op de transactie, drukt u lang op het bovenste gedeelte en selecteert u Kopiëren.\n"
+  },
+  {
+    "question" : "Ik heb mijn XMR niet ontvangen! Wat kan ik doen?",
+    "answer" : "Als u uw Monero niet hebt ontvangen, wilt u misschien op het ••• menu tikken en op Opnieuw verbinden klikken. Als dat niet werkt, gaat u naar het instellingenmenu, tikt u op het vak 'Huidige knooppunt' en selecteert u een knooppunt met een groene stip ernaast.\n"
+  },
+  {
+    "question" : "Ik heb mijn munten niet ontvangen van de beurs in de app. Wat kan ik doen?",
+    "answer" : "Als u problemen ondervindt met een uitwisseling, kunt u het beste contact opnemen met de uitwisseling zelf. We werken samen met XMR.TO, Morph en ChangeNow, dus u kunt het beste naar http://xmr.to, http://changenow.io of http://morphtoken.com gaan en contact opnemen met hun ondersteuning.\n"
+  },
+  {
+    "question" : "Hoe neem ik contact op met Cake Wallet-ondersteuning?",
+    "answer" : "E-mail support@cakewallet.io, word lid van het Telegram op @cake_wallet of tweet @CakeWalletXMR!\n"
+  }
+]

@@ -1,0 +1,58 @@
+[
+  {
+    "question" : "Jaka jest różnica między dostępnym saldem a pełnym saldem?",
+    "answer" : "Po dokonaniu transakcji lub otrzymaniu Monero transakcja nadal musi zostać potwierdzona. Za około 20 minut Twoje „dostępne saldo” powinno się zaktualizować!\nCzasami po wysłaniu Monero dostępne saldo zmniejsza się o więcej niż kwota wysłana. Jest to normalne i konieczne w celu ochrony Twojej prywatności. Twoja „pełna równowaga” powinna wrócić do normy za 20 minut.\n"
+  },
+  {
+    "question" : "Jak wysłać Monero na giełdę, która wymaga płatności ID?",
+    "answer" : "Naciśnij przycisk „wyślij” na ekranie portfela. Następnie skopiuj adres depozytu giełdy i wklej go w polu „adres”. Następnie skopiuj identyfikator płatności podany przez giełdę i wklej go w polu ID płatności. Na koniec wprowadź kwotę, którą chcesz wysłać, i możesz zacząć!\n"
+  },
+  {
+    "question" : "Co mam zrobić, jeśli zapomniałem wprowadzić ID płatności podczas wysyłania Monero na giełdę?",
+    "answer" : "Chociaż nasze wsparcie nie może bezpośrednio pomóc w rozwiązaniu tego problemu, jest to bardzo częsty problem, z którym korzysta większość giełd. Wystarczy skontaktować się z obsługą giełdy, wyjaśnić, że zapomniałeś podać ID płatności, a następnie przesłać im dowód transakcji. Możesz znaleźć ID transakcji, dotykając transakcji na ekranie portfela.\n"
+  },
+  {
+    "question" : "Co oznaczają słowa „seed” i „keys”?",
+    "answer" : "Twoje klucze kodują prywatne informacje w twoim portfelu i pozwalają wydać monety i zobaczyć przychodzące transakcje.\nTwoje ziarno to tylko wersja twojego klucza prywatnego napisana w sposób, który łatwiej Ci zapisać. Wasze nasiona i klucze są w rzeczywistości takie same, tylko w różnych formach!\nNigdy nie dawaj nikomu swojego ziarna ani kluczy. Twoje fundusze zostaną skradzione, jeśli wydasz swoje nasiona lub klucze. Zapisz jednak swoje ziarno i przechowuj je w bezpiecznym miejscu (pozwoli to przywrócić portfel, jeśli zgubisz telefon).\n"
+  },
+  {
+    "question" : "Ile portfeli mogę utworzyć?",
+    "answer" : "Tu nie ma limitu! Możesz utworzyć dowolną liczbę portfeli.\n"
+  },
+  {
+    "question" : "Jak mogę przywrócić mój portfel?",
+    "answer" : "Stuknij menu •••, wybierz „Portfele”, a następnie „Przywróć portfel”. Następnie wprowadź dane początkowe (lub klucze) i opcjonalnie wprowadź datę przed pierwszą transakcją w portfelu (przyspieszy to proces synchronizacji .) Może być konieczne pozostawienie aplikacji otwartej przez 15-30 minut, aby całkowicie przywrócić portfel.\n"
+  },
+  {
+    "question" : "Co mogę zrobić, jeśli stracę nasiona?",
+    "answer" : "Jeśli zapomniałeś o nasieniu, prawdopodobnie gdzieś je zapisałeś. Sprawdź swoje notatki i rozejrzyj się po komputerze. Jeśli nie możesz go nigdzie znaleźć, być może utworzono kopię zapasową Cake Wallet (w takim przypadku będziesz mógł przywrócić dane z tej kopii zapasowej). Jeśli żadna z tych czynności nie działa, niestety nic nie możemy zrobić.\n"
+  },
+  {
+    "question" : "Czy zbierasz jakieś informacje o moim portfelu?",
+    "answer" : "Portfel Cake NIE gromadzi ani nie rejestruje żadnych informacji o Twoim portfelu. Dbamy o Twoją prywatność.\n"
+  },
+  {
+    "question" : "Czy można cofnąć transakcję?",
+    "answer" : "Niestety, jak tylko transakcja zostanie przesłana do blockchain, nie ma możliwości jej cofnięcia. Zawsze możesz jednak anulować transakcję przed jej wysłaniem, dlatego zawsze dokładnie sprawdź adres przed wysłaniem transakcji.\n"
+  },
+  {
+    "question" : "Co to są „podadresy” i jak z nich korzystać?",
+    "answer" : "Podadres jest w zasadzie unikalnym adresem, który można wygenerować w dowolnym momencie. Monety wysłane do niego nadal będą pojawiać się w głównym portfelu, ale osoba wysyłająca monety nie może podać Twojego głównego adresu. Podadresy zawsze zaczynają się od „8”.\nMożesz utworzyć nowy podadres na ekranie Odbieranie, dotykając „+” obok przycisku Podadresy. Wprowadź nazwę podadresu i dotknij „Dodaj”. Następnie dotknij nazwy podadresu, gdy chcesz go użyć!\nJeśli jesteś paranoikiem, prawdopodobnie za każdym razem, gdy otrzymasz Monero, powinieneś utworzyć nowy podadres.\n"
+  },
+  {
+    "question" : "Co to jest ID transakcji?",
+    "answer" : "Skrót transakcji lub ID transakcji to unikalny sposób identyfikowania każdej transakcji. Każda transakcja ma swój własny skrót. Jeśli chcesz podać komuś skrót transakcji, po prostu przejdź do głównego ekranu Portfela, dotknij transakcji, naciśnij długo w górnej części i wybierz Kopiuj.\n"
+  },
+  {
+    "question" : "Nie otrzymałem mojego XMR! Co mogę zrobić?",
+    "answer" : "Jeśli nie otrzymałeś Monero, możesz dotknąć menu ••• i nacisnąć Połącz ponownie. Jeśli to nie zadziała, przejdź do menu ustawień, dotknij pola „Bieżący węzeł” i wybierz węzeł z zieloną kropką obok niego.\n"
+  },
+  {
+    "question" : "Nie otrzymałem moich monet z wymiany w aplikacji. Co mogę zrobić?",
+    "answer" : "Jeśli masz problemy z wymianą, najlepszym rozwiązaniem jest skontaktowanie się z samą giełdą. Współpracujemy z XMR.TO, Morph i ChangeNow, więc najlepiej postawić się na stronie http://xmr.to, http://changenow.io lub http://morphtoken.com i skontaktować się z ich wsparciem.\n"
+  },
+  {
+    "question" : "Jak skontaktować się z obsługą Cake Wallet?",
+    "answer" : "Wyślij e-mail na adres support@cakewallet.io, dołącz do telegramu na @cake_wallet lub tweet @CakeWalletXMR!\n"
+  }
+]

@@ -1,0 +1,335 @@
+{
+  "welcome" : "स्वागत हे\nसेवा मेरे CAKE WALLET",
+  "first_wallet_text" : "बहुत बढ़िया बटुआ\nके लिये Monero",
+  "please_make_selection" : "कृपया नीचे चयन करें\nअपना बटुआ बनाएं या पुनर्प्राप्त करें.",
+  "create_new" : "नया बनाओ",
+  "restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
+
+
+  "accounts" : "हिसाब किताब",
+  "edit" : "संपादित करें",
+  "account" : "लेखा",
+  "add" : "जोड़ना",
+
+
+  "address_book" : "पता पुस्तिका",
+  "contact" : "संपर्क करें",
+  "please_select" : "कृपया चुने:",
+  "cancel" : "रद्द करना",
+  "ok" : "ठीक है",
+  "contact_name" : "संपर्क नाम",
+  "reset" : "रीसेट",
+  "save" : "बचाना",
+
+
+  "authenticated" : "प्रमाणीकृत",
+  "authentication" : "प्रमाणीकरण",
+  "failed_authentication" : "प्रमाणीकरण विफल. ${state_error}",
+
+
+  "wallet_menu" : "बटुआ मेनू",
+  "Blocks_remaining" : "${status} शेष रहते हैं",
+  "please_try_to_connect_to_another_node" : "कृपया दूसरे नोड से कनेक्ट करने का प्रयास करें",
+  "xmr_hidden" : "XMR छिपा हुआ",
+  "xmr_available_balance" : "XMR उपलब्ध शेष राशि",
+  "xmr_full_balance" : "XMR पूर्ण संतुलन",
+  "send" : "संदेश",
+  "receive" : "प्राप्त करना",
+  "transactions" : "लेन-देन",
+  "incoming" : "आने वाली",
+  "outgoing" : "निवर्तमान",
+  "transactions_by_date" : "तारीख से लेन-देन",
+  "trades" : "ट्रेडों",
+  "filters" : "फिल्टर",
+  "today" : "आज",
+  "yesterday" : "बिता कल",
+  "received" : "प्राप्त किया",
+  "sent" : "भेज दिया",
+  "pending" : " (अपूर्ण)",
+  "rescan" : "पुन: स्कैन",
+  "reconnect" : "रिकनेक्ट",
+  "wallets" : "पर्स",
+  "show_seed" : "बीज दिखाओ",
+  "show_keys" : "चाबी दिखाओ",
+  "address_book_menu" : "पता पुस्तिका",
+  "reconnection" : "पुनर्संयोजन",
+  "reconnect_alert_text" : "क्या आप पुन: कनेक्ट होना सुनिश्चित करते हैं?",
+
+
+  "exchange" : "अदला बदली",
+  "clear" : "स्पष्ट",
+  "change_exchange_provider" : "एक्सचेंज प्रदाता बदलें",
+  "you_will_send" : "तुम भेजोगे",
+  "you_will_get" : "आपको मिल जायेगा",
+  "amount_is_guaranteed" : "प्राप्त राशि की गारंटी है",
+  "amount_is_estimate" : "प्राप्त राशि एक अनुमान है",
+  "powered_by" : "द्वारा संचालित ${title}",
+  "error" : "त्रुटि",
+  "estimated" : "अनुमानित",
+  "min_value" : "मिन: ${value} ${currency}",
+  "max_value" : "मैक्स: ${value} ${currency}",
+  "change_currency" : "मुद्रा परिवर्तन करें",
+
+
+  "copy_id" : "प्रतिलिपि ID",
+  "exchange_result_write_down_trade_id" : "जारी रखने के लिए कृपया ट्रेड ID की प्रतिलिपि बनाएँ या लिखें.",
+  "trade_id" : "व्यापार ID:\n${id}",
+  "copied_to_clipboard" : "क्लिपबोर्ड पर नकल",
+  "saved_the_trade_id" : "मैंने व्यापार बचा लिया है ID",
+  "fetching" : "ला रहा है",
+  "id" : "ID: ",
+  "amount" : "रकम: ",
+  "payment_id" : "भुगतान ID: ",
+  "status" : "स्थिति: ",
+  "offer_expires_in" : "में ऑफर समाप्त हो रहा है: ",
+  "trade_is_powered_by" : "यह व्यापार द्वारा संचालित है ${provider}",
+  "copy_address" : "पता कॉपी करें",
+  "exchange_result_confirm" : "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} ऊपर दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से उपरोक्त पते / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.\n\n",
+  "exchange_result_description" : "कृपया भेजें ${fetchingLabel} ${from} ऊपर दिखाए गए पते पर\n\n'",
+  "exchange_result_write_down_ID" : "*कृपया ऊपर दिखाए गए अपने ID को कॉपी या लिख लें.",
+  "confirm" : "की पुष्टि करें",
+  "confirm_sending" : "भेजने की पुष्टि करें",
+  "commit_transaction_amount_fee" : "लेन-देन करें\nरकम: ${amount}\nशुल्क: ${fee}",
+  "sending" : "भेजना",
+  "transaction_sent" : "भेजा गया लेन-देन",
+  "expired" : "समय सीमा समाप्त",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "संदेश XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "अपना पिन दर्ज करो",
+  "loading_your_wallet" : "अपना बटुआ लोड कर रहा है",
+
+
+  "new_wallet" : "नया बटुआ",
+  "wallet_name" : "बटुए का नाम",
+  "continue_text" : "जारी रहना",
+
+
+  "node_new" : "नया नोड",
+  "node_address" : "नोड पता",
+  "node_port" : "नोड पोर्ट",
+  "login" : "लॉग इन करें",
+  "password" : "पारण शब्द",
+  "nodes" : "नोड्स",
+  "node_reset_settings_title" : "सेटिंग्स को दुबारा करें",
+  "nodes_list_reset_to_default_message" : "क्या आप वाकई सेटिंग को डिफ़ॉल्ट पर रीसेट करना चाहते हैं?",
+  "change_current_node" : "क्या आप वर्तमान नोड को बदलना सुनिश्चित करते हैं ${node}?",
+  "change" : "परिवर्तन",
+  "remove_node" : "नोड निकालें",
+  "remove_node_message" : "क्या आप वाकई चयनित नोड को निकालना चाहते हैं?",
+  "remove" : "हटाना",
+  "delete" : "हटाएं",
+
+
+  "use" : "उपयोग ",
+  "digit_pin" : "-अंक पिन",
+
+
+  "share_address" : "पता साझा करें",
+  "receive_amount" : "रकम",
+  "subaddresses" : "उप पते",
+
+
+  "restore_restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
+  "restore_title_from_seed_keys" : "बीज / कुंजियों से पुनर्स्थापित करें",
+  "restore_description_from_seed_keys" : "अपने बटुए को बीज से वापस लें/वे कुंजियाँ जिन्हें आपने सुरक्षित स्थान पर सहेजा है",
+  "restore_next" : "आगामी",
+  "restore_title_from_backup" : "बैक-अप फ़ाइल से पुनर्स्थापित करें",
+  "restore_description_from_backup" : "आप से पूरे केक वॉलेट एप्लिकेशन को पुनर्स्थापित कर सकते हैं\nआपकी बैक-अप फ़ाइल",
+  "restore_seed_keys_restore" : "बीज / कुंजी पुनर्स्थापित करें",
+  "restore_title_from_seed" : "बीज से पुनर्स्थापित करें",
+  "restore_description_from_seed" : "या तो 25 शब्द से अपने वॉलेट को पुनर्स्थापित करें\nया 13 शब्द संयोजन कोड",
+  "restore_title_from_keys" : "कुंजी से पुनर्स्थापित करें",
+  "restore_description_from_keys" : "अपने वॉलेट को जेनरेट से पुनर्स्थापित करें\nआपकी निजी कुंजी से कीस्ट्रोक्स सहेजे गए",
+  "restore_wallet_name" : "बटुए का नाम",
+  "restore_address" : "पता",
+  "restore_view_key_private" : "कुंजी देखें (निजी)",
+  "restore_spend_key_private" : "कुंजी खर्च करें (निजीe)",
+  "restore_recover" : "वसूली",
+  "restore_wallet_restore_description" : "बटुआ विवरण पुनर्स्थापित करें",
+
+
+  "seed_title" : "बीज",
+  "seed_share" : "बीज साझा करें",
+  "copy" : "प्रतिलिपि",
+
+
+  "seed_alert_first_text" : "अगला पेज दिखाएगा\nतुम एक बीज हो.",
+  "seed_alert_second_text" : "कृपया इन्हें केवल मामले में लिखें\nआप अपना फोन खो देते हैं या मिटा देते हैं.",
+  "seed_alert_third_text" : "आप बीज को फिर से देख सकते हैं\nमें ",
+  "seed_alert_settings" : "सेटिंग्स",
+  "seed_alert_menu" : " मेन्यू.",
+  "seed_alert_understand" : "मै समझता हुँ",
+
+
+  "send_title" : "संदेश Monero",
+  "send_your_wallet" : "आपका बटुआ",
+  "send_monero_address" : "मोनरो पता",
+  "send_payment_id" : "भुगतान ID (ऐच्छिक)",
+  "all" : "सब",
+  "send_error_minimum_value" : "राशि का न्यूनतम मूल्य 0.01 है",
+  "send_error_currency" : "मुद्रा में केवल संख्याएँ हो सकती हैं",
+  "send_estimated_fee" : "अनुमानित शुल्क:",
+  "send_priority" : "वर्तमान में शुल्क निर्धारित है ${transactionPriority} प्राथमिकता.\nलेन-देन की प्राथमिकता को सेटिंग्स में समायोजित किया जा सकता है",
+  "send_creating_transaction" : "लेन-देन बनाना",
+
+
+  "settings_title" : "सेटिंग्स",
+  "settings_nodes" : "नोड्स",
+  "settings_current_node" : "वर्तमान नोड",
+  "settings_wallets" : "पर्स",
+  "settings_display_balance_as" : "के रूप में संतुलन प्रदर्शित करें",
+  "settings_currency" : "मुद्रा",
+  "settings_fee_priority" : "शुल्क प्राथमिकता",
+  "settings_save_recipient_address" : "प्राप्तकर्ता का पता सहेजें",
+  "settings_personal" : "निजी",
+  "settings_change_pin" : "पिन बदलें",
+  "settings_change_language" : "भाषा बदलो",
+  "settings_allow_biometrical_authentication" : "बायोमेट्रिक प्रमाणीकरण की अनुमति दें",
+  "settings_dark_mode" : "डार्क मोड",
+  "settings_transactions" : "लेन-देन",
+  "settings_trades" : "ट्रेडों",
+  "settings_display_on_dashboard_list" : "डैशबोर्ड सूची पर प्रदर्शित करें",
+  "settings_all" : "सब",
+  "settings_only_trades" : "केवल ट्रेड करता है",
+  "settings_only_transactions" : "केवल लेन-देन",
+  "settings_none" : "कोई नहीं",
+  "settings_support" : "समर्थन",
+  "settings_terms_and_conditions" : "नियम और शर्तें",
+  "pin_is_incorrect" : "पिन गलत है",
+
+
+  "setup_pin" : "पिन सेट करें",
+  "enter_your_pin_again" : "फिर से अपना पिन डालें",
+  "setup_successful" : "आपका पिन सफलतापूर्वक सेट हो गया है",
+
+
+  "wallet_keys" : "बटुआ की",
+  "view_key_private" : "कुंजी देखें(निजी)",
+  "view_key_public" : "कुंजी देखें (जनता)",
+  "spend_key_private" : "खर्च करना (निजी)",
+  "spend_key_public" : "खर्च करना (जनता)",
+  "copied_key_to_clipboard" : "की नकल की ${key} क्लिपबोर्ड पर",
+
+
+  "new_subaddress_title" : "नई उपशादी",
+  "new_subaddress_label_name" : "लेबल का नाम",
+  "new_subaddress_create" : "सर्जन करना",
+
+
+  "subaddress_title" : "उपखंड सूची",
+
+
+  "trade_details_title" : "व्यापार विवरण",
+  "trade_details_id" : "आईडी",
+  "trade_details_state" : "राज्य",
+  "trade_details_fetching" : "ला रहा है",
+  "trade_details_provider" : "प्रदाता",
+  "trade_details_created_at" : "पर बनाया गया",
+  "trade_details_pair" : "जोड़ा",
+  "trade_details_copied" : "${title} क्लिपबोर्ड पर नकल",
+
+
+  "trade_history_title" : "व्यापार का इतिहास",
+
+
+  "transaction_details_title" : "लेनदेन का विवरण",
+  "transaction_details_transaction_id" : "लेनदेन आईडी",
+  "transaction_details_date" : "तारीख",
+  "transaction_details_height" : "ऊंचाई",
+  "transaction_details_amount" : "रकम",
+  "transaction_details_copied" : "${title} क्लिपबोर्ड पर नकल",
+  "transaction_details_recipient_address" : "प्राप्तकर्ता का पता",
+
+
+  "wallet_list_title" : "Monero बटुआ",
+  "wallet_list_create_new_wallet" : "नया बटुआ बनाएँ",
+  "wallet_list_restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
+  "wallet_list_load_wallet" : "वॉलेट लोड करें",
+  "wallet_list_loading_wallet" : "लोड हो रहा है ${wallet_name} बटुआ",
+  "wallet_list_failed_to_load" : "लोड करने में विफल ${wallet_name} बटुआ. ${error}",
+  "wallet_list_removing_wallet" : "निकाला जा रहा है ${wallet_name} बटुआ",
+  "wallet_list_failed_to_remove" : "निकालने में विफल ${wallet_name} बटुआ. ${error}",
+
+
+  "widgets_address" : "पता",
+  "widgets_restore_from_blockheight" : "ब्लॉकचेन से पुनर्स्थापित करें",
+  "widgets_restore_from_date" : "दिनांक से पुनर्स्थापित करें",
+  "widgets_or" : "या",
+  "widgets_seed" : "बीज",
+
+
+  "router_no_route" : "के लिए कोई मार्ग निर्धारित नहीं है ${name}",
+
+
+  "error_text_account_name" : "खाता नाम में केवल अक्षर, संख्याएं हो सकती हैं\nऔर 1 और 15 वर्णों के बीच लंबा होना चाहिए",
+  "error_text_contact_name" : "संपर्क नाम शामिल नहीं हो सकता ` , ' \" प्रतीकों\nऔर 1 और 32 वर्णों के बीच लंबा होना चाहिए",
+  "error_text_address" : "वॉलेट पता प्रकार के अनुरूप होना चाहिए\nक्रिप्टोकरेंसी का",
+  "error_text_node_address" : "कृपया एक IPv4 पता दर्ज करें",
+  "error_text_node_port" : "नोड पोर्ट में केवल 0 और 65535 के बीच संख्याएँ हो सकती हैं",
+  "error_text_payment_id" : "पेमेंट आईडी केवल हेक्स में 16 से 64 चार्ट तक हो सकती है",
+  "error_text_xmr" : "एक्सएमआर मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता.\nअंश अंकों की संख्या 12 से कम या इसके बराबर होनी चाहिए",
+  "error_text_fiat" : "राशि का मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता.\nअंश अंकों की संख्या कम या 2 के बराबर होनी चाहिए",
+  "error_text_subaddress_name" : "सबड्रेस नाम नहीं हो सकता` , ' \" प्रतीकों\nऔर 1 और 20 वर्णों के बीच लंबा होना चाहिए",
+  "error_text_amount" : "राशि में केवल संख्याएँ हो सकती हैं",
+  "error_text_wallet_name" : "वॉलेट नाम में केवल अक्षर, संख्याएं हो सकती हैं\nऔर 1 और 15 वर्णों के बीच लंबा होना चाहिए",
+  "error_text_keys" : "वॉलेट कीज़ में हेक्स में केवल 64 वर्ण हो सकते हैं",
+  "error_text_crypto_currency" : "अंश अंकों की संख्या\n12 से कम या इसके बराबर होना चाहिए",
+
+
+  "auth_store_ban_timeout" : "समय की पाबंदी",
+  "auth_store_banned_for" : "के लिए प्रतिबंधित है ",
+  "auth_store_banned_minutes" : " मिनट",
+  "auth_store_incorrect_password" : "गलत पिन",
+  "wallet_store_monero_wallet" : "मोनरो वॉलेट",
+  "wallet_restoration_store_incorrect_seed_length" : "गलत बीज की लंबाई",
+
+
+  "full_balance" : "पूर्ण संतुलन",
+  "available_balance" : "उपलब्ध शेष राशि",
+  "hidden_balance" : "छिपा हुआ संतुलन",
+
+
+  "sync_status_syncronizing" : "सिंक्रनाइज़ करने",
+  "sync_status_syncronized" : "सिंक्रनाइज़",
+  "sync_status_not_connected" : "जुड़े नहीं हैं",
+  "sync_status_starting_sync" : "सिताज़ा करना",
+  "sync_status_failed_connect" : "फेल हुआ कनेक्ट नोड",
+  "sync_status_connecting" : "कनेक्ट",
+  "sync_status_connected" : "जुड़े हुए",
+
+
+  "transaction_priority_slow" : "धीरे",
+  "transaction_priority_regular" : "नियमित",
+  "transaction_priority_medium" : "मध्यम",
+  "transaction_priority_fast" : "उपवास",
+  "transaction_priority_fastest" : "सबसे तेजी से",
+
+
+  "trade_for_not_created" : "के लिए व्यापार ${title} निर्मित नहीं है.",
+  "trade_not_created" : "व्यापार नहीं बनाया गया.",
+  "trade_id_not_found" : "व्यापार ${tradeId} of ${title} नहीं मिला.",
+  "trade_not_found" : "व्यापार नहीं मिला",
+
+
+  "trade_state_pending" : "विचाराधीन",
+  "trade_state_confirming" : "पुष्टि",
+  "trade_state_trading" : "व्यापार",
+  "trade_state_traded" : "ट्रेडेड",
+  "trade_state_complete" : "पूर्ण",
+  "trade_state_to_be_created" : "बनाए जाने के लिए",
+  "trade_state_unpaid" : "अवैतनिक",
+  "trade_state_underpaid" : "के तहत भुगतान किया",
+  "trade_state_paid_unconfirmed" : "अपुष्ट भुगतान किया",
+  "trade_state_paid" : "भुगतान किया है",
+  "trade_state_btc_sent" : "भेज दिया",
+  "trade_state_timeout" : "समय समाप्त",
+  "trade_state_created" : "बनाया था",
+  "trade_state_finished" : "ख़त्म होना",
+
+  "change_language" : "भाषा बदलो",
+  "change_language_to" : "को भाषा बदलें ${language}?"
+}

@@ -1,0 +1,335 @@
+{
+  "welcome" : "BEM-VINDO\nAO CAKE WALLET",
+  "first_wallet_text" : "Carteira impressionante\npara Monero",
+  "please_make_selection" : "Faça a seleção abaixo para\ncrie ou recupere sua carteira.",
+  "create_new" : "Crie um novo",
+  "restore_wallet" : "Restaurar carteira",
+
+
+  "accounts" : "Contas",
+  "edit" : "Editar",
+  "account" : "Conta",
+  "add" : "Adicionar",
+
+
+  "address_book" : "Livro de endereços",
+  "contact" : "Contato",
+  "please_select" : "Por favor selecione:",
+  "cancel" : "Cancelar",
+  "ok" : "Está bem",
+  "contact_name" : "Nome de contato",
+  "reset" : "Restabelecer",
+  "save" : "Salve",
+
+
+  "authenticated" : "Autenticado",
+  "authentication" : "Autenticação",
+  "failed_authentication" : "Falha na autenticação. ${state_error}",
+
+
+  "wallet_menu" : "Menu da Carteira",
+  "Blocks_remaining" : "${status} Blocos restantes",
+  "please_try_to_connect_to_another_node" : "Por favor, tente conectar-se a outro nó",
+  "xmr_hidden" : "XMR Oculto",
+  "xmr_available_balance" : "Saldo disponível do XMR",
+  "xmr_full_balance" : "Saldo total do XMR",
+  "send" : "Mandar",
+  "receive" : "Receber",
+  "transactions" : "Transações",
+  "incoming" : "Entrada",
+  "outgoing" : "Extrovertido",
+  "transactions_by_date" : "Transações por data",
+  "trades" : "Comércios",
+  "filters" : "Filtros",
+  "today" : "Hoje",
+  "yesterday" : "Ontem",
+  "received" : "Recebido",
+  "sent" : "Enviei",
+  "pending" : " (pendente)",
+  "rescan" : "Verificar novamente",
+  "reconnect" : "Reconectar",
+  "wallets" : "Carteiras",
+  "show_seed" : "Mostrar semente",
+  "show_keys" : "Mostrar chaves",
+  "address_book_menu" : "Livro de endereços",
+  "reconnection" : "Reconexão",
+  "reconnect_alert_text" : "Você tem certeza de reconectar?",
+
+
+  "exchange" : "Troca",
+  "clear" : "Claro",
+  "change_exchange_provider" : "Alterar provedor de câmbio",
+  "you_will_send" : "Você enviará",
+  "you_will_get" : "Você vai ter",
+  "amount_is_guaranteed" : "O valor do recebimento é garantido",
+  "amount_is_estimate" : "O valor recebido é uma estimativa",
+  "powered_by" : "Distribuído por ${title}",
+  "error" : "Erro",
+  "estimated" : "Estimado",
+  "min_value" : "Mín: ${value} ${currency}",
+  "max_value" : "Máx: ${value} ${currency}",
+  "change_currency" : "Alteração de moeda",
+
+
+  "copy_id" : "Cópia de ID",
+  "exchange_result_write_down_trade_id" : "Copie ou anote o ID comercial para continuar.",
+  "trade_id" : "ID comercial:\n${id}",
+  "copied_to_clipboard" : "Copiado para a área de transferência",
+  "saved_the_trade_id" : "Salvei o ID comercial",
+  "fetching" : "Buscando",
+  "id" : "ID: ",
+  "amount" : "Montante: ",
+  "payment_id" : "ID de pagamento: ",
+  "status" : "Status: ",
+  "offer_expires_in" : "A oferta expira em: ",
+  "trade_is_powered_by" : "Este comércio é alimentado por ${provider}",
+  "copy_address" : "Copiar endereço",
+  "exchange_result_confirm" : "Ao pressionar confirmar, você estará enviando ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço mostrado acima. Ou você pode enviar da sua carteira externa para o endereço / código QR acima.\n\nPressione confirmar para continuar ou voltar para alterar os valores.\n\n",
+  "exchange_result_description" : "Por favor envie ${fetchingLabel} ${from} para o endereço mostrado acima.\n\n'",
+  "exchange_result_write_down_ID" : "*Copie ou anote seu ID mostrado acima.",
+  "confirm" : "Confirme",
+  "confirm_sending" : "Confirme o envio",
+  "commit_transaction_amount_fee" : "Confirmar transação\nMontante: ${amount}\nTaxa: ${fee}",
+  "sending" : "Enviando",
+  "transaction_sent" : "Transação enviada!",
+  "expired" : "Expirado",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "Mandar XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "Insira seu PIN",
+  "loading_your_wallet" : "Carregando sua carteira",
+
+
+  "new_wallet" : "Nova carteira",
+  "wallet_name" : "Nome da carteira",
+  "continue_text" : "Continuar",
+
+
+  "node_new" : "Novo nó",
+  "node_address" : "Endereço do nó",
+  "node_port" : "Porta do nó",
+  "login" : "Entrar",
+  "password" : "Senha",
+  "nodes" : "Nós",
+  "node_reset_settings_title" : "Redefinir configurações",
+  "nodes_list_reset_to_default_message" : "Tem certeza de que deseja redefinir as configurações para o padrão?",
+  "change_current_node" : "Você tem certeza de alterar o nó atual para ${node}?",
+  "change" : "Mudança",
+  "remove_node" : "Remover nó",
+  "remove_node_message" : "Tem certeza de que deseja remover o nó selecionado?",
+  "remove" : "Remover",
+  "delete" : "Excluir",
+
+
+  "use" : "Usar ",
+  "digit_pin" : "de dois dígitos",
+
+
+  "share_address" : "Compartilhar endereço",
+  "receive_amount" : "Montante",
+  "subaddresses" : "Sub-endereços",
+
+
+  "restore_restore_wallet" : "Restaurar carteira",
+  "restore_title_from_seed_keys" : "Restaurar a partir de sementes / chaves",
+  "restore_description_from_seed_keys" : "Volte sua carteira a partir de sementes / chaves que você salvou em um local seguro",
+  "restore_next" : "Próximo",
+  "restore_title_from_backup" : "Restaurar a partir de um arquivo de backup",
+  "restore_description_from_backup" : "Você pode restaurar todo o aplicativo Cake Wallet em\nseu arquivo de backup",
+  "restore_seed_keys_restore" : "Restauração de sementes / chaves",
+  "restore_title_from_seed" : "Restaurar a partir da semente",
+  "restore_description_from_seed" : "Restaure sua carteira a partir das 25 palavras\noou código de combinação de 13 palavras",
+  "restore_title_from_keys" : "Restaurar a partir de chaves",
+  "restore_description_from_keys" : "Restaure sua carteira da geração\npressionamentos de tecla salvos em suas chaves privadas",
+  "restore_wallet_name" : "Nome da carteira",
+  "restore_address" : "Endereço",
+  "restore_view_key_private" : "Tecla Ver (privado)",
+  "restore_spend_key_private" : "Chave de gastos (privado)",
+  "restore_recover" : "Recuperar",
+  "restore_wallet_restore_description" : "Restauração de carteira",
+
+
+  "seed_title" : "Semente",
+  "seed_share" : "Compartilhar sementes",
+  "copy" : "Cópia de",
+
+
+  "seed_alert_first_text" : "A próxima página mostrará\nvocê é uma semente.",
+  "seed_alert_second_text" : "Por favor, escreva-as apenas em\ncaso você perca ou limpe seu telefone.",
+  "seed_alert_third_text" : "Você também pode ver a semente novamente\nno ",
+  "seed_alert_settings" : "configurações",
+  "seed_alert_menu" : "cardápio.",
+  "seed_alert_understand" : "Compreendo",
+
+
+  "send_title" : "Enviar Monero",
+  "send_your_wallet" : "Enviar Monero",
+  "send_monero_address" : "Endereço Monero",
+  "send_payment_id" : "ID de pagamento (opcional)",
+  "all" : "TODOS",
+  "send_error_minimum_value" : "O valor mínimo da quantia é 0,01",
+  "send_error_currency" : "A moeda pode conter apenas números",
+  "send_estimated_fee" : "Taxa estimada:",
+  "send_priority" : "Atualmente, a taxa está definida em ${transactionPriority} prioridade.\nA prioridade da transação pode ser ajustada nas configurações",
+  "send_creating_transaction" : "Criando transação",
+
+
+  "settings_title" : "Configurações",
+  "settings_nodes" : "Nós",
+  "settings_current_node" : "Nó atual",
+  "settings_wallets" : "Carteiras",
+  "settings_display_balance_as" : "Exibir saldo como",
+  "settings_currency" : "Moeda",
+  "settings_fee_priority" : "Prioridade da taxa",
+  "settings_save_recipient_address" : "Salvar endereço do destinatário",
+  "settings_personal" : "Pessoal",
+  "settings_change_pin" : "Alterar PIN",
+  "settings_change_language" : "Mudar idioma",
+  "settings_allow_biometrical_authentication" : "Permitir autenticação biométrica",
+  "settings_dark_mode" : "Modo escuro",
+  "settings_transactions" : "Transações",
+  "settings_trades" : "Comércios",
+  "settings_display_on_dashboard_list" : "Exibir na lista do painel",
+  "settings_all" : "TODOS",
+  "settings_only_trades" : "Somente negociações",
+  "settings_only_transactions" : "Somente transações",
+  "settings_none" : "Nenhum",
+  "settings_support" : "Suporte",
+  "settings_terms_and_conditions" : "Termos e Condições",
+  "pin_is_incorrect" : "PIN incorreto",
+
+
+  "setup_pin" : "PIN de configuração",
+  "enter_your_pin_again" : "Insira seu pin novamente",
+  "setup_successful" : "Seu PIN foi configurado com sucesso!",
+
+
+  "wallet_keys" : "Chaves da carteira",
+  "view_key_private" : "Tecla Ver (privado)",
+  "view_key_public" : "Tecla Ver (público)",
+  "spend_key_private" : "Chave de gastos (privado)",
+  "spend_key_public" : "Chave de gastos (público)",
+  "copied_key_to_clipboard" : "Copiado ${key} para a área de transferência",
+
+
+  "new_subaddress_title" : "Novo sub-endereço",
+  "new_subaddress_label_name" : "Nome do rótulo",
+  "new_subaddress_create" : "Crio",
+
+
+  "subaddress_title" : "Lista de sub-endereços",
+
+
+  "trade_details_title" : "Detalhes do comércio",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Estado",
+  "trade_details_fetching" : "Buscando",
+  "trade_details_provider" : "Fornecedor",
+  "trade_details_created_at" : "Criado em",
+  "trade_details_pair" : "Par",
+  "trade_details_copied" : "${title} Copiado para a área de transferência",
+
+
+  "trade_history_title" : "Histórico comercial",
+
+
+  "transaction_details_title" : "Detalhes da transação",
+  "transaction_details_transaction_id" : "ID da transação",
+  "transaction_details_date" : "Encontro",
+  "transaction_details_height" : "Altura",
+  "transaction_details_amount" : "Montante",
+  "transaction_details_copied" : "${title} Copiado para a área de transferência",
+  "transaction_details_recipient_address" : "Endereço do destinatário",
+
+
+  "wallet_list_title" : "Monero Carteira",
+  "wallet_list_create_new_wallet" : "Criar nova carteira",
+  "wallet_list_restore_wallet" : "Restaurar carteira",
+  "wallet_list_load_wallet" : "Carregar carteira",
+  "wallet_list_loading_wallet" : "Carregando ${wallet_name} carteira",
+  "wallet_list_failed_to_load" : "Falha ao carregar ${wallet_name} carteira. ${error}",
+  "wallet_list_removing_wallet" : "Removendo ${wallet_name} carteira",
+  "wallet_list_failed_to_remove" : "Falha ao remover ${wallet_name} carteira. ${error}",
+
+
+  "widgets_address" : "Endereço",
+  "widgets_restore_from_blockheight" : "Restaurar da altura do bloco",
+  "widgets_restore_from_date" : "Restaurar a partir da data",
+  "widgets_or" : "ou",
+  "widgets_seed" : "Semente",
+
+
+  "router_no_route" : "Nenhuma rota definida para ${name}",
+
+
+  "error_text_account_name" : "O nome da conta pode conter apenas letras, números\ne deve ter entre 1 e 15 caracteres",
+  "error_text_contact_name" : "O nome do contato não pode conter ` , ' \" símbolos\ne deve ter entre 1 e 32 caracteres",
+  "error_text_address" : "O endereço da carteira deve corresponder ao tipo\nde criptomoeda",
+  "error_text_node_address" : "Digite um endereço iPv4",
+  "error_text_node_port" : "A porta do nó pode conter apenas números entre 0 e 65535",
+  "error_text_payment_id" : "O código de pagamento pode conter apenas de 16 a 64 caracteres em hexadecimal",
+  "error_text_xmr" : "O valor XMR não pode exceder o saldo disponível.\nTO número de dígitos da fração deve ser menor ou igual a 12",
+  "error_text_fiat" : "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos da fração deve ser menor ou igual a 2",
+  "error_text_subaddress_name" : "O nome do sub-endereço não pode conter ` , ' \" símbolos\ne deve ter entre 1 e 20 caracteres",
+  "error_text_amount" : "O valor pode conter apenas números",
+  "error_text_wallet_name" : "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 15 caracteres",
+  "error_text_keys" : "As chaves da carteira podem conter apenas 64 caracteres em hexadecimal",
+  "error_text_crypto_currency" : "O número de dígitos da fração\ndeve ser menor ou igual a 12",
+
+
+  "auth_store_ban_timeout" : "proibir timeout",
+  "auth_store_banned_for" : "Banido por",
+  "auth_store_banned_minutes" : " minutes",
+  "auth_store_incorrect_password" : "PIN incorreto",
+  "wallet_store_monero_wallet" : "Carteira Monero",
+  "wallet_restoration_store_incorrect_seed_length" : "Comprimento de semente incorreto",
+
+
+  "full_balance" : "Saldo total",
+  "available_balance" : "Saldo disponível",
+  "hidden_balance" : "Saldo Oculto",
+
+
+  "sync_status_syncronizing" : "SINCRONIZANDO",
+  "sync_status_syncronized" : "SINCRONIZADO",
+  "sync_status_not_connected" : "NÃO CONECTADO",
+  "sync_status_starting_sync" : "INÍCIO DE SINCRONIZAÇÃO",
+  "sync_status_failed_connect" : "Falha na conexão com o nó",
+  "sync_status_connecting" : "CONECTANDO",
+  "sync_status_connected" : "CONECTADO",
+
+
+  "transaction_priority_slow" : "Lento",
+  "transaction_priority_regular" : "Regular",
+  "transaction_priority_medium" : "Médio",
+  "transaction_priority_fast" : "Rápido",
+  "transaction_priority_fastest" : "O mais rápido",
+
+
+  "trade_for_not_created" : "Comércio por ${title} não é criado.",
+  "trade_not_created" : "Comércio não criado.",
+  "trade_id_not_found" : "Comércio${tradeId} of ${title} não encontrado.",
+  "trade_not_found" : "Comércio não encontrado.",
+
+
+  "trade_state_pending" : "Pendente",
+  "trade_state_confirming" : "Confirmando",
+  "trade_state_trading" : "Negociação",
+  "trade_state_traded" : "Negociados",
+  "trade_state_complete" : "Completo",
+  "trade_state_to_be_created" : "Para ser criado",
+  "trade_state_unpaid" : "Não remunerado",
+  "trade_state_underpaid" : "Mal pago",
+  "trade_state_paid_unconfirmed" : "Pago não confirmado",
+  "trade_state_paid" : "Pago",
+  "trade_state_btc_sent" : "Enviei",
+  "trade_state_timeout" : "Tempo esgotado",
+  "trade_state_created" : "Criado",
+  "trade_state_finished" : "Acabado",
+
+  "change_language" : "Mudar idioma",
+  "change_language_to" : "Alterar idioma para ${language}?"
+}

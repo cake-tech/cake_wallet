@@ -1,0 +1,335 @@
+{
+  "welcome" : "WELCOME\nTO CAKE WALLET",
+  "first_wallet_text" : "Awesome wallet\nfor Monero",
+  "please_make_selection" : "Please make selection below to\ncreate or recover your wallet.",
+  "create_new" : "Create new",
+  "restore_wallet" : "Restore wallet",
+
+
+  "accounts" : "Accounts",
+  "edit" : "Edit",
+  "account" : "Account",
+  "add" : "Add",
+
+
+  "address_book" : "Address Book",
+  "contact" : "Contact",
+  "please_select" : "Please select:",
+  "cancel" : "Cancel",
+  "ok" : "OK",
+  "contact_name" : "Contact Name",
+  "reset" : "Reset",
+  "save" : "Save",
+
+
+  "authenticated" : "Authenticated",
+  "authentication" : "Authentication",
+  "failed_authentication" : "Failed authentication. ${state_error}",
+
+
+  "wallet_menu" : "Menu",
+  "Blocks_remaining" : "${status} Blocks Remaining",
+  "please_try_to_connect_to_another_node" : "Please try to connect to another node",
+  "xmr_hidden" : "XMR Hidden",
+  "xmr_available_balance" : "XMR Available Balance",
+  "xmr_full_balance" : "XMR Full Balance",
+  "send" : "Send",
+  "receive" : "Receive",
+  "transactions" : "Transactions",
+  "incoming" : "Incoming",
+  "outgoing" : "Outgoing",
+  "transactions_by_date" : "Transactions by date",
+  "trades" : "Trades",
+  "filters" : "Filters",
+  "today" : "Today",
+  "yesterday" : "Yesterday",
+  "received" : "Received",
+  "sent" : "Sent",
+  "pending" : " (pending)",
+  "rescan" : "Rescan",
+  "reconnect" : "Reconnect",
+  "wallets" : "Wallets",
+  "show_seed" : "Show seed",
+  "show_keys" : "Show keys",
+  "address_book_menu" : "Address book",
+  "reconnection" : "Reconnection",
+  "reconnect_alert_text" : "Are you sure to reconnect?",
+
+
+  "exchange" : "Exchange",
+  "clear" : "Clear",
+  "change_exchange_provider" : "Change Exchange Provider",
+  "you_will_send" : "You will send",
+  "you_will_get" : "You will get",
+  "amount_is_guaranteed" : "The receive amount is guaranteed",
+  "amount_is_estimate" : "The receive amount is an estimate",
+  "powered_by" : "Powered by ${title}",
+  "error" : "Error",
+  "estimated" : "Estimated",
+  "min_value" : "Min: ${value} ${currency}",
+  "max_value" : "Max: ${value} ${currency}",
+  "change_currency" : "Change Currency",
+
+
+  "copy_id" : "Copy ID",
+  "exchange_result_write_down_trade_id" : "Please copy or write down the trade ID to continue.",
+  "trade_id" : "Trade ID:\n${id}",
+  "copied_to_clipboard" : "Copied to Clipboard",
+  "saved_the_trade_id" : "I've saved the trade ID",
+  "fetching" : "Fetching",
+  "id" : "ID: ",
+  "amount" : "Amount: ",
+  "payment_id" : "Payment ID: ",
+  "status" : "Status: ",
+  "offer_expires_in" : "Offer expires in: ",
+  "trade_is_powered_by" : "This trade is powered by ${provider}",
+  "copy_address" : "Copy Address",
+  "exchange_result_confirm" : "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown above. Or you can send from your external wallet to the above address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.\n\n",
+  "exchange_result_description" : "Please send ${fetchingLabel} ${from} to the address shown above.\n\n",
+  "exchange_result_write_down_ID" : "*Please copy or write down your ID shown above.",
+  "confirm" : "Confirm",
+  "confirm_sending" : "Confirm sending",
+  "commit_transaction_amount_fee" : "Commit transaction\nAmount: ${amount}\nFee: ${fee}",
+  "sending" : "Sending",
+  "transaction_sent" : "Transaction sent!",
+  "expired" : "Expired",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "Send XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "Enter your PIN",
+  "loading_your_wallet" : "Loading your wallet",
+
+
+  "new_wallet" : "New Wallet",
+  "wallet_name" : "Wallet name",
+  "continue_text" : "Continue",
+
+
+  "node_new" : "New Node",
+  "node_address" : "Node Address",
+  "node_port" : "Node port",
+  "login" : "Login",
+  "password" : "Password",
+  "nodes" : "Nodes",
+  "node_reset_settings_title" : "Reset settings",
+  "nodes_list_reset_to_default_message" : "Are you sure that you want to reset settings to default?",
+  "change_current_node" : "Are you sure to change current node to ${node}?",
+  "change" : "Change",
+  "remove_node" : "Remove node",
+  "remove_node_message" : "Are you sure that you want to remove selected node?",
+  "remove" : "Remove",
+  "delete" : "Delete",
+
+
+  "use" : "Use ",
+  "digit_pin" : "-digit Pin",
+
+
+  "share_address" : "Share address",
+  "receive_amount" : "Amount",
+  "subaddresses" : "Subaddresses",
+
+
+  "restore_restore_wallet" : "Restore Wallet",
+  "restore_title_from_seed_keys" : "Restore from seed/keys",
+  "restore_description_from_seed_keys" : "Get back your wallet from seed/keys that you've saved to secure place",
+  "restore_next" : "Next",
+  "restore_title_from_backup" : "Restore from a back-up file",
+  "restore_description_from_backup" : "You can restore the whole Cake Wallet app from\nyour back-up file",
+  "restore_seed_keys_restore" : "Seed/Keys Restore",
+  "restore_title_from_seed" : "Restore from seed",
+  "restore_description_from_seed" : "Restore your wallet from either the 25 word\nor 13 word combination code",
+  "restore_title_from_keys" : "Restore from keys",
+  "restore_description_from_keys" : "Restore your wallet from generated\nkeystrokes saved from your private keys",
+  "restore_wallet_name" : "Wallet name",
+  "restore_address" : "Address",
+  "restore_view_key_private" : "View key (private)",
+  "restore_spend_key_private" : "Spend key (private)",
+  "restore_recover" : "Restore",
+  "restore_wallet_restore_description" : "Wallet restore description",
+
+
+  "seed_title" : "Seed",
+  "seed_share" : "Share seed",
+  "copy" : "Copy",
+
+
+  "seed_alert_first_text" : "The next page will show\nyou a seed.",
+  "seed_alert_second_text" : "Please write these down just in\ncase you lose or wipe your phone.",
+  "seed_alert_third_text" : "You can also see the seed again\nin the ",
+  "seed_alert_settings" : "settings",
+  "seed_alert_menu" : " menu.",
+  "seed_alert_understand" : "I understand",
+
+
+  "send_title" : "Send Monero",
+  "send_your_wallet" : "Your wallet",
+  "send_monero_address" : "Monero address",
+  "send_payment_id" : "Payment ID (optional)",
+  "all" : "ALL",
+  "send_error_minimum_value" : "Minimum value of amount is 0.01",
+  "send_error_currency" : "Currency can only contain numbers",
+  "send_estimated_fee" : "Estimated fee:",
+  "send_priority" : "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings",
+  "send_creating_transaction" : "Creating transaction",
+
+
+  "settings_title" : "Settings",
+  "settings_nodes" : "Nodes",
+  "settings_current_node" : "Current node",
+  "settings_wallets" : "Wallets",
+  "settings_display_balance_as" : "Display balance as",
+  "settings_currency" : "Currency",
+  "settings_fee_priority" : "Fee priority",
+  "settings_save_recipient_address" : "Save recipient address",
+  "settings_personal" : "Personal",
+  "settings_change_pin" : "Change PIN",
+  "settings_change_language" : "Change language",
+  "settings_allow_biometrical_authentication" : "Allow biometrical authentication",
+  "settings_dark_mode" : "Dark mode",
+  "settings_transactions" : "Transactions",
+  "settings_trades" : "Trades",
+  "settings_display_on_dashboard_list" : "Display on dashboard list",
+  "settings_all" : "ALL",
+  "settings_only_trades" : "Only trades",
+  "settings_only_transactions" : "Only transactions",
+  "settings_none" : "None",
+  "settings_support" : "Support",
+  "settings_terms_and_conditions" : "Terms and conditions",
+  "pin_is_incorrect" : "PIN is incorrect",
+
+
+  "setup_pin" : "Setup PIN",
+  "enter_your_pin_again" : "Enter your pin again",
+  "setup_successful" : "Your PIN has been set up successfully!",
+
+
+  "wallet_keys" : "Wallet keys",
+  "view_key_private" : "View key (private)",
+  "view_key_public" : "View key (public)",
+  "spend_key_private" : "Spend key (private)",
+  "spend_key_public" : "Spend key (public)",
+  "copied_key_to_clipboard" : "Copied ${key} to Clipboard",
+
+
+  "new_subaddress_title" : "New subaddress",
+  "new_subaddress_label_name" : "Label name",
+  "new_subaddress_create" : "Create",
+
+
+  "subaddress_title" : "Subaddress list",
+
+
+  "trade_details_title" : "Trade Details",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "State",
+  "trade_details_fetching" : "Fetching",
+  "trade_details_provider" : "Provider",
+  "trade_details_created_at" : "Created at",
+  "trade_details_pair" : "Pair",
+  "trade_details_copied" : "${title} copied to Clipboard",
+
+
+  "trade_history_title" : "Trade history",
+
+
+  "transaction_details_title" : "Transaction Details",
+  "transaction_details_transaction_id" : "Transaction ID",
+  "transaction_details_date" : "Date",
+  "transaction_details_height" : "Height",
+  "transaction_details_amount" : "Amount",
+  "transaction_details_copied" : "${title} copied to Clipboard",
+  "transaction_details_recipient_address" : "Recipient address",
+
+
+  "wallet_list_title" : "Monero Wallet",
+  "wallet_list_create_new_wallet" : "Create New Wallet",
+  "wallet_list_restore_wallet" : "Restore Wallet",
+  "wallet_list_load_wallet" : "Load wallet",
+  "wallet_list_loading_wallet" : "Loading ${wallet_name} wallet",
+  "wallet_list_failed_to_load" : "Failed to load ${wallet_name} wallet. ${error}",
+  "wallet_list_removing_wallet" : "Removing ${wallet_name} wallet",
+  "wallet_list_failed_to_remove" : "Failed to remove ${wallet_name} wallet. ${error}",
+
+
+  "widgets_address" : "Address",
+  "widgets_restore_from_blockheight" : "Restore from blockheight",
+  "widgets_restore_from_date" : "Restore from date",
+  "widgets_or" : "or",
+  "widgets_seed" : "Seed",
+
+
+  "router_no_route" : "No route defined for ${name}",
+
+
+  "error_text_account_name" : "Account name can only contain letters, numbers\nand must be between 1 and 15 characters long",
+  "error_text_contact_name" : "Contact name can't contain ` , ' \" symbols\nand must be between 1 and 32 characters long",
+  "error_text_address" : "Wallet address must correspond to the type\nof cryptocurrency",
+  "error_text_node_address" : "Please enter a iPv4 address",
+  "error_text_node_port" : "Node port can only contain numbers between 0 and 65535",
+  "error_text_payment_id" : "Payment ID can only contain from 16 to 64 chars in hex",
+  "error_text_xmr" : "XMR value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12",
+  "error_text_fiat" : "Value of amount can't exceed available balance.\nThe number of fraction digits must be less or equal to 2",
+  "error_text_subaddress_name" : "Subaddress name can't contain ` , ' \" symbols\nand must be between 1 and 20 characters long",
+  "error_text_amount" : "Amount can only contain numbers",
+  "error_text_wallet_name" : "Wallet name can only contain letters, numbers\nand must be between 1 and 15 characters long",
+  "error_text_keys" : "Wallet keys can only contain 64 chars in hex",
+  "error_text_crypto_currency" : "The number of fraction digits\nmust be less or equal to 12",
+
+
+  "auth_store_ban_timeout" : "ban_timeout",
+  "auth_store_banned_for" : "Banned for ",
+  "auth_store_banned_minutes" : " minutes",
+  "auth_store_incorrect_password" : "Wrong PIN",
+  "wallet_store_monero_wallet" : "Monero Wallet",
+  "wallet_restoration_store_incorrect_seed_length" : "Incorrect seed length",
+
+
+  "full_balance" : "Full Balance",
+  "available_balance" : "Available Balance",
+  "hidden_balance" : "Hidden Balance",
+
+
+  "sync_status_syncronizing" : "SYNCRONIZING",
+  "sync_status_syncronized" : "SYNCHRONIZED",
+  "sync_status_not_connected" : "NOT CONNECTED",
+  "sync_status_starting_sync" : "STARTING SYNC",
+  "sync_status_failed_connect" : "FAILED CONNECT TO THE NODE",
+  "sync_status_connecting" : "CONNECTING",
+  "sync_status_connected" : "CONNECTED",
+
+
+  "transaction_priority_slow" : "Slow",
+  "transaction_priority_regular" : "Regular",
+  "transaction_priority_medium" : "Medium",
+  "transaction_priority_fast" : "Fast",
+  "transaction_priority_fastest" : "Fastest",
+
+
+  "trade_for_not_created" : "Trade for ${title} is not created.",
+  "trade_not_created" : "Trade not created.",
+  "trade_id_not_found" : "Trade ${tradeId} of ${title} not found.",
+  "trade_not_found" : "Trade not found.",
+
+
+  "trade_state_pending" : "Pending",
+  "trade_state_confirming" : "Confirming",
+  "trade_state_trading" : "Trading",
+  "trade_state_traded" : "Traded",
+  "trade_state_complete" : "Complete",
+  "trade_state_to_be_created" : "To be created",
+  "trade_state_unpaid" : "Unpaid",
+  "trade_state_underpaid" : "Underpaid",
+  "trade_state_paid_unconfirmed" : "Paid unconfirmed",
+  "trade_state_paid" : "Paid",
+  "trade_state_btc_sent" : "Btc sent",
+  "trade_state_timeout" : "Timeout",
+  "trade_state_created" : "Created",
+  "trade_state_finished" : "Finished",
+
+  "change_language" : "Change language",
+  "change_language_to" : "Change language to ${language}?"
+}
