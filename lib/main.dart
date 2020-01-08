@@ -80,7 +80,8 @@ void main() async {
       sharedPreferences: sharedPreferences,
       walletListService: walletListService,
       nodes: nodes,
-      authStore: authenticationStore);
+      authStore: authenticationStore,
+      initialMigrationVersion: 2);
 
   final settingsStore = await SettingsStoreBase.load(
       nodes: nodes,
