@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 class NodeListPage extends BasePage {
   NodeListPage();
 
+  @override
   String get title => S.current.nodes;
 
   @override
@@ -26,7 +27,7 @@ class NodeListPage extends BasePage {
           minWidth: double.minPositive,
           child: FlatButton(
               onPressed: () async {
-                await showDialog(
+                await showDialog<void>(
                     context: context,
                     builder: (BuildContext context) {
                       return AlertDialog(
@@ -76,10 +77,8 @@ class NodeListPage extends BasePage {
                   height: 28.0,
                   child: FlatButton(
                       shape: CircleBorder(),
-                      onPressed: () async {
-                        await Navigator.of(context).pushNamed(Routes.newNode);
-                        nodeList.update();
-                      },
+                      onPressed: () async =>
+                          await Navigator.of(context).pushNamed(Routes.newNode),
                       child: Offstage()),
                 )
               ],
@@ -94,7 +93,7 @@ class NodeListPage extends BasePage {
 
 class NodeListPageBody extends StatefulWidget {
   @override
-  createState() => NodeListPageBodyState();
+  NodeListPageBodyState createState() => NodeListPageBodyState();
 }
 
 class NodeListPageBodyState extends State<NodeListPageBody> {
@@ -141,7 +140,7 @@ class NodeListPageBodyState extends State<NodeListPageBody> {
                                 switch (snapshot.connectionState) {
                                   case ConnectionState.done:
                                     return NodeIndicator(
-                                        color: snapshot.data
+                                        color: snapshot.data as bool
                                             ? Palette.green
                                             : Palette.red);
                                   default:
@@ -150,7 +149,7 @@ class NodeListPageBodyState extends State<NodeListPageBody> {
                               }),
                           onTap: () async {
                             if (!isCurrent) {
-                              await showDialog(
+                              await showDialog<void>(
                                   context: context,
                                   builder: (BuildContext context) {
                                     return AlertDialog(

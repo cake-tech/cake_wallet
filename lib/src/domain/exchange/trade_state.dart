@@ -2,6 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/src/domain/common/enumerable_item.dart';
 
 class TradeState extends EnumerableItem<String> with Serializable<String> {
+  const TradeState({@required String raw, @required String title})
+      : super(raw: raw, title: title);
+
+  @override
+  bool operator ==(Object other) => other is TradeState && other.raw == raw;
+
   static const pending = TradeState(raw: 'pending', title: 'Pending');
   static const confirming = TradeState(raw: 'confirming', title: 'Confirming');
   static const trading = TradeState(raw: 'trading', title: 'Trading');
@@ -57,11 +63,6 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
         return null;
     }
   }
-
-  const TradeState({@required String raw, @required String title})
-      : super(raw: raw, title: title);
-
-  operator ==(o) => o is TradeState && o.raw == raw;
 
   @override
   int get hashCode => raw.hashCode ^ title.hashCode;

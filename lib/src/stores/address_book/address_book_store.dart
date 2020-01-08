@@ -10,6 +10,10 @@ part 'address_book_store.g.dart';
 class AddressBookStore = AddressBookStoreBase with _$AddressBookStore;
 
 abstract class AddressBookStoreBase with Store {
+  AddressBookStoreBase({@required this.contacts}) {
+    updateContactList();
+  }
+
   @observable
   List<Contact> contactList;
 
@@ -20,10 +24,6 @@ abstract class AddressBookStoreBase with Store {
   String errorMessage;
 
   Box<Contact> contacts;
-
-  AddressBookStoreBase({@required this.contacts}) {
-    updateContactList();
-  }
 
   @action
   Future add({Contact contact}) async => contacts.add(contact);
@@ -38,17 +38,18 @@ abstract class AddressBookStoreBase with Store {
   Future delete({Contact contact}) async => await contact.delete();
 
   void validateContactName(String value) {
-    String p = '''^[^`,'"]{1,32}\$''';
-    RegExp regExp = new RegExp(p);
+    const pattern = '''^[^`,'"]{1,32}\$''';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_contact_name;
   }
 
   void validateAddress(String value, {CryptoCurrency cryptoCurrency}) {
     // XMR (95), BTC (34), ETH (42), LTC (34), BCH (42), DASH (34)
-    String p = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
+
     if (isValid && cryptoCurrency != null) {
       switch (cryptoCurrency.toString()) {
         case 'XMR':
@@ -70,6 +71,7 @@ abstract class AddressBookStoreBase with Store {
           isValid = (value.length == 34);
       }
     }
+
     errorMessage = isValid ? null : S.current.error_text_address;
   }
 }

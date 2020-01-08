@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/theme_changer.dart';
-import 'package:cake_wallet/themes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class WelcomePage extends BasePage {
@@ -16,15 +13,10 @@ class WelcomePage extends BasePage {
 
   @override
   Widget build(BuildContext context) {
-    ThemeChanger _themeChanger = Provider.of<ThemeChanger>(context);
-    bool _isDarkTheme = (_themeChanger.getTheme() == Themes.darkTheme);
-
     return Scaffold(
-      backgroundColor:
-          _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor,
-      resizeToAvoidBottomPadding: false,
-      body: SafeArea(child: body(context)),
-    );
+        backgroundColor: Theme.of(context).backgroundColor,
+        resizeToAvoidBottomPadding: false,
+        body: SafeArea(child: body(context)));
   }
 
   @override

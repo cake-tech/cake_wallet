@@ -15,6 +15,21 @@ part 'wallet_store.g.dart';
 class WalletStore = WalletStoreBase with _$WalletStore;
 
 abstract class WalletStoreBase with Store {
+  WalletStoreBase({WalletService walletService, SettingsStore settingsStore}) {
+    _walletService = walletService;
+    _settingsStore = settingsStore;
+    name = '';
+    type = CryptoCurrency.xmr;
+    amountValue = '';
+
+    if (_walletService.currentWallet != null) {
+      _onWalletChanged(_walletService.currentWallet);
+    }
+
+    _onWalletChangeSubscription = _walletService.onWalletChange
+        .listen((wallet) async => await _onWalletChanged(wallet));
+  }
+
   @observable
   String address;
 
@@ -46,22 +61,6 @@ abstract class WalletStoreBase with Store {
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<Account> _onAccountChangeSubscription;
   StreamSubscription<Subaddress> _onSubaddressChangeSubscription;
-
-
-  WalletStoreBase({WalletService walletService, SettingsStore settingsStore}) {
-    _walletService = walletService;
-    _settingsStore = settingsStore;
-    name = '';
-    type = CryptoCurrency.xmr;
-    amountValue = '';
-
-    if (_walletService.currentWallet != null) {
-      _onWalletChanged(_walletService.currentWallet);
-    }
-
-    _onWalletChangeSubscription = _walletService.onWalletChange
-        .listen((wallet) async => await _onWalletChanged(wallet));
-  }
 
   @override
   void dispose() {
@@ -112,7 +111,8 @@ abstract class WalletStoreBase with Store {
   Future startSync() async => await _walletService.startSync();
 
   @action
-  Future connectToNode({Node node}) async => await _walletService.connectToNode(node: node);
+  Future connectToNode({Node node}) async =>
+      await _walletService.connectToNode(node: node);
 
   Future _onWalletChanged(Wallet wallet) async {
     if (this == null) {
@@ -123,15 +123,16 @@ abstract class WalletStoreBase with Store {
     wallet.onAddressChange.listen((address) => this.address = address);
 
     if (wallet is MoneroWallet) {
-      _onAccountChangeSubscription = wallet.onAccountChange.listen((account) => this.account = account);
-      _onSubaddressChangeSubscription = wallet.subaddress.listen((subaddress) => this.subaddress = subaddress);
+      _onAccountChangeSubscription =
+          wallet.onAccountChange.listen((account) => this.account = account);
+      _onSubaddressChangeSubscription = wallet.subaddress
+          .listen((subaddress) => this.subaddress = subaddress);
     }
   }
 
   @action
-  onChangedAmountValue(String value) {
-    amountValue = value.isNotEmpty ? '?tx_amount=' + value : '';
-  }
+  void onChangedAmountValue(String value) =>
+      amountValue = value.isNotEmpty ? '?tx_amount=' + value : '';
 
   @action
   void validateAmount(String value) {
@@ -140,16 +141,19 @@ abstract class WalletStoreBase with Store {
     if (value.isEmpty) {
       isValid = true;
     } else {
-      String p = '^([0-9]+([.][0-9]{0,12})?|[.][0-9]{1,12})\$';
-      RegExp regExp = new RegExp(p);
+      const pattern = '^([0-9]+([.][0-9]{0,12})?|[.][0-9]{1,12})\$';
+      final regExp = RegExp(pattern);
+
       if (regExp.hasMatch(value)) {
         try {
-          double dValue = double.parse(value);
+          final dValue = double.parse(value);
           isValid = dValue <= maxValue;
         } catch (e) {
           isValid = false;
         }
-      } else isValid = false;
+      } else {
+        isValid = false;
+      }
     }
 
     errorMessage = isValid ? null : S.current.error_text_amount;

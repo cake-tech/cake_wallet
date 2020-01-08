@@ -21,6 +21,10 @@ enum AuthenticationState {
 }
 
 abstract class AuthenticationStoreBase with Store {
+  AuthenticationStoreBase({@required this.userService}) {
+    state = AuthenticationState.uninitialized;
+  }
+
   final UserService userService;
 
   @observable
@@ -28,10 +32,6 @@ abstract class AuthenticationStoreBase with Store {
 
   @observable
   String errorMessage;
-
-  AuthenticationStoreBase({@required this.userService}) {
-    state = AuthenticationState.uninitialized;
-  }
 
   Future started() async {
     final canAuth = await userService.canAuthenticate();

@@ -9,6 +9,7 @@ class WalletIsCreating extends WalletCreationState {}
 class WalletCreatedSuccessfully extends WalletCreationState {}
 
 class WalletCreationFailure extends WalletCreationState {
-  String error;
   WalletCreationFailure({@required this.error});
+  
+  String error;
 }

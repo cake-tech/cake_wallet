@@ -17,6 +17,36 @@ part 'settings_store.g.dart';
 class SettingsStore = SettingsStoreBase with _$SettingsStore;
 
 abstract class SettingsStoreBase with Store {
+  SettingsStoreBase(
+      {@required SharedPreferences sharedPreferences,
+      @required Box<Node> nodes,
+      @required FiatCurrency initialFiatCurrency,
+      @required TransactionPriority initialTransactionPriority,
+      @required BalanceDisplayMode initialBalanceDisplayMode,
+      @required bool initialSaveRecipientAddress,
+      @required bool initialAllowBiometricalAuthentication,
+      @required bool initialDarkTheme,
+      this.actionlistDisplayMode,
+      @required int initialPinLength,
+      @required String initialLanguageCode}) {
+    fiatCurrency = initialFiatCurrency;
+    transactionPriority = initialTransactionPriority;
+    balanceDisplayMode = initialBalanceDisplayMode;
+    shouldSaveRecipientAddress = initialSaveRecipientAddress;
+    _sharedPreferences = sharedPreferences;
+    _nodes = nodes;
+    allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
+    isDarkTheme = initialDarkTheme;
+    defaultPinLength = initialPinLength;
+    languageCode = initialLanguageCode;
+    itemHeaders = Map();
+
+    actionlistDisplayMode.observe(
+        (dynamic _) => _sharedPreferences.setInt(displayActionListModeKey,
+            serializeActionlistDisplayModes(actionlistDisplayMode)),
+        fireImmediately: false);
+  }
+
   static const currentNodeIdKey = 'current_node_id';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentTransactionPriorityKey = 'current_fee_priority';
@@ -113,36 +143,6 @@ abstract class SettingsStoreBase with Store {
   SharedPreferences _sharedPreferences;
   Box<Node> _nodes;
 
-  SettingsStoreBase(
-      {@required SharedPreferences sharedPreferences,
-      @required Box<Node> nodes,
-      @required FiatCurrency initialFiatCurrency,
-      @required TransactionPriority initialTransactionPriority,
-      @required BalanceDisplayMode initialBalanceDisplayMode,
-      @required bool initialSaveRecipientAddress,
-      @required bool initialAllowBiometricalAuthentication,
-      @required bool initialDarkTheme,
-      this.actionlistDisplayMode,
-      @required int initialPinLength,
-      @required String initialLanguageCode}) {
-    fiatCurrency = initialFiatCurrency;
-    transactionPriority = initialTransactionPriority;
-    balanceDisplayMode = initialBalanceDisplayMode;
-    shouldSaveRecipientAddress = initialSaveRecipientAddress;
-    _sharedPreferences = sharedPreferences;
-    _nodes = nodes;
-    allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
-    isDarkTheme = initialDarkTheme;
-    defaultPinLength = initialPinLength;
-    languageCode = initialLanguageCode;
-    itemHeaders = Map();
-
-    actionlistDisplayMode.observe(
-        (dynamic _) => _sharedPreferences.setInt(displayActionListModeKey,
-            serializeActionlistDisplayModes(actionlistDisplayMode)),
-        fireImmediately: false);
-  }
-
   @action
   Future setAllowBiometricalAuthentication(
       {@required bool allowBiometricalAuthentication}) async {
@@ -168,7 +168,7 @@ abstract class SettingsStoreBase with Store {
   @action
   Future setCurrentNode({@required Node node}) async {
     this.node = node;
-    await _sharedPreferences.setInt(currentNodeIdKey, node.key);
+    await _sharedPreferences.setInt(currentNodeIdKey, node.key as int);
   }
 
   @action
@@ -203,7 +203,7 @@ abstract class SettingsStoreBase with Store {
   }
 
   Future loadSettings() async => node = await _fetchCurrentNode();
-  
+
   @action
   void toggleTransactionsDisplay() =>
       actionlistDisplayMode.contains(ActionListDisplayMode.transactions)
@@ -239,7 +239,7 @@ abstract class SettingsStoreBase with Store {
 
   Future<Node> _fetchCurrentNode() async {
     final id = _sharedPreferences.getInt(currentNodeIdKey);
-    
+
     return _nodes.get(id);
   }
 

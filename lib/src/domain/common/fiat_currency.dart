@@ -1,6 +1,11 @@
 import 'package:cake_wallet/src/domain/common/enumerable_item.dart';
 
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
+  const FiatCurrency({String symbol}) : super(title: symbol, raw: symbol);
+
+  @override
+  bool operator ==(Object other) => other is FiatCurrency && other.raw == raw;
+
   static const all = [
     FiatCurrency.aud,
     FiatCurrency.bgn,
@@ -70,10 +75,6 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static const usd = FiatCurrency(symbol: 'USD');
   static const zar = FiatCurrency(symbol: 'ZAR');
   static const vef = FiatCurrency(symbol: 'VEF');
-
-  const FiatCurrency({String symbol}) : super(title: symbol, raw: symbol);
-
-  operator ==(o) => o is FiatCurrency && o.raw == raw;
 
   @override
   int get hashCode => raw.hashCode ^ title.hashCode;

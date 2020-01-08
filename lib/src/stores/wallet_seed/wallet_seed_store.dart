@@ -7,12 +7,6 @@ part 'wallet_seed_store.g.dart';
 class WalletSeedStore = WalletSeedStoreBase with _$WalletSeedStore;
 
 abstract class WalletSeedStoreBase with Store {
-  @observable
-  String name;
-
-  @observable
-  String seed;
-
   WalletSeedStoreBase({@required WalletService walletService}) {
     seed = '';
 
@@ -21,4 +15,10 @@ abstract class WalletSeedStoreBase with Store {
       walletService.getName().then((name) => this.name = name);
     }
   }
+
+  @observable
+  String name;
+
+  @observable
+  String seed;
 }

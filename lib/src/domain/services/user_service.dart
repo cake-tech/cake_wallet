@@ -4,10 +4,10 @@ import 'package:cake_wallet/src/domain/common/secret_store_key.dart';
 import 'package:cake_wallet/src/domain/common/encrypt.dart';
 
 class UserService {
+  UserService({this.sharedPreferences, this.secureStorage});
+
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
-
-  UserService({this.sharedPreferences, this.secureStorage});
 
   Future setPassword(String password) async {
     final key = generateStoreKeyFor(key: SecretStoreKey.pinCodePassword);

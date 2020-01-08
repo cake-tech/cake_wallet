@@ -2,6 +2,9 @@ import 'package:cake_wallet/src/domain/common/enumerable_item.dart';
 
 class ExchangeProviderDescription extends EnumerableItem<int>
     with Serializable<int> {
+  const ExchangeProviderDescription({String title, int raw})
+      : super(title: title, raw: raw);
+
   static const xmrto = ExchangeProviderDescription(title: 'XMR.TO', raw: 0);
   static const changeNow =
       ExchangeProviderDescription(title: 'ChangeNOW', raw: 1);
@@ -16,9 +19,4 @@ class ExchangeProviderDescription extends EnumerableItem<int>
         return null;
     }
   }
-
-  final String title;
-
-  const ExchangeProviderDescription({this.title, int raw})
-      : super(title: title, raw: raw);
 }

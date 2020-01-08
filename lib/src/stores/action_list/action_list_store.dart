@@ -28,8 +28,36 @@ part 'action_list_store.g.dart';
 class ActionListStore = ActionListBase with _$ActionListStore;
 
 abstract class ActionListBase with Store {
+  ActionListBase(
+      {@required WalletService walletService,
+      @required SettingsStore settingsStore,
+      @required PriceStore priceStore,
+      @required this.transactionFilterStore,
+      @required this.tradeFilterStore,
+      @required this.transactionDescriptions,
+      @required this.tradesSource}) {
+    trades = List<TradeListItem>();
+    _transactions = List<TransactionListItem>();
+    _walletService = walletService;
+    _settingsStore = settingsStore;
+    _priceStore = priceStore;
+
+    if (walletService.currentWallet != null) {
+      _onWalletChanged(walletService.currentWallet);
+    }
+
+    _onWalletChangeSubscription =
+        walletService.onWalletChange.listen(_onWalletChanged);
+
+    _onTransactionDescriptions = transactionDescriptions
+        .watch()
+        .listen((_) async => await _updateTransactionsList());
+
+    updateTradeList();
+  }
+
   static List<ActionListItem> formattedItemsList(List<ActionListItem> items) {
-    var formattedList = List<ActionListItem>();
+    final formattedList = List<ActionListItem>();
     DateTime lastDate;
     items.sort((a, b) => b.date.compareTo(a.date));
 
@@ -84,7 +112,7 @@ abstract class ActionListBase with Store {
 
   @computed
   List<ActionListItem> get items {
-    var _items = List<ActionListItem>();
+    final _items = List<ActionListItem>();
 
     if (_settingsStore.actionlistDisplayMode
         .contains(ActionListDisplayMode.transactions)) {
@@ -118,34 +146,6 @@ abstract class ActionListBase with Store {
   StreamSubscription<Account> _onAccountChangeSubscription;
   StreamSubscription<BoxEvent> _onTransactionDescriptions;
 
-  ActionListBase(
-      {@required WalletService walletService,
-      @required SettingsStore settingsStore,
-      @required PriceStore priceStore,
-      @required this.transactionFilterStore,
-      @required this.tradeFilterStore,
-      @required this.transactionDescriptions,
-      @required this.tradesSource}) {
-    trades = List<TradeListItem>();
-    _transactions = List<TransactionListItem>();
-    _walletService = walletService;
-    _settingsStore = settingsStore;
-    _priceStore = priceStore;
-
-    if (walletService.currentWallet != null) {
-      _onWalletChanged(walletService.currentWallet);
-    }
-
-    _onWalletChangeSubscription =
-        walletService.onWalletChange.listen(_onWalletChanged);
-
-    _onTransactionDescriptions = transactionDescriptions
-        .watch()
-        .listen((_) async => await _updateTransactionsList());
-
-    updateTradeList();
-  }
-
   @override
   void dispose() {
     if (_onTransactionsChangeSubscription != null) {
@@ -174,11 +174,11 @@ abstract class ActionListBase with Store {
 
   Future _onWalletChanged(Wallet wallet) async {
     if (_onTransactionsChangeSubscription != null) {
-      _onTransactionsChangeSubscription.cancel();
+      await _onTransactionsChangeSubscription.cancel();
     }
 
     if (_onAccountChangeSubscription != null) {
-      _onAccountChangeSubscription.cancel();
+      await _onAccountChangeSubscription.cancel();
     }
 
     _history = wallet.getHistory();
@@ -199,7 +199,7 @@ abstract class ActionListBase with Store {
   Future _setTransactions(List<TransactionInfo> transactions) async {
     final wallet = _walletService.currentWallet;
     List<TransactionInfo> sortedTransactions = transactions.map((transaction) {
-      if (transactionDescriptions.values.length > 0) {
+      if (transactionDescriptions.values.isNotEmpty) {
         final description = transactionDescriptions.values.firstWhere(
             (desc) => desc.id == transaction.id,
             orElse: () => null);

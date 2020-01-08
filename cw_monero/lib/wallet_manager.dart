@@ -31,7 +31,7 @@ final loadWalletNative = moneroApi
     .lookup<NativeFunction<load_wallet>>('load_wallet')
     .asFunction<LoadWallet>();
 
-createWalletSync(
+void createWalletSync(
     {String path,
     String password,
     String language = 'English',
@@ -63,7 +63,7 @@ bool isWalletExistSync({String path}) {
   return isExist;
 }
 
-restoreWalletFromSeedSync(
+void restoreWalletFromSeedSync(
     {String path,
     String password,
     String seed,
@@ -92,7 +92,7 @@ restoreWalletFromSeedSync(
   }
 }
 
-restoreWalletFromKeysSync(
+void restoreWalletFromKeysSync(
     {String path,
     String password,
     String language = 'English',
@@ -133,7 +133,7 @@ restoreWalletFromKeysSync(
   }
 }
 
-loadWallet({String path, String password, int nettype = 0}) {
+void loadWallet({String path, String password, int nettype = 0}) {
   final pathPointer = Utf8.toUtf8(path);
   final passwordPointer = Utf8.toUtf8(password);
 
@@ -142,34 +142,52 @@ loadWallet({String path, String password, int nettype = 0}) {
   free(passwordPointer);
 }
 
-_createWallet(args) =>
-    createWalletSync(path: args['path'], password: args['password']);
+void _createWallet(Map<String, dynamic> args) {
+  final path = args['path'] as String;
+  final password = args['password'] as String;
 
-_restoreFromSeed(args) => restoreWalletFromSeedSync(
-    path: args['path'],
-    password: args['password'],
-    seed: args['seed'],
-    restoreHeight: args['restoreHeight']);
+  createWalletSync(path: path, password: password);
+}
 
-_restoreFromKeys(args) => restoreWalletFromKeysSync(
-    path: args['path'],
-    password: args['password'],
-    restoreHeight: args['restoreHeight'],
-    address: args['address'],
-    viewKey: args['viewKey'],
-    spendKey: args['spendKey']);
+void _restoreFromSeed(Map<String, dynamic> args) {
+  final path = args['path'] as String;
+  final password = args['password'] as String;
+  final seed = args['seed'] as String;
+  final restoreHeight = args['restoreHeight'] as int;
 
-_openWallet(Map args) async =>
+  restoreWalletFromSeedSync(
+      path: path, password: password, seed: seed, restoreHeight: restoreHeight);
+}
+
+void _restoreFromKeys(Map<String, dynamic> args) {
+  final path = args['path'] as String;
+  final password = args['password'] as String;
+  final restoreHeight = args['restoreHeight'] as int;
+  final address = args['address'] as String;
+  final viewKey = args['viewKey'] as String;
+  final spendKey = args['spendKey'] as String;
+
+  restoreWalletFromKeysSync(
+      path: path,
+      password: password,
+      restoreHeight: restoreHeight,
+      address: address,
+      viewKey: viewKey,
+      spendKey: spendKey);
+}
+
+Future<void> _openWallet(Map<String, String> args) async =>
     loadWallet(path: args['path'], password: args['password']);
 
 bool _isWalletExist(String path) => isWalletExistSync(path: path);
 
-openWallet({String path, String password, int nettype = 0}) async =>
+void openWallet({String path, String password, int nettype = 0}) async =>
     loadWallet(path: path, password: password);
 
-Future openWalletAsync(Map args) async => compute(_openWallet, args);
+Future<void> openWalletAsync(Map<String, String> args) async =>
+    compute(_openWallet, args);
 
-Future createWallet(
+Future<void> createWallet(
         {String path,
         String password,
         String language = 'English',

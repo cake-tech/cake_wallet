@@ -8,11 +8,16 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class SubaddressListPage extends BasePage {
-  bool get isModalBackButton => true;
-  String get title => S.current.subaddress_title;
-  AppBarStyle get appBarStyle => AppBarStyle.withShadow;
-
   SubaddressListPage();
+
+  @override
+  bool get isModalBackButton => true;
+
+  @override
+  String get title => S.current.subaddress_title;
+
+  @override
+  AppBarStyle get appBarStyle => AppBarStyle.withShadow;
 
   @override
   Widget body(BuildContext context) {

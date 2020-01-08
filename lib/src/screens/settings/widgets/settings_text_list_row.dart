@@ -4,11 +4,11 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 
 class SettingsTextListRow extends StatelessWidget {
+  SettingsTextListRow({@required this.onTaped, this.title, this.widget});
+
   final VoidCallback onTaped;
   final String title;
   final Widget widget;
-
-  SettingsTextListRow({@required this.onTaped, this.title, this.widget});
 
   @override
   Widget build(BuildContext context) {

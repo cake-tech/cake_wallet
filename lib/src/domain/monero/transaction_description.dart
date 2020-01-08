@@ -4,6 +4,8 @@ part 'transaction_description.g.dart';
 
 @HiveType()
 class TransactionDescription extends HiveObject {
+  TransactionDescription({this.id, this.recipientAddress});
+
   static const boxName = 'TransactionDescriptions';
 
   @HiveField(0)
@@ -11,6 +13,4 @@ class TransactionDescription extends HiveObject {
 
   @HiveField(1)
   String recipientAddress;
-
-  TransactionDescription({this.id, this.recipientAddress});
 }

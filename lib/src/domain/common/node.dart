@@ -8,6 +8,13 @@ part 'node.g.dart';
 
 @HiveType()
 class Node extends HiveObject {
+  Node({@required this.uri, this.login, this.password});
+
+  Node.fromMap(Map map)
+      : uri = (map['uri'] ?? '') as String,
+        login = map['login'] as String,
+        password = map['password'] as String;
+
   static const boxName = 'Nodes';
 
   @HiveField(0)
@@ -19,31 +26,24 @@ class Node extends HiveObject {
   @HiveField(2)
   String password;
 
-  Node({@required this.uri, this.login, this.password});
-
-  Node.fromMap(Map map)
-      : uri = map['uri'] ?? '',
-        login = map['login'],
-        password = map['password'];
-
   Future<bool> requestNode(String uri, {String login, String password}) async {
-    var resBody;
+    Map<String, dynamic> resBody;
 
     if (login != null && password != null) {
       final digestRequest = DigestRequest();
-      var response = await digestRequest.request(
+      final response = await digestRequest.request(
           uri: uri, login: login, password: password);
-      resBody = response.data;
+      resBody = response.data as Map<String, dynamic>;
     } else {
       final url = Uri.http(uri, '/json_rpc');
-      Map<String, String> headers = {'Content-type': 'application/json'};
-      String body =
+      final headers = {'Content-type': 'application/json'};
+      final body =
           json.encode({"jsonrpc": "2.0", "id": "0", "method": "get_info"});
-      var response =
+      final response =
           await http.post(url.toString(), headers: headers, body: body);
-      resBody = json.decode(response.body);
+      resBody = json.decode(response.body) as Map<String, dynamic>;
     }
 
-    return !resBody["result"]["offline"];
+    return !(resBody["result"]["offline"] as bool);
   }
 }

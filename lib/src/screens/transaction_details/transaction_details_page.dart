@@ -11,12 +11,15 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.da
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class TransactionDetailsPage extends BasePage {
-  bool get isModalBackButton => true;
-  String get title => S.current.transaction_details_title;
+  TransactionDetailsPage({this.transactionInfo});
 
   final TransactionInfo transactionInfo;
 
-  TransactionDetailsPage({this.transactionInfo});
+  @override
+  bool get isModalBackButton => true;
+
+  @override
+  String get title => S.current.transaction_details_title;
 
   @override
   Widget body(BuildContext context) {
@@ -28,23 +31,23 @@ class TransactionDetailsPage extends BasePage {
 }
 
 class TransactionDetailsForm extends StatefulWidget {
-  final TransactionInfo transactionInfo;
-  final SettingsStore settingsStore;
-
   TransactionDetailsForm(
       {@required this.transactionInfo, @required this.settingsStore});
 
+  final TransactionInfo transactionInfo;
+  final SettingsStore settingsStore;
+
   @override
-  createState() => TransactionDetailsFormState();
+  TransactionDetailsFormState createState() => TransactionDetailsFormState();
 }
 
 class TransactionDetailsFormState extends State<TransactionDetailsForm> {
   final DateFormat _dateFormat = DateFormat('dd.MM.yyyy, HH:mm');
-  List<StandartListItem> _items = List<StandartListItem>();
+  final _items = List<StandartListItem>();
 
   @override
   void initState() {
-    List<StandartListItem> items = [
+    final items = [
       StandartListItem(
           title: S.current.transaction_details_transaction_id,
           value: widget.transactionInfo.id),
@@ -59,10 +62,11 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
           value: widget.transactionInfo.amountFormatted())
     ];
 
-    if (widget.settingsStore.shouldSaveRecipientAddress && widget.transactionInfo.recipientAddress != null) {
+    if (widget.settingsStore.shouldSaveRecipientAddress &&
+        widget.transactionInfo.recipientAddress != null) {
       items.add(StandartListItem(
-        title: S.current.transaction_details_recipient_address,
-        value: widget.transactionInfo.recipientAddress));
+          title: S.current.transaction_details_recipient_address,
+          value: widget.transactionInfo.recipientAddress));
     }
 
     _items.addAll(items);

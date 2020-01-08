@@ -13,6 +13,18 @@ part 'account_list_store.g.dart';
 class AccountListStore = AcountListStoreBase with _$AccountListStore;
 
 abstract class AcountListStoreBase with Store {
+  AcountListStoreBase({@required WalletService walletService}) {
+    accounts = [];
+    isAccountCreating = false;
+
+    if (walletService.currentWallet != null) {
+      _onWalletChanged(walletService.currentWallet);
+    }
+
+    _onWalletChangeSubscription =
+        walletService.onWalletChange.listen(_onWalletChanged);
+  }
+
   @observable
   List<Account> accounts;
 
@@ -29,18 +41,6 @@ abstract class AcountListStoreBase with Store {
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<List<Account>> _onAccountsChangeSubscription;
 
-  AcountListStoreBase({@required WalletService walletService}) {
-    accounts = [];
-    isAccountCreating = false;
-
-    if (walletService.currentWallet != null) {
-      _onWalletChanged(walletService.currentWallet);
-    }
-
-    _onWalletChangeSubscription =
-        walletService.onWalletChange.listen(_onWalletChanged);
-  }
-
   @override
   void dispose() {
     _onWalletChangeSubscription.cancel();
@@ -52,8 +52,8 @@ abstract class AcountListStoreBase with Store {
     super.dispose();
   }
 
-  Future updateAccountList() async {
-    await _accountList.refresh();
+  void updateAccountList() {
+    _accountList.refresh();
     accounts = _accountList.getAll();
   }
 
@@ -61,7 +61,7 @@ abstract class AcountListStoreBase with Store {
     try {
       isAccountCreating = true;
       await _accountList.addAccount(label: label);
-      await updateAccountList();
+      updateAccountList();
       isAccountCreating = false;
     } catch (e) {
       isAccountCreating = false;
@@ -70,19 +70,19 @@ abstract class AcountListStoreBase with Store {
 
   Future renameAccount({int index, String label}) async {
     await _accountList.setLabelSubaddress(accountIndex: index, label: label);
-    await updateAccountList();
+    updateAccountList();
   }
 
   Future _onWalletChanged(Wallet wallet) async {
     if (_onAccountsChangeSubscription != null) {
-      _onAccountsChangeSubscription.cancel();
+      await _onAccountsChangeSubscription.cancel();
     }
 
     if (wallet is MoneroWallet) {
       _accountList = wallet.getAccountList();
       _onAccountsChangeSubscription =
           _accountList.accounts.listen((accounts) => this.accounts = accounts);
-      await updateAccountList();
+      updateAccountList();
 
       return;
     }
@@ -91,8 +91,8 @@ abstract class AcountListStoreBase with Store {
   }
 
   void validateAccountName(String value) {
-    String p = '^[a-zA-Z0-9_]{1,15}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[a-zA-Z0-9_]{1,15}\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_account_name;
   }

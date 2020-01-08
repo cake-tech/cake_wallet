@@ -5,8 +5,11 @@ part 'wallet_info.g.dart';
 
 @HiveType()
 class WalletInfo extends HiveObject {
+  WalletInfo(
+      {this.id, this.name, this.type, this.isRecovery, this.restoreHeight});
+
   static const boxName = 'WalletInfo';
-  
+
   @HiveField(0)
   String id;
 
@@ -21,7 +24,4 @@ class WalletInfo extends HiveObject {
 
   @HiveField(4)
   int restoreHeight;
-
-  WalletInfo(
-      {this.id, this.name, this.type, this.isRecovery, this.restoreHeight});
 }

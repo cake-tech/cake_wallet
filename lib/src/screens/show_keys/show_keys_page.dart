@@ -9,7 +9,10 @@ import 'package:cake_wallet/src/stores/wallet/wallet_keys_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class ShowKeysPage extends BasePage {
+  @override
   bool get isModalBackButton => true;
+
+  @override
   String get title => S.current.wallet_keys;
 
   @override
@@ -20,7 +23,7 @@ class ShowKeysPage extends BasePage {
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0, left: 20, right: 20),
         child: Observer(
           builder: (_) {
-            Map<String, String> keysMap = {
+            final keysMap = {
               S.of(context).view_key_public: walletKeysStore.publicViewKey,
               S.of(context).view_key_private: walletKeysStore.privateViewKey,
               S.of(context).spend_key_public: walletKeysStore.publicSpendKey,

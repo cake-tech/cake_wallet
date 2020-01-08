@@ -15,16 +15,17 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/palette.dart';
 
 class NewWalletPage extends BasePage {
-  final WalletListService walletsService;
-  final WalletService walletService;
-  final SharedPreferences sharedPreferences;
-
-  String get title => S.current.new_wallet;
-
   NewWalletPage(
       {@required this.walletsService,
       @required this.walletService,
       @required this.sharedPreferences});
+
+  final WalletListService walletsService;
+  final WalletService walletService;
+  final SharedPreferences sharedPreferences;
+
+  @override
+  String get title => S.current.new_wallet;
 
   @override
   Widget body(BuildContext context) => WalletNameForm();
@@ -32,7 +33,7 @@ class NewWalletPage extends BasePage {
 
 class WalletNameForm extends StatefulWidget {
   @override
-  createState() => _WalletNameFormState();
+  _WalletNameFormState createState() => _WalletNameFormState();
 }
 
 class _WalletNameFormState extends State<WalletNameForm> {
@@ -43,14 +44,14 @@ class _WalletNameFormState extends State<WalletNameForm> {
   Widget build(BuildContext context) {
     final walletCreationStore = Provider.of<WalletCreationStore>(context);
 
-    reaction((_) => walletCreationStore.state, (state) {
+    reaction((_) => walletCreationStore.state, (WalletCreationState state) {
       if (state is WalletCreatedSuccessfully) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
 
       if (state is WalletCreationFailure) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -88,8 +89,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
                           fontSize: 24.0, color: Theme.of(context).hintColor),
                       hintText: S.of(context).wallet_name,
                       focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Palette.cakeGreen, width: 2.0)),
+                          borderSide:
+                              BorderSide(color: Palette.cakeGreen, width: 2.0)),
                       enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Theme.of(context).focusColor,
