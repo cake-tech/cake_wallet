@@ -44,7 +44,6 @@ class S implements WidgetsLocalizations {
   String get change_language => "Change language";
   String get clear => "Clear";
   String get confirm => "Confirm";
-  String get send_xmr => "Send XMR";
   String get confirm_sending => "Confirm sending";
   String get contact => "Contact";
   String get contact_name => "Contact Name";
@@ -55,7 +54,7 @@ class S implements WidgetsLocalizations {
   String get copy_id => "Copy ID";
   String get create_new => "Create new";
   String get delete => "Delete";
-  String get digit_pin => "-digit Pin";
+  String get digit_pin => "-digit PIN";
   String get edit => "Edit";
   String get enter_your_pin => "Enter your PIN";
   String get enter_your_pin_again => "Enter your pin again";
@@ -155,6 +154,7 @@ class S implements WidgetsLocalizations {
   String get send_monero_address => "Monero address";
   String get send_payment_id => "Payment ID (optional)";
   String get send_title => "Send Monero";
+  String get send_xmr => "Send XMR";
   String get send_your_wallet => "Your wallet";
   String get sending => "Sending";
   String get sent => "Sent";
@@ -237,7 +237,7 @@ class S implements WidgetsLocalizations {
   String get transaction_sent => "Transaction sent!";
   String get transactions => "Transactions";
   String get transactions_by_date => "Transactions by date";
-  String get use => "Use ";
+  String get use => "Switch to ";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
   String get wallet_keys => "Wallet keys";
@@ -400,7 +400,6 @@ class $de extends S {
   String get trade_details_pair => "Paar";
   @override
   String get confirm => "Bestätigen";
-  String get send_xmr => "Senden XMR";
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
   @override
@@ -449,6 +448,8 @@ class $de extends S {
   String get restore_seed_keys_restore => "Seed / Schlüssel wiederherstellen";
   @override
   String get xmr_hidden => "XMR versteckt";
+  @override
+  String get send_xmr => "Senden XMR";
   @override
   String get exchange => "Austausch";
   @override
@@ -648,7 +649,7 @@ class $de extends S {
   @override
   String get transactions_by_date => "Transaktionen nach Datum";
   @override
-  String get use => "Verwenden ";
+  String get use => "Wechseln zu ";
   @override
   String get trade_details_state => "Zustand";
   @override
@@ -768,7 +769,7 @@ class $de extends S {
   @override
   String get error_text_node_port => "Der Knotenport kann nur Nummern zwischen 0 und 65535 enthalten";
   @override
-  String get digit_pin => "-stelliger Pin";
+  String get digit_pin => "-stelliger PIN";
   @override
   String get first_wallet_text => "tolle Brieftasche\nzum Monero";
   @override
@@ -937,7 +938,6 @@ class $hi extends S {
   String get trade_details_pair => "जोड़ा";
   @override
   String get confirm => "की पुष्टि करें";
-  String get send_xmr => "संदेश XMR";
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
   @override
@@ -986,6 +986,8 @@ class $hi extends S {
   String get restore_seed_keys_restore => "बीज / कुंजी पुनर्स्थापित करें";
   @override
   String get xmr_hidden => "XMR छिपा हुआ";
+  @override
+  String get send_xmr => "संदेश XMR";
   @override
   String get exchange => "अदला बदली";
   @override
@@ -1185,7 +1187,7 @@ class $hi extends S {
   @override
   String get transactions_by_date => "तारीख से लेन-देन";
   @override
-  String get use => "उपयोग ";
+  String get use => "पर स्विच ";
   @override
   String get trade_details_state => "राज्य";
   @override
@@ -1474,7 +1476,6 @@ class $ru extends S {
   String get trade_details_pair => "Пара";
   @override
   String get confirm => "Подтвердить";
-  String get send_xmr => "Отправить XMR";
   @override
   String get settings_display_balance_as => "Отображать баланс";
   @override
@@ -1523,6 +1524,8 @@ class $ru extends S {
   String get restore_seed_keys_restore => "Восстановить с помощью код-фразы/ключей";
   @override
   String get xmr_hidden => "XMR Скрытый";
+  @override
+  String get send_xmr => "Отправить XMR";
   @override
   String get exchange => "Обмен";
   @override
@@ -1722,7 +1725,7 @@ class $ru extends S {
   @override
   String get transactions_by_date => "Сортировать по дате";
   @override
-  String get use => "Использовать ";
+  String get use => "Переключиться на ";
   @override
   String get trade_details_state => "Статус";
   @override
@@ -1842,7 +1845,7 @@ class $ru extends S {
   @override
   String get error_text_node_port => "Порт ноды может включать только цифры от 0 до  65535";
   @override
-  String get digit_pin => "-значный Pin";
+  String get digit_pin => "-значный PIN";
   @override
   String get first_wallet_text => "В самом удобном кошельке для Monero";
   @override
@@ -2012,8 +2015,6 @@ class $ko extends S {
   @override
   String get confirm => "확인";
   @override
-  String get send_xmr => "보내다 XMR";
-  @override
   String get settings_display_balance_as => "잔액 표시";
   @override
   String get trade_details_provider => "공급자";
@@ -2061,6 +2062,8 @@ class $ko extends S {
   String get restore_seed_keys_restore => "종자 / 키 복원";
   @override
   String get xmr_hidden => "XMR 숨김";
+  @override
+  String get send_xmr => "보내다 XMR";
   @override
   String get exchange => "교환";
   @override
@@ -2260,7 +2263,7 @@ class $ko extends S {
   @override
   String get transactions_by_date => "날짜 별 거래";
   @override
-  String get use => "용도 ";
+  String get use => "로 전환 ";
   @override
   String get trade_details_state => "상태";
   @override
@@ -2550,8 +2553,6 @@ class $pt extends S {
   @override
   String get confirm => "Confirme";
   @override
-  String get send_xmr => "Mandar XMR";
-  @override
   String get settings_display_balance_as => "Exibir saldo como";
   @override
   String get trade_details_provider => "Fornecedor";
@@ -2599,6 +2600,8 @@ class $pt extends S {
   String get restore_seed_keys_restore => "Restauração de sementes / chaves";
   @override
   String get xmr_hidden => "XMR Oculto";
+  @override
+  String get send_xmr => "Mandar XMR";
   @override
   String get exchange => "Troca";
   @override
@@ -2798,7 +2801,7 @@ class $pt extends S {
   @override
   String get transactions_by_date => "Transações por data";
   @override
-  String get use => "Usar ";
+  String get use => "Troque para ";
   @override
   String get trade_details_state => "Estado";
   @override
@@ -2918,7 +2921,7 @@ class $pt extends S {
   @override
   String get error_text_node_port => "A porta do nó pode conter apenas números entre 0 e 65535";
   @override
-  String get digit_pin => "de dois dígitos";
+  String get digit_pin => "-dígitos PIN";
   @override
   String get first_wallet_text => "Carteira impressionante\npara Monero";
   @override
@@ -3088,8 +3091,6 @@ class $ja extends S {
   @override
   String get confirm => "確認する";
   @override
-  String get send_xmr => "送る XMR";
-  @override
   String get settings_display_balance_as => "残高を表示";
   @override
   String get trade_details_provider => "プロバイダー";
@@ -3137,6 +3138,8 @@ class $ja extends S {
   String get restore_seed_keys_restore => "シード/キーの復元";
   @override
   String get xmr_hidden => "XMR非表示";
+  @override
+  String get send_xmr => "送る XMR";
   @override
   String get exchange => "交換する";
   @override
@@ -3336,7 +3339,7 @@ class $ja extends S {
   @override
   String get transactions_by_date => "日付ごとの取引";
   @override
-  String get use => "つかいます ";
+  String get use => "切り替える ";
   @override
   String get trade_details_state => "状態";
   @override
@@ -3630,8 +3633,6 @@ class $pl extends S {
   @override
   String get confirm => "Potwierdzać";
   @override
-  String get send_xmr => "Wysłać XMR";
-  @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
   @override
   String get trade_details_provider => "Dostawca";
@@ -3679,6 +3680,8 @@ class $pl extends S {
   String get restore_seed_keys_restore => "Przywracanie nasion / kluczy";
   @override
   String get xmr_hidden => "XMR Ukryty";
+  @override
+  String get send_xmr => "Wysłać XMR";
   @override
   String get exchange => "Wymieniać się";
   @override
@@ -3878,7 +3881,7 @@ class $pl extends S {
   @override
   String get transactions_by_date => "Transakcje według daty";
   @override
-  String get use => "Posługiwać się ";
+  String get use => "Przełącz na ";
   @override
   String get trade_details_state => "Stan";
   @override
@@ -3998,7 +4001,7 @@ class $pl extends S {
   @override
   String get error_text_node_port => "Port węzła może zawierać tylko liczby od 0 do 65535";
   @override
-  String get digit_pin => "- znak PIN";
+  String get digit_pin => "-znak PIN";
   @override
   String get first_wallet_text => "Niesamowity portfel\nfdla Monero";
   @override
@@ -4168,8 +4171,6 @@ class $es extends S {
   @override
   String get confirm => "Confirmar";
   @override
-  String get send_xmr => "Enviar XMR";
-  @override
   String get settings_display_balance_as => "Mostrar saldo como";
   @override
   String get trade_details_provider => "Proveedor";
@@ -4217,6 +4218,8 @@ class $es extends S {
   String get restore_seed_keys_restore => "Restauración de semillas / llaves";
   @override
   String get xmr_hidden => "XMR Oculto";
+  @override
+  String get send_xmr => "Enviar XMR";
   @override
   String get exchange => "Intercambiar";
   @override
@@ -4416,7 +4419,7 @@ class $es extends S {
   @override
   String get transactions_by_date => "Transacciones por fecha";
   @override
-  String get use => "Utilizar ";
+  String get use => "Cambiar a ";
   @override
   String get trade_details_state => "Estado";
   @override
@@ -4536,7 +4539,7 @@ class $es extends S {
   @override
   String get error_text_node_port => "El puerto de nodo solo puede contener números entre 0 y 65535";
   @override
-  String get digit_pin => "-dígito Pin";
+  String get digit_pin => "-dígito PIN";
   @override
   String get first_wallet_text => "Impresionante billetera\npara Monero";
   @override
@@ -4706,8 +4709,6 @@ class $nl extends S {
   @override
   String get confirm => "Bevestigen";
   @override
-  String get send_xmr => "Sturen XMR";
-  @override
   String get settings_display_balance_as => "Toon saldo als";
   @override
   String get trade_details_provider => "Leverancier";
@@ -4755,6 +4756,8 @@ class $nl extends S {
   String get restore_seed_keys_restore => "Zaad / sleutels herstellen";
   @override
   String get xmr_hidden => "XMR Verborgen";
+  @override
+  String get send_xmr => "Sturen XMR";
   @override
   String get exchange => "Uitwisseling";
   @override
@@ -4954,7 +4957,7 @@ class $nl extends S {
   @override
   String get transactions_by_date => "Transacties op datum";
   @override
-  String get use => "Gebruik ";
+  String get use => "Overschakelen naar ";
   @override
   String get trade_details_state => "Staat";
   @override
@@ -5244,8 +5247,6 @@ class $zh extends S {
   @override
   String get confirm => "确认";
   @override
-  String get send_xmr => "发送 XMR";
-  @override
   String get settings_display_balance_as => "将余额显示为";
   @override
   String get trade_details_provider => "提供者";
@@ -5293,6 +5294,8 @@ class $zh extends S {
   String get restore_seed_keys_restore => "种子/密钥还原";
   @override
   String get xmr_hidden => "XMR Hidden";
+  @override
+  String get send_xmr => "发送 XMR";
   @override
   String get exchange => "交换";
   @override
@@ -5492,7 +5495,7 @@ class $zh extends S {
   @override
   String get transactions_by_date => "按日期交易";
   @override
-  String get use => "使用 ";
+  String get use => "切換到 ";
   @override
   String get trade_details_state => "条件";
   @override
