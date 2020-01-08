@@ -5,9 +5,15 @@ import 'package:cake_wallet/src/domain/common/node.dart';
 
 Future<List<Node>> loadDefaultNodes() async {
   final nodesRaw = await rootBundle.loadString('assets/node_list.yml');
-  final nodes = loadYaml(nodesRaw) as List<Map<dynamic, dynamic>>;
-  
-  return nodes.map((raw) => Node.fromMap(raw)).toList();
+  final nodes = loadYaml(nodesRaw) as YamlList;
+
+  return nodes.map((dynamic raw) {
+    if (raw is Map) {
+      return Node.fromMap(raw);
+    }
+
+    return null;
+  }).toList();
 }
 
 Future resetToDefault(Box<Node> nodeSource) async {
