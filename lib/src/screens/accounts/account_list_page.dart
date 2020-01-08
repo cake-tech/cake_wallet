@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class AccountListPage extends BasePage {
+  @override
   String get title => S.current.accounts;
 
   @override
@@ -21,8 +22,7 @@ class AccountListPage extends BasePage {
         width: 28.0,
         height: 28.0,
         decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).selectedRowColor),
+            shape: BoxShape.circle, color: Theme.of(context).selectedRowColor),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
@@ -35,7 +35,7 @@ class AccountListPage extends BasePage {
                   onPressed: () async {
                     await Navigator.of(context)
                         .pushNamed(Routes.accountCreation);
-                    await accountListStore.updateAccountList();
+                    accountListStore.updateAccountList();
                   },
                   child: Offstage()),
             )
@@ -53,13 +53,10 @@ class AccountListPage extends BasePage {
 
     return Container(
       padding: EdgeInsets.only(top: 10, bottom: 20),
-      child: Observer(
-        builder: (_) {
-          final accounts = accountListStore.accounts;
-          return ListView.builder(
-            itemCount: accounts == null
-                ? 0
-                : accounts.length,
+      child: Observer(builder: (_) {
+        final accounts = accountListStore.accounts;
+        return ListView.builder(
+            itemCount: accounts == null ? 0 : accounts.length,
             itemBuilder: (BuildContext context, int index) {
               final account = accounts[index];
 
@@ -78,7 +75,10 @@ class AccountListPage extends BasePage {
                             account.label,
                             style: TextStyle(
                                 fontSize: 16.0,
-                                color: Theme.of(context).primaryTextTheme.headline.color),
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline
+                                    .color),
                           ),
                           onTap: () {
                             if (isCurrent) {
@@ -102,8 +102,9 @@ class AccountListPage extends BasePage {
                       color: Colors.blue,
                       icon: Icons.edit,
                       onTap: () async {
-                        await Navigator.of(context)
-                            .pushNamed(Routes.accountCreation, arguments: account);
+                        await Navigator.of(context).pushNamed(
+                            Routes.accountCreation,
+                            arguments: account);
                         // await accountListStore.updateAccountList().then((_) {
                         //   if (isCurrent) walletStore.setAccount(accountListStore.accounts[index]);
                         // });
@@ -113,8 +114,7 @@ class AccountListPage extends BasePage {
                 );
               });
             });
-        }
-      ),
+      }),
     );
   }
 }

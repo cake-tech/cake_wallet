@@ -8,6 +8,8 @@ part 'user_store.g.dart';
 class UserStore = UserStoreBase with _$UserStore;
 
 abstract class UserStoreBase with Store {
+  UserStoreBase({@required this.accountService});
+
   UserService accountService;
 
   @observable
@@ -16,17 +18,15 @@ abstract class UserStoreBase with Store {
   @observable
   String errorMessage;
 
-  UserStoreBase({@required this.accountService});
-
   @action
   Future set({String password}) async {
     state = UserStoreStateInitial();
 
     try {
-        await accountService.setPassword(password);
-        state = PinCodeSetSuccesfully();
-      } catch(e) {
-        state = PinCodeSetFailed(error: e.toString());
-      }
+      await accountService.setPassword(password);
+      state = PinCodeSetSuccesfully();
+    } catch (e) {
+      state = PinCodeSetFailed(error: e.toString());
+    }
   }
 }

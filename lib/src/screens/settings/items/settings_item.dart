@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/settings/attributes.dart';
 
 class SettingsItem {
+  SettingsItem(
+      {this.onTaped,
+      this.title,
+      this.link,
+      this.image,
+      this.widget,
+      this.attribute,
+      this.widgetBuilder});
+
   final VoidCallback onTaped;
   final String title;
   final String link;
@@ -9,12 +18,4 @@ class SettingsItem {
   final Widget widget;
   final Attributes attribute;
   final WidgetBuilder widgetBuilder;
-
-  SettingsItem({this.onTaped,
-    this.title,
-    this.link,
-    this.image,
-    this.widget,
-    this.attribute,
-    this.widgetBuilder});
 }

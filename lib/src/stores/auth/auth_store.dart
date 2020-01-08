@@ -12,6 +12,14 @@ part 'auth_store.g.dart';
 class AuthStore = AuthStoreBase with _$AuthStore;
 
 abstract class AuthStoreBase with Store {
+  AuthStoreBase(
+      {@required this.userService,
+      @required this.walletService,
+      @required this.sharedPreferences}) {
+    state = AuthenticationStateInitial();
+    _failureCounter = 0;
+  }
+  
   static const maxFailedLogins = 3;
   static const banTimeout = 180; // 3 mins
   final banTimeoutKey = S.current.auth_store_ban_timeout;
@@ -26,14 +34,6 @@ abstract class AuthStoreBase with Store {
 
   @observable
   int _failureCounter;
-
-  AuthStoreBase(
-      {@required this.userService,
-      @required this.walletService,
-      @required this.sharedPreferences}) {
-    state = AuthenticationStateInitial();
-    _failureCounter = 0;
-  }
 
   @action
   Future auth({String password}) async {

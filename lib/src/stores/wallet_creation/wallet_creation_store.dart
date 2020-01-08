@@ -11,6 +11,13 @@ part 'wallet_creation_store.g.dart';
 class WalletCreationStore = WalletCreationStoreBase with _$WalletCreationStore;
 
 abstract class WalletCreationStoreBase with Store {
+  WalletCreationStoreBase(
+      {@required this.authStore,
+      @required this.walletListService,
+      @required this.sharedPreferences}) {
+    state = WalletCreationStateInitial();
+  }
+
   final AuthenticationStore authStore;
   final WalletListService walletListService;
   final SharedPreferences sharedPreferences;
@@ -23,13 +30,6 @@ abstract class WalletCreationStoreBase with Store {
 
   @observable
   bool isValid;
-
-  WalletCreationStoreBase( 
-      {@required this.authStore,
-      @required this.walletListService,
-      @required this.sharedPreferences}) {
-    state = WalletCreationStateInitial();
-  }
 
   @action
   Future create({String name}) async {
@@ -46,8 +46,8 @@ abstract class WalletCreationStoreBase with Store {
   }
 
   void validateWalletName(String value) {
-    String p = '^[a-zA-Z0-9_]{1,15}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[a-zA-Z0-9_]{1,15}\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_wallet_name;
   }

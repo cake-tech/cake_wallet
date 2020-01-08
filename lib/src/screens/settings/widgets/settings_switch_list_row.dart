@@ -8,13 +8,13 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/widgets/standart_switch.dart';
 
 class SettingsSwitchListRow extends StatelessWidget {
-  final String title;
-
   SettingsSwitchListRow({@required this.title});
+
+  final String title;
 
   Widget _getSwitch(BuildContext context) {
     final settingsStore = Provider.of<SettingsStore>(context);
-    ThemeChanger _themeChanger = Provider.of<ThemeChanger>(context);
+    final _themeChanger = Provider.of<ThemeChanger>(context);
 
     if (settingsStore.itemHeaders[title] ==
         S.of(context).settings_save_recipient_address) {
@@ -22,7 +22,7 @@ class SettingsSwitchListRow extends StatelessWidget {
           builder: (_) => StandartSwitch(
               value: settingsStore.shouldSaveRecipientAddress,
               onTaped: () {
-                bool _currentValue = !settingsStore.shouldSaveRecipientAddress;
+                final _currentValue = !settingsStore.shouldSaveRecipientAddress;
                 settingsStore.setSaveRecipientAddress(
                     shouldSaveRecipientAddress: _currentValue);
               }));
@@ -34,7 +34,7 @@ class SettingsSwitchListRow extends StatelessWidget {
           builder: (_) => StandartSwitch(
               value: settingsStore.allowBiometricalAuthentication,
               onTaped: () {
-                bool _currentValue =
+                final _currentValue =
                     !settingsStore.allowBiometricalAuthentication;
                 settingsStore.setAllowBiometricalAuthentication(
                     allowBiometricalAuthentication: _currentValue);
@@ -46,7 +46,7 @@ class SettingsSwitchListRow extends StatelessWidget {
           builder: (_) => StandartSwitch(
               value: settingsStore.isDarkTheme,
               onTaped: () {
-                bool _currentValue = !settingsStore.isDarkTheme;
+                final _currentValue = !settingsStore.isDarkTheme;
                 settingsStore.saveDarkTheme(isDarkTheme: _currentValue);
                 _themeChanger.setTheme(
                     _currentValue ? Themes.darkTheme : Themes.lightTheme);

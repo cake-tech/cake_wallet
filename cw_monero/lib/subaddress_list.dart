@@ -26,7 +26,7 @@ final subaddrressSetLabelNative = moneroApi
     .lookup<NativeFunction<subaddress_set_label>>('subaddress_set_label')
     .asFunction<SubaddressSetLabel>();
 
-refreshSubaddresses({int accountIndex}) =>
+void refreshSubaddresses({int accountIndex}) =>
     subaddressRefreshNative(accountIndex);
 
 List<SubaddressRow> getAllSubaddresses() {
@@ -40,25 +40,35 @@ List<SubaddressRow> getAllSubaddresses() {
       .toList();
 }
 
-addSubaddressSync({int accountIndex, String label}) {
+void addSubaddressSync({int accountIndex, String label}) {
   final labelPointer = Utf8.toUtf8(label);
   subaddrressAddNewNative(accountIndex, labelPointer);
   free(labelPointer);
 }
 
-setLabelForSubaddressSync({int accountIndex, int addressIndex, String label}) {
+void setLabelForSubaddressSync(
+    {int accountIndex, int addressIndex, String label}) {
   final labelPointer = Utf8.toUtf8(label);
+  
   subaddrressSetLabelNative(accountIndex, addressIndex, labelPointer);
   free(labelPointer);
 }
 
-_addSubaddress(Map args) =>
-    addSubaddressSync(accountIndex: args['accountIndex'], label: args['label']);
+void _addSubaddress(Map<String, dynamic> args) {
+  final label = args['label'] as String;
+  final accountIndex = args['accountIndex'] as int;
 
-_setLabelForSubaddress(Map args) => setLabelForSubaddressSync(
-    accountIndex: args['accountIndex'],
-    addressIndex: args['addressIndex'],
-    label: args['label']);
+  addSubaddressSync(accountIndex: accountIndex, label: label);
+}
+
+void _setLabelForSubaddress(Map<String, dynamic> args) {
+  final label = args['label'] as String;
+  final accountIndex = args['accountIndex'] as int;
+  final addressIndex = args['addressIndex'] as int;
+
+  setLabelForSubaddressSync(
+      accountIndex: accountIndex, addressIndex: addressIndex, label: label);
+}
 
 Future addSubaddress({int accountIndex, String label}) async =>
     compute(_addSubaddress, {'accountIndex': accountIndex, 'label': label});

@@ -15,6 +15,17 @@ class SubadrressCreationStore = SubadrressCreationStoreBase
     with _$SubadrressCreationStore;
 
 abstract class SubadrressCreationStoreBase with Store {
+  SubadrressCreationStoreBase({@required WalletService walletService}) {
+    state = SubaddressCreationStateInitial();
+
+    if (walletService.currentWallet != null) {
+      _onWalletChanged(walletService.currentWallet);
+    }
+
+    _onWalletChangeSubscription =
+        walletService.onWalletChange.listen(_onWalletChanged);
+  }
+
   SubaddressCreationState state;
 
   @observable
@@ -28,17 +39,6 @@ abstract class SubadrressCreationStoreBase with Store {
   StreamSubscription<Account> _onAccountChangeSubscription;
   Account _account;
 
-  SubadrressCreationStoreBase({@required WalletService walletService}) {
-    state = SubaddressCreationStateInitial();
-
-    if (walletService.currentWallet != null) {
-      _onWalletChanged(walletService.currentWallet);
-    }
-
-    _onWalletChangeSubscription =
-        walletService.onWalletChange.listen(_onWalletChanged);
-  }
-
   @override
   void dispose() {
     _onWalletChangeSubscription.cancel();
@@ -50,7 +50,7 @@ abstract class SubadrressCreationStoreBase with Store {
     super.dispose();
   }
 
-  Future add({String label}) async {
+  Future<void> add({String label}) async {
     try {
       state = SubaddressIsCreating();
       await _subaddressList.addSubaddress(
@@ -61,14 +61,15 @@ abstract class SubadrressCreationStoreBase with Store {
     }
   }
 
-  Future _onWalletChanged(Wallet wallet) async {
+  Future<void> _onWalletChanged(Wallet wallet) async {
     if (wallet is MoneroWallet) {
       _account = wallet.account;
       _subaddressList = wallet.getSubaddress();
 
-      _onAccountChangeSubscription = wallet.onAccountChange.listen((account) async {
+      _onAccountChangeSubscription =
+          wallet.onAccountChange.listen((account) async {
         _account = account;
-        _subaddressList.update(accountIndex: account.id);
+        await _subaddressList.update(accountIndex: account.id);
       });
       return;
     }
@@ -77,8 +78,8 @@ abstract class SubadrressCreationStoreBase with Store {
   }
 
   void validateSubaddressName(String value) {
-    String p = '''^[^`,'"]{1,20}\$''';
-    RegExp regExp = new RegExp(p);
+    const pattern = '''^[^`,'"]{1,20}\$''';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_subaddress_name;
   }

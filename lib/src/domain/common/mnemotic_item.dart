@@ -1,12 +1,10 @@
 class MnemoticItem {
+  MnemoticItem({String text, this.dic}) : _text = text;
+
   String get text => _text;
   final List<String> dic;
 
   String _text;
-
-  MnemoticItem({String text, this.dic}) {
-    _text = text;
-  }
 
   bool isCorrect() => dic.contains(text);
 

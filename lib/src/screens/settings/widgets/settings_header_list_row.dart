@@ -5,9 +5,9 @@ import 'package:cake_wallet/palette.dart';
 import 'package:provider/provider.dart';
 
 class SettingsHeaderListRow extends StatelessWidget {
-  final String title;
-
   SettingsHeaderListRow({this.title});
+
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -25,10 +25,10 @@ class SettingsHeaderListRow extends StatelessWidget {
             children: <Widget>[
               Observer(
                   builder: (_) => Text(
-                    settingsStore.itemHeaders[title],
-                    style: TextStyle(
-                        fontSize: 15.0, color: Palette.wildDarkBlue),
-                  ))
+                        settingsStore.itemHeaders[title],
+                        style: TextStyle(
+                            fontSize: 15.0, color: Palette.wildDarkBlue),
+                      ))
             ],
           ),
         ),
@@ -38,5 +38,4 @@ class SettingsHeaderListRow extends StatelessWidget {
       ],
     );
   }
-
 }

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class SettingsLinktListRow extends StatelessWidget {
+  SettingsLinktListRow(
+      {@required this.onTaped, this.title, this.link, this.image});
+
   final VoidCallback onTaped;
   final String title;
   final String link;
   final Image image;
 
-  SettingsLinktListRow({@required this.onTaped, this.title, this.link, this.image});
-
   @override
   Widget build(BuildContext context) {
-
     return Container(
       color: Theme.of(context).accentTextTheme.headline.backgroundColor,
       child: ListTile(
@@ -28,20 +28,17 @@ class SettingsLinktListRow extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 15.0,
                     fontWeight: FontWeight.w500,
-                    color: Theme.of(context).primaryTextTheme.title.color
-                ),
+                    color: Theme.of(context).primaryTextTheme.title.color),
               ),
             )
           ],
         ),
         trailing: Text(
           link,
-          style:
-          TextStyle(fontSize: 14.0, color: Palette.cakeGreen),
+          style: TextStyle(fontSize: 14.0, color: Palette.cakeGreen),
         ),
         onTap: onTaped,
       ),
     );
   }
-
 }

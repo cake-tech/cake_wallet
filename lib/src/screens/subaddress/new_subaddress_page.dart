@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/palette.dart';
 
 class NewSubaddressPage extends BasePage {
+  @override
   String get title => S.current.new_subaddress_title;
 
   @override
@@ -21,7 +22,7 @@ class NewSubaddressPage extends BasePage {
     final subaddressCreationStore =
         Provider.of<SubadrressCreationStore>(context);
 
-    reaction((_) => subaddressCreationStore.state, (state) {
+    reaction((_) => subaddressCreationStore.state, (SubaddressCreationState state) {
       if (state is SubaddressCreatedSuccessfully) {
         WidgetsBinding.instance
             .addPostFrameCallback((_) => Navigator.of(context).pop());
@@ -58,8 +59,8 @@ class NewSubaddressFormState extends State<NewSubaddressForm> {
                       hintStyle: TextStyle(color: Theme.of(context).hintColor),
                       hintText: S.of(context).new_subaddress_label_name,
                       focusedBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Palette.cakeGreen, width: 2.0)),
+                          borderSide:
+                              BorderSide(color: Palette.cakeGreen, width: 2.0)),
                       enabledBorder: UnderlineInputBorder(
                           borderSide: BorderSide(
                               color: Theme.of(context).focusColor,

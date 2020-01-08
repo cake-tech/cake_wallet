@@ -3,6 +3,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/enumerable_item.dart';
 
 class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
+  const BalanceDisplayMode({@required String title, @required int raw})
+      : super(title: title, raw: raw);
+
   static const all = [
     BalanceDisplayMode.fullBalance,
     BalanceDisplayMode.availableBalance,
@@ -26,9 +29,6 @@ class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
         return null;
     }
   }
-
-  const BalanceDisplayMode({@required String title, @required int raw})
-      : super(title: title, raw: raw);
 
   @override
   String toString() {

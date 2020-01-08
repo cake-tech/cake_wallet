@@ -17,16 +17,17 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/palette.dart';
 
 class RestoreWalletFromKeysPage extends BasePage {
-  final WalletListService walletsService;
-  final WalletService walletService;
-  final SharedPreferences sharedPreferences;
-
-  String get title => S.current.restore_title_from_keys;
-
   RestoreWalletFromKeysPage(
       {@required this.walletsService,
       @required this.sharedPreferences,
       @required this.walletService});
+
+  final WalletListService walletsService;
+  final WalletService walletService;
+  final SharedPreferences sharedPreferences;
+
+  @override
+  String get title => S.current.restore_title_from_keys;
 
   @override
   Widget body(BuildContext context) => RestoreFromKeysFrom();
@@ -34,7 +35,7 @@ class RestoreWalletFromKeysPage extends BasePage {
 
 class RestoreFromKeysFrom extends StatefulWidget {
   @override
-  createState() => _RestoreFromKeysFromState();
+  _RestoreFromKeysFromState createState() => _RestoreFromKeysFromState();
 }
 
 class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
@@ -49,14 +50,14 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
   Widget build(BuildContext context) {
     final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
 
-    reaction((_) => walletRestorationStore.state, (state) {
+    reaction((_) => walletRestorationStore.state, (WalletRestorationState state) {
       if (state is WalletRestoredSuccessfully) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
 
       if (state is WalletRestorationFailure) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -97,8 +98,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                             hintText: S.of(context).restore_wallet_name,
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Palette.cakeGreen,
-                                    width: 2.0)),
+                                    color: Palette.cakeGreen, width: 2.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Theme.of(context).focusColor,
@@ -127,8 +127,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                             hintText: S.of(context).restore_address,
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Palette.cakeGreen,
-                                    width: 2.0)),
+                                    color: Palette.cakeGreen, width: 2.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Theme.of(context).focusColor,
@@ -155,8 +154,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                             hintText: S.of(context).restore_view_key_private,
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Palette.cakeGreen,
-                                    width: 2.0)),
+                                    color: Palette.cakeGreen, width: 2.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Theme.of(context).focusColor,
@@ -183,8 +181,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                             hintText: S.of(context).restore_spend_key_private,
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Palette.cakeGreen,
-                                    width: 2.0)),
+                                    color: Palette.cakeGreen, width: 2.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
                                     color: Theme.of(context).focusColor,

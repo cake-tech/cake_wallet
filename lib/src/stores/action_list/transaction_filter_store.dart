@@ -8,6 +8,9 @@ class TransactionFilterStore = TransactionFilterStoreBase
     with _$TransactionFilterStore;
 
 abstract class TransactionFilterStoreBase with Store {
+  TransactionFilterStoreBase(
+      {this.displayIncoming = true, this.displayOutgoing = true});
+
   @observable
   bool displayIncoming;
 
@@ -19,9 +22,6 @@ abstract class TransactionFilterStoreBase with Store {
 
   @observable
   DateTime endDate;
-
-  TransactionFilterStoreBase(
-      {this.displayIncoming = true, this.displayOutgoing = true});
 
   @action
   void toggleIncoming() => displayIncoming = !displayIncoming;

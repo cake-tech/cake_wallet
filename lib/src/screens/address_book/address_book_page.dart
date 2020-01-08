@@ -12,13 +12,18 @@ import 'package:cake_wallet/src/stores/address_book/address_book_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class AddressBookPage extends BasePage {
-  bool get isModalBackButton => true;
-  String get title => S.current.address_book;
-  AppBarStyle get appBarStyle => AppBarStyle.withShadow;
+  AddressBookPage({this.isEditable = true});
 
   final bool isEditable;
 
-  AddressBookPage({this.isEditable = true});
+  @override
+  bool get isModalBackButton => true;
+
+  @override
+  String get title => S.current.address_book;
+
+  @override
+  AppBarStyle get appBarStyle => AppBarStyle.withShadow;
 
   @override
   Widget trailing(BuildContext context) {
@@ -32,8 +37,7 @@ class AddressBookPage extends BasePage {
         width: 28.0,
         height: 28.0,
         decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Theme.of(context).selectedRowColor),
+            shape: BoxShape.circle, color: Theme.of(context).selectedRowColor),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
@@ -79,16 +83,17 @@ class AddressBookPage extends BasePage {
                       return;
                     }
 
-                    bool isCopied = await showNameAndAddressDialog(context, contact.name, contact.address);
+                    final isCopied = await showNameAndAddressDialog(
+                        context, contact.name, contact.address);
+
                     if (isCopied) {
-                      Clipboard.setData(ClipboardData(text: contact.address));
+                      await Clipboard.setData(
+                          ClipboardData(text: contact.address));
                       Scaffold.of(context).showSnackBar(
                         SnackBar(
-                          content:
-                          Text('Copied to Clipboard'),
+                          content: Text('Copied to Clipboard'),
                           backgroundColor: Colors.green,
-                          duration:
-                          Duration(milliseconds: 1500),
+                          duration: Duration(milliseconds: 1500),
                         ),
                       );
                     }
@@ -117,48 +122,51 @@ class AddressBookPage extends BasePage {
                   ),
                 );
 
-                return !isEditable ? content
-                : Slidable(
-                    key: Key('1'),// Key(contact.id.toString()),
-                    actionPane: SlidableDrawerActionPane(),
-                    child: content,
-                    secondaryActions: <Widget>[
-                      IconSlideAction(
-                        caption: 'Edit',
-                        color: Colors.blue,
-                        icon: Icons.edit,
-                        onTap: () async {
-                          await Navigator.of(context)
-                              .pushNamed(Routes.addressBookAddContact, arguments: contact);
-                          await addressBookStore.updateContactList();
-                        },
-                      ),
-                      IconSlideAction(
-                        caption: 'Delete',
-                        color: Colors.red,
-                        icon: CupertinoIcons.delete,
-                        onTap: () async {
-                          await showAlertDialog(context).then((isDelete) async{
-                            if (isDelete != null && isDelete) {
-                              await addressBookStore.delete(contact: contact);
+                return !isEditable
+                    ? content
+                    : Slidable(
+                        key: Key('${contact.key}'),
+                        actionPane: SlidableDrawerActionPane(),
+                        child: content,
+                        secondaryActions: <Widget>[
+                          IconSlideAction(
+                            caption: 'Edit',
+                            color: Colors.blue,
+                            icon: Icons.edit,
+                            onTap: () async {
+                              await Navigator.of(context).pushNamed(
+                                  Routes.addressBookAddContact,
+                                  arguments: contact);
                               await addressBookStore.updateContactList();
-                            }
-                          });
-                        },
-                      ),
-                    ],
-                  dismissal: SlidableDismissal(
-                    child: SlidableDrawerDismissal(),
-                    onDismissed: (actionType) async {
-                      await addressBookStore.delete(contact: contact);
-                      await addressBookStore.updateContactList();
-                    },
-                    onWillDismiss: (actionType) async {
-                      return await showAlertDialog(context);
-                    },
-                  ),
-
-                  );
+                            },
+                          ),
+                          IconSlideAction(
+                            caption: 'Delete',
+                            color: Colors.red,
+                            icon: CupertinoIcons.delete,
+                            onTap: () async {
+                              await showAlertDialog(context)
+                                  .then((isDelete) async {
+                                if (isDelete != null && isDelete) {
+                                  await addressBookStore.delete(
+                                      contact: contact);
+                                  await addressBookStore.updateContactList();
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                        dismissal: SlidableDismissal(
+                          child: SlidableDrawerDismissal(),
+                          onDismissed: (actionType) async {
+                            await addressBookStore.delete(contact: contact);
+                            await addressBookStore.updateContactList();
+                          },
+                          onWillDismiss: (actionType) async {
+                            return await showAlertDialog(context);
+                          },
+                        ),
+                      );
               }),
         ));
   }
@@ -220,42 +228,40 @@ class AddressBookPage extends BasePage {
             ),
             actions: <Widget>[
               FlatButton(
-                  onPressed: () =>
-                      Navigator.pop(context, false),
+                  onPressed: () => Navigator.of(context).pop( false),
                   child: const Text('Cancel')),
               FlatButton(
-                  onPressed: () =>
-                      Navigator.pop(context, true),
+                  onPressed: () => Navigator.of(context).pop(true),
                   child: const Text('Remove')),
             ],
           );
         });
   }
 
-  showNameAndAddressDialog(BuildContext context, String name, String address) async {
+  Future<bool> showNameAndAddressDialog(
+      BuildContext context, String name, String address) async {
     return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            name,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Text(
-            address,
-            textAlign: TextAlign.center,
-          ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text('Cancel')),
-            FlatButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text('Copy'))
-          ],
-        );
-      }
-    );
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              name,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            content: Text(
+              address,
+              textAlign: TextAlign.center,
+            ),
+            actions: <Widget>[
+              FlatButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text('Cancel')),
+              FlatButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text('Copy'))
+            ],
+          );
+        });
   }
 }

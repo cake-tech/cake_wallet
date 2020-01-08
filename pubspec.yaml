@@ -59,6 +59,7 @@ dev_dependencies:
   mobx_codegen: 0.3.3+1
   hive_generator: ^0.6.0
   flutter_launcher_icons: ^0.7.4
+  pedantic: ^1.8.0
 
 flutter_icons:
   image_path: "assets/images/app_logo.png" 

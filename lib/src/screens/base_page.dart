@@ -28,7 +28,7 @@ abstract class BasePage extends StatelessWidget {
       return null;
     }
 
-    ThemeChanger _themeChanger = Provider.of<ThemeChanger>(context);
+    final _themeChanger = Provider.of<ThemeChanger>(context);
     Image _closeButton, _backButton;
 
     if (_themeChanger.getTheme() == Themes.darkTheme) {
@@ -70,7 +70,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget floatingActionButton(BuildContext context) => null;
 
-  Widget appBar(BuildContext context) {
+  ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final _themeChanger = Provider.of<ThemeChanger>(context);
     final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
 

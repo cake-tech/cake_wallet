@@ -10,7 +10,10 @@ import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.d
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
 
 class TradeDetailsPage extends BasePage {
+  @override
   String get title => S.current.trade_details_title;
+
+  @override
   bool get isModalBackButton => true;
 
   @override
@@ -54,7 +57,8 @@ class TradeDetailsPage extends BasePage {
                     color: Theme.of(context).dividerTheme.color,
                     height: 1.0,
                   ),
-              padding: EdgeInsets.only(left: 25, top: 10, right: 25, bottom: 15),
+              padding:
+                  EdgeInsets.only(left: 25, top: 10, right: 25, bottom: 15),
               itemCount: items.length,
               itemBuilder: (BuildContext context, int index) {
                 final item = items[index];

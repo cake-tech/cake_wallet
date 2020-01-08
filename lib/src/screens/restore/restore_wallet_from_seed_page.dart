@@ -14,16 +14,17 @@ import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_sto
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
 
 class RestoreWalletFromSeedPage extends BasePage {
-  final WalletListService walletsService;
-  final WalletService walletService;
-  final SharedPreferences sharedPreferences;
-
-  String get title => S.current.restore_title_from_seed;
-
   RestoreWalletFromSeedPage(
       {@required this.walletsService,
       @required this.walletService,
       @required this.sharedPreferences});
+
+  final WalletListService walletsService;
+  final WalletService walletService;
+  final SharedPreferences sharedPreferences;
+
+  @override
+  String get title => S.current.restore_title_from_seed;
 
   @override
   Widget body(BuildContext context) => RestoreFromSeedForm();
@@ -31,7 +32,7 @@ class RestoreWalletFromSeedPage extends BasePage {
 
 class RestoreFromSeedForm extends StatefulWidget {
   @override
-  createState() => _RestoreFromSeedFormState();
+  _RestoreFromSeedFormState createState() => _RestoreFromSeedFormState();
 }
 
 class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
@@ -46,9 +47,8 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
         (_) => _setReactions(context, walletRestorationStore));
 
     return GestureDetector(
-      onTap: () {
-        SystemChannels.textInput.invokeMethod('TextInput.hide');
-      },
+      onTap: () =>
+          SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
       child: Container(
         padding: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
         child: Column(
@@ -90,7 +90,7 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
       return;
     }
 
-    reaction((_) => store.errorMessage, (errorMessage) {
+    reaction((_) => store.errorMessage, (String errorMessage) {
       if (errorMessage == null || errorMessage.isEmpty) {
         _seedKey.currentState.validated();
       } else {

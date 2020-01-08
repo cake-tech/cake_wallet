@@ -14,8 +14,13 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_menu.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 
 class WalletListPage extends BasePage {
+  @override
   bool get isModalBackButton => true;
+
+  @override
   String get title => S.current.wallet_list_title;
+
+  @override
   AppBarStyle get appBarStyle => AppBarStyle.withShadow;
 
   @override
@@ -23,6 +28,7 @@ class WalletListPage extends BasePage {
 }
 
 class WalletListBody extends StatefulWidget {
+  @override
   WalletListBodyState createState() => WalletListBodyState();
 }
 
@@ -32,15 +38,15 @@ class WalletListBodyState extends State<WalletListBody> {
   void presetMenuForWallet(WalletDescription wallet, bool isCurrentWallet,
       BuildContext bodyContext) {
     final walletMenu = WalletMenu(bodyContext);
-    List<String> items = walletMenu.generateItemsForWalletMenu(isCurrentWallet);
+    final items = walletMenu.generateItemsForWalletMenu(isCurrentWallet);
 
-    showDialog(
+    showDialog<void>(
       context: bodyContext,
       builder: (_) => Picker(
           items: items,
           selectedAtIndex: -1,
           title: S.of(context).wallet_menu,
-          onItemSelected: (item) => walletMenu.action(
+          onItemSelected: (String item) => walletMenu.action(
               walletMenu.listItems.indexOf(item), wallet, isCurrentWallet)),
     );
   }

@@ -7,14 +7,16 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FaqPage extends BasePage {
+  @override
   String get title => S.current.faq;
 
   @override
   Widget body(BuildContext context) {
-
     return FutureBuilder(
       builder: (context, snapshot) {
-        var faqItems = json.decode(snapshot.data.toString());
+        final faqItems = (json.decode(snapshot.data.toString())
+                as List<Map<String, String>>) ??
+            <Map<String, String>>[];
 
         return ListView.separated(
           itemBuilder: (BuildContext context, int index) {
@@ -22,34 +24,24 @@ class FaqPage extends BasePage {
             final itemChild = faqItems[index]["answer"];
 
             return ExpansionTile(
-              title: Text(
-                  itemTitle
-              ),
+              title: Text(itemTitle),
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
                         child: Container(
-                          padding: EdgeInsets.only(
-                              left: 15.0,
-                              right: 15.0
-                          ),
-                          child: Text(
-                            itemChild,
-                          ),
-                        )
-                    )
+                      padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                      child: Text(itemChild),
+                    ))
                   ],
                 )
               ],
             );
           },
-          separatorBuilder: (_, __) => Divider(
-            color: Theme.of(context).dividerTheme.color,
-            height: 1.0,
-          ),
-          itemCount: faqItems == null ? 0 : faqItems.length,
+          separatorBuilder: (_, __) =>
+              Divider(color: Theme.of(context).dividerTheme.color, height: 1.0),
+          itemCount: faqItems.length,
         );
       },
       future: rootBundle.loadString(getFaqPath(context)),
@@ -86,5 +78,4 @@ class FaqPage extends BasePage {
         return 'assets/faq/faq_en.json';
     }
   }
-
 }

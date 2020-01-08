@@ -6,8 +6,9 @@ import 'package:provider/provider.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
+import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
+import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/src/stores/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/src/stores/exchange/limits_state.dart';
@@ -20,15 +21,14 @@ import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class ExchangePage extends BasePage {
+  @override
   String get title => S.current.exchange;
 
   @override
   bool get isModalBackButton => true;
 
-  final Image arrowBottomPurple = Image.asset(
-    'assets/images/arrow_bottom_purple_icon.png',
-    height: 8,
-  );
+  final Image arrowBottomPurple =
+      Image.asset('assets/images/arrow_bottom_purple_icon.png', height: 8);
 
   @override
   Widget middle(BuildContext context) {
@@ -93,12 +93,12 @@ class ExchangePage extends BasePage {
     final items = exchangeStore.providersForCurrentPair();
     final selectedItem = items.indexOf(exchangeStore.provider);
 
-    showDialog(
+    showDialog<void>(
         builder: (_) => Picker(
             items: items,
             selectedAtIndex: selectedItem,
             title: S.of(context).change_exchange_provider,
-            onItemSelected: (provider) =>
+            onItemSelected: (ExchangeProvider provider) =>
                 exchangeStore.changeProvider(provider: provider)),
         context: context);
   }
@@ -253,8 +253,9 @@ class ExchangeFormState extends State<ExchangeForm> {
                 builder: (_) => LoadingPrimaryButton(
                       text: S.of(context).exchange,
                       onPressed: () {
-                        if (_formKey.currentState.validate())
+                        if (_formKey.currentState.validate()) {
                           exchangeStore.createTrade();
+                        }
                       },
                       color: Theme.of(context)
                           .primaryTextTheme
@@ -327,34 +328,38 @@ class ExchangeFormState extends State<ExchangeForm> {
 
     reaction(
         (_) => walletStore.name,
-        (_) => _onWalletNameChange(
+        (String _) => _onWalletNameChange(
             walletStore, store.receiveCurrency, receiveKey));
 
     reaction(
         (_) => walletStore.name,
-        (_) => _onWalletNameChange(
+        (String _) => _onWalletNameChange(
             walletStore, store.depositCurrency, depositKey));
 
-    reaction((_) => store.receiveCurrency,
-        (currency) => _onCurrencyChange(currency, walletStore, receiveKey));
+    reaction(
+        (_) => store.receiveCurrency,
+        (CryptoCurrency currency) =>
+            _onCurrencyChange(currency, walletStore, receiveKey));
 
-    reaction((_) => store.depositCurrency,
-        (currency) => _onCurrencyChange(currency, walletStore, depositKey));
+    reaction(
+        (_) => store.depositCurrency,
+        (CryptoCurrency currency) =>
+            _onCurrencyChange(currency, walletStore, depositKey));
 
-    reaction((_) => store.depositAmount, (amount) {
+    reaction((_) => store.depositAmount, (String amount) {
       if (depositKey.currentState.amountController.text != amount) {
         depositKey.currentState.amountController.text = amount;
       }
     });
 
-    reaction((_) => store.receiveAmount, (amount) {
+    reaction((_) => store.receiveAmount, (String amount) {
       if (receiveKey.currentState.amountController.text !=
           store.receiveAmount) {
         receiveKey.currentState.amountController.text = amount;
       }
     });
 
-    reaction((_) => store.provider, (provider) {
+    reaction((_) => store.provider, (ExchangeProvider provider) {
       final isReversed = provider is XMRTOExchangeProvider;
 
       if (isReversed) {
@@ -373,10 +378,10 @@ class ExchangeFormState extends State<ExchangeForm> {
       receiveKey.currentState.changeIsAmountEstimated(!isReversed);
     });
 
-    reaction((_) => store.tradeState, (state) {
+    reaction((_) => store.tradeState, (ExchangeTradeState state) {
       if (state is TradeIsCreatedFailure) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -397,7 +402,7 @@ class ExchangeFormState extends State<ExchangeForm> {
       }
     });
 
-    reaction((_) => store.limitsState, (state) {
+    reaction((_) => store.limitsState, (LimitsState state) {
       final isXMRTO = store.provider is XMRTOExchangeProvider;
       String min;
       String max;
@@ -444,7 +449,7 @@ class ExchangeFormState extends State<ExchangeForm> {
       }
     });
 
-    reaction((_) => walletStore.address, (address) {
+    reaction((_) => walletStore.address, (String address) {
       if (store.depositCurrency == CryptoCurrency.xmr) {
         depositKey.currentState.changeAddress(address: address);
       }

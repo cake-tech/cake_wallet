@@ -5,17 +5,14 @@ analyzer:
     implicit-casts: false
     implicit-dynamic: false
   exclude:
-    - **/*.yaml
-    - build/**
-    - **/*.g.dart
-    - lib/generated/*.dart
+    - "build/**"
+    - "**/*.g.dart"
+    - "lib/generated/*.dart"
 
 linter:
   rules:
     - always_declare_return_types
-    - always_specify_types
     - annotate_overrides
-    - avoid_as
     - avoid_empty_else
     - avoid_init_to_null
     - avoid_return_types_on_setters
@@ -48,17 +45,13 @@ linter:
     - prefer_final_fields
     - prefer_final_locals
     - prefer_is_not_empty
-    - public_member_api_docs
     - slash_for_doc_comments
     - sort_constructors_first
     - sort_unnamed_constructors_first
-    - super_goes_last
     - test_types_in_equals
     - throw_in_finally
-    - type_annotate_public_apis
     - type_init_formals
     - unawaited_futures
-    - unnecessary_brace_in_string_interp
     - unnecessary_getters_setters
     - unrelated_type_equality_checks
     - valid_regexps

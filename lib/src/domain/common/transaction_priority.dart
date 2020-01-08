@@ -2,6 +2,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/enumerable_item.dart';
 
 class TransactionPriority extends EnumerableItem<int> with Serializable<int> {
+  const TransactionPriority({String title, int raw})
+      : super(title: title, raw: raw);
+
   static const all = [
     TransactionPriority.slow,
     TransactionPriority.regular,
@@ -32,9 +35,6 @@ class TransactionPriority extends EnumerableItem<int> with Serializable<int> {
         return null;
     }
   }
-
-  const TransactionPriority({String title, int raw})
-      : super(title: title, raw: raw);
 
   @override
   String toString() {

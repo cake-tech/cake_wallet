@@ -6,6 +6,9 @@ part 'contact.g.dart';
 
 @HiveType()
 class Contact extends HiveObject {
+  Contact({@required this.name, @required this.address, CryptoCurrency type})
+      : raw = type?.raw;
+
   static const boxName = 'Contacts';
 
   @HiveField(0)
@@ -19,12 +22,6 @@ class Contact extends HiveObject {
 
   CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);
 
-  Contact(
-      {@required this.name,
-      @required this.address,
-      CryptoCurrency type})
-      : raw = type?.raw;
-
-  updateCryptoCurrency({@required CryptoCurrency currency}) =>
+  void updateCryptoCurrency({@required CryptoCurrency currency}) =>
       raw = currency.raw;
 }

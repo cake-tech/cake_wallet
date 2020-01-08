@@ -6,20 +6,18 @@ part 'rescan_wallet_store.g.dart';
 
 class RescanWalletStore = RescanWalletStoreBase with _$RescanWalletStore;
 
-enum RescanWalletState {
-  rescaning, none
-}
+enum RescanWalletState { rescaning, none }
 
 abstract class RescanWalletStoreBase with Store {
-  @observable
-  RescanWalletState state;
-  
-  WalletService _walletService;
-
   RescanWalletStoreBase({@required WalletService walletService}) {
     _walletService = walletService;
     state = RescanWalletState.none;
   }
+
+  @observable
+  RescanWalletState state;
+
+  WalletService _walletService;
 
   @action
   Future rescanCurrentWallet({int restoreHeight}) async {

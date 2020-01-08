@@ -14,6 +14,14 @@ class WalletRestorationStore = WalleRestorationStoreBase
     with _$WalletRestorationStore;
 
 abstract class WalleRestorationStoreBase with Store {
+  WalleRestorationStoreBase(
+      {this.seed,
+      @required this.authStore,
+      @required this.walletListService,
+      @required this.sharedPreferences}) {
+    state = WalletRestorationStateInitial();
+  }
+
   final AuthenticationStore authStore;
   final WalletListService walletListService;
   final SharedPreferences sharedPreferences;
@@ -29,14 +37,6 @@ abstract class WalleRestorationStoreBase with Store {
 
   @observable
   List<MnemoticItem> seed;
-
-  WalleRestorationStoreBase(
-      {this.seed,
-        @required this.authStore,
-      @required this.walletListService,
-      @required this.sharedPreferences}) {
-    state = WalletRestorationStateInitial();
-  }
 
   @action
   Future restoreFromSeed({String name, String seed, int restoreHeight}) async {
@@ -110,17 +110,18 @@ abstract class WalleRestorationStoreBase with Store {
   }
 
   void validateWalletName(String value) {
-    String p = '^[a-zA-Z0-9_]{1,15}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[a-zA-Z0-9_]{1,15}\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_wallet_name;
   }
 
   void validateAddress(String value, {CryptoCurrency cryptoCurrency}) {
     // XMR (95), BTC (34), ETH (42), LTC (34), BCH (42), DASH (34)
-    String p = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
+
     if (isValid && cryptoCurrency != null) {
       switch (cryptoCurrency.toString()) {
         case 'XMR':
@@ -142,12 +143,13 @@ abstract class WalleRestorationStoreBase with Store {
           isValid = (value.length == 34);
       }
     }
+
     errorMessage = isValid ? null : S.current.error_text_address;
   }
 
   void validateKeys(String value) {
-    String p = '^[A-Fa-f0-9]{64}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[A-Fa-f0-9]{64}\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_keys;
   }

@@ -2,10 +2,10 @@ import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.da
 import 'package:cake_wallet/generated/i18n.dart';
 
 class TradeNotCreatedException implements Exception {
+  TradeNotCreatedException(this.provider, {this.description = ''});
+
   ExchangeProviderDescription provider;
   String description;
-
-  TradeNotCreatedException(this.provider, {this.description = ''});
 
   @override
   String toString() {

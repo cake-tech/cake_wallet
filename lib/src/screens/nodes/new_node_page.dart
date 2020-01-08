@@ -17,7 +17,7 @@ class NewNodePage extends BasePage {
 
 class NewNodePageForm extends StatefulWidget {
   @override
-  createState() => NewNodeFormState();
+  NewNodeFormState createState() => NewNodeFormState();
 }
 
 class NewNodeFormState extends State<NewNodePageForm> {

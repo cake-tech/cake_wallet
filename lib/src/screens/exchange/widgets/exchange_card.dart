@@ -7,18 +7,6 @@ import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 
 class ExchangeCard extends StatefulWidget {
-  final List<CryptoCurrency> currencies;
-  final Function(CryptoCurrency) onCurrencySelected;
-  final CryptoCurrency initialCurrency;
-  final String initialWalletName;
-  final String initialAddress;
-  final bool initialIsAmountEditable;
-  final bool initialIsAddressEditable;
-  final bool isAmountEstimated;
-  final Image imageArrow;
-  final FormFieldValidator<String> currencyValueValidator;
-  final FormFieldValidator<String> addressTextFieldValidator;
-
   ExchangeCard(
       {Key key,
       this.initialCurrency,
@@ -34,8 +22,20 @@ class ExchangeCard extends StatefulWidget {
       this.addressTextFieldValidator})
       : super(key: key);
 
+  final List<CryptoCurrency> currencies;
+  final Function(CryptoCurrency) onCurrencySelected;
+  final CryptoCurrency initialCurrency;
+  final String initialWalletName;
+  final String initialAddress;
+  final bool initialIsAmountEditable;
+  final bool initialIsAddressEditable;
+  final bool isAmountEstimated;
+  final Image imageArrow;
+  final FormFieldValidator<String> currencyValueValidator;
+  final FormFieldValidator<String> addressTextFieldValidator;
+
   @override
-  createState() => ExchangeCardState();
+  ExchangeCardState createState() => ExchangeCardState();
 }
 
 class ExchangeCardState extends State<ExchangeCard> {
@@ -102,7 +102,6 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
       padding: EdgeInsets.fromLTRB(22, 15, 22, 30),
       width: double.infinity,
@@ -150,7 +149,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 24,
-                                        color: Theme.of(context).primaryTextTheme.title.color)),
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .title
+                                            .color)),
                                 widget.imageArrow
                               ]),
                           _walletName != null
@@ -173,7 +175,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                           textAlign: TextAlign.right,
                           keyboardType: TextInputType.numberWithOptions(
                               signed: false, decimal: false),
-                          inputFormatters: [BlacklistingTextInputFormatter(new RegExp('[\\-|\\ |\\,]'))],
+                          inputFormatters: [
+                            BlacklistingTextInputFormatter(
+                                RegExp('[\\-|\\ |\\,]'))
+                          ],
                           decoration: InputDecoration(
                               hintStyle: TextStyle(
                                   color: Theme.of(context).cardTheme.color,
@@ -182,15 +187,14 @@ class ExchangeCardState extends State<ExchangeCard> {
                               hintText: '0.00000000',
                               focusedBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
-                                      color: Palette.cakeGreen,
-                                      width: 2.0)),
+                                      color: Palette.cakeGreen, width: 2.0)),
                               enabledBorder: UnderlineInputBorder(
                                   borderSide: BorderSide(
                                       color: _isAmountEditable
                                           ? Palette.deepPurple
                                           : Theme.of(context).focusColor,
                                       width: 1.0))),
-                        validator: widget.currencyValueValidator),
+                          validator: widget.currencyValueValidator),
                       SizedBox(height: 5),
                       SizedBox(
                         height: 15,
@@ -201,21 +205,29 @@ class ExchangeCardState extends State<ExchangeCard> {
                               children: <Widget>[
                                 _min != null
                                     ? Text(
-                                        S.of(context).min_value(_min, _selectedCurrency.toString()),
+                                        S.of(context).min_value(
+                                            _min, _selectedCurrency.toString()),
                                         style: TextStyle(
                                             fontSize: 10,
                                             height: 1.2,
-                                            color: Theme.of(context).primaryTextTheme.subtitle.color),
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .subtitle
+                                                .color),
                                       )
                                     : SizedBox(),
                                 _min != null ? SizedBox(width: 10) : SizedBox(),
                                 _max != null
                                     ? Text(
-                                        S.of(context).max_value(_max, _selectedCurrency.toString()),
+                                        S.of(context).max_value(
+                                            _max, _selectedCurrency.toString()),
                                         style: TextStyle(
                                             fontSize: 10,
                                             height: 1.2,
-                                            color: Theme.of(context).primaryTextTheme.subtitle.color))
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .subtitle
+                                                .color))
                                     : SizedBox(),
                               ]),
                         ),
@@ -248,14 +260,15 @@ class ExchangeCardState extends State<ExchangeCard> {
   }
 
   void _presentPicker(BuildContext context) {
-    showDialog(
+    showDialog<void>(
         builder: (_) => Picker(
             items: widget.currencies,
             selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
             title: S.of(context).change_currency,
-            onItemSelected: (item) => widget.onCurrencySelected != null
-                ? widget.onCurrencySelected(item)
-                : null),
+            onItemSelected: (CryptoCurrency item) =>
+                widget.onCurrencySelected != null
+                    ? widget.onCurrencySelected(item)
+                    : null),
         context: context);
   }
 }

@@ -10,7 +10,7 @@ class QrImage extends StatelessWidget {
     Color foregroundColor = Colors.black,
     int version = 7,
     int errorCorrectionLevel = QrErrorCorrectLevel.L,
-  }) : _painter = new QrPainter(data, foregroundColor, version, errorCorrectionLevel);
+  }) : _painter = QrPainter(data, foregroundColor, version, errorCorrectionLevel);
 
   final QrPainter _painter;
   final Color backgroundColor;
@@ -18,7 +18,7 @@ class QrImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new Container(
+    return Container(
       width: size,
       height: size,
       color: backgroundColor,

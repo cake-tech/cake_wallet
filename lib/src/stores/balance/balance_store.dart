@@ -15,6 +15,27 @@ part 'balance_store.g.dart';
 class BalanceStore = BalanceStoreBase with _$BalanceStore;
 
 abstract class BalanceStoreBase with Store {
+  BalanceStoreBase(
+      {String fullBalance = '0.0',
+      String unlockedBalance = '0.0',
+      @required WalletService walletService,
+      @required SettingsStore settingsStore,
+      @required PriceStore priceStore}) {
+    fullBalance = fullBalance;
+    unlockedBalance = unlockedBalance;
+    isReversing = false;
+    _walletService = walletService;
+    _settingsStore = settingsStore;
+    _priceStore = priceStore;
+
+    if (_walletService.currentWallet != null) {
+      _onWalletChanged(_walletService.currentWallet);
+    }
+
+    _onWalletChangeSubscription = _walletService.onWalletChange
+        .listen((wallet) => _onWalletChanged(wallet));
+  }
+
   @observable
   String fullBalance;
 
@@ -54,27 +75,6 @@ abstract class BalanceStoreBase with Store {
   SettingsStore _settingsStore;
   PriceStore _priceStore;
 
-  BalanceStoreBase(
-      {String fullBalance = '0.0',
-      String unlockedBalance = '0.0',
-      @required WalletService walletService,
-      @required SettingsStore settingsStore,
-      @required PriceStore priceStore}) {
-    fullBalance = fullBalance;
-    unlockedBalance = unlockedBalance;
-    isReversing = false;
-    _walletService = walletService;
-    _settingsStore = settingsStore;
-    _priceStore = priceStore;
-
-    if (_walletService.currentWallet != null) {
-      _onWalletChanged(_walletService.currentWallet);
-    }
-
-    _onWalletChangeSubscription = _walletService.onWalletChange
-        .listen((wallet) => _onWalletChanged(wallet));
-  }
-
   @override
   void dispose() {
     _onWalletChangeSubscription.cancel();
@@ -100,7 +100,7 @@ abstract class BalanceStoreBase with Store {
 
   Future _onWalletChanged(Wallet wallet) async {
     if (_onBalanceChangeSubscription != null) {
-      _onBalanceChangeSubscription.cancel();
+      await _onBalanceChangeSubscription.cancel();
     }
 
     _onBalanceChangeSubscription = _walletService.onBalanceChange

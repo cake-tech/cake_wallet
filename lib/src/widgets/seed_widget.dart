@@ -7,10 +7,11 @@ import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SeedWidget extends StatefulWidget {
-  final Function(List<MnemoticItem>) onMnemoticChange;
-
   SeedWidget({Key key, this.onMnemoticChange}) : super(key: key);
 
+  final Function(List<MnemoticItem>) onMnemoticChange;
+
+  @override
   SeedWidgetState createState() => SeedWidgetState();
 }
 
@@ -188,8 +189,7 @@ class SeedWidgetState extends State<SeedWidget> {
               hintStyle: TextStyle(color: Theme.of(context).hintColor),
               hintText: S.of(context).widgets_seed,
               focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Palette.cakeGreen, width: 2.0)),
+                  borderSide: BorderSide(color: Palette.cakeGreen, width: 2.0)),
               enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
                       color:

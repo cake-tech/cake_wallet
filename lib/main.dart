@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
-import 'package:cw_monero/wallet.dart' as moneroWallet;
+import 'package:cw_monero/wallet.dart' as monero_wallet;
 import 'package:cake_wallet/router.dart';
 import 'theme_changer.dart';
 import 'themes.dart';
@@ -39,7 +39,7 @@ import 'package:cake_wallet/src/domain/common/language.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  var appDir = await getApplicationDocumentsDirectory();
+  final appDir = await getApplicationDocumentsDirectory();
   Hive.init(appDir.path);
   Hive.registerAdapter(ContactAdapter(), 0);
   Hive.registerAdapter(NodeAdapter(), 1);
@@ -50,18 +50,20 @@ void main() async {
 
   final secureStorage = FlutterSecureStorage();
   final transactionDescriptionsBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage, forKey: 'transactionDescriptionsBoxKey'); // FIXME: Unnamed constant
+      secureStorage: secureStorage,
+      forKey: 'transactionDescriptionsBoxKey'); // FIXME: Unnamed constant
   final tradesBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage, forKey: 'tradesBoxKey'); // FIXME: Unnamed constant
+      secureStorage: secureStorage,
+      forKey: 'tradesBoxKey'); // FIXME: Unnamed constant
 
-  var contacts = await Hive.openBox<Contact>(Contact.boxName);
-  var nodes = await Hive.openBox<Node>(Node.boxName);
-  var transactionDescriptions = await Hive.openBox<TransactionDescription>(
+  final contacts = await Hive.openBox<Contact>(Contact.boxName);
+  final nodes = await Hive.openBox<Node>(Node.boxName);
+  final transactionDescriptions = await Hive.openBox<TransactionDescription>(
       TransactionDescription.boxName,
       encryptionKey: transactionDescriptionsBoxKey);
-  var trades =
+  final trades =
       await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-  var walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
+  final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
 
   final sharedPreferences = await SharedPreferences.getInstance();
   final walletService = WalletService();
@@ -124,7 +126,7 @@ void main() async {
   ], child: CakeWalletApp()));
 }
 
-initialSetup(
+Future<void> initialSetup(
     {WalletListService walletListService,
     SharedPreferences sharedPreferences,
     Box<Node> nodes,
@@ -137,7 +139,7 @@ initialSetup(
       sharedPreferences: sharedPreferences,
       nodes: nodes);
   await authStore.started();
-  moneroWallet.onStartup();
+  monero_wallet.onStartup();
 }
 
 class CakeWalletApp extends StatelessWidget {
