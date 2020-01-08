@@ -1,5 +1,5 @@
 class SetupWalletException implements Exception {
-  final String message;
-
   SetupWalletException({this.message});
+  
+  final String message;
 }

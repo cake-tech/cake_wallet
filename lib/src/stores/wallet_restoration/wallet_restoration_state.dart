@@ -9,6 +9,7 @@ class WalletIsRestoring extends WalletRestorationState {}
 class WalletRestoredSuccessfully extends WalletRestorationState {}
 
 class WalletRestorationFailure extends WalletRestorationState {
-  String error;
   WalletRestorationFailure({@required this.error});
+
+  String error;
 }

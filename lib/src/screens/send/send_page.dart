@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -23,8 +24,13 @@ import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/stores/sync/sync_store.dart';
 
 class SendPage extends BasePage {
+  @override
   String get title => S.current.send_title;
+
+  @override
   bool get isModalBackButton => true;
+
+  @override
   bool get resizeToAvoidBottomPadding => false;
 
   @override
@@ -212,7 +218,7 @@ class SendFormState extends State<SendForm> {
                             signed: false, decimal: false),
                         inputFormatters: [
                           BlacklistingTextInputFormatter(
-                              new RegExp('[\\-|\\ |\\,]'))
+                              RegExp('[\\-|\\ |\\,]'))
                         ],
                         decoration: InputDecoration(
                             prefixIcon: Padding(
@@ -272,7 +278,7 @@ class SendFormState extends State<SendForm> {
                             signed: false, decimal: false),
                         inputFormatters: [
                           BlacklistingTextInputFormatter(
-                              new RegExp('[\\-|\\ |\\,]'))
+                              RegExp('[\\-|\\ |\\,]'))
                         ],
                         decoration: InputDecoration(
                             prefixIcon: Padding(
@@ -353,7 +359,7 @@ class SendFormState extends State<SendForm> {
                       FocusScope.of(context).requestFocus(FocusNode());
 
                       if (_formKey.currentState.validate()) {
-                        await showDialog(
+                        await showDialog<void>(
                             context: context,
                             builder: (dialogContext) {
                               return AlertDialog(
@@ -364,12 +370,11 @@ class SendFormState extends State<SendForm> {
                                   FlatButton(
                                       child: Text(S.of(context).send),
                                       onPressed: () async {
-                                        Navigator.of(dialogContext)
-                                            .popAndPushNamed(
-                                                Routes.auth,
-                                                arguments:
-                                                    (isAuthenticatedSuccessfully,
-                                                        auth) {
+                                        await Navigator.of(dialogContext)
+                                            .popAndPushNamed(Routes.auth,
+                                                arguments: (bool
+                                                        isAuthenticatedSuccessfully,
+                                                    AuthPageState auth) {
                                           if (!isAuthenticatedSuccessfully) {
                                             return;
                                           }
@@ -408,13 +413,13 @@ class SendFormState extends State<SendForm> {
 
     final sendStore = Provider.of<SendStore>(context);
 
-    reaction((_) => sendStore.fiatAmount, (amount) {
+    reaction((_) => sendStore.fiatAmount, (String amount) {
       if (amount != _fiatAmountController.text) {
         _fiatAmountController.text = amount;
       }
     });
 
-    reaction((_) => sendStore.cryptoAmount, (amount) {
+    reaction((_) => sendStore.cryptoAmount, (String amount) {
       if (amount != _cryptoAmountController.text) {
         _cryptoAmountController.text = amount;
       }
@@ -436,10 +441,10 @@ class SendFormState extends State<SendForm> {
       }
     });
 
-    reaction((_) => sendStore.state, (state) {
+    reaction((_) => sendStore.state, (SendingState state) {
       if (state is SendingFailed) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -457,7 +462,7 @@ class SendFormState extends State<SendForm> {
 
       if (state is TransactionCreatedSuccessfully) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(

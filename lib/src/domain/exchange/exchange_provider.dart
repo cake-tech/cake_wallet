@@ -7,6 +7,8 @@ import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 
 abstract class ExchangeProvider {
+  ExchangeProvider({this.pairList});
+  
   String get title;
   List<ExchangePair> pairList;
   ExchangeProviderDescription description;

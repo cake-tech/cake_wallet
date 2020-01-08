@@ -1,11 +1,9 @@
-import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/src/stores/authentication/authentication_store.dart';
 import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
@@ -19,6 +17,8 @@ import 'package:cake_wallet/src/domain/monero/transaction_description.dart';
 import 'package:cake_wallet/src/screens/auth/create_login_page.dart';
 import 'package:cake_wallet/src/screens/seed/create_seed_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/create_dashboard_page.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 
 class Root extends StatefulWidget {
   Root({Key key}) : super(key: key);
@@ -81,7 +81,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushNamed(Routes.unlock,
-            arguments: (isAuthenticatedSuccessfully, auth) {
+            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
           if (!isAuthenticatedSuccessfully) {
             return;
           }

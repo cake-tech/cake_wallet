@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/palette.dart';
@@ -25,8 +26,13 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_text_list_row.
 import 'package:cake_wallet/src/screens/settings/widgets/settings_raw_widget_list_row.dart';
 
 class SettingsPage extends BasePage {
+  @override
   String get title => S.current.settings_title;
+
+  @override
   bool get isModalBackButton => true;
+
+  @override
   Color get backgroundColor => Palette.lightGrey2;
 
   @override
@@ -37,7 +43,7 @@ class SettingsPage extends BasePage {
 
 class SettingsForm extends StatefulWidget {
   @override
-  createState() => SettingsFormState();
+  SettingsFormState createState() => SettingsFormState();
 }
 
 class SettingsFormState extends State<SettingsForm> {
@@ -52,13 +58,13 @@ class SettingsFormState extends State<SettingsForm> {
   final _changeNowUrl = 'mailto:support@changenow.io';
   final _xmrToUrl = 'mailto:support@xmr.to';
 
-  List<SettingsItem> _items = List<SettingsItem>();
+  final _items = List<SettingsItem>();
 
-  _launchUrl(String url) async {
+  void _launchUrl(String url) async {
     if (await canLaunch(url)) await launch(url);
   }
 
-  _setSettingsList() {
+  void _setSettingsList() {
     final settingsStore = Provider.of<SettingsStore>(context);
 
     settingsStore.setItemHeaders();
@@ -121,11 +127,13 @@ class SettingsFormState extends State<SettingsForm> {
       SettingsItem(
           onTaped: () {
             Navigator.of(context).pushNamed(Routes.auth,
-                arguments: (isAuthenticatedSuccessfully, auth) =>
+                arguments: (bool isAuthenticatedSuccessfully,
+                        AuthPageState auth) =>
                     isAuthenticatedSuccessfully
                         ? Navigator.of(context).popAndPushNamed(Routes.setupPin,
-                            arguments: (setupPinContext, _) =>
-                                Navigator.of(context).pop())
+                            arguments:
+                                (BuildContext setupPinContext, String _) =>
+                                    Navigator.of(context).pop())
                         : null);
           },
           title: ItemHeaders.changePIN,
@@ -263,7 +271,7 @@ class SettingsFormState extends State<SettingsForm> {
           onTaped: () {
             Navigator.push(
                 context,
-                CupertinoPageRoute(
+                CupertinoPageRoute<void>(
                     builder: (BuildContext context) => DisclaimerPage()));
           },
           title: ItemHeaders.termsAndConditions,
@@ -276,7 +284,7 @@ class SettingsFormState extends State<SettingsForm> {
     setState(() {});
   }
 
-  _afterLayout(_) => _setSettingsList();
+  void _afterLayout(dynamic _) => _setSettingsList();
 
   @override
   void initState() {
@@ -335,11 +343,12 @@ class SettingsFormState extends State<SettingsForm> {
               final item = _items[index];
               bool _isDrawDivider = true;
 
-              if (item.attribute == Attributes.header)
+              if (item.attribute == Attributes.header) {
                 _isDrawDivider = false;
-              else if (index < _items.length - 1) {
-                if (_items[index + 1].attribute == Attributes.header)
+              } else if (index < _items.length - 1) {
+                if (_items[index + 1].attribute == Attributes.header) {
                   _isDrawDivider = false;
+                }
               }
 
               return Column(
@@ -413,33 +422,34 @@ class SettingsFormState extends State<SettingsForm> {
         });
   }
 
-  void _setBalance(BuildContext context) async {
+  Future<void> _setBalance(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
     final selectedDisplayMode =
         await _presentPicker(context, BalanceDisplayMode.all);
 
     if (selectedDisplayMode != null) {
-      settingsStore.setCurrentBalanceDisplayMode(
+      await settingsStore.setCurrentBalanceDisplayMode(
           balanceDisplayMode: selectedDisplayMode);
     }
   }
 
-  void _setCurrency(BuildContext context) async {
+  Future<void> _setCurrency(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
     final selectedCurrency = await _presentPicker(context, FiatCurrency.all);
 
     if (selectedCurrency != null) {
-      settingsStore.setCurrentFiatCurrency(currency: selectedCurrency);
+      await settingsStore.setCurrentFiatCurrency(currency: selectedCurrency);
     }
   }
 
-  void _setTransactionPriority(BuildContext context) async {
+  Future<void> _setTransactionPriority(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
     final selectedPriority =
         await _presentPicker(context, TransactionPriority.all);
 
     if (selectedPriority != null) {
-      settingsStore.setCurrentTransactionPriority(priority: selectedPriority);
+      await settingsStore.setCurrentTransactionPriority(
+          priority: selectedPriority);
     }
   }
 }

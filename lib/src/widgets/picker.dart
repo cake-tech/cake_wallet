@@ -2,12 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class Picker<Item extends Object> extends StatelessWidget {
-  final int selectedAtIndex;
-  final List<Item> items;
-  final String title;
-  final double pickerHeight;
-  final Function(Item) onItemSelected;
-
   Picker(
       {@required this.selectedAtIndex,
       @required this.items,
@@ -15,9 +9,14 @@ class Picker<Item extends Object> extends StatelessWidget {
       this.pickerHeight = 300,
       this.onItemSelected});
 
+  final int selectedAtIndex;
+  final List<Item> items;
+  final String title;
+  final double pickerHeight;
+  final Function(Item) onItemSelected;
+
   @override
   Widget build(BuildContext context) {
-
     return GestureDetector(
       onTap: () => Navigator.of(context).pop(),
       child: Container(
@@ -57,8 +56,10 @@ class Picker<Item extends Object> extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                       fontFamily: 'Lato',
                                       decoration: TextDecoration.none,
-                                      color: Theme.of(context).primaryTextTheme.caption.color
-                                  ),
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .caption
+                                          .color),
                                 ),
                               ),
                             );
@@ -88,7 +89,10 @@ class Picker<Item extends Object> extends StatelessWidget {
                                     fontFamily: 'Lato',
                                     color: index == selectedAtIndex
                                         ? Color.fromRGBO(138, 80, 255, 1)
-                                        : Theme.of(context).primaryTextTheme.caption.color),
+                                        : Theme.of(context)
+                                            .primaryTextTheme
+                                            .caption
+                                            .color),
                               )),
                             ),
                           );

@@ -8,11 +8,12 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 
 class ExchangeConfirmPage extends BasePage {
-  String get title => S.current.copy_id;
+  ExchangeConfirmPage({@required this.trade});
 
   final Trade trade;
 
-  ExchangeConfirmPage({@required this.trade});
+  @override
+  String get title => S.current.copy_id;
 
   @override
   Widget body(BuildContext context) {

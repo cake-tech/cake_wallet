@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:provider/provider.dart';
-import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 
 class WalletMenu {
+  WalletMenu(this.context);
+
   final List<String> items = [
     S.current.reconnect,
     S.current.rescan,
@@ -14,9 +17,8 @@ class WalletMenu {
     S.current.accounts,
     S.current.address_book_menu
   ];
-  final BuildContext context;
 
-  WalletMenu(this.context);
+  final BuildContext context;
 
   void action(int index) {
     switch (index) {
@@ -32,7 +34,7 @@ class WalletMenu {
         break;
       case 3:
         Navigator.of(context).pushNamed(Routes.auth,
-            arguments: (isAuthenticatedSuccessfully, auth) =>
+            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
                 isAuthenticatedSuccessfully
                     ? Navigator.of(auth.context).popAndPushNamed(Routes.seed)
                     : null);
@@ -40,7 +42,7 @@ class WalletMenu {
         break;
       case 4:
         Navigator.of(context).pushNamed(Routes.auth,
-            arguments: (isAuthenticatedSuccessfully, auth) =>
+            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
                 isAuthenticatedSuccessfully
                     ? Navigator.of(auth.context)
                         .popAndPushNamed(Routes.showKeys)
@@ -57,10 +59,10 @@ class WalletMenu {
     }
   }
 
-  Future _presentReconnectAlert(BuildContext context) async {
+  Future<void> _presentReconnectAlert(BuildContext context) async {
     final walletStore = Provider.of<WalletStore>(context);
 
-    await showDialog(
+    await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(

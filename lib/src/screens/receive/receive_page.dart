@@ -13,7 +13,10 @@ import 'package:cake_wallet/src/screens/receive/qr_image.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class ReceivePage extends BasePage {
+  @override
   bool get isModalBackButton => true;
+
+  @override
   String get title => S.current.receive;
 
   @override
@@ -31,7 +34,10 @@ class ReceivePage extends BasePage {
             padding: EdgeInsets.all(0),
             onPressed: () => Share.text(
                 'Share address', walletStore.subaddress.address, 'text/plain'),
-            child: Icon(Icons.share, size: 30.0,)),
+            child: Icon(
+              Icons.share,
+              size: 30.0,
+            )),
       ),
     );
   }
@@ -43,7 +49,7 @@ class ReceivePage extends BasePage {
 
 class ReceiveBody extends StatefulWidget {
   @override
-  createState() => ReceiveBodyState();
+  ReceiveBodyState createState() => ReceiveBodyState();
 }
 
 class ReceiveBodyState extends State<ReceiveBody> {
@@ -67,8 +73,9 @@ class ReceiveBodyState extends State<ReceiveBody> {
     amountController.addListener(() {
       if (_formKey.currentState.validate()) {
         walletStore.onChangedAmountValue(amountController.text);
-      } else
+      } else {
         walletStore.onChangedAmountValue('');
+      }
     });
 
     return SafeArea(
@@ -152,7 +159,7 @@ class ReceiveBodyState extends State<ReceiveBody> {
                                 TextInputType.numberWithOptions(decimal: true),
                             inputFormatters: [
                               BlacklistingTextInputFormatter(
-                                  new RegExp('[\\-|\\ |\\,]'))
+                                  RegExp('[\\-|\\ |\\,]'))
                             ],
                             style: TextStyle(
                               fontSize: 14.0,
@@ -163,8 +170,7 @@ class ReceiveBodyState extends State<ReceiveBody> {
                                 hintText: S.of(context).amount,
                                 focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: Palette.cakeGreen,
-                                        width: 2.0)),
+                                        color: Palette.cakeGreen, width: 2.0)),
                                 enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
                                         color: Theme.of(context).focusColor,

@@ -8,9 +8,9 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 
 class DisclaimerPage extends BasePage {
-  final bool isReadOnly;
-
   DisclaimerPage({this.isReadOnly = false});
+
+  final bool isReadOnly;
 
   @override
   bool get isModalBackButton => false;
@@ -23,25 +23,25 @@ class DisclaimerPage extends BasePage {
 }
 
 class DisclaimerPageBody extends StatefulWidget {
-  final bool isReadOnly;
-
   DisclaimerPageBody({this.isReadOnly = true});
 
+  final bool isReadOnly;
+
   @override
-  createState() => DisclaimerBodyState(false);
+  DisclaimerBodyState createState() => DisclaimerBodyState(false);
 }
 
 class DisclaimerBodyState extends State<DisclaimerPageBody> {
-  static const xmrto_url = 'https://xmr.to/app_static/html/tos.html';
-  static const changenow_url = 'https://changenow.io/terms-of-use';
+  DisclaimerBodyState(this._isAccepted);
 
-  bool _isAccepted;
+  static const xmrtoUrl = 'https://xmr.to/app_static/html/tos.html';
+  static const changenowUrl = 'https://changenow.io/terms-of-use';
+
+  final bool _isAccepted;
   bool _checked = false;
   String _fileText = '';
 
-  DisclaimerBodyState(this._isAccepted);
-
-  launchUrl(String url) async {
+  Future<void> launchUrl(String url) async {
     if (await canLaunch(url)) await launch(url);
   }
 
@@ -50,8 +50,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
     setState(() {});
   }
 
-  _showAlertDialog(BuildContext context) async {
-    await showDialog(
+  Future<void> _showAlertDialog(BuildContext context) async {
+    await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -66,7 +66,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
             actions: <Widget>[
               FlatButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.of(context).pop();
                   },
                   child: Text('OK')),
             ],
@@ -74,9 +74,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
         });
   }
 
-  _afterLayout(_) {
-    _showAlertDialog(context);
-  }
+  void _afterLayout(Duration _) => _showAlertDialog(context);
 
   @override
   void initState() {
@@ -87,7 +85,6 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       children: <Widget>[
         SizedBox(height: 10.0),
@@ -166,9 +163,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                     children: <Widget>[
                       Expanded(
                           child: GestureDetector(
-                        onTap: () => launchUrl(xmrto_url),
+                        onTap: () => launchUrl(xmrtoUrl),
                         child: Text(
-                          xmrto_url,
+                          xmrtoUrl,
                           textAlign: TextAlign.left,
                           style: TextStyle(
                               color: Colors.blue,
@@ -187,17 +184,17 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                     children: <Widget>[
                       Expanded(
                           child: GestureDetector(
-                            onTap: () => launchUrl(changenow_url),
-                            child: Text(
-                              changenow_url,
-                              textAlign: TextAlign.left,
-                              style: TextStyle(
-                                  color: Colors.blue,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.normal,
-                                  decoration: TextDecoration.underline),
-                            ),
-                          ))
+                        onTap: () => launchUrl(changenowUrl),
+                        child: Text(
+                          changenowUrl,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 14.0,
+                              fontWeight: FontWeight.normal,
+                              decoration: TextDecoration.underline),
+                        ),
+                      ))
                     ],
                   ),
                   SizedBox(
@@ -288,8 +285,14 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                   child: PrimaryButton(
                     onPressed: _checked ? () {} : null,
                     text: 'Accept',
-                    color: Theme.of(context).primaryTextTheme.button.backgroundColor,
-                    borderColor: Theme.of(context).primaryTextTheme.button.decorationColor,
+                    color: Theme.of(context)
+                        .primaryTextTheme
+                        .button
+                        .backgroundColor,
+                    borderColor: Theme.of(context)
+                        .primaryTextTheme
+                        .button
+                        .decorationColor,
                   ),
                 )
               : Offstage(),

@@ -11,14 +11,19 @@ import 'package:cake_wallet/src/stores/wallet_seed/wallet_seed_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class SeedPage extends BasePage {
+  SeedPage({this.onCloseCallback});
+
   static final image = Image.asset('assets/images/seed_image.png');
+
+  @override
   bool get isModalBackButton => true;
+
+  @override
   String get title => S.current.seed_title;
 
   final VoidCallback onCloseCallback;
 
-  SeedPage({this.onCloseCallback});
-
+  @override
   void onClose(BuildContext context) =>
       onCloseCallback != null ? onCloseCallback() : Navigator.of(context).pop();
 

@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/palette.dart';
 
 class RestoreWalletFromSeedDetailsPage extends BasePage {
+  @override
   String get title => S.current.restore_wallet_restore_description;
 
   @override
@@ -21,7 +22,8 @@ class RestoreWalletFromSeedDetailsPage extends BasePage {
 
 class RestoreFromSeedDetailsForm extends StatefulWidget {
   @override
-  createState() => _RestoreFromSeedDetailsFormState();
+  _RestoreFromSeedDetailsFormState createState() =>
+      _RestoreFromSeedDetailsFormState();
 }
 
 class _RestoreFromSeedDetailsFormState
@@ -34,14 +36,14 @@ class _RestoreFromSeedDetailsFormState
   Widget build(BuildContext context) {
     final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
 
-    reaction((_) => walletRestorationStore.state, (state) {
+    reaction((_) => walletRestorationStore.state, (WalletRestorationState state) {
       if (state is WalletRestoredSuccessfully) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
 
       if (state is WalletRestorationFailure) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(

@@ -6,19 +6,20 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 abstract class PinCodeWidget extends StatefulWidget {
-  final Function(List<int> pin, PinCodeState state) onPinCodeEntered;
-  final bool hasLengthSwitcher;
-
   PinCodeWidget({Key key, this.onPinCodeEntered, this.hasLengthSwitcher})
       : super(key: key);
+
+  final Function(List<int> pin, PinCodeState state) onPinCodeEntered;
+  final bool hasLengthSwitcher;
 }
 
 class PinCode extends PinCodeWidget {
-  final Function(List<int> pin, PinCodeState state) onPinCodeEntered;
-  final bool hasLengthSwitcher;
-
-  PinCode(this.onPinCodeEntered, this.hasLengthSwitcher, Key key)
-      : super(key: key);
+  PinCode(Function(List<int> pin, PinCodeState state) onPinCodeEntered,
+      bool hasLengthSwitcher, Key key)
+      : super(
+            key: key,
+            onPinCodeEntered: onPinCodeEntered,
+            hasLengthSwitcher: hasLengthSwitcher);
 
   @override
   PinCodeState createState() => PinCodeState();
@@ -30,27 +31,22 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   static const fourPinLength = 4;
   static final deleteIconImage = Image.asset('assets/images/delete_icon.png');
   static final backArrowImage = Image.asset('assets/images/back_arrow.png');
-  GlobalKey _gridViewKey = GlobalKey();
+  final _gridViewKey = GlobalKey();
 
   int pinLength = defaultPinLength;
   List<int> pin = List<int>.filled(defaultPinLength, null);
   String title = S.current.enter_your_pin;
   double _aspectRatio = 0;
 
-  void setTitle(String title) {
-    setState(() => this.title = title);
-  }
+  void setTitle(String title) => setState(() => this.title = title);
 
-  void clear() {
-    setState(() => pin = List<int>.filled(pinLength, null));
-  }
+  void clear() => setState(() => pin = List<int>.filled(pinLength, null));
 
-  void onPinCodeEntered(PinCodeState state) {
-    widget.onPinCodeEntered(state.pin, this);
-  }
+  void onPinCodeEntered(PinCodeState state) =>
+      widget.onPinCodeEntered(state.pin, this);
 
   void changePinLength(int length) {
-    List<int> newPin = List<int>.filled(length, null);
+    final newPin = List<int>.filled(length, null);
 
     setState(() {
       pinLength = length;
@@ -58,19 +54,23 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     });
   }
 
-  setDefaultPinLength() {
+  void setDefaultPinLength() {
     final settingsStore = Provider.of<SettingsStore>(context);
 
     pinLength = settingsStore.defaultPinLength;
     changePinLength(pinLength);
   }
 
-  getCurrentAspectRatio() {
-    final RenderBox renderBox = _gridViewKey.currentContext.findRenderObject();
+  void calculateAspectRatio() {
+    final renderBox =
+        _gridViewKey.currentContext.findRenderObject() as RenderBox;
+    final cellWidth = renderBox.size.width / 3;
+    final cellHeight = renderBox.size.height / 4;
 
-    double cellWidth = renderBox.size.width / 3;
-    double cellHeight = renderBox.size.height / 4;
-    if (cellWidth > 0 && cellHeight > 0) _aspectRatio = cellWidth / cellHeight;
+    if (cellWidth > 0 && cellHeight > 0) {
+      _aspectRatio = cellWidth / cellHeight;
+    }
+
     setState(() {});
   }
 
@@ -80,15 +80,13 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     WidgetsBinding.instance.addPostFrameCallback(afterLayout);
   }
 
-  afterLayout(_) {
+  void afterLayout(dynamic _) {
     setDefaultPinLength();
-    getCurrentAspectRatio();
+    calculateAspectRatio();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(body: body(context));
-  }
+  Widget build(BuildContext context) => Scaffold(body: body(context));
 
   Widget body(BuildContext context) {
     return SafeArea(
@@ -196,7 +194,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   }
 
   void _push(int num) {
-    if (_pinLength() >= pinLength) {
+    if (currentPinLength() >= pinLength) {
       return;
     }
 
@@ -207,13 +205,15 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       }
     }
 
-    if (_pinLength() == pinLength) {
+    final _currentPinLength = currentPinLength();
+
+    if (_currentPinLength == pinLength) {
       onPinCodeEntered(this);
     }
   }
 
   void _pop() {
-    if (_pinLength() == 0) {
+    if (currentPinLength() == 0) {
       return;
     }
 
@@ -225,7 +225,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     }
   }
 
-  int _pinLength() {
+  int currentPinLength() {
     return pin.fold(0, (v, e) {
       if (e != null) {
         return v + 1;

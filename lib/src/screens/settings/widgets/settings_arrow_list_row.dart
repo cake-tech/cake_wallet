@@ -4,11 +4,11 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 
 class SettingsArrowListRow extends StatelessWidget {
+  SettingsArrowListRow({@required this.onTaped, this.title});
+
   final VoidCallback onTaped;
   final String title;
   final _cakeArrowImage = Image.asset('assets/images/cake_arrow.png');
-
-  SettingsArrowListRow({@required this.onTaped, this.title});
 
   @override
   Widget build(BuildContext context) {

@@ -13,15 +13,6 @@ part 'subaddress_list_store.g.dart';
 class SubaddressListStore = SubaddressListStoreBase with _$SubaddressListStore;
 
 abstract class SubaddressListStoreBase with Store {
-  @observable
-  ObservableList<Subaddress> subaddresses;
-
-  SubaddressList _subaddressList;
-  StreamSubscription<Wallet> _onWalletChangeSubscription;
-  StreamSubscription<List<Subaddress>> _onSubaddressesChangeSubscription;
-  StreamSubscription<Account> _onAccountChangeSubscription;
-  Account _account;
-
   SubaddressListStoreBase({@required WalletService walletService}) {
     subaddresses = ObservableList<Subaddress>();
 
@@ -32,6 +23,15 @@ abstract class SubaddressListStoreBase with Store {
     _onWalletChangeSubscription =
         walletService.onWalletChange.listen(_onWalletChanged);
   }
+
+  @observable
+  ObservableList<Subaddress> subaddresses;
+
+  SubaddressList _subaddressList;
+  StreamSubscription<Wallet> _onWalletChangeSubscription;
+  StreamSubscription<List<Subaddress>> _onSubaddressesChangeSubscription;
+  StreamSubscription<Account> _onAccountChangeSubscription;
+  Account _account;
 
   @override
   void dispose() {
@@ -47,14 +47,14 @@ abstract class SubaddressListStoreBase with Store {
     super.dispose();
   }
 
-  Future _updateSubaddressList({int accountIndex}) async {
+  Future<void> _updateSubaddressList({int accountIndex}) async {
     await _subaddressList.refresh(accountIndex: accountIndex);
     subaddresses = ObservableList.of(_subaddressList.getAll());
   }
 
-  Future _onWalletChanged(Wallet wallet) async {
+  Future<void> _onWalletChanged(Wallet wallet) async {
     if (_onSubaddressesChangeSubscription != null) {
-      _onSubaddressesChangeSubscription.cancel();
+      await _onSubaddressesChangeSubscription.cancel();
     }
 
     if (wallet is MoneroWallet) {
@@ -64,7 +64,8 @@ abstract class SubaddressListStoreBase with Store {
           .listen((subaddress) => subaddresses = ObservableList.of(subaddress));
       await _updateSubaddressList(accountIndex: _account.id);
 
-      _onAccountChangeSubscription = wallet.onAccountChange.listen((account) async {
+      _onAccountChangeSubscription =
+          wallet.onAccountChange.listen((account) async {
         _account = account;
         await _updateSubaddressList(accountIndex: account.id);
       });

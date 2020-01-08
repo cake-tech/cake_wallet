@@ -1,20 +1,20 @@
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:cw_monero/subaddress_list.dart' as subaddressListAPI;
+import 'package:cw_monero/subaddress_list.dart' as subaddress_list;
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
 
 class SubaddressList {
-  get subaddresses => _subaddress.stream;
-  BehaviorSubject<List<Subaddress>> _subaddress;
-
-  bool _isRefreshing;
-  bool _isUpdating;
-
   SubaddressList() {
     _isRefreshing = false;
     _isUpdating = false;
     _subaddress = BehaviorSubject<List<Subaddress>>();
   }
+
+  Observable<List<Subaddress>> get subaddresses => _subaddress.stream;
+
+  BehaviorSubject<List<Subaddress>> _subaddress;
+  bool _isRefreshing;
+  bool _isUpdating;
 
   Future update({int accountIndex}) async {
     if (_isUpdating) {
@@ -29,25 +29,26 @@ class SubaddressList {
       _isUpdating = false;
     } catch (e) {
       _isUpdating = false;
-      throw e;
+      rethrow;
     }
   }
 
   List<Subaddress> getAll() {
-    return subaddressListAPI
+    return subaddress_list
         .getAllSubaddresses()
         .map((subaddressRow) => Subaddress.fromRow(subaddressRow))
         .toList();
   }
 
   Future addSubaddress({int accountIndex, String label}) async {
-    await subaddressListAPI.addSubaddress(accountIndex: accountIndex, label: label);
+    await subaddress_list.addSubaddress(
+        accountIndex: accountIndex, label: label);
     await update(accountIndex: accountIndex);
   }
 
   Future setLabelSubaddress(
       {int accountIndex, int addressIndex, String label}) async {
-    await subaddressListAPI.setLabelForSubaddress(
+    await subaddress_list.setLabelForSubaddress(
         accountIndex: accountIndex, addressIndex: addressIndex, label: label);
     await update();
   }
@@ -59,12 +60,12 @@ class SubaddressList {
 
     try {
       _isRefreshing = true;
-      subaddressListAPI.refreshSubaddresses(accountIndex: accountIndex);
+      subaddress_list.refreshSubaddresses(accountIndex: accountIndex);
       _isRefreshing = false;
     } on PlatformException catch (e) {
       _isRefreshing = false;
       print(e);
-      throw e;
+      rethrow;
     }
   }
 }

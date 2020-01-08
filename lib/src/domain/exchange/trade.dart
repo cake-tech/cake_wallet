@@ -7,6 +7,25 @@ part 'trade.g.dart';
 
 @HiveType()
 class Trade extends HiveObject {
+  Trade(
+      {this.id,
+      ExchangeProviderDescription provider,
+      CryptoCurrency from,
+      CryptoCurrency to,
+      TradeState state,
+      this.createdAt,
+      this.expiredAt,
+      this.amount,
+      this.inputAddress,
+      this.extraId,
+      this.outputTransaction,
+      this.refundAddress,
+      this.walletId})
+      : providerRaw = provider?.raw,
+        fromRaw = from?.raw,
+        toRaw = to?.raw,
+        stateRaw = state?.raw;
+
   static const boxName = 'Trades';
 
   @HiveField(0)
@@ -59,38 +78,20 @@ class Trade extends HiveObject {
 
   static Trade fromMap(Map map) {
     return Trade(
-        id: map['id'],
-        provider: ExchangeProviderDescription.deserialize(raw: map['provider']),
-        from: CryptoCurrency.deserialize(raw: map['input']),
-        to: CryptoCurrency.deserialize(raw: map['output']),
+        id: map['id'] as String,
+        provider: ExchangeProviderDescription.deserialize(
+            raw: map['provider'] as int),
+        from: CryptoCurrency.deserialize(raw: map['input'] as int),
+        to: CryptoCurrency.deserialize(raw: map['output'] as int),
         createdAt: map['date'] != null
-            ? DateTime.fromMillisecondsSinceEpoch(map['date'])
+            ? DateTime.fromMillisecondsSinceEpoch(map['date'] as int)
             : null,
-        amount: map['amount'],
-        walletId: map['wallet_id']);
+        amount: map['amount'] as String,
+        walletId: map['wallet_id'] as String);
   }
 
-  Trade(
-      {this.id,
-      ExchangeProviderDescription provider,
-      CryptoCurrency from,
-      CryptoCurrency to,
-      TradeState state,
-      this.createdAt,
-      this.expiredAt,
-      this.amount,
-      this.inputAddress,
-      this.extraId,
-      this.outputTransaction,
-      this.refundAddress,
-      this.walletId})
-      : providerRaw = provider?.raw,
-        fromRaw = from?.raw,
-        toRaw = to?.raw,
-        stateRaw = state?.raw;
-
   Map<String, dynamic> toMap() {
-    return {
+    return <String, dynamic>{
       'id': id,
       'provider': provider.serialize(),
       'input': from.serialize(),

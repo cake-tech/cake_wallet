@@ -20,12 +20,12 @@ Future<double> fetchPriceFor({CryptoCurrency crypto, FiatCurrency fiat}) async {
       return 0.0;
     }
 
-    final responseJSON = json.decode(response.body);
-    final data = responseJSON['data'];
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final data = responseJSON['data'] as List<Map<String, dynamic>>;
 
     for (final item in data) {
       if (item['symbol'] == cryptoToString(crypto)) {
-        price = item['quote'][fiatStringified]['price'];
+        price = item['quote'][fiatStringified]['price'] as double;
         break;
       }
     }

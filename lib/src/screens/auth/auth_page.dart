@@ -7,12 +7,13 @@ import 'package:cake_wallet/src/stores/auth/auth_state.dart';
 import 'package:cake_wallet/src/stores/auth/auth_store.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 
+typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
 class AuthPage extends StatefulWidget {
-  final Function(bool, AuthPageState) onAuthenticationFinished;
-  final bool closable;
-
   AuthPage({this.onAuthenticationFinished, this.closable = true});
+
+  final OnAuthenticationFinished onAuthenticationFinished;
+  final bool closable;
 
   @override
   AuthPageState createState() => AuthPageState();
@@ -33,7 +34,7 @@ class AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     final authStore = Provider.of<AuthStore>(context);
 
-    reaction((_) => authStore.state, (state) {
+    reaction((_) => authStore.state, (AuthState state) {
       if (state is AuthenticatedSuccessfully) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (widget.onAuthenticationFinished != null) {
@@ -60,7 +61,24 @@ class AuthPageState extends State<AuthPage> {
         });
       }
 
-      if (state is AuthenticationFailure || state is AuthenticationBanned) {
+      if (state is AuthenticationFailure) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _pinCodeKey.currentState.clear();
+          _key.currentState.hideCurrentSnackBar();
+          _key.currentState.showSnackBar(
+            SnackBar(
+              content: Text(S.of(context).failed_authentication(state.error)),
+              backgroundColor: Colors.red,
+            ),
+          );
+
+          if (widget.onAuthenticationFinished != null) {
+            widget.onAuthenticationFinished(false, this);
+          }
+        });
+      }
+
+      if (state is AuthenticationBanned) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _pinCodeKey.currentState.clear();
           _key.currentState.hideCurrentSnackBar();

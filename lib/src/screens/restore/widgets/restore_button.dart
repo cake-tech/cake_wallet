@@ -2,15 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class RestoreButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final Image image;
-  final double aspectRatioImage;
-  final Color color;
-  final Color titleColor;
-  final String title;
-  final String description;
-  final String textButton;
-
   const RestoreButton(
       {@required this.onPressed,
       @required this.image,
@@ -21,9 +12,17 @@ class RestoreButton extends StatelessWidget {
       this.description = '',
       this.textButton = ''});
 
+  final VoidCallback onPressed;
+  final Image image;
+  final double aspectRatioImage;
+  final Color color;
+  final Color titleColor;
+  final String title;
+  final String description;
+  final String textButton;
+
   @override
   Widget build(BuildContext context) {
-
     return Container(
       margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
       decoration: BoxDecoration(
@@ -71,11 +70,11 @@ class RestoreButton extends StatelessWidget {
                     child: Text(
                       description,
                       textAlign: TextAlign.center,
-                      style:
-                          TextStyle(
-                              color: Theme.of(context).accentTextTheme.subhead.color,
-                              fontSize: 14.0,
-                              height: 1.4),
+                      style: TextStyle(
+                          color:
+                              Theme.of(context).accentTextTheme.subhead.color,
+                          fontSize: 14.0,
+                          height: 1.4),
                     ),
                   )
                 ],
@@ -88,7 +87,10 @@ class RestoreButton extends StatelessWidget {
                   decoration: BoxDecoration(
                     border: Border(
                         top: BorderSide(
-                            color: Theme.of(context).accentTextTheme.headline.decorationColor,
+                            color: Theme.of(context)
+                                .accentTextTheme
+                                .headline
+                                .decorationColor,
                             width: 1.15)),
                     color: Colors.transparent,
                   ),

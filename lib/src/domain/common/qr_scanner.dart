@@ -10,6 +10,6 @@ Future<String> presentQRScanner() async {
     return result;
   } catch (e) {
     isQrScannerShown = false;
-    throw e;
+    rethrow;
   }
 }

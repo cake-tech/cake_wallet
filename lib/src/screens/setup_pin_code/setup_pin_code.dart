@@ -9,12 +9,12 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SetupPinCodePage extends BasePage {
+  SetupPinCodePage({this.onPinCodeSetup});
+
   final Function(BuildContext, String) onPinCodeSetup;
 
   @override
   String get title => S.current.setup_pin;
-
-  SetupPinCodePage({this.onPinCodeSetup});
 
   @override
   Widget body(BuildContext context) =>
@@ -22,11 +22,11 @@ class SetupPinCodePage extends BasePage {
 }
 
 class SetupPinCodeForm extends PinCodeWidget {
-  final Function(BuildContext, String) onPinCodeSetup;
-  final bool hasLengthSwitcher;
-
   SetupPinCodeForm(
-      {@required this.onPinCodeSetup, @required this.hasLengthSwitcher});
+      {@required this.onPinCodeSetup, @required bool hasLengthSwitcher})
+      : super(hasLengthSwitcher: hasLengthSwitcher);
+
+  final Function(BuildContext, String) onPinCodeSetup;
 
   @override
   _SetupPinCodeFormState createState() => _SetupPinCodeFormState();
@@ -34,16 +34,15 @@ class SetupPinCodeForm extends PinCodeWidget {
 
 class _SetupPinCodeFormState<WidgetType extends SetupPinCodeForm>
     extends PinCodeState<WidgetType> {
+  _SetupPinCodeFormState() {
+    title = S.current.enter_your_pin;
+  }
 
-  bool isEnteredOriginalPin() => !(_originalPin.length == 0);
+  bool isEnteredOriginalPin() => _originalPin.isNotEmpty;
   Function(BuildContext) onPinCodeSetup;
   List<int> _originalPin = [];
   UserStore _userStore;
   SettingsStore _settingsStore;
-
-  _SetupPinCodeFormState() {
-    title = S.current.enter_your_pin;
-  }
 
   @override
   void onPinCodeEntered(PinCodeState state) {
@@ -57,7 +56,7 @@ class _SetupPinCodeFormState<WidgetType extends SetupPinCodeForm>
         _userStore.set(password: pin);
         _settingsStore.setDefaultPinLength(pinLength: state.pinLength);
 
-        showDialog(
+        showDialog<void>(
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
@@ -76,7 +75,7 @@ class _SetupPinCodeFormState<WidgetType extends SetupPinCodeForm>
               );
             });
       } else {
-        showDialog(
+        showDialog<void>(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(

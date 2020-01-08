@@ -1,19 +1,19 @@
 import 'package:rxdart/rxdart.dart';
-import 'package:cw_monero/account_list.dart' as accountListAPI;
+import 'package:cw_monero/account_list.dart' as account_list;
 import 'package:cake_wallet/src/domain/monero/account.dart';
 
 class AccountList {
-  get accounts => _accounts.stream;
-  BehaviorSubject<List<Account>> _accounts;
-
-  bool _isRefreshing;
-  bool _isUpdating;
-
   AccountList() {
     _isRefreshing = false;
     _isUpdating = false;
     _accounts = BehaviorSubject<List<Account>>();
   }
+
+  Observable<List<Account>> get accounts => _accounts.stream;
+
+  BehaviorSubject<List<Account>> _accounts;
+  bool _isRefreshing;
+  bool _isUpdating;
 
   Future update() async {
     if (_isUpdating) {
@@ -22,46 +22,47 @@ class AccountList {
 
     try {
       _isUpdating = true;
-      await refresh();
+      refresh();
       final accounts = getAll();
       _accounts.add(accounts);
       _isUpdating = false;
     } catch (e) {
       _isUpdating = false;
-      throw e;
+      rethrow;
     }
   }
 
   List<Account> getAll() {
-    return accountListAPI
+    return account_list
         .getAllAccount()
         .map((accountRow) => Account.fromRow(accountRow))
         .toList();
   }
 
   Future addAccount({String label}) async {
-    await accountListAPI.addAccount(label: label);
+    await account_list.addAccount(label: label);
     await update();
   }
 
   Future setLabelSubaddress({int accountIndex, String label}) async {
-    await accountListAPI.setLabelForAccount(accountIndex: accountIndex, label: label);
+    await account_list.setLabelForAccount(
+        accountIndex: accountIndex, label: label);
     await update();
   }
 
-  refresh() {
+  void refresh() {
     if (_isRefreshing) {
       return;
     }
 
     try {
       _isRefreshing = true;
-      accountListAPI.refreshAccounts();
+      account_list.refreshAccounts();
       _isRefreshing = false;
     } catch (e) {
       _isRefreshing = false;
       print(e);
-      throw e;
+      rethrow;
     }
   }
 }

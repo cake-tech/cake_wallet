@@ -4,13 +4,6 @@ import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class TransactionRow extends StatelessWidget {
-  final VoidCallback onTap;
-  final TransactionDirection direction;
-  final String formattedDate;
-  final String formattedAmount;
-  final String formattedFiatAmount;
-  final bool isPending;
-
   TransactionRow(
       {this.direction,
       this.formattedDate,
@@ -18,6 +11,13 @@ class TransactionRow extends StatelessWidget {
       this.formattedFiatAmount,
       this.isPending,
       @required this.onTap});
+
+  final VoidCallback onTap;
+  final TransactionDirection direction;
+  final String formattedDate;
+  final String formattedAmount;
+  final String formattedFiatAmount;
+  final bool isPending;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +53,10 @@ class TransactionRow extends StatelessWidget {
                                 (isPending ? S.of(context).pending : ''),
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context).primaryTextTheme.subhead.color)),
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .subhead
+                                    .color)),
                         Text(formattedAmount,
                             style: const TextStyle(
                                 fontSize: 16, color: Palette.purpleBlue))

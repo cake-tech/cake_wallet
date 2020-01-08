@@ -1,6 +1,6 @@
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:date_range_picker/date_range_picker.dart' as DateRagePicker;
+import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -86,24 +86,19 @@ class DashboardPage extends BasePage {
       child: Image.asset('assets/images/exchange_icon.png',
           color: Colors.white, height: 26, width: 22),
       backgroundColor: Palette.floatingActionButton,
-      onPressed: () async {
-        final actionListStore = Provider.of<ActionListStore>(context);
-
-        await Navigator.of(context, rootNavigator: true)
-          .pushNamed(Routes.exchange);
-        actionListStore.updateTradeList();  
-      });
+      onPressed: () async => await Navigator.of(context, rootNavigator: true)
+          .pushNamed(Routes.exchange));
 
   void _presentWalletMenu(BuildContext bodyContext) {
     final walletMenu = WalletMenu(bodyContext);
 
-    showDialog(
+    showDialog<void>(
         builder: (_) => Picker(
             items: walletMenu.items,
             selectedAtIndex: -1,
             title: S.of(bodyContext).wallet_menu,
             pickerHeight: 510,
-            onItemSelected: (item) =>
+            onItemSelected: (String item) =>
                 walletMenu.action(walletMenu.items.indexOf(item))),
         context: bodyContext);
   }
@@ -136,8 +131,9 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
     return Observer(
         key: _listObserverKey,
         builder: (_) {
-          final items =
-              actionListStore.items == null ? [] : actionListStore.items;
+          final items = actionListStore.items == null
+              ? <String>[]
+              : actionListStore.items;
           final itemsCount = items.length + 2;
 
           return ListView.builder(
@@ -225,19 +221,17 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                                     builder: (_) {
                                       final savedDisplayMode =
                                           settingsStore.balanceDisplayMode;
-                                      final displayMode =
-                                          balanceStore.isReversing
-                                              ? (savedDisplayMode ==
-                                                      BalanceDisplayMode
-                                                          .availableBalance
-                                                  ? BalanceDisplayMode
-                                                      .fullBalance
-                                                  : BalanceDisplayMode
-                                                      .availableBalance)
-                                              : savedDisplayMode;
-                                      var title = displayMode.toString();
+                                      final displayMode = balanceStore
+                                              .isReversing
+                                          ? (savedDisplayMode ==
+                                                  BalanceDisplayMode
+                                                      .availableBalance
+                                              ? BalanceDisplayMode.fullBalance
+                                              : BalanceDisplayMode
+                                                  .availableBalance)
+                                          : savedDisplayMode;
 
-                                      return Text(title,
+                                      return Text(displayMode.toString(),
                                           style: TextStyle(
                                               color: Palette.violet,
                                               fontSize: 16));
@@ -248,16 +242,15 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                                       final savedDisplayMode =
                                           settingsStore.balanceDisplayMode;
                                       var balance = '---';
-                                      final displayMode =
-                                          balanceStore.isReversing
-                                              ? (savedDisplayMode ==
-                                                      BalanceDisplayMode
-                                                          .availableBalance
-                                                  ? BalanceDisplayMode
-                                                      .fullBalance
-                                                  : BalanceDisplayMode
-                                                      .availableBalance)
-                                              : savedDisplayMode;
+                                      final displayMode = balanceStore
+                                              .isReversing
+                                          ? (savedDisplayMode ==
+                                                  BalanceDisplayMode
+                                                      .availableBalance
+                                              ? BalanceDisplayMode.fullBalance
+                                              : BalanceDisplayMode
+                                                  .availableBalance)
+                                          : savedDisplayMode;
 
                                       if (displayMode ==
                                           BalanceDisplayMode.availableBalance) {
@@ -499,7 +492,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                             onSelected: (item) async {
                               if (item == 2) {
                                 final List<DateTime> picked =
-                                    await DateRagePicker.showDatePicker(
+                                    await date_rage_picker.showDatePicker(
                                         context: context,
                                         initialFirstDate: DateTime.now()
                                             .subtract(Duration(days: 1)),

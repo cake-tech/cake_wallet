@@ -20,6 +20,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class ExchangeTradePage extends BasePage {
+  @override
   String get title => S.current.exchange;
 
   @override
@@ -28,7 +29,7 @@ class ExchangeTradePage extends BasePage {
 
 class ExchangeTradeForm extends StatefulWidget {
   @override
-  createState() => ExchangeTradeState();
+  ExchangeTradeState createState() => ExchangeTradeState();
 }
 
 class ExchangeTradeState extends State<ExchangeTradeForm> {
@@ -330,10 +331,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
     final sendStore = Provider.of<SendStore>(context);
 
-    reaction((_) => sendStore.state, (state) {
+    reaction((_) => sendStore.state, (SendingState state) {
       if (state is SendingFailed) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
@@ -351,7 +352,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCreatedSuccessfully) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog(
+          showDialog<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(

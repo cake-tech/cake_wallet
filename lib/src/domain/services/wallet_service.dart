@@ -10,17 +10,40 @@ import 'package:cake_wallet/src/domain/common/pending_transaction.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 
 class WalletService extends Wallet {
-  Observable<Wallet> get onWalletChange => _onWalletChanged.stream;
+  WalletService() {
+    _currentWallet = null;
+    walletType = WalletType.none;
+    _syncStatus = BehaviorSubject<SyncStatus>();
+    _onBalanceChange = BehaviorSubject<Balance>();
+    _onWalletChanged = BehaviorSubject<Wallet>();
+  }
+
+  @override
   Observable<Balance> get onBalanceChange => _onBalanceChange.stream;
+
+  @override
   Observable<SyncStatus> get syncStatus => _syncStatus.stream;
+
+  @override
   Observable<String> get onAddressChange => _currentWallet.onAddressChange;
+
+  @override
   Observable<String> get onNameChange => _currentWallet.onNameChange;
+
+  @override
   String get address => _currentWallet.address;
+
+  @override
   String get name => _currentWallet.name;
-  SyncStatus get syncStatusValue => _syncStatus.value;
+
+  @override
   WalletType get walletType => _currentWallet.walletType;
 
-  get currentWallet => _currentWallet;
+  Observable<Wallet> get onWalletChange => _onWalletChanged.stream;
+
+  SyncStatus get syncStatusValue => _syncStatus.value;
+
+  Wallet get currentWallet => _currentWallet;
 
   set currentWallet(Wallet wallet) {
     _currentWallet = wallet;
@@ -44,55 +67,65 @@ class WalletService extends Wallet {
   BehaviorSubject<SyncStatus> _syncStatus;
   Wallet _currentWallet;
 
-  WalletService() {
-    _currentWallet = null;
-    walletType = WalletType.none;
-    _syncStatus = BehaviorSubject<SyncStatus>();
-    _onBalanceChange = BehaviorSubject<Balance>();
-    _onWalletChanged = BehaviorSubject<Wallet>();
-  }
-
   WalletDescription description;
 
+  @override
   WalletType getType() => WalletType.monero;
 
+  @override
   Future<String> getFilename() => _currentWallet.getFilename();
 
+  @override
   Future<String> getName() => _currentWallet.getName();
 
+  @override
   Future<String> getAddress() => _currentWallet.getAddress();
 
+  @override
   Future<String> getSeed() => _currentWallet.getSeed();
 
+  @override
   Future<Map<String, String>> getKeys() => _currentWallet.getKeys();
 
+  @override
   Future<String> getFullBalance() => _currentWallet.getFullBalance();
 
+  @override
   Future<String> getUnlockedBalance() => _currentWallet.getUnlockedBalance();
 
+  @override
   Future<int> getCurrentHeight() => _currentWallet.getCurrentHeight();
 
+  @override
   Future<int> getNodeHeight() => _currentWallet.getNodeHeight();
 
+  @override
   Future<bool> isConnected() => _currentWallet.isConnected();
 
+  @override
   Future close() => _currentWallet.close();
 
-  Future connectToNode({Node node, bool useSSL = false, bool isLightWallet = false}) =>
+  @override
+  Future connectToNode(
+          {Node node, bool useSSL = false, bool isLightWallet = false}) =>
       _currentWallet.connectToNode(
-          node: node,
-          useSSL: useSSL,
-          isLightWallet: isLightWallet);
+          node: node, useSSL: useSSL, isLightWallet: isLightWallet);
 
+  @override
   Future startSync() => _currentWallet.startSync();
 
+  @override
   TransactionHistory getHistory() => _currentWallet.getHistory();
 
+  @override
   Future<PendingTransaction> createTransaction(
           TransactionCreationCredentials credentials) =>
       _currentWallet.createTransaction(credentials);
 
+  @override
   Future updateInfo() async => _currentWallet.updateInfo();
 
-  Future rescan({int restoreHeight = 0}) async => _currentWallet.rescan(restoreHeight: restoreHeight);
+  @override
+  Future rescan({int restoreHeight = 0}) async =>
+      _currentWallet.rescan(restoreHeight: restoreHeight);
 }

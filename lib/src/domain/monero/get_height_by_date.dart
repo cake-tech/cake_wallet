@@ -77,7 +77,8 @@ int getHeigthByDate({DateTime date}) {
 
   if (endHeight <= 0) {
     endHeight = dates.values.toList()[dates.length - 1];
-    final preLastDate = dateFormat.parse(dates.keys.elementAt(dates.keys.length - 2));
+    final preLastDate =
+        dateFormat.parse(dates.keys.elementAt(dates.keys.length - 2));
     preLastYear = preLastDate.year;
     preLastMonth = preLastDate.month;
   } else {
@@ -90,12 +91,12 @@ int getHeigthByDate({DateTime date}) {
     preLastYear -= 1;
   }
 
-  var startRaw = '$preLastYear' + '-' + '$preLastMonth';
-  var startHeight = dates[startRaw];
-  var diff = endHeight - startHeight;
-  var heightPerDay = diff / 30;
-  var daysHeight = date.day * heightPerDay.round();
-  var height = endHeight + daysHeight;
+  final startRaw = '$preLastYear' + '-' + '$preLastMonth';
+  final startHeight = dates[startRaw];
+  final diff = endHeight - startHeight;
+  final heightPerDay = diff / 30;
+  final daysHeight = date.day * heightPerDay.round();
+  final height = endHeight + daysHeight;
 
   return height;
 }

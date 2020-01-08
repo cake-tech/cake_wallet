@@ -19,6 +19,21 @@ part 'exchange_store.g.dart';
 class ExchangeStore = ExchangeStoreBase with _$ExchangeStore;
 
 abstract class ExchangeStoreBase with Store {
+  ExchangeStoreBase(
+      {@required ExchangeProvider initialProvider,
+      @required CryptoCurrency initialDepositCurrency,
+      @required CryptoCurrency initialReceiveCurrency,
+      @required this.providerList,
+      @required this.trades,
+      @required this.walletStore}) {
+    provider = initialProvider;
+    depositCurrency = initialDepositCurrency;
+    receiveCurrency = initialReceiveCurrency;
+    limitsState = LimitsInitialState();
+    tradeState = ExchangeTradeStateInitial();
+    loadLimits();
+  }
+
   @observable
   ExchangeProvider provider;
 
@@ -56,21 +71,6 @@ abstract class ExchangeStoreBase with Store {
   String receiveAddress;
 
   WalletStore walletStore;
-
-  ExchangeStoreBase(
-      {@required ExchangeProvider initialProvider,
-      @required CryptoCurrency initialDepositCurrency,
-      @required CryptoCurrency initialReceiveCurrency,
-      @required this.providerList,
-      @required this.trades,
-      @required this.walletStore}) {
-    provider = initialProvider;
-    depositCurrency = initialDepositCurrency;
-    receiveCurrency = initialReceiveCurrency;
-    limitsState = LimitsInitialState();
-    tradeState = ExchangeTradeStateInitial();
-    loadLimits();
-  }
 
   @action
   void changeProvider({ExchangeProvider provider}) {
@@ -190,12 +190,10 @@ abstract class ExchangeStoreBase with Store {
   List<ExchangeProvider> _providersForPair(
       {CryptoCurrency from, CryptoCurrency to}) {
     final providers = providerList
-        .where((provider) =>
-            provider.pairList
-                .where((pair) =>
-                    pair.from == depositCurrency && pair.to == receiveCurrency)
-                .length >
-            0)
+        .where((provider) => provider.pairList
+            .where((pair) =>
+                pair.from == depositCurrency && pair.to == receiveCurrency)
+            .isNotEmpty)
         .toList();
 
     return providers;
@@ -203,10 +201,9 @@ abstract class ExchangeStoreBase with Store {
 
   void _onPairChange() {
     final isPairExist = provider.pairList
-            .where((pair) =>
-                pair.from == depositCurrency && pair.to == receiveCurrency)
-            .length >
-        0;
+        .where((pair) =>
+            pair.from == depositCurrency && pair.to == receiveCurrency)
+        .isNotEmpty;
 
     if (!isPairExist) {
       final provider =
@@ -225,14 +222,15 @@ abstract class ExchangeStoreBase with Store {
 
   ExchangeProvider _providerForPair({CryptoCurrency from, CryptoCurrency to}) {
     final providers = _providersForPair(from: from, to: to);
-    return providers.length > 0 ? providers[0] : null;
+    return providers.isNotEmpty ? providers[0] : null;
   }
 
   void validateAddress(String value, {CryptoCurrency cryptoCurrency}) {
     // XMR (95), BTC (34), ETH (42), LTC (34), BCH (42), DASH (34)
-    String p = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
+
     if (isValid && cryptoCurrency != null) {
       switch (cryptoCurrency.toString()) {
         case 'XMR':
@@ -254,12 +252,13 @@ abstract class ExchangeStoreBase with Store {
           isValid = (value.length == 34);
       }
     }
+
     errorMessage = isValid ? null : S.current.error_text_address;
   }
 
   void validateCryptoCurrency(String value) {
-    String p = '^([0-9]+([.][0-9]{0,12})?|[.][0-9]{1,12})\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^([0-9]+([.][0-9]{0,12})?|[.][0-9]{1,12})\$';
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_crypto_currency;
   }
