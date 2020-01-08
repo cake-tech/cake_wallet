@@ -124,8 +124,8 @@
   "delete" : "Delete",
 
 
-  "use" : "Use ",
-  "digit_pin" : "-digit Pin",
+  "use" : "Switch to ",
+  "digit_pin" : "-digit PIN",
 
 
   "share_address" : "Share address",
