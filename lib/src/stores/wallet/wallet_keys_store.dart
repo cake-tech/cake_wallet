@@ -7,18 +7,6 @@ part 'wallet_keys_store.g.dart';
 class WalletKeysStore = WalletKeysStoreBase with _$WalletKeysStore;
 
 abstract class WalletKeysStoreBase with Store {
-  @observable
-  String publicViewKey;
-
-  @observable
-  String privateViewKey;
-
-  @observable
-  String publicSpendKey;
-
-  @observable
-  String privateSpendKey;
-
   WalletKeysStoreBase({@required WalletService walletService}) {
     publicViewKey = '';
     privateViewKey = '';
@@ -34,4 +22,16 @@ abstract class WalletKeysStoreBase with Store {
       });
     }
   }
+
+  @observable
+  String publicViewKey;
+
+  @observable
+  String privateViewKey;
+
+  @observable
+  String publicSpendKey;
+
+  @observable
+  String privateSpendKey;
 }

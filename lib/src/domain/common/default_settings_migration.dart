@@ -11,7 +11,7 @@ Future defaultSettingsMigration(
     {@required int version,
     @required SharedPreferences sharedPreferences,
     @required Box<Node> nodes}) async {
-  int currentVersion =
+  final currentVersion =
       sharedPreferences.getInt('current_default_settings_migration_version') ??
           0;
 
@@ -22,17 +22,17 @@ Future defaultSettingsMigration(
   try {
     switch (version) {
       case 1:
-        sharedPreferences.setString(
+        await sharedPreferences.setString(
             'current_fiat_currency', FiatCurrency.usd.toString());
-        sharedPreferences.setInt(
+        await sharedPreferences.setInt(
             'current_fee_priority', TransactionPriority.standart.raw);
-        sharedPreferences.setInt('current_balance_display_mode',
+        await sharedPreferences.setInt('current_balance_display_mode',
             BalanceDisplayMode.availableBalance.raw);
-        sharedPreferences.setInt(
+        await sharedPreferences.setInt(
             'current_default_settings_migration_version', 1);
-        sharedPreferences.setBool('save_recipient_address', false);
+        await sharedPreferences.setBool('save_recipient_address', false);
         await resetToDefault(nodes);
-        sharedPreferences.setInt('current_node_id', 0);
+        await sharedPreferences.setInt('current_node_id', 0);
         break;
       default:
         break;
@@ -41,6 +41,6 @@ Future defaultSettingsMigration(
     print('Migration error: ${e.toString()}');
   }
 
-  sharedPreferences.setInt(
+  await sharedPreferences.setInt(
       'current_default_settings_migration_version', version);
 }

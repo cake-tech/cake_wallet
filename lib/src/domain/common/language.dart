@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
 class Language with ChangeNotifier {
+  Language(this._currentLanguage);
 
   String _currentLanguage;
 
-  Language(this._currentLanguage);
+  String getCurrentLanguage() => _currentLanguage;
 
-  getCurrentLanguage() => _currentLanguage;
-
-  setCurrentLanguage(String language){
+  void setCurrentLanguage(String language) {
     _currentLanguage = language;
     notifyListeners();
   }
-
 }

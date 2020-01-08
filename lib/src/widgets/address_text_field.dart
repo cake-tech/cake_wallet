@@ -9,17 +9,6 @@ import 'package:cake_wallet/src/domain/common/qr_scanner.dart';
 enum AddressTextFieldOption { qrCode, addressBook, subaddressList }
 
 class AddressTextField extends StatelessWidget {
-  static const prefixIconWidth = 34.0;
-  static const prefixIconHeight = 34.0;
-  static const spaceBetweenPrefixIcons = 10.0;
-
-  final TextEditingController controller;
-  final bool isActive;
-  final String placeholder;
-  final Function(Uri) onURIScanned;
-  final List<AddressTextFieldOption> options;
-  final FormFieldValidator<String> validator;
-
   AddressTextField(
       {@required this.controller,
       this.isActive = true,
@@ -30,6 +19,17 @@ class AddressTextField extends StatelessWidget {
       ],
       this.onURIScanned,
       this.validator});
+
+  static const prefixIconWidth = 34.0;
+  static const prefixIconHeight = 34.0;
+  static const spaceBetweenPrefixIcons = 10.0;
+
+  final TextEditingController controller;
+  final bool isActive;
+  final String placeholder;
+  final Function(Uri) onURIScanned;
+  final List<AddressTextFieldOption> options;
+  final FormFieldValidator<String> validator;
 
   @override
   Widget build(BuildContext context) {
@@ -105,8 +105,7 @@ class AddressTextField extends StatelessWidget {
         hintStyle: TextStyle(color: Theme.of(context).hintColor),
         hintText: placeholder ?? S.current.widgets_address,
         focusedBorder: UnderlineInputBorder(
-            borderSide:
-                BorderSide(color: Palette.cakeGreen, width: 2.0)),
+            borderSide: BorderSide(color: Palette.cakeGreen, width: 2.0)),
         enabledBorder: UnderlineInputBorder(
             borderSide:
                 BorderSide(color: Theme.of(context).focusColor, width: 1.0)),
@@ -115,10 +114,10 @@ class AddressTextField extends StatelessWidget {
     );
   }
 
-  Future _presentQRScanner(BuildContext context) async {
+  Future<void> _presentQRScanner(BuildContext context) async {
     try {
-      String code = await presentQRScanner();
-      var uri = Uri.parse(code);
+      final code = await presentQRScanner();
+      final uri = Uri.parse(code);
       var address = '';
 
       if (uri == null) {
@@ -137,7 +136,7 @@ class AddressTextField extends StatelessWidget {
     }
   }
 
-  Future _presetAddressBookPicker(BuildContext context) async {
+  Future<void> _presetAddressBookPicker(BuildContext context) async {
     final contact = await Navigator.of(context, rootNavigator: true)
         .pushNamed(Routes.pickerAddressBook);
 
@@ -146,7 +145,7 @@ class AddressTextField extends StatelessWidget {
     }
   }
 
-  Future _presetSubaddressListPicker(BuildContext context) async {
+  Future<void> _presetSubaddressListPicker(BuildContext context) async {
     final subaddress = await Navigator.of(context, rootNavigator: true)
         .pushNamed(Routes.subaddressList);
 

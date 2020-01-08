@@ -3,20 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class PrimaryButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final Color color;
-  final Color borderColor;
-  final String text;
-
   const PrimaryButton(
       {@required this.onPressed,
       @required this.text,
       @required this.color,
       @required this.borderColor});
 
+  final VoidCallback onPressed;
+  final Color color;
+  final Color borderColor;
+  final String text;
+
   @override
   Widget build(BuildContext context) {
-
     return ButtonTheme(
         minWidth: double.infinity,
         height: 56.0,
@@ -35,13 +34,6 @@ class PrimaryButton extends StatelessWidget {
 }
 
 class LoadingPrimaryButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final Color color;
-  final Color borderColor;
-  final bool isLoading;
-  final bool isDisabled;
-  final String text;
-
   const LoadingPrimaryButton(
       {@required this.onPressed,
       @required this.text,
@@ -50,9 +42,15 @@ class LoadingPrimaryButton extends StatelessWidget {
       this.isDisabled = false,
       this.isLoading = false});
 
+  final VoidCallback onPressed;
+  final Color color;
+  final Color borderColor;
+  final bool isLoading;
+  final bool isDisabled;
+  final String text;
+
   @override
   Widget build(BuildContext context) {
-
     return ButtonTheme(
         minWidth: double.infinity,
         height: 56.0,
@@ -73,14 +71,6 @@ class LoadingPrimaryButton extends StatelessWidget {
 }
 
 class PrimaryIconButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final IconData iconData;
-  final Color color;
-  final Color borderColor;
-  final Color iconColor;
-  final Color iconBackgroundColor;
-  final String text;
-
   const PrimaryIconButton({
     @required this.onPressed,
     @required this.iconData,
@@ -91,9 +81,16 @@ class PrimaryIconButton extends StatelessWidget {
     @required this.iconBackgroundColor,
   });
 
+  final VoidCallback onPressed;
+  final IconData iconData;
+  final Color color;
+  final Color borderColor;
+  final Color iconColor;
+  final Color iconBackgroundColor;
+  final String text;
+
   @override
   Widget build(BuildContext context) {
-
     return ButtonTheme(
         minWidth: double.infinity,
         height: 56.0,
@@ -123,7 +120,8 @@ class PrimaryIconButton extends StatelessWidget {
                   child: Text(text,
                       style: TextStyle(
                           fontSize: 16.0,
-                          color: Theme.of(context).primaryTextTheme.button.color)),
+                          color:
+                              Theme.of(context).primaryTextTheme.button.color)),
                 ),
               )
             ],
@@ -133,13 +131,6 @@ class PrimaryIconButton extends StatelessWidget {
 }
 
 class PrimaryImageButton extends StatelessWidget {
-  final VoidCallback onPressed;
-  final Image image;
-  final Color color;
-  final Color borderColor;
-  final Color iconColor;
-  final String text;
-
   const PrimaryImageButton(
       {@required this.onPressed,
       @required this.image,
@@ -147,6 +138,13 @@ class PrimaryImageButton extends StatelessWidget {
       this.color = Palette.purple,
       this.borderColor = Palette.deepPink,
       this.iconColor = Colors.black});
+
+  final VoidCallback onPressed;
+  final Image image;
+  final Color color;
+  final Color borderColor;
+  final Color iconColor;
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -175,9 +173,13 @@ class PrimaryImageButton extends StatelessWidget {
                     Container(
                       height: 56.0,
                       child: Center(
-                        child: Text(text, style: TextStyle(fontSize: 18.0,
-                          color: Theme.of(context).primaryTextTheme.button.color
-                        )),
+                        child: Text(text,
+                            style: TextStyle(
+                                fontSize: 18.0,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .button
+                                    .color)),
                       ),
                     )
                   ]))

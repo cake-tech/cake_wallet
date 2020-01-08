@@ -9,12 +9,6 @@ part 'wallet_list_store.g.dart';
 class WalletListStore = WalletListStoreBase with _$WalletListStore;
 
 abstract class WalletListStoreBase with Store {
-  @observable
-  List<WalletDescription> wallets;
-
-  WalletListService _walletListService;
-  WalletService _walletService;
-
   WalletListStoreBase(
       {@required WalletListService walletListService,
       @required WalletService walletService}) {
@@ -24,22 +18,27 @@ abstract class WalletListStoreBase with Store {
     walletListService.getAll().then((walletList) => wallets = walletList);
   }
 
-  bool isCurrentWallet(WalletDescription wallet) {
-    return _walletService.description?.name == wallet.name;
-  }
+  @observable
+  List<WalletDescription> wallets;
+
+  WalletListService _walletListService;
+  WalletService _walletService;
+
+  bool isCurrentWallet(WalletDescription wallet) =>
+      _walletService.description?.name == wallet.name;
 
   @action
-  Future updateWalletList() async {
+  Future<void> updateWalletList() async {
     wallets = await _walletListService.getAll();
   }
 
   @action
-  Future loadWallet(WalletDescription wallet) async {
+  Future<void> loadWallet(WalletDescription wallet) async {
     await _walletListService.openWallet(wallet.name);
   }
 
   @action
-  Future remove(WalletDescription wallet) async {
+  Future<void> remove(WalletDescription wallet) async {
     await _walletListService.remove(wallet);
     await updateWalletList();
   }

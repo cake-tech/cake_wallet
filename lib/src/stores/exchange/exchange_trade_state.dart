@@ -8,13 +8,13 @@ class ExchangeTradeStateInitial extends ExchangeTradeState {}
 class TradeIsCreating extends ExchangeTradeState {}
 
 class TradeIsCreatedSuccessfully extends ExchangeTradeState {
-  final Trade trade;
-
   TradeIsCreatedSuccessfully({@required this.trade});
+
+  final Trade trade;
 }
 
 class TradeIsCreatedFailure extends ExchangeTradeState {
-  final String error;
-
   TradeIsCreatedFailure({@required this.error});
+
+  final String error;
 }

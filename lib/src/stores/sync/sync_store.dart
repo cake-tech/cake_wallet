@@ -10,12 +10,6 @@ part 'sync_store.g.dart';
 class SyncStore = SyncStoreBase with _$SyncStore;
 
 abstract class SyncStoreBase with Store {
-  @observable
-  SyncStatus status;
-
-  StreamSubscription<Wallet> _onWalletChangeSubscription;
-  StreamSubscription<SyncStatus> _onSyncStatusChangeSubscription;
-
   SyncStoreBase(
       {SyncStatus syncStatus = const NotConnectedSyncStatus(),
       @required WalletService walletService}) {
@@ -28,6 +22,12 @@ abstract class SyncStoreBase with Store {
     _onWalletChangeSubscription =
         walletService.onWalletChange.listen(_onWalletChanged);
   }
+
+  @observable
+  SyncStatus status;
+
+  StreamSubscription<Wallet> _onWalletChangeSubscription;
+  StreamSubscription<SyncStatus> _onSyncStatusChangeSubscription;
 
   @override
   void dispose() {

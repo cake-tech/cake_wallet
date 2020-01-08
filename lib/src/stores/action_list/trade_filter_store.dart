@@ -8,6 +8,11 @@ part 'trade_filter_store.g.dart';
 class TradeFilterStore = TradeFilterStoreBase with _$TradeFilterStore;
 
 abstract class TradeFilterStoreBase with Store {
+  TradeFilterStoreBase(
+      {this.displayXMRTO = true,
+      this.displayChangeNow = true,
+      this.walletStore});
+
   @observable
   bool displayXMRTO;
 
@@ -15,11 +20,6 @@ abstract class TradeFilterStoreBase with Store {
   bool displayChangeNow;
 
   WalletStore walletStore;
-
-  TradeFilterStoreBase(
-      {this.displayXMRTO = true,
-      this.displayChangeNow = true,
-      this.walletStore});
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -34,9 +34,8 @@ abstract class TradeFilterStoreBase with Store {
   }
 
   List<TradeListItem> filtered({List<TradeListItem> trades}) {
-    List<TradeListItem> _trades =
+    final _trades =
         trades.where((item) => item.trade.walletId == walletStore.id).toList();
-
     final needToFilter = !displayChangeNow || !displayXMRTO;
 
     return needToFilter

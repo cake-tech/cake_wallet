@@ -14,10 +14,10 @@ class PendingTransactionRaw extends Struct {
 }
 
 class PendingTransactionDescription {
+  PendingTransactionDescription({this.amount, this.fee, this.hash, this.pointerAddress});
+
   final int amount;
   final int fee;
   final String hash;
   final int pointerAddress;
-
-  PendingTransactionDescription({this.amount, this.fee, this.hash, this.pointerAddress});
 }

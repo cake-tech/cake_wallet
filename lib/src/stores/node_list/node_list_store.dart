@@ -10,6 +10,12 @@ part 'node_list_store.g.dart';
 class NodeListStore = NodeListBase with _$NodeListStore;
 
 abstract class NodeListBase with Store {
+  NodeListBase({this.nodesSource}) {
+    nodes = ObservableList<Node>();
+    _onNodesChangeSubscription = nodesSource.watch().listen((e) => update());
+    update();
+  }
+
   @observable
   ObservableList<Node> nodes;
 
@@ -23,12 +29,6 @@ abstract class NodeListBase with Store {
 
   StreamSubscription<BoxEvent> _onNodesChangeSubscription;
 
-  NodeListBase({this.nodesSource}) {
-    nodes = ObservableList<Node>();
-    _onNodesChangeSubscription = nodesSource.watch().listen((e) => update());
-    update();
-  }
-
   @override
   void dispose() {
     super.dispose();
@@ -39,7 +39,7 @@ abstract class NodeListBase with Store {
   }
 
   @action
-  update() async =>
+  void update() =>
       nodes.replaceRange(0, nodes.length, nodesSource.values.toList());
 
   @action
@@ -71,25 +71,28 @@ abstract class NodeListBase with Store {
   }
 
   void validateNodeAddress(String value) {
-    String p =
+    const pattern =
         '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\$';
-    RegExp regExp = new RegExp(p);
+    final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     errorMessage = isValid ? null : S.current.error_text_node_address;
   }
 
   void validateNodePort(String value) {
-    String p = '^[0-9]{1,5}';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[0-9]{1,5}';
+    final regExp = RegExp(pattern);
+
     if (regExp.hasMatch(value)) {
       try {
-        int intValue = int.parse(value);
+        final intValue = int.parse(value);
         isValid = (intValue >= 0 && intValue <= 65535);
       } catch (e) {
         isValid = false;
       }
-    } else
+    } else {
       isValid = false;
+    }
+
     errorMessage = isValid ? null : S.current.error_text_node_port;
   }
 }

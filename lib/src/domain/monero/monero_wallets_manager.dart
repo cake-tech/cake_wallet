@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:cw_monero/wallet_manager.dart' as moneroWalletManager;
+import 'package:cw_monero/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/wallets_manager.dart';
@@ -24,54 +24,61 @@ Future<String> pathForWallet({String name}) async {
 }
 
 class MoneroWalletsManager extends WalletsManager {
+  MoneroWalletsManager({@required this.walletInfoSource});
+
   static const type = WalletType.monero;
 
   Box<WalletInfo> walletInfoSource;
 
-  MoneroWalletsManager({@required this.walletInfoSource});
-
+  @override
   Future<Wallet> create(String name, String password) async {
     try {
       const isRecovery = false;
       final path = await pathForWallet(name: name);
 
-      await moneroWalletManager.createWallet(path: path, password: password);
+      await monero_wallet_manager.createWallet(path: path, password: password);
 
       final wallet = await MoneroWallet.createdWallet(
-          walletInfoSource: walletInfoSource, name: name, isRecovery: isRecovery)
-        ..updateInfo();
+          walletInfoSource: walletInfoSource,
+          name: name,
+          isRecovery: isRecovery);
+      await wallet.updateInfo();
 
       return wallet;
     } catch (e) {
       print('MoneroWalletsManager Error: $e');
-      throw e;
+      rethrow;
     }
   }
 
+  @override
   Future<Wallet> restoreFromSeed(
       String name, String password, String seed, int restoreHeight) async {
     try {
       const isRecovery = true;
       final path = await pathForWallet(name: name);
 
-      await moneroWalletManager.restoreFromSeed(
+      await monero_wallet_manager.restoreFromSeed(
           path: path,
           password: password,
           seed: seed,
           restoreHeight: restoreHeight);
 
-      return await MoneroWallet.createdWallet(
+      final wallet = await MoneroWallet.createdWallet(
           walletInfoSource: walletInfoSource,
           name: name,
           isRecovery: isRecovery,
-          restoreHeight: restoreHeight)
-        ..updateInfo();
+          restoreHeight: restoreHeight);
+      await wallet.updateInfo();
+
+      return wallet;
     } catch (e) {
       print('MoneroWalletsManager Error: $e');
-      throw e;
+      rethrow;
     }
   }
 
+  @override
   Future<Wallet> restoreFromKeys(
       String name,
       String password,
@@ -83,7 +90,7 @@ class MoneroWalletsManager extends WalletsManager {
       const isRecovery = true;
       final path = await pathForWallet(name: name);
 
-      await moneroWalletManager.restoreFromKeys(
+      await monero_wallet_manager.restoreFromKeys(
           path: path,
           password: password,
           restoreHeight: restoreHeight,
@@ -95,40 +102,43 @@ class MoneroWalletsManager extends WalletsManager {
           walletInfoSource: walletInfoSource,
           name: name,
           isRecovery: isRecovery,
-          restoreHeight: restoreHeight)
-        ..updateInfo();
+          restoreHeight: restoreHeight);
+      await wallet.updateInfo();
 
       return wallet;
     } catch (e) {
       print('MoneroWalletsManager Error: $e');
-      throw e;
+      rethrow;
     }
   }
 
+  @override
   Future<Wallet> openWallet(String name, String password) async {
     try {
       final path = await pathForWallet(name: name);
-      await moneroWalletManager.openWallet(path: path, password: password);
-      final wallet = await MoneroWallet.load(walletInfoSource, name, type)
-        ..updateInfo();
+      monero_wallet_manager.openWallet(path: path, password: password);
+      final wallet = await MoneroWallet.load(walletInfoSource, name, type);
+      await wallet.updateInfo();
 
       return wallet;
     } catch (e) {
       print('MoneroWalletsManager Error: $e');
-      throw e;
+      rethrow;
     }
   }
 
+  @override
   Future<bool> isWalletExit(String name) async {
     try {
       final path = await pathForWallet(name: name);
-      return moneroWalletManager.isWalletExist(path: path);
+      return monero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       print('MoneroWalletsManager Error: $e');
-      throw e;
+      rethrow;
     }
   }
 
+  @override
   Future remove(WalletDescription wallet) async {
     final dir = await getApplicationDocumentsDirectory();
     final root = dir.path.replaceAll('app_flutter', 'files');
@@ -153,8 +163,9 @@ class MoneroWalletsManager extends WalletsManager {
 
     final id =
         walletTypeToString(wallet.type).toLowerCase() + '_' + wallet.name;
-    final info = walletInfoSource.values.firstWhere((info) => info.id == id, orElse: () => null);
-    
+    final info = walletInfoSource.values
+        .firstWhere((info) => info.id == id, orElse: () => null);
+
     await info?.delete();
   }
 }

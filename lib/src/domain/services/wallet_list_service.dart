@@ -15,27 +15,27 @@ import 'package:cake_wallet/src/domain/monero/monero_wallets_manager.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 
 class WalletIsExistException implements Exception {
-  String name;
-
   WalletIsExistException(this.name);
+
+  String name;
 
   @override
   String toString() => "Wallet with name $name is already exist!";
 }
 
 class WalletListService {
-  final FlutterSecureStorage secureStorage;
-  final WalletService walletService;
-  final Box<WalletInfo> walletInfoSource;
-  final SharedPreferences sharedPreferences;
-  WalletsManager walletsManager;
-
   WalletListService(
       {this.secureStorage,
       this.walletInfoSource,
       this.walletsManager,
       @required this.walletService,
       @required this.sharedPreferences});
+
+  final FlutterSecureStorage secureStorage;
+  final WalletService walletService;
+  final Box<WalletInfo> walletInfoSource;
+  final SharedPreferences sharedPreferences;
+  WalletsManager walletsManager;
 
   Future<List<WalletDescription>> getAll() async => walletInfoSource.values
       .map((info) => WalletDescription(name: info.name, type: info.type))
@@ -52,7 +52,7 @@ class WalletListService {
 
     final password = Uuid().v4();
     await saveWalletPassword(password: password, walletName: name);
-    
+
     final wallet = await walletsManager.create(name, password);
 
     await onWalletChange(wallet);
@@ -131,7 +131,7 @@ class WalletListService {
     final key = generateStoreKeyFor(
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
     final encodedPassword = await secureStorage.read(key: key);
-    
+
     return decodeWalletPassword(password: encodedPassword);
   }
 

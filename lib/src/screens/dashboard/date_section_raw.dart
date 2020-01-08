@@ -4,19 +4,21 @@ import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class DateSectionRaw extends StatelessWidget {
+  DateSectionRaw({this.date});
+
   static final dateSectionDateFormat = DateFormat("d MMM");
   static final nowDate = DateTime.now();
 
   final DateTime date;
 
-  DateSectionRaw({this.date});
-
   @override
   Widget build(BuildContext context) {
     final diffDays = date.difference(nowDate).inDays;
-    final isToday = nowDate.day == date.day && nowDate.month == date.month && nowDate.year == date.year;
+    final isToday = nowDate.day == date.day &&
+        nowDate.month == date.month &&
+        nowDate.year == date.year;
     var title = "";
-    
+
     if (isToday) {
       title = S.of(context).today;
     } else if (diffDays == 0) {

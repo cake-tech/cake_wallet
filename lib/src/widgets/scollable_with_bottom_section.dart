@@ -2,16 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ScrollableWithBottomSection extends StatefulWidget {
-  final Widget content;
-  final Widget bottomSection;
-  final EdgeInsets contentPadding;
-  final EdgeInsets bottomSectionPadding;
-
   ScrollableWithBottomSection(
       {this.content,
       this.bottomSection,
       this.contentPadding,
       this.bottomSectionPadding});
+
+  final Widget content;
+  final Widget bottomSection;
+  final EdgeInsets contentPadding;
+  final EdgeInsets bottomSectionPadding;
 
   @override
   ScrollableWithBottomSectionState createState() =>

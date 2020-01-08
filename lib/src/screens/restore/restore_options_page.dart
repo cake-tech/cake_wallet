@@ -9,7 +9,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 class RestoreOptionsPage extends BasePage {
   static const _aspectRatioImage = 2.086;
 
+  @override
   String get title => S.current.restore_restore_wallet;
+
+  @override
   Color get backgroundColor => Palette.creamyGrey;
 
   final _imageSeedKeys = Image.asset('assets/images/seedKeys.png');
@@ -26,7 +29,8 @@ class RestoreOptionsPage extends BasePage {
             Flexible(
               child: RestoreButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, Routes.restoreWalletOptionsFromWelcome);
+                  Navigator.pushNamed(
+                      context, Routes.restoreWalletOptionsFromWelcome);
                 },
                 image: _imageSeedKeys,
                 aspectRatioImage: _aspectRatioImage,

@@ -29,7 +29,7 @@ final transactionCommitNative = moneroApi
     .lookup<NativeFunction<transaction_commit>>('transaction_commit')
     .asFunction<TransactionCommit>();
 
-refreshTransactions() => transactionsRefreshNative();
+void refreshTransactions() => transactionsRefreshNative();
 
 int countOfTransactions() => transactionsCountNative();
 
@@ -84,10 +84,10 @@ PendingTransactionDescription createTransactionSync(
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
-commitTransactionFromPointerAddress({int address}) => commitTransaction(
+void commitTransactionFromPointerAddress({int address}) => commitTransaction(
     transactionPointer: Pointer<PendingTransactionRaw>.fromAddress(address));
 
-commitTransaction({Pointer<PendingTransactionRaw> transactionPointer}) {
+void commitTransaction({Pointer<PendingTransactionRaw> transactionPointer}) {
   final errorMessagePointer = allocate<Utf8Box>();
   final isCommited =
       transactionCommitNative(transactionPointer, errorMessagePointer) != 0;
@@ -99,13 +99,20 @@ commitTransaction({Pointer<PendingTransactionRaw> transactionPointer}) {
   }
 }
 
-PendingTransactionDescription _createTransactionSync(Map args) =>
-    createTransactionSync(
-        address: args['address'],
-        paymentId: args['paymentId'],
-        amount: args['amount'],
-        priorityRaw: args['priorityRaw'],
-        accountIndex: args['accountIndex']);
+PendingTransactionDescription _createTransactionSync(Map args) {
+  final address = args['address'] as String;
+  final paymentId = args['paymentId'] as String;
+  final amount = args['amount'] as String;
+  final priorityRaw = args['priorityRaw'] as int;
+  final accountIndex = args['accountIndex'] as int;
+
+  return createTransactionSync(
+      address: address,
+      paymentId: paymentId,
+      amount: amount,
+      priorityRaw: priorityRaw,
+      accountIndex: accountIndex);
+}
 
 Future<PendingTransactionDescription> createTransaction(
         {String address,

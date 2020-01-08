@@ -26,7 +26,7 @@ final accountSetLabelNative = moneroApi
     .lookup<NativeFunction<account_set_label>>('account_set_label_row')
     .asFunction<AccountSetLabel>();
 
-refreshAccounts() => accountRefreshNative();
+void refreshAccounts() => accountRefreshNative();
 
 List<AccountRow> getAllAccount() {
   final size = accountSizeNative();
@@ -38,24 +38,29 @@ List<AccountRow> getAllAccount() {
       .toList();
 }
 
-addAccountSync({String label}) {
+void addAccountSync({String label}) {
   final labelPointer = Utf8.toUtf8(label);
   accountAddNewNative(labelPointer);
   free(labelPointer);
 }
 
-setLabelForAccountSync({int accountIndex, String label}) {
+void setLabelForAccountSync({int accountIndex, String label}) {
   final labelPointer = Utf8.toUtf8(label);
   accountSetLabelNative(accountIndex, labelPointer);
   free(labelPointer);
 }
 
-_addAccount(String label) => addAccountSync(label: label);
+void _addAccount(String label) => addAccountSync(label: label);
 
-_setLabelForAccount(Map args) => setLabelForAccountSync(
-    label: args['label'], accountIndex: args['accountIndex']);
+void _setLabelForAccount(Map<String, dynamic> args) {
+  final label = args['label'] as String;
+  final accountIndex = args['accountIndex'] as int;
 
-Future addAccount({String label}) async => compute(_addAccount, label);
+  setLabelForAccountSync(label: label, accountIndex: accountIndex);
+}
 
-Future setLabelForAccount({int accountIndex, String label}) async => compute(
-    _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
+Future<void> addAccount({String label}) async => compute(_addAccount, label);
+
+Future<void> setLabelForAccount({int accountIndex, String label}) async =>
+    compute(
+        _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});

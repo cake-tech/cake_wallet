@@ -10,22 +10,24 @@ import 'package:cake_wallet/src/domain/monero/account.dart';
 import 'package:cake_wallet/palette.dart';
 
 class AccountPage extends BasePage {
-  String get title => 'Account';
+  AccountPage({this.account});
+
   final Account account;
 
-  AccountPage({this.account});
+  @override
+  String get title => 'Account';
 
   @override
   Widget body(BuildContext context) => AccountForm(account);
 }
 
 class AccountForm extends StatefulWidget {
-  final Account account;
-
   AccountForm(this.account);
 
+  final Account account;
+
   @override
-  createState() => AccountFormState();
+  AccountFormState createState() => AccountFormState();
 }
 
 class AccountFormState extends State<AccountForm> {
@@ -61,8 +63,8 @@ class AccountFormState extends State<AccountForm> {
                     hintStyle: TextStyle(color: Theme.of(context).hintColor),
                     hintText: S.of(context).account,
                     focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Palette.cakeGreen, width: 2.0)),
+                        borderSide:
+                            BorderSide(color: Palette.cakeGreen, width: 2.0)),
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: Theme.of(context).focusColor, width: 1.0))),
@@ -88,7 +90,7 @@ class AccountFormState extends State<AccountForm> {
                           await accountListStore.addAccount(
                               label: _textController.text);
                         }
-                        Navigator.pop(context, _textController.text);
+                        Navigator.of(context).pop(_textController.text);
                       },
                       text:
                           widget.account != null ? 'Rename' : S.of(context).add,

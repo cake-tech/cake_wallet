@@ -179,23 +179,23 @@ bool setupNodeSync(
   return isSetupNode;
 }
 
-startRefreshSync() => startRefreshNative();
+void startRefreshSync() => startRefreshNative();
 
 Future<bool> connectToNode() async => connecToNodeNative() != 0;
 
-setRefreshFromBlockHeight({int height}) =>
+void setRefreshFromBlockHeight({int height}) =>
     setRefreshFromBlockHeightNative(height);
 
-setRecoveringFromSeed({bool isRecovery}) =>
+void setRecoveringFromSeed({bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
-storeSync() {
+void storeSync() {
   final pathPointer = Utf8.toUtf8('');
   storeNative(pathPointer);
   free(pathPointer);
 }
 
-closeCurrentWallet() => closeCurrentWalletNative();
+void closeCurrentWallet() => closeCurrentWalletNative();
 
 String getSecretViewKey() =>
     convertUTF8ToString(pointer: getSecretViewKeyNative());
@@ -213,8 +213,8 @@ Timer _updateSyncInfoTimer;
 
 int _lastKnownBlockHeight = 0;
 
-setListeners(Future Function(int) onNewBlock, Future Function() onNeedToRefresh,
-    Future Function() onNewTransaction) {
+void setListeners(Future Function(int) onNewBlock,
+    Future Function() onNeedToRefresh, Future Function() onNewTransaction) {
   if (_updateSyncInfoTimer != null) {
     _updateSyncInfoTimer.cancel();
   }
@@ -240,25 +240,36 @@ setListeners(Future Function(int) onNewBlock, Future Function() onNeedToRefresh,
   setListenerNative();
 }
 
-closeListeners() {
+void closeListeners() {
   if (_updateSyncInfoTimer != null) {
     _updateSyncInfoTimer.cancel();
   }
 }
 
-onStartup() => onStartupNative();
+void onStartup() => onStartupNative();
 
-_storeSync(_) => storeSync();
-bool _setupNodeSync(Map args) => setupNodeSync(
-    address: args['address'],
-    login: args['login'] ?? '',
-    password: args['password'] ?? '',
-    useSSL: args['useSSL'],
-    isLightWallet: args['isLightWallet']);
-bool _isConnected(_) => isConnectedSync();
-int _getNodeHeight(_) => getNodeHeightSync();
+void _storeSync(Object _) => storeSync();
 
-startRefresh() => startRefreshSync();
+bool _setupNodeSync(Map args) {
+  final address = args['address'] as String;
+  final login = (args['login'] ?? '') as String;
+  final password = (args['password'] ?? '') as String;
+  final useSSL = args['useSSL'] as bool;
+  final isLightWallet = args['isLightWallet'] as bool;
+
+  return setupNodeSync(
+      address: address,
+      login: login,
+      password: password,
+      useSSL: useSSL,
+      isLightWallet: isLightWallet);
+}
+
+bool _isConnected(Object _) => isConnectedSync();
+
+int _getNodeHeight(Object _) => getNodeHeightSync();
+
+void startRefresh() => startRefreshSync();
 
 Future setupNode(
         {String address,
@@ -280,4 +291,4 @@ Future<bool> isConnected() => compute(_isConnected, 0);
 
 Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
 
-rescanBlockchainAsync() => rescanBlockchainAsyncNative();
+void rescanBlockchainAsync() => rescanBlockchainAsyncNative();

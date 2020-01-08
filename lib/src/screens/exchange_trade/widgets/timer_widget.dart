@@ -3,23 +3,23 @@ import 'dart:async';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class TimerWidget extends StatefulWidget {
+  TimerWidget(this.expiratedAt, {this.color = Colors.black});
+
   final DateTime expiratedAt;
   final Color color;
 
-  TimerWidget(this.expiratedAt, {this.color = Colors.black});
-
   @override
-  createState() => TimerWidgetState();
+  TimerWidgetState createState() => TimerWidgetState();
 }
 
 class TimerWidgetState extends State<TimerWidget> {
+  TimerWidgetState();
+
   int _leftSeconds;
   int _minutes;
   int _seconds;
   bool _isExpired;
   Timer _timer;
-
-  TimerWidgetState();
 
   @override
   void initState() {
@@ -52,7 +52,8 @@ class TimerWidgetState extends State<TimerWidget> {
   @override
   Widget build(BuildContext context) {
     return _isExpired
-        ? Text(S.of(context).expired, style: TextStyle(fontSize: 14.0, color: Colors.red))
+        ? Text(S.of(context).expired,
+            style: TextStyle(fontSize: 14.0, color: Colors.red))
         : Text(
             S.of(context).time(_minutes.toString(), _seconds.toString()),
             style: TextStyle(fontSize: 14.0, color: widget.color),

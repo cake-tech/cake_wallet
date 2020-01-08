@@ -13,7 +13,7 @@ class TransactionCommiting extends SendingState {}
 class TransactionCommitted extends SendingState {}
 
 class SendingFailed extends SendingState {
-  String error;
-
   SendingFailed({@required this.error});
+  
+  String error;
 }

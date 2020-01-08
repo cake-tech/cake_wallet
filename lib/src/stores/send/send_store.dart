@@ -17,6 +17,23 @@ part 'send_store.g.dart';
 class SendStore = SendStoreBase with _$SendStore;
 
 abstract class SendStoreBase with Store {
+  SendStoreBase(
+      {@required this.walletService,
+      this.settingsStore,
+      this.transactionDescriptions,
+      this.priceStore}) {
+    state = SendingStateInitial();
+    _pendingTransaction = null;
+    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
+    _fiatNumberFormat = NumberFormat()..maximumFractionDigits = 2;
+
+    reaction((_) => this.state, (SendingState state) async {
+      if (state is TransactionCreatedSuccessfully) {
+        await commitTransaction();
+      }
+    });
+  }
+
   WalletService walletService;
   SettingsStore settingsStore;
   PriceStore priceStore;
@@ -42,23 +59,6 @@ abstract class SendStoreBase with Store {
   NumberFormat _cryptoNumberFormat;
   NumberFormat _fiatNumberFormat;
   String _lastRecipientAddress;
-
-  SendStoreBase(
-      {@required this.walletService,
-      this.settingsStore,
-      this.transactionDescriptions,
-      this.priceStore}) {
-    state = SendingStateInitial();
-    _pendingTransaction = null;
-    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
-    _fiatNumberFormat = NumberFormat()..maximumFractionDigits = 2;
-
-    reaction((_) => this.state, (state) async {
-      if (state is TransactionCreatedSuccessfully) {
-        commitTransaction();
-      }
-    });
-  }
 
   @action
   Future createTransaction(
@@ -160,9 +160,10 @@ abstract class SendStoreBase with Store {
 
   void validateAddress(String value, {CryptoCurrency cryptoCurrency}) {
     // XMR (95), BTC (34), ETH (42), LTC (34), BCH (42), DASH (34)
-    String p = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
+    final regExp = RegExp(pattern);
     isValid = value == null ? false : regExp.hasMatch(value);
+
     if (isValid && cryptoCurrency != null) {
       switch (cryptoCurrency.toString()) {
         case 'XMR':
@@ -184,6 +185,7 @@ abstract class SendStoreBase with Store {
           isValid = (value.length == 34);
       }
     }
+
     errorMessage = isValid ? null : S.current.error_text_address;
   }
 
@@ -191,52 +193,60 @@ abstract class SendStoreBase with Store {
     if (value.isEmpty) {
       isValid = true;
     } else {
-      String p = '^[A-Fa-f0-9]{16,64}\$';
-      RegExp regExp = new RegExp(p);
+      const pattern = '^[A-Fa-f0-9]{16,64}\$';
+      final regExp = RegExp(pattern);
       isValid = regExp.hasMatch(value);
     }
+
     errorMessage = isValid ? null : S.current.error_text_payment_id;
   }
 
   void validateXMR(String value, String availableBalance) {
     const double maxValue = 18446744.073709551616;
-    String p = '^([0-9]+([.][0-9]{0,12})?|[.][0-9]{1,12})\$|ALL';
-    RegExp regExp = new RegExp(p);
+    const pattern = '^([0-9]+([.][0-9]{0,12})?|[.][0-9]{1,12})\$|ALL';
+    final regExp = RegExp(pattern);
+
     if (regExp.hasMatch(value)) {
-      if (value == 'ALL')
+      if (value == 'ALL') {
         isValid = true;
-      else {
+      } else {
         try {
-          double dValue = double.parse(value);
-          double maxAvailable = double.parse(availableBalance);
+          final dValue = double.parse(value);
+          final maxAvailable = double.parse(availableBalance);
           isValid =
               (dValue <= maxAvailable && dValue <= maxValue && dValue > 0);
         } catch (e) {
           isValid = false;
         }
       }
-    } else
+    } else {
       isValid = false;
+    }
+    
     errorMessage = isValid ? null : S.current.error_text_xmr;
   }
 
   void validateFiat(String value, {double maxValue}) {
     const double minValue = 0.01;
-    if (value.isEmpty && cryptoAmount == 'ALL')
+
+    if (value.isEmpty && cryptoAmount == 'ALL') {
       isValid = true;
-    else {
-      String p = '^([0-9]+([.][0-9]{0,2})?|[.][0-9]{1,2})\$';
-      RegExp regExp = new RegExp(p);
+    } else {
+      const pattern = '^([0-9]+([.][0-9]{0,2})?|[.][0-9]{1,2})\$';
+      final regExp = RegExp(pattern);
+
       if (regExp.hasMatch(value)) {
         try {
-          double dValue = double.parse(value);
+          final dValue = double.parse(value);
           isValid = (dValue >= minValue && dValue <= maxValue);
         } catch (e) {
           isValid = false;
         }
-      } else
+      } else {
         isValid = false;
+      }
     }
+
     errorMessage = isValid
         ? null
         : "Value of amount can't exceed available balance.\n"

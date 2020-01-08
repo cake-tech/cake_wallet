@@ -12,22 +12,24 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/palette.dart';
 
 class ContactPage extends BasePage {
-  String get title => S.current.contact;
+  ContactPage({this.contact});
+
   final Contact contact;
 
-  ContactPage({this.contact});
+  @override
+  String get title => S.current.contact;
 
   @override
   Widget body(BuildContext context) => ContactForm(contact);
 }
 
 class ContactForm extends StatefulWidget {
-  final Contact contact;
-
   ContactForm(this.contact);
 
+  final Contact contact;
+
   @override
-  createState() => ContactFormState();
+  State<ContactForm> createState() => ContactFormState();
 }
 
 class ContactFormState extends State<ContactForm> {
@@ -59,10 +61,11 @@ class ContactFormState extends State<ContactForm> {
     super.dispose();
   }
 
-  _setCurrencyType(BuildContext context) async {
-    String currencyType = CryptoCurrency.all[0].toString();
-    CryptoCurrency selectedCurrency = CryptoCurrency.all[0];
-    await showDialog(
+  Future<void> _setCurrencyType(BuildContext context) async {
+    var currencyType = CryptoCurrency.all[0].toString();
+    var selectedCurrency = CryptoCurrency.all[0];
+
+    await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -127,8 +130,8 @@ class ContactFormState extends State<ContactForm> {
                     hintStyle: TextStyle(color: Theme.of(context).hintColor),
                     hintText: S.of(context).contact_name,
                     focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Palette.cakeGreen, width: 2.0)),
+                        borderSide:
+                            BorderSide(color: Palette.cakeGreen, width: 2.0)),
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: Theme.of(context).focusColor, width: 1.0))),
@@ -153,8 +156,7 @@ class ContactFormState extends State<ContactForm> {
                       decoration: InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: Palette.cakeGreen,
-                                  width: 2.0)),
+                                  color: Palette.cakeGreen, width: 2.0)),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                   color: Theme.of(context).focusColor,
@@ -215,13 +217,15 @@ class ContactFormState extends State<ContactForm> {
                         } else {
                           widget.contact.name = _contactNameController.text;
                           widget.contact.address = _addressController.text;
-                          widget.contact.updateCryptoCurrency(currency: _selectectCrypto);
+                          widget.contact
+                              .updateCryptoCurrency(currency: _selectectCrypto);
 
-                          await addressBookStore.update(contact: widget.contact);
+                          await addressBookStore.update(
+                              contact: widget.contact);
                         }
                         Navigator.pop(context);
                       } catch (e) {
-                        await showDialog(
+                        await showDialog<void>(
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(

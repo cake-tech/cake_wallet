@@ -21,7 +21,8 @@ const Map<String, String> _languages = {
 };
 
 class ChangeLanguage extends BasePage {
-  get title => S.current.settings_change_language;
+  @override
+  String get title => S.current.settings_change_language;
 
   @override
   Widget body(BuildContext context) {
@@ -50,7 +51,7 @@ class ChangeLanguage extends BasePage {
                 ),
                 onTap: () async {
                   if (!isCurrent) {
-                    await showDialog(
+                    await showDialog<void>(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(

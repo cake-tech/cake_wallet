@@ -7,7 +7,7 @@ class UserStoreStateInitial extends UserStoreState {}
 class PinCodeSetSuccesfully extends UserStoreState {}
 
 class PinCodeSetFailed extends UserStoreState {
-  String error;
-
   PinCodeSetFailed({@required this.error});
+
+  String error;
 }

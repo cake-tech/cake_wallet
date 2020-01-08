@@ -4,13 +4,6 @@ import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 
 class TradeRow extends StatelessWidget {
-  final VoidCallback onTap;
-  final ExchangeProviderDescription provider;
-  final CryptoCurrency from;
-  final CryptoCurrency to;
-  final String createdAtFormattedDate;
-  final String formattedAmount;
-
   TradeRow(
       {this.provider,
       this.from,
@@ -18,6 +11,13 @@ class TradeRow extends StatelessWidget {
       this.createdAtFormattedDate,
       this.formattedAmount,
       @required this.onTap});
+
+  final VoidCallback onTap;
+  final ExchangeProviderDescription provider;
+  final CryptoCurrency from;
+  final CryptoCurrency to;
+  final String createdAtFormattedDate;
+  final String formattedAmount;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,10 @@ class TradeRow extends StatelessWidget {
                         Text('${from.toString()} → ${to.toString()}',
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context).primaryTextTheme.subhead.color)),
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .subhead
+                                    .color)),
                         formattedAmount != null
                             ? Text(formattedAmount + ' ' + amountCrypto,
                                 style: const TextStyle(
