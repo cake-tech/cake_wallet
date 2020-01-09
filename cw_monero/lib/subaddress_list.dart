@@ -30,7 +30,6 @@ void refreshSubaddresses({int accountIndex}) =>
     subaddressRefreshNative(accountIndex);
 
 List<SubaddressRow> getAllSubaddresses() {
-  refreshSubaddresses(accountIndex: 0);
   final size = subaddressSizeNative();
   final subaddressAddressesPointer = subaddrressGetAllNative();
   final subaddressAddresses = subaddressAddressesPointer.asTypedList(size);
