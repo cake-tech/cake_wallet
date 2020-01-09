@@ -62,9 +62,15 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
                 alignment: Alignment.bottomCenter,
                 child: PrimaryButton(
                     onPressed: () {
+                      walletRestorationStore.validateSeed(_seedKey.currentState.items);
+                      _seedKey.currentState.setErrorMessage(walletRestorationStore.errorMessage);
+
                       if (!walletRestorationStore.isValid) {
+                        _seedKey.currentState.invalidate();
                         return;
                       }
+
+                      _seedKey.currentState.validated();
 
                       Navigator.of(context).pushNamed(
                           Routes.restoreWalletFromSeedDetails,
