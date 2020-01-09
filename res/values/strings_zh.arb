@@ -113,7 +113,7 @@
   "node_port" : "节点端口",
   "login" : "登录",
   "password" : "密码",
-  "nodes" : "节点数",
+  "nodes" : "节点",
   "node_reset_settings_title" : "重新设置",
   "nodes_list_reset_to_default_message" : "您确定要将设置重设为默认值吗？",
   "change_current_node" : "您确定将当前节点更改为 ${node}?",
