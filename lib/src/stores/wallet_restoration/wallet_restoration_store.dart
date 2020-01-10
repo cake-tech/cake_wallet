@@ -76,13 +76,12 @@ abstract class WalleRestorationStoreBase with Store {
   @action
   void setSeed(List<MnemoticItem> seed) {
     this.seed = seed;
-    validateSeed(seed);
   }
 
   @action
   void validateSeed(List<MnemoticItem> seed) {
     final _seed = seed != null ? seed : this.seed;
-    bool isValid = _seed.length == 25;
+    bool isValid = _seed != null ? _seed.length == 25 : false;
 
     if (!isValid) {
       errorMessage = S.current.wallet_restoration_store_incorrect_seed_length;
