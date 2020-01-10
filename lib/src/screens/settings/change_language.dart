@@ -29,6 +29,9 @@ class ChangeLanguage extends BasePage {
     final settingsStore = Provider.of<SettingsStore>(context);
     final currentLanguage = Provider.of<Language>(context);
 
+    final currentColor = Theme.of(context).selectedRowColor;
+    final notCurrentColor = Theme.of(context).accentTextTheme.subhead.backgroundColor;
+
     return Container(
         padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
         child: ListView.builder(
@@ -41,7 +44,7 @@ class ChangeLanguage extends BasePage {
 
             return Container(
               margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
-              color: Theme.of(context).accentTextTheme.subhead.backgroundColor,
+              color: isCurrent ? currentColor : notCurrentColor,
               child: ListTile(
                 title: Text(
                   _languages.values.elementAt(index),
