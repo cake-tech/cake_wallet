@@ -14,7 +14,7 @@
   uri: node.xmr.pt:18081
   is_default: false
 -
-  uri: node.xmr.ru:13666
+  uri: node.monero.net:18081
   is_default: false
 -
   uri: opennode.xmr-tw.org:18089
