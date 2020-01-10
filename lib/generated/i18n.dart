@@ -54,7 +54,7 @@ class S implements WidgetsLocalizations {
   String get copy_id => "Copy ID";
   String get create_new => "Create new";
   String get delete => "Delete";
-  String get digit_pin => "-digit Pin";
+  String get digit_pin => "-digit PIN";
   String get edit => "Edit";
   String get enter_your_pin => "Enter your PIN";
   String get enter_your_pin_again => "Enter your pin again";
@@ -237,7 +237,7 @@ class S implements WidgetsLocalizations {
   String get transaction_sent => "Transaction sent!";
   String get transactions => "Transactions";
   String get transactions_by_date => "Transactions by date";
-  String get use => "Use ";
+  String get use => "Switch to ";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
   String get wallet_keys => "Wallet keys";
@@ -649,7 +649,7 @@ class $de extends S {
   @override
   String get transactions_by_date => "Transaktionen nach Datum";
   @override
-  String get use => "Verwenden ";
+  String get use => "Wechseln zu ";
   @override
   String get trade_details_state => "Zustand";
   @override
@@ -769,7 +769,7 @@ class $de extends S {
   @override
   String get error_text_node_port => "Der Knotenport kann nur Nummern zwischen 0 und 65535 enthalten";
   @override
-  String get digit_pin => "-stelliger Pin";
+  String get digit_pin => "-stelliger PIN";
   @override
   String get first_wallet_text => "tolle Brieftasche\nzum Monero";
   @override
@@ -1187,7 +1187,7 @@ class $hi extends S {
   @override
   String get transactions_by_date => "तारीख से लेन-देन";
   @override
-  String get use => "उपयोग ";
+  String get use => "पर स्विच ";
   @override
   String get trade_details_state => "राज्य";
   @override
@@ -1725,7 +1725,7 @@ class $ru extends S {
   @override
   String get transactions_by_date => "Сортировать по дате";
   @override
-  String get use => "Использовать ";
+  String get use => "Переключиться на ";
   @override
   String get trade_details_state => "Статус";
   @override
@@ -1845,7 +1845,7 @@ class $ru extends S {
   @override
   String get error_text_node_port => "Порт ноды может включать только цифры от 0 до  65535";
   @override
-  String get digit_pin => "-значный Pin";
+  String get digit_pin => "-значный PIN";
   @override
   String get first_wallet_text => "В самом удобном кошельке для Monero";
   @override
@@ -2263,7 +2263,7 @@ class $ko extends S {
   @override
   String get transactions_by_date => "날짜 별 거래";
   @override
-  String get use => "용도 ";
+  String get use => "로 전환 ";
   @override
   String get trade_details_state => "상태";
   @override
@@ -2801,7 +2801,7 @@ class $pt extends S {
   @override
   String get transactions_by_date => "Transações por data";
   @override
-  String get use => "Usar ";
+  String get use => "Troque para ";
   @override
   String get trade_details_state => "Estado";
   @override
@@ -2921,7 +2921,7 @@ class $pt extends S {
   @override
   String get error_text_node_port => "A porta do nó pode conter apenas números entre 0 e 65535";
   @override
-  String get digit_pin => "de dois dígitos";
+  String get digit_pin => "-dígitos PIN";
   @override
   String get first_wallet_text => "Carteira impressionante\npara Monero";
   @override
@@ -3339,7 +3339,7 @@ class $ja extends S {
   @override
   String get transactions_by_date => "日付ごとの取引";
   @override
-  String get use => "つかいます ";
+  String get use => "切り替える ";
   @override
   String get trade_details_state => "状態";
   @override
@@ -3881,7 +3881,7 @@ class $pl extends S {
   @override
   String get transactions_by_date => "Transakcje według daty";
   @override
-  String get use => "Posługiwać się ";
+  String get use => "Przełącz na ";
   @override
   String get trade_details_state => "Stan";
   @override
@@ -4001,7 +4001,7 @@ class $pl extends S {
   @override
   String get error_text_node_port => "Port węzła może zawierać tylko liczby od 0 do 65535";
   @override
-  String get digit_pin => "- znak PIN";
+  String get digit_pin => "-znak PIN";
   @override
   String get first_wallet_text => "Niesamowity portfel\nfdla Monero";
   @override
@@ -4419,7 +4419,7 @@ class $es extends S {
   @override
   String get transactions_by_date => "Transacciones por fecha";
   @override
-  String get use => "Utilizar ";
+  String get use => "Cambiar a ";
   @override
   String get trade_details_state => "Estado";
   @override
@@ -4539,7 +4539,7 @@ class $es extends S {
   @override
   String get error_text_node_port => "El puerto de nodo solo puede contener números entre 0 y 65535";
   @override
-  String get digit_pin => "-dígito Pin";
+  String get digit_pin => "-dígito PIN";
   @override
   String get first_wallet_text => "Impresionante billetera\npara Monero";
   @override
@@ -4957,7 +4957,7 @@ class $nl extends S {
   @override
   String get transactions_by_date => "Transacties op datum";
   @override
-  String get use => "Gebruik ";
+  String get use => "Overschakelen naar ";
   @override
   String get trade_details_state => "Staat";
   @override
@@ -5495,7 +5495,7 @@ class $zh extends S {
   @override
   String get transactions_by_date => "按日期交易";
   @override
-  String get use => "使用 ";
+  String get use => "切換到 ";
   @override
   String get trade_details_state => "条件";
   @override
