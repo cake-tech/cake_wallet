@@ -53,6 +53,9 @@ abstract class ActionListBase with Store {
         .watch()
         .listen((_) async => await _updateTransactionsList());
 
+    _onTradesChanged =
+        tradesSource.watch().listen((_) async => await updateTradeList());
+
     updateTradeList();
   }
 
@@ -145,6 +148,7 @@ abstract class ActionListBase with Store {
   StreamSubscription<List<TransactionInfo>> _onTransactionsChangeSubscription;
   StreamSubscription<Account> _onAccountChangeSubscription;
   StreamSubscription<BoxEvent> _onTransactionDescriptions;
+  StreamSubscription<BoxEvent> _onTradesChanged;
 
   @override
   void dispose() {
@@ -157,8 +161,8 @@ abstract class ActionListBase with Store {
     }
 
     _onTransactionDescriptions?.cancel();
-
     _onWalletChangeSubscription.cancel();
+    _onTradesChanged?.cancel();
     super.dispose();
   }
 
