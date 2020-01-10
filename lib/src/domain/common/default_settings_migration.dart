@@ -65,7 +65,8 @@ Future<void> replaceNodesMigration({@required Box<Node> nodes}) async {
     'eu-node.cakewallet.io:18081':
         Node(uri: 'xmr-node-eu.cakewallet.com:18081'),
     'node.cakewallet.io:18081':
-        Node(uri: 'xmr-node-usa-east.cakewallet.com:18081')
+        Node(uri: 'xmr-node-usa-east.cakewallet.com:18081'),
+    'node.xmr.ru:13666': Node(uri: 'node.monero.net:18081')
   };
 
   nodes.values.forEach((Node node) async {
