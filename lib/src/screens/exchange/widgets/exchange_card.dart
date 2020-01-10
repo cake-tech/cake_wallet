@@ -135,7 +135,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               children: <Widget>[
                 Container(
                   height: 52,
-                  width: 80,
+                  width: 90,
                   child: InkWell(
                     onTap: () => _presentPicker(context),
                     child: Column(

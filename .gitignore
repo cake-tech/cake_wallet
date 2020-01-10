@@ -88,3 +88,5 @@ android/key.properties
 
 **/tool/.secrets-prod.json
 **/lib/.secrets.g.dart
+
+**/lib/generated/i18n.dart
