@@ -2449,79 +2449,79 @@ class $pt extends S {
   @override
   String get cancel => "Cancelar";
   @override
-  String get trade_state_unpaid => "Não remunerado";
+  String get trade_state_unpaid => "Não paga";
   @override
   String get authenticated => "Autenticado";
   @override
-  String get new_subaddress_create => "Crio";
+  String get new_subaddress_create => "Criar";
   @override
-  String get restore_view_key_private => "Tecla Ver (privado)";
+  String get restore_view_key_private => "Chave de visualização (privada)";
   @override
-  String get transaction_priority_fast => "Rápido";
+  String get transaction_priority_fast => "Rápida";
   @override
-  String get error_text_amount => "O valor pode conter apenas números";
+  String get error_text_amount => "A quantia deve conter apenas números";
   @override
-  String get hidden_balance => "Saldo Oculto";
+  String get hidden_balance => "Saldo escondido";
   @override
   String get transaction_sent => "Transação enviada!";
   @override
   String get password => "Senha";
   @override
-  String get you_will_get => "Você vai ter";
+  String get you_will_get => "Você receberá";
   @override
-  String get restore_description_from_seed => "Restaure sua carteira a partir das 25 palavras\noou código de combinação de 13 palavras";
+  String get restore_description_from_seed => "Restaure sua carteira a partir de semente com \n25 palavras ou 13 palavras";
   @override
-  String get trade_state_underpaid => "Mal pago";
+  String get trade_state_underpaid => "Parcialmente paga";
   @override
-  String get welcome => "BEM-VINDO\nAO CAKE WALLET";
+  String get welcome => "BEM-VINDO(A)\nÀ CAKE WALLET";
   @override
   String get share_address => "Compartilhar endereço";
   @override
   String get please_try_to_connect_to_another_node => "Por favor, tente conectar-se a outro nó";
   @override
-  String get trade_state_traded => "Negociados";
+  String get trade_state_traded => "Troca realizada";
   @override
   String get edit => "Editar";
   @override
-  String get spend_key_public => "Chave de gastos (público)";
+  String get spend_key_public => "Chave de gastos (pública)";
   @override
   String get sync_status_syncronizing => "SINCRONIZANDO";
   @override
-  String get received => "Recebido";
+  String get received => "Recebida";
   @override
-  String get auth_store_banned_minutes => " minutes";
+  String get auth_store_banned_minutes => " minutos";
   @override
-  String get restore_title_from_seed_keys => "Restaurar a partir de sementes / chaves";
+  String get restore_title_from_seed_keys => "Restaurar a partir de sementes/chaves";
   @override
-  String get settings_none => "Nenhum";
+  String get settings_none => "Nada";
   @override
   String get wallet_list_create_new_wallet => "Criar nova carteira";
   @override
-  String get seed_alert_third_text => "Você também pode ver a semente novamente\nno ";
+  String get seed_alert_third_text => "Você também poderá ver a semente novamente\nna seção ";
   @override
-  String get setup_pin => "PIN de configuração";
+  String get setup_pin => "Configurar PIN";
   @override
   String get transaction_details_recipient_address => "Endereço do destinatário";
   @override
-  String get receive_amount => "Montante";
+  String get receive_amount => "Quantia";
   @override
   String get settings_allow_biometrical_authentication => "Permitir autenticação biométrica";
   @override
-  String get view_key_private => "Tecla Ver (privado)";
+  String get view_key_private => "Chave de visualização (privada)";
   @override
   String get restore_next => "Próximo";
   @override
-  String get trade_state_trading => "Negociação";
+  String get trade_state_trading => "Em andamento";
   @override
-  String get error_text_address => "O endereço da carteira deve corresponder ao tipo\nde criptomoeda";
+  String get error_text_address => "O endereço da carteira deve corresponder à\ncriptomoeda selecionada";
   @override
-  String get send_your_wallet => "Enviar Monero";
+  String get send_your_wallet => "Sua carteira";
   @override
-  String get remove_node_message => "Tem certeza de que deseja remover o nó selecionado?";
+  String get remove_node_message => "Você realmente deseja remover o nó selecionado?";
   @override
-  String get error_text_account_name => "O nome da conta pode conter apenas letras, números\ne deve ter entre 1 e 15 caracteres";
+  String get error_text_account_name => "O nome da conta só pode conter letras, números\ne deve ter entre 1 e 15 caracteres";
   @override
-  String get reconnection => "Reconexão";
+  String get reconnection => "Reconectar";
   @override
   String get available_balance => "Saldo disponível";
   @override
@@ -2531,41 +2531,41 @@ class $pt extends S {
   @override
   String get reconnect => "Reconectar";
   @override
-  String get reconnect_alert_text => "Você tem certeza de reconectar?";
+  String get reconnect_alert_text => "Você tem certeza de que deseja reconectar?";
   @override
   String get send_error_minimum_value => "O valor mínimo da quantia é 0,01";
   @override
   String get copy_address => "Copiar endereço";
   @override
-  String get error_text_subaddress_name => "O nome do sub-endereço não pode conter ` , ' \" símbolos\ne deve ter entre 1 e 20 caracteres";
+  String get error_text_subaddress_name => "O nome do sub-endereço não pode conter os símbolos ` , ' \" \ne deve ter entre 1 e 20 caracteres";
   @override
-  String get settings_all => "TODOS";
+  String get settings_all => "Tudo";
   @override
-  String get nodes_list_reset_to_default_message => "Tem certeza de que deseja redefinir as configurações para o padrão?";
+  String get nodes_list_reset_to_default_message => "Você realmente deseja redefinir as configurações para o padrão?";
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "O valor do recebimento é garantido";
+  String get amount_is_guaranteed => "Você receberá exatamente o valor informado acima";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
   String get trade_details_pair => "Par";
   @override
-  String get confirm => "Confirme";
+  String get confirm => "Confirmar";
   @override
-  String get settings_display_balance_as => "Exibir saldo como";
+  String get settings_display_balance_as => "Saldo a exibir";
   @override
-  String get trade_details_provider => "Fornecedor";
+  String get trade_details_provider => "Provedor";
   @override
   String get you_will_send => "Você enviará";
   @override
-  String get create_new => "Crie um novo";
+  String get create_new => "Criar carteira";
   @override
   String get trade_details_fetching => "Buscando";
   @override
-  String get seed_alert_menu => "cardápio.";
+  String get seed_alert_menu => " do menu.";
   @override
-  String get confirm_sending => "Confirme o envio";
+  String get confirm_sending => "Confirmar o envio";
   @override
   String get settings_title => "Configurações";
   @override
@@ -2577,39 +2577,39 @@ class $pt extends S {
   @override
   String get auth_store_incorrect_password => "PIN incorreto";
   @override
-  String get transaction_priority_slow => "Lento";
+  String get transaction_priority_slow => "Lenta";
   @override
   String get add => "Adicionar";
   @override
   String get remove_node => "Remover nó";
   @override
-  String get trade_state_paid_unconfirmed => "Pago não confirmado";
+  String get trade_state_paid_unconfirmed => "Pagamento não-confirmado";
   @override
-  String get please_select => "Por favor selecione:";
+  String get please_select => "Escolha abaixo:";
   @override
   String get restore_title_from_backup => "Restaurar a partir de um arquivo de backup";
   @override
   String get full_balance => "Saldo total";
   @override
-  String get sync_status_not_connected => "NÃO CONECTADO";
+  String get sync_status_not_connected => "DESCONECTADO";
   @override
-  String get error_text_crypto_currency => "O número de dígitos da fração\ndeve ser menor ou igual a 12";
+  String get error_text_crypto_currency => "O número de dígitos decimais\ndeve ser menor ou igual a 12";
   @override
-  String get error_text_contact_name => "O nome do contato não pode conter ` , ' \" símbolos\ne deve ter entre 1 e 32 caracteres";
+  String get error_text_contact_name => "O nome do contato não pode conter os símbolos ` , ' \" \ne deve ter entre 1 e 32 caracteres";
   @override
-  String get restore_seed_keys_restore => "Restauração de sementes / chaves";
+  String get restore_seed_keys_restore => "Restauração com sementes/chaves";
   @override
-  String get xmr_hidden => "XMR Oculto";
+  String get xmr_hidden => "Esconder saldo";
   @override
-  String get send_xmr => "Mandar XMR";
+  String get send_xmr => "Enviar XMR";
   @override
-  String get exchange => "Troca";
+  String get exchange => "Trocar";
   @override
-  String get sync_status_failed_connect => "Falha na conexão com o nó";
+  String get sync_status_failed_connect => "Erro ao conectar com o nó";
   @override
   String get send_estimated_fee => "Taxa estimada:";
   @override
-  String get outgoing => "Extrovertido";
+  String get outgoing => "Enviadas";
   @override
   String get sync_status_connected => "CONECTADO";
   @override
@@ -2629,11 +2629,11 @@ class $pt extends S {
   @override
   String get yesterday => "Ontem";
   @override
-  String get expired => "Expirado";
+  String get expired => "Expirada";
   @override
   String get transaction_priority_regular => "Regular";
   @override
-  String get trade_details_created_at => "Criado em";
+  String get trade_details_created_at => "Criada em";
   @override
   String get settings_wallets => "Carteiras";
   @override
@@ -2645,11 +2645,11 @@ class $pt extends S {
   @override
   String get settings_current_node => "Nó atual";
   @override
-  String get copy_id => "Cópia de ID";
+  String get copy_id => "Copiar ID";
   @override
-  String get please_make_selection => "Faça a seleção abaixo para\ncrie ou recupere sua carteira.";
+  String get please_make_selection => "Escolha se quer criar uma carteira nova\nou restaurar uma antiga.";
   @override
-  String get loading_your_wallet => "Carregando sua carteira";
+  String get loading_your_wallet => "Abrindo sua carteira";
   @override
   String get subaddresses => "Sub-endereços";
   @override
@@ -2657,43 +2657,43 @@ class $pt extends S {
   @override
   String get nodes => "Nós";
   @override
-  String get seed_share => "Compartilhar sementes";
+  String get seed_share => "Compartilhar semente";
   @override
-  String get widgets_restore_from_blockheight => "Restaurar da altura do bloco";
+  String get widgets_restore_from_blockheight => "Restaurar a partir de altura do bloco";
   @override
-  String get new_subaddress_label_name => "Nome do rótulo";
+  String get new_subaddress_label_name => "Nome";
   @override
-  String get trade_not_found => "Comércio não encontrado.";
+  String get trade_not_found => "Troca não encontrada.";
   @override
-  String get transaction_details_date => "Encontro";
+  String get transaction_details_date => "Data";
   @override
   String get show_seed => "Mostrar semente";
   @override
-  String get send_error_currency => "A moeda pode conter apenas números";
+  String get send_error_currency => "A moeda só pode conter números";
   @override
-  String get subaddress_title => "Lista de sub-endereços";
+  String get subaddress_title => "Sub-endereços";
   @override
   String get wallet_store_monero_wallet => "Carteira Monero";
   @override
   String get send_creating_transaction => "Criando transação";
   @override
-  String get trade_state_complete => "Completo";
+  String get trade_state_complete => "Finalizada";
   @override
-  String get error_text_xmr => "O valor XMR não pode exceder o saldo disponível.\nTO número de dígitos da fração deve ser menor ou igual a 12";
+  String get error_text_xmr => "A quantia em XMR não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12";
   @override
-  String get xmr_available_balance => "Saldo disponível do XMR";
+  String get xmr_available_balance => "Saldo XMR disponível";
   @override
-  String get trade_state_paid => "Pago";
+  String get trade_state_paid => "Paga";
   @override
   String get node_new => "Novo nó";
   @override
-  String get trade_state_created => "Criado";
+  String get trade_state_created => "Criada";
   @override
   String get faq => "FAQ";
   @override
   String get id => "ID: ";
   @override
-  String get saved_the_trade_id => "Salvei o ID comercial";
+  String get saved_the_trade_id => "ID da troca salvo";
   @override
   String get settings_currency => "Moeda";
   @override
@@ -2701,83 +2701,83 @@ class $pt extends S {
   @override
   String get wallet_name => "Nome da carteira";
   @override
-  String get error_text_payment_id => "O código de pagamento pode conter apenas de 16 a 64 caracteres em hexadecimal";
+  String get error_text_payment_id => "O ID de pagamento pode conter apenas de 16 a 64 caracteres em hexadecimal";
   @override
-  String get seed_alert_second_text => "Por favor, escreva-as apenas em\ncaso você perca ou limpe seu telefone.";
+  String get seed_alert_second_text => "Anote a semente em um papel. Ela é o seu backup\n caso o seu telefone estrague ou seja perdido/roubado.";
   @override
   String get node_reset_settings_title => "Redefinir configurações";
   @override
   String get wallets => "Carteiras";
   @override
-  String get enter_your_pin_again => "Insira seu pin novamente";
+  String get enter_your_pin_again => "Insira seu PIN novamente";
   @override
   String get transactions => "Transações";
   @override
-  String get amount_is_estimate => "O valor recebido é uma estimativa";
+  String get amount_is_estimate => "O valor a ser recebido informado acima é uma estimativa";
   @override
   String get error_text_node_address => "Digite um endereço iPv4";
   @override
-  String get widgets_restore_from_date => "Restaurar a partir da data";
+  String get widgets_restore_from_date => "Restaurar a partir de data";
   @override
-  String get restore_recover => "Recuperar";
+  String get restore_recover => "Restaurar";
   @override
-  String get reset => "Restabelecer";
+  String get reset => "Limpar";
   @override
   String get new_wallet => "Nova carteira";
   @override
-  String get settings_display_on_dashboard_list => "Exibir na lista do painel";
+  String get settings_display_on_dashboard_list => "Exibir no histórico";
   @override
   String get transaction_details_title => "Detalhes da transação";
   @override
   String get status => "Status: ";
   @override
-  String get restore_spend_key_private => "Chave de gastos (privado)";
+  String get restore_spend_key_private => "Chave de gastos (privada)";
   @override
   String get sync_status_syncronized => "SINCRONIZADO";
   @override
-  String get transaction_priority_medium => "Médio";
+  String get transaction_priority_medium => "Média";
   @override
   String get transaction_details_transaction_id => "ID da transação";
   @override
-  String get save => "Salve";
+  String get save => "Salvar";
   @override
-  String get login => "Entrar";
+  String get login => "Login";
   @override
-  String get wallet_list_load_wallet => "Carregar carteira";
+  String get wallet_list_load_wallet => "Abrir carteira";
   @override
   String get sending => "Enviando";
   @override
   String get restore_restore_wallet => "Restaurar carteira";
   @override
-  String get restore_description_from_seed_keys => "Volte sua carteira a partir de sementes / chaves que você salvou em um local seguro";
+  String get restore_description_from_seed_keys => "Restaure a sua carteira a partir de sementes/chaves que você salvou em um local seguro";
   @override
-  String get copy => "Cópia de";
+  String get copy => "Copiar";
   @override
   String get node_port => "Porta do nó";
   @override
-  String get change_currency => "Alteração de moeda";
+  String get change_currency => "Alterar moeda";
   @override
-  String get transaction_details_amount => "Montante";
+  String get transaction_details_amount => "Quantia";
   @override
   String get widgets_address => "Endereço";
   @override
-  String get contact_name => "Nome de contato";
+  String get contact_name => "Nome do contato";
   @override
   String get exchange_result_write_down_ID => "*Copie ou anote seu ID mostrado acima.";
   @override
-  String get exchange_result_write_down_trade_id => "Copie ou anote o ID comercial para continuar.";
+  String get exchange_result_write_down_trade_id => "Copie ou anote o ID da troca para continuar.";
   @override
-  String get new_subaddress_title => "Novo sub-endereço";
+  String get new_subaddress_title => "Criar sub-endereço";
   @override
-  String get change => "Mudança";
+  String get change => "Mudar";
   @override
-  String get seed_alert_first_text => "A próxima página mostrará\nvocê é uma semente.";
+  String get seed_alert_first_text => "A próxima página exibirá\n uma semente.";
   @override
-  String get trade_state_finished => "Acabado";
+  String get trade_state_finished => "Finalizada";
   @override
   String get pin_is_incorrect => "PIN incorreto";
   @override
-  String get trade_not_created => "Comércio não criado.";
+  String get trade_not_created => "Troca não criada.";
   @override
   String get restore_wallet_name => "Nome da carteira";
   @override
@@ -2791,47 +2791,47 @@ class $pt extends S {
   @override
   String get accounts => "Contas";
   @override
-  String get rescan => "Verificar novamente";
+  String get rescan => "Reescanear";
   @override
-  String get seed_alert_understand => "Compreendo";
+  String get seed_alert_understand => "Eu entendi";
   @override
   String get show_keys => "Mostrar chaves";
   @override
-  String get error_text_fiat => "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos da fração deve ser menor ou igual a 2";
+  String get error_text_fiat => "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos decimais deve ser menor ou igual a 2";
   @override
   String get transactions_by_date => "Transações por data";
   @override
-  String get use => "Troque para ";
+  String get use => "Trocar para PIN de ";
   @override
-  String get trade_details_state => "Estado";
+  String get trade_details_state => "Status";
   @override
-  String get spend_key_private => "Chave de gastos (privado)";
+  String get spend_key_private => "Chave de gastos (privada)";
   @override
-  String get settings_only_trades => "Somente negociações";
+  String get settings_only_trades => "Somente trocas";
   @override
-  String get trade_state_to_be_created => "Para ser criado";
+  String get trade_state_to_be_created => "A ser criada";
   @override
-  String get all => "TODOS";
+  String get all => "TUDO";
   @override
-  String get xmr_full_balance => "Saldo total do XMR";
+  String get xmr_full_balance => "Saldo XMR total";
   @override
-  String get incoming => "Entrada";
+  String get incoming => "Recebidas";
   @override
-  String get trade_history_title => "Histórico comercial";
+  String get trade_history_title => "Histórico de trocas";
   @override
   String get error_text_wallet_name => "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 15 caracteres";
   @override
-  String get restore_description_from_keys => "Restaure sua carteira da geração\npressionamentos de tecla salvos em suas chaves privadas";
+  String get restore_description_from_keys => "Restaure sua carteira a partir de \nsuas chaves privadas";
   @override
-  String get sent => "Enviei";
+  String get sent => "Enviada";
   @override
-  String get view_key_public => "Tecla Ver (público)";
+  String get view_key_public => "Chave de visualização (pública)";
   @override
   String get trade_details_id => "ID";
   @override
   String get trade_state_confirming => "Confirmando";
   @override
-  String get send => "Mandar";
+  String get send => "Enviar";
   @override
   String get send_title => "Enviar Monero";
   @override
@@ -2841,27 +2841,27 @@ class $pt extends S {
   @override
   String get seed_alert_settings => "configurações";
   @override
-  String get change_exchange_provider => "Alterar provedor de câmbio";
+  String get change_exchange_provider => "Alterar o provedor de troca";
   @override
   String get send_payment_id => "ID de pagamento (opcional)";
   @override
-  String get trade_details_title => "Detalhes do comércio";
+  String get trade_details_title => "Detalhes da troca";
   @override
   String get settings_terms_and_conditions => "Termos e Condições";
   @override
-  String get auth_store_ban_timeout => "proibir timeout";
+  String get auth_store_ban_timeout => "ban_timeout";
   @override
   String get sync_status_connecting => "CONECTANDO";
   @override
   String get settings_transactions => "Transações";
   @override
-  String get transaction_priority_fastest => "O mais rápido";
+  String get transaction_priority_fastest => "Muito rápida";
   @override
   String get error => "Erro";
   @override
   String get delete => "Excluir";
   @override
-  String get sync_status_starting_sync => "INÍCIO DE SINCRONIZAÇÃO";
+  String get sync_status_starting_sync => "INICIANDO SINCRONIZAÇÃO";
   @override
   String get copied_to_clipboard => "Copiado para a área de transferência";
   @override
@@ -2871,15 +2871,15 @@ class $pt extends S {
   @override
   String get transaction_details_height => "Altura";
   @override
-  String get wallet_menu => "Menu da Carteira";
+  String get wallet_menu => "Menu";
   @override
-  String get settings_dark_mode => "Modo escuro";
+  String get settings_dark_mode => "Modo noturno";
   @override
   String get payment_id => "ID de pagamento: ";
   @override
   String get restore_address => "Endereço";
   @override
-  String get restore_wallet_restore_description => "Restauração de carteira";
+  String get restore_wallet_restore_description => "Restauração da carteira";
   @override
   String get today => "Hoje";
   @override
@@ -2887,25 +2887,25 @@ class $pt extends S {
   @override
   String get restore_wallet => "Restaurar carteira";
   @override
-  String get ok => "Está bem";
+  String get ok => "Ok";
   @override
-  String get wallet_list_title => "Monero Carteira";
+  String get wallet_list_title => "Carteira Monero";
   @override
   String get authentication => "Autenticação";
   @override
-  String get amount => "Montante: ";
+  String get amount => "Quantia: ";
   @override
   String get node_address => "Endereço do nó";
   @override
   String get settings_change_language => "Mudar idioma";
   @override
-  String get clear => "Claro";
+  String get clear => "Limpar";
   @override
-  String get settings_change_pin => "Alterar PIN";
+  String get settings_change_pin => "Mudar PIN";
   @override
-  String get trades => "Comércios";
+  String get trades => "Trocas";
   @override
-  String get trade_state_btc_sent => "Enviei";
+  String get trade_state_btc_sent => "BTC enviado";
   @override
   String get address_book => "Livro de endereços";
   @override
@@ -2913,45 +2913,45 @@ class $pt extends S {
   @override
   String get wallet_list_restore_wallet => "Restaurar carteira";
   @override
-  String get restore_title_from_seed => "Restaurar a partir da semente";
+  String get restore_title_from_seed => "Restaurar a partir de semente";
   @override
-  String get restore_description_from_backup => "Você pode restaurar todo o aplicativo Cake Wallet em\nseu arquivo de backup";
+  String get restore_description_from_backup => "Você pode restaurar todo o aplicativo Cake Wallet de\nseu arquivo de backup";
   @override
   String get send_monero_address => "Endereço Monero";
   @override
-  String get error_text_node_port => "A porta do nó pode conter apenas números entre 0 e 65535";
+  String get error_text_node_port => "A porta do nó deve conter apenas números entre 0 e 65535";
   @override
-  String get digit_pin => "-dígitos PIN";
+  String get digit_pin => "dígitos";
   @override
-  String get first_wallet_text => "Carteira impressionante\npara Monero";
+  String get first_wallet_text => "Uma fantástica carteira\npara Monero";
   @override
-  String get settings_trades => "Comércios";
+  String get settings_trades => "Trocas";
   @override
   String get account => "Conta";
   @override
   String change_language_to(String language) => "Alterar idioma para ${language}?";
   @override
-  String change_current_node(String node) => "Você tem certeza de alterar o nó atual para ${node}?";
+  String change_current_node(String node) => "Você realmente deseja alterar o nó atual para ${node}?";
   @override
-  String trade_id(String id) => "ID comercial:\n${id}";
+  String trade_id(String id) => "ID da troca:\n${id}";
   @override
-  String wallet_list_loading_wallet(String wallet_name) => "Carregando ${wallet_name} carteira";
+  String wallet_list_loading_wallet(String wallet_name) => "Abrindo a carteira ${wallet_name}";
   @override
   String router_no_route(String name) => "Nenhuma rota definida para ${name}";
   @override
-  String trade_id_not_found(String tradeId, String title) => "Comércio${tradeId} of ${title} não encontrado.";
+  String trade_id_not_found(String tradeId, String title) => "A troca ${tradeId} de ${title} não foi encontrada.";
   @override
-  String transaction_details_copied(String title) => "${title} Copiado para a área de transferência";
+  String transaction_details_copied(String title) => "${title} copiados para a área de transferência";
   @override
-  String trade_details_copied(String title) => "${title} Copiado para a área de transferência";
+  String trade_details_copied(String title) => "${title} copiados para a área de transferência";
   @override
-  String powered_by(String title) => "Distribuído por ${title}";
+  String powered_by(String title) => "Troca realizada por ${title}";
   @override
-  String send_priority(String transactionPriority) => "Atualmente, a taxa está definida em ${transactionPriority} prioridade.\nA prioridade da transação pode ser ajustada nas configurações";
+  String send_priority(String transactionPriority) => "Atualmente, a taxa está definida para a prioridade: ${transactionPriority}.\nA prioridade da transação pode ser ajustada nas configurações";
   @override
-  String trade_for_not_created(String title) => "Comércio por ${title} não é criado.";
+  String trade_for_not_created(String title) => "A troca por ${title} não foi criada.";
   @override
-  String trade_is_powered_by(String provider) => "Este comércio é alimentado por ${provider}";
+  String trade_is_powered_by(String provider) => "Troca realizada por ${provider}";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -2961,21 +2961,21 @@ class $pt extends S {
   @override
   String failed_authentication(String state_error) => "Falha na autenticação. ${state_error}";
   @override
-  String Blocks_remaining(String status) => "${status} Blocos restantes";
+  String Blocks_remaining(String status) => "${status} blocos restantes";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Ao pressionar confirmar, você estará enviando ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço mostrado acima. Ou você pode enviar da sua carteira externa para o endereço / código QR acima.\n\nPressione confirmar para continuar ou voltar para alterar os valores.\n\n";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço exibido acima. Você também pode enviar com uma carteira externa para o endereço/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.\n\n";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Por favor envie ${fetchingLabel} ${from} para o endereço mostrado acima.\n\n'";
+  String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado acima.\n\n'";
   @override
-  String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transação\nMontante: ${amount}\nTaxa: ${fee}";
+  String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transação\nQuantia: ${amount}\nTaxa: ${fee}";
   @override
-  String wallet_list_failed_to_remove(String wallet_name, String error) => "Falha ao remover ${wallet_name} carteira. ${error}";
+  String wallet_list_failed_to_remove(String wallet_name, String error) => "Falha ao remover a carteira ${wallet_name}. ${error}";
   @override
-  String copied_key_to_clipboard(String key) => "Copiado ${key} para a área de transferência";
+  String copied_key_to_clipboard(String key) => "${key} copiada para a área de transferência";
   @override
-  String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao carregar ${wallet_name} carteira. ${error}";
+  String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao abrir a carteira ${wallet_name}. ${error}";
   @override
-  String wallet_list_removing_wallet(String wallet_name) => "Removendo ${wallet_name} carteira";
+  String wallet_list_removing_wallet(String wallet_name) => "Removendo a carteira ${wallet_name}";
 }
 
 class $ja extends S {
