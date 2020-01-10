@@ -226,7 +226,7 @@ abstract class ExchangeStoreBase with Store {
   }
 
   void validateAddress(String value, {CryptoCurrency cryptoCurrency}) {
-    // XMR (95), BTC (34), ETH (42), LTC (34), BCH (42), DASH (34)
+    // XMR (95), BTC (34, 42), ETH (42), LTC (34), BCH (42), DASH (34)
     const pattern = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$';
     final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
@@ -237,7 +237,7 @@ abstract class ExchangeStoreBase with Store {
           isValid = (value.length == 95);
           break;
         case 'BTC':
-          isValid = (value.length == 34);
+          isValid = (value.length == 34)||(value.length == 42);
           break;
         case 'ETH':
           isValid = (value.length == 42);
