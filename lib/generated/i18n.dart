@@ -5349,7 +5349,7 @@ class $zh extends S {
   @override
   String get trade_state_timeout => "超时";
   @override
-  String get nodes => "节点数";
+  String get nodes => "节点";
   @override
   String get seed_share => "分享种子";
   @override
