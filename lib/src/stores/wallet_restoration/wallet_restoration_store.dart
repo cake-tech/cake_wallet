@@ -118,7 +118,7 @@ abstract class WalleRestorationStoreBase with Store {
   void validateAddress(String value, {CryptoCurrency cryptoCurrency}) {
     // XMR (95), ADA (59, 92, 105), BCH (42), BNB (42), BTC (34, 42), DASH (34), EOS (42),
     // ETH (42), LTC (34), NANO (64, 65), TRX (34), USDT (42), XLM (56), XRP (34)
-    const pattern = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$|^[0-9a-zA-Z]{56}\$|^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{64}\$|^[0-9a-zA-Z]{65}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{105}\$';
+    const pattern = '^[0-9a-zA-Z]{95}\$|^[0-9a-zA-Z]{34}\$|^[0-9a-zA-Z]{42}\$|^[0-9a-zA-Z]{56}\$|^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z_]{64}\$|^[0-9a-zA-Z_]{65}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{105}\$';
     final regExp = RegExp(pattern);
     isValid = regExp.hasMatch(value);
     if (isValid && cryptoCurrency != null) {
