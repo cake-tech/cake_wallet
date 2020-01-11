@@ -7,33 +7,38 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FaqPage extends BasePage {
-  @override
   String get title => S.current.faq;
 
   @override
   Widget body(BuildContext context) {
     return FutureBuilder(
       builder: (context, snapshot) {
-        final faqItems = (json.decode(snapshot.data.toString())
-                as List<Map<String, String>>) ??
-            <Map<String, String>>[];
+        final faqItems = jsonDecode(snapshot.data.toString()) as List;
 
         return ListView.separated(
           itemBuilder: (BuildContext context, int index) {
-            final itemTitle = faqItems[index]["question"];
-            final itemChild = faqItems[index]["answer"];
+            final itemTitle = faqItems[index]["question"].toString();
+            final itemChild = faqItems[index]["answer"].toString();
 
             return ExpansionTile(
-              title: Text(itemTitle),
+              title: Text(
+                  itemTitle
+              ),
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
                         child: Container(
-                      padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                      child: Text(itemChild),
-                    ))
+                          padding: EdgeInsets.only(
+                              left: 15.0,
+                              right: 15.0
+                          ),
+                          child: Text(
+                            itemChild,
+                          ),
+                        )
+                    )
                   ],
                 )
               ],
@@ -41,7 +46,7 @@ class FaqPage extends BasePage {
           },
           separatorBuilder: (_, __) =>
               Divider(color: Theme.of(context).dividerTheme.color, height: 1.0),
-          itemCount: faqItems.length,
+          itemCount: faqItems == null ? 0 : faqItems.length,
         );
       },
       future: rootBundle.loadString(getFaqPath(context)),
