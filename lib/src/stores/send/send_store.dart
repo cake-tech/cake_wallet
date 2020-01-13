@@ -26,12 +26,6 @@ abstract class SendStoreBase with Store {
     _pendingTransaction = null;
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     _fiatNumberFormat = NumberFormat()..maximumFractionDigits = 2;
-
-    reaction((_) => this.state, (SendingState state) async {
-      if (state is TransactionCreatedSuccessfully) {
-        await commitTransaction();
-      }
-    });
   }
 
   WalletService walletService;
@@ -89,7 +83,9 @@ abstract class SendStoreBase with Store {
   Future commitTransaction() async {
     try {
       final transactionId = _pendingTransaction.hash;
+      state = TransactionCommiting();
       await _pendingTransaction.commit();
+      state = TransactionCommitted();
 
       if (settingsStore.shouldSaveRecipientAddress) {
         await transactionDescriptions.add(TransactionDescription(

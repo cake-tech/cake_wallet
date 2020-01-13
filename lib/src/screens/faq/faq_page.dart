@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class FaqPage extends BasePage {
+  @override
   String get title => S.current.faq;
 
   @override
@@ -21,24 +22,18 @@ class FaqPage extends BasePage {
             final itemChild = faqItems[index]["answer"].toString();
 
             return ExpansionTile(
-              title: Text(
-                  itemTitle
-              ),
+              title: Text(itemTitle),
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Expanded(
                         child: Container(
-                          padding: EdgeInsets.only(
-                              left: 15.0,
-                              right: 15.0
-                          ),
-                          child: Text(
-                            itemChild,
-                          ),
-                        )
-                    )
+                      padding: EdgeInsets.only(left: 15.0, right: 15.0),
+                      child: Text(
+                        itemChild,
+                      ),
+                    ))
                   ],
                 )
               ],
