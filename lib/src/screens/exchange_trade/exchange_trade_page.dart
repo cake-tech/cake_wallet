@@ -296,7 +296,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       }),
       bottomSection: Observer(
           builder: (_) => tradeStore.trade.from == CryptoCurrency.xmr &&
-                  !(sendStore.state is TransactionCreatedSuccessfully)
+                  !(sendStore.state is TransactionCommitted)
               ? Container(
                   padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
                   child: LoadingPrimaryButton(
@@ -351,6 +351,33 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       }
 
       if (state is TransactionCreatedSuccessfully) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text(S.of(context).confirm_sending),
+                  content: Text(S.of(context).commit_transaction_amount_fee(
+                      sendStore.pendingTransaction.amount,
+                      sendStore.pendingTransaction.fee)),
+                  actions: <Widget>[
+                    FlatButton(
+                        child: Text(S.of(context).ok),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          sendStore.commitTransaction();
+                        }),
+                    FlatButton(
+                      child: Text(S.of(context).cancel),
+                      onPressed: () => Navigator.of(context).pop(),
+                    )
+                  ],
+                );
+              });
+        });
+      }
+
+      if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
               context: context,

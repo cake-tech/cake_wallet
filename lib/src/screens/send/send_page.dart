@@ -402,7 +402,7 @@ class SendFormState extends State<SendForm> {
               borderColor:
                   Theme.of(context).accentTextTheme.button.decorationColor,
               isLoading: sendStore.state is CreatingTransaction ||
-                  sendStore.state is TransactionCommitted);
+                  sendStore.state is TransactionCommiting);
         }));
   }
 
@@ -461,6 +461,33 @@ class SendFormState extends State<SendForm> {
       }
 
       if (state is TransactionCreatedSuccessfully) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text(S.of(context).confirm_sending),
+                  content: Text(S.of(context).commit_transaction_amount_fee(
+                      sendStore.pendingTransaction.amount,
+                      sendStore.pendingTransaction.fee)),
+                  actions: <Widget>[
+                    FlatButton(
+                        child: Text(S.of(context).ok),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          sendStore.commitTransaction();
+                        }),
+                    FlatButton(
+                      child: Text(S.of(context).cancel),
+                      onPressed: () => Navigator.of(context).pop(),
+                    )
+                  ],
+                );
+              });
+        });
+      }
+
+      if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
               context: context,
