@@ -331,5 +331,9 @@
   "trade_state_finished" : "ख़त्म होना",
 
   "change_language" : "भाषा बदलो",
-  "change_language_to" : "को भाषा बदलें ${language}?"
+  "change_language_to" : "को भाषा बदलें ${language}?",
+
+  "paste" : "पेस्ट करें",
+  "restore_from_seed_placeholder" : "कृपया अपना कोड वाक्यांश यहां दर्ज करें या पेस्ट करें",
+  "add_new_word" : "नया शब्द जोड़ें"
 }

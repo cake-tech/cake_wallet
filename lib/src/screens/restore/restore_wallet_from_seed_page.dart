@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/domain/services/wallet_list_service.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -22,15 +21,27 @@ class RestoreWalletFromSeedPage extends BasePage {
   final WalletListService walletsService;
   final WalletService walletService;
   final SharedPreferences sharedPreferences;
+  final formKey = GlobalKey<_RestoreFromSeedFormState>();
 
   @override
   String get title => S.current.restore_title_from_seed;
 
   @override
-  Widget body(BuildContext context) => RestoreFromSeedForm();
+  Widget trailing(BuildContext context) => SizedBox(
+      width: 80,
+      height: 20,
+      child: FlatButton(
+          child: Text(S.of(context).clear),
+          padding: EdgeInsets.all(0),
+          onPressed: () => formKey?.currentState?.clear()));
+
+  @override
+  Widget body(BuildContext context) => RestoreFromSeedForm(key: formKey);
 }
 
 class RestoreFromSeedForm extends StatefulWidget {
+  RestoreFromSeedForm({Key key}) : super(key: key);
+
   @override
   _RestoreFromSeedFormState createState() => _RestoreFromSeedFormState();
 }
@@ -38,6 +49,8 @@ class RestoreFromSeedForm extends StatefulWidget {
 class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
   final _seedKey = GlobalKey<SeedWidgetState>();
   bool _reactionSet = false;
+
+  void clear() => _seedKey.currentState.clear();
 
   @override
   Widget build(BuildContext context) {
@@ -50,42 +63,13 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
       onTap: () =>
           SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
       child: Container(
-        padding: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 20.0),
-        child: Column(
-          children: <Widget>[
-            Expanded(
-                child: SeedWidget(
-              key: _seedKey,
-              onMnemoticChange: (seed) => walletRestorationStore.setSeed(seed),
-            )),
-            Container(
-                alignment: Alignment.bottomCenter,
-                child: PrimaryButton(
-                    onPressed: () {
-                      walletRestorationStore.validateSeed(_seedKey.currentState.items);
-                      _seedKey.currentState.setErrorMessage(walletRestorationStore.errorMessage);
-
-                      if (!walletRestorationStore.isValid) {
-                        _seedKey.currentState.invalidate();
-                        return;
-                      }
-
-                      _seedKey.currentState.validated();
-
-                      Navigator.of(context).pushNamed(
-                          Routes.restoreWalletFromSeedDetails,
-                          arguments: _seedKey.currentState.items);
-                    },
-                    text: S.of(context).restore_next,
-                    color: Theme.of(context)
-                        .primaryTextTheme
-                        .button
-                        .backgroundColor,
-                    borderColor: Theme.of(context)
-                        .primaryTextTheme
-                        .button
-                        .decorationColor))
-          ],
+        padding: EdgeInsets.only(left: 20.0, right: 20.0),
+        child: SeedWidget(
+          key: _seedKey,
+          onMnemoticChange: (seed) => walletRestorationStore.setSeed(seed),
+          onFinish: () => Navigator.of(context).pushNamed(
+              Routes.restoreWalletFromSeedDetails,
+              arguments: _seedKey.currentState.items),
         ),
       ),
     );

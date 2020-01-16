@@ -331,5 +331,9 @@
   "trade_state_finished" : "已完成",
 
   "change_language" : "改變語言",
-  "change_language_to" : "將語言更改為 ${language}?"
+  "change_language_to" : "將語言更改為 ${language}?",
+  
+  "paste" : "糊",
+  "restore_from_seed_placeholder" : "请在此处输入或粘贴您的代码短语",
+  "add_new_word" : "添加新词"
 }

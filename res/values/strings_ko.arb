@@ -331,5 +331,8 @@
   "trade_state_finished" : "끝마친",
 
   "change_language" : "언어 변경",
-  "change_language_to" : "언어를로 변경 ${language}?"
+  "change_language_to" : "언어를로 변경 ${language}?",
+
+   "paste" : "풀",
+  "restore_from_seed_placeholder" : "여기에 코드 문구를 입력하거나 붙여 넣으십시오."
 }
