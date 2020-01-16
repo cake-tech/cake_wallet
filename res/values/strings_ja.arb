@@ -331,5 +331,10 @@
   "trade_state_finished" : "完成した",
 
   "change_language" : "言語を変えてください",
-  "change_language_to" : "言語を変更 ${language}?"
+  "change_language_to" : "言語を変更 ${language}?",
+
+  "paste" : "ペースト",
+  "restore_from_seed_placeholder" : "ここにコードフレーズを入力または貼り付けてください",
+  "add_new_word" : "新しい単語を追加",
+  "add_new_word" : "새로운 단어 추가"
 }

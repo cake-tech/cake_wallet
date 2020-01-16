@@ -7,12 +7,15 @@ class PrimaryButton extends StatelessWidget {
       {@required this.onPressed,
       @required this.text,
       @required this.color,
-      @required this.borderColor});
+      @required this.borderColor,
+      
+      this.isDisabled = false});
 
   final VoidCallback onPressed;
   final Color color;
   final Color borderColor;
   final String text;
+  final bool isDisabled;
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +23,15 @@ class PrimaryButton extends StatelessWidget {
         minWidth: double.infinity,
         height: 56.0,
         child: FlatButton(
-          onPressed: onPressed,
-          color: color,
+          onPressed: isDisabled ? null : onPressed,
+          color: isDisabled ? Colors.grey : color,
           shape: RoundedRectangleBorder(
               side: BorderSide(color: borderColor),
               borderRadius: BorderRadius.circular(10.0)),
           child: Text(text,
               style: TextStyle(
                   fontSize: 16.0,
-                  color: Theme.of(context).primaryTextTheme.button.color)),
+                  color: isDisabled ? Palette.darkGrey :  Theme.of(context).primaryTextTheme.button.color)),
         ));
   }
 }

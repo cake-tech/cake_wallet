@@ -331,5 +331,9 @@
   "trade_state_finished" : "Afgewerkt",
 
   "change_language" : "Verander de taal",
-  "change_language_to" : "Verander de taal in ${language}?"
+  "change_language_to" : "Verander de taal in ${language}?",
+  
+  "paste" : "Plakken",
+  "restore_from_seed_placeholder" : "Voer hier uw codefrase in of plak deze",
+  "add_new_word" : "Nieuw woord toevoegen"
 }

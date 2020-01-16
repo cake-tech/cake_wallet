@@ -286,6 +286,9 @@ class S implements WidgetsLocalizations {
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Failed to remove ${wallet_name} wallet. ${error}";
   String wallet_list_loading_wallet(String wallet_name) => "Loading ${wallet_name} wallet";
   String wallet_list_removing_wallet(String wallet_name) => "Removing ${wallet_name} wallet";
+  String get paste => "Paste";
+  String get restore_from_seed_placeholder => "Please enter or paste your seed here";
+  String get add_new_word => "Add new word";
 }
 
 class $de extends S {
@@ -824,6 +827,12 @@ class $de extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden fehlgeschlagen ${wallet_name} Wallet. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Entfernen ${wallet_name} Wallet";
+  @override
+  String get paste => "Einfügen";
+  @override
+  String get restore_from_seed_placeholder => "Bitte geben Sie hier Ihren Code ein";
+  @override
+  String get add_new_word => "Neues Wort hinzufügen";
 }
 
 class $hi extends S {
@@ -1362,6 +1371,12 @@ class $hi extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "लोड करने में विफल ${wallet_name} बटुआ. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "निकाला जा रहा है ${wallet_name} बटुआ";
+  @override
+  String get paste => "पेस्ट करें";
+  @override
+  String get restore_from_seed_placeholder => "कृपया अपना कोड वाक्यांश यहां दर्ज करें या पेस्ट करें";
+  @override
+  String get add_new_word => "नया शब्द जोड़ें";
 }
 
 class $ru extends S {
@@ -1900,6 +1915,12 @@ class $ru extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Ошибка при загрузке ${wallet_name} кошелька. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Удаление ${wallet_name} кошелька";
+  @override
+  String get paste => "Вставить";
+  @override
+  String get restore_from_seed_placeholder => "Введите или вставте код фразу вашего кошелька";
+  @override
+  String get add_new_word => "Добавить новое слово";
 }
 
 class $ko extends S {
@@ -2438,6 +2459,12 @@ class $ko extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "불러 오지 못했습니다 ${wallet_name} 지갑. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "풀이 ${wallet_name} 지갑";
+  @override
+  String get paste => "풀";
+  @override
+  String get restore_from_seed_placeholder => "여기에 코드 문구를 입력하거나 붙여 넣으십시오.";
+  @override
+  String get add_new_word => "새로운 단어 추가";
 }
 
 class $pt extends S {
@@ -2976,6 +3003,12 @@ class $pt extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao abrir a carteira ${wallet_name}. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Removendo a carteira ${wallet_name}";
+  @override
+  String get paste => "Colar";
+  @override
+  String get restore_from_seed_placeholder => "Digite ou cole sua frase de código aqui";
+  @override
+  String get add_new_word => "Adicionar nova palavra";
 }
 
 class $ja extends S {
@@ -3514,6 +3547,12 @@ class $ja extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "読み込みに失敗しました ${wallet_name} 財布. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "取りはずし ${wallet_name} 財布";
+  @override
+  String get paste => "ペースト";
+  @override
+  String get restore_from_seed_placeholder => "ここにコードフレーズを入力または貼り付けてください";
+  @override
+  String get add_new_word => "新しい単語を追加";
 }
 
 class $en extends S {
@@ -4056,6 +4095,12 @@ class $pl extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Nie udało się załadować ${wallet_name} portfel. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Usuwanie ${wallet_name} portfel";
+  @override
+  String get paste => "Pasta";
+  @override
+  String get restore_from_seed_placeholder => "Wpisz lub wklej tutaj swoją frazę kodową";
+  @override
+  String get add_new_word => "Dodaj nowe słowo";
 }
 
 class $es extends S {
@@ -4594,6 +4639,12 @@ class $es extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "No se pudo cargar  ${wallet_name} la billetera. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Retirar ${wallet_name} billetera";
+  @override
+  String get paste => "Pegar";
+  @override
+  String get restore_from_seed_placeholder => "Ingrese o pegue su frase de código aquí";
+  @override
+  String get add_new_word => "Agregar palabra nueva";
 }
 
 class $nl extends S {
@@ -5132,6 +5183,12 @@ class $nl extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden mislukt ${wallet_name} portemonnee. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Verwijderen ${wallet_name} portemonnee";
+  @override
+  String get paste => "Plakken";
+  @override
+  String get restore_from_seed_placeholder => "Voer hier uw codefrase in of plak deze";
+  @override
+  String get add_new_word => "Nieuw woord toevoegen";
 }
 
 class $zh extends S {
@@ -5670,6 +5727,12 @@ class $zh extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "加载失败 ${wallet_name} 钱包. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "拆下 ${wallet_name} 钱包";
+  @override
+  String get paste => "糊";
+  @override
+  String get restore_from_seed_placeholder => "请在此处输入或粘贴您的代码短语";
+  @override
+  String get add_new_word => "添加新词";
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {

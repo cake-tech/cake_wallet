@@ -331,5 +331,9 @@
   "trade_state_finished" : "Finalizada",
 
   "change_language" : "Mudar idioma",
-  "change_language_to" : "Alterar idioma para ${language}?"
+  "change_language_to" : "Alterar idioma para ${language}?",
+  
+  "paste" : "Colar",
+  "restore_from_seed_placeholder" : "Digite ou cole sua frase de código aqui",
+  "add_new_word" : "Adicionar nova palavra"
 }

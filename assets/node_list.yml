@@ -19,3 +19,6 @@
 -
   uri: opennode.xmr-tw.org:18089
   is_default: false
+-
+  uri: node.imonero.org:18081
+  is_default: false
