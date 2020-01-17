@@ -335,5 +335,6 @@
   
   "paste" : "Plakken",
   "restore_from_seed_placeholder" : "Voer hier uw codefrase in of plak deze",
-  "add_new_word" : "Nieuw woord toevoegen"
+  "add_new_word" : "Nieuw woord toevoegen",
+  "incorrect_seed" : "De ingevoerde tekst is niet geldig."
 }

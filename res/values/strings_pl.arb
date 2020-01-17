@@ -335,5 +335,6 @@
 
   "paste" : "Pasta",
   "restore_from_seed_placeholder" : "Wpisz lub wklej tutaj swoją frazę kodową",
-  "add_new_word" : "Dodaj nowe słowo"
+  "add_new_word" : "Dodaj nowe słowo",
+  "incorrect_seed" : "Wprowadzony tekst jest nieprawidłowy."
 }

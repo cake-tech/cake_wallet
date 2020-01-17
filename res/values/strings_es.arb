@@ -335,5 +335,6 @@
 
   "paste" : "Pegar",
   "restore_from_seed_placeholder" : "Ingrese o pegue su frase de código aquí",
-  "add_new_word" : "Agregar palabra nueva"
+  "add_new_word" : "Agregar palabra nueva",
+  "incorrect_seed" : "El texto ingresado no es válido."
 }

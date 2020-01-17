@@ -336,5 +336,6 @@
   "paste" : "ペースト",
   "restore_from_seed_placeholder" : "ここにコードフレーズを入力または貼り付けてください",
   "add_new_word" : "新しい単語を追加",
-  "add_new_word" : "새로운 단어 추가"
+  "add_new_word" : "새로운 단어 추가",
+  "incorrect_seed" : "入力されたテキストは無効です。"
 }

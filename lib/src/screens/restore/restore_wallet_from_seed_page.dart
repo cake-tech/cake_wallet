@@ -48,16 +48,11 @@ class RestoreFromSeedForm extends StatefulWidget {
 
 class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
   final _seedKey = GlobalKey<SeedWidgetState>();
-  bool _reactionSet = false;
-
   void clear() => _seedKey.currentState.clear();
 
   @override
   Widget build(BuildContext context) {
     final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
-
-    WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _setReactions(context, walletRestorationStore));
 
     return GestureDetector(
       onTap: () =>
@@ -73,23 +68,5 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
         ),
       ),
     );
-  }
-
-  void _setReactions(BuildContext context, WalletRestorationStore store) {
-    if (_reactionSet) {
-      return;
-    }
-
-    reaction((_) => store.errorMessage, (String errorMessage) {
-      if (errorMessage == null || errorMessage.isEmpty) {
-        _seedKey.currentState.validated();
-      } else {
-        _seedKey.currentState.invalidate();
-      }
-
-      _seedKey.currentState.setErrorMessage(errorMessage);
-    });
-
-    _reactionSet = true;
   }
 }

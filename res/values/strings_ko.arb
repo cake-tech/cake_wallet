@@ -334,5 +334,6 @@
   "change_language_to" : "언어를로 변경 ${language}?",
 
    "paste" : "풀",
-  "restore_from_seed_placeholder" : "여기에 코드 문구를 입력하거나 붙여 넣으십시오."
+  "restore_from_seed_placeholder" : "여기에 코드 문구를 입력하거나 붙여 넣으십시오.",
+  "incorrect_seed" : "입력하신 텍스트가 유효하지 않습니다."
 }

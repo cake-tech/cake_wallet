@@ -335,5 +335,6 @@
   
   "paste" : "糊",
   "restore_from_seed_placeholder" : "请在此处输入或粘贴您的代码短语",
-  "add_new_word" : "添加新词"
+  "add_new_word" : "添加新词",
+  "incorrect_seed" : "输入的文字无效。"
 }

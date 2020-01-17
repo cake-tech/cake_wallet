@@ -335,5 +335,6 @@
   
   "paste" : "Colar",
   "restore_from_seed_placeholder" : "Digite ou cole sua frase de código aqui",
-  "add_new_word" : "Adicionar nova palavra"
+  "add_new_word" : "Adicionar nova palavra",
+  "incorrect_seed" : "O texto digitado não é válido."
 }
