@@ -289,6 +289,7 @@ class S implements WidgetsLocalizations {
   String get paste => "Paste";
   String get restore_from_seed_placeholder => "Please enter or paste your seed here";
   String get add_new_word => "Add new word";
+  String get incorrect_seed => 'The text entered is not valid.';
 }
 
 class $de extends S {
@@ -833,6 +834,8 @@ class $de extends S {
   String get restore_from_seed_placeholder => "Bitte geben Sie hier Ihren Code ein";
   @override
   String get add_new_word => "Neues Wort hinzufügen";
+  @override
+  String get incorrect_seed => 'Der eingegebene Text ist ungültig.';
 }
 
 class $hi extends S {
@@ -1377,6 +1380,8 @@ class $hi extends S {
   String get restore_from_seed_placeholder => "कृपया अपना कोड वाक्यांश यहां दर्ज करें या पेस्ट करें";
   @override
   String get add_new_word => "नया शब्द जोड़ें";
+  @override
+  String get incorrect_seed => 'दर्ज किया गया पाठ मान्य नहीं है।';
 }
 
 class $ru extends S {
@@ -1921,6 +1926,8 @@ class $ru extends S {
   String get restore_from_seed_placeholder => "Введите или вставте код фразу вашего кошелька";
   @override
   String get add_new_word => "Добавить новое слово";
+  @override
+  String get incorrect_seed => 'Введенный текст некорректный.';
 }
 
 class $ko extends S {
@@ -2465,6 +2472,8 @@ class $ko extends S {
   String get restore_from_seed_placeholder => "여기에 코드 문구를 입력하거나 붙여 넣으십시오.";
   @override
   String get add_new_word => "새로운 단어 추가";
+  @override
+  String get incorrect_seed => '입력하신 텍스트가 유효하지 않습니다.';
 }
 
 class $pt extends S {
@@ -3009,6 +3018,8 @@ class $pt extends S {
   String get restore_from_seed_placeholder => "Digite ou cole sua frase de código aqui";
   @override
   String get add_new_word => "Adicionar nova palavra";
+  @override
+  String get incorrect_seed => 'O texto digitado não é válido.';
 }
 
 class $ja extends S {
@@ -3553,6 +3564,8 @@ class $ja extends S {
   String get restore_from_seed_placeholder => "ここにコードフレーズを入力または貼り付けてください";
   @override
   String get add_new_word => "新しい単語を追加";
+  @override
+  String get incorrect_seed => '入力されたテキストは無効です。';
 }
 
 class $en extends S {
@@ -4101,6 +4114,8 @@ class $pl extends S {
   String get restore_from_seed_placeholder => "Wpisz lub wklej tutaj swoją frazę kodową";
   @override
   String get add_new_word => "Dodaj nowe słowo";
+  @override
+  String get incorrect_seed => 'Wprowadzony tekst jest nieprawidłowy.';
 }
 
 class $es extends S {
@@ -4645,6 +4660,8 @@ class $es extends S {
   String get restore_from_seed_placeholder => "Ingrese o pegue su frase de código aquí";
   @override
   String get add_new_word => "Agregar palabra nueva";
+  @override
+  String get incorrect_seed => 'El texto ingresado no es válido.';
 }
 
 class $nl extends S {
@@ -5189,6 +5206,8 @@ class $nl extends S {
   String get restore_from_seed_placeholder => "Voer hier uw codefrase in of plak deze";
   @override
   String get add_new_word => "Nieuw woord toevoegen";
+  @override
+  String get incorrect_seed => 'De ingevoerde tekst is niet geldig.';
 }
 
 class $zh extends S {
@@ -5733,6 +5752,8 @@ class $zh extends S {
   String get restore_from_seed_placeholder => "请在此处输入或粘贴您的代码短语";
   @override
   String get add_new_word => "添加新词";
+  @override
+  String get incorrect_seed => '输入的文字无效。';
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {

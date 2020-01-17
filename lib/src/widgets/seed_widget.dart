@@ -27,8 +27,9 @@ class SeedWidgetState extends State<SeedWidget> {
   bool isValid;
   String errorMessage;
 
-  MnemoticItem currentMnemotic;
+  List<MnemoticItem> currentMnemotics;
   bool isCurrentMnemoticValid;
+  String _errorMessage;
 
   @override
   void initState() {
@@ -43,14 +44,6 @@ class SeedWidgetState extends State<SeedWidget> {
     setState(() => items.add(MnemoticItem(
         text: text.trim().toLowerCase(), dic: EnglishMnemonics.words)));
     _seedController.text = '';
-
-    if (widget.onMnemoticChange != null) {
-      widget.onMnemoticChange(items);
-    }
-  }
-
-  void deleteMnemotic(MnemoticItem item) {
-    setState(() => items.remove(item));
 
     if (widget.onMnemoticChange != null) {
       widget.onMnemoticChange(items);
@@ -78,7 +71,7 @@ class SeedWidgetState extends State<SeedWidget> {
   void selectMnemotic(MnemoticItem item) {
     setState(() {
       selectedItem = item;
-      currentMnemotic = item;
+      currentMnemotics = [item];
 
       _seedController
         ..text = item.text
@@ -103,18 +96,6 @@ class SeedWidgetState extends State<SeedWidget> {
 
     if (widget.onMnemoticChange != null) {
       widget.onMnemoticChange(items);
-    }
-  }
-
-  void onFieldSubmitted(String text) {
-    if (text.isEmpty || text == null) {
-      return;
-    }
-
-    if (selectedItem != null) {
-      editTextOfSelectedMnemotic(text);
-    } else {
-      addMnemotic(text);
     }
   }
 
@@ -149,29 +130,66 @@ class SeedWidgetState extends State<SeedWidget> {
 
   void changeCurrentMnemotic(String text) {
     setState(() {
+      final trimmedText = text.trim();
+      final splitted = trimmedText.split(' ');
+      _errorMessage = null;
+
       if (text == null) {
-        currentMnemotic = null;
+        currentMnemotics = [];
         isCurrentMnemoticValid = false;
         return;
       }
 
-      currentMnemotic = MnemoticItem(text: text, dic: EnglishMnemonics.words);
-      isCurrentMnemoticValid = currentMnemotic.isCorrect();
+      currentMnemotics = splitted
+          .map((text) => MnemoticItem(text: text, dic: EnglishMnemonics.words))
+          .toList();
+
+      bool isValid = true;
+
+      for (final word in currentMnemotics) {
+        print('word ${word.text}');
+        isValid = word.isCorrect();
+
+        if (!isValid) {
+          break;
+        }
+      }
+
+      isCurrentMnemoticValid = isValid;
     });
   }
 
   void saveCurrentMnemoticToItems() {
     setState(() {
       if (selectedItem != null) {
-        selectedItem.changeText(currentMnemotic.text);
+        selectedItem.changeText(currentMnemotics.first.text.trim());
         selectedItem = null;
       } else {
-        items.add(currentMnemotic);
+        items.addAll(currentMnemotics);
       }
 
-      currentMnemotic = null;
+      currentMnemotics = [];
       _seedController.text = '';
     });
+  }
+
+  void showErrorIfExist() {
+    setState(() => _errorMessage =
+        !isCurrentMnemoticValid ? S.current.incorrect_seed : null);
+  }
+
+  bool isSeedValid() {
+    bool isValid;
+
+    for (final item in items) {
+      isValid = item.isCorrect();
+
+      if (!isValid) {
+        break;
+      }
+    }
+
+    return isValid;
   }
 
   @override
@@ -258,6 +276,7 @@ class SeedWidgetState extends State<SeedWidget> {
                           hintStyle:
                               TextStyle(color: Theme.of(context).hintColor),
                           hintText: S.of(context).restore_from_seed_placeholder,
+                          errorText: _errorMessage,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
                                   color: Palette.cakeGreen, width: 2.0)),
@@ -273,6 +292,7 @@ class SeedWidgetState extends State<SeedWidget> {
                       child: (selectedItem == null && items.length == maxLength)
                           ? PrimaryButton(
                               text: S.of(context).restore_next,
+                              isDisabled: !isSeedValid(),
                               onPressed: () => widget.onFinish != null
                                   ? widget.onFinish()
                                   : null,
@@ -291,6 +311,7 @@ class SeedWidgetState extends State<SeedWidget> {
                               onPressed: () => isCurrentMnemoticValid
                                   ? saveCurrentMnemoticToItems()
                                   : null,
+                              onDisabledPressed: () => showErrorIfExist(),
                               isDisabled: !isCurrentMnemoticValid,
                               color: PaletteDark.darkThemeBlueButton,
                               borderColor: Palette.brightBlue))

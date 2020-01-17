@@ -8,10 +8,11 @@ class PrimaryButton extends StatelessWidget {
       @required this.text,
       @required this.color,
       @required this.borderColor,
-      
-      this.isDisabled = false});
+      this.isDisabled = false,
+      this.onDisabledPressed});
 
   final VoidCallback onPressed;
+  final VoidCallback onDisabledPressed;
   final Color color;
   final Color borderColor;
   final String text;
@@ -23,15 +24,19 @@ class PrimaryButton extends StatelessWidget {
         minWidth: double.infinity,
         height: 56.0,
         child: FlatButton(
-          onPressed: isDisabled ? null : onPressed,
-          color: isDisabled ? Colors.grey : color,
+          onPressed: isDisabled
+              ? (onDisabledPressed != null ? onDisabledPressed : null)
+              : onPressed,
+          color: isDisabled ? Colors.transparent : color,
           shape: RoundedRectangleBorder(
               side: BorderSide(color: borderColor),
               borderRadius: BorderRadius.circular(10.0)),
           child: Text(text,
               style: TextStyle(
                   fontSize: 16.0,
-                  color: isDisabled ? Palette.darkGrey :  Theme.of(context).primaryTextTheme.button.color)),
+                  color: isDisabled
+                      ? Palette.darkGrey
+                      : Theme.of(context).primaryTextTheme.button.color)),
         ));
   }
 }

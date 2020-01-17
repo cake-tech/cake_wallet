@@ -335,5 +335,6 @@
 
   "paste" : ""paste"",
   "restore_from_seed_placeholder" : "Please enter or "paste" your seed here",
-  "add_new_word" : "Add new word"
+  "add_new_word" : "Add new word",
+  "incorrect_seed" : "The text entered is not valid."
 }
