@@ -147,7 +147,6 @@ class SeedWidgetState extends State<SeedWidget> {
       bool isValid = true;
 
       for (final word in currentMnemotics) {
-        print('word ${word.text}');
         isValid = word.isCorrect();
 
         if (!isValid) {
