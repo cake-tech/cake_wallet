@@ -336,5 +336,7 @@
   "paste" : "Pegar",
   "restore_from_seed_placeholder" : "Ingrese o pegue su frase de código aquí",
   "add_new_word" : "Agregar palabra nueva",
-  "incorrect_seed" : "El texto ingresado no es válido."
+  "incorrect_seed" : "El texto ingresado no es válido.",
+
+  "biometric_auth_reason" : "Escanee su huella digital para autenticar"
 }
