@@ -50,10 +50,7 @@ class NodeListPage extends BasePage {
                               onPressed: () async {
                                 Navigator.pop(context);
                                 await nodeList.reset();
-                                if (nodeList.nodes.isNotEmpty) {
-                                  await settings.setCurrentNode(
-                                      node: nodeList.nodes[0]);
-                                }
+                                await settings.setCurrentNodeToDefault();
                               },
                               child: Text(S.of(context).reset))
                         ],
