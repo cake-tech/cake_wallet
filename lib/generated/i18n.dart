@@ -24,6 +24,7 @@ class S implements WidgetsLocalizations {
   String get account => "Account";
   String get accounts => "Accounts";
   String get add => "Add";
+  String get add_new_word => "Add new word";
   String get address_book => "Address Book";
   String get address_book_menu => "Address book";
   String get all => "ALL";
@@ -85,6 +86,7 @@ class S implements WidgetsLocalizations {
   String get hidden_balance => "Hidden Balance";
   String get id => "ID: ";
   String get incoming => "Incoming";
+  String get incorrect_seed => "The text entered is not valid.";
   String get loading_your_wallet => "Loading your wallet";
   String get login => "Login";
   String get new_subaddress_create => "Create";
@@ -101,6 +103,7 @@ class S implements WidgetsLocalizations {
   String get ok => "OK";
   String get outgoing => "Outgoing";
   String get password => "Password";
+  String get paste => "Paste";
   String get payment_id => "Payment ID: ";
   String get pending => " (pending)";
   String get pin_is_incorrect => "PIN is incorrect";
@@ -123,6 +126,7 @@ class S implements WidgetsLocalizations {
   String get restore_description_from_keys => "Restore your wallet from generated\nkeystrokes saved from your private keys";
   String get restore_description_from_seed => "Restore your wallet from either the 25 word\nor 13 word combination code";
   String get restore_description_from_seed_keys => "Get back your wallet from seed/keys that you've saved to secure place";
+  String get restore_from_seed_placeholder => "Please enter or paste your seed here";
   String get restore_next => "Next";
   String get restore_recover => "Restore";
   String get restore_restore_wallet => "Restore Wallet";
@@ -286,10 +290,6 @@ class S implements WidgetsLocalizations {
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Failed to remove ${wallet_name} wallet. ${error}";
   String wallet_list_loading_wallet(String wallet_name) => "Loading ${wallet_name} wallet";
   String wallet_list_removing_wallet(String wallet_name) => "Removing ${wallet_name} wallet";
-  String get paste => "Paste";
-  String get restore_from_seed_placeholder => "Please enter or paste your seed here";
-  String get add_new_word => "Add new word";
-  String get incorrect_seed => 'The text entered is not valid.';
 }
 
 class $de extends S {
@@ -391,6 +391,8 @@ class $de extends S {
   @override
   String get error_text_subaddress_name => "Der Name der Unteradresse darf nicht enthalten sein ` , ' \" symbole\nund muss zwischen 1 und 20 Zeichen lang sein";
   @override
+  String get incorrect_seed => "Der eingegebene Text ist ungültig.";
+  @override
   String get settings_all => "ALLE";
   @override
   String get nodes_list_reset_to_default_message => "Möchten Sie die Einstellungen wirklich auf die Standardeinstellungen zurücksetzen?";
@@ -474,6 +476,8 @@ class $de extends S {
   String get fetching => "holen";
   @override
   String get settings_nodes => "Knoten";
+  @override
+  String get paste => "Einfügen";
   @override
   String get widgets_or => "oder";
   @override
@@ -653,6 +657,8 @@ class $de extends S {
   @override
   String get transactions_by_date => "Transaktionen nach Datum";
   @override
+  String get restore_from_seed_placeholder => "Bitte geben Sie hier Ihren Code ein";
+  @override
   String get use => "Wechseln zu ";
   @override
   String get trade_details_state => "Zustand";
@@ -773,6 +779,8 @@ class $de extends S {
   @override
   String get error_text_node_port => "Der Knotenport kann nur Nummern zwischen 0 und 65535 enthalten";
   @override
+  String get add_new_word => "Neues Wort hinzufügen";
+  @override
   String get digit_pin => "-stelliger PIN";
   @override
   String get first_wallet_text => "tolle Brieftasche\nzum Monero";
@@ -828,14 +836,6 @@ class $de extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden fehlgeschlagen ${wallet_name} Wallet. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Entfernen ${wallet_name} Wallet";
-  @override
-  String get paste => "Einfügen";
-  @override
-  String get restore_from_seed_placeholder => "Bitte geben Sie hier Ihren Code ein";
-  @override
-  String get add_new_word => "Neues Wort hinzufügen";
-  @override
-  String get incorrect_seed => 'Der eingegebene Text ist ungültig.';
 }
 
 class $hi extends S {
@@ -937,6 +937,8 @@ class $hi extends S {
   @override
   String get error_text_subaddress_name => "सबड्रेस नाम नहीं हो सकता` , ' \" प्रतीकों\nऔर 1 और 20 वर्णों के बीच लंबा होना चाहिए";
   @override
+  String get incorrect_seed => "दर्ज किया गया पाठ मान्य नहीं है।";
+  @override
   String get settings_all => "सब";
   @override
   String get nodes_list_reset_to_default_message => "क्या आप वाकई सेटिंग को डिफ़ॉल्ट पर रीसेट करना चाहते हैं?";
@@ -1020,6 +1022,8 @@ class $hi extends S {
   String get fetching => "ला रहा है";
   @override
   String get settings_nodes => "नोड्स";
+  @override
+  String get paste => "पेस्ट करें";
   @override
   String get widgets_or => "या";
   @override
@@ -1199,6 +1203,8 @@ class $hi extends S {
   @override
   String get transactions_by_date => "तारीख से लेन-देन";
   @override
+  String get restore_from_seed_placeholder => "कृपया अपना कोड वाक्यांश यहां दर्ज करें या पेस्ट करें";
+  @override
   String get use => "पर स्विच ";
   @override
   String get trade_details_state => "राज्य";
@@ -1319,6 +1325,8 @@ class $hi extends S {
   @override
   String get error_text_node_port => "नोड पोर्ट में केवल 0 और 65535 के बीच संख्याएँ हो सकती हैं";
   @override
+  String get add_new_word => "नया शब्द जोड़ें";
+  @override
   String get digit_pin => "-अंक पिन";
   @override
   String get first_wallet_text => "बहुत बढ़िया बटुआ\nके लिये Monero";
@@ -1374,14 +1382,6 @@ class $hi extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "लोड करने में विफल ${wallet_name} बटुआ. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "निकाला जा रहा है ${wallet_name} बटुआ";
-  @override
-  String get paste => "पेस्ट करें";
-  @override
-  String get restore_from_seed_placeholder => "कृपया अपना कोड वाक्यांश यहां दर्ज करें या पेस्ट करें";
-  @override
-  String get add_new_word => "नया शब्द जोड़ें";
-  @override
-  String get incorrect_seed => 'दर्ज किया गया पाठ मान्य नहीं है।';
 }
 
 class $ru extends S {
@@ -1483,6 +1483,8 @@ class $ru extends S {
   @override
   String get error_text_subaddress_name => "Subaddress имя не может включать ` , ' \" символы\nи может быть от 1 до 32 символов в длину";
   @override
+  String get incorrect_seed => "Введенный текст некорректный.";
+  @override
   String get settings_all => "ВСЕ";
   @override
   String get nodes_list_reset_to_default_message => "Вы уверены, что хотите сбросить до настроек по умолчанию?";
@@ -1566,6 +1568,8 @@ class $ru extends S {
   String get fetching => "Загрузка";
   @override
   String get settings_nodes => "Ноды";
+  @override
+  String get paste => "Вставить";
   @override
   String get widgets_or => "или";
   @override
@@ -1745,6 +1749,8 @@ class $ru extends S {
   @override
   String get transactions_by_date => "Сортировать по дате";
   @override
+  String get restore_from_seed_placeholder => "Введите или вставте код фразу вашего кошелька";
+  @override
   String get use => "Переключиться на ";
   @override
   String get trade_details_state => "Статус";
@@ -1865,6 +1871,8 @@ class $ru extends S {
   @override
   String get error_text_node_port => "Порт ноды может включать только цифры от 0 до  65535";
   @override
+  String get add_new_word => "Добавить новое слово";
+  @override
   String get digit_pin => "-значный PIN";
   @override
   String get first_wallet_text => "В самом удобном кошельке для Monero";
@@ -1920,14 +1928,6 @@ class $ru extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Ошибка при загрузке ${wallet_name} кошелька. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Удаление ${wallet_name} кошелька";
-  @override
-  String get paste => "Вставить";
-  @override
-  String get restore_from_seed_placeholder => "Введите или вставте код фразу вашего кошелька";
-  @override
-  String get add_new_word => "Добавить новое слово";
-  @override
-  String get incorrect_seed => 'Введенный текст некорректный.';
 }
 
 class $ko extends S {
@@ -2029,6 +2029,8 @@ class $ko extends S {
   @override
   String get error_text_subaddress_name => "하위 주소 이름은 포함 할 수 없습니다 ` , ' \" 기호 \n1 ~ 20 자 사이 여야합니다";
   @override
+  String get incorrect_seed => "입력하신 텍스트가 유효하지 않습니다.";
+  @override
   String get settings_all => "모든";
   @override
   String get nodes_list_reset_to_default_message => "설정을 기본값으로 재설정 하시겠습니까?";
@@ -2112,6 +2114,8 @@ class $ko extends S {
   String get fetching => "가져 오는 중";
   @override
   String get settings_nodes => "노드";
+  @override
+  String get paste => "풀";
   @override
   String get widgets_or => "또는";
   @override
@@ -2291,6 +2295,8 @@ class $ko extends S {
   @override
   String get transactions_by_date => "날짜 별 거래";
   @override
+  String get restore_from_seed_placeholder => "여기에 코드 문구를 입력하거나 붙여 넣으십시오.";
+  @override
   String get use => "로 전환 ";
   @override
   String get trade_details_state => "상태";
@@ -2411,6 +2417,8 @@ class $ko extends S {
   @override
   String get error_text_node_port => "노드 포트는 0에서 65535 사이의 숫자 만 포함 할 수 있습니다";
   @override
+  String get add_new_word => "새로운 단어 추가";
+  @override
   String get digit_pin => "숫자 PIN";
   @override
   String get first_wallet_text => "멋진 지갑\n에 대한 Monero";
@@ -2466,14 +2474,6 @@ class $ko extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "불러 오지 못했습니다 ${wallet_name} 지갑. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "풀이 ${wallet_name} 지갑";
-  @override
-  String get paste => "풀";
-  @override
-  String get restore_from_seed_placeholder => "여기에 코드 문구를 입력하거나 붙여 넣으십시오.";
-  @override
-  String get add_new_word => "새로운 단어 추가";
-  @override
-  String get incorrect_seed => '입력하신 텍스트가 유효하지 않습니다.';
 }
 
 class $pt extends S {
@@ -2575,6 +2575,8 @@ class $pt extends S {
   @override
   String get error_text_subaddress_name => "O nome do sub-endereço não pode conter os símbolos ` , ' \" \ne deve ter entre 1 e 20 caracteres";
   @override
+  String get incorrect_seed => "O texto digitado não é válido.";
+  @override
   String get settings_all => "Tudo";
   @override
   String get nodes_list_reset_to_default_message => "Você realmente deseja redefinir as configurações para o padrão?";
@@ -2658,6 +2660,8 @@ class $pt extends S {
   String get fetching => "Buscando";
   @override
   String get settings_nodes => "Nós";
+  @override
+  String get paste => "Colar";
   @override
   String get widgets_or => "ou";
   @override
@@ -2837,6 +2841,8 @@ class $pt extends S {
   @override
   String get transactions_by_date => "Transações por data";
   @override
+  String get restore_from_seed_placeholder => "Digite ou cole sua frase de código aqui";
+  @override
   String get use => "Trocar para PIN de ";
   @override
   String get trade_details_state => "Status";
@@ -2957,6 +2963,8 @@ class $pt extends S {
   @override
   String get error_text_node_port => "A porta do nó deve conter apenas números entre 0 e 65535";
   @override
+  String get add_new_word => "Adicionar nova palavra";
+  @override
   String get digit_pin => "dígitos";
   @override
   String get first_wallet_text => "Uma fantástica carteira\npara Monero";
@@ -3012,14 +3020,6 @@ class $pt extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao abrir a carteira ${wallet_name}. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Removendo a carteira ${wallet_name}";
-  @override
-  String get paste => "Colar";
-  @override
-  String get restore_from_seed_placeholder => "Digite ou cole sua frase de código aqui";
-  @override
-  String get add_new_word => "Adicionar nova palavra";
-  @override
-  String get incorrect_seed => 'O texto digitado não é válido.';
 }
 
 class $ja extends S {
@@ -3121,6 +3121,8 @@ class $ja extends S {
   @override
   String get error_text_subaddress_name => "サブアドレス名に含めることはできません` , ' \" シンボル\n1〜20文字の長さである必要があります";
   @override
+  String get incorrect_seed => "入力されたテキストは無効です。";
+  @override
   String get settings_all => "すべて";
   @override
   String get nodes_list_reset_to_default_message => "設定をデフォルトにリセットしてもよろしいですか？";
@@ -3204,6 +3206,8 @@ class $ja extends S {
   String get fetching => "フェッチング";
   @override
   String get settings_nodes => "ノード";
+  @override
+  String get paste => "ペースト";
   @override
   String get widgets_or => "または";
   @override
@@ -3383,6 +3387,8 @@ class $ja extends S {
   @override
   String get transactions_by_date => "日付ごとの取引";
   @override
+  String get restore_from_seed_placeholder => "ここにコードフレーズを入力または貼り付けてください";
+  @override
   String get use => "切り替える ";
   @override
   String get trade_details_state => "状態";
@@ -3503,6 +3509,8 @@ class $ja extends S {
   @override
   String get error_text_node_port => "ノードポートには、0〜65535の数字のみを含めることができます";
   @override
+  String get add_new_word => "新しい単語を追加";
+  @override
   String get digit_pin => "桁ピン";
   @override
   String get first_wallet_text => "素晴らしい財布\nために Monero";
@@ -3558,14 +3566,6 @@ class $ja extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "読み込みに失敗しました ${wallet_name} 財布. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "取りはずし ${wallet_name} 財布";
-  @override
-  String get paste => "ペースト";
-  @override
-  String get restore_from_seed_placeholder => "ここにコードフレーズを入力または貼り付けてください";
-  @override
-  String get add_new_word => "新しい単語を追加";
-  @override
-  String get incorrect_seed => '入力されたテキストは無効です。';
 }
 
 class $en extends S {
@@ -3671,6 +3671,8 @@ class $pl extends S {
   @override
   String get error_text_subaddress_name => "Nazwa podadresu nie może zawierać ` , ' \" symbolika\ni musi mieć od 1 do 20 znaków";
   @override
+  String get incorrect_seed => "Wprowadzony tekst jest nieprawidłowy.";
+  @override
   String get settings_all => "Cały";
   @override
   String get nodes_list_reset_to_default_message => "Czy na pewno chcesz przywrócić ustawienia domyślne?";
@@ -3754,6 +3756,8 @@ class $pl extends S {
   String get fetching => "Ujmujący";
   @override
   String get settings_nodes => "Węzły";
+  @override
+  String get paste => "Pasta";
   @override
   String get widgets_or => "lub";
   @override
@@ -3933,6 +3937,8 @@ class $pl extends S {
   @override
   String get transactions_by_date => "Transakcje według daty";
   @override
+  String get restore_from_seed_placeholder => "Wpisz lub wklej tutaj swoją frazę kodową";
+  @override
   String get use => "Przełącz na ";
   @override
   String get trade_details_state => "Stan";
@@ -4053,6 +4059,8 @@ class $pl extends S {
   @override
   String get error_text_node_port => "Port węzła może zawierać tylko liczby od 0 do 65535";
   @override
+  String get add_new_word => "Dodaj nowe słowo";
+  @override
   String get digit_pin => "-znak PIN";
   @override
   String get first_wallet_text => "Niesamowity portfel\nfdla Monero";
@@ -4108,14 +4116,6 @@ class $pl extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Nie udało się załadować ${wallet_name} portfel. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Usuwanie ${wallet_name} portfel";
-  @override
-  String get paste => "Pasta";
-  @override
-  String get restore_from_seed_placeholder => "Wpisz lub wklej tutaj swoją frazę kodową";
-  @override
-  String get add_new_word => "Dodaj nowe słowo";
-  @override
-  String get incorrect_seed => 'Wprowadzony tekst jest nieprawidłowy.';
 }
 
 class $es extends S {
@@ -4217,6 +4217,8 @@ class $es extends S {
   @override
   String get error_text_subaddress_name => "El nombre de la subdirección no puede contener símbolos `, '\" \ny debe tener entre 1 y 20 caracteres de longitud";
   @override
+  String get incorrect_seed => "El texto ingresado no es válido.";
+  @override
   String get settings_all => "TODOS";
   @override
   String get nodes_list_reset_to_default_message => "¿Está seguro de que desea restablecer la configuración predeterminada?";
@@ -4300,6 +4302,8 @@ class $es extends S {
   String get fetching => "Cargando";
   @override
   String get settings_nodes => "Nodos";
+  @override
+  String get paste => "Pegar";
   @override
   String get widgets_or => "o";
   @override
@@ -4479,6 +4483,8 @@ class $es extends S {
   @override
   String get transactions_by_date => "Transacciones por fecha";
   @override
+  String get restore_from_seed_placeholder => "Ingrese o pegue su frase de código aquí";
+  @override
   String get use => "Cambiar a ";
   @override
   String get trade_details_state => "Estado";
@@ -4599,6 +4605,8 @@ class $es extends S {
   @override
   String get error_text_node_port => "El puerto de nodo solo puede contener números entre 0 y 65535";
   @override
+  String get add_new_word => "Agregar palabra nueva";
+  @override
   String get digit_pin => "-dígito PIN";
   @override
   String get first_wallet_text => "Impresionante billetera\npara Monero";
@@ -4654,14 +4662,6 @@ class $es extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "No se pudo cargar  ${wallet_name} la billetera. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Retirar ${wallet_name} billetera";
-  @override
-  String get paste => "Pegar";
-  @override
-  String get restore_from_seed_placeholder => "Ingrese o pegue su frase de código aquí";
-  @override
-  String get add_new_word => "Agregar palabra nueva";
-  @override
-  String get incorrect_seed => 'El texto ingresado no es válido.';
 }
 
 class $nl extends S {
@@ -4763,6 +4763,8 @@ class $nl extends S {
   @override
   String get error_text_subaddress_name => "Naam subadres mag niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 20 tekens lang zijn";
   @override
+  String get incorrect_seed => "De ingevoerde tekst is niet geldig.";
+  @override
   String get settings_all => "ALLE";
   @override
   String get nodes_list_reset_to_default_message => "Weet u zeker dat u de standaardinstellingen wilt herstellen?";
@@ -4846,6 +4848,8 @@ class $nl extends S {
   String get fetching => "Ophalen";
   @override
   String get settings_nodes => "knooppunten";
+  @override
+  String get paste => "Plakken";
   @override
   String get widgets_or => "of";
   @override
@@ -5025,6 +5029,8 @@ class $nl extends S {
   @override
   String get transactions_by_date => "Transacties op datum";
   @override
+  String get restore_from_seed_placeholder => "Voer hier uw codefrase in of plak deze";
+  @override
   String get use => "Overschakelen naar ";
   @override
   String get trade_details_state => "Staat";
@@ -5145,6 +5151,8 @@ class $nl extends S {
   @override
   String get error_text_node_port => "Knooppuntpoort kan alleen nummers tussen 0 en 65535 bevatten";
   @override
+  String get add_new_word => "Nieuw woord toevoegen";
+  @override
   String get digit_pin => "-cijferige PIN";
   @override
   String get first_wallet_text => "Geweldige portemonnee\nfvoor Monero";
@@ -5200,14 +5208,6 @@ class $nl extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden mislukt ${wallet_name} portemonnee. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Verwijderen ${wallet_name} portemonnee";
-  @override
-  String get paste => "Plakken";
-  @override
-  String get restore_from_seed_placeholder => "Voer hier uw codefrase in of plak deze";
-  @override
-  String get add_new_word => "Nieuw woord toevoegen";
-  @override
-  String get incorrect_seed => 'De ingevoerde tekst is niet geldig.';
 }
 
 class $zh extends S {
@@ -5309,6 +5309,8 @@ class $zh extends S {
   @override
   String get error_text_subaddress_name => "子地址名称不能包含`，' \" 符号\n并且必须在1到20个字符之间";
   @override
+  String get incorrect_seed => "输入的文字无效。";
+  @override
   String get settings_all => "所有";
   @override
   String get nodes_list_reset_to_default_message => "您确定要将设置重设为默认值吗？";
@@ -5392,6 +5394,8 @@ class $zh extends S {
   String get fetching => "正在取得";
   @override
   String get settings_nodes => "节点数";
+  @override
+  String get paste => "糊";
   @override
   String get widgets_or => "要么";
   @override
@@ -5571,6 +5575,8 @@ class $zh extends S {
   @override
   String get transactions_by_date => "按日期交易";
   @override
+  String get restore_from_seed_placeholder => "请在此处输入或粘贴您的代码短语";
+  @override
   String get use => "切換到 ";
   @override
   String get trade_details_state => "条件";
@@ -5691,6 +5697,8 @@ class $zh extends S {
   @override
   String get error_text_node_port => "节点端口只能包含0到65535之间的数字";
   @override
+  String get add_new_word => "添加新词";
+  @override
   String get digit_pin => "数字别针";
   @override
   String get first_wallet_text => "很棒的钱包\n对于 Monero";
@@ -5746,14 +5754,6 @@ class $zh extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "加载失败 ${wallet_name} 钱包. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "拆下 ${wallet_name} 钱包";
-  @override
-  String get paste => "糊";
-  @override
-  String get restore_from_seed_placeholder => "请在此处输入或粘贴您的代码短语";
-  @override
-  String get add_new_word => "添加新词";
-  @override
-  String get incorrect_seed => '输入的文字无效。';
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
