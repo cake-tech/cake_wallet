@@ -19,6 +19,7 @@ class NodeListPage extends BasePage {
   @override
   Widget trailing(context) {
     final nodeList = Provider.of<NodeListStore>(context);
+    final settings = Provider.of<SettingsStore>(context);
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -49,6 +50,7 @@ class NodeListPage extends BasePage {
                               onPressed: () async {
                                 Navigator.pop(context);
                                 await nodeList.reset();
+                                await settings.setCurrentNodeToDefault();
                               },
                               child: Text(S.of(context).reset))
                         ],
