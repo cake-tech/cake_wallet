@@ -178,13 +178,13 @@ class AddressBookPage extends BasePage {
         color = Palette.cakeGreenWithOpacity;
         break;
       case CryptoCurrency.ada:
-        color = Colors.blueGrey[700];
+        color = Colors.blue[200];
         break;
       case CryptoCurrency.bch:
         color = Colors.orangeAccent;
         break;
       case CryptoCurrency.bnb:
-        color = Colors.yellow;
+        color = Colors.blue;
         break;
       case CryptoCurrency.btc:
         color = Colors.orange;
@@ -193,7 +193,7 @@ class AddressBookPage extends BasePage {
         color = Colors.blue;
         break;
       case CryptoCurrency.eos:
-        color = Colors.deepPurple;
+        color = Colors.orangeAccent;
         break;
       case CryptoCurrency.eth:
         color = Colors.black;
@@ -202,19 +202,19 @@ class AddressBookPage extends BasePage {
         color = Colors.blue[200];
         break;
       case CryptoCurrency.nano:
-        color = Colors.blue[900];
+        color = Colors.orange;
         break;
       case CryptoCurrency.trx:
-        color = Colors.red;
+        color = Colors.black;
         break;
       case CryptoCurrency.usdt:
-        color = Colors.teal;
+        color = Colors.blue[200];
         break;
       case CryptoCurrency.xlm:
-        color = Colors.grey[100];
+        color = color = Colors.blue;
         break;
       case CryptoCurrency.xrp:
-        color = Colors.blueAccent;
+        color = Colors.orangeAccent;
         break;
       default:
         color = Colors.white;
@@ -229,13 +229,9 @@ class AddressBookPage extends BasePage {
         color = Palette.cakeGreen;
         break;
       case CryptoCurrency.ltc:
+      case CryptoCurrency.ada:
+      case CryptoCurrency.usdt:
         color = Palette.lightBlue;
-        break;
-      case CryptoCurrency.xlm:
-        color = Colors.blueAccent;
-        break;
-      case CryptoCurrency.xrp:
-        color = Colors.black;
         break;
       default:
         color = Colors.white;

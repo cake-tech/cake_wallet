@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
 import 'package:cake_wallet/src/stores/action_list/action_list_display_mode.dart';
 import 'package:cake_wallet/src/screens/settings/items/item_headers.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/common/default_settings_migration.dart';
 
 part 'settings_store.g.dart';
 
@@ -265,5 +266,10 @@ abstract class SettingsStoreBase with Store {
       ItemHeaders.termsAndConditions: S.current.settings_terms_and_conditions,
       ItemHeaders.faq: S.current.faq
     });
+  }
+
+  Future setCurrentNodeToDefault() async {
+    await changeCurrentNodeToDefault(sharedPreferences: _sharedPreferences, nodes: _nodes);
+    await loadSettings();
   }
 }
