@@ -91,4 +91,9 @@ abstract class AuthStoreBase with Store {
 
     return Duration(milliseconds: timeout);
   }
+
+  @action
+  void biometricAuth() {
+    state = AuthenticatedSuccessfully();
+  }
 }
