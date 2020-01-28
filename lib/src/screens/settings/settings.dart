@@ -279,7 +279,12 @@ class SettingsFormState extends State<SettingsForm> {
       SettingsItem(
           onTaped: () => Navigator.pushNamed(context, Routes.faq),
           title: ItemHeaders.faq,
-          attribute: Attributes.arrow)
+          attribute: Attributes.arrow),
+      SettingsItem(
+          onTaped: () {},
+          title: ItemHeaders.version,
+          widget: null,
+          attribute: Attributes.widget)
     ]);
     setState(() {});
   }

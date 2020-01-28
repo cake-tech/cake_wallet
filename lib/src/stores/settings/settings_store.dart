@@ -46,6 +46,8 @@ abstract class SettingsStoreBase with Store {
         (dynamic _) => _sharedPreferences.setInt(displayActionListModeKey,
             serializeActionlistDisplayModes(actionlistDisplayMode)),
         fireImmediately: false);
+
+    currentVersion = _sharedPreferences.getInt('current_default_settings_migration_version');
   }
 
   static const currentNodeIdKey = 'current_node_id';
@@ -143,6 +145,7 @@ abstract class SettingsStoreBase with Store {
 
   SharedPreferences _sharedPreferences;
   Box<Node> _nodes;
+  int currentVersion;
 
   @action
   Future setAllowBiometricalAuthentication(
@@ -264,7 +267,8 @@ abstract class SettingsStoreBase with Store {
       ItemHeaders.darkMode: S.current.settings_dark_mode,
       ItemHeaders.support: S.current.settings_support,
       ItemHeaders.termsAndConditions: S.current.settings_terms_and_conditions,
-      ItemHeaders.faq: S.current.faq
+      ItemHeaders.faq: S.current.faq,
+      ItemHeaders.version: 'Version 1.0.$currentVersion'
     });
   }
 

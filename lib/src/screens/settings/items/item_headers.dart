@@ -14,4 +14,5 @@ class ItemHeaders {
   static const support = 'Support';
   static const termsAndConditions = 'Terms and conditions';
   static const faq = 'FAQ';
+  static const version = 'Version';
 }
