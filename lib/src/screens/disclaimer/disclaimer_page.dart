@@ -36,6 +36,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
 
   static const xmrtoUrl = 'https://xmr.to/app_static/html/tos.html';
   static const changenowUrl = 'https://changenow.io/terms-of-use';
+  static const morphUrl = 'http://morphtoken.com/terms';
 
   final bool _isAccepted;
   bool _checked = false;
@@ -195,6 +196,27 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               decoration: TextDecoration.underline),
                         ),
                       ))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Expanded(
+                          child: GestureDetector(
+                            onTap: () => launchUrl(morphUrl),
+                            child: Text(
+                              morphUrl,
+                              textAlign: TextAlign.left,
+                              style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.normal,
+                                  decoration: TextDecoration.underline),
+                            ),
+                          ))
                     ],
                   ),
                   SizedBox(
