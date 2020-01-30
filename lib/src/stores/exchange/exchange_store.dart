@@ -8,6 +8,8 @@ import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_request.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_trade_request.dart';
+import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_exchange_provider.dart';
+import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_request.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/exchange/exchange_trade_state.dart';
@@ -154,6 +156,15 @@ abstract class ExchangeStoreBase with Store {
 
     if (provider is ChangeNowExchangeProvider) {
       request = ChangeNowRequest(
+          from: depositCurrency,
+          to: receiveCurrency,
+          amount: depositAmount,
+          refundAddress: depositAddress,
+          address: receiveAddress);
+    }
+
+    if (provider is MorphTokenExchangeProvider) {
+      request = MorphTokenRequest(
           from: depositCurrency,
           to: receiveCurrency,
           amount: depositAmount,
