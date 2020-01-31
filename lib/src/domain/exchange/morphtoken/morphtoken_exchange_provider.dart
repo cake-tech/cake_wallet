@@ -16,22 +16,43 @@ import 'package:cake_wallet/src/domain/exchange/trade_not_created_exeption.dart'
 class MorphTokenExchangeProvider extends ExchangeProvider {
   MorphTokenExchangeProvider()
       : super(
-      pairList: CryptoCurrency.all
-          .map((i) {
-        return CryptoCurrency.all.map((k) {
-          if (i == CryptoCurrency.btc && k == CryptoCurrency.xmr) {
-            return ExchangePair(from: i, to: k, reverse: false);
-          }
+      pairList: [
+        ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.btc),
+        ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.eth),
+        ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.bch),
+        ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.ltc),
+        ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.dash),
 
-          if (i == CryptoCurrency.xmr && k == CryptoCurrency.btc) {
-            return null;
-          }
+        ExchangePair(from: CryptoCurrency.dash, to: CryptoCurrency.btc),
+        ExchangePair(from: CryptoCurrency.dash, to: CryptoCurrency.eth),
+        ExchangePair(from: CryptoCurrency.dash, to: CryptoCurrency.bch),
+        ExchangePair(from: CryptoCurrency.dash, to: CryptoCurrency.ltc),
+        ExchangePair(from: CryptoCurrency.dash, to: CryptoCurrency.xmr),
 
-          return ExchangePair(from: i, to: k, reverse: true);
-        }).where((c) => c != null);
-      })
-          .expand((i) => i)
-          .toList());
+        ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.btc),
+        ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.eth),
+        ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.bch),
+        ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.dash),
+        ExchangePair(from: CryptoCurrency.ltc, to: CryptoCurrency.xmr),
+
+        ExchangePair(from: CryptoCurrency.bch, to: CryptoCurrency.btc),
+        ExchangePair(from: CryptoCurrency.bch, to: CryptoCurrency.eth),
+        ExchangePair(from: CryptoCurrency.bch, to: CryptoCurrency.ltc),
+        ExchangePair(from: CryptoCurrency.bch, to: CryptoCurrency.dash),
+        ExchangePair(from: CryptoCurrency.bch, to: CryptoCurrency.xmr),
+
+        ExchangePair(from: CryptoCurrency.eth, to: CryptoCurrency.btc),
+        ExchangePair(from: CryptoCurrency.eth, to: CryptoCurrency.bch),
+        ExchangePair(from: CryptoCurrency.eth, to: CryptoCurrency.ltc),
+        ExchangePair(from: CryptoCurrency.eth, to: CryptoCurrency.dash),
+        ExchangePair(from: CryptoCurrency.eth, to: CryptoCurrency.xmr),
+
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.eth),
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.bch),
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.ltc),
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.dash),
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr),
+      ]);
 
   static const apiUri = 'https://api.morphtoken.com';
   static const _morphURISuffix = '/morph';
