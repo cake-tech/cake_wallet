@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:hive/hive.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_not_found_exeption.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
@@ -156,11 +157,17 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
     final toCurrency = responseJSON['output']['asset'] as String;
     final to = CryptoCurrency.fromString(toCurrency);
     final inputAddress = responseJSON['input']['refund_address'] as String;
-    final outputWeight = responseJSON['output']['weight'].toString();
     final status = responseJSON['state'] as String;
     final state = TradeState.deserialize(raw: status);
-    final extraId = responseJSON['id'] as String;
-    final outputTransaction = responseJSON['deposit_address'] as String;
+
+    String amount = "";
+    final trades = Hive.box<Trade>(Trade.boxName).values;
+    for (final trade in trades) {
+      if (trade.id == id) {
+        amount = trade.amount;
+        break;
+      }
+    }
 
     return Trade(
         id: id,
@@ -168,10 +175,10 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         to: to,
         provider: description,
         inputAddress: inputAddress,
-        amount: outputWeight,
+        amount: amount,
         state: state,
-        extraId: extraId,
-        outputTransaction: outputTransaction);
+        extraId: null,
+        outputTransaction: null);
   }
 
   @override
