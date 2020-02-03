@@ -49,16 +49,7 @@ abstract class SettingsStoreBase with Store {
         fireImmediately: false);
 
     PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-      final version = packageInfo.version;
-      final buildNumber = packageInfo.buildNumber;
-      final List<String> versionList = version.split(RegExp("\\."));
-      currentVersion = "";
-
-      for (int i = 0; i < versionList.length - 1; i++) {
-        currentVersion += versionList[ i ] + ".";
-      }
-
-      currentVersion += buildNumber;
+      currentVersion = packageInfo.version;
     });
 
   }
