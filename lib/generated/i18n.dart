@@ -286,6 +286,7 @@ class S implements WidgetsLocalizations {
   String trade_id_not_found(String tradeId, String title) => "Trade ${tradeId} of ${title} not found.";
   String trade_is_powered_by(String provider) => "This trade is powered by ${provider}";
   String transaction_details_copied(String title) => "${title} copied to Clipboard";
+  String version(String currentVersion) => "Version ${currentVersion}";
   String wallet_list_failed_to_load(String wallet_name, String error) => "Failed to load ${wallet_name} wallet. ${error}";
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Failed to remove ${wallet_name} wallet. ${error}";
   String wallet_list_loading_wallet(String wallet_name) => "Loading ${wallet_name} wallet";
@@ -796,6 +797,8 @@ class $de extends S {
   String trade_id(String id) => "Handel-ID:\n${id}";
   @override
   String wallet_list_loading_wallet(String wallet_name) => "Wird geladen ${wallet_name} Wallet";
+  @override
+  String version(String currentVersion) => "Ausführung ${currentVersion}";
   @override
   String router_no_route(String name) => "Keine Route definiert für ${name}";
   @override
@@ -1343,6 +1346,8 @@ class $hi extends S {
   @override
   String wallet_list_loading_wallet(String wallet_name) => "लोड हो रहा है ${wallet_name} बटुआ";
   @override
+  String version(String currentVersion) => "संस्करण ${currentVersion}";
+  @override
   String router_no_route(String name) => "के लिए कोई मार्ग निर्धारित नहीं है ${name}";
   @override
   String trade_id_not_found(String tradeId, String title) => "व्यापार ${tradeId} of ${title} नहीं मिला.";
@@ -1888,6 +1893,8 @@ class $ru extends S {
   String trade_id(String id) => "ID сделки:\n${id}";
   @override
   String wallet_list_loading_wallet(String wallet_name) => "Загрузка ${wallet_name} кошелька";
+  @override
+  String version(String currentVersion) => "Версия ${currentVersion}";
   @override
   String router_no_route(String name) => "Экран не найден ${name}";
   @override
@@ -2435,6 +2442,8 @@ class $ko extends S {
   @override
   String wallet_list_loading_wallet(String wallet_name) => "로딩 ${wallet_name} 지갑";
   @override
+  String version(String currentVersion) => "버전 ${currentVersion}";
+  @override
   String router_no_route(String name) => "에 정의 된 경로가 없습니다 ${name}";
   @override
   String trade_id_not_found(String tradeId, String title) => "무역 ${tradeId} 의 ${title} 찾을 수 없습니다.";
@@ -2981,6 +2990,8 @@ class $pt extends S {
   @override
   String wallet_list_loading_wallet(String wallet_name) => "Abrindo a carteira ${wallet_name}";
   @override
+  String version(String currentVersion) => "Versão ${currentVersion}";
+  @override
   String router_no_route(String name) => "Nenhuma rota definida para ${name}";
   @override
   String trade_id_not_found(String tradeId, String title) => "A troca ${tradeId} de ${title} não foi encontrada.";
@@ -3526,6 +3537,8 @@ class $ja extends S {
   String trade_id(String id) => "取引ID:\n${id}";
   @override
   String wallet_list_loading_wallet(String wallet_name) => "読み込み中 ${wallet_name} 財布";
+  @override
+  String version(String currentVersion) => "バージョン ${currentVersion}";
   @override
   String router_no_route(String name) => "ルートが定義されていません ${name}";
   @override
@@ -4077,6 +4090,8 @@ class $pl extends S {
   @override
   String wallet_list_loading_wallet(String wallet_name) => "Ładuję ${wallet_name} portfel";
   @override
+  String version(String currentVersion) => "Wersja ${currentVersion}";
+  @override
   String router_no_route(String name) => "Brak zdefiniowanej trasy dla ${name}";
   @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} of ${title} nie znaleziono.";
@@ -4622,6 +4637,8 @@ class $es extends S {
   String trade_id(String id) => "Comercial ID:\n${id}";
   @override
   String wallet_list_loading_wallet(String wallet_name) => "Billetera ${wallet_name} de carga";
+  @override
+  String version(String currentVersion) => "Versión ${currentVersion}";
   @override
   String router_no_route(String name) => "No hay ruta definida para ${name}";
   @override
@@ -5169,6 +5186,8 @@ class $nl extends S {
   @override
   String wallet_list_loading_wallet(String wallet_name) => "Bezig met laden ${wallet_name} portemonnee";
   @override
+  String version(String currentVersion) => "Versie ${currentVersion}";
+  @override
   String router_no_route(String name) => "Geen route gedefinieerd voor ${name}";
   @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} van ${title} niet gevonden.";
@@ -5714,6 +5733,8 @@ class $zh extends S {
   String trade_id(String id) => "贸易编号:\n${id}";
   @override
   String wallet_list_loading_wallet(String wallet_name) => "载入中 ${wallet_name} 钱包";
+  @override
+  String version(String currentVersion) => "版 ${currentVersion}";
   @override
   String router_no_route(String name) => "未定义路线 ${name}";
   @override
