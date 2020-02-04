@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/stores/action_list/action_list_display_mode.dart
 import 'package:cake_wallet/src/screens/settings/items/item_headers.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/default_settings_migration.dart';
+import 'package:package_info/package_info.dart';
 
 part 'settings_store.g.dart';
 
@@ -47,7 +48,10 @@ abstract class SettingsStoreBase with Store {
             serializeActionlistDisplayModes(actionlistDisplayMode)),
         fireImmediately: false);
 
-    currentVersion = _sharedPreferences.getInt('current_default_settings_migration_version');
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
+      currentVersion = packageInfo.version;
+    });
+
   }
 
   static const currentNodeIdKey = 'current_node_id';
@@ -145,7 +149,7 @@ abstract class SettingsStoreBase with Store {
 
   SharedPreferences _sharedPreferences;
   Box<Node> _nodes;
-  int currentVersion;
+  String currentVersion;
 
   @action
   Future setAllowBiometricalAuthentication(
@@ -268,7 +272,7 @@ abstract class SettingsStoreBase with Store {
       ItemHeaders.support: S.current.settings_support,
       ItemHeaders.termsAndConditions: S.current.settings_terms_and_conditions,
       ItemHeaders.faq: S.current.faq,
-      ItemHeaders.version: 'Version 1.0.$currentVersion'
+      ItemHeaders.version: 'Version $currentVersion'
     });
   }
 
