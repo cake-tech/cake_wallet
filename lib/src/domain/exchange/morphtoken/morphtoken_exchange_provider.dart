@@ -55,6 +55,8 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr),
       ]);
 
+  final trades = Hive.box<Trade>(Trade.boxName);
+
   static const apiUri = 'https://api.morphtoken.com';
   static const _morphURISuffix = '/morph';
   static const _limitsURISuffix = '/limits';
@@ -158,11 +160,10 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
     final to = CryptoCurrency.fromString(toCurrency);
     final inputAddress = responseJSON['input']['refund_address'] as String;
     final status = responseJSON['state'] as String;
-    final state = TradeState.deserialize(raw: status);
+    final state = TradeState.deserialize(raw: status.toLowerCase());
 
     String amount = "";
-    final trades = Hive.box<Trade>(Trade.boxName).values;
-    for (final trade in trades) {
+    for (final trade in trades.values) {
       if (trade.id == id) {
         amount = trade.amount;
         break;
@@ -177,7 +178,6 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         inputAddress: inputAddress,
         amount: amount,
         state: state,
-        extraId: null,
         outputTransaction: null);
   }
 
