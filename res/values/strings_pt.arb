@@ -339,4 +339,7 @@
   "incorrect_seed" : "O texto digitado não é válido.",
 
   "biometric_auth_reason" : "Digitalize sua impressão digital para autenticar"
+  "incorrect_seed" : "O texto digitado não é válido.",
+
+  "version" : "Versão ${currentVersion}"
 }

@@ -339,4 +339,7 @@
   "incorrect_seed" : "입력하신 텍스트가 유효하지 않습니다.",
 
   "biometric_auth_reason" : "지문을 스캔하여 인증"
+  "incorrect_seed" : "입력하신 텍스트가 유효하지 않습니다.",
+
+  "version" : "버전 ${currentVersion}"
 }
