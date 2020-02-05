@@ -18,7 +18,6 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   MorphTokenExchangeProvider()
       : super(
       pairList: [
-        ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.btc),
         ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.eth),
         ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.bch),
         ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.ltc),
@@ -51,8 +50,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.eth),
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.bch),
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.ltc),
-        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.dash),
-        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr),
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.dash)
       ]);
 
   final trades = Hive.box<Trade>(Trade.boxName);
@@ -84,13 +82,13 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         "weight": weight
       }]});
     final response =
-    await post(url.toString(), headers: headers, body: json.encode(body));
+    await post(url, headers: headers, body: body);
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
-    final min = responseJSON['input']['limits']['min'] as double;
-    final max = responseJSON['input']['limits']['max'] as double;
+    final min = responseJSON['input']['limits']['min'] as int;
+    final max = responseJSON['input']['limits']['max'] as int;
 
-    return Limits(min: min, max: max);
+    return Limits(min: min.toDouble(), max: max.toDouble());
   }
 
   @override
@@ -155,9 +153,9 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['input']['asset'] as String;
-    final from = CryptoCurrency.fromString(fromCurrency);
+    final from = CryptoCurrency.fromString(fromCurrency.toLowerCase());
     final toCurrency = responseJSON['output']['asset'] as String;
-    final to = CryptoCurrency.fromString(toCurrency);
+    final to = CryptoCurrency.fromString(toCurrency.toLowerCase());
     final inputAddress = responseJSON['input']['refund_address'] as String;
     final status = responseJSON['state'] as String;
     final state = TradeState.deserialize(raw: status.toLowerCase());
@@ -177,8 +175,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         provider: description,
         inputAddress: inputAddress,
         amount: amount,
-        state: state,
-        outputTransaction: null);
+        state: state);
   }
 
   @override
