@@ -338,8 +338,7 @@
   "add_new_word" : "新しい単語を追加",
   "incorrect_seed" : "入力されたテキストは無効です。",
 
-  "biometric_auth_reason" : "प指紋をスキャンして認証する"
-  "incorrect_seed" : "入力されたテキストは無効です。",
+  "biometric_auth_reason" : "प指紋をスキャンして認証する",
 
   "version" : "バージョン ${currentVersion}"
 }

@@ -338,8 +338,7 @@
   "add_new_word" : "Nieuw woord toevoegen",
   "incorrect_seed" : "De ingevoerde tekst is niet geldig.",
 
-  "biometric_auth_reason" : "Scan uw vingerafdruk om te verifiëren"
-  "incorrect_seed" : "De ingevoerde tekst is niet geldig.",
+  "biometric_auth_reason" : "Scan uw vingerafdruk om te verifiëren",
 
   "version" : "Versie ${currentVersion}"
 }
