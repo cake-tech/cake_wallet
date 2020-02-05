@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 
 part 'exchange_trade_store.g.dart';
@@ -24,6 +25,9 @@ abstract class ExchangeTradeStoreBase with Store {
         break;
       case ExchangeProviderDescription.changeNow:
         _provider = ChangeNowExchangeProvider();
+        break;
+      case ExchangeProviderDescription.morphToken:
+        _provider = MorphTokenExchangeProvider();
         break;
     }
 
