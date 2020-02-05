@@ -174,7 +174,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                           enabled: _isAmountEditable,
                           textAlign: TextAlign.right,
                           keyboardType: TextInputType.numberWithOptions(
-                              signed: false, decimal: false),
+                              signed: false, decimal: true),
                           inputFormatters: [
                             BlacklistingTextInputFormatter(
                                 RegExp('[\\-|\\ |\\,]'))

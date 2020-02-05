@@ -339,4 +339,7 @@
   "incorrect_seed" : "Wprowadzony tekst jest nieprawidłowy.",
 
   "biometric_auth_reason" : "Zeskanuj swój odcisk palca, aby go uwierzytelnić"
+  "incorrect_seed" : "Wprowadzony tekst jest nieprawidłowy.",
+
+  "version" : "Wersja ${currentVersion}"
 }

@@ -215,7 +215,7 @@ class SendFormState extends State<SendForm> {
                                 .color),
                         controller: _cryptoAmountController,
                         keyboardType: TextInputType.numberWithOptions(
-                            signed: false, decimal: false),
+                            signed: false, decimal: true),
                         inputFormatters: [
                           BlacklistingTextInputFormatter(
                               RegExp('[\\-|\\ |\\,]'))
@@ -275,7 +275,7 @@ class SendFormState extends State<SendForm> {
                                 .color),
                         controller: _fiatAmountController,
                         keyboardType: TextInputType.numberWithOptions(
-                            signed: false, decimal: false),
+                            signed: false, decimal: true),
                         inputFormatters: [
                           BlacklistingTextInputFormatter(
                               RegExp('[\\-|\\ |\\,]'))

@@ -339,4 +339,7 @@
   "incorrect_seed" : "Der eingegebene Text ist ungültig.",
 
   "biometric_auth_reason" : "Scannen Sie Ihren Fingerabdruck zur Authentifizierung"
+  "incorrect_seed" : "Der eingegebene Text ist ungültig.",
+
+  "version" : "Ausführung ${currentVersion}"
 }

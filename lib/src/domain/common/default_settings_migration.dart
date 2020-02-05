@@ -33,7 +33,7 @@ Future defaultSettingsMigration(
               'current_fee_priority', TransactionPriority.standart.raw);
           await sharedPreferences.setInt('current_balance_display_mode',
               BalanceDisplayMode.availableBalance.raw);
-          await sharedPreferences.setBool('save_recipient_address', false);
+          await sharedPreferences.setBool('save_recipient_address', true);
           await resetToDefault(nodes);
           await changeCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);

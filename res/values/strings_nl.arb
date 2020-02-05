@@ -339,4 +339,7 @@
   "incorrect_seed" : "De ingevoerde tekst is niet geldig.",
 
   "biometric_auth_reason" : "Scan uw vingerafdruk om te verifiëren"
+  "incorrect_seed" : "De ingevoerde tekst is niet geldig.",
+
+  "version" : "Versie ${currentVersion}"
 }
