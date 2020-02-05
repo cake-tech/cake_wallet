@@ -154,9 +154,9 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final fromCurrency = responseJSON['input']['asset'] as String;
     final from = CryptoCurrency.fromString(fromCurrency.toLowerCase());
-    final toCurrency = responseJSON['output']['asset'] as String;
+    final toCurrency = responseJSON['output'][0]['asset'] as String;
     final to = CryptoCurrency.fromString(toCurrency.toLowerCase());
-    final inputAddress = responseJSON['input']['refund_address'] as String;
+    final inputAddress = responseJSON['input']['deposit_address'] as String;
     final status = responseJSON['state'] as String;
     final state = TradeState.deserialize(raw: status.toLowerCase());
 
