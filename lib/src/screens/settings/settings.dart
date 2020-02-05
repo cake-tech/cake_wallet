@@ -52,7 +52,7 @@ class SettingsFormState extends State<SettingsForm> {
   final _changeNowImage = Image.asset('assets/images/change_now.png');
   final _xmrBtcImage = Image.asset('assets/images/xmr_btc.png');
 
-  final _emailUrl = 'mailto:support@cakewallet.io';
+  final _emailUrl = 'mailto:support@cakewallet.com';
   final _telegramUrl = 'https:t.me/cakewallet_bot';
   final _twitterUrl = 'https:twitter.com/CakewalletXMR';
   final _changeNowUrl = 'mailto:support@changenow.io';
@@ -240,7 +240,7 @@ class SettingsFormState extends State<SettingsForm> {
       SettingsItem(
           onTaped: () => _launchUrl(_emailUrl),
           title: 'Email',
-          link: 'support@cakewallet.io',
+          link: 'support@cakewallet.com',
           image: null,
           attribute: Attributes.link),
       SettingsItem(
