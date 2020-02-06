@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/domain/exchange/trade_state.dart';
 import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_request.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_not_created_exeption.dart';
+import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
 
 class MorphTokenExchangeProvider extends ExchangeProvider {
   MorphTokenExchangeProvider()
@@ -50,7 +51,8 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.eth),
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.bch),
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.ltc),
-        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.dash)
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.dash),
+        ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr)
       ]);
 
   final trades = Hive.box<Trade>(Trade.boxName);
@@ -70,6 +72,8 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
+    const ethereumAmountDivider = 1000000000000000000;
+    const defaultAmountDivider = 100000000;
     final url = apiUri + _limitsURISuffix;
     final headers = {'Content-type': 'application/json'};
     final body =
@@ -87,8 +91,25 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
 
     final min = responseJSON['input']['limits']['min'] as int;
     final max = responseJSON['input']['limits']['max'] as int;
+    double minDouble;
+    double maxDouble;
 
-    return Limits(min: min.toDouble(), max: max.toDouble());
+    switch (from) {
+      case CryptoCurrency.xmr:
+        minDouble = moneroAmountToDouble(amount: min);
+        maxDouble = moneroAmountToDouble(amount: max);
+        break;
+      case CryptoCurrency.eth:
+        minDouble = min/ethereumAmountDivider;
+        maxDouble = max/ethereumAmountDivider;
+        break;
+      default:
+        minDouble = min/defaultAmountDivider;
+        maxDouble = max/defaultAmountDivider;
+        break;
+    }
+
+    return Limits(min: minDouble, max: maxDouble);
   }
 
   @override
