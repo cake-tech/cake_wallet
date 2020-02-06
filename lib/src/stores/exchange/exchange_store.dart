@@ -15,6 +15,8 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/src/stores/exchange/limits_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/exchange/limits.dart';
+import 'package:intl/intl.dart';
 
 part 'exchange_store.g.dart';
 
@@ -33,6 +35,7 @@ abstract class ExchangeStoreBase with Store {
     receiveCurrency = initialReceiveCurrency;
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
+    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     loadLimits();
   }
 
@@ -74,6 +77,10 @@ abstract class ExchangeStoreBase with Store {
 
   WalletStore walletStore;
 
+  Limits limits;
+
+  NumberFormat _cryptoNumberFormat;
+
   @action
   void changeProvider({ExchangeProvider provider}) {
     this.provider = provider;
@@ -108,7 +115,7 @@ abstract class ExchangeStoreBase with Store {
     provider
         .calculateAmount(
             from: depositCurrency, to: receiveCurrency, amount: _amount)
-        .then((amount) => amount.toString())
+        .then((amount) => _cryptoNumberFormat.format(amount).toString().replaceAll(RegExp("\\,"), ""))
         .then((amount) => depositAmount = amount);
   }
 
@@ -125,7 +132,7 @@ abstract class ExchangeStoreBase with Store {
     provider
         .calculateAmount(
             from: depositCurrency, to: receiveCurrency, amount: _amount)
-        .then((amount) => amount.toString())
+        .then((amount) => _cryptoNumberFormat.format(amount).toString().replaceAll(RegExp("\\,"), ""))
         .then((amount) => receiveAmount = amount);
   }
 
@@ -134,7 +141,7 @@ abstract class ExchangeStoreBase with Store {
     limitsState = LimitsIsLoading();
 
     try {
-      final limits = await provider.fetchLimits(
+      limits = await provider.fetchLimits(
           from: depositCurrency, to: receiveCurrency);
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
@@ -145,6 +152,8 @@ abstract class ExchangeStoreBase with Store {
   @action
   Future createTrade() async {
     TradeRequest request;
+    String amount;
+    CryptoCurrency currency;
 
     if (provider is XMRTOExchangeProvider) {
       request = XMRTOTradeRequest(
@@ -153,6 +162,8 @@ abstract class ExchangeStoreBase with Store {
           amount: receiveAmount,
           address: receiveAddress,
           refundAddress: depositAddress);
+      amount = receiveAmount;
+      currency = receiveCurrency;
     }
 
     if (provider is ChangeNowExchangeProvider) {
@@ -162,6 +173,8 @@ abstract class ExchangeStoreBase with Store {
           amount: depositAmount,
           refundAddress: depositAddress,
           address: receiveAddress);
+      amount = depositAmount;
+      currency = depositCurrency;
     }
 
     if (provider is MorphTokenExchangeProvider) {
@@ -171,17 +184,36 @@ abstract class ExchangeStoreBase with Store {
           amount: depositAmount,
           refundAddress: depositAddress,
           address: receiveAddress);
+      amount = depositAmount;
+      currency = depositCurrency;
     }
 
-    try {
-      tradeState = TradeIsCreating();
-      final trade = await provider.createTrade(request: request);
-      trade.walletId = walletStore.id;
-      await trades.add(trade);
-      tradeState = TradeIsCreatedSuccessfully(trade: trade);
-    } catch (e) {
-      tradeState = TradeIsCreatedFailure(error: e.toString());
+    if (limitsState is LimitsLoadedSuccessfully) {
+      if (double.parse(amount) < limits.min) {
+        final error = "Trade for ${provider.description} is not created. "
+            "Amount is less then minimal: ${limits.min} ${currency.toString()}";
+        tradeState = TradeIsCreatedFailure(error: error);
+      } else if (limits.max != null && double.parse(amount) > limits.max) {
+        final error = "Trade for ${provider.description} is not created. "
+            "Amount is more then maximum: ${limits.max} ${currency.toString()}";
+        tradeState = TradeIsCreatedFailure(error: error);
+      } else {
+        try {
+          tradeState = TradeIsCreating();
+          final trade = await provider.createTrade(request: request);
+          trade.walletId = walletStore.id;
+          await trades.add(trade);
+          tradeState = TradeIsCreatedSuccessfully(trade: trade);
+        } catch (e) {
+          tradeState = TradeIsCreatedFailure(error: e.toString());
+        }
+      }
+    } else {
+      final error = "Trade for ${provider.description} is not created. "
+          "Limits loading failed";
+      tradeState = TradeIsCreatedFailure(error: error);
     }
+
   }
 
   @action
