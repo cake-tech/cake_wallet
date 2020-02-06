@@ -79,6 +79,7 @@ abstract class ExchangeStoreBase with Store {
     this.provider = provider;
     depositAmount = '';
     receiveAmount = '';
+    loadLimits();
   }
 
   @action
@@ -192,6 +193,7 @@ abstract class ExchangeStoreBase with Store {
     provider = XMRTOExchangeProvider();
     depositCurrency = CryptoCurrency.xmr;
     receiveCurrency = CryptoCurrency.btc;
+    loadLimits();
   }
 
   List<ExchangeProvider> providersForCurrentPair() {
