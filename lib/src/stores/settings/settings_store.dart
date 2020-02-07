@@ -48,9 +48,7 @@ abstract class SettingsStoreBase with Store {
             serializeActionlistDisplayModes(actionlistDisplayMode)),
         fireImmediately: false);
 
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) {
-      currentVersion = packageInfo.version;
-    });
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
   }
 
@@ -272,7 +270,7 @@ abstract class SettingsStoreBase with Store {
       ItemHeaders.support: S.current.settings_support,
       ItemHeaders.termsAndConditions: S.current.settings_terms_and_conditions,
       ItemHeaders.faq: S.current.faq,
-      ItemHeaders.version: 'Version $currentVersion'
+      ItemHeaders.version: S.current.version(currentVersion)
     });
   }
 
