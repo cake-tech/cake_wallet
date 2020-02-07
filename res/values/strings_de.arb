@@ -338,5 +338,7 @@
   "add_new_word" : "Neues Wort hinzufügen",
   "incorrect_seed" : "Der eingegebene Text ist ungültig.",
 
+  "biometric_auth_reason" : "Scannen Sie Ihren Fingerabdruck zur Authentifizierung",
+
   "version" : "Ausführung ${currentVersion}"
 }

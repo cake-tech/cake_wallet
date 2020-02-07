@@ -38,6 +38,7 @@ class S implements WidgetsLocalizations {
   String get authenticated => "Authenticated";
   String get authentication => "Authentication";
   String get available_balance => "Available Balance";
+  String get biometric_auth_reason => "Scan your fingerprint to authenticate";
   String get cancel => "Cancel";
   String get change => "Change";
   String get change_currency => "Change Currency";
@@ -315,6 +316,8 @@ class $de extends S {
   String get error_text_amount => "Betrag kann nur Zahlen enthalten";
   @override
   String get hidden_balance => "Verstecktes Gleichgewicht";
+  @override
+  String get biometric_auth_reason => "Scannen Sie Ihren Fingerabdruck zur Authentifizierung";
   @override
   String get transaction_sent => "Transaktion gesendet!";
   @override
@@ -864,6 +867,8 @@ class $hi extends S {
   @override
   String get hidden_balance => "छिपा हुआ संतुलन";
   @override
+  String get biometric_auth_reason => "प्रमाणित करने के लिए अपने फ़िंगरप्रिंट को स्कैन करें";
+  @override
   String get transaction_sent => "भेजा गया लेन-देन";
   @override
   String get password => "पारण शब्द";
@@ -1411,6 +1416,8 @@ class $ru extends S {
   String get error_text_amount => "Баланс может включать только цифры";
   @override
   String get hidden_balance => "Скрытый баланс";
+  @override
+  String get biometric_auth_reason => "Отсканируйте свой отпечаток пальца для аутентификации";
   @override
   String get transaction_sent => "Tранзакция отправлена!";
   @override
@@ -1960,6 +1967,8 @@ class $ko extends S {
   @override
   String get hidden_balance => "숨겨진 균형";
   @override
+  String get biometric_auth_reason => "지문을 스캔하여 인증";
+  @override
   String get transaction_sent => "거래가 전송되었습니다!";
   @override
   String get password => "암호";
@@ -2508,6 +2517,8 @@ class $pt extends S {
   @override
   String get hidden_balance => "Saldo escondido";
   @override
+  String get biometric_auth_reason => "Digitalize sua impressão digital para autenticar";
+  @override
   String get transaction_sent => "Transação enviada!";
   @override
   String get password => "Senha";
@@ -3055,6 +3066,8 @@ class $ja extends S {
   String get error_text_amount => "金額には数字のみを含めることができます";
   @override
   String get hidden_balance => "隠れたバランス";
+  @override
+  String get biometric_auth_reason => "प指紋をスキャンして認証する";
   @override
   String get transaction_sent => "トランザクションが送信されました！";
   @override
@@ -3608,6 +3621,8 @@ class $pl extends S {
   @override
   String get hidden_balance => "Ukryta równowaga";
   @override
+  String get biometric_auth_reason => "Zeskanuj swój odcisk palca, aby go uwierzytelnić";
+  @override
   String get transaction_sent => "Transakcja wysłana!";
   @override
   String get password => "Hasło";
@@ -4155,6 +4170,8 @@ class $es extends S {
   String get error_text_amount => "La cantidad solo puede contener números";
   @override
   String get hidden_balance => "Balance oculto";
+  @override
+  String get biometric_auth_reason => "Escanee su huella digital para autenticar";
   @override
   String get transaction_sent => "Transacción enviada!";
   @override
@@ -4704,6 +4721,8 @@ class $nl extends S {
   @override
   String get hidden_balance => "Verborgen balans";
   @override
+  String get biometric_auth_reason => "Scan uw vingerafdruk om te verifiëren";
+  @override
   String get transaction_sent => "Transactie verzonden!";
   @override
   String get password => "Wachtwoord";
@@ -5251,6 +5270,8 @@ class $zh extends S {
   String get error_text_amount => "金额只能包含数字";
   @override
   String get hidden_balance => "隐藏余额";
+  @override
+  String get biometric_auth_reason => "掃描指紋以進行身份驗證";
   @override
   String get transaction_sent => "交易已发送";
   @override

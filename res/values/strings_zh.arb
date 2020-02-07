@@ -338,5 +338,7 @@
   "add_new_word" : "添加新词",
   "incorrect_seed" : "输入的文字无效。",
 
+  "biometric_auth_reason" : "掃描指紋以進行身份驗證",
+
   "version" : "版 ${currentVersion}"
 }
