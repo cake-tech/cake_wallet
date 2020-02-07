@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다",
   "error_text_keys" : "지갑 키는 16 진수로 64 자만 포함 할 수 있습니다",
   "error_text_crypto_currency" : "소수 자릿수\n12 이하 여야합니다",
+  "error_text_minimal_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최소보다 적습니다. ${min} ${currency}",
+  "error_text_maximum_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최대 값보다 많습니다. ${max} ${currency}",
+  "error_text_limits_loading_failed" : "거래 ${provider} 가 생성되지 않습니다. 로딩 실패",
 
 
   "auth_store_ban_timeout" : "타임 아웃 금지",

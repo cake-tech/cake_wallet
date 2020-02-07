@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn",
   "error_text_keys" : "Portefeuillesleutels kunnen maximaal 64 tekens bevatten in hexadecimale volgorde",
   "error_text_crypto_currency" : "Het aantal breukcijfers\nmoet kleiner zijn dan of gelijk zijn aan 12",
+  "error_text_minimal_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is minder dan minimaal: ${min} ${currency}",
+  "error_text_maximum_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is meer dan maximaal: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Ruil voor ${provider} is niet gemaakt. Beperkingen laden mislukt",
 
 
   "auth_store_ban_timeout" : "time-out verbieden",
