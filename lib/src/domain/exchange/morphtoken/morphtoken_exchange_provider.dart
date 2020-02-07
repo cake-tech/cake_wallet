@@ -214,8 +214,12 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
     final response = await get(url);
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final rate = responseJSON['data'][from.toString()][to.toString()] as String;
-    final estimatedAmount = double.parse(rate) * amount;
 
-    return estimatedAmount;
+    try {
+      final estimatedAmount = double.parse(rate) * amount;
+      return estimatedAmount;
+    } catch(e) {
+      return 0.0;
+    }
   }
 }
