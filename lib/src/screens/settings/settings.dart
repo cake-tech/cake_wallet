@@ -343,7 +343,7 @@ class SettingsFormState extends State<SettingsForm> {
               final item = _items[index];
               bool _isDrawDivider = true;
 
-              if (item.attribute == Attributes.header || index == _items.length - 1) {
+              if (item.attribute == Attributes.header || item == _items.last) {
                 _isDrawDivider = false;
               } else {
                 if (_items[index + 1].attribute == Attributes.header) {
