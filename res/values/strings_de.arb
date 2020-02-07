@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "Der Wallet darf nur Buchstaben und Zahlen enthalten\nund muss zwischen 1 und 15 Zeichen lang sein",
   "error_text_keys" : "Walletschlüssel können nur 64 hexadezimale Zeichen enthalten",
   "error_text_crypto_currency" : "Die Anzahl der Nachkommastellen\nmuss kleiner oder gleich 12 sein.",
+  "error_text_minimal_limit" : "Handel für ${provider} wird nicht erstellt. Menge ist weniger als minimal: ${min} ${currency}",
+  "error_text_maximum_limit" : "Handel für ${provider} wird nicht erstellt. Menge ist mehr als maximal: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Handel für ${provider} wird nicht erstellt. Das Laden der Limits ist fehlgeschlagen",
 
 
   "auth_store_ban_timeout" : "Auszeit verbieten",

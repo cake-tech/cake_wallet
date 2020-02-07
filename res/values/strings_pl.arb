@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "Nazwa portfela może zawierać tylko litery i cyfry\ni musi mieć od 1 do 15 znaków",
   "error_text_keys" : "Klucze portfela mogą zawierać tylko 64 znaki w systemie szesnastkowym",
   "error_text_crypto_currency" : "Liczba cyfr ułamkowych\nmusi być mniejsza lub równa 12",
+  "error_text_minimal_limit" : "Wymiana dla ${provider} nie została utworzona. Kwota jest mniejsza niż minimalna: ${min} ${currency}",
+  "error_text_maximum_limit" : "Wymiana dla ${provider} nie została utworzona. Kwota jest większa niż maksymalna: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Wymiana dla ${provider} nie została utworzona. Ładowanie limitów nie powiodło się",
 
 
   "auth_store_ban_timeout" : "przekroczenie limitu czasu",

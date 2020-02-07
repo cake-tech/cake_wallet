@@ -188,15 +188,13 @@ abstract class ExchangeStoreBase with Store {
       currency = depositCurrency;
     }
 
-    if (limitsState is LimitsLoadedSuccessfully) {
+    if (limitsState is LimitsLoadedSuccessfully && amount != null) {
       if (double.parse(amount) < limits.min) {
-        final error = "Trade for ${provider.description} is not created. "
-            "Amount is less then minimal: ${limits.min} ${currency.toString()}";
-        tradeState = TradeIsCreatedFailure(error: error);
+        tradeState = TradeIsCreatedFailure(error: S.current.error_text_minimal_limit("${provider.description}",
+            "${limits.min}", currency.toString()));
       } else if (limits.max != null && double.parse(amount) > limits.max) {
-        final error = "Trade for ${provider.description} is not created. "
-            "Amount is more then maximum: ${limits.max} ${currency.toString()}";
-        tradeState = TradeIsCreatedFailure(error: error);
+        tradeState = TradeIsCreatedFailure(error: S.current.error_text_maximum_limit("${provider.description}",
+            "${limits.max}", currency.toString()));
       } else {
         try {
           tradeState = TradeIsCreating();
@@ -209,9 +207,7 @@ abstract class ExchangeStoreBase with Store {
         }
       }
     } else {
-      final error = "Trade for ${provider.description} is not created. "
-          "Limits loading failed";
-      tradeState = TradeIsCreatedFailure(error: error);
+      tradeState = TradeIsCreatedFailure(error: S.current.error_text_limits_loading_failed("${provider.description}"));
     }
 
   }
