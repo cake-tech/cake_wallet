@@ -112,7 +112,7 @@ class DashboardPageBody extends StatefulWidget {
 }
 
 class DashboardPageBodyState extends State<DashboardPageBody> {
-  static final transactionDateFormat = DateFormat("MMM d, yyyy HH:mm");
+  static final transactionDateFormat = DateFormat("MMMM d, yyyy HH:mm");
 
   final _connectionStatusObserverKey = GlobalKey();
   final _balanceObserverKey = GlobalKey();
@@ -587,7 +587,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                       from: trade.from,
                       to: trade.to,
                       createdAtFormattedDate:
-                          DateFormat("dd.MM.yyyy, H:m").format(trade.createdAt),
+                          transactionDateFormat.format(trade.createdAt),
                       formattedAmount: formattedAmount);
                 }
 
