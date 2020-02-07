@@ -90,26 +90,34 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
 
     final min = responseJSON['input']['limits']['min'] as int;
-    final max = responseJSON['input']['limits']['max'] as int;
-    double minDouble;
-    double maxDouble;
+    int max;
+    double ethMax;
+
+    if (from == CryptoCurrency.eth) {
+      ethMax = responseJSON['input']['limits']['max'] as double;
+    } else {
+      max = responseJSON['input']['limits']['max'] as int;
+    }
+
+    double minFormatted;
+    double maxFormatted;
 
     switch (from) {
       case CryptoCurrency.xmr:
-        minDouble = moneroAmountToDouble(amount: min);
-        maxDouble = moneroAmountToDouble(amount: max);
+        minFormatted = moneroAmountToDouble(amount: min);
+        maxFormatted = moneroAmountToDouble(amount: max);
         break;
       case CryptoCurrency.eth:
-        minDouble = min/ethereumAmountDivider;
-        maxDouble = max/ethereumAmountDivider;
+        minFormatted = min/ethereumAmountDivider;
+        maxFormatted = ethMax/ethereumAmountDivider;
         break;
       default:
-        minDouble = min/defaultAmountDivider;
-        maxDouble = max/defaultAmountDivider;
+        minFormatted = min/defaultAmountDivider;
+        maxFormatted = max/defaultAmountDivider;
         break;
     }
 
-    return Limits(min: minDouble, max: maxDouble);
+    return Limits(min: minFormatted, max: maxFormatted);
   }
 
   @override
