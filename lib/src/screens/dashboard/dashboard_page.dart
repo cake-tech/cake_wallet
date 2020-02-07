@@ -577,7 +577,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                   final formattedAmount = trade.amount != null
                       ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'
-                          : trade.amount
+                          : trade.amountFormatted()
                       : trade.amount;
 
                   return TradeRow(
