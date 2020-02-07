@@ -339,6 +339,5 @@
   "incorrect_seed" : "Введенный текст некорректный.",
 
   "biometric_auth_reason" : "Отсканируйте свой отпечаток пальца для аутентификации",
-
   "version" : "Версия ${currentVersion}"
 }

@@ -339,6 +339,5 @@
   "incorrect_seed" : "The text entered is not valid.",
 
   "biometric_auth_reason" : "Scan your fingerprint to authenticate",
-
   "version" : "Version ${currentVersion}"
 }
