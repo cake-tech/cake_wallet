@@ -351,9 +351,9 @@ class SettingsFormState extends State<SettingsForm> {
               final item = _items[index];
               bool _isDrawDivider = true;
 
-              if (item.attribute == Attributes.header) {
+              if (item.attribute == Attributes.header || item == _items.last) {
                 _isDrawDivider = false;
-              } else if (index < _items.length - 1) {
+              } else {
                 if (_items[index + 1].attribute == Attributes.header) {
                   _isDrawDivider = false;
                 }
@@ -381,9 +381,13 @@ class SettingsFormState extends State<SettingsForm> {
                 ],
               );
             }),
-        Container(
-          height: 20.0,
-          color: Theme.of(context).accentTextTheme.headline.backgroundColor,
+        ListTile(
+          contentPadding: EdgeInsets.only(left: 20.0),
+          title: Text(
+            settingsStore.itemHeaders[ItemHeaders.version],
+            style: TextStyle(
+              fontSize: 14.0, color: Palette.wildDarkBlue)
+          ),
         )
       ],
     ));
