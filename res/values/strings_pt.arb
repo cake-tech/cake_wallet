@@ -338,5 +338,7 @@
   "add_new_word" : "Adicionar nova palavra",
   "incorrect_seed" : "O texto digitado não é válido.",
 
+  "biometric_auth_reason" : "Digitalize sua impressão digital para autenticar",
+
   "version" : "Versão ${currentVersion}"
 }

@@ -45,6 +45,7 @@ dependencies:
     path: ./cw_monero
   hive: ^1.2.0
   hive_flutter: ^0.2.1
+  local_auth: ^0.6.1
   package_info: ^0.4.0+13
 
   # The following adds the Cupertino Icons font to your application.
