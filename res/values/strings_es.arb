@@ -339,6 +339,5 @@
   "incorrect_seed" : "El texto ingresado no es válido.",
 
   "biometric_auth_reason" : "Escanee su huella digital para autenticar",
-
   "version" : "Versión ${currentVersion}"
 }
