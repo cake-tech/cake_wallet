@@ -35,6 +35,7 @@ import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
+import 'package:cake_wallet/src/domain/common/setup_locator.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,6 +65,8 @@ void main() async {
   final trades =
       await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
+
+  setupLocator(trades);
 
   final sharedPreferences = await SharedPreferences.getInstance();
   final walletService = WalletService();
