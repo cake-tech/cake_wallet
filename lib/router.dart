@@ -395,7 +395,8 @@ class Router {
                     ProxyProvider<SettingsStore, ExchangeTradeStore>(
                       update: (_, settingsStore, __) => ExchangeTradeStore(
                           trade: settings.arguments as Trade,
-                          walletStore: walletStore),
+                          walletStore: walletStore,
+                          trades: trades),
                     ),
                     ProxyProvider<SettingsStore, SendStore>(
                         update: (_, settingsStore, __) => SendStore(
@@ -455,7 +456,7 @@ class Router {
                         providerList: [
                           xmrtoprovider,
                           ChangeNowExchangeProvider(),
-                          MorphTokenExchangeProvider()
+                          MorphTokenExchangeProvider(trades: trades)
                         ],
                         walletStore: walletStore);
                   }),

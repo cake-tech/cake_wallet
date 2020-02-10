@@ -19,10 +19,9 @@ import 'package:cake_wallet/src/domain/bitcoin_cash/bitcoin_cash_amount_format.d
 import 'package:cake_wallet/src/domain/dash/dash_amount_format.dart';
 import 'package:cake_wallet/src/domain/ethereum/ethereum_amount_format.dart';
 import 'package:cake_wallet/src/domain/litecoin/litecoin_amount_format.dart';
-import 'package:cake_wallet/src/domain/common/setup_locator.dart';
 
 class MorphTokenExchangeProvider extends ExchangeProvider {
-  MorphTokenExchangeProvider()
+  MorphTokenExchangeProvider({@required this.trades})
       : super(
       pairList: [
         ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.eth),
@@ -61,7 +60,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr)
       ]);
 
-  final trades = locator.get<Box<Trade>>();
+  Box<Trade> trades;
 
   static const apiUri = 'https://api.morphtoken.com';
   static const _morphURISuffix = '/morph';
