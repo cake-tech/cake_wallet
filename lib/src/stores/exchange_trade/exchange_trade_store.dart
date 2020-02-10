@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.da
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
+import 'package:hive/hive.dart';
 
 part 'exchange_trade_store.g.dart';
 
@@ -15,7 +16,7 @@ class ExchangeTradeStore = ExchangeTradeStoreBase with _$ExchangeTradeStore;
 
 abstract class ExchangeTradeStoreBase with Store {
   ExchangeTradeStoreBase(
-      {@required this.trade, @required WalletStore walletStore}) {
+      {@required this.trade, @required WalletStore walletStore, @required this.trades}) {
     isSendable = trade.from == walletStore.type ||
         trade.provider == ExchangeProviderDescription.xmrto;
 
@@ -27,7 +28,7 @@ abstract class ExchangeTradeStoreBase with Store {
         _provider = ChangeNowExchangeProvider();
         break;
       case ExchangeProviderDescription.morphToken:
-        _provider = MorphTokenExchangeProvider();
+        _provider = MorphTokenExchangeProvider(trades: trades);
         break;
     }
 
@@ -44,6 +45,8 @@ abstract class ExchangeTradeStoreBase with Store {
   ExchangeProvider _provider;
 
   Timer _timer;
+
+  Box<Trade> trades;
 
   @override
   void dispose() {
