@@ -14,6 +14,12 @@ import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_request.da
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_not_created_exeption.dart';
 import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/src/domain/bitcoin_cash/bitcoin_cash_amount_format.dart';
+import 'package:cake_wallet/src/domain/dash/dash_amount_format.dart';
+import 'package:cake_wallet/src/domain/ethereum/ethereum_amount_format.dart';
+import 'package:cake_wallet/src/domain/litecoin/litecoin_amount_format.dart';
+import 'package:cake_wallet/src/domain/common/setup_locator.dart';
 
 class MorphTokenExchangeProvider extends ExchangeProvider {
   MorphTokenExchangeProvider()
@@ -55,7 +61,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr)
       ]);
 
-  final trades = Hive.box<Trade>(Trade.boxName);
+  final trades = locator.get<Box<Trade>>();
 
   static const apiUri = 'https://api.morphtoken.com';
   static const _morphURISuffix = '/morph';
@@ -72,8 +78,6 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
-    const ethereumAmountDivider = 1000000000000000000;
-    const defaultAmountDivider = 100000000;
     final url = apiUri + _limitsURISuffix;
     final headers = {'Content-type': 'application/json'};
     final body =
@@ -107,13 +111,25 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         minFormatted = moneroAmountToDouble(amount: min);
         maxFormatted = moneroAmountToDouble(amount: max);
         break;
-      case CryptoCurrency.eth:
-        minFormatted = min/ethereumAmountDivider;
-        maxFormatted = ethMax/ethereumAmountDivider;
+      case CryptoCurrency.btc:
+        minFormatted = bitcoinAmountToDouble(amount: min);
+        maxFormatted = bitcoinAmountToDouble(amount: max);
         break;
-      default:
-        minFormatted = min/defaultAmountDivider;
-        maxFormatted = max/defaultAmountDivider;
+      case CryptoCurrency.bch:
+        minFormatted = bitcoinCashAmountToDouble(amount: min);
+        maxFormatted = bitcoinCashAmountToDouble(amount: max);
+        break;
+      case CryptoCurrency.dash:
+        minFormatted = dashAmountToDouble(amount: min);
+        maxFormatted = dashAmountToDouble(amount: max);
+        break;
+      case CryptoCurrency.eth:
+        minFormatted = ethereumAmountToDouble(amount: min);
+        maxFormatted = ethereumAmountToDouble(amount: ethMax);
+        break;
+      case CryptoCurrency.ltc:
+        minFormatted = litecoinAmountToDouble(amount: min);
+        maxFormatted = litecoinAmountToDouble(amount: max);
         break;
     }
 
@@ -133,7 +149,8 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
         "asset": _request.to.toString(),
         "weight": weight,
         "address": _request.address
-      }]
+      }],
+      "tag": "cakewallet"
     };
 
     final response = await post(url,
@@ -190,7 +207,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
     final state = TradeState.deserialize(raw: status.toLowerCase());
 
     String amount = "";
-    for (final trade in trades.values) {
+    for (final trade in trades.values.toList()) {
       if (trade.id == id) {
         amount = trade.amount;
         break;
