@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_state.dart';
-import 'package:cake_wallet/src/domain/common/check_amount.dart';
+import 'package:cake_wallet/src/domain/common/format_amount.dart';
 
 part 'trade.g.dart';
 
@@ -103,5 +103,5 @@ class Trade extends HiveObject {
     };
   }
 
-  String amountFormatted() => checkAmount(amount);
+  String amountFormatted() => formatAmount(amount);
 }
