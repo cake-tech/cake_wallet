@@ -42,11 +42,11 @@ abstract class ExchangeTradeStoreBase with Store {
   @observable
   bool isSendable;
 
+  Box<Trade> trades;
+
   ExchangeProvider _provider;
 
   Timer _timer;
-
-  Box<Trade> trades;
 
   @override
   void dispose() {
