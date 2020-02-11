@@ -1,4 +1,4 @@
-String checkAmount(String amount) {
+String formatAmount(String amount) {
   if (!amount.contains('.')) {
     return amount + '.00';
   } else if (amount.endsWith('.')) {
