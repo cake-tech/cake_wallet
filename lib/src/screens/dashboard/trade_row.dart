@@ -82,6 +82,9 @@ class TradeRow extends StatelessWidget {
       case ExchangeProviderDescription.changeNow:
         image = Image.asset('assets/images/change_now.png');
         break;
+      case ExchangeProviderDescription.morphToken:
+        image = Image.asset('assets/images/morph_icon.png');
+        break;
       default:
         image = null;
     }

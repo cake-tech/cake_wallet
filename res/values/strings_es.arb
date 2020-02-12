@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "El nombre de la billetera solo puede contener letras, números \ny debe tener entre 1 y 15 caracteres de longitud",
   "error_text_keys" : "Las llaves de billetera solo pueden contener 64 caracteres en hexadecimal",
   "error_text_crypto_currency" : "El número de dígitos fraccionarios \ndebe ser menor o igual a 12",
+  "error_text_minimal_limit" : "El comercio por ${provider} no se crea. La cantidad es menos que mínima: ${min} ${currency}",
+  "error_text_maximum_limit" : "El comercio por ${provider} no se crea. La cantidad es más que el máximo: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "El comercio por ${provider} no se crea. Límites de carga fallidos",
 
 
   "auth_store_ban_timeout" : "prohibición de tiempo de espera",

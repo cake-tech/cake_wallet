@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 15 caracteres",
   "error_text_keys" : "As chaves da carteira podem conter apenas 64 caracteres em hexadecimal",
   "error_text_crypto_currency" : "O número de dígitos decimais\ndeve ser menor ou igual a 12",
+  "error_text_minimal_limit" : "A troca por ${provider} não é criada. O valor é menor que o mínimo: ${min} ${currency}",
+  "error_text_maximum_limit" : "A troca por ${provider} não é criada. O valor é superior ao máximo: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "A troca por ${provider} não é criada. Falha no carregamento dos limites",
 
 
   "auth_store_ban_timeout" : "ban_timeout",

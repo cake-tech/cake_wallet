@@ -272,6 +272,9 @@ class S implements WidgetsLocalizations {
   String change_language_to(String language) => "Change language to ${language}?";
   String commit_transaction_amount_fee(String amount, String fee) => "Commit transaction\nAmount: ${amount}\nFee: ${fee}";
   String copied_key_to_clipboard(String key) => "Copied ${key} to Clipboard";
+  String error_text_limits_loading_failed(String provider) => "Trade for ${provider} is not created. Limits loading failed";
+  String error_text_maximum_limit(String provider, String max, String currency) => "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}";
+  String error_text_minimal_limit(String provider, String min, String currency) => "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}";
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown above. Or you can send from your external wallet to the above address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.\n\n";
   String exchange_result_description(String fetchingLabel, String from) => "Please send ${fetchingLabel} ${from} to the address shown above.\n\n";
   String failed_authentication(String state_error) => "Failed authentication. ${state_error}";
@@ -805,6 +808,8 @@ class $de extends S {
   @override
   String router_no_route(String name) => "Keine Route definiert für ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "Handel für ${provider} wird nicht erstellt. Menge ist weniger als minimal: ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} von ${title} nicht gefunden.";
   @override
   String transaction_details_copied(String title) => "${title} in die Zwischenablage kopiert";
@@ -823,6 +828,8 @@ class $de extends S {
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "Handel für ${provider} wird nicht erstellt. Menge ist mehr als maximal: ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "Mindest: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "Authentifizierung fehlgeschlagen. ${state_error}";
@@ -830,6 +837,8 @@ class $de extends S {
   String Blocks_remaining(String status) => "${status} Verbleibende Blöcke";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die oben angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die oben angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "Handel für ${provider} wird nicht erstellt. Das Laden der Limits ist fehlgeschlagen";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "Bitte senden ${fetchingLabel} ${from} an die oben angegebene Adresse.\n\n'";
   @override
@@ -1355,6 +1364,8 @@ class $hi extends S {
   @override
   String router_no_route(String name) => "के लिए कोई मार्ग निर्धारित नहीं है ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि कम है तो न्यूनतम: ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "व्यापार ${tradeId} of ${title} नहीं मिला.";
   @override
   String transaction_details_copied(String title) => "${title} क्लिपबोर्ड पर नकल";
@@ -1373,6 +1384,8 @@ class $hi extends S {
   @override
   String max_value(String value, String currency) => "मैक्स: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि अधिक है तो अधिकतम: ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "मिन: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "प्रमाणीकरण विफल. ${state_error}";
@@ -1380,6 +1393,8 @@ class $hi extends S {
   String Blocks_remaining(String status) => "${status} शेष रहते हैं";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} ऊपर दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से उपरोक्त पते / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "व्यापार ${provider} के लिए नहीं बनाया गया है। लोडिंग की सीमाएं विफल रहीं";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "कृपया भेजें ${fetchingLabel} ${from} ऊपर दिखाए गए पते पर\n\n'";
   @override
@@ -1905,6 +1920,8 @@ class $ru extends S {
   @override
   String router_no_route(String name) => "Экран не найден ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "Сделка для ${provider} не создана. Сумма меньше минимальной: ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Сделка ${tradeId} ${title} не найдена.";
   @override
   String transaction_details_copied(String title) => "${title} скопировано в буфер обмена";
@@ -1923,6 +1940,8 @@ class $ru extends S {
   @override
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "Сделка для ${provider} не создана. Сумма больше максимальной: ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "Мин: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "Ошибка аутентификации. ${state_error}";
@@ -1930,6 +1949,8 @@ class $ru extends S {
   String Blocks_remaining(String status) => "${status} Осталось блоков";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Нажимая подтвердить, Вы отправите ${fetchingLabel} ${from} с Вашего кошелька ${walletName} на адрес указанный выше. Или Вы можете отправить со своего внешнего кошелька на вышеуказанный адрес / QR-код.\n\nПожалуйста, нажмите подтвердить для продолжения или вернитесь назад для изменения суммы.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "Сделка для ${provider} не создана. Ошибка загрузки лимитов";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный выше.\n\n'";
   @override
@@ -2455,6 +2476,8 @@ class $ko extends S {
   @override
   String router_no_route(String name) => "에 정의 된 경로가 없습니다 ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "거래 ${provider} 가 생성되지 않습니다. 금액이 최소보다 적습니다. ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "무역 ${tradeId} 의 ${title} 찾을 수 없습니다.";
   @override
   String transaction_details_copied(String title) => "${title} 클립 보드에 복사";
@@ -2473,6 +2496,8 @@ class $ko extends S {
   @override
   String max_value(String value, String currency) => "맥스: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "거래 ${provider} 가 생성되지 않습니다. 금액이 최대 값보다 많습니다. ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "최소: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "인증 실패. ${state_error}";
@@ -2480,6 +2505,8 @@ class $ko extends S {
   String Blocks_remaining(String status) => "${status} 남은 블록";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "확인을 누르면 전송됩니다 ${fetchingLabel} ${from} 지갑에서 ${walletName} 위에 표시된 주소로. 또는 외부 지갑에서 위의 주소 / QR 코드로 보낼 수 있습니다.\n\n확인을 눌러 계속하거나 금액을 변경하려면 돌아가십시오.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "거래 ${provider} 가 생성되지 않습니다. 로딩 실패";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "보내주세요 ${fetchingLabel} ${from} 위에 표시된 주소로.\n\n'";
   @override
@@ -3005,6 +3032,8 @@ class $pt extends S {
   @override
   String router_no_route(String name) => "Nenhuma rota definida para ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "A troca por ${provider} não é criada. O valor é menor que o mínimo: ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "A troca ${tradeId} de ${title} não foi encontrada.";
   @override
   String transaction_details_copied(String title) => "${title} copiados para a área de transferência";
@@ -3023,6 +3052,8 @@ class $pt extends S {
   @override
   String max_value(String value, String currency) => "Máx: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "A troca por ${provider} não é criada. O valor é superior ao máximo: ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "Mín: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "Falha na autenticação. ${state_error}";
@@ -3030,6 +3061,8 @@ class $pt extends S {
   String Blocks_remaining(String status) => "${status} blocos restantes";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço exibido acima. Você também pode enviar com uma carteira externa para o endereço/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "A troca por ${provider} não é criada. Falha no carregamento dos limites";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado acima.\n\n'";
   @override
@@ -3555,6 +3588,8 @@ class $ja extends S {
   @override
   String router_no_route(String name) => "ルートが定義されていません ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "${provider} の取引は作成されません。 金額は最小額より少ない： ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "トレード ${tradeId} of ${title} 見つかりません";
   @override
   String transaction_details_copied(String title) => "${title} クリップボードにコピーしました";
@@ -3573,6 +3608,8 @@ class $ja extends S {
   @override
   String max_value(String value, String currency) => "マックス: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "${provider} の取引は作成されません。 金額は最大値を超えています： ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "分: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "認証失敗. ${state_error}";
@@ -3580,6 +3617,8 @@ class $ja extends S {
   String Blocks_remaining(String status) => "${status} 残りのブロック";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 上記のアドレスへ. または、外部ウォレットから上記のアドレス/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "${provider} の取引は作成されません。 制限の読み込みに失敗しました";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "送信してください ${fetchingLabel} ${from} 上記のアドレスへ.\n\n'";
   @override
@@ -4109,6 +4148,8 @@ class $pl extends S {
   @override
   String router_no_route(String name) => "Brak zdefiniowanej trasy dla ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "Wymiana dla ${provider} nie została utworzona. Kwota jest mniejsza niż minimalna: ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} of ${title} nie znaleziono.";
   @override
   String transaction_details_copied(String title) => "${title} skopiowane do schowka";
@@ -4127,6 +4168,8 @@ class $pl extends S {
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "Wymiana dla ${provider} nie została utworzona. Kwota jest większa niż maksymalna: ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "Nieudane uwierzytelnienie. ${state_error}";
@@ -4134,6 +4177,8 @@ class $pl extends S {
   String Blocks_remaining(String status) => "${status} Bloki pozostałe";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} z twojego portfela. Lub możesz wysłać z zewnętrznego portfela na powyższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "Wymiana dla ${provider} nie została utworzona. Ładowanie limitów nie powiodło się";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "Proszę wyślij ${fetchingLabel} ${from} na adres podany powyżej.\n\n'";
   @override
@@ -4659,6 +4704,8 @@ class $es extends S {
   @override
   String router_no_route(String name) => "No hay ruta definida para ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "El comercio por ${provider} no se crea. La cantidad es menos que mínima: ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Comercio ${tradeId} de ${title} no encontrado.";
   @override
   String transaction_details_copied(String title) => "${title} Copiado al portapapeles";
@@ -4677,6 +4724,8 @@ class $es extends S {
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "El comercio por ${provider} no se crea. La cantidad es más que el máximo: ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "Autenticación fallida. ${state_error}";
@@ -4684,6 +4733,8 @@ class $es extends S {
   String Blocks_remaining(String status) => "${status} Bloques restantes";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra arriba.  O puede enviar desde su billetera externa a la dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "El comercio por ${provider} no se crea. Límites de carga fallidos";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "Envíe ${fetchingLabel} ${from} a la dirección que se muestra arriba.\n\n'";
   @override
@@ -5209,6 +5260,8 @@ class $nl extends S {
   @override
   String router_no_route(String name) => "Geen route gedefinieerd voor ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "Ruil voor ${provider} is niet gemaakt. Bedrag is minder dan minimaal: ${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} van ${title} niet gevonden.";
   @override
   String transaction_details_copied(String title) => "${title} gekopieerd naar het klembord";
@@ -5227,6 +5280,8 @@ class $nl extends S {
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "Ruil voor ${provider} is niet gemaakt. Bedrag is meer dan maximaal: ${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "Mislukte authenticatie. ${state_error}";
@@ -5234,6 +5289,8 @@ class $nl extends S {
   String Blocks_remaining(String status) => "${status} Resterende blokken";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar bovenstaand adres. Of u kunt uw externe portemonnee naar bovenstaand adres / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "Ruil voor ${provider} is niet gemaakt. Beperkingen laden mislukt";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "Zend alstublieft ${fetchingLabel} ${from} naar bovenstaand adres.\n\n'";
   @override
@@ -5759,6 +5816,8 @@ class $zh extends S {
   @override
   String router_no_route(String name) => "未定义路线 ${name}";
   @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "未創建 ${provider} 交易。 金額少於最小值：${min} ${currency}";
+  @override
   String trade_id_not_found(String tradeId, String title) => "贸易方式 ${tradeId} 的 ${title} 未找到.";
   @override
   String transaction_details_copied(String title) => "${title} 复制到剪贴板";
@@ -5777,6 +5836,8 @@ class $zh extends S {
   @override
   String max_value(String value, String currency) => "最高: ${value} ${currency}";
   @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}";
+  @override
   String min_value(String value, String currency) => "敏: ${value} ${currency}";
   @override
   String failed_authentication(String state_error) => "身份验证失败. ${state_error}";
@@ -5784,6 +5845,8 @@ class $zh extends S {
   String Blocks_remaining(String status) => "${status} 剩余的块";
   @override
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到上面显示的地址. 或者，您也可以从外部钱包发送上述地址/ QR码。\n\n请按确认继续或返回以更改金额\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "未創建 ${provider} 交易。 限制加載失敗";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到上面显示的地址.\n\n'";
   @override

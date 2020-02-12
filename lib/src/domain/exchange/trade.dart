@@ -2,6 +2,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_state.dart';
+import 'package:cake_wallet/src/domain/common/format_amount.dart';
 
 part 'trade.g.dart';
 
@@ -101,4 +102,6 @@ class Trade extends HiveObject {
       'wallet_id': walletId
     };
   }
+
+  String amountFormatted() => formatAmount(amount);
 }

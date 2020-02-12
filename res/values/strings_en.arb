@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "Wallet name can only contain letters, numbers\nand must be between 1 and 15 characters long",
   "error_text_keys" : "Wallet keys can only contain 64 chars in hex",
   "error_text_crypto_currency" : "The number of fraction digits\nmust be less or equal to 12",
+  "error_text_minimal_limit" : "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}",
+  "error_text_maximum_limit" : "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Trade for ${provider} is not created. Limits loading failed",
 
 
   "auth_store_ban_timeout" : "ban_timeout",

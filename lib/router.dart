@@ -16,6 +16,7 @@ import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/src/domain/monero/transaction_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
@@ -394,7 +395,8 @@ class Router {
                     ProxyProvider<SettingsStore, ExchangeTradeStore>(
                       update: (_, settingsStore, __) => ExchangeTradeStore(
                           trade: settings.arguments as Trade,
-                          walletStore: walletStore),
+                          walletStore: walletStore,
+                          trades: trades),
                     ),
                     ProxyProvider<SettingsStore, SendStore>(
                         update: (_, settingsStore, __) => SendStore(
@@ -416,7 +418,9 @@ class Router {
           return MultiProvider(providers: [
             ProxyProvider<SettingsStore, ExchangeTradeStore>(
               update: (_, settingsStore, __) => ExchangeTradeStore(
-                  trade: settings.arguments as Trade, walletStore: walletStore),
+                  trade: settings.arguments as Trade,
+                  walletStore: walletStore,
+                  trades: trades),
             )
           ], child: TradeDetailsPage());
         });
@@ -453,7 +457,8 @@ class Router {
                         trades: trades,
                         providerList: [
                           xmrtoprovider,
-                          ChangeNowExchangeProvider()
+                          ChangeNowExchangeProvider(),
+                          MorphTokenExchangeProvider(trades: trades)
                         ],
                         walletStore: walletStore);
                   }),

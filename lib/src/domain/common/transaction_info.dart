@@ -2,6 +2,7 @@ import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
 import 'package:cw_monero/structs/transaction_info_row.dart';
 import 'package:cake_wallet/src/domain/common/parseBoolFromString.dart';
 import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
+import 'package:cake_wallet/src/domain/common/format_amount.dart';
 
 class TransactionInfo {
   TransactionInfo(this.id, this.height, this.direction, this.date,
@@ -40,9 +41,9 @@ class TransactionInfo {
 
   String _fiatAmount;
 
-  String amountFormatted() => '${moneroAmountToString(amount: amount)} XMR';
+  String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} XMR';
 
   String fiatAmount() => _fiatAmount ?? '';
 
-  void changeFiatAmount(String amount) => _fiatAmount = amount;
+  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }

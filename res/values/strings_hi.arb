@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "वॉलेट नाम में केवल अक्षर, संख्याएं हो सकती हैं\nऔर 1 और 15 वर्णों के बीच लंबा होना चाहिए",
   "error_text_keys" : "वॉलेट कीज़ में हेक्स में केवल 64 वर्ण हो सकते हैं",
   "error_text_crypto_currency" : "अंश अंकों की संख्या\n12 से कम या इसके बराबर होना चाहिए",
+  "error_text_minimal_limit" : "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि कम है तो न्यूनतम: ${min} ${currency}",
+  "error_text_maximum_limit" : "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि अधिक है तो अधिकतम: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "व्यापार ${provider} के लिए नहीं बनाया गया है। लोडिंग की सीमाएं विफल रहीं",
 
 
   "auth_store_ban_timeout" : "समय की पाबंदी",
