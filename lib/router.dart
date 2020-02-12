@@ -418,7 +418,9 @@ class Router {
           return MultiProvider(providers: [
             ProxyProvider<SettingsStore, ExchangeTradeStore>(
               update: (_, settingsStore, __) => ExchangeTradeStore(
-                  trade: settings.arguments as Trade, walletStore: walletStore),
+                  trade: settings.arguments as Trade,
+                  walletStore: walletStore,
+                  trades: trades),
             )
           ], child: TradeDetailsPage());
         });

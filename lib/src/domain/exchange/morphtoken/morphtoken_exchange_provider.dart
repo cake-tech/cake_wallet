@@ -206,7 +206,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
     final state = TradeState.deserialize(raw: status.toLowerCase());
 
     String amount = "";
-    for (final trade in trades.values.toList()) {
+    for (final trade in trades.values) {
       if (trade.id == id) {
         amount = trade.amount;
         break;
