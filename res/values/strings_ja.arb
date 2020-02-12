@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "ウォレット名には文字のみを含めることができます\n1〜15文字である必要があります",
   "error_text_keys" : "ウォレットキーには、16進数で64文字しか含めることができません",
   "error_text_crypto_currency" : "小数桁数\n12以下でなければなりません",
+  "error_text_minimal_limit" : "${provider} の取引は作成されません。 金額は最小額より少ない： ${min} ${currency}",
+  "error_text_maximum_limit" : "${provider} の取引は作成されません。 金額は最大値を超えています： ${max} ${currency}",
+  "error_text_limits_loading_failed" : "${provider} の取引は作成されません。 制限の読み込みに失敗しました",
 
 
   "auth_store_ban_timeout" : "禁止タイムアウト",

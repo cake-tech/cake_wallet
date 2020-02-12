@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "Имя кошелька может содержать только буквы, цифры\nи может быть от 1 до 15 символов в длину",
   "error_text_keys" : "Ключи кошелька могут содержать только 64 символа в hex",
   "error_text_crypto_currency" : "Количество цифр после запятой\nдолжно быть меньше или равно 12",
+  "error_text_minimal_limit" : "Сделка для ${provider} не создана. Сумма меньше минимальной: ${min} ${currency}",
+  "error_text_maximum_limit" : "Сделка для ${provider} не создана. Сумма больше максимальной: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Сделка для ${provider} не создана. Ошибка загрузки лимитов",
 
 
   "auth_store_ban_timeout" : "ban_timeout",

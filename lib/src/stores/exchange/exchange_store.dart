@@ -8,11 +8,15 @@ import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_request.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_trade_request.dart';
+import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_exchange_provider.dart';
+import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_request.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/src/stores/exchange/limits_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/exchange/limits.dart';
+import 'package:intl/intl.dart';
 
 part 'exchange_store.g.dart';
 
@@ -31,6 +35,7 @@ abstract class ExchangeStoreBase with Store {
     receiveCurrency = initialReceiveCurrency;
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
+    _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     loadLimits();
   }
 
@@ -72,11 +77,16 @@ abstract class ExchangeStoreBase with Store {
 
   WalletStore walletStore;
 
+  Limits limits;
+
+  NumberFormat _cryptoNumberFormat;
+
   @action
   void changeProvider({ExchangeProvider provider}) {
     this.provider = provider;
     depositAmount = '';
     receiveAmount = '';
+    loadLimits();
   }
 
   @action
@@ -105,7 +115,7 @@ abstract class ExchangeStoreBase with Store {
     provider
         .calculateAmount(
             from: depositCurrency, to: receiveCurrency, amount: _amount)
-        .then((amount) => amount.toString())
+        .then((amount) => _cryptoNumberFormat.format(amount).toString().replaceAll(RegExp("\\,"), ""))
         .then((amount) => depositAmount = amount);
   }
 
@@ -122,7 +132,7 @@ abstract class ExchangeStoreBase with Store {
     provider
         .calculateAmount(
             from: depositCurrency, to: receiveCurrency, amount: _amount)
-        .then((amount) => amount.toString())
+        .then((amount) => _cryptoNumberFormat.format(amount).toString().replaceAll(RegExp("\\,"), ""))
         .then((amount) => receiveAmount = amount);
   }
 
@@ -131,7 +141,7 @@ abstract class ExchangeStoreBase with Store {
     limitsState = LimitsIsLoading();
 
     try {
-      final limits = await provider.fetchLimits(
+      limits = await provider.fetchLimits(
           from: depositCurrency, to: receiveCurrency);
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
@@ -142,6 +152,8 @@ abstract class ExchangeStoreBase with Store {
   @action
   Future createTrade() async {
     TradeRequest request;
+    String amount;
+    CryptoCurrency currency;
 
     if (provider is XMRTOExchangeProvider) {
       request = XMRTOTradeRequest(
@@ -150,6 +162,8 @@ abstract class ExchangeStoreBase with Store {
           amount: receiveAmount,
           address: receiveAddress,
           refundAddress: depositAddress);
+      amount = receiveAmount;
+      currency = receiveCurrency;
     }
 
     if (provider is ChangeNowExchangeProvider) {
@@ -159,17 +173,43 @@ abstract class ExchangeStoreBase with Store {
           amount: depositAmount,
           refundAddress: depositAddress,
           address: receiveAddress);
+      amount = depositAmount;
+      currency = depositCurrency;
     }
 
-    try {
-      tradeState = TradeIsCreating();
-      final trade = await provider.createTrade(request: request);
-      trade.walletId = walletStore.id;
-      await trades.add(trade);
-      tradeState = TradeIsCreatedSuccessfully(trade: trade);
-    } catch (e) {
-      tradeState = TradeIsCreatedFailure(error: e.toString());
+    if (provider is MorphTokenExchangeProvider) {
+      request = MorphTokenRequest(
+          from: depositCurrency,
+          to: receiveCurrency,
+          amount: depositAmount,
+          refundAddress: depositAddress,
+          address: receiveAddress);
+      amount = depositAmount;
+      currency = depositCurrency;
     }
+
+    if (limitsState is LimitsLoadedSuccessfully && amount != null) {
+      if (double.parse(amount) < limits.min) {
+        tradeState = TradeIsCreatedFailure(error: S.current.error_text_minimal_limit("${provider.description}",
+            "${limits.min}", currency.toString()));
+      } else if (limits.max != null && double.parse(amount) > limits.max) {
+        tradeState = TradeIsCreatedFailure(error: S.current.error_text_maximum_limit("${provider.description}",
+            "${limits.max}", currency.toString()));
+      } else {
+        try {
+          tradeState = TradeIsCreating();
+          final trade = await provider.createTrade(request: request);
+          trade.walletId = walletStore.id;
+          await trades.add(trade);
+          tradeState = TradeIsCreatedSuccessfully(trade: trade);
+        } catch (e) {
+          tradeState = TradeIsCreatedFailure(error: e.toString());
+        }
+      }
+    } else {
+      tradeState = TradeIsCreatedFailure(error: S.current.error_text_limits_loading_failed("${provider.description}"));
+    }
+
   }
 
   @action
@@ -181,6 +221,7 @@ abstract class ExchangeStoreBase with Store {
     provider = XMRTOExchangeProvider();
     depositCurrency = CryptoCurrency.xmr;
     receiveCurrency = CryptoCurrency.btc;
+    loadLimits();
   }
 
   List<ExchangeProvider> providersForCurrentPair() {

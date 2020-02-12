@@ -480,7 +480,28 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                                                               ExchangeProviderDescription
                                                                   .changeNow),
                                                 )
-                                              ])))
+                                              ]))),
+                              PopupMenuItem(
+                                  value: 5,
+                                  child: Observer(
+                                      builder: (_) => Row(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment
+                                              .spaceBetween,
+                                          children: [
+                                            Text('MorphToken'),
+                                            Checkbox(
+                                              value: actionListStore
+                                                  .tradeFilterStore
+                                                  .displayMorphToken,
+                                              onChanged: (value) =>
+                                                  actionListStore
+                                                      .tradeFilterStore
+                                                      .toggleDisplayExchange(
+                                                      ExchangeProviderDescription
+                                                          .morphToken),
+                                            )
+                                          ])))
                             ],
                             child: Text(S.of(context).filters,
                                 style: TextStyle(
@@ -556,7 +577,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                   final formattedAmount = trade.amount != null
                       ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'
-                          : trade.amount
+                          : trade.amountFormatted()
                       : trade.amount;
 
                   return TradeRow(

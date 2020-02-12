@@ -278,6 +278,9 @@ class ExchangeFormState extends State<ExchangeForm> {
                 case ExchangeProviderDescription.changeNow:
                   imageSrc = 'assets/images/change_now.png';
                   break;
+                case ExchangeProviderDescription.morphToken:
+                  imageSrc = 'assets/images/morph_icon.png';
+                  break;
               }
 
               return Padding(

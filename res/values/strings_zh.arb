@@ -278,6 +278,9 @@
   "error_text_wallet_name" : "钱包名称只能包含字母，数字\n且必须介于1到15个字符之间",
   "error_text_keys" : "钱包密钥只能包含16个字符的十六进制字符",
   "error_text_crypto_currency" : "小数位数\n必须小于或等于12",
+  "error_text_minimal_limit" : "未創建 ${provider} 交易。 金額少於最小值：${min} ${currency}",
+  "error_text_maximum_limit" : "未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}",
+  "error_text_limits_loading_failed" : "未創建 ${provider} 交易。 限制加載失敗",
 
 
   "auth_store_ban_timeout" : "禁止超时",

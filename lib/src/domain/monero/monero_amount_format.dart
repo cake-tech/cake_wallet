@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:cake_wallet/src/domain/common/crypto_amount_format.dart';
 
 const moneroAmountLength = 12;
 const moneroAmountDivider = 1000000000000;
@@ -7,6 +8,6 @@ final moneroAmountFormat = NumberFormat()
   ..minimumFractionDigits = 1;
 
 String moneroAmountToString({int amount}) =>
-    moneroAmountFormat.format(amount / moneroAmountDivider);
+    moneroAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider));
 
-double moneroAmountToDouble({int amount}) => amount / moneroAmountDivider;
+double moneroAmountToDouble({int amount}) => cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider);
