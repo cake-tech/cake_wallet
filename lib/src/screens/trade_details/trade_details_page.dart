@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/stores/exchange_trade/exchange_trade_store.dart'
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
+import 'package:intl/intl.dart';
 
 class TradeDetailsPage extends BasePage {
   @override
@@ -15,6 +16,8 @@ class TradeDetailsPage extends BasePage {
 
   @override
   bool get isModalBackButton => true;
+
+  final createdAtFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
 
   @override
   Widget body(BuildContext context) {
@@ -43,7 +46,7 @@ class TradeDetailsPage extends BasePage {
           if (trade.createdAt != null) {
             items.add(StandartListItem(
                 title: S.of(context).trade_details_created_at,
-                value: trade.createdAt.toString()));
+                value: createdAtFormat.format(trade.createdAt).toString()));
           }
 
           if (trade.from != null && trade.to != null) {
