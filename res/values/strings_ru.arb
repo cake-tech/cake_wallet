@@ -79,7 +79,7 @@
   "fetching" : "Загрузка",
   "id" : "ID: ",
   "amount" : "Сумма: ",
-  "payment_id" : "Идентификатор платежа: ",
+  "payment_id" : "ID платежа: ",
   "status" : "Статус: ",
   "offer_expires_in" : "Предложение истекает через: ",
   "trade_is_powered_by" : "Сделка выполнена через ${provider}",
@@ -96,7 +96,7 @@
   "time" : "${minutes}мин ${seconds}сек",
   "send_xmr" : "Отправить XMR",
 
-  "faq" : "ЧАВО",
+  "faq" : "FAQ",
 
 
   "enter_your_pin" : "Введите ваш PIN",
@@ -120,7 +120,7 @@
   "change" : "Изменить",
   "remove_node" : "Удалить ноду",
   "remove_node_message" : "Вы уверены, что хотите удалить текущую ноду?",
-  "remove" : "Убрать",
+  "remove" : "Удалить",
   "delete" : "Удалить",
 
 
@@ -168,7 +168,7 @@
   "send_title" : "Отправить Monero",
   "send_your_wallet" : "Ваш кошелёк",
   "send_monero_address" : "Monero адрес",
-  "send_payment_id" : "Идентификатор платежа (опционально)",
+  "send_payment_id" : "ID платежа (опционально)",
   "all" : "ВСЕ",
   "send_error_minimum_value" : "Mинимальная сумма 0.01",
   "send_error_currency" : "Валюта может содержать только цифры",
@@ -184,7 +184,7 @@
   "settings_display_balance_as" : "Отображать баланс как",
   "settings_currency" : "Валюта",
   "settings_fee_priority" : "Приоритет транзакции",
-  "settings_save_recipient_address" : "Сохранить адрес получателя",
+  "settings_save_recipient_address" : "Сохранять адрес получателя",
   "settings_personal" : "Персональные",
   "settings_change_pin" : "Изменить PIN",
   "settings_change_language" : "Изменить язык",
@@ -194,8 +194,8 @@
   "settings_trades" : "Сделки",
   "settings_display_on_dashboard_list" : "Показывать в списке транзакций",
   "settings_all" : "ВСЕ",
-  "settings_only_trades" : "Только сделки",
-  "settings_only_transactions" : "Только транзакции",
+  "settings_only_trades" : "Сделки",
+  "settings_only_transactions" : "Транзакции",
   "settings_none" : "Ничего",
   "settings_support" : "Поддержка",
   "settings_terms_and_conditions" : "Условия и положения",
