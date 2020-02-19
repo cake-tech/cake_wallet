@@ -22,6 +22,7 @@ import 'package:cake_wallet/src/domain/common/calculate_estimated_fee.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/stores/sync/sync_store.dart';
+import 'package:cake_wallet/src/domain/common/openalias.dart';
 
 class SendPage extends BasePage {
   @override
@@ -357,6 +358,12 @@ class SendFormState extends State<SendForm> {
                   ? () async {
                       // Hack. Don't ask me.
                       FocusScope.of(context).requestFocus(FocusNode());
+
+                      final domainName = formatDomainName(_addressController.text);
+
+                      if (domainName != "") {
+                        await fetchXmrAddress(domainName).then((address) => _addressController.text = address);
+                      }
 
                       if (_formKey.currentState.validate()) {
                         await showDialog<void>(
