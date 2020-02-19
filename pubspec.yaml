@@ -53,6 +53,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   encrypt: ^4.0.0
   password: ^1.0.0
+  basic_utils: ^1.0.8
   
 dev_dependencies:
   flutter_test:
