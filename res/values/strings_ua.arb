@@ -17,7 +17,7 @@
   "please_select" : "Будь ласка, виберіть:",
   "cancel" : "Відмінити",
   "ok" : "OK",
-  "contact_name" : "І'мя контакту",
+  "contact_name" : "Ім'я контакту",
   "reset" : "Скинути",
   "save" : "Зберегти",
 
@@ -79,7 +79,7 @@
   "fetching" : "Завантаження",
   "id" : "ID: ",
   "amount" : "Сума: ",
-  "payment_id" : "Ідентифікатор платежу: ",
+  "payment_id" : "ID платежу: ",
   "status" : "Статус: ",
   "offer_expires_in" : "Пропозиція закінчиться через: ",
   "trade_is_powered_by" : "Операція виконана через ${provider}",
@@ -89,7 +89,7 @@
   "exchange_result_write_down_ID" : "*Будь ласка, скопіюйте або запишіть ID, вказаний вище.",
   "confirm" : "Підтвердити",
   "confirm_sending" : "Підтвердити відправлення",
-    "commit_transaction_amount_fee" : "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}",
+  "commit_transaction_amount_fee" : "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}",
   "sending" : "Відправлення",
   "transaction_sent" : "Tранзакція відправлена!",
   "expired" : "Закінчується",
@@ -120,7 +120,7 @@
   "change" : "Змінити",
   "remove_node" : "Видалити вузол",
   "remove_node_message" : "Ви впевнені, що хочете видалити поточний вузол?",
-  "remove" : "Прибрати",
+  "remove" : "Видалити",
   "delete" : "Видалити",
 
 
@@ -133,8 +133,7 @@
   "subaddresses" : "Субадреси",
 
 
-  "restore_restore_wallet" : "Відно
-  ти гаманець",
+  "restore_restore_wallet" : "Відновити гаманець",
   "restore_title_from_seed_keys" : "Відновити з мнемонічної фрази/ключів",
   "restore_description_from_seed_keys" : "Ви можете відновити гаманець з мнемонічної фрази/ключів які ви зберегли раніше",
   "restore_next" : "Продовжити",
@@ -169,7 +168,7 @@
   "send_title" : "Відправити Monero",
   "send_your_wallet" : "Ваш гаманець",
   "send_monero_address" : "Monero адреса",
-  "send_payment_id" : "Ідентифікатор платежу (опційно)",
+  "send_payment_id" : "ID платежу (опційно)",
   "all" : "ВСЕ",
   "send_error_minimum_value" : "Мінімальна сума 0.01",
   "send_error_currency" : "Валюта може містити тільки цифри",
@@ -194,9 +193,9 @@
   "settings_transactions" : "Транзакції",
   "settings_trades" : "Операції",
   "settings_display_on_dashboard_list" : "Відображати в списку транзакцій",
-  "settings_all" : "ВСЕ",
-  "settings_only_trades" : "Тільки операції",
-  "settings_only_transactions" : "Тільки транзакції",
+  "settings_all" : "ВСІ",
+  "settings_only_trades" : "Операції",
+  "settings_only_transactions" : "Транзакції",
   "settings_none" : "Нічого",
   "settings_support" : "Підтримка",
   "settings_terms_and_conditions" : "Умови та положення",
@@ -217,7 +216,7 @@
 
 
   "new_subaddress_title" : "Нова субадреса",
-  "new_subaddress_label_name" : "І'мя",
+  "new_subaddress_label_name" : "Ім'я",
   "new_subaddress_create" : "Створити",
 
 
@@ -310,7 +309,7 @@
   "transaction_priority_regular" : "Звичайний",
   "transaction_priority_medium" : "Середній",
   "transaction_priority_fast" : "Швидкий",
-  "transaction_priority_fastest" : "Самий швидкий",
+  "transaction_priority_fastest" : "Найшвидший",
 
 
   "trade_for_not_created" : "Операція для ${title} не створена.",
