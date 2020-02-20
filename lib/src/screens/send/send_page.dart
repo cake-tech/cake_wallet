@@ -58,7 +58,7 @@ class SendFormState extends State<SendForm> {
   @override
   void initState() {
     _focusNode.addListener(() async {
-      if (_addressController.text.isNotEmpty) {
+      if (!_focusNode.hasFocus &&_addressController.text.isNotEmpty) {
         await fetchXmrAddressAndRecipientName(formatDomainName(_addressController.text)).then((map) async {
 
           if (_addressController.text != map["recipient_address"]) {
