@@ -18,6 +18,7 @@ class AddressTextField extends StatelessWidget {
         AddressTextFieldOption.addressBook
       ],
       this.onURIScanned,
+      this.focusNode,
       this.validator});
 
   static const prefixIconWidth = 34.0;
@@ -30,6 +31,7 @@ class AddressTextField extends StatelessWidget {
   final Function(Uri) onURIScanned;
   final List<AddressTextFieldOption> options;
   final FormFieldValidator<String> validator;
+  FocusNode focusNode;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,7 @@ class AddressTextField extends StatelessWidget {
       onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
       enabled: isActive,
       controller: controller,
+      focusNode: focusNode,
       decoration: InputDecoration(
         suffixIcon: SizedBox(
           width: prefixIconWidth * options.length +

@@ -49,9 +49,41 @@ class SendFormState extends State<SendForm> {
   final _cryptoAmountController = TextEditingController();
   final _fiatAmountController = TextEditingController();
 
+  final _focusNode = FocusNode();
+
   bool _effectsInstalled = false;
 
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    _focusNode.addListener(() async {
+      if (_addressController.text.isNotEmpty) {
+        await fetchXmrAddressAndRecipientName(formatDomainName(_addressController.text)).then((map) async {
+
+          if (_addressController.text != map["recipient_address"]) {
+            _addressController.text = map["recipient_address"];
+
+            await showDialog<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("XMR Recipient Detected"),
+                    content: Text("You will be sending funds to\n${map["recipient_name"]}"),
+                    actions: <Widget>[
+                      FlatButton(
+                          child: Text(S.of(context).ok),
+                          onPressed: () => Navigator.of(context).pop())
+                    ],
+                  );
+                });
+          }
+        });
+      }
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +183,7 @@ class SendFormState extends State<SendForm> {
                   AddressTextField(
                     controller: _addressController,
                     placeholder: S.of(context).send_monero_address,
+                    focusNode: _focusNode,
                     onURIScanned: (uri) {
                       var address = '';
                       var amount = '';
@@ -358,12 +391,6 @@ class SendFormState extends State<SendForm> {
                   ? () async {
                       // Hack. Don't ask me.
                       FocusScope.of(context).requestFocus(FocusNode());
-
-                      final domainName = formatDomainName(_addressController.text);
-
-                      if (domainName != "") {
-                        await fetchXmrAddress(domainName).then((address) => _addressController.text = address);
-                      }
 
                       if (_formKey.currentState.validate()) {
                         await showDialog<void>(
