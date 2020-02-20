@@ -1,15 +1,17 @@
 import 'package:basic_utils/basic_utils.dart';
 
 String formatDomainName(String name) {
-  if (!name.contains(".")) {
-    return "";
+  String formattedName = name;
+
+  if (name.contains(".")) {
+    formattedName = name.replaceAll("@", ".");
   }
 
-  return name.replaceAll("@", ".");
+  return formattedName;
 }
 
-Future<String> fetchXmrAddress(String name) async {
-  String xmrAddress = "";
+Future<Map<String, String>> fetchXmrAddressAndRecipientName(String name) async {
+  final map = {"recipient_address" : name, "recipient_name" : name};
 
   await DnsUtils.lookupRecord(name, RRecordType.TXT, dnssec: true).then((txtRecord) {
     if (txtRecord != null) {
@@ -20,14 +22,25 @@ Future<String> fetchXmrAddress(String name) async {
 
         if (record.contains("oa1:xmr") && record.contains("recipient_address")) {
           record = record.replaceAll('\"', "");
-          xmrAddress = record.split(" ").where((item) => (item.contains("recipient_address")))
-              .toString().replaceAll("recipient_address=", "").replaceAll("\;", "")
-              .replaceAll("(", "").replaceAll(")", "");
+
+          final dataList = record.split(";");
+
+          map["recipient_address"] = dataList.where((item) => (item.contains("recipient_address")))
+              .toString().replaceAll("oa1:xmr recipient_address=", "")
+              .replaceAll("(", "").replaceAll(")", "").trim();
+
+          final recipientName = dataList.where((item) => (item.contains("recipient_name"))).toString();
+
+          if (recipientName.isNotEmpty) {
+            map["recipient_name"] = recipientName.replaceAll("recipient_name=", "")
+                .replaceAll("(", "").replaceAll(")", "").trim();
+          }
+
           break;
         }
       }
     }
   });
   
-  return xmrAddress;
+  return map;
 }
