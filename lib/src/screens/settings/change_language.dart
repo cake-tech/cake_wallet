@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 
 const Map<String, String> _languages = {
   'en': 'English',
+  'uk': 'Українська (Ukrainian)',
   'ru': 'Русский (Russian)',
   'es': 'Español (Spanish)',
   'ja': '日本 (Japanese)',
