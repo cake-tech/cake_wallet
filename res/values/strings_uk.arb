@@ -62,7 +62,7 @@
   "you_will_send" : "Ви відправите",
   "you_will_get" : "Ви отримаєте",
   "amount_is_guaranteed" : "Сума отримання гарантована",
-  "amount_is_estimate" : "Отримана сума являється приблизною",
+  "amount_is_estimate" : "Отримана сума є приблизною",
   "powered_by" : "Використовуючи ${title}",
   "error" : "Помилка",
   "estimated" : "Приблизно ",
@@ -85,13 +85,13 @@
   "trade_is_powered_by" : "Операція виконана через ${provider}",
   "copy_address" : "Cкопіювати адресу",
   "exchange_result_confirm" : "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану вище. Або ви можете відправити зі свого зовнішнього гаманця на вищевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.\n\n",
-  "exchange_result_description" : "Будь ласка відправте ${fetchingLabel} ${from} на адресу, вказану вище.\n\n'",
+  "exchange_result_description" : "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану вище.\n\n'",
   "exchange_result_write_down_ID" : "*Будь ласка, скопіюйте або запишіть ID, вказаний вище.",
   "confirm" : "Підтвердити",
   "confirm_sending" : "Підтвердити відправлення",
   "commit_transaction_amount_fee" : "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}",
   "sending" : "Відправлення",
-  "transaction_sent" : "Tранзакція відправлена!",
+  "transaction_sent" : "Tранзакцію відправлено!",
   "expired" : "Закінчується",
   "time" : "${minutes}хв ${seconds}сек",
   "send_xmr" : "Відправити XMR",
@@ -115,7 +115,7 @@
   "password" : "Пароль",
   "nodes" : "Вузли",
   "node_reset_settings_title" : "Скинути налаштування",
-  "nodes_list_reset_to_default_message" : "Ви впевнені, що хочете скинути до налаштувань по замовчуванню?",
+  "nodes_list_reset_to_default_message" : "Ви впевнені, що хочете скинути до налаштувань за замовченням?",
   "change_current_node" : "Ви впевнені, що хочете змінити поточний вузол на ${node}?",
   "change" : "Змінити",
   "remove_node" : "Видалити вузол",
@@ -135,7 +135,7 @@
 
   "restore_restore_wallet" : "Відновити гаманець",
   "restore_title_from_seed_keys" : "Відновити з мнемонічної фрази/ключів",
-  "restore_description_from_seed_keys" : "Ви можете відновити гаманець з мнемонічної фрази/ключів які ви зберегли раніше",
+  "restore_description_from_seed_keys" : "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше",
   "restore_next" : "Продовжити",
   "restore_title_from_backup" : "Відновити із резервного файлу",
   "restore_description_from_backup" : "Ви можете відновити Cake Wallet з\nвашого резервного файлу",
@@ -144,7 +144,7 @@
   "restore_description_from_seed" : "Ви можете відновити гаманець використовуючи 25-ти слівну мнемонічну фразу",
   "restore_title_from_keys" : "Відновити за допомогою ключів",
   "restore_description_from_keys" : "Ви можете відновити гаманець за допомогою приватних ключів",
-  "restore_wallet_name" : "І'мя гаманця",
+  "restore_wallet_name" : "Ім'я гаманця",
   "restore_address" : "Адреса",
   "restore_view_key_private" : "Приватний ключ перегляду",
   "restore_spend_key_private" : "Приватний ключ витрати",
@@ -204,7 +204,7 @@
 
   "setup_pin" : "Встановити PIN",
   "enter_your_pin_again" : "Введіть PIN ще раз",
-  "setup_successful" : "PIN було успішно змінено!",
+  "setup_successful" : "PIN було успішно встановлено!",
 
 
   "wallet_keys" : "Ключі гаманця",
@@ -273,9 +273,9 @@
   "error_text_payment_id" : "Ідентифікатор платежу може містити від 16 до 64 символів в hex",
   "error_text_xmr" : "Значення XMR не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12",
   "error_text_fiat" : "Значення суми не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 2",
-  "error_text_subaddress_name" : "І'мя субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину",
+  "error_text_subaddress_name" : "Ім'я субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину",
   "error_text_amount" : "Баланс може містити тільки цифри",
-  "error_text_wallet_name" : "І'мя гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину",
+  "error_text_wallet_name" : "Ім'я гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину",
   "error_text_keys" : "Ключі гаманця можуть містити тільки 64 символів в hex",
   "error_text_crypto_currency" : "Кількість цифр після коми\nповинно бути меншим або дорівнювати 12",
   "error_text_minimal_limit" : "Операція для ${provider} не створена. Сума менша мінімальної: ${min} ${currency}",
@@ -342,5 +342,8 @@
   "incorrect_seed" : "Введений текст невірний.",
 
   "biometric_auth_reason" : "Відскануйте свій відбиток пальця для аутентифікації",
-  "version" : "Версія ${currentVersion}"
+  "version" : "Версія ${currentVersion}",
+
+  "openalias_alert_title" : "Отримувача XMR виявлено",
+  "openalias_alert_content" : "Ви будете відправляти кошти\n${recipient_name}"
 }

@@ -102,6 +102,7 @@ class S implements WidgetsLocalizations {
   String get nodes_list_reset_to_default_message => "Are you sure that you want to reset settings to default?";
   String get offer_expires_in => "Offer expires in: ";
   String get ok => "OK";
+  String get openalias_alert_title => "XMR Recipient Detected";
   String get outgoing => "Outgoing";
   String get password => "Password";
   String get paste => "Paste";
@@ -280,6 +281,7 @@ class S implements WidgetsLocalizations {
   String failed_authentication(String state_error) => "Failed authentication. ${state_error}";
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
+  String openalias_alert_content(String recipient_name) => "You will be sending funds to\n${recipient_name}";
   String powered_by(String title) => "Powered by ${title}";
   String router_no_route(String name) => "No route defined for ${name}";
   String send_priority(String transactionPriority) => "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings";
@@ -435,6 +437,8 @@ class $de extends S {
   String get wallet_restoration_store_incorrect_seed_length => "Falsche Samenlänge";
   @override
   String get contact => "Kontakt";
+  @override
+  String get openalias_alert_title => "XMR-Empfänger erkannt";
   @override
   String get auth_store_incorrect_password => "Falsches PIN";
   @override
@@ -844,6 +848,8 @@ class $de extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Transaktion festschreiben\nMenge: ${amount}\nGebühr: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "Sie senden Geld an\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Fehler beim Entfernen ${wallet_name} Wallet. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "Kopiert ${key} Zur Zwischenablage";
@@ -991,6 +997,8 @@ class $hi extends S {
   String get wallet_restoration_store_incorrect_seed_length => "गलत बीज की लंबाई";
   @override
   String get contact => "संपर्क करें";
+  @override
+  String get openalias_alert_title => "XMR प्राप्तकर्ता का पता लगाया";
   @override
   String get auth_store_incorrect_password => "गलत पिन";
   @override
@@ -1400,6 +1408,8 @@ class $hi extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "लेन-देन करें\nरकम: ${amount}\nशुल्क: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "आपको धनराशि भेजी जाएगी\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "निकालने में विफल ${wallet_name} बटुआ. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "की नकल की ${key} क्लिपबोर्ड पर";
@@ -1547,6 +1557,8 @@ class $ru extends S {
   String get wallet_restoration_store_incorrect_seed_length => "Неверная длина мнемонической фразы";
   @override
   String get contact => "Контакт";
+  @override
+  String get openalias_alert_title => "Получатель XMR обнаружен";
   @override
   String get auth_store_incorrect_password => "Некорректный PIN";
   @override
@@ -1956,6 +1968,8 @@ class $ru extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "Вы будете отправлять средства\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Ошибка при удалении ${wallet_name} кошелька. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "Скопировано ${key} в буфер обмена";
@@ -2103,6 +2117,8 @@ class $ko extends S {
   String get wallet_restoration_store_incorrect_seed_length => "시드 길이가 잘못되었습니다";
   @override
   String get contact => "접촉";
+  @override
+  String get openalias_alert_title => "XMR 수신자 감지";
   @override
   String get auth_store_incorrect_password => "잘못된 PIN";
   @override
@@ -2512,6 +2528,8 @@ class $ko extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "커밋 거래\n양: ${amount}\n보수: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "당신은에 자금을 보낼 것입니다\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "제거하지 못했습니다 ${wallet_name} 지갑. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "복사 ${key} 클립 보드로";
@@ -2659,6 +2677,8 @@ class $pt extends S {
   String get wallet_restoration_store_incorrect_seed_length => "Comprimento de semente incorreto";
   @override
   String get contact => "Contato";
+  @override
+  String get openalias_alert_title => "Destinatário XMR detectado";
   @override
   String get auth_store_incorrect_password => "PIN incorreto";
   @override
@@ -3068,6 +3088,8 @@ class $pt extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transação\nQuantia: ${amount}\nTaxa: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "Você enviará fundos para\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Falha ao remover a carteira ${wallet_name}. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "${key} copiada para a área de transferência";
@@ -3102,7 +3124,7 @@ class $uk extends S {
   @override
   String get biometric_auth_reason => "Відскануйте свій відбиток пальця для аутентифікації";
   @override
-  String get transaction_sent => "Tранзакція відправлена!";
+  String get transaction_sent => "Tранзакцію відправлено!";
   @override
   String get password => "Пароль";
   @override
@@ -3176,13 +3198,13 @@ class $uk extends S {
   @override
   String get copy_address => "Cкопіювати адресу";
   @override
-  String get error_text_subaddress_name => "І'мя субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину";
+  String get error_text_subaddress_name => "Ім'я субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину";
   @override
   String get incorrect_seed => "Введений текст невірний.";
   @override
   String get settings_all => "ВСІ";
   @override
-  String get nodes_list_reset_to_default_message => "Ви впевнені, що хочете скинути до налаштувань по замовчуванню?";
+  String get nodes_list_reset_to_default_message => "Ви впевнені, що хочете скинути до налаштувань за замовченням?";
   @override
   String get receive => "Отримати";
   @override
@@ -3215,6 +3237,8 @@ class $uk extends S {
   String get wallet_restoration_store_incorrect_seed_length => "Невірна довжина мнемонічної фрази";
   @override
   String get contact => "Контакт";
+  @override
+  String get openalias_alert_title => "Отримувача XMR виявлено";
   @override
   String get auth_store_incorrect_password => "Некоректний PIN";
   @override
@@ -3258,7 +3282,7 @@ class $uk extends S {
   @override
   String get pending => " (в очікуванні)";
   @override
-  String get setup_successful => "PIN було успішно змінено!";
+  String get setup_successful => "PIN було успішно встановлено!";
   @override
   String get fetching => "Завантаження";
   @override
@@ -3356,7 +3380,7 @@ class $uk extends S {
   @override
   String get transactions => "Транзакції";
   @override
-  String get amount_is_estimate => "Отримана сума являється приблизною";
+  String get amount_is_estimate => "Отримана сума є приблизною";
   @override
   String get error_text_node_address => "Будь ласка, введіть iPv4 адресу";
   @override
@@ -3392,7 +3416,7 @@ class $uk extends S {
   @override
   String get restore_restore_wallet => "Відновити гаманець";
   @override
-  String get restore_description_from_seed_keys => "Ви можете відновити гаманець з мнемонічної фрази/ключів які ви зберегли раніше";
+  String get restore_description_from_seed_keys => "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше";
   @override
   String get copy => "Скопіювати";
   @override
@@ -3422,7 +3446,7 @@ class $uk extends S {
   @override
   String get trade_not_created => "Операція не створена.";
   @override
-  String get restore_wallet_name => "І'мя гаманця";
+  String get restore_wallet_name => "Ім'я гаманця";
   @override
   String get widgets_seed => "Мнемонічна фраза";
   @override
@@ -3464,7 +3488,7 @@ class $uk extends S {
   @override
   String get trade_history_title => "Історія операцій";
   @override
-  String get error_text_wallet_name => "І'мя гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину";
+  String get error_text_wallet_name => "Ім'я гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину";
   @override
   String get restore_description_from_keys => "Ви можете відновити гаманець за допомогою приватних ключів";
   @override
@@ -3620,9 +3644,11 @@ class $uk extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "Операція для ${provider} не створена. Помилка завантаження лімітів";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка відправте ${fetchingLabel} ${from} на адресу, вказану вище.\n\n'";
+  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану вище.\n\n'";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}";
+  @override
+  String openalias_alert_content(String recipient_name) => "Ви будете відправляти кошти\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Помилка при видаленні ${wallet_name} гаманця. ${error}";
   @override
@@ -3771,6 +3797,8 @@ class $ja extends S {
   String get wallet_restoration_store_incorrect_seed_length => "誤ったシード長s";
   @override
   String get contact => "接触";
+  @override
+  String get openalias_alert_title => "XMR受信者が検出されました";
   @override
   String get auth_store_incorrect_password => "間違ったPIN";
   @override
@@ -4180,6 +4208,8 @@ class $ja extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "トランザクションをコミット\n量: ${amount}\n費用: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "に送金します\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "削除できませんでした ${wallet_name} 財布. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "コピー済み ${key} クリップボードへ";
@@ -4331,6 +4361,8 @@ class $pl extends S {
   String get wallet_restoration_store_incorrect_seed_length => "Nieprawidłowa długość nasion";
   @override
   String get contact => "Kontakt";
+  @override
+  String get openalias_alert_title => "Wykryto odbiorcę XMR";
   @override
   String get auth_store_incorrect_password => "Niepoprawny PIN";
   @override
@@ -4740,6 +4772,8 @@ class $pl extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Zatwierdź transakcję\nIlość: ${amount}\nOpłata: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "Będziesz wysyłać środki na\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Nie udało się usunąć ${wallet_name} portfel. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "Skopiowane ${key} do schowka";
@@ -4887,6 +4921,8 @@ class $es extends S {
   String get wallet_restoration_store_incorrect_seed_length => "Longitud de semilla incorrecta";
   @override
   String get contact => "Contacto";
+  @override
+  String get openalias_alert_title => "Destinatario XMR detectado";
   @override
   String get auth_store_incorrect_password => "Contraseña PIN";
   @override
@@ -5296,6 +5332,8 @@ class $es extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transacción\nCantidad: ${amount}\nCuota: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "Enviará fondos a\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Error al elimina ${wallet_name} billetera. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "Copiado ${key} al portapapeles";
@@ -5443,6 +5481,8 @@ class $nl extends S {
   String get wallet_restoration_store_incorrect_seed_length => "Onjuiste zaadlengte";
   @override
   String get contact => "Contact";
+  @override
+  String get openalias_alert_title => "XMR-ontvanger gedetecteerd";
   @override
   String get auth_store_incorrect_password => "Incorrect PIN";
   @override
@@ -5852,6 +5892,8 @@ class $nl extends S {
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Verricht transactie\nBedrag: ${amount}\nhonorarium: ${fee}";
   @override
+  String openalias_alert_content(String recipient_name) => "U stuurt geld naar\n${recipient_name}";
+  @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Verwijderen mislukt ${wallet_name} portemonnee. ${error}";
   @override
   String copied_key_to_clipboard(String key) => "Gekopieerd ${key} naar het klembord";
@@ -5999,6 +6041,8 @@ class $zh extends S {
   String get wallet_restoration_store_incorrect_seed_length => "种子长度错误";
   @override
   String get contact => "联系";
+  @override
+  String get openalias_alert_title => "檢測到XMR收件人";
   @override
   String get auth_store_incorrect_password => "PIN码错误";
   @override
@@ -6407,6 +6451,8 @@ class $zh extends S {
   String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到上面显示的地址.\n\n'";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "提交交易\n量: ${amount}\nFee: ${fee}";
+  @override
+  String openalias_alert_content(String recipient_name) => "您將匯款至\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "删除失败 ${wallet_name} 钱包. ${error}";
   @override

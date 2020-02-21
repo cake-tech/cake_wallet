@@ -342,5 +342,8 @@
   "incorrect_seed" : "दर्ज किया गया पाठ मान्य नहीं है।",
 
   "biometric_auth_reason" : "प्रमाणित करने के लिए अपने फ़िंगरप्रिंट को स्कैन करें",
-  "version" : "संस्करण ${currentVersion}"
+  "version" : "संस्करण ${currentVersion}",
+
+  "openalias_alert_title" : "XMR प्राप्तकर्ता का पता लगाया",
+  "openalias_alert_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}"
 }

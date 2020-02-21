@@ -342,5 +342,8 @@
   "incorrect_seed" : "입력하신 텍스트가 유효하지 않습니다.",
 
   "biometric_auth_reason" : "지문을 스캔하여 인증",
-  "version" : "버전 ${currentVersion}"
+  "version" : "버전 ${currentVersion}",
+
+  "openalias_alert_title" : "XMR 수신자 감지",
+  "openalias_alert_content" : "당신은에 자금을 보낼 것입니다\n${recipient_name}"
 }
