@@ -1,0 +1,346 @@
+{
+  "welcome" : "Вітаємо в CAKE WALLET",
+  "first_wallet_text" : "В самому зручному гаманці для Monero",
+  "please_make_selection" : "Виберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.",
+  "create_new" : "Створити новий",
+  "restore_wallet" : "Відновити гаманець",
+
+
+  "accounts" : "Акаунти",
+  "edit" : "Редагувати",
+  "account" : "Акаунт",
+  "add" : "Добавити",
+
+
+  "address_book" : "Адресна книга",
+  "contact" : "Контакт",
+  "please_select" : "Будь ласка, виберіть:",
+  "cancel" : "Відмінити",
+  "ok" : "OK",
+  "contact_name" : "Ім'я контакту",
+  "reset" : "Скинути",
+  "save" : "Зберегти",
+
+
+  "authenticated" : "Аутентифіковано",
+  "authentication" : "Аутентифікація",
+  "failed_authentication" : "Помилка аутентифікації. ${state_error}",
+
+
+  "wallet_menu" : "Меню гаманця",
+  "Blocks_remaining" : "${status} Залишилось блоків",
+  "please_try_to_connect_to_another_node" : "Будь ласка, спробуйте підключитися до іншого вузлу",
+  "xmr_hidden" : "XMR Приховано",
+  "xmr_available_balance" : "Доступний XMR баланс",
+  "xmr_full_balance" : "Весь XMR баланс",
+  "send" : "Відправити",
+  "receive" : "Отримати",
+  "transactions" : "Транзакції",
+  "incoming" : "Вхідні",
+  "outgoing" : "Вихідні",
+  "transactions_by_date" : "Сортувати по даті",
+  "trades" : "Торгові операції",
+  "filters" : "Фільтри",
+  "today" : "Сьогодні",
+  "yesterday" : "Вчора",
+  "received" : "Отримані",
+  "sent" : "Відправлені",
+  "pending" : " (в очікуванні)",
+  "rescan" : "Пересканувати",
+  "reconnect" : "Перепідключитися",
+  "wallets" : "Гаманці",
+  "show_seed" : "Показати мнемонічну фразу",
+  "show_keys" : "Показати ключі",
+  "address_book_menu" : "Адресна книга",
+  "reconnection" : "Перепідключення",
+  "reconnect_alert_text" : "Ви хочете перепідключитися?",
+
+
+  "exchange" : "Обмін",
+  "clear" : "Очистити",
+  "change_exchange_provider" : "Змінити провайдера обміну",
+  "you_will_send" : "Ви відправите",
+  "you_will_get" : "Ви отримаєте",
+  "amount_is_guaranteed" : "Сума отримання гарантована",
+  "amount_is_estimate" : "Отримана сума являється приблизною",
+  "powered_by" : "Використовуючи ${title}",
+  "error" : "Помилка",
+  "estimated" : "Приблизно ",
+  "min_value" : "Мін: ${value} ${currency}",
+  "max_value" : "Макс: ${value} ${currency}",
+  "change_currency" : "Змінити валюту",
+
+
+  "copy_id" : "Скопіювати ID",
+  "exchange_result_write_down_trade_id" : "Будь ласка, скопіюйте або запишіть ID операції.",
+  "trade_id" : "ID операції:\n${id}",
+  "copied_to_clipboard" : "Скопійовано в буфер обміну",
+  "saved_the_trade_id" : "Я зберіг ID операції",
+  "fetching" : "Завантаження",
+  "id" : "ID: ",
+  "amount" : "Сума: ",
+  "payment_id" : "ID платежу: ",
+  "status" : "Статус: ",
+  "offer_expires_in" : "Пропозиція закінчиться через: ",
+  "trade_is_powered_by" : "Операція виконана через ${provider}",
+  "copy_address" : "Cкопіювати адресу",
+  "exchange_result_confirm" : "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану вище. Або ви можете відправити зі свого зовнішнього гаманця на вищевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.\n\n",
+  "exchange_result_description" : "Будь ласка відправте ${fetchingLabel} ${from} на адресу, вказану вище.\n\n'",
+  "exchange_result_write_down_ID" : "*Будь ласка, скопіюйте або запишіть ID, вказаний вище.",
+  "confirm" : "Підтвердити",
+  "confirm_sending" : "Підтвердити відправлення",
+  "commit_transaction_amount_fee" : "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}",
+  "sending" : "Відправлення",
+  "transaction_sent" : "Tранзакція відправлена!",
+  "expired" : "Закінчується",
+  "time" : "${minutes}хв ${seconds}сек",
+  "send_xmr" : "Відправити XMR",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "Введіть ваш PIN",
+  "loading_your_wallet" : "Завантаження гаманця",
+
+
+  "new_wallet" : "Новий гаманець",
+  "wallet_name" : "Ім'я гаманця",
+  "continue_text" : "Продовжити",
+
+
+  "node_new" : "Новий вузол",
+  "node_address" : "Адреса вузла",
+  "node_port" : "Порт вузла",
+  "login" : "Логін",
+  "password" : "Пароль",
+  "nodes" : "Вузли",
+  "node_reset_settings_title" : "Скинути налаштування",
+  "nodes_list_reset_to_default_message" : "Ви впевнені, що хочете скинути до налаштувань по замовчуванню?",
+  "change_current_node" : "Ви впевнені, що хочете змінити поточний вузол на ${node}?",
+  "change" : "Змінити",
+  "remove_node" : "Видалити вузол",
+  "remove_node_message" : "Ви впевнені, що хочете видалити поточний вузол?",
+  "remove" : "Видалити",
+  "delete" : "Видалити",
+
+
+  "use" : "Переключитися на ",
+  "digit_pin" : "-значний PIN",
+
+
+  "share_address" : "Поділитися адресою",
+  "receive_amount" : "Баланс",
+  "subaddresses" : "Субадреси",
+
+
+  "restore_restore_wallet" : "Відновити гаманець",
+  "restore_title_from_seed_keys" : "Відновити з мнемонічної фрази/ключів",
+  "restore_description_from_seed_keys" : "Ви можете відновити гаманець з мнемонічної фрази/ключів які ви зберегли раніше",
+  "restore_next" : "Продовжити",
+  "restore_title_from_backup" : "Відновити із резервного файлу",
+  "restore_description_from_backup" : "Ви можете відновити Cake Wallet з\nвашого резервного файлу",
+  "restore_seed_keys_restore" : "Відновити за допомогою мнемонічної фрази/ключів",
+  "restore_title_from_seed" : "Відновити з мнемонічної фрази",
+  "restore_description_from_seed" : "Ви можете відновити гаманець використовуючи 25-ти слівну мнемонічну фразу",
+  "restore_title_from_keys" : "Відновити за допомогою ключів",
+  "restore_description_from_keys" : "Ви можете відновити гаманець за допомогою приватних ключів",
+  "restore_wallet_name" : "І'мя гаманця",
+  "restore_address" : "Адреса",
+  "restore_view_key_private" : "Приватний ключ перегляду",
+  "restore_spend_key_private" : "Приватний ключ витрати",
+  "restore_recover" : "Відновити",
+  "restore_wallet_restore_description" : "Опис відновлюваного гаманця",
+
+
+  "seed_title" : "Мнемонічна фраза",
+  "seed_share" : "Поділитися мнемонічною фразою",
+  "copy" : "Скопіювати",
+
+
+  "seed_alert_first_text" : "Наступна сторінка містить\nвашу мнемонічну фразу.",
+  "seed_alert_second_text" : "Будь ласка, запишіть її на \nвипадок, якщо ви втратите або відформатуєте ваш телефон.",
+  "seed_alert_third_text" : "Також ви можете побачити вашу мнемонічну фразу\nв",
+  "seed_alert_settings" : "налаштуваннях",
+  "seed_alert_menu" : " меню.",
+  "seed_alert_understand" : "Я розумію",
+
+
+  "send_title" : "Відправити Monero",
+  "send_your_wallet" : "Ваш гаманець",
+  "send_monero_address" : "Monero адреса",
+  "send_payment_id" : "ID платежу (опційно)",
+  "all" : "ВСЕ",
+  "send_error_minimum_value" : "Мінімальна сума 0.01",
+  "send_error_currency" : "Валюта може містити тільки цифри",
+  "send_estimated_fee" : "Ймовірна комісія:",
+  "send_priority" : "Комісія встановлена в залежності від пріоритету: ${transactionPriority}.\nПріоритет транзакції може бути змінений в налаштуваннях",
+  "send_creating_transaction" : "Створити транзакцію",
+
+
+  "settings_title" : "Налаштування",
+  "settings_nodes" : "Вузли",
+  "settings_current_node" : "Поточний вузол",
+  "settings_wallets" : "Гаманці",
+  "settings_display_balance_as" : "Відображати баланс як",
+  "settings_currency" : "Валюта",
+  "settings_fee_priority" : "Пріоритет транзакції",
+  "settings_save_recipient_address" : "Зберегти адресу отримувача",
+  "settings_personal" : "Персональні",
+  "settings_change_pin" : "Змінити PIN",
+  "settings_change_language" : "Змінити мову",
+  "settings_allow_biometrical_authentication" : "Включити біометричну аутентифікацію",
+  "settings_dark_mode" : "Темний режим",
+  "settings_transactions" : "Транзакції",
+  "settings_trades" : "Операції",
+  "settings_display_on_dashboard_list" : "Відображати в списку транзакцій",
+  "settings_all" : "ВСІ",
+  "settings_only_trades" : "Операції",
+  "settings_only_transactions" : "Транзакції",
+  "settings_none" : "Нічого",
+  "settings_support" : "Підтримка",
+  "settings_terms_and_conditions" : "Умови та положення",
+  "pin_is_incorrect" : "Некоректний PIN",
+
+
+  "setup_pin" : "Встановити PIN",
+  "enter_your_pin_again" : "Введіть PIN ще раз",
+  "setup_successful" : "PIN було успішно змінено!",
+
+
+  "wallet_keys" : "Ключі гаманця",
+  "view_key_private" : "Приватний ключ перегляду",
+  "view_key_public" : "Публічний ключ перегляду",
+  "spend_key_private" : "Приватний ключ витрати",
+  "spend_key_public" : "Публічний ключ витрати",
+  "copied_key_to_clipboard" : "Скопійовано ${key} в буфер обміну",
+
+
+  "new_subaddress_title" : "Нова субадреса",
+  "new_subaddress_label_name" : "Ім'я",
+  "new_subaddress_create" : "Створити",
+
+
+  "subaddress_title" : "Список Субадрес",
+
+
+  "trade_details_title" : "Деталі операцій",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Статус",
+  "trade_details_fetching" : "Отримання",
+  "trade_details_provider" : "Провайдер",
+  "trade_details_created_at" : "Створено",
+  "trade_details_pair" : "Пара",
+  "trade_details_copied" : "${title} скопійовано в буфер обміну",
+
+
+  "trade_history_title" : "Історія операцій",
+
+
+  "transaction_details_title" : "Деталі транзакції",
+  "transaction_details_transaction_id" : "ID транзакції",
+  "transaction_details_date" : "Дата",
+  "transaction_details_height" : "Висота",
+  "transaction_details_amount" : "Сума",
+  "transaction_details_copied" : "${title} скопійовано в буфер обміну",
+  "transaction_details_recipient_address" : "Адреса отримувача",
+
+
+  "wallet_list_title" : "Monero Гаманець",
+  "wallet_list_create_new_wallet" : "Створити новий гаманець",
+  "wallet_list_restore_wallet" : "Відновити гаманець",
+  "wallet_list_load_wallet" : "Завантаження гаманця",
+  "wallet_list_loading_wallet" : "Завантаження ${wallet_name} гаманця",
+  "wallet_list_failed_to_load" : "Помилка при завантаженні ${wallet_name} гаманця. ${error}",
+  "wallet_list_removing_wallet" : "Видалення ${wallet_name} гаманця",
+  "wallet_list_failed_to_remove" : "Помилка при видаленні ${wallet_name} гаманця. ${error}",
+
+
+  "widgets_address" : "Адреса",
+  "widgets_restore_from_blockheight" : "Відновити на висоті блоку",
+  "widgets_restore_from_date" : "Відновити з дати",
+  "widgets_or" : "або",
+  "widgets_seed" : "Мнемонічна фраза",
+
+
+  "router_no_route" : "Не встановлено маршрут для ${name}",
+
+
+  "error_text_account_name" : "Ім'я акаунту може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину",
+  "error_text_contact_name" : "Ім'я контакту не може містити ` , ' \" символи\n і повинно бути від 1 до 32 символів в довжину",
+  "error_text_address" : "Адреса гаманця повинна відповідати типу\nкриптовалюти",
+  "error_text_node_address" : "Будь ласка, введіть iPv4 адресу",
+  "error_text_node_port" : "Порт вузла може містити тільки цифри від 0 до 65535",
+  "error_text_payment_id" : "Ідентифікатор платежу може містити від 16 до 64 символів в hex",
+  "error_text_xmr" : "Значення XMR не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12",
+  "error_text_fiat" : "Значення суми не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 2",
+  "error_text_subaddress_name" : "І'мя субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину",
+  "error_text_amount" : "Баланс може містити тільки цифри",
+  "error_text_wallet_name" : "І'мя гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину",
+  "error_text_keys" : "Ключі гаманця можуть містити тільки 64 символів в hex",
+  "error_text_crypto_currency" : "Кількість цифр після коми\nповинно бути меншим або дорівнювати 12",
+  "error_text_minimal_limit" : "Операція для ${provider} не створена. Сума менша мінімальної: ${min} ${currency}",
+  "error_text_maximum_limit" : "Операція для ${provider} не створена. Сума більше максимальної: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Операція для ${provider} не створена. Помилка завантаження лімітів",
+
+
+  "auth_store_ban_timeout" : "ban_timeout",
+  "auth_store_banned_for" : "Заблоковано на ",
+  "auth_store_banned_minutes" : " хвилин",
+  "auth_store_incorrect_password" : "Некоректний PIN",
+  "wallet_store_monero_wallet" : "Monero гаманець",
+  "wallet_restoration_store_incorrect_seed_length" : "Невірна довжина мнемонічної фрази",
+
+
+  "full_balance" : "Весь баланс",
+  "available_balance" : "Доступний баланс",
+  "hidden_balance" : "Прихований баланс",
+
+
+  "sync_status_syncronizing" : "СИНХРОНІЗАЦІЯ",
+  "sync_status_syncronized" : "СИНХРОНІЗОВАНИЙ",
+  "sync_status_not_connected" : "НЕ ПІДКЛЮЧЕННИЙ",
+  "sync_status_starting_sync" : "ПОЧАТОК СИНХРОНІЗАЦІЇ",
+  "sync_status_failed_connect" : "ПОМИЛКА ПІДКЛЮЧЕННЯ ДО ВУЗЛУ",
+  "sync_status_connecting" : "ПІДКЛЮЧЕННЯ",
+  "sync_status_connected" : "ПІДКЛЮЧЕНО",
+
+
+  "transaction_priority_slow" : "Повільний",
+  "transaction_priority_regular" : "Звичайний",
+  "transaction_priority_medium" : "Середній",
+  "transaction_priority_fast" : "Швидкий",
+  "transaction_priority_fastest" : "Найшвидший",
+
+
+  "trade_for_not_created" : "Операція для ${title} не створена.",
+  "trade_not_created" : "Операція не створена.",
+  "trade_id_not_found" : "Операція ${tradeId} ${title} не знайдена.",
+  "trade_not_found" : "Операція не знайдена.",
+
+
+  "trade_state_pending" : "Очікування",
+  "trade_state_confirming" : "Підтвердження",
+  "trade_state_trading" : "Виконання операції",
+  "trade_state_traded" : "Операція виконана",
+  "trade_state_complete" : "Завершено",
+  "trade_state_to_be_created" : "Буде створена",
+  "trade_state_unpaid" : "Неоплачена",
+  "trade_state_underpaid" : "Недоплачена",
+  "trade_state_paid_unconfirmed" : "Оплата непідтверджена",
+  "trade_state_paid" : "Оплачена",
+  "trade_state_btc_sent" : "BTC надіслано",
+  "trade_state_timeout" : "Таймаут",
+  "trade_state_created" : "Створена",
+  "trade_state_finished" : "Завершена",
+
+  "change_language" : "Змінити мову",
+  "change_language_to" : "Змінити мову на ${language}?",
+
+  "paste" : "Вставити",
+  "restore_from_seed_placeholder" : "Введіть або вставте мнемонічну фразу вашого гаманця",
+  "add_new_word" : "Добавити нове слово",
+  "incorrect_seed" : "Введений текст невірний.",
+
+  "biometric_auth_reason" : "Відскануйте свій відбиток пальця для аутентифікації",
+  "version" : "Версія ${currentVersion}"
+}
