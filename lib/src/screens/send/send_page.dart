@@ -68,8 +68,8 @@ class SendFormState extends State<SendForm> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text("XMR Recipient Detected"),
-                    content: Text("You will be sending funds to\n${map["recipient_name"]}"),
+                    title: Text(S.of(context).openalias_alert_title),
+                    content: Text(S.of(context).openalias_alert_content(map["recipient_name"])),
                     actions: <Widget>[
                       FlatButton(
                           child: Text(S.of(context).ok),

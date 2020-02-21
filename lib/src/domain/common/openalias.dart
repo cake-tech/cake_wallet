@@ -30,11 +30,11 @@ Future<Map<String, String>> fetchXmrAddressAndRecipientName(String name) async {
                 .toString().replaceAll("oa1:xmr recipient_address=", "")
                 .replaceAll("(", "").replaceAll(")", "").trim();
 
-            final recipientName = dataList.where((item) => (item.contains("recipient_name"))).toString();
+            final recipientName = dataList.where((item) => (item.contains("recipient_name"))).toString()
+                .replaceAll("(", "").replaceAll(")", "").trim();
 
             if (recipientName.isNotEmpty) {
-              map["recipient_name"] = recipientName.replaceAll("recipient_name=", "")
-                  .replaceAll("(", "").replaceAll(")", "").trim();
+              map["recipient_name"] = recipientName.replaceAll("recipient_name=", "");
             }
 
             break;
