@@ -342,5 +342,8 @@
   "incorrect_seed" : "Der eingegebene Text ist ungültig.",
 
   "biometric_auth_reason" : "Scannen Sie Ihren Fingerabdruck zur Authentifizierung",
-  "version" : "Ausführung ${currentVersion}"
+  "version" : "Ausführung ${currentVersion}",
+
+  "openalias_alert_title" : "XMR-Empfänger erkannt",
+  "openalias_alert_content" : "Sie senden Geld an\n${recipient_name}"
 }

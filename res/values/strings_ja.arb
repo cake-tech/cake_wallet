@@ -342,5 +342,8 @@
   "incorrect_seed" : "入力されたテキストは無効です。",
 
   "biometric_auth_reason" : "प指紋をスキャンして認証する",
-  "version" : "バージョン ${currentVersion}"
+  "version" : "バージョン ${currentVersion}",
+
+  "openalias_alert_title" : "XMR受信者が検出されました",
+  "openalias_alert_content" : "に送金します\n${recipient_name}"
 }
