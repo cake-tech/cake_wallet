@@ -342,5 +342,8 @@
   "incorrect_seed" : "输入的文字无效。",
 
   "biometric_auth_reason" : "掃描指紋以進行身份驗證",
-  "version" : "版 ${currentVersion}"
+  "version" : "版 ${currentVersion}",
+
+  "openalias_alert_title" : "檢測到XMR收件人",
+  "openalias_alert_content" : "您將匯款至\n${recipient_name}"
 }
