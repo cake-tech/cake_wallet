@@ -1654,7 +1654,7 @@ class $ru extends S {
   @override
   String get transaction_details_date => "Дата";
   @override
-  String get show_seed => "Показать мнемоническую код-фразу";
+  String get show_seed => "Показать мнемоническую фразу";
   @override
   String get send_error_currency => "Валюта может содержать только цифры";
   @override
@@ -1668,7 +1668,7 @@ class $ru extends S {
   @override
   String get error_text_xmr => "Значение XMR не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 12";
   @override
-  String get xmr_available_balance => "XMR Доступный баланс";
+  String get xmr_available_balance => "Доступный XMR баланс";
   @override
   String get trade_state_paid => "Оплаченная";
   @override
@@ -1802,7 +1802,7 @@ class $ru extends S {
   @override
   String get all => "ВСЕ";
   @override
-  String get xmr_full_balance => "XMR Полный баланс";
+  String get xmr_full_balance => "Весь XMR баланс";
   @override
   String get incoming => "Входящие";
   @override
@@ -3506,7 +3506,7 @@ class $uk extends S {
   @override
   String get error_text_keys => "Ключі гаманця можуть містити тільки 64 символів в hex";
   @override
-  String get settings_save_recipient_address => "Зберегти адресу отримувача";
+  String get settings_save_recipient_address => "Зберігати адресу отримувача";
   @override
   String get seed_alert_settings => "налаштуваннях";
   @override
