@@ -8,17 +8,17 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 
 const Map<String, String> _languages = {
   'en': 'English',
-  'uk': 'Українська (Ukrainian)',
-  'ru': 'Русский (Russian)',
+  'de': 'Deutsch (German)',
   'es': 'Español (Spanish)',
+  'hi': 'हिंदी (Hindi)',
   'ja': '日本 (Japanese)',
   'ko': '한국어 (Korean)',
-  'hi': 'हिंदी (Hindi)',
-  'de': 'Deutsch (German)',
-  'zh': '中文 (Chinese)',
-  'pt': 'Português (Portuguese)',
+  'nl': 'Nederlands (Dutch)',
   'pl': 'Polski (Polish)',
-  'nl': 'Nederlands (Dutch)'
+  'pt': 'Português (Portuguese)',
+  'ru': 'Русский (Russian)',
+  'uk': 'Українська (Ukrainian)',
+  'zh': '中文 (Chinese)'
 };
 
 class ChangeLanguage extends BasePage {
