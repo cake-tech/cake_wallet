@@ -48,9 +48,45 @@ class SendFormState extends State<SendForm> {
   final _cryptoAmountController = TextEditingController();
   final _fiatAmountController = TextEditingController();
 
+  final _focusNode = FocusNode();
+
   bool _effectsInstalled = false;
 
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    _focusNode.addListener(() {
+      if (!_focusNode.hasFocus &&_addressController.text.isNotEmpty) {
+        getOpenaliasRecord(context);
+      }
+    });
+
+    super.initState();
+  }
+
+  Future<void> getOpenaliasRecord(BuildContext context) async {
+    final sendStore = Provider.of<SendStore>(context);
+    final isOpenalias = await sendStore.isOpenaliasRecord(_addressController.text);
+
+    if (isOpenalias) {
+      _addressController.text = sendStore.recordAddress;
+
+      await showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(S.of(context).openalias_alert_title),
+              content: Text(S.of(context).openalias_alert_content(sendStore.recordName)),
+              actions: <Widget>[
+                FlatButton(
+                    child: Text(S.of(context).ok),
+                    onPressed: () => Navigator.of(context).pop())
+              ],
+            );
+          });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +186,7 @@ class SendFormState extends State<SendForm> {
                   AddressTextField(
                     controller: _addressController,
                     placeholder: S.of(context).send_monero_address,
+                    focusNode: _focusNode,
                     onURIScanned: (uri) {
                       var address = '';
                       var amount = '';
