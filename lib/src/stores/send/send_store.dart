@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/src/stores/send/sending_state.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/common/openalias_record.dart';
 
 part 'send_store.g.dart';
 
@@ -32,6 +33,8 @@ abstract class SendStoreBase with Store {
   SettingsStore settingsStore;
   PriceStore priceStore;
   Box<TransactionDescription> transactionDescriptions;
+  String recordName;
+  String recordAddress;
 
   @observable
   SendingState state;
@@ -152,6 +155,16 @@ abstract class SendStoreBase with Store {
     } catch (e) {
       cryptoAmount = '0.00';
     }
+  }
+
+  Future<bool> isOpenaliasRecord(String name) async {
+    final _openaliasRecord = await OpenaliasRecord
+        .fetchAddressAndName(OpenaliasRecord.formatDomainName(name));
+
+    recordAddress = _openaliasRecord.address;
+    recordName = _openaliasRecord.name;
+
+    return recordAddress != name;
   }
 
   void validateAddress(String value, {CryptoCurrency cryptoCurrency}) {
