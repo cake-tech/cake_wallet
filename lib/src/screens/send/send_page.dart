@@ -22,7 +22,6 @@ import 'package:cake_wallet/src/domain/common/calculate_estimated_fee.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/stores/sync/sync_store.dart';
-import 'package:cake_wallet/src/domain/common/openalias.dart';
 
 class SendPage extends BasePage {
   @override
@@ -57,32 +56,36 @@ class SendFormState extends State<SendForm> {
 
   @override
   void initState() {
-    _focusNode.addListener(() async {
+    _focusNode.addListener(() {
       if (!_focusNode.hasFocus &&_addressController.text.isNotEmpty) {
-        await fetchXmrAddressAndRecipientName(formatDomainName(_addressController.text)).then((map) async {
-
-          if (_addressController.text != map["recipient_address"]) {
-            _addressController.text = map["recipient_address"];
-
-            await showDialog<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text(S.of(context).openalias_alert_title),
-                    content: Text(S.of(context).openalias_alert_content(map["recipient_name"])),
-                    actions: <Widget>[
-                      FlatButton(
-                          child: Text(S.of(context).ok),
-                          onPressed: () => Navigator.of(context).pop())
-                    ],
-                  );
-                });
-          }
-        });
+        getOpenaliasRecord(context);
       }
     });
 
     super.initState();
+  }
+
+  void getOpenaliasRecord(BuildContext context) async {
+    final sendStore = Provider.of<SendStore>(context);
+    final isOpenalias = await sendStore.isOpenaliasRecord(_addressController.text);
+
+    if (isOpenalias) {
+      _addressController.text = sendStore.recordAddress;
+
+      await showDialog<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(S.of(context).openalias_alert_title),
+              content: Text(S.of(context).openalias_alert_content(sendStore.recordName)),
+              actions: <Widget>[
+                FlatButton(
+                    child: Text(S.of(context).ok),
+                    onPressed: () => Navigator.of(context).pop())
+              ],
+            );
+          });
+    }
   }
 
   @override
