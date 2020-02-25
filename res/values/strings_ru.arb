@@ -284,7 +284,7 @@
 
 
   "auth_store_ban_timeout" : "ban_timeout",
-  "auth_store_banned_for" : "Заблокированно на ",
+  "auth_store_banned_for" : "Заблокировано на ",
   "auth_store_banned_minutes" : " минут",
   "auth_store_incorrect_password" : "Некорректный PIN",
   "wallet_store_monero_wallet" : "Monero Кошелёк",
