@@ -1428,17 +1428,17 @@ class $ru extends S {
   @override
   String get cancel => "Отменить";
   @override
-  String get trade_state_unpaid => "Неоплаченно";
+  String get trade_state_unpaid => "Неоплаченная";
   @override
   String get authenticated => "Аутентифицировано";
   @override
   String get new_subaddress_create => "Создать";
   @override
-  String get restore_view_key_private => "View ключ (приватный)";
+  String get restore_view_key_private => "Приватный ключ просмотра";
   @override
   String get transaction_priority_fast => "Быстрый";
   @override
-  String get error_text_amount => "Баланс может включать только цифры";
+  String get error_text_amount => "Баланс может содержать только цифры";
   @override
   String get hidden_balance => "Скрытый баланс";
   @override
@@ -1446,13 +1446,13 @@ class $ru extends S {
   @override
   String get transaction_sent => "Tранзакция отправлена!";
   @override
-  String get password => "Password";
+  String get password => "Пароль";
   @override
   String get you_will_get => "Вы получите";
   @override
-  String get restore_description_from_seed => "Вы можете восстановить кошелек используя 25-ти значную код фразу";
+  String get restore_description_from_seed => "Вы можете восстановить кошелёк используя 25-ти значную мнемоническую фразу";
   @override
-  String get trade_state_underpaid => "Недоплаченно";
+  String get trade_state_underpaid => "Недоплаченная";
   @override
   String get welcome => "Приветствуем в CAKE WALLET";
   @override
@@ -1464,7 +1464,7 @@ class $ru extends S {
   @override
   String get edit => "Редактировать";
   @override
-  String get spend_key_public => "Spend key (публичный)";
+  String get spend_key_public => "Публичный ключ траты";
   @override
   String get sync_status_syncronizing => "СИНХРОНИЗАЦИЯ";
   @override
@@ -1472,23 +1472,23 @@ class $ru extends S {
   @override
   String get auth_store_banned_minutes => " минут";
   @override
-  String get restore_title_from_seed_keys => "Восстановить из код-фразы/ключей";
+  String get restore_title_from_seed_keys => "Восстановить из мнемонической фразы/ключей";
   @override
   String get settings_none => "Ничего";
   @override
-  String get wallet_list_create_new_wallet => "Создать новый кошелек";
+  String get wallet_list_create_new_wallet => "Создать новый кошелёк";
   @override
-  String get seed_alert_third_text => "Вы так же можете посмотреть Вашу код-фразу\nв";
+  String get seed_alert_third_text => "Вы так же можете посмотреть вашу мнемоническую фразу\nв";
   @override
   String get setup_pin => "Настроить PIN";
   @override
   String get transaction_details_recipient_address => "Адрес получателя";
   @override
-  String get receive_amount => "Баланс";
+  String get receive_amount => "Сумма";
   @override
   String get settings_allow_biometrical_authentication => "Включить биометрическую аутентификацию";
   @override
-  String get view_key_private => "View key (приватный)";
+  String get view_key_private => "Приватный ключ просмотра";
   @override
   String get restore_next => "Продолжить";
   @override
@@ -1496,11 +1496,11 @@ class $ru extends S {
   @override
   String get error_text_address => "Адрес кошелька должен соответствовать типу\nкриптовалюты";
   @override
-  String get send_your_wallet => "Ваш кошелек";
+  String get send_your_wallet => "Ваш кошелёк";
   @override
   String get remove_node_message => "Вы уверены, что хотите удалить текущую ноду?";
   @override
-  String get error_text_account_name => "Имя аккаунта может включать только буквы, цифры\nи может быть от 1 до 15 символов в длину";
+  String get error_text_account_name => "Имя аккаунта может содержать только буквы, цифры\nи должно быть от 1 до 15 символов в длину";
   @override
   String get reconnection => "Переподключение";
   @override
@@ -1518,13 +1518,13 @@ class $ru extends S {
   @override
   String get copy_address => "Cкопировать адрес";
   @override
-  String get error_text_subaddress_name => "Subaddress имя не может включать ` , ' \" символы\nи может быть от 1 до 32 символов в длину";
+  String get error_text_subaddress_name => "Имя субадреса не может содержать ` , ' \" символы\nи должно быть от 1 до 20 символов в длину";
   @override
-  String get incorrect_seed => "Введенный текст некорректный.";
+  String get incorrect_seed => "Введённый текст некорректный.";
   @override
   String get settings_all => "ВСЕ";
   @override
-  String get nodes_list_reset_to_default_message => "Вы уверены, что хотите сбросить до настроек по умолчанию?";
+  String get nodes_list_reset_to_default_message => "Вы уверены, что хотите сбросить настройки до значений по умолчанию?";
   @override
   String get receive => "Получить";
   @override
@@ -1536,7 +1536,7 @@ class $ru extends S {
   @override
   String get confirm => "Подтвердить";
   @override
-  String get settings_display_balance_as => "Отображать баланс";
+  String get settings_display_balance_as => "Отображать баланс как";
   @override
   String get trade_details_provider => "Провайдер";
   @override
@@ -1554,13 +1554,13 @@ class $ru extends S {
   @override
   String get address_book_menu => "Адресная книга";
   @override
-  String get wallet_restoration_store_incorrect_seed_length => "Неверная длина код-фразы";
+  String get wallet_restoration_store_incorrect_seed_length => "Неверная длина мнемонической фразы";
   @override
   String get contact => "Контакт";
   @override
   String get openalias_alert_title => "Получатель XMR обнаружен";
   @override
-  String get auth_store_incorrect_password => "Некорректный пин";
+  String get auth_store_incorrect_password => "Некорректный PIN";
   @override
   String get transaction_priority_slow => "Медленный";
   @override
@@ -1568,23 +1568,23 @@ class $ru extends S {
   @override
   String get remove_node => "Удалить ноду";
   @override
-  String get trade_state_paid_unconfirmed => "Оплата неподтвержденная";
+  String get trade_state_paid_unconfirmed => "Оплата неподтверждена";
   @override
   String get please_select => "Пожалуйста, выберите:";
   @override
   String get restore_title_from_backup => "Восстановить из back-up файла";
   @override
-  String get full_balance => "Полный баланс";
+  String get full_balance => "Весь баланс";
   @override
-  String get sync_status_not_connected => "НЕТ ПОДКЛЮЧЕНИЯ";
+  String get sync_status_not_connected => "НЕ ПОДКЛЮЧЁН";
   @override
   String get error_text_crypto_currency => "Количество цифр после запятой\nдолжно быть меньше или равно 12";
   @override
-  String get error_text_contact_name => "Имя контакта не может включать ` , ' \" символы\n и может быть от 1 до 32 символов в длину";
+  String get error_text_contact_name => "Имя контакта не может содержать ` , ' \" символы\n и должно быть от 1 до 32 символов в длину";
   @override
-  String get restore_seed_keys_restore => "Восстановить с помощью код-фразы/ключей";
+  String get restore_seed_keys_restore => "Восстановить из мнемонической фразы/ключей";
   @override
-  String get xmr_hidden => "XMR Скрытый";
+  String get xmr_hidden => "XMR Скрыто";
   @override
   String get send_xmr => "Отправить XMR";
   @override
@@ -1592,7 +1592,7 @@ class $ru extends S {
   @override
   String get sync_status_failed_connect => "ОШИБКА ПОДКЛЮЧЕНИЯ К НОДЕ";
   @override
-  String get send_estimated_fee => "Предполагаемый сбор:";
+  String get send_estimated_fee => "Предполагаемая комиссия:";
   @override
   String get outgoing => "Исходящие";
   @override
@@ -1602,7 +1602,7 @@ class $ru extends S {
   @override
   String get pending => " (в ожидании)";
   @override
-  String get setup_successful => "PIN был успешно изменен!";
+  String get setup_successful => "PIN был успешно установлен!";
   @override
   String get fetching => "Загрузка";
   @override
@@ -1626,7 +1626,7 @@ class $ru extends S {
   @override
   String get settings_only_transactions => "Транзакции";
   @override
-  String get estimated => "Примерно ";
+  String get estimated => "Примерно";
   @override
   String get filters => "Фильтры";
   @override
@@ -1634,19 +1634,19 @@ class $ru extends S {
   @override
   String get copy_id => "Скопировать ID";
   @override
-  String get please_make_selection => "Выберите способ создания кошелька: создать новый или восстановить Ваш существующий.";
+  String get please_make_selection => "Выберите способ создания кошелька: создать новый или восстановить ваш существующий.";
   @override
   String get loading_your_wallet => "Загрузка кошелька";
   @override
-  String get subaddresses => "Subaddresses";
+  String get subaddresses => "Субадреса";
   @override
-  String get trade_state_timeout => "Timeout";
+  String get trade_state_timeout => "Таймаут";
   @override
   String get nodes => "Ноды";
   @override
-  String get seed_share => "Поделиться код-фразой";
+  String get seed_share => "Поделиться мнемонической фразой";
   @override
-  String get widgets_restore_from_blockheight => "Восстановить по высоте";
+  String get widgets_restore_from_blockheight => "Восстановить на высоте блока";
   @override
   String get new_subaddress_label_name => "Имя";
   @override
@@ -1654,27 +1654,27 @@ class $ru extends S {
   @override
   String get transaction_details_date => "Дата";
   @override
-  String get show_seed => "Показать код-фразу";
+  String get show_seed => "Показать мнемоническую фразу";
   @override
-  String get send_error_currency => "Валюта может включать только цифры";
+  String get send_error_currency => "Валюта может содержать только цифры";
   @override
-  String get subaddress_title => "Subaddress список";
+  String get subaddress_title => "Список субадресов";
   @override
-  String get wallet_store_monero_wallet => "Monero кошелек";
+  String get wallet_store_monero_wallet => "Monero Кошелёк";
   @override
   String get send_creating_transaction => "Создать транзакцию";
   @override
-  String get trade_state_complete => "Полный";
+  String get trade_state_complete => "Выполнена";
   @override
-  String get error_text_xmr => "XMR баланс не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 12";
+  String get error_text_xmr => "Значение XMR не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 12";
   @override
-  String get xmr_available_balance => "XMR Доступный баланс";
+  String get xmr_available_balance => "Доступный XMR баланс";
   @override
-  String get trade_state_paid => "Оплачено";
+  String get trade_state_paid => "Оплаченная";
   @override
   String get node_new => "Новая нода";
   @override
-  String get trade_state_created => "Создано";
+  String get trade_state_created => "Созданная";
   @override
   String get faq => "FAQ";
   @override
@@ -1688,15 +1688,15 @@ class $ru extends S {
   @override
   String get wallet_name => "Имя кошелька";
   @override
-  String get error_text_payment_id => "ID транзакции может включать от 16 до 64 символа в hex";
+  String get error_text_payment_id => "Идентификатор платежа может содержать от 16 до 64 символов в hex";
   @override
-  String get seed_alert_second_text => "Пожалуйста, запишите на \nслучай, если Вы потеряете или сотрете Ваш телефон.";
+  String get seed_alert_second_text => "Пожалуйста, запишите ее на\nслучай, если вы потеряете или отформатируете свой телефон.";
   @override
   String get node_reset_settings_title => "Сбросить настройки";
   @override
   String get wallets => "Кошельки";
   @override
-  String get enter_your_pin_again => "Введите pin еще раз";
+  String get enter_your_pin_again => "Введите PIN еще раз";
   @override
   String get transactions => "Транзакции";
   @override
@@ -1704,13 +1704,13 @@ class $ru extends S {
   @override
   String get error_text_node_address => "Пожалуйста, введите iPv4 адрес";
   @override
-  String get widgets_restore_from_date => "Восстановить по дате";
+  String get widgets_restore_from_date => "Восстановить с даты";
   @override
   String get restore_recover => "Восстановить";
   @override
   String get reset => "Сброс";
   @override
-  String get new_wallet => "Новый кошелек";
+  String get new_wallet => "Новый кошелёк";
   @override
   String get settings_display_on_dashboard_list => "Показывать в списке транзакций";
   @override
@@ -1718,9 +1718,9 @@ class $ru extends S {
   @override
   String get status => "Статус: ";
   @override
-  String get restore_spend_key_private => "Spend ключ (приватный)";
+  String get restore_spend_key_private => "Приватный ключ траты";
   @override
-  String get sync_status_syncronized => "СИНХРОНИЗИРОВАНО";
+  String get sync_status_syncronized => "СИНХРОНИЗИРОВАН";
   @override
   String get transaction_priority_medium => "Средний";
   @override
@@ -1728,15 +1728,15 @@ class $ru extends S {
   @override
   String get save => "Сохранить";
   @override
-  String get login => "Login";
+  String get login => "Логин";
   @override
   String get wallet_list_load_wallet => "Загрузка кошелька";
   @override
   String get sending => "Отправка";
   @override
-  String get restore_restore_wallet => "Восстановить кошелек";
+  String get restore_restore_wallet => "Восстановить кошелёк";
   @override
-  String get restore_description_from_seed_keys => " Вы можете восстановить кошелек из код-фразы/ключей которые Вы сохранили ранее";
+  String get restore_description_from_seed_keys => "Вы можете восстановить кошелёк из мнемонической фразы/ключей, которые вы сохранили ранее";
   @override
   String get copy => "Скопировать";
   @override
@@ -1754,27 +1754,27 @@ class $ru extends S {
   @override
   String get exchange_result_write_down_trade_id => "Пожалуйста, скопируйте или запишите ID сделки.";
   @override
-  String get new_subaddress_title => "Новый subaddress";
+  String get new_subaddress_title => "Новый субадрес";
   @override
   String get change => "Изменить";
   @override
-  String get seed_alert_first_text => "Следущая страница содержит\nВашу код-фразу.";
+  String get seed_alert_first_text => "Следущая страница содержит\nвашу мнемоническую фразу.";
   @override
-  String get trade_state_finished => "Окончено";
+  String get trade_state_finished => "Завершена";
   @override
-  String get pin_is_incorrect => "Некорректный пин";
+  String get pin_is_incorrect => "Некорректный PIN";
   @override
   String get trade_not_created => "Сделка не создана.";
   @override
   String get restore_wallet_name => "Имя кошелька";
   @override
-  String get widgets_seed => "Код-фраза";
+  String get widgets_seed => "Мнемоническая фраза";
   @override
-  String get settings_fee_priority => "Приоритет сбора";
+  String get settings_fee_priority => "Приоритет транзакции";
   @override
   String get settings_personal => "Персональные";
   @override
-  String get seed_title => "Код-фраза";
+  String get seed_title => "Мнемоническая фраза";
   @override
   String get accounts => "Аккаунты";
   @override
@@ -1788,33 +1788,33 @@ class $ru extends S {
   @override
   String get transactions_by_date => "Сортировать по дате";
   @override
-  String get restore_from_seed_placeholder => "Введите или вставте код фразу вашего кошелька";
+  String get restore_from_seed_placeholder => "Введите или вставьте мнемоническую фразу вашего кошелька";
   @override
   String get use => "Переключиться на ";
   @override
   String get trade_details_state => "Статус";
   @override
-  String get spend_key_private => "Spend key (приватный)";
+  String get spend_key_private => "Приватный ключ траты";
   @override
   String get settings_only_trades => "Сделки";
   @override
   String get trade_state_to_be_created => "Будет создана";
   @override
-  String get all => "ALL";
+  String get all => "ВСЕ";
   @override
-  String get xmr_full_balance => "XMR Полный баланс";
+  String get xmr_full_balance => "Весь XMR баланс";
   @override
   String get incoming => "Входящие";
   @override
   String get trade_history_title => "История сделок";
   @override
-  String get error_text_wallet_name => "Имя кошелька может содержать только буквы, цифры\nи может быть от 1 до 15 символов в длину";
+  String get error_text_wallet_name => "Имя кошелька может содержать только буквы, цифры\nи должно быть от 1 до 15 символов в длину";
   @override
-  String get restore_description_from_keys => "Вы можете восстановить кошелек с помощью приватных ключей";
+  String get restore_description_from_keys => "Вы можете восстановить кошелёк с помощью приватных ключей";
   @override
   String get sent => "Отправленные";
   @override
-  String get view_key_public => "View key (публичный)";
+  String get view_key_public => "Публичный ключ просмотра";
   @override
   String get trade_details_id => "ID";
   @override
@@ -1830,9 +1830,9 @@ class $ru extends S {
   @override
   String get seed_alert_settings => "настройках";
   @override
-  String get change_exchange_provider => "Изменить провайдер обмена";
+  String get change_exchange_provider => "Изменить провайдера обмена";
   @override
-  String get send_payment_id => "Payment ID (optional)";
+  String get send_payment_id => "ID платежа (опционально)";
   @override
   String get trade_details_title => "Детали сделок";
   @override
@@ -1862,23 +1862,23 @@ class $ru extends S {
   @override
   String get wallet_menu => "Меню кошелька";
   @override
-  String get settings_dark_mode => "Темный режим";
+  String get settings_dark_mode => "Тёмный режим";
   @override
-  String get payment_id => "ID транзакции: ";
+  String get payment_id => "ID платежа: ";
   @override
   String get restore_address => "Адрес";
   @override
-  String get restore_wallet_restore_description => "Wallet restore description";
+  String get restore_wallet_restore_description => "Описание восстановления кошелька";
   @override
   String get today => "Сегодня";
   @override
   String get settings_support => "Поддержка";
   @override
-  String get restore_wallet => "Восстановить";
+  String get restore_wallet => "Восстановить кошелёк";
   @override
   String get ok => "OK";
   @override
-  String get wallet_list_title => "Monero кошелек";
+  String get wallet_list_title => "Monero Кошелёк";
   @override
   String get authentication => "Аутентификация";
   @override
@@ -1894,21 +1894,21 @@ class $ru extends S {
   @override
   String get trades => "Сделки";
   @override
-  String get trade_state_btc_sent => "Btc отправлен";
+  String get trade_state_btc_sent => "BTC отправлены";
   @override
   String get address_book => "Адресная книга";
   @override
-  String get enter_your_pin => "Введите Ваш PIN";
+  String get enter_your_pin => "Введите ваш PIN";
   @override
-  String get wallet_list_restore_wallet => "Восстановить";
+  String get wallet_list_restore_wallet => "Восстановить кошелёк";
   @override
-  String get restore_title_from_seed => "Восстановить из код-фразы";
+  String get restore_title_from_seed => "Восстановить из мнемонической фразы";
   @override
-  String get restore_description_from_backup => "Вы можете восстановить Cake Wallet из\nВашего back-up файла";
+  String get restore_description_from_backup => "Вы можете восстановить Cake Wallet из\nвашего back-up файла";
   @override
   String get send_monero_address => "Monero адрес";
   @override
-  String get error_text_node_port => "Порт ноды может включать только цифры от 0 до  65535";
+  String get error_text_node_port => "Порт ноды может содержать только цифры от 0 до 65535";
   @override
   String get add_new_word => "Добавить новое слово";
   @override
@@ -1930,7 +1930,7 @@ class $ru extends S {
   @override
   String version(String currentVersion) => "Версия ${currentVersion}";
   @override
-  String router_no_route(String name) => "Экран не найден ${name}";
+  String router_no_route(String name) => "Не установлен маршрут для ${name}";
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "Сделка для ${provider} не создана. Сумма меньше минимальной: ${min} ${currency}";
   @override
@@ -1942,11 +1942,11 @@ class $ru extends S {
   @override
   String powered_by(String title) => "Используя ${title}";
   @override
-  String send_priority(String transactionPriority) => "Сбор установлен в зависимости от приоритета: ${transactionPriority}.\nПриоритет транзакции может быть изменен в настройках";
+  String send_priority(String transactionPriority) => "Комиссия установлена в зависимости от приоритета: ${transactionPriority}.\nПриоритет транзакции может быть изменён в настройках";
   @override
   String trade_for_not_created(String title) => "Сделка для ${title} не создана.";
   @override
-  String trade_is_powered_by(String provider) => "Сделка выполнена ${provider}";
+  String trade_is_powered_by(String provider) => "Сделка выполнена через ${provider}";
   @override
   String time(String minutes, String seconds) => "${minutes}мин ${seconds}сек";
   @override
@@ -1960,13 +1960,13 @@ class $ru extends S {
   @override
   String Blocks_remaining(String status) => "${status} Осталось блоков";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Нажимая подтвердить, Вы отправите ${fetchingLabel} ${from} с Вашего кошелька ${walletName} на адрес указанный выше. Или Вы можете отправить со своего внешнего кошелька на вышеуказанный адрес / QR-код.\n\nПожалуйста, нажмите подтвердить для продолжения или вернитесь назад для изменения суммы.\n\n";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Нажимая подтвердить, вы отправите ${fetchingLabel} ${from} с вашего кошелька ${walletName} на адрес указанный выше. Или вы можете отправить со своего внешнего кошелька на вышеуказанный адрес/QR-код.\n\nПожалуйста, нажмите подтвердить для продолжения, или вернитесь назад для изменения суммы.\n\n";
   @override
   String error_text_limits_loading_failed(String provider) => "Сделка для ${provider} не создана. Ошибка загрузки лимитов";
   @override
   String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный выше.\n\n'";
   @override
-  String commit_transaction_amount_fee(String amount, String fee) => "Подтвердить транзакцию \nСумма: ${amount}\nСбор: ${fee}";
+  String commit_transaction_amount_fee(String amount, String fee) => "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}";
   @override
   String openalias_alert_content(String recipient_name) => "Вы будете отправлять средства\n${recipient_name}";
   @override
@@ -3097,6 +3097,566 @@ class $pt extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao abrir a carteira ${wallet_name}. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Removendo a carteira ${wallet_name}";
+}
+
+class $uk extends S {
+  const $uk();
+
+  @override
+  TextDirection get textDirection => TextDirection.ltr;
+
+  @override
+  String get cancel => "Відмінити";
+  @override
+  String get trade_state_unpaid => "Неоплачена";
+  @override
+  String get authenticated => "Аутентифіковано";
+  @override
+  String get new_subaddress_create => "Створити";
+  @override
+  String get restore_view_key_private => "Приватний ключ перегляду";
+  @override
+  String get transaction_priority_fast => "Швидкий";
+  @override
+  String get error_text_amount => "Баланс може містити тільки цифри";
+  @override
+  String get hidden_balance => "Прихований баланс";
+  @override
+  String get biometric_auth_reason => "Відскануйте свій відбиток пальця для аутентифікації";
+  @override
+  String get transaction_sent => "Tранзакцію відправлено!";
+  @override
+  String get password => "Пароль";
+  @override
+  String get you_will_get => "Ви отримаєте";
+  @override
+  String get restore_description_from_seed => "Ви можете відновити гаманець використовуючи 25-ти слівну мнемонічну фразу";
+  @override
+  String get trade_state_underpaid => "Недоплачена";
+  @override
+  String get welcome => "Вітаємо в CAKE WALLET";
+  @override
+  String get share_address => "Поділитися адресою";
+  @override
+  String get please_try_to_connect_to_another_node => "Будь ласка, спробуйте підключитися до іншого вузлу";
+  @override
+  String get trade_state_traded => "Операція виконана";
+  @override
+  String get edit => "Редагувати";
+  @override
+  String get spend_key_public => "Публічний ключ витрати";
+  @override
+  String get sync_status_syncronizing => "СИНХРОНІЗАЦІЯ";
+  @override
+  String get received => "Отримані";
+  @override
+  String get auth_store_banned_minutes => " хвилин";
+  @override
+  String get restore_title_from_seed_keys => "Відновити з мнемонічної фрази/ключів";
+  @override
+  String get settings_none => "Нічого";
+  @override
+  String get wallet_list_create_new_wallet => "Створити новий гаманець";
+  @override
+  String get seed_alert_third_text => "Також ви можете побачити вашу мнемонічну фразу\nв";
+  @override
+  String get setup_pin => "Встановити PIN";
+  @override
+  String get transaction_details_recipient_address => "Адреса отримувача";
+  @override
+  String get receive_amount => "Баланс";
+  @override
+  String get settings_allow_biometrical_authentication => "Включити біометричну аутентифікацію";
+  @override
+  String get view_key_private => "Приватний ключ перегляду";
+  @override
+  String get restore_next => "Продовжити";
+  @override
+  String get trade_state_trading => "Виконання операції";
+  @override
+  String get error_text_address => "Адреса гаманця повинна відповідати типу\nкриптовалюти";
+  @override
+  String get send_your_wallet => "Ваш гаманець";
+  @override
+  String get remove_node_message => "Ви впевнені, що хочете видалити поточний вузол?";
+  @override
+  String get error_text_account_name => "Ім'я акаунту може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину";
+  @override
+  String get reconnection => "Перепідключення";
+  @override
+  String get available_balance => "Доступний баланс";
+  @override
+  String get restore_title_from_keys => "Відновити за допомогою ключів";
+  @override
+  String get wallet_keys => "Ключі гаманця";
+  @override
+  String get reconnect => "Перепідключитися";
+  @override
+  String get reconnect_alert_text => "Ви хочете перепідключитися?";
+  @override
+  String get send_error_minimum_value => "Мінімальна сума 0.01";
+  @override
+  String get copy_address => "Cкопіювати адресу";
+  @override
+  String get error_text_subaddress_name => "Ім'я субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину";
+  @override
+  String get incorrect_seed => "Введений текст невірний.";
+  @override
+  String get settings_all => "ВСІ";
+  @override
+  String get nodes_list_reset_to_default_message => "Ви впевнені, що хочете скинути до налаштувань за замовченням?";
+  @override
+  String get receive => "Отримати";
+  @override
+  String get amount_is_guaranteed => "Сума отримання гарантована";
+  @override
+  String get auth_store_banned_for => "Заблоковано на ";
+  @override
+  String get trade_details_pair => "Пара";
+  @override
+  String get confirm => "Підтвердити";
+  @override
+  String get settings_display_balance_as => "Відображати баланс як";
+  @override
+  String get trade_details_provider => "Провайдер";
+  @override
+  String get you_will_send => "Ви відправите";
+  @override
+  String get create_new => "Створити новий";
+  @override
+  String get trade_details_fetching => "Отримання";
+  @override
+  String get seed_alert_menu => " меню.";
+  @override
+  String get confirm_sending => "Підтвердити відправлення";
+  @override
+  String get settings_title => "Налаштування";
+  @override
+  String get address_book_menu => "Адресна книга";
+  @override
+  String get wallet_restoration_store_incorrect_seed_length => "Невірна довжина мнемонічної фрази";
+  @override
+  String get contact => "Контакт";
+  @override
+  String get openalias_alert_title => "Отримувача XMR виявлено";
+  @override
+  String get auth_store_incorrect_password => "Некоректний PIN";
+  @override
+  String get transaction_priority_slow => "Повільний";
+  @override
+  String get add => "Добавити";
+  @override
+  String get remove_node => "Видалити вузол";
+  @override
+  String get trade_state_paid_unconfirmed => "Оплата непідтверджена";
+  @override
+  String get please_select => "Будь ласка, виберіть:";
+  @override
+  String get restore_title_from_backup => "Відновити із резервного файлу";
+  @override
+  String get full_balance => "Весь баланс";
+  @override
+  String get sync_status_not_connected => "НЕ ПІДКЛЮЧЕННИЙ";
+  @override
+  String get error_text_crypto_currency => "Кількість цифр після коми\nповинно бути меншим або дорівнювати 12";
+  @override
+  String get error_text_contact_name => "Ім'я контакту не може містити ` , ' \" символи\n і повинно бути від 1 до 32 символів в довжину";
+  @override
+  String get restore_seed_keys_restore => "Відновити за допомогою мнемонічної фрази/ключів";
+  @override
+  String get xmr_hidden => "XMR Приховано";
+  @override
+  String get send_xmr => "Відправити XMR";
+  @override
+  String get exchange => "Обмін";
+  @override
+  String get sync_status_failed_connect => "ПОМИЛКА ПІДКЛЮЧЕННЯ ДО ВУЗЛУ";
+  @override
+  String get send_estimated_fee => "Ймовірна комісія:";
+  @override
+  String get outgoing => "Вихідні";
+  @override
+  String get sync_status_connected => "ПІДКЛЮЧЕНО";
+  @override
+  String get trade_state_pending => "Очікування";
+  @override
+  String get pending => " (в очікуванні)";
+  @override
+  String get setup_successful => "PIN було успішно встановлено!";
+  @override
+  String get fetching => "Завантаження";
+  @override
+  String get settings_nodes => "Вузли";
+  @override
+  String get paste => "Вставити";
+  @override
+  String get widgets_or => "або";
+  @override
+  String get remove => "Видалити";
+  @override
+  String get yesterday => "Вчора";
+  @override
+  String get expired => "Закінчується";
+  @override
+  String get transaction_priority_regular => "Звичайний";
+  @override
+  String get trade_details_created_at => "Створено";
+  @override
+  String get settings_wallets => "Гаманці";
+  @override
+  String get settings_only_transactions => "Транзакції";
+  @override
+  String get estimated => "Приблизно ";
+  @override
+  String get filters => "Фільтри";
+  @override
+  String get settings_current_node => "Поточний вузол";
+  @override
+  String get copy_id => "Скопіювати ID";
+  @override
+  String get please_make_selection => "Виберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.";
+  @override
+  String get loading_your_wallet => "Завантаження гаманця";
+  @override
+  String get subaddresses => "Субадреси";
+  @override
+  String get trade_state_timeout => "Таймаут";
+  @override
+  String get nodes => "Вузли";
+  @override
+  String get seed_share => "Поділитися мнемонічною фразою";
+  @override
+  String get widgets_restore_from_blockheight => "Відновити на висоті блоку";
+  @override
+  String get new_subaddress_label_name => "Ім'я";
+  @override
+  String get trade_not_found => "Операція не знайдена.";
+  @override
+  String get transaction_details_date => "Дата";
+  @override
+  String get show_seed => "Показати мнемонічну фразу";
+  @override
+  String get send_error_currency => "Валюта може містити тільки цифри";
+  @override
+  String get subaddress_title => "Список Субадрес";
+  @override
+  String get wallet_store_monero_wallet => "Monero гаманець";
+  @override
+  String get send_creating_transaction => "Створити транзакцію";
+  @override
+  String get trade_state_complete => "Завершено";
+  @override
+  String get error_text_xmr => "Значення XMR не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12";
+  @override
+  String get xmr_available_balance => "Доступний XMR баланс";
+  @override
+  String get trade_state_paid => "Оплачена";
+  @override
+  String get node_new => "Новий вузол";
+  @override
+  String get trade_state_created => "Створена";
+  @override
+  String get faq => "FAQ";
+  @override
+  String get id => "ID: ";
+  @override
+  String get saved_the_trade_id => "Я зберіг ID операції";
+  @override
+  String get settings_currency => "Валюта";
+  @override
+  String get change_language => "Змінити мову";
+  @override
+  String get wallet_name => "Ім'я гаманця";
+  @override
+  String get error_text_payment_id => "Ідентифікатор платежу може містити від 16 до 64 символів в hex";
+  @override
+  String get seed_alert_second_text => "Будь ласка, запишіть її на \nвипадок, якщо ви втратите або відформатуєте ваш телефон.";
+  @override
+  String get node_reset_settings_title => "Скинути налаштування";
+  @override
+  String get wallets => "Гаманці";
+  @override
+  String get enter_your_pin_again => "Введіть PIN ще раз";
+  @override
+  String get transactions => "Транзакції";
+  @override
+  String get amount_is_estimate => "Отримана сума є приблизною";
+  @override
+  String get error_text_node_address => "Будь ласка, введіть iPv4 адресу";
+  @override
+  String get widgets_restore_from_date => "Відновити з дати";
+  @override
+  String get restore_recover => "Відновити";
+  @override
+  String get reset => "Скинути";
+  @override
+  String get new_wallet => "Новий гаманець";
+  @override
+  String get settings_display_on_dashboard_list => "Відображати в списку транзакцій";
+  @override
+  String get transaction_details_title => "Деталі транзакції";
+  @override
+  String get status => "Статус: ";
+  @override
+  String get restore_spend_key_private => "Приватний ключ витрати";
+  @override
+  String get sync_status_syncronized => "СИНХРОНІЗОВАНИЙ";
+  @override
+  String get transaction_priority_medium => "Середній";
+  @override
+  String get transaction_details_transaction_id => "ID транзакції";
+  @override
+  String get save => "Зберегти";
+  @override
+  String get login => "Логін";
+  @override
+  String get wallet_list_load_wallet => "Завантаження гаманця";
+  @override
+  String get sending => "Відправлення";
+  @override
+  String get restore_restore_wallet => "Відновити гаманець";
+  @override
+  String get restore_description_from_seed_keys => "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше";
+  @override
+  String get copy => "Скопіювати";
+  @override
+  String get node_port => "Порт вузла";
+  @override
+  String get change_currency => "Змінити валюту";
+  @override
+  String get transaction_details_amount => "Сума";
+  @override
+  String get widgets_address => "Адреса";
+  @override
+  String get contact_name => "Ім'я контакту";
+  @override
+  String get exchange_result_write_down_ID => "*Будь ласка, скопіюйте або запишіть ID, вказаний вище.";
+  @override
+  String get exchange_result_write_down_trade_id => "Будь ласка, скопіюйте або запишіть ID операції.";
+  @override
+  String get new_subaddress_title => "Нова субадреса";
+  @override
+  String get change => "Змінити";
+  @override
+  String get seed_alert_first_text => "Наступна сторінка містить\nвашу мнемонічну фразу.";
+  @override
+  String get trade_state_finished => "Завершена";
+  @override
+  String get pin_is_incorrect => "Некоректний PIN";
+  @override
+  String get trade_not_created => "Операція не створена.";
+  @override
+  String get restore_wallet_name => "Ім'я гаманця";
+  @override
+  String get widgets_seed => "Мнемонічна фраза";
+  @override
+  String get settings_fee_priority => "Пріоритет транзакції";
+  @override
+  String get settings_personal => "Персональні";
+  @override
+  String get seed_title => "Мнемонічна фраза";
+  @override
+  String get accounts => "Акаунти";
+  @override
+  String get rescan => "Пересканувати";
+  @override
+  String get seed_alert_understand => "Я розумію";
+  @override
+  String get show_keys => "Показати ключі";
+  @override
+  String get error_text_fiat => "Значення суми не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 2";
+  @override
+  String get transactions_by_date => "Сортувати по даті";
+  @override
+  String get restore_from_seed_placeholder => "Введіть або вставте мнемонічну фразу вашого гаманця";
+  @override
+  String get use => "Переключитися на ";
+  @override
+  String get trade_details_state => "Статус";
+  @override
+  String get spend_key_private => "Приватний ключ витрати";
+  @override
+  String get settings_only_trades => "Операції";
+  @override
+  String get trade_state_to_be_created => "Буде створена";
+  @override
+  String get all => "ВСЕ";
+  @override
+  String get xmr_full_balance => "Весь XMR баланс";
+  @override
+  String get incoming => "Вхідні";
+  @override
+  String get trade_history_title => "Історія операцій";
+  @override
+  String get error_text_wallet_name => "Ім'я гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину";
+  @override
+  String get restore_description_from_keys => "Ви можете відновити гаманець за допомогою приватних ключів";
+  @override
+  String get sent => "Відправлені";
+  @override
+  String get view_key_public => "Публічний ключ перегляду";
+  @override
+  String get trade_details_id => "ID";
+  @override
+  String get trade_state_confirming => "Підтвердження";
+  @override
+  String get send => "Відправити";
+  @override
+  String get send_title => "Відправити Monero";
+  @override
+  String get error_text_keys => "Ключі гаманця можуть містити тільки 64 символів в hex";
+  @override
+  String get settings_save_recipient_address => "Зберігати адресу отримувача";
+  @override
+  String get seed_alert_settings => "налаштуваннях";
+  @override
+  String get change_exchange_provider => "Змінити провайдера обміну";
+  @override
+  String get send_payment_id => "ID платежу (опційно)";
+  @override
+  String get trade_details_title => "Деталі операцій";
+  @override
+  String get settings_terms_and_conditions => "Умови та положення";
+  @override
+  String get auth_store_ban_timeout => "ban_timeout";
+  @override
+  String get sync_status_connecting => "ПІДКЛЮЧЕННЯ";
+  @override
+  String get settings_transactions => "Транзакції";
+  @override
+  String get transaction_priority_fastest => "Найшвидший";
+  @override
+  String get error => "Помилка";
+  @override
+  String get delete => "Видалити";
+  @override
+  String get sync_status_starting_sync => "ПОЧАТОК СИНХРОНІЗАЦІЇ";
+  @override
+  String get copied_to_clipboard => "Скопійовано в буфер обміну";
+  @override
+  String get offer_expires_in => "Пропозиція закінчиться через: ";
+  @override
+  String get continue_text => "Продовжити";
+  @override
+  String get transaction_details_height => "Висота";
+  @override
+  String get wallet_menu => "Меню гаманця";
+  @override
+  String get settings_dark_mode => "Темний режим";
+  @override
+  String get payment_id => "ID платежу: ";
+  @override
+  String get restore_address => "Адреса";
+  @override
+  String get restore_wallet_restore_description => "Опис відновлюваного гаманця";
+  @override
+  String get today => "Сьогодні";
+  @override
+  String get settings_support => "Підтримка";
+  @override
+  String get restore_wallet => "Відновити гаманець";
+  @override
+  String get ok => "OK";
+  @override
+  String get wallet_list_title => "Monero Гаманець";
+  @override
+  String get authentication => "Аутентифікація";
+  @override
+  String get amount => "Сума: ";
+  @override
+  String get node_address => "Адреса вузла";
+  @override
+  String get settings_change_language => "Змінити мову";
+  @override
+  String get clear => "Очистити";
+  @override
+  String get settings_change_pin => "Змінити PIN";
+  @override
+  String get trades => "Торгові операції";
+  @override
+  String get trade_state_btc_sent => "BTC надіслано";
+  @override
+  String get address_book => "Адресна книга";
+  @override
+  String get enter_your_pin => "Введіть ваш PIN";
+  @override
+  String get wallet_list_restore_wallet => "Відновити гаманець";
+  @override
+  String get restore_title_from_seed => "Відновити з мнемонічної фрази";
+  @override
+  String get restore_description_from_backup => "Ви можете відновити Cake Wallet з\nвашого резервного файлу";
+  @override
+  String get send_monero_address => "Monero адреса";
+  @override
+  String get error_text_node_port => "Порт вузла може містити тільки цифри від 0 до 65535";
+  @override
+  String get add_new_word => "Добавити нове слово";
+  @override
+  String get digit_pin => "-значний PIN";
+  @override
+  String get first_wallet_text => "В самому зручному гаманці для Monero";
+  @override
+  String get settings_trades => "Операції";
+  @override
+  String get account => "Акаунт";
+  @override
+  String change_language_to(String language) => "Змінити мову на ${language}?";
+  @override
+  String change_current_node(String node) => "Ви впевнені, що хочете змінити поточний вузол на ${node}?";
+  @override
+  String trade_id(String id) => "ID операції:\n${id}";
+  @override
+  String wallet_list_loading_wallet(String wallet_name) => "Завантаження ${wallet_name} гаманця";
+  @override
+  String version(String currentVersion) => "Версія ${currentVersion}";
+  @override
+  String router_no_route(String name) => "Не встановлено маршрут для ${name}";
+  @override
+  String error_text_minimal_limit(String provider, String min, String currency) => "Операція для ${provider} не створена. Сума менша мінімальної: ${min} ${currency}";
+  @override
+  String trade_id_not_found(String tradeId, String title) => "Операція ${tradeId} ${title} не знайдена.";
+  @override
+  String transaction_details_copied(String title) => "${title} скопійовано в буфер обміну";
+  @override
+  String trade_details_copied(String title) => "${title} скопійовано в буфер обміну";
+  @override
+  String powered_by(String title) => "Використовуючи ${title}";
+  @override
+  String send_priority(String transactionPriority) => "Комісія встановлена в залежності від пріоритету: ${transactionPriority}.\nПріоритет транзакції може бути змінений в налаштуваннях";
+  @override
+  String trade_for_not_created(String title) => "Операція для ${title} не створена.";
+  @override
+  String trade_is_powered_by(String provider) => "Операція виконана через ${provider}";
+  @override
+  String time(String minutes, String seconds) => "${minutes}хв ${seconds}сек";
+  @override
+  String max_value(String value, String currency) => "Макс: ${value} ${currency}";
+  @override
+  String error_text_maximum_limit(String provider, String max, String currency) => "Операція для ${provider} не створена. Сума більше максимальної: ${max} ${currency}";
+  @override
+  String min_value(String value, String currency) => "Мін: ${value} ${currency}";
+  @override
+  String failed_authentication(String state_error) => "Помилка аутентифікації. ${state_error}";
+  @override
+  String Blocks_remaining(String status) => "${status} Залишилось блоків";
+  @override
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану вище. Або ви можете відправити зі свого зовнішнього гаманця на вищевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.\n\n";
+  @override
+  String error_text_limits_loading_failed(String provider) => "Операція для ${provider} не створена. Помилка завантаження лімітів";
+  @override
+  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану вище.\n\n'";
+  @override
+  String commit_transaction_amount_fee(String amount, String fee) => "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}";
+  @override
+  String openalias_alert_content(String recipient_name) => "Ви будете відправляти кошти\n${recipient_name}";
+  @override
+  String wallet_list_failed_to_remove(String wallet_name, String error) => "Помилка при видаленні ${wallet_name} гаманця. ${error}";
+  @override
+  String copied_key_to_clipboard(String key) => "Скопійовано ${key} в буфер обміну";
+  @override
+  String wallet_list_failed_to_load(String wallet_name, String error) => "Помилка при завантаженні ${wallet_name} гаманця. ${error}";
+  @override
+  String wallet_list_removing_wallet(String wallet_name) => "Видалення ${wallet_name} гаманця";
 }
 
 class $ja extends S {
@@ -5913,6 +6473,7 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
       Locale("ru", ""),
       Locale("ko", ""),
       Locale("pt", ""),
+      Locale("uk", ""),
       Locale("ja", ""),
       Locale("en", ""),
       Locale("pl", ""),
@@ -5957,6 +6518,9 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
           return SynchronousFuture<S>(S.current);
         case "pt":
           S.current = const $pt();
+          return SynchronousFuture<S>(S.current);
+        case "uk":
+          S.current = const $uk();
           return SynchronousFuture<S>(S.current);
         case "ja":
           S.current = const $ja();
