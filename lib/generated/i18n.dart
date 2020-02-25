@@ -1530,7 +1530,7 @@ class $ru extends S {
   @override
   String get amount_is_guaranteed => "Сумма получения гарантирована";
   @override
-  String get auth_store_banned_for => "Заблокированно на ";
+  String get auth_store_banned_for => "Заблокировано на ";
   @override
   String get trade_details_pair => "Пара";
   @override
