@@ -388,7 +388,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                                   child: Text(S.of(context).transactions,
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black))),
+                                          color: Theme.of(context).primaryTextTheme.caption.color))),
                               PopupMenuItem(
                                   value: 0,
                                   child: Observer(
@@ -438,7 +438,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                                   child: Text(S.of(context).trades,
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.black))),
+                                          color: Theme.of(context).primaryTextTheme.caption.color))),
                               PopupMenuItem(
                                   value: 3,
                                   child: Observer(

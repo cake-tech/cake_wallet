@@ -31,8 +31,8 @@
   "Blocks_remaining" : "${status} Осталось блоков",
   "please_try_to_connect_to_another_node" : "Пожалуйста, попробуйте подключиться к другой ноде",
   "xmr_hidden" : "XMR Скрыто",
-  "xmr_available_balance" : "XMR Доступный баланс",
-  "xmr_full_balance" : "XMR Полный баланс",
+  "xmr_available_balance" : "Доступный XMR баланс",
+  "xmr_full_balance" : "Весь XMR баланс",
   "send" : "Отправить",
   "receive" : "Получить",
   "transactions" : "Транзакции",
@@ -89,7 +89,7 @@
   "exchange_result_write_down_ID" : "*Пожалуйста, скопируйте или запишите ID, указанный выше.",
   "confirm" : "Подтвердить",
   "confirm_sending" : "Подтвердить отправку",
-    "commit_transaction_amount_fee" : "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}",
+  "commit_transaction_amount_fee" : "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}",
   "sending" : "Отправка",
   "transaction_sent" : "Tранзакция отправлена!",
   "expired" : "Истекает",
@@ -135,7 +135,7 @@
 
   "restore_restore_wallet" : "Восстановить кошелёк",
   "restore_title_from_seed_keys" : "Восстановить из мнемонической фразы/ключей",
-  "restore_description_from_seed_keys" : "Вы можете восстановить кошелёк из мнемонической фразы/ключей которые вы сохранили ранее",
+  "restore_description_from_seed_keys" : "Вы можете восстановить кошелёк из мнемонической фразы/ключей, которые вы сохранили ранее",
   "restore_next" : "Продолжить",
   "restore_title_from_backup" : "Восстановить из back-up файла",
   "restore_description_from_backup" : "Вы можете восстановить Cake Wallet из\nвашего back-up файла",
@@ -158,7 +158,7 @@
 
 
   "seed_alert_first_text" : "Следущая страница содержит\nвашу мнемоническую фразу.",
-  "seed_alert_second_text" : "Пожалуйста, запишите ее на \nслучай, если вы потеряете или отформатируете свой телефон.",
+  "seed_alert_second_text" : "Пожалуйста, запишите ее на\nслучай, если вы потеряете или отформатируете свой телефон.",
   "seed_alert_third_text" : "Вы так же можете посмотреть вашу мнемоническую фразу\nв",
   "seed_alert_settings" : "настройках",
   "seed_alert_menu" : " меню.",
