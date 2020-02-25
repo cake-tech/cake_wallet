@@ -56,7 +56,6 @@ abstract class SendStoreBase with Store {
   NumberFormat _cryptoNumberFormat;
   NumberFormat _fiatNumberFormat;
   String _lastRecipientAddress;
-  OpenaliasRecord _openaliasRecord;
 
   @action
   Future createTransaction(
@@ -159,11 +158,11 @@ abstract class SendStoreBase with Store {
   }
 
   Future<bool> isOpenaliasRecord(String name) async {
-    _openaliasRecord = OpenaliasRecord(name: name);
-    await _openaliasRecord.fetchAddressAndName(_openaliasRecord.formatDomainName());
+    final _openaliasRecord = await OpenaliasRecord
+        .fetchAddressAndName(OpenaliasRecord.formatDomainName(name));
 
-    recordAddress = _openaliasRecord.recordAddress;
-    recordName = _openaliasRecord.recordName;
+    recordAddress = _openaliasRecord.address;
+    recordName = _openaliasRecord.name;
 
     return recordAddress != name;
   }

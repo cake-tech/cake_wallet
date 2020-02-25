@@ -65,7 +65,7 @@ class SendFormState extends State<SendForm> {
     super.initState();
   }
 
-  void getOpenaliasRecord(BuildContext context) async {
+  Future<void> getOpenaliasRecord(BuildContext context) async {
     final sendStore = Provider.of<SendStore>(context);
     final isOpenalias = await sendStore.isOpenaliasRecord(_addressController.text);
 

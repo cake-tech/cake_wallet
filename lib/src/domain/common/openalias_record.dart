@@ -2,15 +2,12 @@ import 'package:basic_utils/basic_utils.dart';
 
 class OpenaliasRecord {
 
-  OpenaliasRecord({this.name});
+  OpenaliasRecord({this.address, this.name});
 
-  String name;
-  String address;
+  final String name;
+  final String address;
 
-  String get recordName => name;
-  String get recordAddress => address;
-
-  String formatDomainName() {
+  static String formatDomainName(String name) {
     String formattedName = name;
 
     if (name.contains("@")) {
@@ -20,41 +17,45 @@ class OpenaliasRecord {
     return formattedName;
   }
 
-  Future<void> fetchAddressAndName(String name) async {
-    this.name = name;
-    address =  name;
+  static Future<OpenaliasRecord> fetchAddressAndName(String formattedName) async {
+    String address = formattedName;
+    String name = formattedName;
 
-    try {
-      final txtRecord = await DnsUtils.lookupRecord(name, RRecordType.TXT, dnssec: true);
+    if (formattedName.contains(".")) {
+      try {
+        final txtRecord = await DnsUtils.lookupRecord(formattedName, RRecordType.TXT, dnssec: true);
 
-      if (txtRecord != null) {
+        if (txtRecord != null) {
 
-        for (RRecord element in txtRecord) {
-          String record = element.data;
+          for (RRecord element in txtRecord) {
+            String record = element.data;
 
-          if (record.contains("oa1:xmr") && record.contains("recipient_address")) {
-            record = record.replaceAll('\"', "");
+            if (record.contains("oa1:xmr") && record.contains("recipient_address")) {
+              record = record.replaceAll('\"', "");
 
-            final dataList = record.split(";");
+              final dataList = record.split(";");
 
-            address = dataList.where((item) => (item.contains("recipient_address")))
-                .toString().replaceAll("oa1:xmr recipient_address=", "")
-                .replaceAll("(", "").replaceAll(")", "").trim();
+              address = dataList.where((item) => (item.contains("recipient_address")))
+                  .toString().replaceAll("oa1:xmr recipient_address=", "")
+                  .replaceAll("(", "").replaceAll(")", "").trim();
 
-            final recipientName = dataList.where((item) => (item.contains("recipient_name"))).toString()
-                .replaceAll("(", "").replaceAll(")", "").trim();
+              final recipientName = dataList.where((item) => (item.contains("recipient_name"))).toString()
+                  .replaceAll("(", "").replaceAll(")", "").trim();
 
-            if (recipientName.isNotEmpty) {
-              this.name = recipientName.replaceAll("recipient_name=", "");
+              if (recipientName.isNotEmpty) {
+                name = recipientName.replaceAll("recipient_name=", "");
+              }
+
+              break;
             }
-
-            break;
           }
         }
+      } catch (e) {
+        print("${e.toString()}");
       }
-    } catch (e) {
-      print("${e.toString()}");
     }
+
+    return OpenaliasRecord(address: address, name: name);
   }
 
 }
