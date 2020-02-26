@@ -6,21 +6,6 @@ import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
-const Map<String, String> _languages = {
-  'en': 'English',
-  'de': 'Deutsch (German)',
-  'es': 'Español (Spanish)',
-  'hi': 'हिंदी (Hindi)',
-  'ja': '日本 (Japanese)',
-  'ko': '한국어 (Korean)',
-  'nl': 'Nederlands (Dutch)',
-  'pl': 'Polski (Polish)',
-  'pt': 'Português (Portuguese)',
-  'ru': 'Русский (Russian)',
-  'uk': 'Українська (Ukrainian)',
-  'zh': '中文 (Chinese)'
-};
-
 class ChangeLanguage extends BasePage {
   @override
   String get title => S.current.settings_change_language;
@@ -36,11 +21,11 @@ class ChangeLanguage extends BasePage {
     return Container(
         padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
         child: ListView.builder(
-          itemCount: _languages.values.length,
+          itemCount: languages.values.length,
           itemBuilder: (BuildContext context, int index) {
             final isCurrent = settingsStore.languageCode == null
                 ? false
-                : _languages.keys.elementAt(index) ==
+                : languages.keys.elementAt(index) ==
                     settingsStore.languageCode;
 
             return Container(
@@ -48,7 +33,7 @@ class ChangeLanguage extends BasePage {
               color: isCurrent ? currentColor : notCurrentColor,
               child: ListTile(
                 title: Text(
-                  _languages.values.elementAt(index),
+                  languages.values.elementAt(index),
                   style: TextStyle(
                       fontSize: 16.0,
                       color: Theme.of(context).primaryTextTheme.title.color),
@@ -65,7 +50,7 @@ class ChangeLanguage extends BasePage {
                             ),
                             content: Text(
                               S.of(context).change_language_to(
-                                  _languages.values.elementAt(index)),
+                                  languages.values.elementAt(index)),
                               textAlign: TextAlign.center,
                             ),
                             actions: <Widget>[
@@ -76,9 +61,9 @@ class ChangeLanguage extends BasePage {
                                   onPressed: () {
                                     settingsStore.saveLanguageCode(
                                         languageCode:
-                                            _languages.keys.elementAt(index));
+                                            languages.keys.elementAt(index));
                                     currentLanguage.setCurrentLanguage(
-                                        _languages.keys.elementAt(index));
+                                        languages.keys.elementAt(index));
                                     Navigator.of(context).pop();
                                   },
                                   child: Text(S.of(context).change)),
