@@ -4,14 +4,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/domain/monero/mnemonics/english.dart';
+import 'package:cake_wallet/src/domain/monero/mnemonics/chinese_simplified.dart';
+import 'package:cake_wallet/src/domain/monero/mnemonics/dutch.dart';
+import 'package:cake_wallet/src/domain/monero/mnemonics/german.dart';
+import 'package:cake_wallet/src/domain/monero/mnemonics/japanese.dart';
+import 'package:cake_wallet/src/domain/monero/mnemonics/portuguese.dart';
+import 'package:cake_wallet/src/domain/monero/mnemonics/russian.dart';
+import 'package:cake_wallet/src/domain/monero/mnemonics/spanish.dart';
 import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SeedWidget extends StatefulWidget {
-  SeedWidget({Key key, this.onMnemoticChange, this.onFinish}) : super(key: key);
+  SeedWidget({Key key, this.onMnemoticChange, this.onFinish, this.seedLanguage}) : super(key: key) {
+    switch (seedLanguage) {
+      case 'English':
+        words = EnglishMnemonics.words;
+        break;
+      case 'Chinese (simplified)':
+        words = ChineseSimplifiedMnemonics.words;
+        break;
+      case 'Dutch':
+        words = DutchMnemonics.words;
+        break;
+      case 'German':
+        words = GermanMnemonics.words;
+        break;
+      case 'Japanese':
+        words = JapaneseMnemonics.words;
+        break;
+      case 'Portuguese':
+        words = PortugueseMnemonics.words;
+        break;
+      case 'Russian':
+        words = RussianMnemonics.words;
+        break;
+      case 'Spanish':
+        words = SpanishMnemonics.words;
+        break;
+      default:
+        words = EnglishMnemonics.words;
+    }
+  }
 
   final Function(List<MnemoticItem>) onMnemoticChange;
   final Function() onFinish;
+  final String seedLanguage;
+  List<String> words;
 
   @override
   SeedWidgetState createState() => SeedWidgetState();
@@ -42,7 +80,7 @@ class SeedWidgetState extends State<SeedWidget> {
 
   void addMnemotic(String text) {
     setState(() => items.add(MnemoticItem(
-        text: text.trim().toLowerCase(), dic: EnglishMnemonics.words)));
+        text: text.trim().toLowerCase(), dic: widget.words)));
     _seedController.text = '';
 
     if (widget.onMnemoticChange != null) {
@@ -141,7 +179,7 @@ class SeedWidgetState extends State<SeedWidget> {
       }
 
       currentMnemotics = splitted
-          .map((text) => MnemoticItem(text: text, dic: EnglishMnemonics.words))
+          .map((text) => MnemoticItem(text: text, dic: widget.words))
           .toList();
 
       bool isValid = true;

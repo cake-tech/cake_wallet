@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/stores/wallet_list/wallet_list_store.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_menu.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 class WalletListPage extends BasePage {
   @override
@@ -54,6 +55,7 @@ class WalletListBodyState extends State<WalletListBody> {
   @override
   Widget build(BuildContext context) {
     _walletListStore = Provider.of<WalletListStore>(context);
+    final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
     return ScrollableWithBottomSection(
         content: Container(
@@ -100,8 +102,10 @@ class WalletListBodyState extends State<WalletListBody> {
         ),
         bottomSection: Column(children: <Widget>[
           PrimaryIconButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(Routes.newWallet),
+              onPressed: () {
+                seedLanguageStore.setCurrentRoute(Routes.newWallet);
+                Navigator.of(context).pushNamed(Routes.seedLanguage);
+              },
               iconData: Icons.add,
               color: Theme.of(context).primaryTextTheme.button.backgroundColor,
               borderColor:

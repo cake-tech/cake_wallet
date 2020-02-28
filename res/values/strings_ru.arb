@@ -157,12 +157,8 @@
   "copy" : "Скопировать",
 
 
-  "seed_alert_first_text" : "Следущая страница содержит\nвашу мнемоническую фразу.",
-  "seed_alert_second_text" : "Пожалуйста, запишите ее на\nслучай, если вы потеряете или отформатируете свой телефон.",
-  "seed_alert_third_text" : "Вы так же можете посмотреть вашу мнемоническую фразу\nв",
-  "seed_alert_settings" : "настройках",
-  "seed_alert_menu" : " меню.",
-  "seed_alert_understand" : "Я понимаю",
+  "seed_language_choose" : "Пожалуйста, выберите язык семян",
+  "seed_language_next" : "Продолжить",
 
 
   "send_title" : "Отправить Monero",

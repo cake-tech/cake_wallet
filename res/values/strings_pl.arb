@@ -157,12 +157,8 @@
   "copy" : "Kopiuj",
 
 
-  "seed_alert_first_text" : "Pojawi się następna strona\nziarno.",
-  "seed_alert_second_text" : "Zapisz je na wszelki wypadek\nzgubisz lub wyczyścisz telefon.",
-  "seed_alert_third_text" : "Możesz także ponownie zobaczyć ziarno\nw ",
-  "seed_alert_settings" : "ustawienia",
-  "seed_alert_menu" : " menu.",
-  "seed_alert_understand" : "rozumiem",
+  "seed_language_choose" : "Proszę wybrać język początkowy",
+  "seed_language_next" : "Kolejny",
 
 
   "send_title" : "Wyślij Monero",

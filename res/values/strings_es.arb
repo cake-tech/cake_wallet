@@ -157,12 +157,8 @@
   "copy" : "Dupdo",
 
 
-  "seed_alert_first_text" : "La siguiente página te mostrará \nuna semilla.",
-  "seed_alert_second_text" : "Anótelos solo en caso de que pierda\no limpie su teléfono.",
-  "seed_alert_third_text" : "También puede ver la semilla nuevamente \nen el ",
-  "seed_alert_settings" : "de configuración",
-  "seed_alert_menu" : " menú .",
-  "seed_alert_understand" : "Entiendo",
+  "seed_language_choose" : "Por favor elija el idioma semilla",
+  "seed_language_next" : "Próximo",
 
 
   "send_title" : "Enviar Monero",
