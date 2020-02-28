@@ -65,7 +65,7 @@ import 'package:cake_wallet/src/screens/restore/restore_wallet_from_seed_page.da
 import 'package:cake_wallet/src/screens/restore/restore_wallet_from_keys_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
-import 'package:cake_wallet/src/screens/seed_alert/seed_alert.dart';
+import 'package:cake_wallet/src/screens/seed_language/seed_language_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/accounts/account_page.dart';
 import 'package:cake_wallet/src/screens/accounts/account_list_page.dart';
@@ -117,7 +117,7 @@ class Router {
                         sharedPreferences: sharedPreferences)),
                 child: SetupPinCodePage(
                     onPinCodeSetup: (context, _) =>
-                        Navigator.pushNamed(context, Routes.newWallet))));
+                        Navigator.pushNamed(context, Routes.seedLanguage))));
 
       case Routes.newWallet:
         return CupertinoPageRoute<void>(
@@ -261,8 +261,8 @@ class Router {
         return CupertinoPageRoute<void>(
             builder: (_) => DisclaimerPage(isReadOnly: true));
 
-      case Routes.seedAlert:
-        return CupertinoPageRoute<void>(builder: (_) => SeedAlert());
+      case Routes.seedLanguage:
+        return CupertinoPageRoute<void>(builder: (_) => SeedLanguage());
 
       case Routes.walletList:
         return MaterialPageRoute<void>(

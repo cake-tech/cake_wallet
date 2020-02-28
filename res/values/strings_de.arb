@@ -157,12 +157,8 @@
   "copy" : "Kopieren",
 
 
-  "seed_alert_first_text" : "Die nächste Seite wird angezeigt\nDu bist ein Seed.",
-  "seed_alert_second_text" : "Bitte schreiben Sie diese nur in\nFalls Sie Ihr Telefon verlieren oder abwischen.",
-  "seed_alert_third_text" : "Sie können den Seed auch wieder sehen\nin dem ",
-  "seed_alert_settings" : "die Einstellungen",
-  "seed_alert_menu" : " Speisekarte.",
-  "seed_alert_understand" : "ich verstehe",
+  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache",
+  "seed_language_next" : "Nächster",
 
 
   "send_title" : "Senden Sie Monero",

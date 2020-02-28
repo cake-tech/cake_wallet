@@ -41,7 +41,7 @@ class WalletListService {
       .map((info) => WalletDescription(name: info.name, type: info.type))
       .toList();
 
-  Future create(String name) async {
+  Future create(String name, String language) async {
     if (await walletsManager.isWalletExit(name)) {
       throw WalletIsExistException(name);
     }
@@ -53,7 +53,7 @@ class WalletListService {
     final password = Uuid().v4();
     await saveWalletPassword(password: password, walletName: name);
 
-    final wallet = await walletsManager.create(name, password);
+    final wallet = await walletsManager.create(name, password, language);
 
     await onWalletChange(wallet);
   }
@@ -76,7 +76,7 @@ class WalletListService {
     await onWalletChange(wallet);
   }
 
-  Future restoreFromKeys(String name, int restoreHeight, String address,
+  Future restoreFromKeys(String name, String language, int restoreHeight, String address,
       String viewKey, String spendKey) async {
     if (await walletsManager.isWalletExit(name)) {
       throw WalletIsExistException(name);
@@ -90,7 +90,7 @@ class WalletListService {
     await saveWalletPassword(password: password, walletName: name);
 
     final wallet = await walletsManager.restoreFromKeys(
-        name, password, restoreHeight, address, viewKey, spendKey);
+        name, password, language, restoreHeight, address, viewKey, spendKey);
 
     await onWalletChange(wallet);
   }

@@ -157,12 +157,8 @@
   "copy" : "Copy",
 
 
-  "seed_alert_first_text" : "The next page will show\nyou a seed.",
-  "seed_alert_second_text" : "Please write these down just in\ncase you lose or wipe your phone.",
-  "seed_alert_third_text" : "You can also see the seed again\nin the ",
-  "seed_alert_settings" : "settings",
-  "seed_alert_menu" : " menu.",
-  "seed_alert_understand" : "I understand",
+  "seed_language_choose" : "Please choose seed language",
+  "seed_language_next" : "Next",
 
 
   "send_title" : "Send Monero",

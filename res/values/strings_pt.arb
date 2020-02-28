@@ -157,12 +157,8 @@
   "copy" : "Copiar",
 
 
-  "seed_alert_first_text" : "A próxima página exibirá\n uma semente.",
-  "seed_alert_second_text" : "Anote a semente em um papel. Ela é o seu backup\n caso o seu telefone estrague ou seja perdido/roubado.",
-  "seed_alert_third_text" : "Você também poderá ver a semente novamente\nna seção ",
-  "seed_alert_settings" : "configurações",
-  "seed_alert_menu" : " do menu.",
-  "seed_alert_understand" : "Eu entendi",
+  "seed_language_choose" : "Por favor, escolha o idioma da semente",
+  "seed_language_next" : "Próximo",
 
 
   "send_title" : "Enviar Monero",
