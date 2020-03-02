@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
+import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(
@@ -73,11 +74,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
     return ScrollableWithBottomSection(
         content: Column(children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 10),
-            child: Image.asset('assets/images/bitmap.png',
-                height: 224, width: 400),
-          ),
-          Padding(
             padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
             child: Form(
                 key: _formKey,
@@ -102,6 +98,16 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     return walletCreationStore.errorMessage;
                   },
                 )),
+          ),
+          Padding(padding: EdgeInsets.only(bottom: 20),
+            child: Text(
+              S.of(context).seed_language_choose,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 19.0),
+            ),
+          ),
+          Padding(padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+            child: SeedLanguagePicker(),
           )
         ]),
         bottomSection: Observer(

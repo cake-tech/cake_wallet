@@ -159,6 +159,14 @@
 
   "seed_language_choose" : "請選擇種子語言",
   "seed_language_next" : "下一个",
+  "seed_language_english" : "英語",
+  "seed_language_chinese" : "中文",
+  "seed_language_dutch" : "荷蘭人",
+  "seed_language_german" : "德語",
+  "seed_language_japanese" : "日本",
+  "seed_language_portuguese" : "葡萄牙語",
+  "seed_language_russian" : "俄語",
+  "seed_language_spanish" : "西班牙文",
 
 
   "send_title" : "发送门罗币",

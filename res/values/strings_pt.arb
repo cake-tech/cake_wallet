@@ -159,6 +159,14 @@
 
   "seed_language_choose" : "Por favor, escolha o idioma da semente",
   "seed_language_next" : "Próximo",
+  "seed_language_english" : "Inglesa",
+  "seed_language_chinese" : "Chinesa",
+  "seed_language_dutch" : "Holandesa",
+  "seed_language_german" : "Alemã",
+  "seed_language_japanese" : "Japonês",
+  "seed_language_portuguese" : "Português",
+  "seed_language_russian" : "Russa",
+  "seed_language_spanish" : "Espanhola",
 
 
   "send_title" : "Enviar Monero",

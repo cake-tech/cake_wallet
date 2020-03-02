@@ -159,6 +159,14 @@
 
   "seed_language_choose" : "Please choose seed language",
   "seed_language_next" : "Next",
+  "seed_language_english" : "English",
+  "seed_language_chinese" : "Chinese",
+  "seed_language_dutch" : "Dutch",
+  "seed_language_german" : "German",
+  "seed_language_japanese" : "Japanese",
+  "seed_language_portuguese" : "Portuguese",
+  "seed_language_russian" : "Russian",
+  "seed_language_spanish" : "Spanish",
 
 
   "send_title" : "Send Monero",
