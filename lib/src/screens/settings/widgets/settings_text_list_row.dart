@@ -18,14 +18,23 @@ class SettingsTextListRow extends StatelessWidget {
       color: Theme.of(context).accentTextTheme.headline.backgroundColor,
       child: ListTile(
         contentPadding: EdgeInsets.only(left: 20.0, right: 20.0),
-        title: Observer(
-            builder: (_) => Text(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Flexible(
+              child: Observer(
+                builder: (_) => Text(
                   settingsStore.itemHeaders[title],
                   style: TextStyle(
-                      fontSize: 16.0,
-                      color: Theme.of(context).primaryTextTheme.title.color),
-                )),
-        trailing: widget,
+                           fontSize: 16.0,
+                           color: Theme.of(context).primaryTextTheme.title.color),
+                  )),
+            ),
+            Flexible(
+              child: widget
+            )
+          ],
+        ),
         onTap: onTaped,
       ),
     );
