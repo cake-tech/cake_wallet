@@ -117,7 +117,7 @@ class Router {
                         sharedPreferences: sharedPreferences)),
                 child: SetupPinCodePage(
                     onPinCodeSetup: (context, _) =>
-                        Navigator.pushNamed(context, Routes.seedLanguage))));
+                        Navigator.pushNamed(context, Routes.newWallet))));
 
       case Routes.newWallet:
         return CupertinoPageRoute<void>(

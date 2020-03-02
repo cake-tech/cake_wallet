@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
-import 'package:cake_wallet/src/widgets/present_picker.dart';
 
 class SeedLanguage extends BasePage {
   final imageSeed = Image.asset('assets/images/seedIco.png');
@@ -34,14 +32,7 @@ class SeedLanguage extends BasePage {
                   SizedBox(
                     height: 20.0,
                   ),
-                  Observer(
-                      builder: (_) => InkWell(
-                        onTap: () => _setSeedLanguage(context),
-                        child: Text(seedLanguageStore.selectedSeedLanguage,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 19.0, color: Palette.lightBlue),
-                        ),
-                      )),
+                  SeedLanguagePicker(),
                 ],
               ),
             ),
@@ -57,15 +48,5 @@ class SeedLanguage extends BasePage {
         ],
       ),
     );
-  }
-
-  Future<void> _setSeedLanguage(BuildContext context) async {
-    final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
-    final selectedSeedLanguage =
-    await presentPicker(context, seedLanguages);
-
-    if (selectedSeedLanguage != null) {
-      seedLanguageStore.setSelectedSeedLanguage(selectedSeedLanguage);
-    }
   }
 }

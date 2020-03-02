@@ -1,5 +1,4 @@
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/routes.dart';
 
 part 'seed_language_store.g.dart';
 
@@ -19,7 +18,7 @@ class SeedLanguageStore = SeedLanguageStoreBase with _$SeedLanguageStore;
 abstract class SeedLanguageStoreBase with Store {
   SeedLanguageStoreBase() {
     selectedSeedLanguage = seedLanguages[0];
-    currentRoute = Routes.newWallet;
+    currentRoute = '';
   }
 
   @observable

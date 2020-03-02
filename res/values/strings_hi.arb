@@ -159,6 +159,14 @@
 
   "seed_language_choose" : "कृपया बीज भाषा चुनें",
   "seed_language_next" : "आगामी",
+  "seed_language_english" : "अंग्रेज़ी",
+  "seed_language_chinese" : "चीनी",
+  "seed_language_dutch" : "डच",
+  "seed_language_german" : "जर्मन",
+  "seed_language_japanese" : "जापानी",
+  "seed_language_portuguese" : "पुर्तगाली",
+  "seed_language_russian" : "रूसी",
+  "seed_language_spanish" : "स्पेनिश",
 
 
   "send_title" : "संदेश Monero",

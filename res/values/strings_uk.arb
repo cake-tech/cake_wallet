@@ -159,6 +159,14 @@
 
   "seed_language_choose" : "Будь ласка, виберіть мову насіння",
   "seed_language_next" : "Продовжити",
+  "seed_language_english" : "Англійська",
+  "seed_language_chinese" : "Китайська",
+  "seed_language_dutch" : "Голландська",
+  "seed_language_german" : "Німецька",
+  "seed_language_japanese" : "Японська",
+  "seed_language_portuguese" : "Португальська",
+  "seed_language_russian" : "Російська",
+  "seed_language_spanish" : "Іспанська",
 
 
   "send_title" : "Відправити Monero",

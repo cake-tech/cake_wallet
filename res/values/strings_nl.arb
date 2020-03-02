@@ -159,6 +159,14 @@
 
   "seed_language_choose" : "Kies een starttaal",
   "seed_language_next" : "Volgende",
+  "seed_language_english" : "Engels",
+  "seed_language_chinese" : "Chinese",
+  "seed_language_dutch" : "Nederlands",
+  "seed_language_german" : "Duitse",
+  "seed_language_japanese" : "Japans",
+  "seed_language_portuguese" : "Portugees",
+  "seed_language_russian" : "Russisch",
+  "seed_language_spanish" : "Spaans",
 
 
   "send_title" : "Stuur Monero",

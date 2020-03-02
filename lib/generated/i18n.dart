@@ -144,8 +144,16 @@ class S implements WidgetsLocalizations {
   String get restore_wallet_restore_description => "Wallet restore description";
   String get save => "Save";
   String get saved_the_trade_id => "I've saved the trade ID";
+  String get seed_language_chinese => "Chinese";
   String get seed_language_choose => "Please choose seed language";
+  String get seed_language_dutch => "Dutch";
+  String get seed_language_english => "English";
+  String get seed_language_german => "German";
+  String get seed_language_japanese => "Japanese";
   String get seed_language_next => "Next";
+  String get seed_language_portuguese => "Portuguese";
+  String get seed_language_russian => "Russian";
+  String get seed_language_spanish => "Spanish";
   String get seed_share => "Share seed";
   String get seed_title => "Seed";
   String get send => "Send";
@@ -354,6 +362,8 @@ class $de extends S {
   @override
   String get wallet_list_create_new_wallet => "Neue Wallet erstellen";
   @override
+  String get seed_language_portuguese => "Portugiesisch";
+  @override
   String get setup_pin => "PIN einrichten";
   @override
   String get transaction_details_recipient_address => "Empfängeradresse";
@@ -416,7 +426,11 @@ class $de extends S {
   @override
   String get trade_details_provider => "Anbieter";
   @override
+  String get seed_language_japanese => "Japanisch";
+  @override
   String get you_will_send => "Du wirst senden";
+  @override
+  String get seed_language_german => "Deutsche";
   @override
   String get create_new => "Erstelle neu";
   @override
@@ -429,6 +443,8 @@ class $de extends S {
   String get address_book_menu => "Adressbuch";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Falsche Samenlänge";
+  @override
+  String get seed_language_spanish => "Spanisch";
   @override
   String get contact => "Kontakt";
   @override
@@ -522,6 +538,8 @@ class $de extends S {
   @override
   String get widgets_restore_from_blockheight => "Aus Blockhöhe wiederherstellen";
   @override
+  String get seed_language_chinese => "Chinesisch";
+  @override
   String get new_subaddress_label_name => "Markenname";
   @override
   String get trade_not_found => "Handel nicht gefunden.";
@@ -600,6 +618,8 @@ class $de extends S {
   @override
   String get save => "speichern";
   @override
+  String get seed_language_english => "Englisch";
+  @override
   String get login => "Einloggen";
   @override
   String get wallet_list_load_wallet => "Wallet einlegen";
@@ -607,6 +627,8 @@ class $de extends S {
   String get sending => "Senden";
   @override
   String get restore_restore_wallet => "Wallet wiederherstellen";
+  @override
+  String get seed_language_dutch => "Niederländisch";
   @override
   String get restore_description_from_seed_keys => "Holen Sie sich Ihr Wallet von Seed / Schlüsseln zurück, die Sie an einem sicheren Ort aufbewahrt haben";
   @override
@@ -661,6 +683,8 @@ class $de extends S {
   String get use => "Wechseln zu ";
   @override
   String get trade_details_state => "Zustand";
+  @override
+  String get seed_language_russian => "Russisch";
   @override
   String get spend_key_private => "Schlüssel ausgeben (geheim)";
   @override
@@ -906,6 +930,8 @@ class $hi extends S {
   @override
   String get wallet_list_create_new_wallet => "नया बटुआ बनाएँ";
   @override
+  String get seed_language_portuguese => "पुर्तगाली";
+  @override
   String get setup_pin => "पिन सेट करें";
   @override
   String get transaction_details_recipient_address => "प्राप्तकर्ता का पता";
@@ -968,7 +994,11 @@ class $hi extends S {
   @override
   String get trade_details_provider => "प्रदाता";
   @override
+  String get seed_language_japanese => "जापानी";
+  @override
   String get you_will_send => "तुम भेजोगे";
+  @override
+  String get seed_language_german => "जर्मन";
   @override
   String get create_new => "नया बनाओ";
   @override
@@ -981,6 +1011,8 @@ class $hi extends S {
   String get address_book_menu => "पता पुस्तिका";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "गलत बीज की लंबाई";
+  @override
+  String get seed_language_spanish => "स्पेनिश";
   @override
   String get contact => "संपर्क करें";
   @override
@@ -1074,6 +1106,8 @@ class $hi extends S {
   @override
   String get widgets_restore_from_blockheight => "ब्लॉकचेन से पुनर्स्थापित करें";
   @override
+  String get seed_language_chinese => "चीनी";
+  @override
   String get new_subaddress_label_name => "लेबल का नाम";
   @override
   String get trade_not_found => "व्यापार नहीं मिला";
@@ -1152,6 +1186,8 @@ class $hi extends S {
   @override
   String get save => "बचाना";
   @override
+  String get seed_language_english => "अंग्रेज़ी";
+  @override
   String get login => "लॉग इन करें";
   @override
   String get wallet_list_load_wallet => "वॉलेट लोड करें";
@@ -1159,6 +1195,8 @@ class $hi extends S {
   String get sending => "भेजना";
   @override
   String get restore_restore_wallet => "वॉलेट को पुनर्स्थापित करें";
+  @override
+  String get seed_language_dutch => "डच";
   @override
   String get restore_description_from_seed_keys => "अपने बटुए को बीज से वापस लें/वे कुंजियाँ जिन्हें आपने सुरक्षित स्थान पर सहेजा है";
   @override
@@ -1213,6 +1251,8 @@ class $hi extends S {
   String get use => "पर स्विच ";
   @override
   String get trade_details_state => "राज्य";
+  @override
+  String get seed_language_russian => "रूसी";
   @override
   String get spend_key_private => "खर्च करना (निजी)";
   @override
@@ -1458,6 +1498,8 @@ class $ru extends S {
   @override
   String get wallet_list_create_new_wallet => "Создать новый кошелёк";
   @override
+  String get seed_language_portuguese => "Португальский";
+  @override
   String get setup_pin => "Настроить PIN";
   @override
   String get transaction_details_recipient_address => "Адрес получателя";
@@ -1520,7 +1562,11 @@ class $ru extends S {
   @override
   String get trade_details_provider => "Провайдер";
   @override
+  String get seed_language_japanese => "Японский";
+  @override
   String get you_will_send => "Вы отправите";
+  @override
+  String get seed_language_german => "Немецкий";
   @override
   String get create_new => "Создать новый";
   @override
@@ -1533,6 +1579,8 @@ class $ru extends S {
   String get address_book_menu => "Адресная книга";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Неверная длина мнемонической фразы";
+  @override
+  String get seed_language_spanish => "Испанский";
   @override
   String get contact => "Контакт";
   @override
@@ -1626,6 +1674,8 @@ class $ru extends S {
   @override
   String get widgets_restore_from_blockheight => "Восстановить на высоте блока";
   @override
+  String get seed_language_chinese => "Китайский";
+  @override
   String get new_subaddress_label_name => "Имя";
   @override
   String get trade_not_found => "Trade not found.";
@@ -1704,6 +1754,8 @@ class $ru extends S {
   @override
   String get save => "Сохранить";
   @override
+  String get seed_language_english => "Английский";
+  @override
   String get login => "Логин";
   @override
   String get wallet_list_load_wallet => "Загрузка кошелька";
@@ -1711,6 +1763,8 @@ class $ru extends S {
   String get sending => "Отправка";
   @override
   String get restore_restore_wallet => "Восстановить кошелёк";
+  @override
+  String get seed_language_dutch => "Нидерландский";
   @override
   String get restore_description_from_seed_keys => "Вы можете восстановить кошелёк из мнемонической фразы/ключей, которые вы сохранили ранее";
   @override
@@ -1765,6 +1819,8 @@ class $ru extends S {
   String get use => "Переключиться на ";
   @override
   String get trade_details_state => "Статус";
+  @override
+  String get seed_language_russian => "Русский";
   @override
   String get spend_key_private => "Приватный ключ траты";
   @override
@@ -2010,6 +2066,8 @@ class $ko extends S {
   @override
   String get wallet_list_create_new_wallet => "새 월렛 만들기";
   @override
+  String get seed_language_portuguese => "포르투갈 인";
+  @override
   String get setup_pin => "설정 PIN";
   @override
   String get transaction_details_recipient_address => "받는 사람 주소";
@@ -2072,7 +2130,11 @@ class $ko extends S {
   @override
   String get trade_details_provider => "공급자";
   @override
+  String get seed_language_japanese => "일본어";
+  @override
   String get you_will_send => "보내드립니다";
+  @override
+  String get seed_language_german => "독일 사람";
   @override
   String get create_new => "새로 만들기";
   @override
@@ -2085,6 +2147,8 @@ class $ko extends S {
   String get address_book_menu => "주소록";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "시드 길이가 잘못되었습니다";
+  @override
+  String get seed_language_spanish => "스페인의";
   @override
   String get contact => "접촉";
   @override
@@ -2178,6 +2242,8 @@ class $ko extends S {
   @override
   String get widgets_restore_from_blockheight => "블록 높이에서 복원";
   @override
+  String get seed_language_chinese => "중국말";
+  @override
   String get new_subaddress_label_name => "라벨 이름";
   @override
   String get trade_not_found => "거래를 찾을 수 없습니다.";
@@ -2256,6 +2322,8 @@ class $ko extends S {
   @override
   String get save => "구하다";
   @override
+  String get seed_language_english => "영어";
+  @override
   String get login => "로그인";
   @override
   String get wallet_list_load_wallet => "지갑로드";
@@ -2263,6 +2331,8 @@ class $ko extends S {
   String get sending => "배상";
   @override
   String get restore_restore_wallet => "월렛 복원";
+  @override
+  String get seed_language_dutch => "네덜란드 사람";
   @override
   String get restore_description_from_seed_keys => "안전한 장소에 저장 한 종자 / 키로 지갑을 되 찾으십시오.";
   @override
@@ -2317,6 +2387,8 @@ class $ko extends S {
   String get use => "로 전환 ";
   @override
   String get trade_details_state => "상태";
+  @override
+  String get seed_language_russian => "러시아인";
   @override
   String get spend_key_private => "지출 키 (은밀한)";
   @override
@@ -2562,6 +2634,8 @@ class $pt extends S {
   @override
   String get wallet_list_create_new_wallet => "Criar nova carteira";
   @override
+  String get seed_language_portuguese => "Português";
+  @override
   String get setup_pin => "Configurar PIN";
   @override
   String get transaction_details_recipient_address => "Endereço do destinatário";
@@ -2624,7 +2698,11 @@ class $pt extends S {
   @override
   String get trade_details_provider => "Provedor";
   @override
+  String get seed_language_japanese => "Japonês";
+  @override
   String get you_will_send => "Você enviará";
+  @override
+  String get seed_language_german => "Alemã";
   @override
   String get create_new => "Criar carteira";
   @override
@@ -2637,6 +2715,8 @@ class $pt extends S {
   String get address_book_menu => "Livro de endereços";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Comprimento de semente incorreto";
+  @override
+  String get seed_language_spanish => "Espanhola";
   @override
   String get contact => "Contato";
   @override
@@ -2730,6 +2810,8 @@ class $pt extends S {
   @override
   String get widgets_restore_from_blockheight => "Restaurar a partir de altura do bloco";
   @override
+  String get seed_language_chinese => "Chinesa";
+  @override
   String get new_subaddress_label_name => "Nome";
   @override
   String get trade_not_found => "Troca não encontrada.";
@@ -2808,6 +2890,8 @@ class $pt extends S {
   @override
   String get save => "Salvar";
   @override
+  String get seed_language_english => "Inglesa";
+  @override
   String get login => "Login";
   @override
   String get wallet_list_load_wallet => "Abrir carteira";
@@ -2815,6 +2899,8 @@ class $pt extends S {
   String get sending => "Enviando";
   @override
   String get restore_restore_wallet => "Restaurar carteira";
+  @override
+  String get seed_language_dutch => "Holandesa";
   @override
   String get restore_description_from_seed_keys => "Restaure a sua carteira a partir de sementes/chaves que você salvou em um local seguro";
   @override
@@ -2869,6 +2955,8 @@ class $pt extends S {
   String get use => "Trocar para PIN de ";
   @override
   String get trade_details_state => "Status";
+  @override
+  String get seed_language_russian => "Russa";
   @override
   String get spend_key_private => "Chave de gastos (privada)";
   @override
@@ -3114,6 +3202,8 @@ class $uk extends S {
   @override
   String get wallet_list_create_new_wallet => "Створити новий гаманець";
   @override
+  String get seed_language_portuguese => "Португальська";
+  @override
   String get setup_pin => "Встановити PIN";
   @override
   String get transaction_details_recipient_address => "Адреса отримувача";
@@ -3176,7 +3266,11 @@ class $uk extends S {
   @override
   String get trade_details_provider => "Провайдер";
   @override
+  String get seed_language_japanese => "Японська";
+  @override
   String get you_will_send => "Ви відправите";
+  @override
+  String get seed_language_german => "Німецька";
   @override
   String get create_new => "Створити новий";
   @override
@@ -3189,6 +3283,8 @@ class $uk extends S {
   String get address_book_menu => "Адресна книга";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Невірна довжина мнемонічної фрази";
+  @override
+  String get seed_language_spanish => "Іспанська";
   @override
   String get contact => "Контакт";
   @override
@@ -3282,6 +3378,8 @@ class $uk extends S {
   @override
   String get widgets_restore_from_blockheight => "Відновити на висоті блоку";
   @override
+  String get seed_language_chinese => "Китайська";
+  @override
   String get new_subaddress_label_name => "Ім'я";
   @override
   String get trade_not_found => "Операція не знайдена.";
@@ -3360,6 +3458,8 @@ class $uk extends S {
   @override
   String get save => "Зберегти";
   @override
+  String get seed_language_english => "Англійська";
+  @override
   String get login => "Логін";
   @override
   String get wallet_list_load_wallet => "Завантаження гаманця";
@@ -3367,6 +3467,8 @@ class $uk extends S {
   String get sending => "Відправлення";
   @override
   String get restore_restore_wallet => "Відновити гаманець";
+  @override
+  String get seed_language_dutch => "Голландська";
   @override
   String get restore_description_from_seed_keys => "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше";
   @override
@@ -3421,6 +3523,8 @@ class $uk extends S {
   String get use => "Переключитися на ";
   @override
   String get trade_details_state => "Статус";
+  @override
+  String get seed_language_russian => "Російська";
   @override
   String get spend_key_private => "Приватний ключ витрати";
   @override
@@ -3666,6 +3770,8 @@ class $ja extends S {
   @override
   String get wallet_list_create_new_wallet => "新しいウォレットを作成";
   @override
+  String get seed_language_portuguese => "ポルトガル語";
+  @override
   String get setup_pin => "PINのセットアップ";
   @override
   String get transaction_details_recipient_address => "受取人の住所";
@@ -3728,7 +3834,11 @@ class $ja extends S {
   @override
   String get trade_details_provider => "プロバイダー";
   @override
+  String get seed_language_japanese => "日本語";
+  @override
   String get you_will_send => "送ります";
+  @override
+  String get seed_language_german => "ドイツ人";
   @override
   String get create_new => "新しく作る";
   @override
@@ -3741,6 +3851,8 @@ class $ja extends S {
   String get address_book_menu => "住所録";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "誤ったシード長s";
+  @override
+  String get seed_language_spanish => "スペイン語";
   @override
   String get contact => "接触";
   @override
@@ -3834,6 +3946,8 @@ class $ja extends S {
   @override
   String get widgets_restore_from_blockheight => "ブロックの高さから復元";
   @override
+  String get seed_language_chinese => "中国語";
+  @override
   String get new_subaddress_label_name => "ラベル名";
   @override
   String get trade_not_found => "取引が見つかりません";
@@ -3912,6 +4026,8 @@ class $ja extends S {
   @override
   String get save => "セーブ";
   @override
+  String get seed_language_english => "英語";
+  @override
   String get login => "ログイン";
   @override
   String get wallet_list_load_wallet => "ウォレットをロード";
@@ -3919,6 +4035,8 @@ class $ja extends S {
   String get sending => "送信";
   @override
   String get restore_restore_wallet => "ウォレットを復元";
+  @override
+  String get seed_language_dutch => "オランダの";
   @override
   String get restore_description_from_seed_keys => "安全な場所に保存したシード/キーから財布を取り戻す";
   @override
@@ -3973,6 +4091,8 @@ class $ja extends S {
   String get use => "切り替える ";
   @override
   String get trade_details_state => "状態";
+  @override
+  String get seed_language_russian => "ロシア";
   @override
   String get spend_key_private => "キーを使う (プライベート)";
   @override
@@ -4222,6 +4342,8 @@ class $pl extends S {
   @override
   String get wallet_list_create_new_wallet => "Utwórz nowy portfel";
   @override
+  String get seed_language_portuguese => "Portugalski";
+  @override
   String get setup_pin => "Ustaw PIN";
   @override
   String get transaction_details_recipient_address => "Adres odbiorcy";
@@ -4284,7 +4406,11 @@ class $pl extends S {
   @override
   String get trade_details_provider => "Dostawca";
   @override
+  String get seed_language_japanese => "Japoński";
+  @override
   String get you_will_send => "Wyślesz";
+  @override
+  String get seed_language_german => "Niemiecki";
   @override
   String get create_new => "Tworzyć nowe";
   @override
@@ -4297,6 +4423,8 @@ class $pl extends S {
   String get address_book_menu => "Książka adresowa";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Nieprawidłowa długość nasion";
+  @override
+  String get seed_language_spanish => "Hiszpański";
   @override
   String get contact => "Kontakt";
   @override
@@ -4390,6 +4518,8 @@ class $pl extends S {
   @override
   String get widgets_restore_from_blockheight => "Przywróć z wysokości bloku";
   @override
+  String get seed_language_chinese => "Chiński";
+  @override
   String get new_subaddress_label_name => "Nazwa etykiety";
   @override
   String get trade_not_found => "Nie znaleziono handlu.";
@@ -4468,6 +4598,8 @@ class $pl extends S {
   @override
   String get save => "Zapisać";
   @override
+  String get seed_language_english => "Angielski";
+  @override
   String get login => "Zaloguj Się";
   @override
   String get wallet_list_load_wallet => "Załaduj portfel";
@@ -4475,6 +4607,8 @@ class $pl extends S {
   String get sending => "Wysyłanie";
   @override
   String get restore_restore_wallet => "Przywróć portfel";
+  @override
+  String get seed_language_dutch => "Holenderski";
   @override
   String get restore_description_from_seed_keys => "Odzyskaj swój portfel z nasion / kluczy, które zapisałeś w bezpiecznym miejscu";
   @override
@@ -4529,6 +4663,8 @@ class $pl extends S {
   String get use => "Przełącz na ";
   @override
   String get trade_details_state => "Stan";
+  @override
+  String get seed_language_russian => "Rosyjski";
   @override
   String get spend_key_private => "Wydaj klucz (prywatny)";
   @override
@@ -4774,6 +4910,8 @@ class $es extends S {
   @override
   String get wallet_list_create_new_wallet => "Crear nueva billetera";
   @override
+  String get seed_language_portuguese => "Portugués";
+  @override
   String get setup_pin => "PIN de configuración";
   @override
   String get transaction_details_recipient_address => "Dirección del receptor";
@@ -4836,7 +4974,11 @@ class $es extends S {
   @override
   String get trade_details_provider => "Proveedor";
   @override
+  String get seed_language_japanese => "Japonés";
+  @override
   String get you_will_send => "Enviarás";
+  @override
+  String get seed_language_german => "Alemán";
   @override
   String get create_new => "Crear nuevo";
   @override
@@ -4849,6 +4991,8 @@ class $es extends S {
   String get address_book_menu => "Libreta de direcciones";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Longitud de semilla incorrecta";
+  @override
+  String get seed_language_spanish => "Español";
   @override
   String get contact => "Contacto";
   @override
@@ -4942,6 +5086,8 @@ class $es extends S {
   @override
   String get widgets_restore_from_blockheight => "Restaurar desde blockheight";
   @override
+  String get seed_language_chinese => "Chino";
+  @override
   String get new_subaddress_label_name => "Nombre de etiqueta";
   @override
   String get trade_not_found => "Comercio no encontrado.";
@@ -5020,6 +5166,8 @@ class $es extends S {
   @override
   String get save => "Salvar";
   @override
+  String get seed_language_english => "Inglés";
+  @override
   String get login => "Iniciar sesión";
   @override
   String get wallet_list_load_wallet => "Billetera de carga";
@@ -5027,6 +5175,8 @@ class $es extends S {
   String get sending => "Enviando";
   @override
   String get restore_restore_wallet => "Recuperar Cartera";
+  @override
+  String get seed_language_dutch => "Holandés";
   @override
   String get restore_description_from_seed_keys => "Recupere su billetera de las semillas/claves que ha guardado en un lugar seguro";
   @override
@@ -5081,6 +5231,8 @@ class $es extends S {
   String get use => "Cambiar a ";
   @override
   String get trade_details_state => "Estado";
+  @override
+  String get seed_language_russian => "Ruso";
   @override
   String get spend_key_private => "Spend clave (privado)";
   @override
@@ -5326,6 +5478,8 @@ class $nl extends S {
   @override
   String get wallet_list_create_new_wallet => "Maak een nieuwe portemonnee";
   @override
+  String get seed_language_portuguese => "Portugees";
+  @override
   String get setup_pin => "PIN instellen";
   @override
   String get transaction_details_recipient_address => "Adres van de ontvanger";
@@ -5388,7 +5542,11 @@ class $nl extends S {
   @override
   String get trade_details_provider => "Leverancier";
   @override
+  String get seed_language_japanese => "Japans";
+  @override
   String get you_will_send => "Je zal versturen";
+  @override
+  String get seed_language_german => "Duitse";
   @override
   String get create_new => "Maak nieuw";
   @override
@@ -5401,6 +5559,8 @@ class $nl extends S {
   String get address_book_menu => "Adresboek";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Onjuiste zaadlengte";
+  @override
+  String get seed_language_spanish => "Spaans";
   @override
   String get contact => "Contact";
   @override
@@ -5494,6 +5654,8 @@ class $nl extends S {
   @override
   String get widgets_restore_from_blockheight => "Herstel vanaf blockheight";
   @override
+  String get seed_language_chinese => "Chinese";
+  @override
   String get new_subaddress_label_name => "Label naam";
   @override
   String get trade_not_found => "Handel niet gevonden.";
@@ -5572,6 +5734,8 @@ class $nl extends S {
   @override
   String get save => "Opslaan";
   @override
+  String get seed_language_english => "Engels";
+  @override
   String get login => "Log in";
   @override
   String get wallet_list_load_wallet => "Portemonnee laden";
@@ -5579,6 +5743,8 @@ class $nl extends S {
   String get sending => "Bezig met verzenden";
   @override
   String get restore_restore_wallet => "Portemonnee herstellen";
+  @override
+  String get seed_language_dutch => "Nederlands";
   @override
   String get restore_description_from_seed_keys => "Ontvang uw portemonnee terug uit seed / keys die u hebt opgeslagen op een veilige plaats";
   @override
@@ -5633,6 +5799,8 @@ class $nl extends S {
   String get use => "Overschakelen naar ";
   @override
   String get trade_details_state => "Staat";
+  @override
+  String get seed_language_russian => "Russisch";
   @override
   String get spend_key_private => "Sleutel uitgeven (privaat)";
   @override
@@ -5878,6 +6046,8 @@ class $zh extends S {
   @override
   String get wallet_list_create_new_wallet => "创建新钱包";
   @override
+  String get seed_language_portuguese => "葡萄牙語";
+  @override
   String get setup_pin => "设定PIN码";
   @override
   String get transaction_details_recipient_address => "收件人地址";
@@ -5940,7 +6110,11 @@ class $zh extends S {
   @override
   String get trade_details_provider => "提供者";
   @override
+  String get seed_language_japanese => "日本";
+  @override
   String get you_will_send => "您将发送";
+  @override
+  String get seed_language_german => "德語";
   @override
   String get create_new => "创建新的";
   @override
@@ -5953,6 +6127,8 @@ class $zh extends S {
   String get address_book_menu => "地址簿";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "种子长度错误";
+  @override
+  String get seed_language_spanish => "西班牙文";
   @override
   String get contact => "联系";
   @override
@@ -6046,6 +6222,8 @@ class $zh extends S {
   @override
   String get widgets_restore_from_blockheight => "从块高还原";
   @override
+  String get seed_language_chinese => "中文";
+  @override
   String get new_subaddress_label_name => "标签名称";
   @override
   String get trade_not_found => "找不到交易.";
@@ -6124,6 +6302,8 @@ class $zh extends S {
   @override
   String get save => "保存";
   @override
+  String get seed_language_english => "英語";
+  @override
   String get login => "登录";
   @override
   String get wallet_list_load_wallet => "装入钱包";
@@ -6131,6 +6311,8 @@ class $zh extends S {
   String get sending => "正在发送";
   @override
   String get restore_restore_wallet => "恢复钱包";
+  @override
+  String get seed_language_dutch => "荷蘭人";
   @override
   String get restore_description_from_seed_keys => "从保存到安全地方的种子/钥匙取回钱包";
   @override
@@ -6185,6 +6367,8 @@ class $zh extends S {
   String get use => "切換到 ";
   @override
   String get trade_details_state => "条件";
+  @override
+  String get seed_language_russian => "俄語";
   @override
   String get spend_key_private => "支出金钥 (私人的)";
   @override
