@@ -93,6 +93,7 @@ class SettingsFormState extends State<SettingsForm> {
           widget: Observer(
               builder: (_) => Text(
                     settingsStore.balanceDisplayMode.toString(),
+                    textAlign: TextAlign.right,
                     style: TextStyle(
                         fontSize: 16.0,
                         color:
@@ -105,6 +106,7 @@ class SettingsFormState extends State<SettingsForm> {
           widget: Observer(
               builder: (_) => Text(
                     settingsStore.fiatCurrency.toString(),
+                    textAlign: TextAlign.right,
                     style: TextStyle(
                         fontSize: 16.0,
                         color:
@@ -117,6 +119,7 @@ class SettingsFormState extends State<SettingsForm> {
           widget: Observer(
               builder: (_) => Text(
                     settingsStore.transactionPriority.toString(),
+                    textAlign: TextAlign.right,
                     style: TextStyle(
                         fontSize: 16.0,
                         color:
