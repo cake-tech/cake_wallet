@@ -74,6 +74,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
     return ScrollableWithBottomSection(
         content: Column(children: [
           Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Image.asset('assets/images/bitmap.png',
+                height: 224, width: 400),
+          ),
+          Padding(
             padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
             child: Form(
                 key: _formKey,
@@ -103,7 +108,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
             child: Text(
               S.of(context).seed_language_choose,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 19.0),
+              style: TextStyle(fontSize: 16.0),
             ),
           ),
           Padding(padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),

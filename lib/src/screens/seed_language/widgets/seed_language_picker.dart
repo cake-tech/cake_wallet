@@ -26,17 +26,17 @@ class SeedLanguagePicker extends StatelessWidget {
         builder: (_) => InkWell(
           onTap: () => _setSeedLanguage(context),
           child: Container(
-            padding: EdgeInsets.all(10.0),
-            width: double.infinity,
+            padding: EdgeInsets.all(8.0),
+            //width: double.infinity,
             decoration: BoxDecoration(
                 border: Border.all(
                     color: Theme.of(context).dividerTheme.color
                 ),
-                borderRadius: BorderRadius.circular(10.0)
+                borderRadius: BorderRadius.circular(8.0)
             ),
             child: Text(seedLocales[seedLanguages.indexOf(seedLanguageStore.selectedSeedLanguage)],
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 19.0, color: Palette.lightBlue),
+              style: TextStyle(fontSize: 16.0, color: Palette.lightBlue),
             ),
           ),
         ));

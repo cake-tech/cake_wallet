@@ -27,7 +27,7 @@ class SeedLanguage extends BasePage {
                   Text(
                     S.of(context).seed_language_choose,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 19.0),
+                    style: TextStyle(fontSize: 16.0),
                   ),
                   SizedBox(
                     height: 20.0,
