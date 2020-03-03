@@ -1528,7 +1528,7 @@ class $ru extends S {
   @override
   String get restore_title_from_keys => "Восстановить с помощью ключей";
   @override
-  String get seed_language_choose => "Пожалуйста, выберите язык семян";
+  String get seed_language_choose => "Пожалуйста, выберите язык мнемонической фразы";
   @override
   String get wallet_keys => "Ключи кошелька";
   @override
@@ -3232,7 +3232,7 @@ class $uk extends S {
   @override
   String get restore_title_from_keys => "Відновити за допомогою ключів";
   @override
-  String get seed_language_choose => "Будь ласка, виберіть мову насіння";
+  String get seed_language_choose => "Будь ласка, виберіть мову мнемонічної фрази";
   @override
   String get wallet_keys => "Ключі гаманця";
   @override

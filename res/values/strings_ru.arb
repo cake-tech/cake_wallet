@@ -157,7 +157,7 @@
   "copy" : "Скопировать",
 
 
-  "seed_language_choose" : "Пожалуйста, выберите язык семян",
+  "seed_language_choose" : "Пожалуйста, выберите язык мнемонической фразы",
   "seed_language_next" : "Продолжить",
   "seed_language_english" : "Английский",
   "seed_language_chinese" : "Китайский",
