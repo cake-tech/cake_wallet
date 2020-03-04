@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class RestoreButton extends StatelessWidget {
   const RestoreButton(
@@ -57,30 +58,29 @@ class RestoreButton extends StatelessWidget {
               ),
               Column(
                 children: <Widget>[
-                  Text(
+                  AutoSizeText(
                     title,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: titleColor,
-                        fontSize: 16.0,
                         fontWeight: FontWeight.bold),
+                    maxLines: 1,
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 20, right: 20, top: 10),
-                    child: Text(
+                    child: AutoSizeText(
                       description,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color:
-                              Theme.of(context).accentTextTheme.subhead.color,
-                          fontSize: 12.0,
-                          height: 1.4),
-                    ),
+                        color: Theme.of(context).accentTextTheme.subhead.color,
+                      ),
+                      maxLines: 2,
+                    )
                   )
                 ],
               ),
               SizedBox(
-                height: 20.0,
+                height: 20,
               ),
               Container(
                   height: 56.0,
