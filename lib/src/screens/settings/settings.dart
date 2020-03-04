@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/screens/settings/attributes.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/settings/items/settings_item.dart';
 import 'package:cake_wallet/src/screens/settings/items/item_headers.dart';
+import 'package:cake_wallet/src/widgets/present_picker.dart';
 // Settings widgets
 import 'package:cake_wallet/src/screens/settings/widgets/settings_arrow_list_row.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_header_list_row.dart';
@@ -397,51 +398,10 @@ class SettingsFormState extends State<SettingsForm> {
     ));
   }
 
-  Future<T> _presentPicker<T extends Object>(
-      BuildContext context, List<T> list) async {
-    T _value = list[0];
-
-    return await showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(S.of(context).please_select),
-            backgroundColor: Theme.of(context).backgroundColor,
-            content: Container(
-              height: 150.0,
-              child: CupertinoPicker(
-                  backgroundColor: Theme.of(context).backgroundColor,
-                  itemExtent: 45.0,
-                  onSelectedItemChanged: (int index) => _value = list[index],
-                  children: List.generate(
-                      list.length,
-                      (index) => Center(
-                            child: Text(
-                              list[index].toString(),
-                              style: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .caption
-                                      .color),
-                            ),
-                          ))),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(S.of(context).cancel)),
-              FlatButton(
-                  onPressed: () => Navigator.of(context).pop(_value),
-                  child: Text(S.of(context).ok))
-            ],
-          );
-        });
-  }
-
   Future<void> _setBalance(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
     final selectedDisplayMode =
-        await _presentPicker(context, BalanceDisplayMode.all);
+        await presentPicker(context, BalanceDisplayMode.all);
 
     if (selectedDisplayMode != null) {
       await settingsStore.setCurrentBalanceDisplayMode(
@@ -451,7 +411,7 @@ class SettingsFormState extends State<SettingsForm> {
 
   Future<void> _setCurrency(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
-    final selectedCurrency = await _presentPicker(context, FiatCurrency.all);
+    final selectedCurrency = await presentPicker(context, FiatCurrency.all);
 
     if (selectedCurrency != null) {
       await settingsStore.setCurrentFiatCurrency(currency: selectedCurrency);
@@ -461,7 +421,7 @@ class SettingsFormState extends State<SettingsForm> {
   Future<void> _setTransactionPriority(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
     final selectedPriority =
-        await _presentPicker(context, TransactionPriority.all);
+        await presentPicker(context, TransactionPriority.all);
 
     if (selectedPriority != null) {
       await settingsStore.setCurrentTransactionPriority(

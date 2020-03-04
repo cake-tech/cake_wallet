@@ -1,4 +1,3 @@
-import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +10,7 @@ import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_store.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
+import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 class RestoreWalletFromSeedPage extends BasePage {
   RestoreWalletFromSeedPage(
@@ -53,6 +53,7 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
   @override
   Widget build(BuildContext context) {
     final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
+    final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
     return GestureDetector(
       onTap: () =>
@@ -65,6 +66,7 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
           onFinish: () => Navigator.of(context).pushNamed(
               Routes.restoreWalletFromSeedDetails,
               arguments: _seedKey.currentState.items),
+          seedLanguage: seedLanguageStore.selectedSeedLanguage,
         ),
       ),
     );

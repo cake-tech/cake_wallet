@@ -100,8 +100,7 @@ class WalletListBodyState extends State<WalletListBody> {
         ),
         bottomSection: Column(children: <Widget>[
           PrimaryIconButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(Routes.newWallet),
+              onPressed: () => Navigator.of(context).pushNamed(Routes.newWallet),
               iconData: Icons.add,
               color: Theme.of(context).primaryTextTheme.button.backgroundColor,
               borderColor:

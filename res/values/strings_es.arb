@@ -157,12 +157,16 @@
   "copy" : "Dupdo",
 
 
-  "seed_alert_first_text" : "La siguiente página te mostrará \nuna semilla.",
-  "seed_alert_second_text" : "Anótelos solo en caso de que pierda\no limpie su teléfono.",
-  "seed_alert_third_text" : "También puede ver la semilla nuevamente \nen el ",
-  "seed_alert_settings" : "de configuración",
-  "seed_alert_menu" : " menú .",
-  "seed_alert_understand" : "Entiendo",
+  "seed_language_choose" : "Por favor elija el idioma semilla",
+  "seed_language_next" : "Próximo",
+  "seed_language_english" : "Inglés",
+  "seed_language_chinese" : "Chino",
+  "seed_language_dutch" : "Holandés",
+  "seed_language_german" : "Alemán",
+  "seed_language_japanese" : "Japonés",
+  "seed_language_portuguese" : "Portugués",
+  "seed_language_russian" : "Ruso",
+  "seed_language_spanish" : "Español",
 
 
   "send_title" : "Enviar Monero",

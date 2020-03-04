@@ -34,7 +34,7 @@ final loadWalletNative = moneroApi
 void createWalletSync(
     {String path,
     String password,
-    String language = 'English',
+    String language,
     int nettype = 0}) {
   final pathPointer = Utf8.toUtf8(path);
   final passwordPointer = Utf8.toUtf8(password);
@@ -95,7 +95,7 @@ void restoreWalletFromSeedSync(
 void restoreWalletFromKeysSync(
     {String path,
     String password,
-    String language = 'English',
+    String language,
     String address,
     String viewKey,
     String spendKey,
@@ -145,8 +145,9 @@ void loadWallet({String path, String password, int nettype = 0}) {
 void _createWallet(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
+  final language = args['language'] as String;
 
-  createWalletSync(path: path, password: password);
+  createWalletSync(path: path, password: password, language: language);
 }
 
 void _restoreFromSeed(Map<String, dynamic> args) {
@@ -162,6 +163,7 @@ void _restoreFromSeed(Map<String, dynamic> args) {
 void _restoreFromKeys(Map<String, dynamic> args) {
   final path = args['path'] as String;
   final password = args['password'] as String;
+  final language = args['language'] as String;
   final restoreHeight = args['restoreHeight'] as int;
   final address = args['address'] as String;
   final viewKey = args['viewKey'] as String;
@@ -170,6 +172,7 @@ void _restoreFromKeys(Map<String, dynamic> args) {
   restoreWalletFromKeysSync(
       path: path,
       password: password,
+      language: language,
       restoreHeight: restoreHeight,
       address: address,
       viewKey: viewKey,
@@ -190,7 +193,7 @@ Future<void> openWalletAsync(Map<String, String> args) async =>
 Future<void> createWallet(
         {String path,
         String password,
-        String language = 'English',
+        String language,
         int nettype = 0}) async =>
     compute(_createWallet, {
       'path': path,
@@ -216,7 +219,7 @@ Future restoreFromSeed(
 Future restoreFromKeys(
         {String path,
         String password,
-        String language = 'English',
+        String language,
         String address,
         String viewKey,
         String spendKey,

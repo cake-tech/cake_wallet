@@ -157,12 +157,16 @@
   "copy" : "コピー",
 
 
-  "seed_alert_first_text" : "次のページが表示されます\nあなたは種.",
-  "seed_alert_second_text" : "これらを書き留めてください \n電話を紛失した場合や拭いた場合.",
-  "seed_alert_third_text" : "また、種子を見ることができます\nの中に ",
-  "seed_alert_settings" : "設定",
-  "seed_alert_menu" : " メニュー.",
-  "seed_alert_understand" : "わかります",
+  "seed_language_choose" : "シード言語を選択してください",
+  "seed_language_next" : "次",
+  "seed_language_english" : "英語",
+  "seed_language_chinese" : "中国語",
+  "seed_language_dutch" : "オランダの",
+  "seed_language_german" : "ドイツ人",
+  "seed_language_japanese" : "日本語",
+  "seed_language_portuguese" : "ポルトガル語",
+  "seed_language_russian" : "ロシア",
+  "seed_language_spanish" : "スペイン語",
 
 
   "send_title" : "Moneroを送信",

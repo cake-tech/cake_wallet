@@ -18,7 +18,7 @@ class Routes {
   static const newSubaddress = '/new_subaddress';
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
-  static const seedAlert = '/seed_alert';
+  static const seedLanguage = '/seed_language';
   static const walletList = '/wallet_list';
   static const auth = '/auth';
   static const nodeList = '/node_list';

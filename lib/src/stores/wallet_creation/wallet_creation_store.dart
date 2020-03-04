@@ -32,12 +32,12 @@ abstract class WalletCreationStoreBase with Store {
   bool isValid;
 
   @action
-  Future create({String name}) async {
+  Future create({String name, String language}) async {
     state = WalletCreationStateInitial();
 
     try {
       state = WalletIsCreating();
-      await walletListService.create(name);
+      await walletListService.create(name, language);
       authStore.created();
       state = WalletCreatedSuccessfully();
     } catch (e) {

@@ -157,12 +157,16 @@
   "copy" : "प्रतिलिपि",
 
 
-  "seed_alert_first_text" : "अगला पेज दिखाएगा\nतुम एक बीज हो.",
-  "seed_alert_second_text" : "कृपया इन्हें केवल मामले में लिखें\nआप अपना फोन खो देते हैं या मिटा देते हैं.",
-  "seed_alert_third_text" : "आप बीज को फिर से देख सकते हैं\nमें ",
-  "seed_alert_settings" : "सेटिंग्स",
-  "seed_alert_menu" : " मेन्यू.",
-  "seed_alert_understand" : "मै समझता हुँ",
+  "seed_language_choose" : "कृपया बीज भाषा चुनें",
+  "seed_language_next" : "आगामी",
+  "seed_language_english" : "अंग्रेज़ी",
+  "seed_language_chinese" : "चीनी",
+  "seed_language_dutch" : "डच",
+  "seed_language_german" : "जर्मन",
+  "seed_language_japanese" : "जापानी",
+  "seed_language_portuguese" : "पुर्तगाली",
+  "seed_language_russian" : "रूसी",
+  "seed_language_spanish" : "स्पेनिश",
 
 
   "send_title" : "संदेश Monero",
