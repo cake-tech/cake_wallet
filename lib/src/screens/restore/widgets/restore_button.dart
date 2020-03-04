@@ -62,7 +62,7 @@ class RestoreButton extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: titleColor,
-                        fontSize: 18.0,
+                        fontSize: 16.0,
                         fontWeight: FontWeight.bold),
                   ),
                   Padding(
@@ -73,7 +73,7 @@ class RestoreButton extends StatelessWidget {
                       style: TextStyle(
                           color:
                               Theme.of(context).accentTextTheme.subhead.color,
-                          fontSize: 14.0,
+                          fontSize: 12.0,
                           height: 1.4),
                     ),
                   )
