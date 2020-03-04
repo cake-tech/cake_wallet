@@ -157,12 +157,16 @@
   "copy" : "Скопіювати",
 
 
-  "seed_alert_first_text" : "Наступна сторінка містить\nвашу мнемонічну фразу.",
-  "seed_alert_second_text" : "Будь ласка, запишіть її на \nвипадок, якщо ви втратите або відформатуєте ваш телефон.",
-  "seed_alert_third_text" : "Також ви можете побачити вашу мнемонічну фразу\nв",
-  "seed_alert_settings" : "налаштуваннях",
-  "seed_alert_menu" : " меню.",
-  "seed_alert_understand" : "Я розумію",
+  "seed_language_choose" : "Будь ласка, виберіть мову мнемонічної фрази",
+  "seed_language_next" : "Продовжити",
+  "seed_language_english" : "Англійська",
+  "seed_language_chinese" : "Китайська",
+  "seed_language_dutch" : "Голландська",
+  "seed_language_german" : "Німецька",
+  "seed_language_japanese" : "Японська",
+  "seed_language_portuguese" : "Португальська",
+  "seed_language_russian" : "Російська",
+  "seed_language_spanish" : "Іспанська",
 
 
   "send_title" : "Відправити Monero",

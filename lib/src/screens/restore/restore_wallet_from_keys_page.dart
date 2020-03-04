@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 class RestoreWalletFromKeysPage extends BasePage {
   RestoreWalletFromKeysPage(
@@ -49,6 +50,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
   @override
   Widget build(BuildContext context) {
     final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
+    final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
     reaction((_) => walletRestorationStore.state, (WalletRestorationState state) {
       if (state is WalletRestoredSuccessfully) {
@@ -206,6 +208,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
               if (_formKey.currentState.validate()) {
                 walletRestorationStore.restoreFromKeys(
                     name: _nameController.text,
+                    language: seedLanguageStore.selectedSeedLanguage,
                     address: _addressController.text,
                     viewKey: _viewKeyController.text,
                     spendKey: _spendKeyController.text,

@@ -31,12 +31,12 @@ class MoneroWalletsManager extends WalletsManager {
   Box<WalletInfo> walletInfoSource;
 
   @override
-  Future<Wallet> create(String name, String password) async {
+  Future<Wallet> create(String name, String password, String language) async {
     try {
       const isRecovery = false;
       final path = await pathForWallet(name: name);
 
-      await monero_wallet_manager.createWallet(path: path, password: password);
+      await monero_wallet_manager.createWallet(path: path, password: password, language: language);
 
       final wallet = await MoneroWallet.createdWallet(
           walletInfoSource: walletInfoSource,
@@ -82,6 +82,7 @@ class MoneroWalletsManager extends WalletsManager {
   Future<Wallet> restoreFromKeys(
       String name,
       String password,
+      String language,
       int restoreHeight,
       String address,
       String viewKey,
@@ -93,6 +94,7 @@ class MoneroWalletsManager extends WalletsManager {
       await monero_wallet_manager.restoreFromKeys(
           path: path,
           password: password,
+          language: language,
           restoreHeight: restoreHeight,
           address: address,
           viewKey: viewKey,

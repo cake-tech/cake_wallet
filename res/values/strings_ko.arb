@@ -157,12 +157,16 @@
   "copy" : "부",
 
 
-  "seed_alert_first_text" : "다음 페이지가 표시됩니다\n당신은 씨앗.",
-  "seed_alert_second_text" : "아래에 적어주세요\n휴대 전화를 분실하거나 닦을 경우.",
-  "seed_alert_third_text" : "당신은 또한 씨앗을 다시 볼 수 있습니다\n에서 ",
-  "seed_alert_settings" : "설정",
-  "seed_alert_menu" : " 메뉴.",
-  "seed_alert_understand" : "이해 했어",
+  "seed_language_choose" : "종자 언어를 선택하십시오",
+  "seed_language_next" : "다음 것",
+  "seed_language_english" : "영어",
+  "seed_language_chinese" : "중국말",
+  "seed_language_dutch" : "네덜란드 사람",
+  "seed_language_german" : "독일 사람",
+  "seed_language_japanese" : "일본어",
+  "seed_language_portuguese" : "포르투갈 인",
+  "seed_language_russian" : "러시아인",
+  "seed_language_spanish" : "스페인의",
 
 
   "send_title" : "모네로 보내기",

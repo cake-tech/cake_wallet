@@ -157,12 +157,16 @@
   "copy" : "Kopieren",
 
 
-  "seed_alert_first_text" : "Die nächste Seite wird angezeigt\nDu bist ein Seed.",
-  "seed_alert_second_text" : "Bitte schreiben Sie diese nur in\nFalls Sie Ihr Telefon verlieren oder abwischen.",
-  "seed_alert_third_text" : "Sie können den Seed auch wieder sehen\nin dem ",
-  "seed_alert_settings" : "die Einstellungen",
-  "seed_alert_menu" : " Speisekarte.",
-  "seed_alert_understand" : "ich verstehe",
+  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache",
+  "seed_language_next" : "Nächster",
+  "seed_language_english" : "Englisch",
+  "seed_language_chinese" : "Chinesisch",
+  "seed_language_dutch" : "Niederländisch",
+  "seed_language_german" : "Deutsche",
+  "seed_language_japanese" : "Japanisch",
+  "seed_language_portuguese" : "Portugiesisch",
+  "seed_language_russian" : "Russisch",
+  "seed_language_spanish" : "Spanisch",
 
 
   "send_title" : "Senden Sie Monero",

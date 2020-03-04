@@ -56,6 +56,7 @@ abstract class WalleRestorationStoreBase with Store {
   @action
   Future restoreFromKeys(
       {String name,
+      String language,
       String address,
       String viewKey,
       String spendKey,
@@ -65,7 +66,7 @@ abstract class WalleRestorationStoreBase with Store {
     try {
       state = WalletIsRestoring();
       await walletListService.restoreFromKeys(
-          name, restoreHeight, address, viewKey, spendKey);
+          name, language, restoreHeight, address, viewKey, spendKey);
       authStore.restored();
       state = WalletRestoredSuccessfully();
     } catch (e) {

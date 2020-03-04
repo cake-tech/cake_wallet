@@ -157,12 +157,16 @@
   "copy" : "复制",
 
 
-  "seed_alert_first_text" : "下一页将显示\n你是种子.",
-  "seed_alert_second_text" : "请写下来以防万一\n万一您丢失或擦拭手机.",
-  "seed_alert_third_text" : "您也可以再次看到种子 \n在里面",
-  "seed_alert_settings" : "设定",
-  "seed_alert_menu" : " 菜单.",
-  "seed_alert_understand" : "我明白",
+  "seed_language_choose" : "請選擇種子語言",
+  "seed_language_next" : "下一个",
+  "seed_language_english" : "英語",
+  "seed_language_chinese" : "中文",
+  "seed_language_dutch" : "荷蘭人",
+  "seed_language_german" : "德語",
+  "seed_language_japanese" : "日本",
+  "seed_language_portuguese" : "葡萄牙語",
+  "seed_language_russian" : "俄語",
+  "seed_language_spanish" : "西班牙文",
 
 
   "send_title" : "发送门罗币",

@@ -35,6 +35,7 @@ import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
+import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -99,6 +100,7 @@ void main() async {
       priceStore: priceStore);
   final loginStore = LoginStore(
       sharedPreferences: sharedPreferences, walletsService: walletListService);
+  final seedLanguageStore = SeedLanguageStore();
 
   setReactions(
       settingsStore: settingsStore,
@@ -123,7 +125,8 @@ void main() async {
     Provider(create: (_) => contacts),
     Provider(create: (_) => nodes),
     Provider(create: (_) => transactionDescriptions),
-    Provider(create: (_) => trades)
+    Provider(create: (_) => trades),
+    Provider(create: (_) => seedLanguageStore)
   ], child: CakeWalletApp()));
 }
 
