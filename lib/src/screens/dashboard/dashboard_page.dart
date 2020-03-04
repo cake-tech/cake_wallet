@@ -321,7 +321,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                         ),
                         Padding(
                             padding: const EdgeInsets.only(
-                                left: 35, right: 35, bottom: 30),
+                                left: 20, right: 20, bottom: 30),
                             child: Container(
                               child: Row(
                                 mainAxisAlignment:
