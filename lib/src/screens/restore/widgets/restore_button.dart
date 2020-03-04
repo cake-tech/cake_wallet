@@ -66,7 +66,7 @@ class RestoreButton extends StatelessWidget {
                         fontWeight: FontWeight.bold),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 50, right: 50, top: 10),
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10),
                     child: Text(
                       description,
                       textAlign: TextAlign.center,
