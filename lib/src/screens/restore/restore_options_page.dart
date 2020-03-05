@@ -24,35 +24,37 @@ class RestoreOptionsPage extends BasePage {
           left: 20.0,
           right: 20.0,
         ),
-        child: Column(
-          children: <Widget>[
-            Flexible(
-              child: RestoreButton(
-                onPressed: () {
-                  Navigator.pushNamed(
-                      context, Routes.restoreWalletOptionsFromWelcome);
-                },
-                image: _imageSeedKeys,
-                aspectRatioImage: _aspectRatioImage,
-                titleColor: Palette.lightViolet,
-                color: Palette.lightViolet,
-                title: S.of(context).restore_title_from_seed_keys,
-                description: S.of(context).restore_description_from_seed_keys,
-                textButton: S.of(context).restore_next,
-              ),
-            ),
-            Flexible(
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Container(
                 child: RestoreButton(
-              onPressed: () {},
-              image: _imageRestoreSeed,
-              aspectRatioImage: _aspectRatioImage,
-              titleColor: Palette.cakeGreen,
-              color: Palette.cakeGreen,
-              title: S.of(context).restore_title_from_backup,
-              description: S.of(context).restore_description_from_backup,
-              textButton: S.of(context).restore_next,
-            ))
-          ],
+                  onPressed: () {
+                    Navigator.pushNamed(
+                        context, Routes.restoreWalletOptionsFromWelcome);
+                  },
+                  image: _imageSeedKeys,
+                  aspectRatioImage: _aspectRatioImage,
+                  titleColor: Palette.lightViolet,
+                  color: Palette.lightViolet,
+                  title: S.of(context).restore_title_from_seed_keys,
+                  description: S.of(context).restore_description_from_seed_keys,
+                  textButton: S.of(context).restore_next,
+                ),
+              ),
+              Container(
+                  child: RestoreButton(
+                    onPressed: () {},
+                    image: _imageRestoreSeed,
+                    aspectRatioImage: _aspectRatioImage,
+                    titleColor: Palette.cakeGreen,
+                    color: Palette.cakeGreen,
+                    title: S.of(context).restore_title_from_backup,
+                    description: S.of(context).restore_description_from_backup,
+                    textButton: S.of(context).restore_next,
+                  ))
+            ],
+          ),
         ),
       );
 }

@@ -45,17 +45,7 @@ class RestoreButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Flexible(
-                child: Container(
-                  child: AspectRatio(
-                    aspectRatio: aspectRatioImage,
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: image,
-                    ),
-                  ),
-                ),
-              ),
+              image,
               Column(
                 children: <Widget>[
                   Padding(
@@ -66,7 +56,7 @@ class RestoreButton extends StatelessWidget {
                       style: TextStyle(
                           color: titleColor,
                           fontWeight: FontWeight.bold),
-                      maxLines: 1,
+                      maxLines: 2,
                     ),
                   ),
                   Padding(
