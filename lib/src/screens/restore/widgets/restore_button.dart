@@ -58,13 +58,16 @@ class RestoreButton extends StatelessWidget {
               ),
               Column(
                 children: <Widget>[
-                  AutoSizeText(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: titleColor,
-                        fontWeight: FontWeight.bold),
-                    maxLines: 1,
+                  Padding(
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    child: AutoSizeText(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: titleColor,
+                          fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                    ),
                   ),
                   Padding(
                     padding: EdgeInsets.only(left: 20, right: 20, top: 10),
