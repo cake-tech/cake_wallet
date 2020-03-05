@@ -124,9 +124,9 @@ class S implements WidgetsLocalizations {
   String get rescan => "Rescan";
   String get reset => "Reset";
   String get restore_address => "Address";
-  String get restore_description_from_backup => "You can restore the whole Cake Wallet app from\nyour back-up file";
-  String get restore_description_from_keys => "Restore your wallet from generated\nkeystrokes saved from your private keys";
-  String get restore_description_from_seed => "Restore your wallet from either the 25 word\nor 13 word combination code";
+  String get restore_description_from_backup => "You can restore the whole Cake Wallet app from your back-up file";
+  String get restore_description_from_keys => "Restore your wallet from generated keystrokes saved from your private keys";
+  String get restore_description_from_seed => "Restore your wallet from either the 25 word or 13 word combination code";
   String get restore_description_from_seed_keys => "Get back your wallet from seed/keys that you've saved to secure place";
   String get restore_from_seed_placeholder => "Please enter or paste your seed here";
   String get restore_next => "Next";
@@ -334,7 +334,7 @@ class $de extends S {
   @override
   String get you_will_get => "Sie erhalten";
   @override
-  String get restore_description_from_seed => "Stellen Sie Ihr Wallet aus den 25 Wörtern wieder her\noder 13-Wort-Kombinationscode";
+  String get restore_description_from_seed => "Stellen Sie Ihr Wallet aus den 25 Wörtern wieder her oder 13-Wort-Kombinationscode";
   @override
   String get trade_state_underpaid => "Unterbezahlt";
   @override
@@ -702,7 +702,7 @@ class $de extends S {
   @override
   String get error_text_wallet_name => "Der Wallet darf nur Buchstaben und Zahlen enthalten\nund muss zwischen 1 und 15 Zeichen lang sein";
   @override
-  String get restore_description_from_keys => "Stellen Sie Ihr Wallet von generiert wieder her\nTastenanschläge, die von Ihren privaten Schlüsseln gespeichert wurden";
+  String get restore_description_from_keys => "Stellen Sie Ihr Wallet von generiert wieder her Tastenanschläge, die von Ihren privaten Schlüsseln gespeichert wurden";
   @override
   String get seed_language_next => "Nächster";
   @override
@@ -796,7 +796,7 @@ class $de extends S {
   @override
   String get restore_title_from_seed => "Aus Seed wiederherstellen";
   @override
-  String get restore_description_from_backup => "Sie können die gesamte Cake Wallet-App von wiederherstellen \nIhre Sicherungsdatei";
+  String get restore_description_from_backup => "Sie können die gesamte Cake Wallet-App von wiederherstellen Ihre Sicherungsdatei";
   @override
   String get send_monero_address => "Monero-Adresse";
   @override
@@ -902,7 +902,7 @@ class $hi extends S {
   @override
   String get you_will_get => "आपको मिल जायेगा";
   @override
-  String get restore_description_from_seed => "या तो 25 शब्द से अपने वॉलेट को पुनर्स्थापित करें\nया 13 शब्द संयोजन कोड";
+  String get restore_description_from_seed => "या तो 25 शब्द से अपने वॉलेट को पुनर्स्थापित करें या 13 शब्द संयोजन कोड";
   @override
   String get trade_state_underpaid => "के तहत भुगतान किया";
   @override
@@ -1270,7 +1270,7 @@ class $hi extends S {
   @override
   String get error_text_wallet_name => "वॉलेट नाम में केवल अक्षर, संख्याएं हो सकती हैं\nऔर 1 और 15 वर्णों के बीच लंबा होना चाहिए";
   @override
-  String get restore_description_from_keys => "अपने वॉलेट को जेनरेट से पुनर्स्थापित करें\nआपकी निजी कुंजी से कीस्ट्रोक्स सहेजे गए";
+  String get restore_description_from_keys => "अपने वॉलेट को जेनरेट से पुनर्स्थापित करें आपकी निजी कुंजी से कीस्ट्रोक्स सहेजे गए";
   @override
   String get seed_language_next => "आगामी";
   @override
@@ -1364,7 +1364,7 @@ class $hi extends S {
   @override
   String get restore_title_from_seed => "बीज से पुनर्स्थापित करें";
   @override
-  String get restore_description_from_backup => "आप से पूरे केक वॉलेट एप्लिकेशन को पुनर्स्थापित कर सकते हैं\nआपकी बैक-अप फ़ाइल";
+  String get restore_description_from_backup => "आप से पूरे केक वॉलेट एप्लिकेशन को पुनर्स्थापित कर सकते हैं आपकी बैक-अप फ़ाइल";
   @override
   String get send_monero_address => "मोनरो पता";
   @override
@@ -1932,7 +1932,7 @@ class $ru extends S {
   @override
   String get restore_title_from_seed => "Восстановить из мнемонической фразы";
   @override
-  String get restore_description_from_backup => "Вы можете восстановить Cake Wallet из\nвашего back-up файла";
+  String get restore_description_from_backup => "Вы можете восстановить Cake Wallet из вашего back-up файла";
   @override
   String get send_monero_address => "Monero адрес";
   @override
@@ -2406,7 +2406,7 @@ class $ko extends S {
   @override
   String get error_text_wallet_name => "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다";
   @override
-  String get restore_description_from_keys => "개인 키에서 저장된 생성 된\n키 스트로크에서 월렛 복원";
+  String get restore_description_from_keys => "개인 키에서 저장된 생성 된 키 스트로크에서 월렛 복원";
   @override
   String get seed_language_next => "다음 것";
   @override
@@ -2606,7 +2606,7 @@ class $pt extends S {
   @override
   String get you_will_get => "Você receberá";
   @override
-  String get restore_description_from_seed => "Restaure sua carteira a partir de semente com \n25 palavras ou 13 palavras";
+  String get restore_description_from_seed => "Restaure sua carteira a partir de semente com 25 palavras ou 13 palavras";
   @override
   String get trade_state_underpaid => "Parcialmente paga";
   @override
@@ -2974,7 +2974,7 @@ class $pt extends S {
   @override
   String get error_text_wallet_name => "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 15 caracteres";
   @override
-  String get restore_description_from_keys => "Restaure sua carteira a partir de \nsuas chaves privadas";
+  String get restore_description_from_keys => "Restaure sua carteira a partir de suas chaves privadas";
   @override
   String get seed_language_next => "Próximo";
   @override
@@ -3068,7 +3068,7 @@ class $pt extends S {
   @override
   String get restore_title_from_seed => "Restaurar a partir de semente";
   @override
-  String get restore_description_from_backup => "Você pode restaurar todo o aplicativo Cake Wallet de\nseu arquivo de backup";
+  String get restore_description_from_backup => "Você pode restaurar todo o aplicativo Cake Wallet de seu arquivo de backup";
   @override
   String get send_monero_address => "Endereço Monero";
   @override
@@ -3636,7 +3636,7 @@ class $uk extends S {
   @override
   String get restore_title_from_seed => "Відновити з мнемонічної фрази";
   @override
-  String get restore_description_from_backup => "Ви можете відновити Cake Wallet з\nвашого резервного файлу";
+  String get restore_description_from_backup => "Ви можете відновити Cake Wallet з вашого резервного файлу";
   @override
   String get send_monero_address => "Monero адреса";
   @override
@@ -3742,7 +3742,7 @@ class $ja extends S {
   @override
   String get you_will_get => "あなたが取得します";
   @override
-  String get restore_description_from_seed => "25ワードからウォレットを復元します\nまたは13ワードの組み合わせコード";
+  String get restore_description_from_seed => "25ワードからウォレットを復元しますまたは13ワードの組み合わせコード";
   @override
   String get trade_state_underpaid => "支払不足";
   @override
@@ -4110,7 +4110,7 @@ class $ja extends S {
   @override
   String get error_text_wallet_name => "ウォレット名には文字のみを含めることができます\n1〜15文字である必要があります";
   @override
-  String get restore_description_from_keys => "生成されたウォレットを復元します\n秘密鍵から保存されたキーストローク";
+  String get restore_description_from_keys => "生成されたウォレットを復元します秘密鍵から保存されたキーストローク";
   @override
   String get seed_language_next => "次";
   @override
@@ -4204,7 +4204,7 @@ class $ja extends S {
   @override
   String get restore_title_from_seed => "シードから復元";
   @override
-  String get restore_description_from_backup => "Cake Walletアプリ全体を復元できます\nバックアップファイル";
+  String get restore_description_from_backup => "Cake Walletアプリ全体を復元できますバックアップファイル";
   @override
   String get send_monero_address => "Monero 住所";
   @override
@@ -4314,7 +4314,7 @@ class $pl extends S {
   @override
   String get you_will_get => "Dostaniesz";
   @override
-  String get restore_description_from_seed => "Przywróć swój portfel z 25 słów\nlub 13-słowny kod kombinacji";
+  String get restore_description_from_seed => "Przywróć swój portfel z 25 słów lub 13-słowny kod kombinacji";
   @override
   String get trade_state_underpaid => "Niedopłacone";
   @override
@@ -4682,7 +4682,7 @@ class $pl extends S {
   @override
   String get error_text_wallet_name => "Nazwa portfela może zawierać tylko litery i cyfry\ni musi mieć od 1 do 15 znaków";
   @override
-  String get restore_description_from_keys => "Przywróć swój portfel z wygenerowanego\nnaciśnięcia klawiszy zapisane z kluczy prywatnych";
+  String get restore_description_from_keys => "Przywróć swój portfel z wygenerowanego naciśnięcia klawiszy zapisane z kluczy prywatnych";
   @override
   String get seed_language_next => "Kolejny";
   @override
@@ -4776,7 +4776,7 @@ class $pl extends S {
   @override
   String get restore_title_from_seed => "Przywróć z nasion";
   @override
-  String get restore_description_from_backup => "Możesz przywrócić całą aplikację Cake Wallet z\nplik kopii zapasowej";
+  String get restore_description_from_backup => "Możesz przywrócić całą aplikację Cake Wallet z plik kopii zapasowej";
   @override
   String get send_monero_address => "Adres Monero";
   @override
@@ -4882,7 +4882,7 @@ class $es extends S {
   @override
   String get you_will_get => "Conseguirás";
   @override
-  String get restore_description_from_seed => "Restaure su billetera desde el código de combinación de 25 palabras \ni de 13 palabras";
+  String get restore_description_from_seed => "Restaure su billetera desde el código de combinación de 25 palabras i de 13 palabras";
   @override
   String get trade_state_underpaid => "Poco pagado";
   @override
@@ -5250,7 +5250,7 @@ class $es extends S {
   @override
   String get error_text_wallet_name => "El nombre de la billetera solo puede contener letras, números \ny debe tener entre 1 y 15 caracteres de longitud";
   @override
-  String get restore_description_from_keys => "Restaure su billetera de las pulsaciones de teclas generadas\nguardadas de sus claves privadas";
+  String get restore_description_from_keys => "Restaure su billetera de las pulsaciones de teclas generadas guardadas de sus claves privadas";
   @override
   String get seed_language_next => "Próximo";
   @override
@@ -5344,7 +5344,7 @@ class $es extends S {
   @override
   String get restore_title_from_seed => "De la semilla";
   @override
-  String get restore_description_from_backup => "Puede restaurar toda la aplicación Cake Wallet desde \nysu archivo de respaldo";
+  String get restore_description_from_backup => "Puede restaurar toda la aplicación Cake Wallet desde ysu archivo de respaldo";
   @override
   String get send_monero_address => "Dirección de Monero";
   @override
@@ -5450,7 +5450,7 @@ class $nl extends S {
   @override
   String get you_will_get => "Je zult krijgen";
   @override
-  String get restore_description_from_seed => "Herstel uw portemonnee van het 25 woord\nof 13 woord combinatiecode";
+  String get restore_description_from_seed => "Herstel uw portemonnee van het 25 woord of 13 woord combinatiecode";
   @override
   String get trade_state_underpaid => "Slecht betaald";
   @override
@@ -5818,7 +5818,7 @@ class $nl extends S {
   @override
   String get error_text_wallet_name => "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn";
   @override
-  String get restore_description_from_keys => "Herstel uw portemonnee van gegenereerd\ntoetsaanslagen opgeslagen van uw privésleutels";
+  String get restore_description_from_keys => "Herstel uw portemonnee van gegenereerd toetsaanslagen opgeslagen van uw privésleutels";
   @override
   String get seed_language_next => "Volgende";
   @override
@@ -5912,7 +5912,7 @@ class $nl extends S {
   @override
   String get restore_title_from_seed => "Herstel van zaad";
   @override
-  String get restore_description_from_backup => "Je kunt de hele Cake Wallet-app herstellen van\nuw back-upbestand";
+  String get restore_description_from_backup => "Je kunt de hele Cake Wallet-app herstellen van uw back-upbestand";
   @override
   String get send_monero_address => "Monero-adres";
   @override
@@ -6018,7 +6018,7 @@ class $zh extends S {
   @override
   String get you_will_get => "你会得到";
   @override
-  String get restore_description_from_seed => "从25个字中恢复您的钱包\n或13个字的组合码";
+  String get restore_description_from_seed => "从25个字中恢复您的钱包或13个字的组合码";
   @override
   String get trade_state_underpaid => "支付不足";
   @override
@@ -6386,7 +6386,7 @@ class $zh extends S {
   @override
   String get error_text_wallet_name => "钱包名称只能包含字母，数字\n且必须介于1到15个字符之间";
   @override
-  String get restore_description_from_keys => "R从生成的电子钱包\n从您的私钥中保存的击键";
+  String get restore_description_from_keys => "R从生成的电子钱包从您的私钥中保存的击键";
   @override
   String get seed_language_next => "下一个";
   @override
@@ -6480,7 +6480,7 @@ class $zh extends S {
   @override
   String get restore_title_from_seed => "从种子还原";
   @override
-  String get restore_description_from_backup => "您可以从还原整个Cake Wallet应用\n您的备份文件";
+  String get restore_description_from_backup => "您可以从还原整个Cake Wallet应用您的备份文件";
   @override
   String get send_monero_address => "门罗地址";
   @override
