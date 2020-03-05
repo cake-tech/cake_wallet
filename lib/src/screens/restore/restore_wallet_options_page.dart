@@ -29,37 +29,39 @@ class RestoreWalletOptionsPage extends BasePage {
         left: 20.0,
         right: 20.0,
       ),
-      child: Column(
-        children: <Widget>[
-          Flexible(
-              child: RestoreButton(
-                onPressed: () {
-                  seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromSeed);
-                  Navigator.pushNamed(context, Routes.seedLanguage);
-                },
-                image: _imageSeed,
-                aspectRatioImage: _aspectRatioImage,
-                titleColor: Palette.lightViolet,
-                color: Palette.lightViolet,
-                title: S.of(context).restore_title_from_seed,
-                description: S.of(context).restore_description_from_seed,
-                textButton: S.of(context).restore_next,
-              )),
-          Flexible(
-              child: RestoreButton(
-                onPressed: () {
-                  seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromKeys);
-                  Navigator.pushNamed(context, Routes.seedLanguage);
-                },
-                image: _imageKeys,
-                aspectRatioImage: _aspectRatioImage,
-                titleColor: Palette.cakeGreen,
-                color: Palette.cakeGreen,
-                title: S.of(context).restore_title_from_keys,
-                description: S.of(context).restore_description_from_keys,
-                textButton: S.of(context).restore_next,
-              ))
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+                child: RestoreButton(
+                  onPressed: () {
+                    seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromSeed);
+                    Navigator.pushNamed(context, Routes.seedLanguage);
+                  },
+                  image: _imageSeed,
+                  aspectRatioImage: _aspectRatioImage,
+                  titleColor: Palette.lightViolet,
+                  color: Palette.lightViolet,
+                  title: S.of(context).restore_title_from_seed,
+                  description: S.of(context).restore_description_from_seed,
+                  textButton: S.of(context).restore_next,
+                )),
+            Container(
+                child: RestoreButton(
+                  onPressed: () {
+                    seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromKeys);
+                    Navigator.pushNamed(context, Routes.seedLanguage);
+                  },
+                  image: _imageKeys,
+                  aspectRatioImage: _aspectRatioImage,
+                  titleColor: Palette.cakeGreen,
+                  color: Palette.cakeGreen,
+                  title: S.of(context).restore_title_from_keys,
+                  description: S.of(context).restore_description_from_keys,
+                  textButton: S.of(context).restore_next,
+                ))
+          ],
+        ),
       ),
     );
   }
