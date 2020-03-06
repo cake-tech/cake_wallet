@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/exchange_trade/exchange_trade_store.dart';
+import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
@@ -17,11 +18,13 @@ class TradeDetailsPage extends BasePage {
   @override
   bool get isModalBackButton => true;
 
-  final createdAtFormat = DateFormat('yyyy-MM-dd HH:mm:ss');
-
   @override
   Widget body(BuildContext context) {
     final exchangeStore = Provider.of<ExchangeTradeStore>(context);
+    final settingsStore = Provider.of<SettingsStore>(context);
+    final createdAtFormat = settingsStore.currentLocale == 'en_US'
+          ? DateFormat('yyyy.MM.dd, HH:mm')
+          : DateFormat('dd.MM.yyyy, HH:mm');
 
     return Container(
         padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 20, right: 15),
