@@ -5,8 +5,7 @@ import 'package:auto_size_text/auto_size_text.dart';
 class RestoreButton extends StatelessWidget {
   const RestoreButton(
       {@required this.onPressed,
-      @required this.image,
-      @required this.aspectRatioImage,
+      @required this.imageWidget,
       @required this.color,
       @required this.titleColor,
       this.title = '',
@@ -14,8 +13,7 @@ class RestoreButton extends StatelessWidget {
       this.textButton = ''});
 
   final VoidCallback onPressed;
-  final Image image;
-  final double aspectRatioImage;
+  final Widget imageWidget;
   final Color color;
   final Color titleColor;
   final String title;
@@ -45,7 +43,7 @@ class RestoreButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              image,
+              imageWidget,
               Column(
                 children: <Widget>[
                   Padding(
