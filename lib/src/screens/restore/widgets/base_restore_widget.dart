@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const largeHeight = 800;
+const largeHeight = 700;
 
 class BaseRestoreWidget extends StatelessWidget {
   BaseRestoreWidget({
