@@ -42,11 +42,13 @@ class TransactionDetailsForm extends StatefulWidget {
 }
 
 class TransactionDetailsFormState extends State<TransactionDetailsForm> {
-  final DateFormat _dateFormat = DateFormat('dd.MM.yyyy, HH:mm');
   final _items = List<StandartListItem>();
 
   @override
   void initState() {
+    final _dateFormat = widget.settingsStore.currentLocale == 'en_US'
+          ? DateFormat('yyyy.MM.dd, HH:mm')
+          : DateFormat('dd.MM.yyyy, HH:mm');
     final items = [
       StandartListItem(
           title: S.current.transaction_details_transaction_id,

@@ -125,7 +125,9 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
     final actionListStore = Provider.of<ActionListStore>(context);
     final syncStore = Provider.of<SyncStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
-    final transactionDateFormat = DateFormat("MMMM d, yyyy HH:mm", settingsStore.languageCode);
+    final transactionDateFormat = settingsStore.currentLocale == 'en_US'
+          ? DateFormat("MMMM d, yyyy, HH:mm", settingsStore.languageCode)
+          : DateFormat("d MMMM yyyy, HH:mm", settingsStore.languageCode);
 
     return Observer(
         key: _listObserverKey,

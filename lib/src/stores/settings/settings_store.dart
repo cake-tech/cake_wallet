@@ -14,6 +14,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/default_settings_migration.dart';
 import 'package:package_info/package_info.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
+import 'package:devicelocale/devicelocale.dart';
 
 part 'settings_store.g.dart';
 
@@ -31,7 +32,8 @@ abstract class SettingsStoreBase with Store {
       @required bool initialDarkTheme,
       this.actionlistDisplayMode,
       @required int initialPinLength,
-      @required String initialLanguageCode}) {
+      @required String initialLanguageCode,
+      @required String initialCurrentLocale}) {
     fiatCurrency = initialFiatCurrency;
     transactionPriority = initialTransactionPriority;
     balanceDisplayMode = initialBalanceDisplayMode;
@@ -42,6 +44,7 @@ abstract class SettingsStoreBase with Store {
     isDarkTheme = initialDarkTheme;
     defaultPinLength = initialPinLength;
     languageCode = initialLanguageCode;
+    currentLocale = initialCurrentLocale;
     itemHeaders = Map();
 
     actionlistDisplayMode.observe(
@@ -96,6 +99,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getString(currentLanguageCode) == null
             ? await Language.localeDetection()
             : sharedPreferences.getString(currentLanguageCode);
+    final initialCurrentLocale = await Devicelocale.currentLocale;
 
     final store = SettingsStore(
         sharedPreferences: sharedPreferences,
@@ -108,7 +112,8 @@ abstract class SettingsStoreBase with Store {
         initialDarkTheme: savedDarkTheme,
         actionlistDisplayMode: actionlistDisplayMode,
         initialPinLength: defaultPinLength,
-        initialLanguageCode: savedLanguageCode);
+        initialLanguageCode: savedLanguageCode,
+        initialCurrentLocale: initialCurrentLocale);
 
     await store.loadSettings();
 
@@ -141,7 +146,10 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   int defaultPinLength;
+
   String languageCode;
+
+  String currentLocale;
 
   @observable
   Map<String, String> itemHeaders;
