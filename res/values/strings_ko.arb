@@ -143,7 +143,7 @@
   "restore_title_from_seed" : "종자에서 복원",
   "restore_description_from_seed" : "25 단어 또는 13 단어 조합 코드에서 지갑을 복원하십시오.",
   "restore_title_from_keys" : "키에서 복원",
-  "restore_description_from_keys" : "개인 키에서 저장된 생성 된\n키 스트로크에서 월렛 복원",
+  "restore_description_from_keys" : "개인 키에서 저장된 생성 된 키 스트로크에서 월렛 복원",
   "restore_wallet_name" : "지갑 이름",
   "restore_address" : "주소",
   "restore_view_key_private" : "키보기 (은밀한)",
