@@ -138,7 +138,7 @@
   "restore_description_from_seed_keys" : "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше",
   "restore_next" : "Продовжити",
   "restore_title_from_backup" : "Відновити із резервного файлу",
-  "restore_description_from_backup" : "Ви можете відновити Cake Wallet з\nвашого резервного файлу",
+  "restore_description_from_backup" : "Ви можете відновити Cake Wallet з вашого резервного файлу",
   "restore_seed_keys_restore" : "Відновити за допомогою мнемонічної фрази/ключів",
   "restore_title_from_seed" : "Відновити з мнемонічної фрази",
   "restore_description_from_seed" : "Ви можете відновити гаманець використовуючи 25-ти слівну мнемонічну фразу",

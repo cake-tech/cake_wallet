@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class RestoreButton extends StatelessWidget {
   const RestoreButton(
       {@required this.onPressed,
-      @required this.image,
-      @required this.aspectRatioImage,
+      @required this.imageWidget,
       @required this.color,
       @required this.titleColor,
       this.title = '',
@@ -13,8 +13,7 @@ class RestoreButton extends StatelessWidget {
       this.textButton = ''});
 
   final VoidCallback onPressed;
-  final Image image;
-  final double aspectRatioImage;
+  final Widget imageWidget;
   final Color color;
   final Color titleColor;
   final String title;
@@ -44,43 +43,35 @@ class RestoreButton extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Flexible(
-                child: Container(
-                  child: AspectRatio(
-                    aspectRatio: aspectRatioImage,
-                    child: FittedBox(
-                      fit: BoxFit.contain,
-                      child: image,
-                    ),
-                  ),
-                ),
-              ),
+              imageWidget,
               Column(
                 children: <Widget>[
-                  Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: titleColor,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold),
+                  Padding(
+                    padding: EdgeInsets.only(left: 20, right: 20),
+                    child: AutoSizeText(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: titleColor,
+                          fontWeight: FontWeight.bold),
+                      maxLines: 2,
+                    ),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(left: 50, right: 50, top: 10),
-                    child: Text(
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+                    child: AutoSizeText(
                       description,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                          color:
-                              Theme.of(context).accentTextTheme.subhead.color,
-                          fontSize: 14.0,
-                          height: 1.4),
-                    ),
+                        color: Theme.of(context).accentTextTheme.subhead.color,
+                      ),
+                      maxLines: 2,
+                    )
                   )
                 ],
               ),
               SizedBox(
-                height: 20.0,
+                height: 20,
               ),
               Container(
                   height: 56.0,
