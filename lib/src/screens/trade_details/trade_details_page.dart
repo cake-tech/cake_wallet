@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
-import 'package:intl/intl.dart';
 
 class TradeDetailsPage extends BasePage {
   @override
@@ -22,9 +21,9 @@ class TradeDetailsPage extends BasePage {
   Widget body(BuildContext context) {
     final exchangeStore = Provider.of<ExchangeTradeStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
-    final createdAtFormat = settingsStore.currentLocale == 'en_US'
-          ? DateFormat('yyyy.MM.dd, HH:mm')
-          : DateFormat('dd.MM.yyyy, HH:mm');
+    final createdAtFormat = settingsStore.getCurrentDateFormat(
+          formatUSA: "yyyy.MM.dd, HH:mm",
+          formatDefault: "dd.MM.yyyy, HH:mm");
 
     return Container(
         padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 20, right: 15),

@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,9 +45,9 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
 
   @override
   void initState() {
-    final _dateFormat = widget.settingsStore.currentLocale == 'en_US'
-          ? DateFormat('yyyy.MM.dd, HH:mm')
-          : DateFormat('dd.MM.yyyy, HH:mm');
+    final _dateFormat = widget.settingsStore.getCurrentDateFormat(
+          formatUSA: "yyyy.MM.dd, HH:mm",
+          formatDefault: "dd.MM.yyyy, HH:mm");
     final items = [
       StandartListItem(
           title: S.current.transaction_details_transaction_id,
