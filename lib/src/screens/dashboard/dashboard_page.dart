@@ -1,5 +1,4 @@
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -125,7 +124,9 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
     final actionListStore = Provider.of<ActionListStore>(context);
     final syncStore = Provider.of<SyncStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
-    final transactionDateFormat = DateFormat("MMMM d, yyyy HH:mm", settingsStore.languageCode);
+    final transactionDateFormat = settingsStore.getCurrentDateFormat(
+          formatUSA: "MMMM d, yyyy, HH:mm",
+          formatDefault: "d MMMM yyyy, HH:mm");
 
     return Observer(
         key: _listObserverKey,

@@ -19,7 +19,9 @@ class DateSectionRaw extends StatelessWidget {
         nowDate.year == date.year;
     final settingsStore = Provider.of<SettingsStore>(context);
     final currentLanguage = settingsStore.languageCode;
-    final dateSectionDateFormat = DateFormat("d MMM", currentLanguage);
+    final dateSectionDateFormat = settingsStore.getCurrentDateFormat(
+          formatUSA: "MMM d",
+          formatDefault: "d MMM");
     var title = "";
 
     if (isToday) {
