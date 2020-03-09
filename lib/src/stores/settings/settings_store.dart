@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/domain/common/default_settings_migration.dart';
 import 'package:package_info/package_info.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:devicelocale/devicelocale.dart';
+import 'package:intl/intl.dart';
 
 part 'settings_store.g.dart';
 
@@ -287,4 +288,10 @@ abstract class SettingsStoreBase with Store {
     await changeCurrentNodeToDefault(sharedPreferences: _sharedPreferences, nodes: _nodes);
     await loadSettings();
   }
+
+  DateFormat getCurrentDateFormat({
+    @required String formatUSA,
+    @required String formatDefault}) => currentLocale == 'en_US'
+          ? DateFormat(formatUSA, languageCode)
+          : DateFormat(formatDefault, languageCode);
 }
