@@ -206,7 +206,7 @@ class S implements WidgetsLocalizations {
   String get sync_status_not_connected => "NOT CONNECTED";
   String get sync_status_starting_sync => "STARTING SYNC";
   String get sync_status_syncronized => "SYNCHRONIZED";
-  String get sync_status_syncronizing => "SYNCRONIZING";
+  String get sync_status_syncronizing => "SYNCHRONIZING";
   String get today => "Today";
   String get trade_details_created_at => "Created at";
   String get trade_details_fetching => "Fetching";
