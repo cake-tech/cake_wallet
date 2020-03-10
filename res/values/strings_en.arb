@@ -300,7 +300,7 @@
   "hidden_balance" : "Hidden Balance",
 
 
-  "sync_status_syncronizing" : "SYNCRONIZING",
+  "sync_status_syncronizing" : "SYNCHRONIZING",
   "sync_status_syncronized" : "SYNCHRONIZED",
   "sync_status_not_connected" : "NOT CONNECTED",
   "sync_status_starting_sync" : "STARTING SYNC",
