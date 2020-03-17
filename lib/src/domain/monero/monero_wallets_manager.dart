@@ -10,18 +10,7 @@ import 'package:cake_wallet/src/domain/common/wallets_manager.dart';
 import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/common/wallet_description.dart';
-
-Future<String> pathForWallet({String name}) async {
-  final directory = await getApplicationDocumentsDirectory();
-  final pathDir = directory.path + '/$name';
-  final dir = Directory(pathDir);
-
-  if (!await dir.exists()) {
-    await dir.create();
-  }
-
-  return pathDir + '/$name';
-}
+import 'package:cake_wallet/src/domain/common/path_for_wallet.dart';
 
 class MoneroWalletsManager extends WalletsManager {
   MoneroWalletsManager({@required this.walletInfoSource});

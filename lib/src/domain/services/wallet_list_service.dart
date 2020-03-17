@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_wallets_manager.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -111,6 +112,10 @@ class WalletListService {
       case WalletType.monero:
         walletsManager =
             MoneroWalletsManager(walletInfoSource: walletInfoSource);
+        break;
+      case WalletType.bitcoin:
+        walletsManager =
+            BitcoinWalletsManager(walletInfoSource: walletInfoSource);
         break;
       case WalletType.none:
         walletsManager = null;

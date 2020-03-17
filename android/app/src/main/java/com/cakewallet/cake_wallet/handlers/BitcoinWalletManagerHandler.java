@@ -49,8 +49,10 @@ public class BitcoinWalletManagerHandler {
     }
 
     private void createWallet(MethodCall call, MethodChannel.Result result) {
+        String path = call.argument("path");
+
         CreateBitcoinWalletAsyncTask createBitcoinWalletAsyncTask = new CreateBitcoinWalletAsyncTask(result, bitcoinWalletHandler);
-        CreateBitcoinWalletCredentials credentials = new CreateBitcoinWalletCredentials();
+        CreateBitcoinWalletCredentials credentials = new CreateBitcoinWalletCredentials(path);
         createBitcoinWalletAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, credentials);
     }
 

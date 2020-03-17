@@ -12,6 +12,14 @@ public class CreateBitcoinWalletAsyncTask extends BitcoinWalletManagerAsyncTask<
 
     @Override
     protected Boolean doInBackground(CreateBitcoinWalletCredentials... credentials) {
-        return bitcoinWalletHandler.createWallet();
+        boolean isCreated = false;
+
+        try {
+            isCreated = bitcoinWalletHandler.createWallet(credentials[0].path);
+        } catch (Exception e) {
+            isCreated = false;
+        }
+
+        return isCreated;
     }
 }

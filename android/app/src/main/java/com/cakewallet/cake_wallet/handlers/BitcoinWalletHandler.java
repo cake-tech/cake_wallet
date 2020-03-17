@@ -23,12 +23,14 @@ public class BitcoinWalletHandler {
     public static final String BITCOIN_WALLET_CHANNEL = "com.cakewallet.cake_wallet/bitcoin-wallet";
     private Wallet currentWallet;
 
-    public boolean createWallet() {
+    public boolean createWallet(String path) throws Exception {
         NetworkParameters params = MainNetParams.get();
         ECKey key = new ECKey();
+        File file = new File(path);
 
         currentWallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
         currentWallet.importKey(key);
+        currentWallet.saveToFile(file);
         return true;
     }
 
