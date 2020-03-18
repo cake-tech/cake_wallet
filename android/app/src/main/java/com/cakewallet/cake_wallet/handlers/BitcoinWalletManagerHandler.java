@@ -11,6 +11,8 @@ import com.cakewallet.cake_wallet.tasks.OpenBitcoinWalletAsyncTask;
 import com.cakewallet.cake_wallet.tasks.RestoreWalletFromKeyAsyncTask;
 import com.cakewallet.cake_wallet.tasks.RestoreWalletFromSeedAsyncTask;
 
+import java.util.List;
+
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
@@ -34,11 +36,8 @@ public class BitcoinWalletManagerHandler {
                 case "restoreWalletFromSeed" :
                     restoreWalletFromSeed(call, result);
                     break;
-                case "restoreWalletFromKeys":
+                case "restoreWalletFromKey":
                     restoreWalletFromKey(call, result);
-                    break;
-                case "isExist":
-                    isExist(call, result);
                     break;
                 default:
                     result.notImplemented();
@@ -50,37 +49,40 @@ public class BitcoinWalletManagerHandler {
 
     private void createWallet(MethodCall call, MethodChannel.Result result) {
         String path = call.argument("path");
+        String password = call.argument("password");
 
         CreateBitcoinWalletAsyncTask createBitcoinWalletAsyncTask = new CreateBitcoinWalletAsyncTask(result, bitcoinWalletHandler);
-        CreateBitcoinWalletCredentials credentials = new CreateBitcoinWalletCredentials(path);
+        CreateBitcoinWalletCredentials credentials = new CreateBitcoinWalletCredentials(path, password);
         createBitcoinWalletAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, credentials);
     }
 
     private void openWallet(MethodCall call, MethodChannel.Result result) {
         String path = call.argument("path");
+        String password = call.argument("password");
 
         OpenBitcoinWalletAsyncTask openBitcoinWalletAsyncTask = new OpenBitcoinWalletAsyncTask(result, bitcoinWalletHandler);
-        OpenBitcoinWalletCredentials credentials = new OpenBitcoinWalletCredentials(path);
+        OpenBitcoinWalletCredentials credentials = new OpenBitcoinWalletCredentials(path, password);
         openBitcoinWalletAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, credentials);
     }
 
     private void restoreWalletFromSeed(MethodCall call, MethodChannel.Result result) {
-        String seed = call.argument("seed");
+        String path = call.argument("path");
+        String password = call.argument("password");
+        List<String> seed = call.argument("seed");
         String passphrase = call.argument("passphrase");
 
         RestoreWalletFromSeedAsyncTask restoreWalletFromSeedAsyncTask = new RestoreWalletFromSeedAsyncTask(result, bitcoinWalletHandler);
-        RestoreWalletFromSeedCredentials credentials = new RestoreWalletFromSeedCredentials(seed, passphrase);
+        RestoreWalletFromSeedCredentials credentials = new RestoreWalletFromSeedCredentials(path, password, seed, passphrase);
         restoreWalletFromSeedAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, credentials);
     }
 
     private void restoreWalletFromKey(MethodCall call, MethodChannel.Result result) {
+        String path = call.argument("path");
+        String password = call.argument("password");
         String privateKey = call.argument("privateKey");
 
         RestoreWalletFromKeyAsyncTask restoreWalletFromKeyAsyncTask = new RestoreWalletFromKeyAsyncTask(result, bitcoinWalletHandler);
-        RestoreWalletFromKeyCredentials credentials = new RestoreWalletFromKeyCredentials(privateKey);
+        RestoreWalletFromKeyCredentials credentials = new RestoreWalletFromKeyCredentials(path, password, privateKey);
         restoreWalletFromKeyAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, credentials);
-    }
-
-    private void isExist(MethodCall call, MethodChannel.Result result) {
     }
 }

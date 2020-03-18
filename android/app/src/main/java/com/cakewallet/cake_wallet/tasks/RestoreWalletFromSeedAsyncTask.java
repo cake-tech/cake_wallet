@@ -15,7 +15,11 @@ public class RestoreWalletFromSeedAsyncTask extends BitcoinWalletManagerAsyncTas
         boolean isRestored = false;
 
         try {
-            isRestored = bitcoinWalletHandler.restoreWalletFromSeed(credentials[0].seed, credentials[0].passphrase);
+            isRestored = bitcoinWalletHandler.restoreWalletFromSeed(
+                    credentials[0].path,
+                    credentials[0].password,
+                    credentials[0].seed,
+                    credentials[0].passphrase);
         } catch (Exception e){
             isRestored = false;
         }

@@ -12,6 +12,18 @@ public class RestoreWalletFromKeyAsyncTask extends BitcoinWalletManagerAsyncTask
 
     @Override
     protected Boolean doInBackground(RestoreWalletFromKeyCredentials... credentials) {
-        return bitcoinWalletHandler.restoreWalletFromKey(credentials[0].privateKey);
+        boolean isRestored = false;
+
+        try {
+            isRestored = bitcoinWalletHandler.restoreWalletFromKey(
+                    credentials[0].path,
+                    credentials[0].password,
+                    credentials[0].privateKey
+            );
+        } catch (Exception e){
+            isRestored = false;
+        }
+
+        return isRestored;
     }
 }

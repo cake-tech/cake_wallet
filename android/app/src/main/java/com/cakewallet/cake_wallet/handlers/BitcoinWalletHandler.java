@@ -10,11 +10,11 @@ import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.DeterministicSeed;
-import org.bitcoinj.wallet.KeyChain;
 import org.bitcoinj.wallet.Wallet;
 
 import java.io.File;
 import java.math.BigInteger;
+import java.util.List;
 
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -23,35 +23,41 @@ public class BitcoinWalletHandler {
     public static final String BITCOIN_WALLET_CHANNEL = "com.cakewallet.cake_wallet/bitcoin-wallet";
     private Wallet currentWallet;
 
-    public boolean createWallet(String path) throws Exception {
+    public boolean createWallet(String path, String password) throws Exception {
         NetworkParameters params = MainNetParams.get();
         ECKey key = new ECKey();
         File file = new File(path);
 
         currentWallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
         currentWallet.importKey(key);
+        currentWallet.encrypt(password);
         currentWallet.saveToFile(file);
         return true;
     }
 
-    public boolean openWallet(String path) throws Exception {
+    public boolean openWallet(String path, String password) throws Exception {
         File file = new File(path);
 
         currentWallet = Wallet.loadFromFile(file);
+        currentWallet.decrypt(password);
         return true;
     }
 
-    public boolean restoreWalletFromSeed(String seed, String passphrase) throws Exception {
+    public boolean restoreWalletFromSeed(String path, String password, List<String> seed, String passphrase) throws Exception {
         NetworkParameters params = MainNetParams.get();
+        File file = new File(path);
         long creationTime = 1409478661L;
 
         DeterministicSeed deterministicSeed = new DeterministicSeed(seed, null, passphrase, creationTime);
         currentWallet = Wallet.fromSeed(params, deterministicSeed, Script.ScriptType.P2PKH);
+        currentWallet.encrypt(password);
+        currentWallet.saveToFile(file);
         return true;
     }
 
-    public boolean restoreWalletFromKey(String privateKey) {
+    public boolean restoreWalletFromKey(String path, String password, String privateKey) throws Exception {
         NetworkParameters params = MainNetParams.get();
+        File file = new File(path);
 
         ECKey key;
         if (privateKey.length() == 51 || privateKey.length() == 52) {
@@ -64,6 +70,8 @@ public class BitcoinWalletHandler {
 
         currentWallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
         currentWallet.importKey(key);
+        currentWallet.encrypt(password);
+        currentWallet.saveToFile(file);
         return true;
     }
 
@@ -79,7 +87,8 @@ public class BitcoinWalletHandler {
                 case "getSeed":
                     getSeed(call, result);
                     break;
-                case "getKey":
+                case "getPrivateKey":
+                    getPrivateKey(call, result);
                     break;
                 default:
                     result.notImplemented();
@@ -104,8 +113,8 @@ public class BitcoinWalletHandler {
         result.success(seed.getMnemonicCode());
     }
 
-    private void getKey(MethodCall call, MethodChannel.Result result) {
+    private void getPrivateKey(MethodCall call, MethodChannel.Result result) {
         DeterministicKey key = currentWallet.currentReceiveKey();
-        result.success(key.toString());
+        result.success(key.getPrivKey().toString());
     }
 }

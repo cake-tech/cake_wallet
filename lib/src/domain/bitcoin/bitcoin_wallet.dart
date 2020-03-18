@@ -13,7 +13,7 @@ import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 class BitcoinWallet extends Wallet {
   BitcoinWallet({this.walletInfoSource, this.walletInfo});
 
-  static const platform = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
+  static const bitcoinWalletChannel = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
 
   static Future<BitcoinWallet> createdWallet(
       {Box<WalletInfo> walletInfoSource,
@@ -48,14 +48,6 @@ class BitcoinWallet extends Wallet {
        @required WalletInfo walletInfo}) async {
     final wallet = BitcoinWallet(
         walletInfoSource: walletInfoSource, walletInfo: walletInfo);
-
-    /*if (walletInfo.isRecovery) {
-      wallet.setRecoveringFromSeed();
-
-      if (walletInfo.restoreHeight != null) {
-        wallet.setRefreshFromBlockHeight(height: walletInfo.restoreHeight);
-      }
-    }*/
 
     return wallet;
   }

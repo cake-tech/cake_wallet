@@ -15,7 +15,7 @@ public class CreateBitcoinWalletAsyncTask extends BitcoinWalletManagerAsyncTask<
         boolean isCreated = false;
 
         try {
-            isCreated = bitcoinWalletHandler.createWallet(credentials[0].path);
+            isCreated = bitcoinWalletHandler.createWallet(credentials[0].path, credentials[0].password);
         } catch (Exception e) {
             isCreated = false;
         }

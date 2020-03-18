@@ -16,7 +16,7 @@ class BitcoinWalletsManager extends WalletsManager {
   BitcoinWalletsManager({@required this.walletInfoSource});
 
   static const type = WalletType.bitcoin;
-  static const bitcoinWalletManager = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet-manager');
+  static const bitcoinWalletManagerChannel = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet-manager');
 
   Box<WalletInfo> walletInfoSource;
 
@@ -26,15 +26,22 @@ class BitcoinWalletsManager extends WalletsManager {
       const isRecovery = false;
       final path = await pathForWallet(name: name);
       
-      await bitcoinWalletManager.invokeMethod<String>('createWallet', <String, String>{'path' : path});
+      final bool isCreated = await bitcoinWalletManagerChannel.invokeMethod<bool>('createWallet', <String, String> {
+        'path' : path,
+        'password' : password
+      });
 
-      final wallet = await BitcoinWallet.createdWallet(
-          walletInfoSource: walletInfoSource,
-          name: name,
-          isRecovery: isRecovery);
-      await wallet.updateInfo();
+      if (isCreated) {
+        final wallet = await BitcoinWallet.createdWallet(
+            walletInfoSource: walletInfoSource,
+            name: name,
+            isRecovery: isRecovery);
+        await wallet.updateInfo();
 
-      return wallet;
+        return wallet;
+      } else {
+        return null;
+      }
     } catch (e) {
       print('BitcoinWalletsManager Error: $e');
       rethrow;
@@ -42,9 +49,12 @@ class BitcoinWalletsManager extends WalletsManager {
   }
 
   @override
-  Future<bool> isWalletExit(String name) {
-    // TODO: implement isWalletExit
-    return null;
+  Future<bool> isWalletExit(String name) async {
+    final id =
+        walletTypeToString(type).toLowerCase() + '_' + name;
+    final info = walletInfoSource.values
+        .firstWhere((info) => info.id == id, orElse: () => null);
+    return info != null;
   }
 
   @override
@@ -52,11 +62,19 @@ class BitcoinWalletsManager extends WalletsManager {
     try {
       final path = await pathForWallet(name: name);
 
-      await bitcoinWalletManager.invokeMethod<String>('openWallet', <String, String>{'path' : path});
-      final wallet = await BitcoinWallet.load(walletInfoSource, name, type);
-      await wallet.updateInfo();
+      final isOpened = await bitcoinWalletManagerChannel.invokeMethod<bool>('openWallet', <String, String> {
+        'path' : path,
+        'password' : password
+      });
 
-      return wallet;
+      if (isOpened) {
+        final wallet = await BitcoinWallet.load(walletInfoSource, name, type);
+        await wallet.updateInfo();
+
+        return wallet;
+      } else {
+        return null;
+      }
     } catch (e) {
       print('BitcoinWalletsManager Error: $e');
       rethrow;
@@ -95,14 +113,73 @@ class BitcoinWalletsManager extends WalletsManager {
   }
 
   @override
-  Future<Wallet> restoreFromKeys(String name, String password, String language, int restoreHeight, String address, String viewKey, String spendKey) {
-    // TODO: implement restoreFromKeys
-    return null;
+  Future<Wallet> restoreFromKeys(
+      String name,
+      String password,
+      String language,
+      int restoreHeight,
+      String address,
+      String viewKey,
+      String spendKey) async {
+    try {
+      const isRecovery = true;
+      final path = await pathForWallet(name: name);
+
+      final isRestored = await bitcoinWalletManagerChannel.invokeMethod<bool>('restoreWalletFromKey', <String, String> {
+        'path' : path,
+        'password' : password,
+        'privateKey' : viewKey
+      });
+
+      if (isRestored) {
+        final wallet = await BitcoinWallet.createdWallet(
+            walletInfoSource: walletInfoSource,
+            name: name,
+            isRecovery: isRecovery);
+        await wallet.updateInfo();
+
+        return wallet;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('BitcoinWalletsManager Error: $e');
+      rethrow;
+    }
   }
 
   @override
-  Future<Wallet> restoreFromSeed(String name, String password, String seed, int restoreHeight) {
-    // TODO: implement restoreFromSeed
-    return null;
+  Future<Wallet> restoreFromSeed(
+      String name,
+      String password,
+      String seed,
+      int restoreHeight) async {
+    try {
+      const isRecovery = true;
+      final path = await pathForWallet(name: name);
+      final List spitedSeed = seed.split(' ');
+
+      final bool isRestored = await bitcoinWalletManagerChannel.invokeMethod<bool>('restoreWalletFromSeed', <String, dynamic> {
+        'path' : path,
+        'password' : password,
+        'seed' : spitedSeed,
+        'passphrase' : ''
+      });
+
+      if (isRestored) {
+        final wallet = await BitcoinWallet.createdWallet(
+            walletInfoSource: walletInfoSource,
+            name: name,
+            isRecovery: isRecovery);
+        await wallet.updateInfo();
+
+        return wallet;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print('BitcoinWalletsManager Error: $e');
+      rethrow;
+    }
   }
 }

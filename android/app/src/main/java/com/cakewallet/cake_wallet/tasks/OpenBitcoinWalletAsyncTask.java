@@ -15,7 +15,7 @@ public class OpenBitcoinWalletAsyncTask extends BitcoinWalletManagerAsyncTask<Op
         boolean isOpened = false;
 
         try {
-            isOpened = bitcoinWalletHandler.openWallet(credentials[0].path);
+            isOpened = bitcoinWalletHandler.openWallet(credentials[0].path, credentials[0].password);
         } catch (Exception e) {
             isOpened = false;
         }
