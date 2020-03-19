@@ -11,8 +11,6 @@ import com.cakewallet.cake_wallet.tasks.OpenBitcoinWalletAsyncTask;
 import com.cakewallet.cake_wallet.tasks.RestoreWalletFromKeyAsyncTask;
 import com.cakewallet.cake_wallet.tasks.RestoreWalletFromSeedAsyncTask;
 
-import java.util.List;
-
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
@@ -68,7 +66,7 @@ public class BitcoinWalletManagerHandler {
     private void restoreWalletFromSeed(MethodCall call, MethodChannel.Result result) {
         String path = call.argument("path");
         String password = call.argument("password");
-        List<String> seed = call.argument("seed");
+        String seed = call.argument("seed");
         String passphrase = call.argument("passphrase");
 
         RestoreWalletFromSeedAsyncTask restoreWalletFromSeedAsyncTask = new RestoreWalletFromSeedAsyncTask(result, bitcoinWalletHandler);

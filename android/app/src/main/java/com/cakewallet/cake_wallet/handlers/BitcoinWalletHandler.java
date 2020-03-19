@@ -1,12 +1,9 @@
 package com.cakewallet.cake_wallet.handlers;
 
 import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Base58;
 import org.bitcoinj.core.Coin;
-import org.bitcoinj.core.DumpedPrivateKey;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.NetworkParameters;
-import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.wallet.DeterministicSeed;
@@ -32,6 +29,7 @@ public class BitcoinWalletHandler {
         currentWallet.importKey(key);
         currentWallet.encrypt(password);
         currentWallet.saveToFile(file);
+        currentWallet.decrypt(password);
         return true;
     }
 
@@ -43,35 +41,32 @@ public class BitcoinWalletHandler {
         return true;
     }
 
-    public boolean restoreWalletFromSeed(String path, String password, List<String> seed, String passphrase) throws Exception {
+    public boolean restoreWalletFromSeed(String path, String password, String seed, String passphrase) throws Exception {
         NetworkParameters params = MainNetParams.get();
         File file = new File(path);
         long creationTime = 1409478661L;
+        ECKey key = new ECKey();
 
         DeterministicSeed deterministicSeed = new DeterministicSeed(seed, null, passphrase, creationTime);
         currentWallet = Wallet.fromSeed(params, deterministicSeed, Script.ScriptType.P2PKH);
+        currentWallet.importKey(key);
         currentWallet.encrypt(password);
         currentWallet.saveToFile(file);
+        currentWallet.decrypt(password);
         return true;
     }
 
     public boolean restoreWalletFromKey(String path, String password, String privateKey) throws Exception {
         NetworkParameters params = MainNetParams.get();
         File file = new File(path);
-
-        ECKey key;
-        if (privateKey.length() == 51 || privateKey.length() == 52) {
-            DumpedPrivateKey dumpedPrivateKey = DumpedPrivateKey.fromBase58(params, privateKey);
-            key = dumpedPrivateKey.getKey();
-        } else {
-            BigInteger privKey = Base58.decodeToBigInteger(privateKey);
-            key = ECKey.fromPrivate(privKey);
-        }
+        BigInteger privKey = new BigInteger(privateKey);
+        ECKey key = ECKey.fromPrivate(privKey);
 
         currentWallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
         currentWallet.importKey(key);
         currentWallet.encrypt(password);
         currentWallet.saveToFile(file);
+        currentWallet.decrypt(password);
         return true;
     }
 
@@ -114,7 +109,11 @@ public class BitcoinWalletHandler {
     }
 
     private void getPrivateKey(MethodCall call, MethodChannel.Result result) {
-        DeterministicKey key = currentWallet.currentReceiveKey();
-        result.success(key.getPrivKey().toString());
+        List<ECKey> keys = currentWallet.getImportedKeys();
+        if (keys != null && keys.size() > 0) {
+            result.success(keys.get(0).getPrivKey().toString());
+        } else {
+            result.error("getPrivateKey", "Error in the getPrivateKey", null);
+        }
     }
 }

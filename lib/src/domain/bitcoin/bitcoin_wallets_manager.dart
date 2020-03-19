@@ -36,7 +36,7 @@ class BitcoinWalletsManager extends WalletsManager {
             walletInfoSource: walletInfoSource,
             name: name,
             isRecovery: isRecovery);
-        await wallet.updateInfo();
+        //await wallet.updateInfo();
 
         return wallet;
       } else {
@@ -69,7 +69,7 @@ class BitcoinWalletsManager extends WalletsManager {
 
       if (isOpened) {
         final wallet = await BitcoinWallet.load(walletInfoSource, name, type);
-        await wallet.updateInfo();
+        //await wallet.updateInfo();
 
         return wallet;
       } else {
@@ -136,7 +136,7 @@ class BitcoinWalletsManager extends WalletsManager {
             walletInfoSource: walletInfoSource,
             name: name,
             isRecovery: isRecovery);
-        await wallet.updateInfo();
+        //await wallet.updateInfo();
 
         return wallet;
       } else {
@@ -157,13 +157,12 @@ class BitcoinWalletsManager extends WalletsManager {
     try {
       const isRecovery = true;
       final path = await pathForWallet(name: name);
-      final List spitedSeed = seed.split(' ');
 
-      final bool isRestored = await bitcoinWalletManagerChannel.invokeMethod<bool>('restoreWalletFromSeed', <String, dynamic> {
+      final bool isRestored = await bitcoinWalletManagerChannel.invokeMethod<bool>('restoreWalletFromSeed', <String, String> {
         'path' : path,
         'password' : password,
-        'seed' : spitedSeed,
-        'passphrase' : ''
+        'seed' : seed,
+        'passphrase' : ""
       });
 
       if (isRestored) {
@@ -171,7 +170,7 @@ class BitcoinWalletsManager extends WalletsManager {
             walletInfoSource: walletInfoSource,
             name: name,
             isRecovery: isRecovery);
-        await wallet.updateInfo();
+        //await wallet.updateInfo();
 
         return wallet;
       } else {

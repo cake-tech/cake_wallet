@@ -108,9 +108,10 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<Map<String, String>> getKeys() {
-    // TODO: implement getKeys
-    return null;
+  Future<Map<String, String>> getKeys() async {
+    final privateKey = await bitcoinWalletChannel.invokeMethod<String>("getPrivateKey");
+    final keys = {"privateKey" : privateKey};
+    return keys;
   }
 
   @override
@@ -126,9 +127,9 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<String> getSeed() {
-    // TODO: implement getSeed
-    return null;
+  Future<String> getSeed() async {
+    final seedList = await bitcoinWalletChannel.invokeMethod<List>("getSeed");
+    return seedList.toString();
   }
 
   @override

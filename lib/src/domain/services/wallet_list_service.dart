@@ -134,7 +134,7 @@ class WalletListService {
 
   Future<String> getWalletPassword({String walletName}) async {
     final key = generateStoreKeyFor(
-        key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
+        key: SecretStoreKey.moneroWalletPassword, walletName: walletName); // FIXME: add type of wallet
     final encodedPassword = await secureStorage.read(key: key);
 
     return decodeWalletPassword(password: encodedPassword);
@@ -142,7 +142,7 @@ class WalletListService {
 
   Future saveWalletPassword({String walletName, String password}) async {
     final key = generateStoreKeyFor(
-        key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
+        key: SecretStoreKey.moneroWalletPassword, walletName: walletName); // FIXME: add type of wallet
     final encodedPassword = encodeWalletPassword(password: password);
 
     await secureStorage.write(key: key, value: encodedPassword);
