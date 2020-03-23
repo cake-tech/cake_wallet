@@ -16,6 +16,7 @@ import 'package:package_info/package_info.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:devicelocale/devicelocale.dart';
 import 'package:intl/intl.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 part 'settings_store.g.dart';
 
@@ -47,6 +48,7 @@ abstract class SettingsStoreBase with Store {
     languageCode = initialLanguageCode;
     currentLocale = initialCurrentLocale;
     itemHeaders = Map();
+    selectedWalletType = WalletType.monero;
 
     actionlistDisplayMode.observe(
         (dynamic _) => _sharedPreferences.setInt(displayActionListModeKey,
@@ -158,6 +160,7 @@ abstract class SettingsStoreBase with Store {
   SharedPreferences _sharedPreferences;
   Box<Node> _nodes;
   String currentVersion;
+  WalletType selectedWalletType;
 
   @action
   Future setAllowBiometricalAuthentication(
@@ -294,4 +297,6 @@ abstract class SettingsStoreBase with Store {
     @required String formatDefault}) => currentLocale == 'en_US'
           ? DateFormat(formatUSA, languageCode)
           : DateFormat(formatDefault, languageCode);
+
+  void setSelectedWalletType(WalletType walletType) => selectedWalletType = walletType;
 }

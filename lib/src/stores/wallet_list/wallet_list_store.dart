@@ -25,7 +25,7 @@ abstract class WalletListStoreBase with Store {
   WalletService _walletService;
 
   bool isCurrentWallet(WalletDescription wallet) =>
-      _walletService.description?.name == wallet.name;
+      _walletService.description?.name == wallet.name && _walletService.description?.type == wallet.type;
 
   @action
   Future<void> updateWalletList() async {
@@ -34,12 +34,16 @@ abstract class WalletListStoreBase with Store {
 
   @action
   Future<void> loadWallet(WalletDescription wallet) async {
+    await _walletListService.changeWalletManger(walletType: wallet.type);
     await _walletListService.openWallet(wallet.name);
+    await _walletListService.setCurrentWalletType(wallet.type);
   }
 
   @action
   Future<void> remove(WalletDescription wallet) async {
+    await _walletListService.changeWalletManger(walletType: wallet.type);
     await _walletListService.remove(wallet);
+    await _walletListService.changeWalletManger(walletType: _walletListService.currentWalletType);
     await updateWalletList();
   }
 }

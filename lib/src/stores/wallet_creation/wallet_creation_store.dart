@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/domain/services/wallet_list_service.dart';
 import 'package:cake_wallet/src/stores/wallet_creation/wallet_creation_state.dart';
 import 'package:cake_wallet/src/stores/authentication/authentication_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 part 'wallet_creation_store.g.dart';
 
@@ -32,15 +33,18 @@ abstract class WalletCreationStoreBase with Store {
   bool isValid;
 
   @action
-  Future create({String name, String language}) async {
+  Future create({String name, WalletType walletType, String language}) async {
     state = WalletCreationStateInitial();
 
     try {
       state = WalletIsCreating();
+      await walletListService.changeWalletManger(walletType: walletType);
       await walletListService.create(name, language);
+      await walletListService.setCurrentWalletType(walletType);
       authStore.created();
       state = WalletCreatedSuccessfully();
     } catch (e) {
+      await walletListService.changeWalletManger(walletType: walletListService.currentWalletType);
       state = WalletCreationFailure(error: e.toString());
     }
   }

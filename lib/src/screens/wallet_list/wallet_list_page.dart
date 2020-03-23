@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -10,8 +11,10 @@ import 'package:cake_wallet/src/domain/common/wallet_description.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/stores/wallet_list/wallet_list_store.dart';
+import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_menu.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/widgets/present_picker.dart';
 
 class WalletListPage extends BasePage {
   @override
@@ -100,7 +103,7 @@ class WalletListBodyState extends State<WalletListBody> {
         ),
         bottomSection: Column(children: <Widget>[
           PrimaryIconButton(
-              onPressed: () => Navigator.of(context).pushNamed(Routes.newWallet),
+              onPressed: () => _setSelectedWalletType(context, Routes.newWallet),
               iconData: Icons.add,
               color: Theme.of(context).primaryTextTheme.button.backgroundColor,
               borderColor:
@@ -110,8 +113,7 @@ class WalletListBodyState extends State<WalletListBody> {
               text: S.of(context).wallet_list_create_new_wallet),
           SizedBox(height: 10.0),
           PrimaryIconButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(Routes.restoreWalletOptions),
+              onPressed: () => _setSelectedWalletType(context, Routes.restoreWalletOptions),
               iconData: Icons.refresh,
               text: S.of(context).wallet_list_restore_wallet,
               color: Theme.of(context).accentTextTheme.button.backgroundColor,
@@ -120,5 +122,30 @@ class WalletListBodyState extends State<WalletListBody> {
               iconColor: Theme.of(context).primaryTextTheme.caption.color,
               iconBackgroundColor: Theme.of(context).accentIconTheme.color)
         ]));
+  }
+
+  Future<void> _setSelectedWalletType(BuildContext context, String route) async {
+    final settingsStore = Provider.of<SettingsStore>(context);
+    WalletType walletType;
+
+    final selectedWalletType =
+    await presentPicker(context, walletTypesList);
+
+    if (selectedWalletType != null) {
+
+      switch (selectedWalletType) {
+        case 'Monero':
+          walletType = WalletType.monero;
+          break;
+        case 'Bitcoin':
+          walletType = WalletType.bitcoin;
+          break;
+        default:
+          walletType = WalletType.monero;
+      }
+
+      settingsStore.setSelectedWalletType(walletType);
+      await Navigator.of(context).pushNamed(route);
+    }
   }
 }

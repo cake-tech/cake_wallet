@@ -36,7 +36,7 @@ class BitcoinWalletsManager extends WalletsManager {
             walletInfoSource: walletInfoSource,
             name: name,
             isRecovery: isRecovery);
-        //await wallet.updateInfo();
+        await wallet.updateInfo();
 
         return wallet;
       } else {
@@ -69,7 +69,7 @@ class BitcoinWalletsManager extends WalletsManager {
 
       if (isOpened) {
         final wallet = await BitcoinWallet.load(walletInfoSource, name, type);
-        //await wallet.updateInfo();
+        await wallet.updateInfo();
 
         return wallet;
       } else {
@@ -136,7 +136,7 @@ class BitcoinWalletsManager extends WalletsManager {
             walletInfoSource: walletInfoSource,
             name: name,
             isRecovery: isRecovery);
-        //await wallet.updateInfo();
+        await wallet.updateInfo();
 
         return wallet;
       } else {
@@ -170,7 +170,7 @@ class BitcoinWalletsManager extends WalletsManager {
             walletInfoSource: walletInfoSource,
             name: name,
             isRecovery: isRecovery);
-        //await wallet.updateInfo();
+        await wallet.updateInfo();
 
         return wallet;
       } else {

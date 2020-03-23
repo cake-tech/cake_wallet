@@ -25,18 +25,40 @@ class WalletIsExistException implements Exception {
 }
 
 class WalletListService {
+  static const currentWalletTypeKey = 'current_wallet_type';
+
   WalletListService(
       {this.secureStorage,
       this.walletInfoSource,
       this.walletsManager,
       @required this.walletService,
-      @required this.sharedPreferences});
+      @required this.sharedPreferences}) {
+
+    final currentWalletTypeString =
+    sharedPreferences.getString(currentWalletTypeKey) == null
+        ? walletTypeToString(WalletType.monero)
+        : sharedPreferences.getString(currentWalletTypeKey);
+
+    switch (currentWalletTypeString) {
+      case 'Monero':
+        currentWalletType = WalletType.monero;
+        break;
+      case 'Bitcoin':
+        currentWalletType = WalletType.bitcoin;
+        break;
+      default:
+        currentWalletType = WalletType.monero;
+    }
+
+  }
 
   final FlutterSecureStorage secureStorage;
   final WalletService walletService;
   final Box<WalletInfo> walletInfoSource;
   final SharedPreferences sharedPreferences;
   WalletsManager walletsManager;
+  WalletType currentWalletType;
+  SecretStoreKey secretStoreKey;
 
   Future<List<WalletDescription>> getAll() async => walletInfoSource.values
       .map((info) => WalletDescription(name: info.name, type: info.type))
@@ -112,10 +134,12 @@ class WalletListService {
       case WalletType.monero:
         walletsManager =
             MoneroWalletsManager(walletInfoSource: walletInfoSource);
+        secretStoreKey = SecretStoreKey.moneroWalletPassword;
         break;
       case WalletType.bitcoin:
         walletsManager =
             BitcoinWalletsManager(walletInfoSource: walletInfoSource);
+        secretStoreKey = SecretStoreKey.bitcoinWalletPassword;
         break;
       case WalletType.none:
         walletsManager = null;
@@ -134,7 +158,7 @@ class WalletListService {
 
   Future<String> getWalletPassword({String walletName}) async {
     final key = generateStoreKeyFor(
-        key: SecretStoreKey.moneroWalletPassword, walletName: walletName); // FIXME: add type of wallet
+        key: secretStoreKey, walletName: walletName);
     final encodedPassword = await secureStorage.read(key: key);
 
     return decodeWalletPassword(password: encodedPassword);
@@ -142,9 +166,14 @@ class WalletListService {
 
   Future saveWalletPassword({String walletName, String password}) async {
     final key = generateStoreKeyFor(
-        key: SecretStoreKey.moneroWalletPassword, walletName: walletName); // FIXME: add type of wallet
+        key: secretStoreKey, walletName: walletName);
     final encodedPassword = encodeWalletPassword(password: password);
 
     await secureStorage.write(key: key, value: encodedPassword);
+  }
+
+  Future setCurrentWalletType(WalletType walletType) async {
+    currentWalletType = walletType;
+    await sharedPreferences.setString(currentWalletTypeKey, walletTypeToString(walletType));
   }
 }

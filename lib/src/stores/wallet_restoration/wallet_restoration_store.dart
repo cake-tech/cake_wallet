@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_sta
 import 'package:cake_wallet/src/stores/authentication/authentication_store.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 part 'wallet_restoration_store.g.dart';
 
@@ -39,16 +40,19 @@ abstract class WalleRestorationStoreBase with Store {
   List<MnemoticItem> seed;
 
   @action
-  Future restoreFromSeed({String name, String seed, int restoreHeight}) async {
+  Future restoreFromSeed({String name, String seed, WalletType walletType, int restoreHeight}) async {
     state = WalletRestorationStateInitial();
     final _seed = seed ?? _seedText();
 
     try {
       state = WalletIsRestoring();
+      await walletListService.changeWalletManger(walletType: walletType);
       await walletListService.restoreFromSeed(name, _seed, restoreHeight);
+      await walletListService.setCurrentWalletType(walletType);
       authStore.restored();
       state = WalletRestoredSuccessfully();
     } catch (e) {
+      await walletListService.changeWalletManger(walletType: walletListService.currentWalletType);
       state = WalletRestorationFailure(error: e.toString());
     }
   }
@@ -80,9 +84,9 @@ abstract class WalleRestorationStoreBase with Store {
   }
 
   @action
-  void validateSeed(List<MnemoticItem> seed) {
+  void validateSeed(List<MnemoticItem> seed, int maxLength) {
     final _seed = seed != null ? seed : this.seed;
-    bool isValid = _seed != null ? _seed.length == 25 : false;
+    bool isValid = _seed != null ? _seed.length == maxLength : false;
 
     if (!isValid) {
       errorMessage = S.current.wallet_restoration_store_incorrect_seed_length;

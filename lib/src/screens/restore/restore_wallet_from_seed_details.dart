@@ -11,6 +11,8 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/stores/settings/settings_store.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 class RestoreWalletFromSeedDetailsPage extends BasePage {
   @override
@@ -35,6 +37,7 @@ class _RestoreFromSeedDetailsFormState
   @override
   Widget build(BuildContext context) {
     final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
+    final settingsStore = Provider.of<SettingsStore>(context);
 
     reaction((_) => walletRestorationStore.state, (WalletRestorationState state) {
       if (state is WalletRestoredSuccessfully) {
@@ -101,7 +104,9 @@ class _RestoreFromSeedDetailsFormState
                           ))
                         ],
                       ),
-                      BlockchainHeightWidget(key: _blockchainHeightKey),
+                      settingsStore.selectedWalletType == WalletType.monero
+                      ? BlockchainHeightWidget(key: _blockchainHeightKey)
+                      : Offstage(),
                     ]))
           ],
         ),
@@ -110,9 +115,15 @@ class _RestoreFromSeedDetailsFormState
         return LoadingPrimaryButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                walletRestorationStore.restoreFromSeed(
+                settingsStore.selectedWalletType == WalletType.monero
+                ? walletRestorationStore.restoreFromSeed(
                     name: _nameController.text,
-                    restoreHeight: _blockchainHeightKey.currentState.height);
+                    walletType: settingsStore.selectedWalletType,
+                    restoreHeight: _blockchainHeightKey.currentState.height)
+                : walletRestorationStore.restoreFromSeed(
+                    name: _nameController.text,
+                    walletType: settingsStore.selectedWalletType,
+                    restoreHeight: 0);
               }
             },
             isLoading: walletRestorationStore.state is WalletIsRestoring,

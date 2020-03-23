@@ -14,6 +14,11 @@ enum WalletType {
   none
 }
 
+final walletTypesList = [
+  walletTypeToString(WalletType.monero),
+  walletTypeToString(WalletType.bitcoin)
+];
+
 int serializeToInt(WalletType type) {
   switch (type) {
     case WalletType.monero:

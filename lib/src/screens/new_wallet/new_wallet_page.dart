@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,6 +16,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
+import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(
@@ -46,6 +48,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
   Widget build(BuildContext context) {
     final walletCreationStore = Provider.of<WalletCreationStore>(context);
     final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
+    final settingsStore = Provider.of<SettingsStore>(context);
 
     reaction((_) => walletCreationStore.state, (WalletCreationState state) {
       if (state is WalletCreatedSuccessfully) {
@@ -104,16 +107,22 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   },
                 )),
           ),
-          Padding(padding: EdgeInsets.only(bottom: 20),
-            child: Text(
-              S.of(context).seed_language_choose,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16.0),
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
-            child: SeedLanguagePicker(),
+          settingsStore.selectedWalletType == WalletType.monero
+          ? Column(
+            children: <Widget>[
+              Padding(padding: EdgeInsets.only(bottom: 20),
+                child: Text(
+                  S.of(context).seed_language_choose,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16.0),
+                ),
+              ),
+              Padding(padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+                child: SeedLanguagePicker(),
+              )
+            ],
           )
+          : Offstage(),
         ]),
         bottomSection: Observer(
           builder: (context) {
@@ -121,6 +130,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   walletCreationStore.create(name: nameController.text,
+                      walletType: settingsStore.selectedWalletType,
                       language: seedLanguageStore.selectedSeedLanguage);
                 }
               },

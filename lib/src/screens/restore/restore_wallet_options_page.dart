@@ -9,6 +9,8 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:provider/provider.dart';
+import 'package:cake_wallet/src/stores/settings/settings_store.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 class RestoreWalletOptionsPage extends BasePage {
   static const _aspectRatioImage = 2.086;
@@ -25,13 +27,18 @@ class RestoreWalletOptionsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
+    final settingsStore = Provider.of<SettingsStore>(context);
     final isLargeScreen = MediaQuery.of(context).size.height > largeHeight;
 
     return BaseRestoreWidget(
       firstRestoreButton: RestoreButton(
         onPressed: () {
-          seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromSeed);
-          Navigator.pushNamed(context, Routes.seedLanguage);
+          if (settingsStore.selectedWalletType == WalletType.monero) {
+            seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromSeed);
+            Navigator.pushNamed(context, Routes.seedLanguage);
+          } else {
+            Navigator.pushNamed(context, Routes.restoreWalletFromSeed);
+          }
         },
         imageWidget: ImageWidget(
             image: _imageSeed,
@@ -45,8 +52,12 @@ class RestoreWalletOptionsPage extends BasePage {
       ),
       secondRestoreButton: RestoreButton(
         onPressed: () {
-          seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromKeys);
-          Navigator.pushNamed(context, Routes.seedLanguage);
+          if (settingsStore.selectedWalletType == WalletType.monero) {
+            seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromKeys);
+            Navigator.pushNamed(context, Routes.seedLanguage);
+          } else {
+            Navigator.pushNamed(context, Routes.restoreWalletFromKeys);
+          }
         },
         imageWidget: ImageWidget(
             image: _imageKeys,

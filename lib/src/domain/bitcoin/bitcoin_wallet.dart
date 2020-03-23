@@ -6,12 +6,16 @@ import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/src/observables/observable.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 
 class BitcoinWallet extends Wallet {
-  BitcoinWallet({this.walletInfoSource, this.walletInfo});
+  BitcoinWallet({this.walletInfoSource, this.walletInfo}) {
+    _name = BehaviorSubject<String>();
+    _address = BehaviorSubject<String>();
+  }
 
   static const bitcoinWalletChannel = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
 
@@ -54,15 +58,16 @@ class BitcoinWallet extends Wallet {
 
   Box<WalletInfo> walletInfoSource;
   WalletInfo walletInfo;
+  BehaviorSubject<String> _name;
+  BehaviorSubject<String> _address;
 
   @override
-  // TODO: implement address
-  String get address => null;
+  String get address => _address.value;
 
   @override
-  Future close() {
-    // TODO: implement close
-    return null;
+  Future close() async {
+    await _name.close();
+    await _address.close();
   }
 
   @override
@@ -78,9 +83,8 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<String> getAddress() {
-    // TODO: implement getAddress
-    return null;
+  Future<String> getAddress() async {
+    return await bitcoinWalletChannel.invokeMethod<String>('getAddress');
   }
 
   @override
@@ -96,9 +100,9 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<String> getFullBalance() {
+  Future<String> getFullBalance() async {
     // TODO: implement getFullBalance
-    return null;
+    return '0';
   }
 
   @override
@@ -115,9 +119,9 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<String> getName() {
+  Future<String> getName() async {
     // TODO: implement getName
-    return null;
+    return walletInfo.name;
   }
 
   @override
@@ -129,19 +133,20 @@ class BitcoinWallet extends Wallet {
   @override
   Future<String> getSeed() async {
     final seedList = await bitcoinWalletChannel.invokeMethod<List>("getSeed");
-    return seedList.toString();
+    String seed = '';
+    for (final elem in seedList) {
+      seed += elem.toString() + " ";
+    }
+    return seed;
   }
 
   @override
-  WalletType getType() {
-    // TODO: implement getType
-    return null;
-  }
+  WalletType getType() => WalletType.bitcoin;
 
   @override
-  Future<String> getUnlockedBalance() {
+  Future<String> getUnlockedBalance() async {
     // TODO: implement getUnlockedBalance
-    return null;
+    return '0';
   }
 
   @override
@@ -151,16 +156,13 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  // TODO: implement name
-  String get name => null;
+  String get name => _name.value;
 
   @override
-  // TODO: implement onAddressChange
-  Observable<String> get onAddressChange => null;
+  Observable<String> get onAddressChange => _address.stream;
 
   @override
-  // TODO: implement onNameChange
-  Observable<String> get onNameChange => null;
+  Observable<String> get onNameChange => _name.stream;
 
   @override
   Future rescan({int restoreHeight = 0}) {
@@ -175,8 +177,8 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future updateInfo() {
-    // TODO: implement updateInfo
-    return null;
+  Future updateInfo() async {
+    _name.value = await getName();
+    _address.value = await getAddress();
   }
 }

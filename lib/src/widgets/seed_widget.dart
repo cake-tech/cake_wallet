@@ -13,42 +13,56 @@ import 'package:cake_wallet/src/domain/monero/mnemonics/russian.dart';
 import 'package:cake_wallet/src/domain/monero/mnemonics/spanish.dart';
 import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/src/domain/bitcoin/mnemonics/english.dart';
 
 class SeedWidget extends StatefulWidget {
-  SeedWidget({Key key, this.onMnemoticChange, this.onFinish, this.seedLanguage}) : super(key: key) {
-    switch (seedLanguage) {
-      case 'English':
-        words = EnglishMnemonics.words;
+  SeedWidget({Key key, this.onMnemoticChange, this.onFinish, this.walletType, this.seedLanguage}) : super(key: key) {
+    switch (walletTypeToString(walletType)) {
+      case 'Monero':
+        maxLength = 25;
+        switch (seedLanguage) {
+          case 'English':
+            words = EnglishMnemonics.words;
+            break;
+          case 'Chinese (simplified)':
+            words = ChineseSimplifiedMnemonics.words;
+            break;
+          case 'Dutch':
+            words = DutchMnemonics.words;
+            break;
+          case 'German':
+            words = GermanMnemonics.words;
+            break;
+          case 'Japanese':
+            words = JapaneseMnemonics.words;
+            break;
+          case 'Portuguese':
+            words = PortugueseMnemonics.words;
+            break;
+          case 'Russian':
+            words = RussianMnemonics.words;
+            break;
+          case 'Spanish':
+            words = SpanishMnemonics.words;
+            break;
+          default:
+            words = EnglishMnemonics.words;
+        }
         break;
-      case 'Chinese (simplified)':
-        words = ChineseSimplifiedMnemonics.words;
+      case 'Bitcoin':
+        maxLength = 12;
+        words = EnglishMnemonicsBitcoin.words;
         break;
-      case 'Dutch':
-        words = DutchMnemonics.words;
-        break;
-      case 'German':
-        words = GermanMnemonics.words;
-        break;
-      case 'Japanese':
-        words = JapaneseMnemonics.words;
-        break;
-      case 'Portuguese':
-        words = PortugueseMnemonics.words;
-        break;
-      case 'Russian':
-        words = RussianMnemonics.words;
-        break;
-      case 'Spanish':
-        words = SpanishMnemonics.words;
-        break;
-      default:
-        words = EnglishMnemonics.words;
     }
   }
 
   final Function(List<MnemoticItem>) onMnemoticChange;
   final Function() onFinish;
   final String seedLanguage;
+  final WalletType walletType;
+  int maxLength;
+
   List<String> words;
 
   @override
@@ -56,8 +70,6 @@ class SeedWidget extends StatefulWidget {
 }
 
 class SeedWidgetState extends State<SeedWidget> {
-  static const maxLength = 25;
-
   List<MnemoticItem> items = <MnemoticItem>[];
   final _seedController = TextEditingController();
   final _seedTextFieldKey = GlobalKey();
@@ -287,7 +299,7 @@ class SeedWidgetState extends State<SeedWidget> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: <Widget>[
                                   Text(
-                                      '${items.length}/${SeedWidgetState.maxLength}',
+                                      '${items.length}/${widget.maxLength}',
                                       style: TextStyle(
                                           color: Colors.grey, fontSize: 12)),
                                   SizedBox(width: 10),
@@ -326,7 +338,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   ]),
                   Padding(
                       padding: EdgeInsets.only(bottom: 20),
-                      child: (selectedItem == null && items.length == maxLength)
+                      child: (selectedItem == null && items.length == widget.maxLength)
                           ? PrimaryButton(
                               text: S.of(context).restore_next,
                               isDisabled: !isSeedValid(),
