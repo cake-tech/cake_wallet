@@ -10,9 +10,12 @@ import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/src/observables/observable.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
+import 'package:cake_wallet/src/domain/common/sync_status.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_history.dart';
 
 class BitcoinWallet extends Wallet {
   BitcoinWallet({this.walletInfoSource, this.walletInfo}) {
+    //_syncStatus = BehaviorSubject<SyncStatus>();
     _name = BehaviorSubject<String>();
     _address = BehaviorSubject<String>();
   }
@@ -56,13 +59,28 @@ class BitcoinWallet extends Wallet {
     return wallet;
   }
 
+  @override
+  String get address => _address.value;
+
+  @override
+  String get name => _name.value;
+
+  @override
+  Observable<String> get onAddressChange => _address.stream;
+
+  @override
+  Observable<String> get onNameChange => _name.stream;
+
+  /*@override
+  Observable<SyncStatus> get syncStatus => _syncStatus.stream;*/
+
   Box<WalletInfo> walletInfoSource;
   WalletInfo walletInfo;
+  //BehaviorSubject<SyncStatus> _syncStatus;
   BehaviorSubject<String> _name;
   BehaviorSubject<String> _address;
 
-  @override
-  String get address => _address.value;
+  TransactionHistory _cachedTransactionHistory;
 
   @override
   Future close() async {
@@ -71,8 +89,15 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future connectToNode({Node node, bool useSSL = false, bool isLightWallet = false}) {
-    // TODO: implement connectToNode
+  Future connectToNode({Node node, bool useSSL = false, bool isLightWallet = false}) async {
+    /*try {
+      _syncStatus.value = ConnectingSyncStatus();
+      await bitcoinWalletChannel.invokeMethod<void>('connectToNode');
+      _syncStatus.value = ConnectedSyncStatus();
+    } catch (e) {
+      _syncStatus.value = FailedSyncStatus();
+      print(e);
+    }*/
     return null;
   }
 
@@ -107,9 +132,14 @@ class BitcoinWallet extends Wallet {
 
   @override
   TransactionHistory getHistory() {
-    // TODO: implement getHistory
-    return null;
+    if (_cachedTransactionHistory == null) {
+      _cachedTransactionHistory = BitcoinTransactionHistory();
+    }
+
+    return _cachedTransactionHistory;
   }
+
+  Future askForUpdateTransactionHistory() async => await getHistory().update();
 
   @override
   Future<Map<String, String>> getKeys() async {
@@ -154,15 +184,6 @@ class BitcoinWallet extends Wallet {
     // TODO: implement isConnected
     return null;
   }
-
-  @override
-  String get name => _name.value;
-
-  @override
-  Observable<String> get onAddressChange => _address.stream;
-
-  @override
-  Observable<String> get onNameChange => _name.stream;
 
   @override
   Future rescan({int restoreHeight = 0}) {
