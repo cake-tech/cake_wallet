@@ -17,6 +17,7 @@ import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionConfidence;
 import org.bitcoinj.core.listeners.BlocksDownloadedEventListener;
+import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.core.listeners.OnTransactionBroadcastListener;
 import org.bitcoinj.core.listeners.PeerConnectedEventListener;
 import org.bitcoinj.net.BlockingClient;
@@ -47,6 +48,7 @@ import java.util.concurrent.AbstractExecutorService;
 import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
+import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 
@@ -56,7 +58,12 @@ public class BitcoinWalletHandler {
     private Wallet currentWallet;
     private String path;
     private String password;
+    private BasicMessageChannel<String> progressChannel;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
+
+    public void setProgressChannel(BasicMessageChannel progressChannel) {
+        this.progressChannel = progressChannel;
+    }
 
     public boolean createWallet(String path, String password) throws Exception {
         this.path = path;
@@ -211,8 +218,23 @@ public class BitcoinWalletHandler {
                 InetAddress inetAddress = InetAddress.getByName(host);
                 PeerAddress peerAddress = new PeerAddress(params, inetAddress, port);
 
-                Peer peer = new Peer(params, chain, peerAddress, "", "");
-                peer.addWallet(currentWallet);
+                PeerGroup peerGroup = new PeerGroup(params, chain);
+                peerGroup.addAddress(peerAddress);
+
+                chain.addWallet(currentWallet);
+                peerGroup.addWallet(currentWallet);
+
+                DownloadProgressTracker tracker = new DownloadProgressTracker() {
+                    @Override
+                    protected void progress(double pct, int blocksSoFar, Date date) {
+                        super.progress(pct, blocksSoFar, date);
+                        mainHandler.post(() -> progressChannel.send(String.valueOf(pct)));
+                    }
+                };
+
+                peerGroup.startAsync();
+                peerGroup.startBlockChainDownload(tracker);
+                peerGroup.stopAsync();
 
                 mainHandler.post(() -> result.success(null));
             } catch (Exception e) {

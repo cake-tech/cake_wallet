@@ -18,9 +18,16 @@ class BitcoinWallet extends Wallet {
     _syncStatus = BehaviorSubject<SyncStatus>();
     _name = BehaviorSubject<String>();
     _address = BehaviorSubject<String>();
+
+    progressChannel.setMessageHandler((String message) async {
+      print('Downloaded $message %');
+      return null;
+    });
   }
 
   static const bitcoinWalletChannel = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
+  static const progressChannel =
+  BasicMessageChannel('progress_change', StringCodec());
 
   static Future<BitcoinWallet> createdWallet(
       {Box<WalletInfo> walletInfoSource,
@@ -99,7 +106,6 @@ class BitcoinWallet extends Wallet {
       _syncStatus.value = FailedSyncStatus();
       print(e);
     }
-    //return null;
   }
 
   @override
