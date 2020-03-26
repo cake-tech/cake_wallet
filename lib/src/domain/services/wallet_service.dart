@@ -53,9 +53,9 @@ class WalletService extends Wallet {
     }
 
     // FIXME
-    //_currentWallet.onBalanceChange
-    //    .listen((wallet) => _onBalanceChange.add(wallet));
-    //_currentWallet.syncStatus.listen((status) => _syncStatus.add(status));
+    /*_currentWallet.onBalanceChange
+        .listen((wallet) => _onBalanceChange.add(wallet));*/
+    _currentWallet.syncStatus.listen((status) => _syncStatus.add(status));
     _onWalletChanged.add(wallet);
 
     final type = wallet.getType();

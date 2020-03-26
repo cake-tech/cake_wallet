@@ -15,7 +15,7 @@ import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_history.dart'
 
 class BitcoinWallet extends Wallet {
   BitcoinWallet({this.walletInfoSource, this.walletInfo}) {
-    //_syncStatus = BehaviorSubject<SyncStatus>();
+    _syncStatus = BehaviorSubject<SyncStatus>();
     _name = BehaviorSubject<String>();
     _address = BehaviorSubject<String>();
   }
@@ -71,12 +71,12 @@ class BitcoinWallet extends Wallet {
   @override
   Observable<String> get onNameChange => _name.stream;
 
-  /*@override
-  Observable<SyncStatus> get syncStatus => _syncStatus.stream;*/
+  @override
+  Observable<SyncStatus> get syncStatus => _syncStatus.stream;
 
   Box<WalletInfo> walletInfoSource;
   WalletInfo walletInfo;
-  //BehaviorSubject<SyncStatus> _syncStatus;
+  BehaviorSubject<SyncStatus> _syncStatus;
   BehaviorSubject<String> _name;
   BehaviorSubject<String> _address;
 
@@ -84,21 +84,22 @@ class BitcoinWallet extends Wallet {
 
   @override
   Future close() async {
+    await bitcoinWalletChannel.invokeMethod<void>('close');
     await _name.close();
     await _address.close();
   }
 
   @override
   Future connectToNode({Node node, bool useSSL = false, bool isLightWallet = false}) async {
-    /*try {
+    try {
       _syncStatus.value = ConnectingSyncStatus();
       await bitcoinWalletChannel.invokeMethod<void>('connectToNode');
       _syncStatus.value = ConnectedSyncStatus();
     } catch (e) {
       _syncStatus.value = FailedSyncStatus();
       print(e);
-    }*/
-    return null;
+    }
+    //return null;
   }
 
   @override
@@ -108,9 +109,8 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<String> getAddress() async {
-    return await bitcoinWalletChannel.invokeMethod<String>('getAddress');
-  }
+  Future<String> getAddress() async =>
+      await bitcoinWalletChannel.invokeMethod<String>('getAddress');
 
   @override
   Future<int> getCurrentHeight() {
@@ -119,10 +119,8 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<String> getFilename() {
-    // TODO: implement getFilename
-    return null;
-  }
+  Future<String> getFilename() async =>
+      await bitcoinWalletChannel.invokeMethod<String>('getFileName');
 
   @override
   Future<String> getFullBalance() async {
@@ -149,10 +147,7 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<String> getName() async {
-    // TODO: implement getName
-    return walletInfo.name;
-  }
+  Future<String> getName() async => walletInfo.name;
 
   @override
   Future<int> getNodeHeight() {
