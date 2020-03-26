@@ -17,6 +17,7 @@ import org.bitcoinj.core.PeerGroup;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionConfidence;
 import org.bitcoinj.core.listeners.BlocksDownloadedEventListener;
+import org.bitcoinj.core.listeners.OnTransactionBroadcastListener;
 import org.bitcoinj.core.listeners.PeerConnectedEventListener;
 import org.bitcoinj.net.BlockingClient;
 import org.bitcoinj.net.BlockingClientManager;
@@ -200,8 +201,7 @@ public class BitcoinWalletHandler {
     private void connectToNode(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
-                //String host = "94.75.124.54";
-                String host = "116.202.97.135";
+                String host = "94.75.124.54";
                 int port = 8333;
 
                 NetworkParameters params = MainNetParams.get();
@@ -213,21 +213,6 @@ public class BitcoinWalletHandler {
 
                 Peer peer = new Peer(params, chain, peerAddress, "", "");
                 peer.addWallet(currentWallet);
-                peer.connectionOpened();
-
-                peer.addConnectedEventListener(new PeerConnectedEventListener() {
-                    @Override
-                    public void onPeerConnected(Peer peer, int peerCount) {
-                        peer.startBlockChainDownload();
-                    }
-                });
-
-                peer.addBlocksDownloadedEventListener(new BlocksDownloadedEventListener() {
-                    @Override
-                    public void onBlocksDownloaded(Peer peer, Block block, @Nullable FilteredBlock filteredBlock, int blocksLeft) {
-                        peer.connectionClosed();
-                    }
-                });
 
                 mainHandler.post(() -> result.success(null));
             } catch (Exception e) {
@@ -293,7 +278,7 @@ public class BitcoinWalletHandler {
     public void refresh(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
-                if (peerGroup != null) {
+                /*if (peerGroup != null) {
                     peerGroup.startAsync();
                     peerGroup.downloadBlockChain();
                     peerGroup.stopAsync();
@@ -302,7 +287,7 @@ public class BitcoinWalletHandler {
                     currentWallet.encrypt(password);
                     currentWallet.saveToFile(file);
                     currentWallet.decrypt(password);
-                }
+                }*/
                 mainHandler.post(() -> result.success(null));
             } catch (Exception e) {
                 mainHandler.post(() -> result.error("IO_ERROR", e.getMessage(), null));
