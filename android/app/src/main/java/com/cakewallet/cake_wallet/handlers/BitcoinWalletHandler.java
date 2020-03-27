@@ -23,9 +23,11 @@ import org.bitcoinj.core.listeners.PeerConnectedEventListener;
 import org.bitcoinj.net.BlockingClient;
 import org.bitcoinj.net.BlockingClientManager;
 import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.MemoryBlockStore;
+import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
 import org.bitcoinj.wallet.Wallet;
 import org.bouncycastle.util.StreamParser;
@@ -212,30 +214,51 @@ public class BitcoinWalletHandler {
                 int port = 8333;
 
                 NetworkParameters params = MainNetParams.get();
-                BlockStore blockStore = new MemoryBlockStore(params); // FIXME: MemoryBlockStore applied only for test
+                BlockStore blockStore = new MemoryBlockStore(params);
                 BlockChain chain = new BlockChain(params, blockStore);
 
                 InetAddress inetAddress = InetAddress.getByName(host);
                 PeerAddress peerAddress = new PeerAddress(params, inetAddress, port);
 
                 PeerGroup peerGroup = new PeerGroup(params, chain);
-                peerGroup.addAddress(peerAddress);
+
+                if (!host.equals("localhost")) {
+                    peerGroup.addPeerDiscovery(new DnsDiscovery(params));
+                } else {
+                    PeerAddress addr = new PeerAddress(params, InetAddress.getLocalHost());
+                    peerGroup.addAddress(addr);
+                }
 
                 chain.addWallet(currentWallet);
                 peerGroup.addWallet(currentWallet);
 
                 DownloadProgressTracker tracker = new DownloadProgressTracker() {
                     @Override
+                    protected void startDownload(int blocks) {
+                        super.startDownload(blocks);
+                        mainHandler.post(() -> progressChannel.send("start " + blocks));
+                    }
+
+                    @Override
                     protected void progress(double pct, int blocksSoFar, Date date) {
                         super.progress(pct, blocksSoFar, date);
-                        mainHandler.post(() -> progressChannel.send(String.valueOf(pct)));
+                        mainHandler.post(() -> progressChannel.send("progress " + blocksSoFar));
+                    }
+
+                    @Override
+                    protected void doneDownload() {
+                        super.doneDownload();
+                        mainHandler.post(() -> progressChannel.send("done"));
                     }
                 };
 
-                peerGroup.startAsync();
+                peerGroup.start();
                 peerGroup.startBlockChainDownload(tracker);
-                peerGroup.stopAsync();
 
+                peerGroup.waitForPeers(1).get();
+                Peer peer = peerGroup.getConnectedPeers().get(0);
+
+                mainHandler.post(() -> progressChannel.send("connectToNode + " + peer.toString()));
                 mainHandler.post(() -> result.success(null));
             } catch (Exception e) {
                 mainHandler.post(() -> result.error("CONNECTION_ERROR", e.getMessage(), null));
@@ -299,21 +322,7 @@ public class BitcoinWalletHandler {
 
     public void refresh(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
-            try {
-                /*if (peerGroup != null) {
-                    peerGroup.startAsync();
-                    peerGroup.downloadBlockChain();
-                    peerGroup.stopAsync();
-
-                    File file = new File(path);
-                    currentWallet.encrypt(password);
-                    currentWallet.saveToFile(file);
-                    currentWallet.decrypt(password);
-                }*/
-                mainHandler.post(() -> result.success(null));
-            } catch (Exception e) {
-                mainHandler.post(() -> result.error("IO_ERROR", e.getMessage(), null));
-            }
+            mainHandler.post(() -> result.success(null));
         });
     }
 

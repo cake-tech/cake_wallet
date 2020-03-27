@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:rxdart/src/observables/observable.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
@@ -19,8 +18,40 @@ class BitcoinWallet extends Wallet {
     _name = BehaviorSubject<String>();
     _address = BehaviorSubject<String>();
 
+    _height = 0;
+    _refreshHeight = 0;
+
     progressChannel.setMessageHandler((String message) async {
-      print('Downloaded $message %');
+      int _blockchainHeight = 0;
+
+      final splitMessage = message.split(" ");
+
+      switch (splitMessage[0]) {
+        case "start":
+          _syncStatus.add(StartingSyncStatus());
+          try {
+            _blockchainHeight = int.parse(splitMessage.last);
+          } catch (e) {
+            _blockchainHeight = 0;
+          }
+          print('$message');
+          break;
+        case "progress":
+          try {
+            _height = _blockchainHeight - int.parse(splitMessage.last);
+          } catch (e) {
+            _height = 0;
+          }
+          _syncStatus.add(SyncingSyncStatus(_height, _blockchainHeight, _refreshHeight));
+          print('$message');
+          break;
+        case "done":
+          _syncStatus.add(SyncedSyncStatus());
+          print('$message');
+          break;
+        default:
+          print('$message');
+      }
       return null;
     });
   }
@@ -86,6 +117,8 @@ class BitcoinWallet extends Wallet {
   BehaviorSubject<SyncStatus> _syncStatus;
   BehaviorSubject<String> _name;
   BehaviorSubject<String> _address;
+  int _height;
+  int _refreshHeight;
 
   TransactionHistory _cachedTransactionHistory;
 
@@ -193,9 +226,15 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future startSync() {
-    // TODO: implement startSync
-    return null;
+  Future startSync() async {
+    try {
+      _syncStatus.value = StartingSyncStatus();
+      //await bitcoinWalletChannel.invokeMethod<void>('refresh');
+    } on PlatformException catch (e) {
+      _syncStatus.value = FailedSyncStatus();
+      print(e);
+      rethrow;
+    }
   }
 
   @override
