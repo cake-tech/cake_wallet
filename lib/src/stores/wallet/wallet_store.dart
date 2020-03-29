@@ -95,6 +95,7 @@ abstract class WalletStoreBase with Store {
 
     if (wallet is MoneroWallet) {
       this.subaddress = subaddress;
+      this.address = subaddress.address;
       wallet.changeCurrentSubaddress(subaddress);
     }
   }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -235,11 +236,13 @@ class Router {
       case Routes.receive:
         return CupertinoPageRoute<void>(
             fullscreenDialog: true,
-            builder: (_) => MultiProvider(providers: [
-                  Provider(
-                      create: (_) =>
-                          SubaddressListStore(walletService: walletService))
-                ], child: ReceivePage()));
+            builder: (_) => walletService.getType() == WalletType.monero
+                ? MultiProvider(providers: [
+                    Provider(
+                        create: (_) =>
+                            SubaddressListStore(walletService: walletService))
+                  ], child: ReceivePage())
+                : ReceivePage());
 
       case Routes.transactionDetails:
         return CupertinoPageRoute<void>(

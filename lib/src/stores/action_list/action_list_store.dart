@@ -202,7 +202,7 @@ abstract class ActionListBase with Store {
 
   Future _setTransactions(List<TransactionInfo> transactions) async {
     final wallet = _walletService.currentWallet;
-    List<TransactionInfo> sortedTransactions = transactions.map((transaction) {
+    List<TransactionInfo> sortedTransactions =  transactions?.map((transaction) {
       if (transactionDescriptions.values.isNotEmpty) {
         final description = transactionDescriptions.values.firstWhere(
             (desc) => desc.id == transaction.id,
@@ -214,7 +214,7 @@ abstract class ActionListBase with Store {
       }
 
       return transaction;
-    }).toList();
+    })?.toList() ?? [];
 
     if (wallet is MoneroWallet) {
       sortedTransactions =

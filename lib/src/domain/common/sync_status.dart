@@ -8,6 +8,24 @@ abstract class SyncStatus {
   String title();
 }
 
+class SyncingSyncStatusRaw extends SyncStatus {
+  const SyncingSyncStatusRaw(this.pct, this.blocksLeft);
+
+  static final _base = 100.toDouble();
+
+  final int pct;
+  final int blocksLeft;
+
+  @override
+  double progress() => pct.toDouble() / _base;
+
+  @override
+  String title() => S.current.sync_status_syncronizing;
+
+  @override
+  String toString() => '$blocksLeft';
+}
+
 class SyncingSyncStatus extends SyncStatus {
   SyncingSyncStatus(this.height, this.blockchainHeight, this.refreshHeight);
 

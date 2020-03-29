@@ -64,8 +64,16 @@ class ReceiveBodyState extends State<ReceiveBody> {
 
   @override
   Widget build(BuildContext context) {
+    // FIXME: QRCode image, address text and amount tex field
+    //        shoud float to center of user's screen
+    //        if subaddresses are not displayed.
     final walletStore = Provider.of<WalletStore>(context);
-    final subaddressListStore = Provider.of<SubaddressListStore>(context);
+    SubaddressListStore subaddressListStore;
+    
+    // FIXME: make it more elegantly
+    try {
+      subaddressListStore = Provider.of<SubaddressListStore>(context);
+    } catch (_) {}
 
     final currentColor = Theme.of(context).selectedRowColor;
     final notCurrentColor = Theme.of(context).scaffoldBackgroundColor;
@@ -101,8 +109,8 @@ class ReceiveBodyState extends State<ReceiveBody> {
                             padding: EdgeInsets.all(5),
                             color: Colors.white,
                             child: QrImage(
-                              data: walletStore.subaddress.address +
-                                  walletStore.amountValue,
+                              data:
+                                  walletStore.address + walletStore.amountValue,
                               backgroundColor: Colors.transparent,
                             ),
                           ),
@@ -122,8 +130,8 @@ class ReceiveBodyState extends State<ReceiveBody> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () {
-                            Clipboard.setData(ClipboardData(
-                                text: walletStore.subaddress.address));
+                            Clipboard.setData(
+                                ClipboardData(text: walletStore.address));
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(
                                 S.of(context).copied_to_clipboard,
@@ -133,7 +141,7 @@ class ReceiveBodyState extends State<ReceiveBody> {
                             ));
                           },
                           child: Text(
-                            walletStore.subaddress.address,
+                            walletStore.address,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                                 fontSize: 14.0,
@@ -187,78 +195,17 @@ class ReceiveBodyState extends State<ReceiveBody> {
             ],
           ),
         ),
-        Row(
-          children: <Widget>[
-            Expanded(
-                child: Container(
-              color: Theme.of(context).accentTextTheme.headline.color,
-              child: Column(
+        subaddressListStore != null
+            ? Row(
                 children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      S.of(context).subaddresses,
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .headline
-                              .color),
-                    ),
-                    trailing: Container(
-                      width: 28.0,
-                      height: 28.0,
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).selectedRowColor,
-                          shape: BoxShape.circle),
-                      child: InkWell(
-                        onTap: () => Navigator.of(context)
-                            .pushNamed(Routes.newSubaddress),
-                        borderRadius: BorderRadius.all(Radius.circular(14.0)),
-                        child: Icon(
-                          Icons.add,
-                          color: Palette.violet,
-                          size: 22.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Divider(
-                    color: Theme.of(context).dividerTheme.color,
-                    height: 1.0,
-                  )
-                ],
-              ),
-            ))
-          ],
-        ),
-        Observer(builder: (_) {
-          return ListView.separated(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: subaddressListStore.subaddresses.length,
-              separatorBuilder: (context, i) {
-                return Divider(
-                  color: Theme.of(context).dividerTheme.color,
-                  height: 1.0,
-                );
-              },
-              itemBuilder: (context, i) {
-                return Observer(builder: (_) {
-                  final subaddress = subaddressListStore.subaddresses[i];
-                  final isCurrent =
-                      walletStore.subaddress.address == subaddress.address;
-                  final label = subaddress.label.isNotEmpty
-                      ? subaddress.label
-                      : subaddress.address;
-
-                  return InkWell(
-                    onTap: () => walletStore.setSubaddress(subaddress),
-                    child: Container(
-                      color: isCurrent ? currentColor : notCurrentColor,
-                      child: Column(children: <Widget>[
+                  Expanded(
+                      child: Container(
+                    color: Theme.of(context).accentTextTheme.headline.color,
+                    child: Column(
+                      children: <Widget>[
                         ListTile(
                           title: Text(
-                            label,
+                            S.of(context).subaddresses,
                             style: TextStyle(
                                 fontSize: 16.0,
                                 color: Theme.of(context)
@@ -266,13 +213,79 @@ class ReceiveBodyState extends State<ReceiveBody> {
                                     .headline
                                     .color),
                           ),
+                          trailing: Container(
+                            width: 28.0,
+                            height: 28.0,
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).selectedRowColor,
+                                shape: BoxShape.circle),
+                            child: InkWell(
+                              onTap: () => Navigator.of(context)
+                                  .pushNamed(Routes.newSubaddress),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(14.0)),
+                              child: Icon(
+                                Icons.add,
+                                color: Palette.violet,
+                                size: 22.0,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Divider(
+                          color: Theme.of(context).dividerTheme.color,
+                          height: 1.0,
                         )
-                      ]),
+                      ],
                     ),
-                  );
-                });
-              });
-        })
+                  ))
+                ],
+              )
+            : Container(),
+        subaddressListStore != null
+            ? Observer(builder: (_) {
+                return ListView.separated(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: subaddressListStore.subaddresses.length,
+                    separatorBuilder: (context, i) {
+                      return Divider(
+                        color: Theme.of(context).dividerTheme.color,
+                        height: 1.0,
+                      );
+                    },
+                    itemBuilder: (context, i) {
+                      return Observer(builder: (_) {
+                        final subaddress = subaddressListStore.subaddresses[i];
+                        final isCurrent = walletStore.subaddress.address ==
+                            subaddress.address;
+                        final label = subaddress.label.isNotEmpty
+                            ? subaddress.label
+                            : subaddress.address;
+
+                        return InkWell(
+                          onTap: () => walletStore.setSubaddress(subaddress),
+                          child: Container(
+                            color: isCurrent ? currentColor : notCurrentColor,
+                            child: Column(children: <Widget>[
+                              ListTile(
+                                title: Text(
+                                  label,
+                                  style: TextStyle(
+                                      fontSize: 16.0,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .headline
+                                          .color),
+                                ),
+                              )
+                            ]),
+                          ),
+                        );
+                      });
+                    });
+              })
+            : Container()
       ],
     )));
   }

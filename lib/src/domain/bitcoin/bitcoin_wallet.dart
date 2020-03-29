@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/src/domain/common/pending_transaction.dart';
 import 'package:cake_wallet/src/domain/common/transaction_creation_credentials.dart';
@@ -21,50 +23,41 @@ class BitcoinWallet extends Wallet {
     _height = 0;
     _refreshHeight = 0;
 
-    progressChannel.setMessageHandler((String message) async {
-      int _blockchainHeight = 0;
+    progressChannel.setMessageHandler((ByteData message) async {
+      final type = ByteData.view(message.buffer, 0, 4).getInt32(0);
 
-      final splitMessage = message.split(" ");
-
-      switch (splitMessage[0]) {
-        case "start":
-          _syncStatus.add(StartingSyncStatus());
-          try {
-            _blockchainHeight = int.parse(splitMessage.last);
-          } catch (e) {
-            _blockchainHeight = 0;
-          }
-          print('$message');
-          break;
-        case "progress":
-          try {
-            _height = _blockchainHeight - int.parse(splitMessage.last);
-          } catch (e) {
-            _height = 0;
-          }
-          _syncStatus.add(SyncingSyncStatus(_height, _blockchainHeight, _refreshHeight));
-          print('$message');
-          break;
-        case "done":
+      switch (type) {
+        case _syncingFinished:
           _syncStatus.add(SyncedSyncStatus());
-          print('$message');
           break;
-        default:
-          print('$message');
+        case _syncingStart:
+          _syncStatus.add(StartingSyncStatus());
+          break;
+        case _syncingInProgress:
+          final pct = ByteData.view(message.buffer, 4, 8).getInt32(0);
+          final blocksLeft = ByteData.view(message.buffer, 8).getInt32(0);
+
+          _syncStatus.add(SyncingSyncStatusRaw(pct, blocksLeft));
+          break;
       }
-      return null;
+
+      return ByteData(0);
     });
   }
 
-  static const bitcoinWalletChannel = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
+  static const _syncingStart = 1;
+  static const _syncingInProgress = 2;
+  static const _syncingFinished = 0;
+  static const bitcoinWalletChannel =
+      MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
   static const progressChannel =
-  BasicMessageChannel('progress_change', StringCodec());
+      BasicMessageChannel('progress_change', BinaryCodec());
 
   static Future<BitcoinWallet> createdWallet(
       {Box<WalletInfo> walletInfoSource,
-        String name,
-        bool isRecovery = false,
-        int restoreHeight = 0}) async {
+      String name,
+      bool isRecovery = false,
+      int restoreHeight = 0}) async {
     const type = WalletType.bitcoin;
     final id = walletTypeToString(type).toLowerCase() + '_' + name;
     final walletInfo = WalletInfo(
@@ -90,7 +83,7 @@ class BitcoinWallet extends Wallet {
 
   static Future<BitcoinWallet> configured(
       {@required Box<WalletInfo> walletInfoSource,
-       @required WalletInfo walletInfo}) async {
+      @required WalletInfo walletInfo}) async {
     final wallet = BitcoinWallet(
         walletInfoSource: walletInfoSource, walletInfo: walletInfo);
 
@@ -130,7 +123,8 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future connectToNode({Node node, bool useSSL = false, bool isLightWallet = false}) async {
+  Future connectToNode(
+      {Node node, bool useSSL = false, bool isLightWallet = false}) async {
     try {
       _syncStatus.value = ConnectingSyncStatus();
       await bitcoinWalletChannel.invokeMethod<void>('connectToNode');
@@ -142,7 +136,8 @@ class BitcoinWallet extends Wallet {
   }
 
   @override
-  Future<PendingTransaction> createTransaction(TransactionCreationCredentials credentials) {
+  Future<PendingTransaction> createTransaction(
+      TransactionCreationCredentials credentials) {
     // TODO: implement createTransaction
     return null;
   }
@@ -180,8 +175,9 @@ class BitcoinWallet extends Wallet {
 
   @override
   Future<Map<String, String>> getKeys() async {
-    final privateKey = await bitcoinWalletChannel.invokeMethod<String>("getPrivateKey");
-    final keys = {"privateKey" : privateKey};
+    final privateKey =
+        await bitcoinWalletChannel.invokeMethod<String>("getPrivateKey");
+    final keys = {"privateKey": privateKey};
     return keys;
   }
 
@@ -189,9 +185,14 @@ class BitcoinWallet extends Wallet {
   Future<String> getName() async => walletInfo.name;
 
   @override
-  Future<int> getNodeHeight() {
-    // TODO: implement getNodeHeight
-    return null;
+  Future<int> getNodeHeight() async {
+    try {
+      final h = await bitcoinWalletChannel.invokeMethod<int>('getNodeHeight');
+      print('Blockchain height: ${h}');
+      return h;
+    } catch (_) {
+      return 0;
+    }
   }
 
   @override
@@ -228,8 +229,8 @@ class BitcoinWallet extends Wallet {
   @override
   Future startSync() async {
     try {
+      await bitcoinWalletChannel.invokeMethod<void>('refresh');
       _syncStatus.value = StartingSyncStatus();
-      //await bitcoinWalletChannel.invokeMethod<void>('refresh');
     } on PlatformException catch (e) {
       _syncStatus.value = FailedSyncStatus();
       print(e);

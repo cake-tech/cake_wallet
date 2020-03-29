@@ -164,7 +164,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
 
                               var descriptionText = '';
 
-                              if (status is SyncingSyncStatus) {
+                              if (status is SyncingSyncStatus || status is SyncingSyncStatusRaw) {
                                 descriptionText = S
                                     .of(context)
                                     .Blocks_remaining(
