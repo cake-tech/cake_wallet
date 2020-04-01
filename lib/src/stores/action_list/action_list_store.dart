@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
 import 'package:cake_wallet/src/domain/monero/transaction_description.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/src/domain/common/get_crypto_currency.dart';
 import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/stores/action_list/action_list_display_mode.dart';
@@ -91,17 +92,6 @@ abstract class ActionListBase with Store {
     }
 
     return formattedList;
-  }
-
-  CryptoCurrency getCryptoCurrency(WalletType walletType) {
-    switch (walletType) {
-      case WalletType.monero:
-        return CryptoCurrency.xmr;
-      case WalletType.bitcoin:
-        return CryptoCurrency.btc;
-      default:
-        return CryptoCurrency.xmr;
-    }
   }
 
   @computed

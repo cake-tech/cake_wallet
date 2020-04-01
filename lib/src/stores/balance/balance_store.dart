@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/domain/common/balance.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/domain/monero/monero_balance.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_balance.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
+import 'package:cake_wallet/src/domain/common/get_crypto_currency.dart';
 import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/stores/price/price_store.dart';
@@ -43,17 +43,6 @@ abstract class BalanceStoreBase with Store {
 
   @observable
   String unlockedBalance;
-
-  CryptoCurrency getCryptoCurrency(WalletType walletType) {
-    switch (walletType) {
-      case WalletType.monero:
-        return CryptoCurrency.xmr;
-      case WalletType.bitcoin:
-        return CryptoCurrency.btc;
-      default:
-        return CryptoCurrency.xmr;
-    }
-  }
 
   @computed
   String get fiatFullBalance {
