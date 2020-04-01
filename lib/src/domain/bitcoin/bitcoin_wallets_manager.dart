@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/wallets_manager.dart';
@@ -83,25 +82,18 @@ class BitcoinWalletsManager extends WalletsManager {
 
   @override
   Future remove(WalletDescription wallet) async {
-    final dir = await getApplicationDocumentsDirectory();
-    final root = dir.path.replaceAll('app_flutter', 'files');
-    final walletFilePath = root + '/cw_monero/' + wallet.name;
-    final keyPath = walletFilePath + '.keys';
-    final addressFilePath = walletFilePath + '.address.txt';
+    final walletFilePath = await pathForWallet(name: wallet.name);
+    final chainFilePath = walletFilePath + '.spvchain';
+
     final walletFile = File(walletFilePath);
-    final keyFile = File(keyPath);
-    final addressFile = File(addressFilePath);
+    final chainFile = File(chainFilePath);
 
     if (await walletFile.exists()) {
-    await walletFile.delete();
+      await walletFile.delete();
     }
 
-    if (await keyFile.exists()) {
-    await keyFile.delete();
-    }
-
-    if (await addressFile.exists()) {
-    await addressFile.delete();
+    if (await chainFile.exists()) {
+      await chainFile.delete();
     }
 
     final id =

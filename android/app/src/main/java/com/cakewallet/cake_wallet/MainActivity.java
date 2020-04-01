@@ -5,7 +5,6 @@ import io.flutter.app.FlutterFragmentActivity;
 import io.flutter.plugin.common.BasicMessageChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.StringCodec;
 import io.flutter.plugin.common.BinaryCodec;
 import io.flutter.plugins.GeneratedPluginRegistrant;
 import java.nio.ByteBuffer;
@@ -33,7 +32,10 @@ public class MainActivity extends FlutterFragmentActivity {
     MethodChannel bitcoinWalletChannel = new MethodChannel(getFlutterView(), BitcoinWalletHandler.BITCOIN_WALLET_CHANNEL);
 
     BasicMessageChannel<ByteBuffer> progressChannel = new BasicMessageChannel<ByteBuffer>(getFlutterView(), "progress_change", BinaryCodec.INSTANCE);
+    BasicMessageChannel<ByteBuffer> balanceChannel = new BasicMessageChannel<ByteBuffer>(getFlutterView(), "balance_change", BinaryCodec.INSTANCE);
+
     bitcoinWalletHandler.setProgressChannel(progressChannel);
+    bitcoinWalletHandler.setBalanceChannel(balanceChannel);
 
     bitcoinWalletChannel.setMethodCallHandler(
             new MethodChannel.MethodCallHandler() {
@@ -43,7 +45,5 @@ public class MainActivity extends FlutterFragmentActivity {
                 }
             }
     );
-
-
   }
 }

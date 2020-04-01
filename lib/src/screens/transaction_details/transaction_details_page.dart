@@ -60,7 +60,7 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
           value: '${widget.transactionInfo.height}'),
       StandartListItem(
           title: S.current.transaction_details_amount,
-          value: widget.transactionInfo.amountFormatted())
+          value: widget.transactionInfo.amountFormatted(widget.settingsStore.selectedWalletType))
     ];
 
     if (widget.settingsStore.shouldSaveRecipientAddress &&

@@ -35,7 +35,8 @@ abstract class SettingsStoreBase with Store {
       this.actionlistDisplayMode,
       @required int initialPinLength,
       @required String initialLanguageCode,
-      @required String initialCurrentLocale}) {
+      @required String initialCurrentLocale,
+      @required String initialWalletTypeString}) {
     fiatCurrency = initialFiatCurrency;
     transactionPriority = initialTransactionPriority;
     balanceDisplayMode = initialBalanceDisplayMode;
@@ -48,7 +49,17 @@ abstract class SettingsStoreBase with Store {
     languageCode = initialLanguageCode;
     currentLocale = initialCurrentLocale;
     itemHeaders = Map();
-    selectedWalletType = WalletType.monero;
+
+    switch (initialWalletTypeString) {
+      case 'Monero':
+        selectedWalletType = WalletType.monero;
+        break;
+      case 'Bitcoin':
+        selectedWalletType = WalletType.bitcoin;
+        break;
+      default:
+        selectedWalletType = WalletType.monero;
+    }
 
     actionlistDisplayMode.observe(
         (dynamic _) => _sharedPreferences.setInt(displayActionListModeKey,
@@ -70,6 +81,7 @@ abstract class SettingsStoreBase with Store {
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
+  static const currentWalletTypeKey = 'current_wallet_type';
 
   static Future<SettingsStore> load(
       {@required SharedPreferences sharedPreferences,
@@ -103,6 +115,10 @@ abstract class SettingsStoreBase with Store {
             ? await Language.localeDetection()
             : sharedPreferences.getString(currentLanguageCode);
     final initialCurrentLocale = await Devicelocale.currentLocale;
+    final currentWalletTypeString =
+    sharedPreferences.getString(currentWalletTypeKey) == null
+        ? walletTypeToString(WalletType.monero)
+        : sharedPreferences.getString(currentWalletTypeKey);
 
     final store = SettingsStore(
         sharedPreferences: sharedPreferences,
@@ -116,7 +132,8 @@ abstract class SettingsStoreBase with Store {
         actionlistDisplayMode: actionlistDisplayMode,
         initialPinLength: defaultPinLength,
         initialLanguageCode: savedLanguageCode,
-        initialCurrentLocale: initialCurrentLocale);
+        initialCurrentLocale: initialCurrentLocale,
+        initialWalletTypeString: currentWalletTypeString);
 
     await store.loadSettings();
 

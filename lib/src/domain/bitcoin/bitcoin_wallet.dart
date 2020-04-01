@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:cake_wallet/src/domain/common/balance.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/src/domain/common/pending_transaction.dart';
 import 'package:cake_wallet/src/domain/common/transaction_creation_credentials.dart';
@@ -13,15 +14,17 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_history.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_balance.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
 
 class BitcoinWallet extends Wallet {
   BitcoinWallet({this.walletInfoSource, this.walletInfo}) {
     _syncStatus = BehaviorSubject<SyncStatus>();
+    _onBalanceChange = BehaviorSubject<BitcoinBalance>();
     _name = BehaviorSubject<String>();
     _address = BehaviorSubject<String>();
 
-    _height = 0;
-    _refreshHeight = 0;
+    _blocksLeft = 0;
 
     progressChannel.setMessageHandler((ByteData message) async {
       final type = ByteData.view(message.buffer, 0, 4).getInt32(0);
@@ -35,9 +38,22 @@ class BitcoinWallet extends Wallet {
           break;
         case _syncingInProgress:
           final pct = ByteData.view(message.buffer, 4, 8).getInt32(0);
-          final blocksLeft = ByteData.view(message.buffer, 8).getInt32(0);
+          _blocksLeft = ByteData.view(message.buffer, 8).getInt32(0);
 
-          _syncStatus.add(SyncingSyncStatusRaw(pct, blocksLeft));
+          _syncStatus.add(SyncingSyncStatusRaw(pct, _blocksLeft));
+          break;
+      }
+
+      return ByteData(0);
+    });
+
+    balanceChannel.setMessageHandler((ByteData message) async {
+      final type = ByteData.view(message.buffer, 0, 4).getInt32(0);
+
+      switch (type) {
+        case _needToRefresh:
+          await askForUpdateBalance();
+          await askForUpdateTransactionHistory();
           break;
       }
 
@@ -48,10 +64,13 @@ class BitcoinWallet extends Wallet {
   static const _syncingStart = 1;
   static const _syncingInProgress = 2;
   static const _syncingFinished = 0;
+  static const _needToRefresh = 0;
   static const bitcoinWalletChannel =
       MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
   static const progressChannel =
       BasicMessageChannel('progress_change', BinaryCodec());
+  static const balanceChannel =
+      BasicMessageChannel('balance_change', BinaryCodec());
 
   static Future<BitcoinWallet> createdWallet(
       {Box<WalletInfo> walletInfoSource,
@@ -105,13 +124,16 @@ class BitcoinWallet extends Wallet {
   @override
   Observable<SyncStatus> get syncStatus => _syncStatus.stream;
 
+  @override
+  Observable<Balance> get onBalanceChange => _onBalanceChange.stream;
+
   Box<WalletInfo> walletInfoSource;
   WalletInfo walletInfo;
   BehaviorSubject<SyncStatus> _syncStatus;
+  BehaviorSubject<BitcoinBalance> _onBalanceChange;
   BehaviorSubject<String> _name;
   BehaviorSubject<String> _address;
-  int _height;
-  int _refreshHeight;
+  int _blocksLeft;
 
   TransactionHistory _cachedTransactionHistory;
 
@@ -157,9 +179,15 @@ class BitcoinWallet extends Wallet {
       await bitcoinWalletChannel.invokeMethod<String>('getFileName');
 
   @override
+  Future<String> getUnlockedBalance() async {
+    final unlockedBalance = await bitcoinWalletChannel.invokeMethod<int>('getUnlockedBalance');
+    return bitcoinAmountToDouble(amount: unlockedBalance).toString();
+  }
+
+  @override
   Future<String> getFullBalance() async {
-    // TODO: implement getFullBalance
-    return '0';
+    final fullBalance = await bitcoinWalletChannel.invokeMethod<int>('getFullBalance');
+    return bitcoinAmountToDouble(amount: fullBalance).toString();
   }
 
   @override
@@ -173,16 +201,32 @@ class BitcoinWallet extends Wallet {
 
   Future askForUpdateTransactionHistory() async => await getHistory().update();
 
+  Future askForUpdateBalance() async {
+    final fullBalance = await getFullBalance();
+    final unlockedBalance = await getUnlockedBalance();
+    final needToChange = _onBalanceChange.value != null
+        ? _onBalanceChange.value.fullBalance != fullBalance ||
+        _onBalanceChange.value.unlockedBalance != unlockedBalance
+        : true;
+
+    if (!needToChange) {
+      return;
+    }
+
+    _onBalanceChange.add(BitcoinBalance(
+        fullBalance: fullBalance, unlockedBalance: unlockedBalance));
+  }
+
   @override
   Future<Map<String, String>> getKeys() async {
     final privateKey =
         await bitcoinWalletChannel.invokeMethod<String>("getPrivateKey");
-    final keys = {"privateKey": privateKey};
+    final keys = {"restoreKey": privateKey};
     return keys;
   }
 
   @override
-  Future<String> getName() async => walletInfo.name;
+  Future<String> getName() async => await bitcoinWalletChannel.invokeMethod<String>('getName');
 
   @override
   Future<int> getNodeHeight() async {
@@ -207,12 +251,6 @@ class BitcoinWallet extends Wallet {
 
   @override
   WalletType getType() => WalletType.bitcoin;
-
-  @override
-  Future<String> getUnlockedBalance() async {
-    // TODO: implement getUnlockedBalance
-    return '0';
-  }
 
   @override
   Future<bool> isConnected() {

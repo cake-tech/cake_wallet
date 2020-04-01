@@ -1,8 +1,10 @@
 import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_monero/structs/transaction_info_row.dart';
 import 'package:cake_wallet/src/domain/common/parseBoolFromString.dart';
 import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
 import 'package:cake_wallet/src/domain/common/format_amount.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 class TransactionInfo {
   TransactionInfo(this.id, this.height, this.direction, this.date,
@@ -15,7 +17,7 @@ class TransactionInfo {
             parseTransactionDirectionFromNumber(map['direction'] as String) ??
                 TransactionDirection.incoming,
         date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
+            (int.parse(map['timestamp'] as String) ?? 0)),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String);
@@ -41,7 +43,16 @@ class TransactionInfo {
 
   String _fiatAmount;
 
-  String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} XMR';
+  String amountFormatted(WalletType walletType) {
+    switch (walletType) {
+      case WalletType.monero:
+        return '${formatAmount(moneroAmountToString(amount: amount))} XMR';
+      case WalletType.bitcoin:
+        return '${formatAmount(bitcoinAmountToString(amount: amount))} BTC';
+      default:
+        return '${formatAmount(moneroAmountToString(amount: amount))} XMR';
+    }
+  }
 
   String fiatAmount() => _fiatAmount ?? '';
 

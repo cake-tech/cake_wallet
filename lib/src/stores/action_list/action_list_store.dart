@@ -13,6 +13,8 @@ import 'package:cake_wallet/src/domain/common/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
 import 'package:cake_wallet/src/domain/monero/transaction_description.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/stores/action_list/action_list_display_mode.dart';
@@ -91,15 +93,39 @@ abstract class ActionListBase with Store {
     return formattedList;
   }
 
+  CryptoCurrency getCryptoCurrency(WalletType walletType) {
+    switch (walletType) {
+      case WalletType.monero:
+        return CryptoCurrency.xmr;
+      case WalletType.bitcoin:
+        return CryptoCurrency.btc;
+      default:
+        return CryptoCurrency.xmr;
+    }
+  }
+
   @computed
   List<TransactionListItem> get transactions {
+    final cryptoCurrency = getCryptoCurrency(_walletService.currentWallet.getType());
+
     final symbol = PriceStoreBase.generateSymbolForPair(
-        fiat: _settingsStore.fiatCurrency, crypto: CryptoCurrency.xmr);
+        fiat: _settingsStore.fiatCurrency, crypto: cryptoCurrency);
     final price = _priceStore.prices[symbol];
 
     _transactions.forEach((item) {
+      double cryptoAmount;
+
+      switch (cryptoCurrency) {
+        case CryptoCurrency.xmr:
+          cryptoAmount = moneroAmountToDouble(amount: item.transaction.amount);
+          break;
+        case CryptoCurrency.btc:
+          cryptoAmount = bitcoinAmountToDouble(amount: item.transaction.amount);
+          break;
+      }
+
       final amount = calculateFiatAmountRaw(
-          cryptoAmount: moneroAmountToDouble(amount: item.transaction.amount),
+          cryptoAmount: cryptoAmount,
           price: price);
       item.transaction.changeFiatAmount(amount);
     });

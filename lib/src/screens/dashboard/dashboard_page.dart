@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:provider/provider.dart';
 import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
 import 'package:flutter/material.dart';
@@ -553,7 +554,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                   final formattedAmount =
                       savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'
-                          : transaction.amountFormatted();
+                          : transaction.amountFormatted(settingsStore.selectedWalletType);
                   final formattedFiatAmount =
                       savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'

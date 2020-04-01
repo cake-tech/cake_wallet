@@ -7,9 +7,25 @@ import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 const bitcoinWalletChannel = MethodChannel('com.cakewallet.cake_wallet/bitcoin-wallet');
 
 Future <List<TransactionInfo>> _getAllTransactions(dynamic _) async {
-  final transactionList = await bitcoinWalletChannel.invokeMethod<List<Map<String,String>>>("getTransactions");
+  final transactionList = await bitcoinWalletChannel.invokeMethod<List<dynamic>>("getTransactions");
+  final List<TransactionInfo> transactionInfo = List();
+
   if (transactionList != null) {
-    return transactionList.map((elem) => TransactionInfo.fromMap(elem)).toList();
+    final Map<String,dynamic> map = Map<String,dynamic>();
+
+    for (dynamic elem in transactionList) {
+      map['hash'] = elem['hash'].toString();
+      map['height'] = int.parse(elem['height'].toString());
+      map['direction'] = elem['direction'].toString();
+      map['timestamp'] = elem['timestamp'].toString();
+      map['isPending'] = elem['isPending'].toString();
+      map['amount'] = int.parse(elem['amount'].toString());
+      map['accountIndex'] = "0";
+
+      transactionInfo.add(TransactionInfo.fromMap(map));
+    }
+
+    return transactionInfo;
   } else {
     return null;
   }
@@ -28,7 +44,11 @@ class BitcoinTransactionHistory extends TransactionHistory {
   bool _needToCheckForRefresh = false;
 
   @override
-  Future<int> count() async => await bitcoinWalletChannel.invokeMethod<int>("countOfTransactions");
+  Future<int> count() async {
+    final count = await bitcoinWalletChannel.invokeMethod<int>("countOfTransactions");
+    print('COUNT = $count');
+    return count;
+  }
 
   @override
   Future<List<TransactionInfo>> getAll({bool force = false}) async =>
