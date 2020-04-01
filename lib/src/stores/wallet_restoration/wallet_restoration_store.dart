@@ -43,16 +43,18 @@ abstract class WalleRestorationStoreBase with Store {
   Future restoreFromSeed({String name, String seed, WalletType walletType, int restoreHeight}) async {
     state = WalletRestorationStateInitial();
     final _seed = seed ?? _seedText();
+    final _currentWalletType = walletListService.currentWalletType;
 
     try {
       state = WalletIsRestoring();
       await walletListService.changeWalletManger(walletType: walletType);
-      await walletListService.restoreFromSeed(name, _seed, restoreHeight);
       await walletListService.setCurrentWalletType(walletType);
+      await walletListService.restoreFromSeed(name, _seed, restoreHeight);
       authStore.restored();
       state = WalletRestoredSuccessfully();
     } catch (e) {
-      await walletListService.changeWalletManger(walletType: walletListService.currentWalletType);
+      await walletListService.changeWalletManger(walletType: _currentWalletType);
+      await walletListService.setCurrentWalletType(_currentWalletType);
       state = WalletRestorationFailure(error: e.toString());
     }
   }

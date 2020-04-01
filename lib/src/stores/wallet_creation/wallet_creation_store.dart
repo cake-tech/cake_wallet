@@ -35,16 +35,18 @@ abstract class WalletCreationStoreBase with Store {
   @action
   Future create({String name, WalletType walletType, String language}) async {
     state = WalletCreationStateInitial();
+    final _currentWalletType = walletListService.currentWalletType;
 
     try {
       state = WalletIsCreating();
       await walletListService.changeWalletManger(walletType: walletType);
-      await walletListService.create(name, language);
       await walletListService.setCurrentWalletType(walletType);
+      await walletListService.create(name, language);
       authStore.created();
       state = WalletCreatedSuccessfully();
     } catch (e) {
-      await walletListService.changeWalletManger(walletType: walletListService.currentWalletType);
+      await walletListService.changeWalletManger(walletType: _currentWalletType);
+      await walletListService.setCurrentWalletType(_currentWalletType);
       state = WalletCreationFailure(error: e.toString());
     }
   }

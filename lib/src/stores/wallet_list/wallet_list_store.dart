@@ -35,8 +35,8 @@ abstract class WalletListStoreBase with Store {
   @action
   Future<void> loadWallet(WalletDescription wallet) async {
     await _walletListService.changeWalletManger(walletType: wallet.type);
-    await _walletListService.openWallet(wallet.name);
     await _walletListService.setCurrentWalletType(wallet.type);
+    await _walletListService.openWallet(wallet.name);
   }
 
   @action
