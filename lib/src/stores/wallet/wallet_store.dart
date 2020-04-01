@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/monero/account.dart';
 import 'package:cake_wallet/src/domain/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/common/get_crypto_currency.dart';
@@ -131,6 +132,10 @@ abstract class WalletStoreBase with Store {
           wallet.onAccountChange.listen((account) => this.account = account);
       _onSubaddressChangeSubscription = wallet.subaddress
           .listen((subaddress) => this.subaddress = subaddress);
+    }
+
+    if (wallet is BitcoinWallet) {
+      account = null;
     }
   }
 

@@ -15,12 +15,11 @@ Future<double> _updatePrice(Map args) async => await fetchPriceFor(
 Future<double> updatePrice(Map args) async => compute(_updatePrice, args);
 
 Future<void> startUpdatingPrice(
-    {SettingsStore settingsStore, PriceStore priceStore}) async {
+    {SettingsStore settingsStore, PriceStore priceStore, CryptoCurrency currentCrypto}) async {
   if (_startedUpdatingPrice) {
     return;
   }
 
-  const currentCrypto = CryptoCurrency.xmr;
   _startedUpdatingPrice = true;
 
   final price = await updatePrice(

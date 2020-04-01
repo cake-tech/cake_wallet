@@ -57,7 +57,11 @@ void onCurrentWalletChange(
 
   reaction((_) => walletStore.name, (String _) {
     walletStore.connectToNode(node: settingsStore.node);
-    startUpdatingPrice(settingsStore: settingsStore, priceStore: priceStore);
+    startUpdatingPrice(
+      settingsStore: settingsStore,
+      priceStore: priceStore,
+      currentCrypto: walletStore.type
+    );
   });
 }
 
