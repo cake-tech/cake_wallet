@@ -169,9 +169,9 @@ class BitcoinWallet extends Wallet {
       await bitcoinWalletChannel.invokeMethod<String>('getAddress');
 
   @override
-  Future<int> getCurrentHeight() {
-    // TODO: implement getCurrentHeight
-    return null;
+  Future<int> getCurrentHeight() async {
+    final height = await getNodeHeight();
+    return height - _blocksLeft;
   }
 
   @override
@@ -180,8 +180,10 @@ class BitcoinWallet extends Wallet {
 
   @override
   Future<String> getUnlockedBalance() async {
-    final unlockedBalance = await bitcoinWalletChannel.invokeMethod<int>('getUnlockedBalance');
-    return bitcoinAmountToDouble(amount: unlockedBalance).toString();
+    //final unlockedBalance = await bitcoinWalletChannel.invokeMethod<int>('getUnlockedBalance');
+    //return bitcoinAmountToDouble(amount: unlockedBalance).toString();
+    final fullBalance = await bitcoinWalletChannel.invokeMethod<int>('getFullBalance');
+    return bitcoinAmountToDouble(amount: fullBalance).toString();
   }
 
   @override
@@ -253,15 +255,16 @@ class BitcoinWallet extends Wallet {
   WalletType getType() => WalletType.bitcoin;
 
   @override
-  Future<bool> isConnected() {
-    // TODO: implement isConnected
-    return null;
-  }
+  Future<bool> isConnected() async => await bitcoinWalletChannel.invokeMethod<bool>("isConnected");
 
   @override
-  Future rescan({int restoreHeight = 0}) {
-    // TODO: implement rescan
-    return null;
+  Future rescan({int restoreHeight = 0}) async {
+    try {
+      await bitcoinWalletChannel.invokeMethod<void>('refresh');
+    } on PlatformException catch (e) {
+      print(e);
+      rethrow;
+    }
   }
 
   @override

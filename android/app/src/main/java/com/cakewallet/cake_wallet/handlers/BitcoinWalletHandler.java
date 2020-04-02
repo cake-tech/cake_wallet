@@ -10,6 +10,7 @@ import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.FilteredBlock;
+import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Peer;
 import org.bitcoinj.core.PeerAddress;
@@ -30,6 +31,7 @@ import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.MemoryBlockStore;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
+import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
 import org.bouncycastle.util.StreamParser;
@@ -73,6 +75,7 @@ public class BitcoinWalletHandler {
     private Wallet currentWallet;
     private String path;
     private String password;
+    private boolean isConnected = false;
     private BasicMessageChannel<ByteBuffer> progressChannel;
     private BasicMessageChannel<ByteBuffer> balanceChannel;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -128,6 +131,8 @@ public class BitcoinWalletHandler {
             blockStore.close();
         }
 
+        isConnected = false;
+
         peerGroup = null;
         chain = null;
         blockStore = null;
@@ -156,8 +161,9 @@ public class BitcoinWalletHandler {
         currentWallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
 
         setWalletListeners();
-
         saveWalletToFile();
+        installShutDownHook();
+
         return true;
     }
 
@@ -171,6 +177,8 @@ public class BitcoinWalletHandler {
         currentWallet.decrypt(password);
 
         setWalletListeners();
+        installShutDownHook();
+
         return true;
     }
 
@@ -186,8 +194,9 @@ public class BitcoinWalletHandler {
         currentWallet = Wallet.fromSeed(params, deterministicSeed, Script.ScriptType.P2PKH);
 
         setWalletListeners();
-
         saveWalletToFile();
+        installShutDownHook();
+
         return true;
     }
 
@@ -201,53 +210,60 @@ public class BitcoinWalletHandler {
         currentWallet = Wallet.fromWatchingKey(params, restoreKey, Script.ScriptType.P2PKH);
 
         setWalletListeners();
-
         saveWalletToFile();
+        installShutDownHook();
+
         return true;
     }
 
     public void handle(MethodCall call, MethodChannel.Result result) {
         try {
             switch (call.method) {
-            case "getAddress":
-                getAddress(call, result);
-                break;
-            case "getUnlockedBalance":
-                getUnlockedBalance(call, result);
-                break;
-            case "getFullBalance":
-                getFullBalance(call, result);
-                break;
-            case "getSeed":
-                getSeed(call, result);
-                break;
-            case "getPrivateKey":
-                getPrivateKey(call, result);
-                break;
-            case "connectToNode":
-                connectToNode(call, result);
-                break;
-            case "getTransactions":
-                getTransactions(call, result);
-                break;
-            case "countOfTransactions":
-                countOfTransactions(call, result);
-                break;
-            case "refresh":
-                refresh(call, result);
-                break;
-            case "getFileName":
-                getFileName(call, result);
-                break;
-            case "getName":
-                getName(call, result);
-                break;
-            case "close":
-                close(call, result);
-                break;
-            case "getNodeHeight":
-                getNodeHeight(call, result);
-                break;
+                case "getAddress":
+                    getAddress(call, result);
+                    break;
+                case "getUnlockedBalance":
+                    getUnlockedBalance(call, result);
+                    break;
+                case "getFullBalance":
+                    getFullBalance(call, result);
+                    break;
+                case "getSeed":
+                    getSeed(call, result);
+                    break;
+                case "getPrivateKey":
+                    getPrivateKey(call, result);
+                    break;
+                case "connectToNode":
+                    connectToNode(call, result);
+                    break;
+                case "getTransactions":
+                    getTransactions(call, result);
+                    break;
+                case "countOfTransactions":
+                    countOfTransactions(call, result);
+                    break;
+                case "refresh":
+                    refresh(call, result);
+                    break;
+                case "getFileName":
+                    getFileName(call, result);
+                    break;
+                case "getName":
+                    getName(call, result);
+                    break;
+                case "close":
+                    close(call, result);
+                    break;
+                case "getNodeHeight":
+                    getNodeHeight(call, result);
+                    break;
+                case "isConnected":
+                    isConnected(call, result);
+                    break;
+                case "createTransaction":
+                    createTransaction(call, result);
+                    break;
             default:
                 result.notImplemented();
             }
@@ -354,12 +370,13 @@ public class BitcoinWalletHandler {
                         ByteBuffer buffer = ByteBuffer.allocateDirect(4);
                         buffer.putInt(SYNCING_FINISHED);
 
+                        isConnected = true;
+
                         mainHandler.post(() -> progressChannel.send(buffer));
                     }
                 };
 
                 peerGroup.start();
-                installShutDownHook();
                 peerGroup.startBlockChainDownload(tracker);
 
                 mainHandler.post(() -> result.success(null));
@@ -456,6 +473,30 @@ public class BitcoinWalletHandler {
                 mainHandler.post(() -> result.success(null));
             } catch (Exception e) {
                 mainHandler.post(() -> result.error("IO_ERROR", e.getMessage(), null));
+            }
+        });
+    }
+
+    public void isConnected(MethodCall call, MethodChannel.Result result) {
+        AsyncTask.execute(() -> {
+            mainHandler.post(() -> result.success(isConnected));
+        });
+    }
+
+    public void createTransaction(MethodCall call, MethodChannel.Result result) {
+        AsyncTask.execute(() -> {
+            try {
+                NetworkParameters params = MainNetParams.get();
+
+                Coin amount = Coin.parseCoin(call.argument("amount"));
+                LegacyAddress address = LegacyAddress.fromBase58(params, call.argument("address"));
+
+                SendRequest request = SendRequest.to(address, amount);
+                Wallet.SendResult sendResult = currentWallet.sendCoins(request);
+
+                mainHandler.post(() -> result.success(null));
+            } catch (Exception e) {
+                mainHandler.post(() -> result.error("SEND_ERROR", e.getMessage(), null));
             }
         });
     }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter/cupertino.dart';
@@ -16,7 +17,6 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/send/send_store.dart';
 import 'package:cake_wallet/src/stores/send/sending_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
 import 'package:cake_wallet/src/domain/common/calculate_estimated_fee.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -25,7 +25,7 @@ import 'package:cake_wallet/src/stores/sync/sync_store.dart';
 
 class SendPage extends BasePage {
   @override
-  String get title => S.current.send_title;
+  String get title => S.current.send;
 
   @override
   bool get isModalBackButton => true;
@@ -155,7 +155,7 @@ class SendFormState extends State<SendForm> {
                       return Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
-                            Text(S.of(context).xmr_available_balance,
+                            Text(sendStore.sendBalance,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Theme.of(context)
@@ -185,7 +185,7 @@ class SendFormState extends State<SendForm> {
                 child: Column(children: <Widget>[
                   AddressTextField(
                     controller: _addressController,
-                    placeholder: S.of(context).send_monero_address,
+                    placeholder: sendStore.sendAddress,
                     focusNode: _focusNode,
                     onURIScanned: (uri) {
                       var address = '';
@@ -210,11 +210,11 @@ class SendFormState extends State<SendForm> {
                     ],
                     validator: (value) {
                       sendStore.validateAddress(value,
-                          cryptoCurrency: CryptoCurrency.xmr);
+                          cryptoCurrency: sendStore.cryptoCurrency);
                       return sendStore.errorMessage;
                     },
                   ),
-                  Padding(
+                  sendStore.cryptoCurrency == CryptoCurrency.xmr ? Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextFormField(
                         style: TextStyle(
@@ -240,7 +240,7 @@ class SendFormState extends State<SendForm> {
                           sendStore.validatePaymentID(value);
                           return sendStore.errorMessage;
                         }),
-                  ),
+                  ) : Offstage(),
                   Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: TextFormField(
@@ -260,7 +260,7 @@ class SendFormState extends State<SendForm> {
                         decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: EdgeInsets.only(top: 12),
-                              child: Text('XMR:',
+                              child: Text('${sendStore.cryptoCurrency.toString()}:',
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: Theme.of(context)
@@ -297,7 +297,7 @@ class SendFormState extends State<SendForm> {
                                     width: 1.0))),
                         validator: (value) {
                           sendStore.validateXMR(
-                              value, balanceStore.unlockedBalance);
+                              value, balanceStore.unlockedBalance); // FIXME
                           return sendStore.errorMessage;
                         }),
                   ),
@@ -357,7 +357,7 @@ class SendFormState extends State<SendForm> {
                                   .backgroundColor,
                             )),
                         Text(
-                            '${calculateEstimatedFee(priority: settingsStore.transactionPriority)} XMR',
+                            '${calculateEstimatedFee(priority: settingsStore.transactionPriority)} ${sendStore.cryptoCurrency.toString()}',
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,

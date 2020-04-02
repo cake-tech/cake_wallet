@@ -33,6 +33,9 @@
   "xmr_hidden" : "XMR Приховано",
   "xmr_available_balance" : "Доступний XMR баланс",
   "xmr_full_balance" : "Весь XMR баланс",
+  "btc_hidden" : "BTC Приховано",
+  "btc_available_balance" : "Доступний BTC баланс",
+  "btc_full_balance" : "Весь BTC баланс",
   "send" : "Відправити",
   "receive" : "Отримати",
   "transactions" : "Транзакції",
@@ -169,9 +172,11 @@
   "seed_language_spanish" : "Іспанська",
 
 
-  "send_title" : "Відправити Monero",
+  "send_title_monero" : "Відправити Monero",
+  "send_title_bitcoin" : "Відправити Bitcoin",
   "send_your_wallet" : "Ваш гаманець",
   "send_monero_address" : "Monero адреса",
+  "send_bitcoin_address" : "Bitcoin адреса",
   "send_payment_id" : "ID платежу (опційно)",
   "all" : "ВСЕ",
   "send_error_minimum_value" : "Мінімальна сума 0.01",

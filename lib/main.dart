@@ -77,6 +77,14 @@ void main() async {
       sharedPreferences: sharedPreferences, secureStorage: secureStorage);
   final authenticationStore = AuthenticationStore(userService: userService);
 
+  await initialSetup(
+      sharedPreferences: sharedPreferences,
+      walletListService: walletListService,
+      nodes: nodes,
+      authStore: authenticationStore,
+      initialMigrationVersion: 2,
+      initialWalletType: walletListService.currentWalletType);
+
   final settingsStore = await SettingsStoreBase.load(
       nodes: nodes,
       sharedPreferences: sharedPreferences,
@@ -94,14 +102,6 @@ void main() async {
   final loginStore = LoginStore(
       sharedPreferences: sharedPreferences, walletsService: walletListService);
   final seedLanguageStore = SeedLanguageStore();
-
-  await initialSetup(
-      sharedPreferences: sharedPreferences,
-      walletListService: walletListService,
-      nodes: nodes,
-      authStore: authenticationStore,
-      initialMigrationVersion: 2,
-      initialWalletType: walletListService.currentWalletType);
 
   setReactions(
       settingsStore: settingsStore,

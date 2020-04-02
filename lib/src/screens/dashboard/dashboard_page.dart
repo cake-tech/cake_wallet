@@ -17,6 +17,7 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/action_list/date_section_item.dart';
 import 'package:cake_wallet/src/stores/action_list/trade_list_item.dart';
 import 'package:cake_wallet/src/stores/action_list/transaction_list_item.dart';
+import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/date_section_raw.dart';
 import 'package:cake_wallet/src/screens/dashboard/trade_row.dart';
@@ -124,6 +125,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
     final actionListStore = Provider.of<ActionListStore>(context);
     final syncStore = Provider.of<SyncStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
+    final walletStore = Provider.of<WalletStore>(context);
     final transactionDateFormat = settingsStore.getCurrentDateFormat(
           formatUSA: "MMMM d, yyyy, HH:mm",
           formatDefault: "d MMMM yyyy, HH:mm");
@@ -553,7 +555,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                   final formattedAmount =
                       savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'
-                          : transaction.amountFormatted(settingsStore.selectedWalletType);
+                          : transaction.amountFormatted(walletStore.walletType);
                   final formattedFiatAmount =
                       savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'

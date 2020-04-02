@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/domain/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/common/get_crypto_currency.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -23,6 +24,7 @@ abstract class WalletStoreBase with Store {
     name = '';
     type = CryptoCurrency.xmr;
     amountValue = '';
+    walletType = WalletType.monero;
 
     if (_walletService.currentWallet != null) {
       _onWalletChanged(_walletService.currentWallet);
@@ -55,6 +57,8 @@ abstract class WalletStoreBase with Store {
 
   @observable
   String errorMessage;
+
+  WalletType walletType;
 
   String get id => name + type.toString().toLowerCase();
 
@@ -122,7 +126,8 @@ abstract class WalletStoreBase with Store {
       return;
     }
 
-    type = getCryptoCurrency(wallet.getType());
+    walletType = wallet.getType();
+    type = getCryptoCurrency(walletType);
 
     wallet.onNameChange.listen((name) => this.name = name);
     wallet.onAddressChange.listen((address) => this.address = address);

@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/stores/send/sending_state.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/openalias_record.dart';
+import 'package:cake_wallet/src/domain/common/get_crypto_currency.dart';
 
 part 'send_store.g.dart';
 
@@ -27,6 +28,8 @@ abstract class SendStoreBase with Store {
     _pendingTransaction = null;
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     _fiatNumberFormat = NumberFormat()..maximumFractionDigits = 2;
+    cryptoCurrency = getCryptoCurrency(walletService.currentWallet.getType());
+    getSendStrings(cryptoCurrency);
   }
 
   WalletService walletService;
@@ -51,11 +54,31 @@ abstract class SendStoreBase with Store {
   @observable
   String errorMessage;
 
+  CryptoCurrency cryptoCurrency;
+  String sendBalance;
+  String sendAddress;
+
   PendingTransaction get pendingTransaction => _pendingTransaction;
   PendingTransaction _pendingTransaction;
   NumberFormat _cryptoNumberFormat;
   NumberFormat _fiatNumberFormat;
   String _lastRecipientAddress;
+
+  void getSendStrings(CryptoCurrency cryptoCurrency) {
+    switch (cryptoCurrency) {
+      case CryptoCurrency.xmr:
+        sendBalance = S.current.xmr_available_balance;
+        sendAddress = S.current.send_monero_address;
+        break;
+      case CryptoCurrency.btc:
+        sendBalance = S.current.btc_available_balance;
+        sendAddress = S.current.send_bitcoin_address;
+        break;
+      default:
+        sendBalance = S.current.xmr_available_balance;
+        sendAddress = S.current.send_monero_address;
+    }
+  }
 
   @action
   Future createTransaction(
@@ -132,7 +155,7 @@ abstract class SendStoreBase with Store {
   @action
   Future _calculateFiatAmount() async {
     final symbol = PriceStoreBase.generateSymbolForPair(
-        fiat: settingsStore.fiatCurrency, crypto: CryptoCurrency.xmr);
+        fiat: settingsStore.fiatCurrency, crypto: cryptoCurrency);
     final price = priceStore.prices[symbol] ?? 0;
 
     try {
@@ -146,7 +169,7 @@ abstract class SendStoreBase with Store {
   @action
   Future _calculateCryptoAmount() async {
     final symbol = PriceStoreBase.generateSymbolForPair(
-        fiat: settingsStore.fiatCurrency, crypto: CryptoCurrency.xmr);
+        fiat: settingsStore.fiatCurrency, crypto: cryptoCurrency);
     final price = priceStore.prices[symbol] ?? 0;
 
     try {

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -5,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
+import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -23,18 +25,20 @@ class TransactionDetailsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final settingsStore = Provider.of<SettingsStore>(context);
+    final walletStore = Provider.of<WalletStore>(context);
 
     return TransactionDetailsForm(
-        transactionInfo: transactionInfo, settingsStore: settingsStore);
+        transactionInfo: transactionInfo, settingsStore: settingsStore, walletStore: walletStore);
   }
 }
 
 class TransactionDetailsForm extends StatefulWidget {
   TransactionDetailsForm(
-      {@required this.transactionInfo, @required this.settingsStore});
+      {@required this.transactionInfo, @required this.settingsStore, @required this.walletStore});
 
   final TransactionInfo transactionInfo;
   final SettingsStore settingsStore;
+  final WalletStore walletStore;
 
   @override
   TransactionDetailsFormState createState() => TransactionDetailsFormState();
@@ -60,7 +64,7 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
           value: '${widget.transactionInfo.height}'),
       StandartListItem(
           title: S.current.transaction_details_amount,
-          value: widget.transactionInfo.amountFormatted(widget.settingsStore.selectedWalletType))
+          value: widget.transactionInfo.amountFormatted(widget.walletStore.walletType))
     ];
 
     if (widget.settingsStore.shouldSaveRecipientAddress &&
