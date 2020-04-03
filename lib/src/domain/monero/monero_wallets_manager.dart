@@ -11,9 +11,10 @@ import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/common/wallet_description.dart';
 
-Future<String> pathForWallet({String name}) async {
+Future<String> pathForWallet(
+    {@required WalletType type, @required String name}) async {
   final directory = await getApplicationDocumentsDirectory();
-  final pathDir = directory.path + '/$name';
+  final pathDir = directory.path + '/wallets/${walletTypeToString(type).toLowerCase()}' + '/$name';
   final dir = Directory(pathDir);
 
   if (!await dir.exists()) {
@@ -34,9 +35,10 @@ class MoneroWalletsManager extends WalletsManager {
   Future<Wallet> create(String name, String password, String language) async {
     try {
       const isRecovery = false;
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(type: WalletType.monero, name: name);
 
-      await monero_wallet_manager.createWallet(path: path, password: password, language: language);
+      await monero_wallet_manager.createWallet(
+          path: path, password: password, language: language);
 
       final wallet = await MoneroWallet.createdWallet(
           walletInfoSource: walletInfoSource,
@@ -56,7 +58,7 @@ class MoneroWalletsManager extends WalletsManager {
       String name, String password, String seed, int restoreHeight) async {
     try {
       const isRecovery = true;
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(type: WalletType.monero, name: name);
 
       await monero_wallet_manager.restoreFromSeed(
           path: path,
@@ -89,7 +91,7 @@ class MoneroWalletsManager extends WalletsManager {
       String spendKey) async {
     try {
       const isRecovery = true;
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(type: WalletType.monero, name: name);
 
       await monero_wallet_manager.restoreFromKeys(
           path: path,
@@ -117,7 +119,7 @@ class MoneroWalletsManager extends WalletsManager {
   @override
   Future<Wallet> openWallet(String name, String password) async {
     try {
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(type: WalletType.monero, name: name);
       monero_wallet_manager.openWallet(path: path, password: password);
       final wallet = await MoneroWallet.load(walletInfoSource, name, type);
       await wallet.updateInfo();
@@ -132,7 +134,7 @@ class MoneroWalletsManager extends WalletsManager {
   @override
   Future<bool> isWalletExit(String name) async {
     try {
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(type: WalletType.monero, name: name);
       return monero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       print('MoneroWalletsManager Error: $e');
