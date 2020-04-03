@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/transaction_creation_credentials.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -6,6 +7,7 @@ import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/domain/common/pending_transaction.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/monero/monero_transaction_creation_credentials.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_creation_credentials.dart';
 import 'package:cake_wallet/src/domain/monero/transaction_description.dart';
 import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/src/stores/send/sending_state.dart';
@@ -84,6 +86,7 @@ abstract class SendStoreBase with Store {
   Future createTransaction(
       {String address, String paymentId, String amount}) async {
     state = CreatingTransaction();
+    TransactionCreationCredentials credentials;
 
     try {
       final _amount = amount != null
@@ -91,11 +94,22 @@ abstract class SendStoreBase with Store {
           : cryptoAmount == S.current.all
               ? null
               : cryptoAmount.replaceAll(',', '.');
-      final credentials = MoneroTransactionCreationCredentials(
-          address: address,
-          paymentId: paymentId ?? '',
-          amount: _amount,
-          priority: settingsStore.transactionPriority);
+
+      switch (cryptoCurrency) {
+        case CryptoCurrency.xmr:
+          credentials = MoneroTransactionCreationCredentials(
+              address: address,
+              paymentId: paymentId ?? '',
+              amount: _amount,
+              priority: settingsStore.transactionPriority);
+          break;
+        case CryptoCurrency.btc:
+          credentials = BitcoinTransactionCreationCredentials(
+            amount: _amount,
+            address: address
+          );
+          break;
+      }
 
       _pendingTransaction = await walletService.createTransaction(credentials);
       state = TransactionCreatedSuccessfully();
@@ -108,10 +122,19 @@ abstract class SendStoreBase with Store {
   @action
   Future commitTransaction() async {
     try {
-      final transactionId = _pendingTransaction.hash;
       state = TransactionCommiting();
-      await _pendingTransaction.commit();
+
+      switch (cryptoCurrency) {
+        case CryptoCurrency.xmr:
+          await _pendingTransaction.commit();
+          break;
+        case CryptoCurrency.btc:
+          await _pendingTransaction.commitBitcoinTransaction();
+          break;
+      }
+
       state = TransactionCommitted();
+      final transactionId = _pendingTransaction.hash;
 
       if (settingsStore.shouldSaveRecipientAddress) {
         await transactionDescriptions.add(TransactionDescription(
@@ -281,6 +304,30 @@ abstract class SendStoreBase with Store {
     }
     
     errorMessage = isValid ? null : S.current.error_text_xmr;
+  }
+
+  void validateBTC(String value, String availableBalance) {
+    const pattern = '^([0-9]+([.][0-9]{0,12})?|[.][0-9]{1,12})\$|ALL';
+    final regExp = RegExp(pattern);
+
+    if (regExp.hasMatch(value)) {
+      if (value == 'ALL') {
+        isValid = true;
+      } else {
+        try {
+          final dValue = double.parse(value);
+          final maxAvailable = double.parse(availableBalance);
+          isValid =
+          (dValue <= maxAvailable && dValue > 0);
+        } catch (e) {
+          isValid = false;
+        }
+      }
+    } else {
+      isValid = false;
+    }
+
+    errorMessage = isValid ? null : S.current.error_text_btc;
   }
 
   void validateFiat(String value, {double maxValue}) {

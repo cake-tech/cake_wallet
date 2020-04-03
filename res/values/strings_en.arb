@@ -281,6 +281,7 @@
   "error_text_node_port" : "Node port can only contain numbers between 0 and 65535",
   "error_text_payment_id" : "Payment ID can only contain from 16 to 64 chars in hex",
   "error_text_xmr" : "XMR value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12",
+  "error_text_btc" : "BTC value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12",
   "error_text_fiat" : "Value of amount can't exceed available balance.\nThe number of fraction digits must be less or equal to 2",
   "error_text_subaddress_name" : "Subaddress name can't contain ` , ' \" symbols\nand must be between 1 and 20 characters long",
   "error_text_amount" : "Amount can only contain numbers",

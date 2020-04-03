@@ -281,6 +281,7 @@
   "error_text_node_port" : "Port węzła może zawierać tylko liczby od 0 do 65535",
   "error_text_payment_id" : "ID może zawierać od 16 do 64 znaków w formacie szesnastkowym",
   "error_text_xmr" : "Wartość XMR nie może przekraczać dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 12",
+  "error_text_btc" : "Wartość BTC nie może przekraczać dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 12",
   "error_text_fiat" : "Wartość kwoty nie może przekroczyć dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 2",
   "error_text_subaddress_name" : "Nazwa podadresu nie może zawierać ` , ' \" symbolika\ni musi mieć od 1 do 20 znaków",
   "error_text_amount" : "Kwota może zawierać tylko liczby",

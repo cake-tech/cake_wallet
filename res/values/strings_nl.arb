@@ -281,6 +281,7 @@
   "error_text_node_port" : "Knooppuntpoort kan alleen nummers tussen 0 en 65535 bevatten",
   "error_text_payment_id" : "Betalings-ID kan alleen 16 tot 64 tekens bevatten in hexadecimale volgorde",
   "error_text_xmr" : "XMR-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12",
+  "error_text_btc" : "BTC-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12",
   "error_text_fiat" : "Waarde van bedrag kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 2",
   "error_text_subaddress_name" : "Naam subadres mag niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 20 tekens lang zijn",
   "error_text_amount" : "Bedrag kan alleen cijfers bevatten",

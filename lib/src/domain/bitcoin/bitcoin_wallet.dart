@@ -16,6 +16,7 @@ import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_history.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_balance.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_creation_credentials.dart';
 
 class BitcoinWallet extends Wallet {
   BitcoinWallet({this.walletInfoSource, this.walletInfo}) {
@@ -159,9 +160,28 @@ class BitcoinWallet extends Wallet {
 
   @override
   Future<PendingTransaction> createTransaction(
-      TransactionCreationCredentials credentials) {
-    // TODO: implement createTransaction
-    return null;
+      TransactionCreationCredentials credentials) async {
+    final _credentials = credentials as BitcoinTransactionCreationCredentials;
+    final amount = _credentials.amount??'ALL';
+
+    final transactionDescription = await bitcoinWalletChannel.invokeMethod<Map<dynamic,dynamic>>('createTransaction',
+      <String,String> {
+        'amount' : amount,
+        'address' : _credentials.address
+      }
+    );
+
+    if (transactionDescription != null) {
+      final Map<String,String> map = Map<String,String>();
+
+      map['amount'] = transactionDescription['amount'].toString();
+      map['fee'] = transactionDescription['fee'].toString();
+      map['hash'] = transactionDescription['hash'].toString();
+
+      return PendingTransaction.fromBitcoinTransaction(map);
+    } else {
+      return null;
+    }
   }
 
   @override

@@ -67,6 +67,7 @@ class S implements WidgetsLocalizations {
   String get error_text_account_name => "Account name can only contain letters, numbers\nand must be between 1 and 15 characters long";
   String get error_text_address => "Wallet address must correspond to the type\nof cryptocurrency";
   String get error_text_amount => "Amount can only contain numbers";
+  String get error_text_btc => "BTC value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12";
   String get error_text_contact_name => "Contact name can't contain ` , ' \" symbols\nand must be between 1 and 32 characters long";
   String get error_text_crypto_currency => "The number of fraction digits\nmust be less or equal to 12";
   String get error_text_fiat => "Value of amount can't exceed available balance.\nThe number of fraction digits must be less or equal to 2";
@@ -825,6 +826,8 @@ class $de extends S {
   @override
   String get settings_trades => "Handel";
   @override
+  String get error_text_btc => "Der BTC-Wert kann das verfügbare Guthaben nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 12 sein";
+  @override
   String get account => "Konto";
   @override
   String change_language_to(String language) => "Ändern Sie die Sprache in ${language}?";
@@ -1402,6 +1405,8 @@ class $hi extends S {
   String get first_wallet_text => "बहुत बढ़िया बटुआ\nके लिये Monero";
   @override
   String get settings_trades => "ट्रेडों";
+  @override
+  String get error_text_btc => "बबिटकॉइन मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता है.\nअंश अंकों की संख्या 12 से कम या इसके बराबर होनी चाहिए";
   @override
   String get account => "लेखा";
   @override
@@ -1981,6 +1986,8 @@ class $ru extends S {
   @override
   String get settings_trades => "Сделки";
   @override
+  String get error_text_btc => "Значение BTC не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 12";
+  @override
   String get account => "Аккаунт";
   @override
   String change_language_to(String language) => "Изменить язык на ${language}?";
@@ -2558,6 +2565,8 @@ class $ko extends S {
   String get first_wallet_text => "멋진 지갑\n에 대한 Monero";
   @override
   String get settings_trades => "거래";
+  @override
+  String get error_text_btc => "BTC 값은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 12 이하 여야합니다";
   @override
   String get account => "계정";
   @override
@@ -3137,6 +3146,8 @@ class $pt extends S {
   @override
   String get settings_trades => "Trocas";
   @override
+  String get error_text_btc => "A quantia em BTC não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12";
+  @override
   String get account => "Conta";
   @override
   String change_language_to(String language) => "Alterar idioma para ${language}?";
@@ -3715,6 +3726,8 @@ class $uk extends S {
   @override
   String get settings_trades => "Операції";
   @override
+  String get error_text_btc => "Значення BTC не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12";
+  @override
   String get account => "Акаунт";
   @override
   String change_language_to(String language) => "Змінити мову на ${language}?";
@@ -4292,6 +4305,8 @@ class $ja extends S {
   String get first_wallet_text => "素晴らしい財布\nために Monero";
   @override
   String get settings_trades => "取引";
+  @override
+  String get error_text_btc => "BTC値は利用可能な残高を超えることはできません.\n小数桁数は12以下でなければなりません";
   @override
   String get account => "アカウント";
   @override
@@ -4875,6 +4890,8 @@ class $pl extends S {
   @override
   String get settings_trades => "Transakcje";
   @override
+  String get error_text_btc => "Wartość BTC nie może przekraczać dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 12";
+  @override
   String get account => "Konto";
   @override
   String change_language_to(String language) => "Zmień język na ${language}?";
@@ -5452,6 +5469,8 @@ class $es extends S {
   String get first_wallet_text => "Impresionante billetera\npara Monero";
   @override
   String get settings_trades => "Comercia";
+  @override
+  String get error_text_btc => "El valor BTC no puede exceder el saldo disponible.\nTEl número de dígitos de fracción debe ser menor o igual a 12";
   @override
   String get account => "Cuenta";
   @override
@@ -6031,6 +6050,8 @@ class $nl extends S {
   @override
   String get settings_trades => "Trades";
   @override
+  String get error_text_btc => "BTC-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12";
+  @override
   String get account => "Account";
   @override
   String change_language_to(String language) => "Verander de taal in ${language}?";
@@ -6608,6 +6629,8 @@ class $zh extends S {
   String get first_wallet_text => "很棒的钱包\n对于 Monero";
   @override
   String get settings_trades => "交易";
+  @override
+  String get error_text_btc => "BTC值不能超过可用余额.\n小数位数必须小于或等于12";
   @override
   String get account => "帐户";
   @override

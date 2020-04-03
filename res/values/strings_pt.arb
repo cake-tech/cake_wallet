@@ -281,6 +281,7 @@
   "error_text_node_port" : "A porta do nó deve conter apenas números entre 0 e 65535",
   "error_text_payment_id" : "O ID de pagamento pode conter apenas de 16 a 64 caracteres em hexadecimal",
   "error_text_xmr" : "A quantia em XMR não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12",
+  "error_text_btc" : "A quantia em BTC não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12",
   "error_text_fiat" : "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos decimais deve ser menor ou igual a 2",
   "error_text_subaddress_name" : "O nome do sub-endereço não pode conter os símbolos ` , ' \" \ne deve ter entre 1 e 20 caracteres",
   "error_text_amount" : "A quantia deve conter apenas números",

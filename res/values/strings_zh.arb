@@ -281,6 +281,7 @@
   "error_text_node_port" : "节点端口只能包含0到65535之间的数字",
   "error_text_payment_id" : "付款ID只能包含16到64个字符（十六进制）",
   "error_text_xmr" : "XMR值不能超过可用余额.\n小数位数必须小于或等于12",
+  "error_text_btc" : "BTC值不能超过可用余额.\n小数位数必须小于或等于12",
   "error_text_fiat" : "金额不能超过可用余额.\n小数位数必须小于或等于2",
   "error_text_subaddress_name" : "子地址名称不能包含`，' \" 符号\n并且必须在1到20个字符之间",
   "error_text_amount" : "金额只能包含数字",

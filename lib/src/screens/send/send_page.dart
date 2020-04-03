@@ -296,8 +296,11 @@ class SendFormState extends State<SendForm> {
                                     color: Theme.of(context).focusColor,
                                     width: 1.0))),
                         validator: (value) {
-                          sendStore.validateXMR(
-                              value, balanceStore.unlockedBalance); // FIXME
+                          sendStore.cryptoCurrency == CryptoCurrency.xmr
+                          ? sendStore.validateXMR(
+                              value, balanceStore.unlockedBalance)
+                          : sendStore.validateBTC(
+                              value, balanceStore.unlockedBalance);
                           return sendStore.errorMessage;
                         }),
                   ),
