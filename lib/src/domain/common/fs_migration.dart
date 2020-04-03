@@ -3,13 +3,17 @@ import 'package:path_provider/path_provider.dart';
 
 const reservedNames = ["flutter_assets", "wallets", "db"];
 
-Future<void> migrate_fs() async {
+Future<void> migrate_android_v1() async {
   final appDocDir = await getApplicationDocumentsDirectory();
 
   await migrate_hives(appDocDir: appDocDir);
   await migrate_wallets(appDocDir: appDocDir);
+}
 
-  appDocDir.listSync(recursive: true).forEach((item) => print(item.path));
+Future<void> migrate_ios_v1() async {
+  final appDocDir = await getApplicationDocumentsDirectory();
+
+  
 }
 
 Future<void> migrate_hives({Directory appDocDir}) async {
@@ -67,4 +71,9 @@ Future<void> migrate_wallets({Directory appDocDir}) async {
 
     dir.deleteSync();
   });
+}
+
+Future<void> migrate_ios_wallets({Directory appDocDir}) async {
+  // final oldWalletsDir = Directory('${appDocDir.path}/wallets');
+  
 }
