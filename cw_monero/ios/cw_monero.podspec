@@ -48,4 +48,11 @@ A new flutter plugin project.
     sodium.libraries = 'sodium'
     sodium.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/libs/sodium/include/**" }
   end
+  
+  s.subspec 'lmdb' do |sodium|
+#    sodium.preserve_paths = 'External/ios/libs/sodium/include/**/*.h'
+    sodium.vendored_libraries = 'External/ios/libs/lmdb/liblmdb.a'
+    sodium.libraries = 'lmdb'
+#    sodium.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/libs/sodium/include/**" }
+  end
 end
