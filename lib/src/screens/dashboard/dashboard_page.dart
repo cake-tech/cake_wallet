@@ -18,7 +18,6 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/action_list/date_section_item.dart';
 import 'package:cake_wallet/src/stores/action_list/trade_list_item.dart';
 import 'package:cake_wallet/src/stores/action_list/transaction_list_item.dart';
-import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/date_section_raw.dart';
 import 'package:cake_wallet/src/screens/dashboard/trade_row.dart';
@@ -624,5 +623,6 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
       case WalletType.none:
         return "";
     }
+    return "";
   }
 }
