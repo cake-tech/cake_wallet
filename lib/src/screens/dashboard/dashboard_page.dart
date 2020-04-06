@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:provider/provider.dart';
 import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
 import 'package:flutter/material.dart';
@@ -233,7 +234,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                                                   .availableBalance)
                                           : savedDisplayMode;
 
-                                      return Text(displayMode.toString(),
+                                      return Text(_balanceDisplayModeToString(displayMode, walletStore.walletType),
                                           style: TextStyle(
                                               color: Palette.violet,
                                               fontSize: 16));
@@ -596,5 +597,32 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                 return Container();
               });
         });
+  }
+
+  String _balanceDisplayModeToString(BalanceDisplayMode mode, WalletType walletType) {
+    switch (walletType) {
+      case WalletType.monero:
+        switch (mode) {
+          case BalanceDisplayMode.availableBalance:
+            return S.current.xmr_available_balance;
+          case BalanceDisplayMode.fullBalance:
+            return S.current.xmr_full_balance;
+          case BalanceDisplayMode.hiddenBalance:
+            return S.current.xmr_hidden;
+        }
+        break;
+      case WalletType.bitcoin:
+        switch (mode) {
+          case BalanceDisplayMode.availableBalance:
+            return S.current.btc_available_balance;
+          case BalanceDisplayMode.fullBalance:
+            return S.current.btc_full_balance;
+          case BalanceDisplayMode.hiddenBalance:
+            return S.current.btc_hidden;
+        }
+        break;
+      case WalletType.none:
+        return "";
+    }
   }
 }

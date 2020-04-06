@@ -82,6 +82,7 @@ public class BitcoinWalletHandler {
     private SPVBlockStore blockStore;
     private Wallet currentWallet;
     private SendRequest request;
+    private DownloadProgressTracker tracker;
     private String path;
     private String password;
     private boolean isConnected = false;
@@ -97,7 +98,7 @@ public class BitcoinWalletHandler {
         this.balanceChannel = balanceChannel;
     }
 
-    public void setWalletListeners() {
+    private void setWalletListeners() {
         AsyncTask.execute(() -> {
             if (currentWallet != null) {
                 currentWallet.addCoinsReceivedEventListener((wallet, tx, prevBalance, newBalance) -> {
@@ -117,7 +118,7 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void saveWalletToFile() throws Exception{
+    private void saveWalletToFile() throws Exception{
         File file = new File(path);
 
         currentWallet.encrypt(password);
@@ -125,7 +126,7 @@ public class BitcoinWalletHandler {
         currentWallet.decrypt(password);
     }
 
-    public void shutDownWallet() throws Exception {
+    private void shutDownWallet(boolean isNeedToRefresh) throws Exception {
         if (peerGroup != null && peerGroup.isRunning()) {
             peerGroup.stop();
         }
@@ -134,6 +135,9 @@ public class BitcoinWalletHandler {
             File file = new File(path);
             currentWallet.encrypt(password);
             currentWallet.saveToFile(file);
+            if (isNeedToRefresh) {
+                currentWallet.decrypt(password);
+            }
         }
 
         if (blockStore != null) {
@@ -145,15 +149,18 @@ public class BitcoinWalletHandler {
         peerGroup = null;
         chain = null;
         blockStore = null;
-        currentWallet = null;
+        tracker = null;
+        if (!isNeedToRefresh) {
+            currentWallet = null;
+        }
     }
 
-    public void installShutDownHook() {
+    private void installShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 try {
-                    shutDownWallet();
+                    shutDownWallet(false);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -164,12 +171,10 @@ public class BitcoinWalletHandler {
     public boolean createWallet(String path, String password) throws Exception {
         this.path = path;
         this.password = password;
-        ECKey key = new ECKey();
 
         NetworkParameters params = MainNetParams.get();
 
         currentWallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
-        currentWallet.importKey(key);
 
         setWalletListeners();
         saveWalletToFile();
@@ -197,14 +202,12 @@ public class BitcoinWalletHandler {
             throws Exception {
         this.path = path;
         this.password = password;
-        ECKey key = new ECKey();
 
         NetworkParameters params = MainNetParams.get();
         long creationTime = 1409478661L;
 
         DeterministicSeed deterministicSeed = new DeterministicSeed(seed, null, passphrase, creationTime);
         currentWallet = Wallet.fromSeed(params, deterministicSeed, Script.ScriptType.P2PKH);
-        currentWallet.importKey(key);
 
         setWalletListeners();
         saveWalletToFile();
@@ -216,13 +219,11 @@ public class BitcoinWalletHandler {
     public boolean restoreWalletFromKey(String path, String password, String privateKey) throws Exception {
         this.path = path;
         this.password = password;
-        ECKey key = new ECKey();
 
         NetworkParameters params = MainNetParams.get();
 
         DeterministicKey restoreKey = DeterministicKey.deserializeB58(privateKey, params);
         currentWallet = Wallet.fromWatchingKey(params, restoreKey, Script.ScriptType.P2PKH);
-        currentWallet.importKey(key);
 
         setWalletListeners();
         saveWalletToFile();
@@ -337,9 +338,11 @@ public class BitcoinWalletHandler {
         });
     }
 
-    private void connectToNode(MethodCall call, MethodChannel.Result result) {
+    private void downloadBlockChain(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
+                shutDownWallet(true);
+
                 String host = "94.75.124.54"; // FIXME get host from call
                 int port = 8333;
 
@@ -364,7 +367,7 @@ public class BitcoinWalletHandler {
                 chain.addWallet(currentWallet);
                 peerGroup.addWallet(currentWallet);
 
-                DownloadProgressTracker tracker = new DownloadProgressTracker() {
+                tracker = new DownloadProgressTracker() {
                     @Override
                     protected void startDownload(int blocks) {
                         ByteBuffer buffer = ByteBuffer.allocateDirect(4);
@@ -379,7 +382,7 @@ public class BitcoinWalletHandler {
                         buffer.putInt(SYNCING_IN_PROGRESS);
                         buffer.putInt((int) pct);
                         buffer.putInt(blocksSoFar);
-                        
+
                         mainHandler.post(() -> progressChannel.send(buffer));
                     }
 
@@ -404,7 +407,11 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void getTransactions(MethodCall call, MethodChannel.Result result) {
+    private void connectToNode(MethodCall call, MethodChannel.Result result) {
+        downloadBlockChain(call, result);
+    }
+
+    private void getTransactions(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             List<Transaction> transactionList = currentWallet.getTransactionsByTime();
             ArrayList<Map<String, String>> transactionInfo = new ArrayList<>();
@@ -452,42 +459,35 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void countOfTransactions(MethodCall call, MethodChannel.Result result) {
+    private void countOfTransactions(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             List<Transaction> transactionList = currentWallet.getTransactionsByTime();
             mainHandler.post(() -> result.success(transactionList.size()));
         });
     }
 
-    public void refresh(MethodCall call, MethodChannel.Result result) {
-        AsyncTask.execute(() -> {
-            try {
-                
-                mainHandler.post(() -> result.success(null));
-            } catch (Exception e) {
-                mainHandler.post(() -> result.error("CONNECTION_ERROR", e.getMessage(), null));
-            }
-        });
+    private void refresh(MethodCall call, MethodChannel.Result result) {
+        downloadBlockChain(call, result);
     }
 
-    public void getFileName(MethodCall call, MethodChannel.Result result) {
+    private void getFileName(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             File file = new File(path);
             mainHandler.post(() -> result.success(file.getPath()));
         });
     }
 
-    public void getName(MethodCall call, MethodChannel.Result result) {
+    private void getName(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             File file = new File(path);
             mainHandler.post(() -> result.success(file.getName()));
         });
     }
 
-    public void close(MethodCall call, MethodChannel.Result result) {
+    private void close(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
-                shutDownWallet();
+                shutDownWallet(false);
                 mainHandler.post(() -> result.success(null));
             } catch (Exception e) {
                 mainHandler.post(() -> result.error("IO_ERROR", e.getMessage(), null));
@@ -495,13 +495,13 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void isConnected(MethodCall call, MethodChannel.Result result) {
+    private void isConnected(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             mainHandler.post(() -> result.success(isConnected));
         });
     }
 
-    public void createTransaction(MethodCall call, MethodChannel.Result result) {
+    private void createTransaction(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
                 NetworkParameters params = MainNetParams.get();
@@ -519,14 +519,14 @@ public class BitcoinWalletHandler {
                 }
 
                 request.feePerKb = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE;
-                request.signInputs = true;
                 currentWallet.completeTx(request);
 
                 Transaction tx = request.tx;
                 HashMap<String, String> hashMap = new HashMap<>();
+                long fee = tx.getFee().value;
 
-                hashMap.put("amount", String.valueOf(Math.abs(tx.getValue(currentWallet).value) - tx.getFee().value));
-                hashMap.put("fee", String.valueOf(tx.getFee().value));
+                hashMap.put("amount", String.valueOf(Math.abs(tx.getValue(currentWallet).value) - fee));
+                hashMap.put("fee", String.valueOf(fee));
                 hashMap.put("hash", tx.getTxId().toString());
 
                 mainHandler.post(() -> result.success(hashMap));
@@ -536,7 +536,7 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void commitTransaction(MethodCall call, MethodChannel.Result result) {
+    private void commitTransaction(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
                 currentWallet.commitTx(request.tx);
@@ -554,20 +554,6 @@ public class BitcoinWalletHandler {
                         mainHandler.post(() -> result.error("COMMIT_TX_ERROR", t.getMessage(), null));
                     }
                 }, MoreExecutors.directExecutor());
-
-                //Wallet.SendResult sendResult = currentWallet.sendCoins(request);
-
-                /*Futures.addCallback(sendResult.broadcastComplete, new FutureCallback<Transaction>() {
-                    @Override
-                    public void onSuccess(@Nullable Transaction tx) {
-                        mainHandler.post(() -> result.success(null));
-                    }
-
-                    @Override
-                    public void onFailure(Throwable t) {
-                        mainHandler.post(() -> result.error("COMMIT_TX_ERROR", t.getMessage(), null));
-                    }
-                }, MoreExecutors.directExecutor());*/
             } catch (Exception e) {
                 mainHandler.post(() -> result.error("COMMIT_TX_ERROR", e.getMessage(), null));
             }
