@@ -4,12 +4,18 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
+
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Block;
 import org.bitcoinj.core.BlockChain;
 import org.bitcoinj.core.Coin;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.FilteredBlock;
+import org.bitcoinj.core.LegacyAddress;
 import org.bitcoinj.core.NetworkParameters;
 import org.bitcoinj.core.Peer;
 import org.bitcoinj.core.PeerAddress;
@@ -21,6 +27,7 @@ import org.bitcoinj.core.listeners.DownloadProgressTracker;
 import org.bitcoinj.core.listeners.OnTransactionBroadcastListener;
 import org.bitcoinj.core.listeners.PeerConnectedEventListener;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.crypto.KeyCrypter;
 import org.bitcoinj.net.BlockingClient;
 import org.bitcoinj.net.BlockingClientManager;
 import org.bitcoinj.params.MainNetParams;
@@ -30,10 +37,13 @@ import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.MemoryBlockStore;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicSeed;
+import org.bitcoinj.wallet.SendRequest;
 import org.bitcoinj.wallet.Wallet;
 import org.bitcoinj.wallet.listeners.WalletCoinsReceivedEventListener;
+import org.bouncycastle.crypto.params.KeyParameter;
 import org.bouncycastle.util.StreamParser;
 import org.bouncycastle.util.StreamParsingException;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -71,8 +81,11 @@ public class BitcoinWalletHandler {
     private BlockChain chain;
     private SPVBlockStore blockStore;
     private Wallet currentWallet;
+    private SendRequest request;
+    private DownloadProgressTracker tracker;
     private String path;
     private String password;
+    private boolean isConnected = false;
     private BasicMessageChannel<ByteBuffer> progressChannel;
     private BasicMessageChannel<ByteBuffer> balanceChannel;
     private Handler mainHandler = new Handler(Looper.getMainLooper());
@@ -85,7 +98,7 @@ public class BitcoinWalletHandler {
         this.balanceChannel = balanceChannel;
     }
 
-    public void setWalletListeners() {
+    private void setWalletListeners() {
         AsyncTask.execute(() -> {
             if (currentWallet != null) {
                 currentWallet.addCoinsReceivedEventListener((wallet, tx, prevBalance, newBalance) -> {
@@ -105,7 +118,7 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void saveWalletToFile() throws Exception{
+    private void saveWalletToFile() throws Exception{
         File file = new File(path);
 
         currentWallet.encrypt(password);
@@ -113,7 +126,7 @@ public class BitcoinWalletHandler {
         currentWallet.decrypt(password);
     }
 
-    public void shutDownWallet() throws Exception {
+    private void shutDownWallet(boolean isNeedToRefresh) throws Exception {
         if (peerGroup != null && peerGroup.isRunning()) {
             peerGroup.stop();
         }
@@ -122,24 +135,32 @@ public class BitcoinWalletHandler {
             File file = new File(path);
             currentWallet.encrypt(password);
             currentWallet.saveToFile(file);
+            if (isNeedToRefresh) {
+                currentWallet.decrypt(password);
+            }
         }
 
         if (blockStore != null) {
             blockStore.close();
         }
 
+        isConnected = false;
+
         peerGroup = null;
         chain = null;
         blockStore = null;
-        currentWallet = null;
+        tracker = null;
+        if (!isNeedToRefresh) {
+            currentWallet = null;
+        }
     }
 
-    public void installShutDownHook() {
+    private void installShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 try {
-                    shutDownWallet();
+                    shutDownWallet(false);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -156,8 +177,9 @@ public class BitcoinWalletHandler {
         currentWallet = Wallet.createDeterministic(params, Script.ScriptType.P2PKH);
 
         setWalletListeners();
-
         saveWalletToFile();
+        installShutDownHook();
+
         return true;
     }
 
@@ -171,6 +193,8 @@ public class BitcoinWalletHandler {
         currentWallet.decrypt(password);
 
         setWalletListeners();
+        installShutDownHook();
+
         return true;
     }
 
@@ -186,8 +210,9 @@ public class BitcoinWalletHandler {
         currentWallet = Wallet.fromSeed(params, deterministicSeed, Script.ScriptType.P2PKH);
 
         setWalletListeners();
-
         saveWalletToFile();
+        installShutDownHook();
+
         return true;
     }
 
@@ -201,53 +226,63 @@ public class BitcoinWalletHandler {
         currentWallet = Wallet.fromWatchingKey(params, restoreKey, Script.ScriptType.P2PKH);
 
         setWalletListeners();
-
         saveWalletToFile();
+        installShutDownHook();
+
         return true;
     }
 
     public void handle(MethodCall call, MethodChannel.Result result) {
         try {
             switch (call.method) {
-            case "getAddress":
-                getAddress(call, result);
-                break;
-            case "getUnlockedBalance":
-                getUnlockedBalance(call, result);
-                break;
-            case "getFullBalance":
-                getFullBalance(call, result);
-                break;
-            case "getSeed":
-                getSeed(call, result);
-                break;
-            case "getPrivateKey":
-                getPrivateKey(call, result);
-                break;
-            case "connectToNode":
-                connectToNode(call, result);
-                break;
-            case "getTransactions":
-                getTransactions(call, result);
-                break;
-            case "countOfTransactions":
-                countOfTransactions(call, result);
-                break;
-            case "refresh":
-                refresh(call, result);
-                break;
-            case "getFileName":
-                getFileName(call, result);
-                break;
-            case "getName":
-                getName(call, result);
-                break;
-            case "close":
-                close(call, result);
-                break;
-            case "getNodeHeight":
-                getNodeHeight(call, result);
-                break;
+                case "getAddress":
+                    getAddress(call, result);
+                    break;
+                case "getUnlockedBalance":
+                    getUnlockedBalance(call, result);
+                    break;
+                case "getFullBalance":
+                    getFullBalance(call, result);
+                    break;
+                case "getSeed":
+                    getSeed(call, result);
+                    break;
+                case "getPrivateKey":
+                    getPrivateKey(call, result);
+                    break;
+                case "connectToNode":
+                    connectToNode(call, result);
+                    break;
+                case "getTransactions":
+                    getTransactions(call, result);
+                    break;
+                case "countOfTransactions":
+                    countOfTransactions(call, result);
+                    break;
+                case "refresh":
+                    refresh(call, result);
+                    break;
+                case "getFileName":
+                    getFileName(call, result);
+                    break;
+                case "getName":
+                    getName(call, result);
+                    break;
+                case "close":
+                    close(call, result);
+                    break;
+                case "getNodeHeight":
+                    getNodeHeight(call, result);
+                    break;
+                case "isConnected":
+                    isConnected(call, result);
+                    break;
+                case "createTransaction":
+                    createTransaction(call, result);
+                    break;
+                case "commitTransaction":
+                    commitTransaction(call, result);
+                    break;
             default:
                 result.notImplemented();
             }
@@ -303,9 +338,11 @@ public class BitcoinWalletHandler {
         });
     }
 
-    private void connectToNode(MethodCall call, MethodChannel.Result result) {
+    private void downloadBlockChain(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
+                shutDownWallet(true);
+
                 String host = "94.75.124.54"; // FIXME get host from call
                 int port = 8333;
 
@@ -330,7 +367,7 @@ public class BitcoinWalletHandler {
                 chain.addWallet(currentWallet);
                 peerGroup.addWallet(currentWallet);
 
-                DownloadProgressTracker tracker = new DownloadProgressTracker() {
+                tracker = new DownloadProgressTracker() {
                     @Override
                     protected void startDownload(int blocks) {
                         ByteBuffer buffer = ByteBuffer.allocateDirect(4);
@@ -345,7 +382,7 @@ public class BitcoinWalletHandler {
                         buffer.putInt(SYNCING_IN_PROGRESS);
                         buffer.putInt((int) pct);
                         buffer.putInt(blocksSoFar);
-                        
+
                         mainHandler.post(() -> progressChannel.send(buffer));
                     }
 
@@ -354,12 +391,13 @@ public class BitcoinWalletHandler {
                         ByteBuffer buffer = ByteBuffer.allocateDirect(4);
                         buffer.putInt(SYNCING_FINISHED);
 
+                        isConnected = true;
+
                         mainHandler.post(() -> progressChannel.send(buffer));
                     }
                 };
 
                 peerGroup.start();
-                installShutDownHook();
                 peerGroup.startBlockChainDownload(tracker);
 
                 mainHandler.post(() -> result.success(null));
@@ -369,7 +407,11 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void getTransactions(MethodCall call, MethodChannel.Result result) {
+    private void connectToNode(MethodCall call, MethodChannel.Result result) {
+        downloadBlockChain(call, result);
+    }
+
+    private void getTransactions(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             List<Transaction> transactionList = currentWallet.getTransactionsByTime();
             ArrayList<Map<String, String>> transactionInfo = new ArrayList<>();
@@ -404,7 +446,7 @@ public class BitcoinWalletHandler {
                 hashMap.put("isPending", String.valueOf(isPending));
 
                 hashMap.put("amount", String.valueOf(amount));
-                hashMap.put("accountIndex", ""); // FIXME
+                hashMap.put("accountIndex", "");
 
                 transactionInfo.add(hashMap);
             }
@@ -417,45 +459,103 @@ public class BitcoinWalletHandler {
         });
     }
 
-    public void countOfTransactions(MethodCall call, MethodChannel.Result result) {
+    private void countOfTransactions(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             List<Transaction> transactionList = currentWallet.getTransactionsByTime();
             mainHandler.post(() -> result.success(transactionList.size()));
         });
     }
 
-    public void refresh(MethodCall call, MethodChannel.Result result) {
-        AsyncTask.execute(() -> {
-            try {
-                
-                mainHandler.post(() -> result.success(null));
-            } catch (Exception e) {
-                mainHandler.post(() -> result.error("CONNECTION_ERROR", e.getMessage(), null));
-            }
-        });
+    private void refresh(MethodCall call, MethodChannel.Result result) {
+        downloadBlockChain(call, result);
     }
 
-    public void getFileName(MethodCall call, MethodChannel.Result result) {
+    private void getFileName(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             File file = new File(path);
             mainHandler.post(() -> result.success(file.getPath()));
         });
     }
 
-    public void getName(MethodCall call, MethodChannel.Result result) {
+    private void getName(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             File file = new File(path);
             mainHandler.post(() -> result.success(file.getName()));
         });
     }
 
-    public void close(MethodCall call, MethodChannel.Result result) {
+    private void close(MethodCall call, MethodChannel.Result result) {
         AsyncTask.execute(() -> {
             try {
-                shutDownWallet();
+                shutDownWallet(false);
                 mainHandler.post(() -> result.success(null));
             } catch (Exception e) {
                 mainHandler.post(() -> result.error("IO_ERROR", e.getMessage(), null));
+            }
+        });
+    }
+
+    private void isConnected(MethodCall call, MethodChannel.Result result) {
+        AsyncTask.execute(() -> {
+            mainHandler.post(() -> result.success(isConnected));
+        });
+    }
+
+    private void createTransaction(MethodCall call, MethodChannel.Result result) {
+        AsyncTask.execute(() -> {
+            try {
+                NetworkParameters params = MainNetParams.get();
+
+                String value = call.argument("amount");
+                LegacyAddress address = LegacyAddress.fromBase58(params, call.argument("address"));
+
+                Coin amount;
+
+                if (value.equals("ALL")) {
+                    request = SendRequest.emptyWallet(address);
+                } else {
+                    amount = Coin.parseCoin(value);
+                    request = SendRequest.to(address, amount);
+                }
+
+                request.feePerKb = Transaction.REFERENCE_DEFAULT_MIN_TX_FEE;
+                currentWallet.completeTx(request);
+
+                Transaction tx = request.tx;
+                HashMap<String, String> hashMap = new HashMap<>();
+                long fee = tx.getFee().value;
+
+                hashMap.put("amount", String.valueOf(Math.abs(tx.getValue(currentWallet).value) - fee));
+                hashMap.put("fee", String.valueOf(fee));
+                hashMap.put("hash", tx.getTxId().toString());
+
+                mainHandler.post(() -> result.success(hashMap));
+            } catch (Exception e) {
+                mainHandler.post(() -> result.error("CREATE_TX_ERROR", e.getMessage(), null));
+            }
+        });
+    }
+
+    private void commitTransaction(MethodCall call, MethodChannel.Result result) {
+        AsyncTask.execute(() -> {
+            try {
+                currentWallet.commitTx(request.tx);
+
+                saveWalletToFile();
+
+                Futures.addCallback(peerGroup.broadcastTransaction(request.tx).future(), new FutureCallback<Transaction>() {
+                    @Override
+                    public void onSuccess(@NullableDecl Transaction tx) {
+                        mainHandler.post(() -> result.success(null));
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        mainHandler.post(() -> result.error("COMMIT_TX_ERROR", t.getMessage(), null));
+                    }
+                }, MoreExecutors.directExecutor());
+            } catch (Exception e) {
+                mainHandler.post(() -> result.error("COMMIT_TX_ERROR", e.getMessage(), null));
             }
         });
     }

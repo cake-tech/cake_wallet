@@ -39,6 +39,9 @@ class S implements WidgetsLocalizations {
   String get authentication => "Authentication";
   String get available_balance => "Available Balance";
   String get biometric_auth_reason => "Scan your fingerprint to authenticate";
+  String get btc_available_balance => "BTC Available Balance";
+  String get btc_full_balance => "BTC Full Balance";
+  String get btc_hidden => "BTC Hidden";
   String get cancel => "Cancel";
   String get change => "Change";
   String get change_currency => "Change Currency";
@@ -64,6 +67,7 @@ class S implements WidgetsLocalizations {
   String get error_text_account_name => "Account name can only contain letters, numbers\nand must be between 1 and 15 characters long";
   String get error_text_address => "Wallet address must correspond to the type\nof cryptocurrency";
   String get error_text_amount => "Amount can only contain numbers";
+  String get error_text_btc => "BTC value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12";
   String get error_text_contact_name => "Contact name can't contain ` , ' \" symbols\nand must be between 1 and 32 characters long";
   String get error_text_crypto_currency => "The number of fraction digits\nmust be less or equal to 12";
   String get error_text_fiat => "Value of amount can't exceed available balance.\nThe number of fraction digits must be less or equal to 2";
@@ -157,13 +161,15 @@ class S implements WidgetsLocalizations {
   String get seed_share => "Share seed";
   String get seed_title => "Seed";
   String get send => "Send";
+  String get send_bitcoin_address => "Bitcoin address";
   String get send_creating_transaction => "Creating transaction";
   String get send_error_currency => "Currency can only contain numbers";
   String get send_error_minimum_value => "Minimum value of amount is 0.01";
   String get send_estimated_fee => "Estimated fee:";
   String get send_monero_address => "Monero address";
   String get send_payment_id => "Payment ID (optional)";
-  String get send_title => "Send Monero";
+  String get send_title_bitcoin => "Send Bitcoin";
+  String get send_title_monero => "Send Monero";
   String get send_xmr => "Send XMR";
   String get send_your_wallet => "Your wallet";
   String get sending => "Sending";
@@ -378,6 +384,8 @@ class $de extends S {
   @override
   String get trade_state_trading => "Handel";
   @override
+  String get send_title_bitcoin => "Senden Sie Bitcoin";
+  @override
   String get error_text_address => "Die Walletadresse muss dem Typ entsprechen\nder Kryptowährung";
   @override
   String get send_your_wallet => "Deine Geldbörse";
@@ -435,6 +443,8 @@ class $de extends S {
   String get create_new => "Erstelle neu";
   @override
   String get trade_details_fetching => "Holen";
+  @override
+  String get btc_full_balance => "BTC Volle Balance";
   @override
   String get confirm_sending => "Bestätigen Sie das Senden";
   @override
@@ -519,6 +529,10 @@ class $de extends S {
   String get estimated => "Geschätzt";
   @override
   String get filters => "Filter";
+  @override
+  String get send_bitcoin_address => "Bitcoin-Adresse";
+  @override
+  String get btc_available_balance => "BTC verfügbares Guthaben";
   @override
   String get settings_current_node => "Aktueller Knoten";
   @override
@@ -618,6 +632,8 @@ class $de extends S {
   @override
   String get save => "speichern";
   @override
+  String get btc_hidden => "BTC versteckt";
+  @override
   String get seed_language_english => "Englisch";
   @override
   String get login => "Einloggen";
@@ -688,6 +704,8 @@ class $de extends S {
   @override
   String get spend_key_private => "Schlüssel ausgeben (geheim)";
   @override
+  String get send_title_monero => "Senden Sie Monero";
+  @override
   String get settings_only_trades => "Nur Trades";
   @override
   String get trade_state_to_be_created => "Geschaffen werden";
@@ -715,8 +733,6 @@ class $de extends S {
   String get trade_state_confirming => "Bestätigung";
   @override
   String get send => "Senden";
-  @override
-  String get send_title => "Senden Sie Monero";
   @override
   String get error_text_keys => "Walletschlüssel können nur 64 hexadezimale Zeichen enthalten";
   @override
@@ -809,6 +825,8 @@ class $de extends S {
   String get first_wallet_text => "tolle Brieftasche\nzum Monero";
   @override
   String get settings_trades => "Handel";
+  @override
+  String get error_text_btc => "Der BTC-Wert kann das verfügbare Guthaben nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 12 sein";
   @override
   String get account => "Konto";
   @override
@@ -946,6 +964,8 @@ class $hi extends S {
   @override
   String get trade_state_trading => "व्यापार";
   @override
+  String get send_title_bitcoin => "संदेश Bitcoin";
+  @override
   String get error_text_address => "वॉलेट पता प्रकार के अनुरूप होना चाहिए\nक्रिप्टोकरेंसी का";
   @override
   String get send_your_wallet => "आपका बटुआ";
@@ -1003,6 +1023,8 @@ class $hi extends S {
   String get create_new => "नया बनाओ";
   @override
   String get trade_details_fetching => "ला रहा है";
+  @override
+  String get btc_full_balance => "BTC पूर्ण संतुलन";
   @override
   String get confirm_sending => "भेजने की पुष्टि करें";
   @override
@@ -1087,6 +1109,10 @@ class $hi extends S {
   String get estimated => "अनुमानित";
   @override
   String get filters => "फिल्टर";
+  @override
+  String get send_bitcoin_address => "बिटकॉइन का पता";
+  @override
+  String get btc_available_balance => "BTC उपलब्ध शेष राशि";
   @override
   String get settings_current_node => "वर्तमान नोड";
   @override
@@ -1186,6 +1212,8 @@ class $hi extends S {
   @override
   String get save => "बचाना";
   @override
+  String get btc_hidden => "BTC छिपा हुआ";
+  @override
   String get seed_language_english => "अंग्रेज़ी";
   @override
   String get login => "लॉग इन करें";
@@ -1256,6 +1284,8 @@ class $hi extends S {
   @override
   String get spend_key_private => "खर्च करना (निजी)";
   @override
+  String get send_title_monero => "संदेश Monero";
+  @override
   String get settings_only_trades => "केवल ट्रेड करता है";
   @override
   String get trade_state_to_be_created => "बनाए जाने के लिए";
@@ -1283,8 +1313,6 @@ class $hi extends S {
   String get trade_state_confirming => "पुष्टि";
   @override
   String get send => "संदेश";
-  @override
-  String get send_title => "संदेश Monero";
   @override
   String get error_text_keys => "वॉलेट कीज़ में हेक्स में केवल 64 वर्ण हो सकते हैं";
   @override
@@ -1377,6 +1405,8 @@ class $hi extends S {
   String get first_wallet_text => "बहुत बढ़िया बटुआ\nके लिये Monero";
   @override
   String get settings_trades => "ट्रेडों";
+  @override
+  String get error_text_btc => "बबिटकॉइन मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता है.\nअंश अंकों की संख्या 12 से कम या इसके बराबर होनी चाहिए";
   @override
   String get account => "लेखा";
   @override
@@ -1514,6 +1544,8 @@ class $ru extends S {
   @override
   String get trade_state_trading => "Совершение сделки";
   @override
+  String get send_title_bitcoin => "Отправить Bitcoin";
+  @override
   String get error_text_address => "Адрес кошелька должен соответствовать типу\nкриптовалюты";
   @override
   String get send_your_wallet => "Ваш кошелёк";
@@ -1571,6 +1603,8 @@ class $ru extends S {
   String get create_new => "Создать новый";
   @override
   String get trade_details_fetching => "Получение";
+  @override
+  String get btc_full_balance => "Весь BTC баланс";
   @override
   String get confirm_sending => "Подтвердить отправку";
   @override
@@ -1655,6 +1689,10 @@ class $ru extends S {
   String get estimated => "Примерно";
   @override
   String get filters => "Фильтры";
+  @override
+  String get send_bitcoin_address => "Bitcoin адрес";
+  @override
+  String get btc_available_balance => "Доступный BTC баланс";
   @override
   String get settings_current_node => "Текущая нода";
   @override
@@ -1754,6 +1792,8 @@ class $ru extends S {
   @override
   String get save => "Сохранить";
   @override
+  String get btc_hidden => "BTC Скрыто";
+  @override
   String get seed_language_english => "Английский";
   @override
   String get login => "Логин";
@@ -1824,6 +1864,8 @@ class $ru extends S {
   @override
   String get spend_key_private => "Приватный ключ траты";
   @override
+  String get send_title_monero => "Отправить Monero";
+  @override
   String get settings_only_trades => "Сделки";
   @override
   String get trade_state_to_be_created => "Будет создана";
@@ -1851,8 +1893,6 @@ class $ru extends S {
   String get trade_state_confirming => "Подтверждение";
   @override
   String get send => "Отправить";
-  @override
-  String get send_title => "Отправить Monero";
   @override
   String get error_text_keys => "Ключи кошелька могут содержать только 64 символа в hex";
   @override
@@ -1945,6 +1985,8 @@ class $ru extends S {
   String get first_wallet_text => "В самом удобном кошельке для Monero";
   @override
   String get settings_trades => "Сделки";
+  @override
+  String get error_text_btc => "Значение BTC не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 12";
   @override
   String get account => "Аккаунт";
   @override
@@ -2082,6 +2124,8 @@ class $ko extends S {
   @override
   String get trade_state_trading => "거래";
   @override
+  String get send_title_bitcoin => "비트 코인 보내기";
+  @override
   String get error_text_address => "지갑 주소는 유형과 일치해야합니다\n암호 화폐";
   @override
   String get send_your_wallet => "지갑";
@@ -2139,6 +2183,8 @@ class $ko extends S {
   String get create_new => "새로 만들기";
   @override
   String get trade_details_fetching => "가져 오는 중";
+  @override
+  String get btc_full_balance => "BTC 풀 밸런스";
   @override
   String get confirm_sending => "전송 확인";
   @override
@@ -2223,6 +2269,10 @@ class $ko extends S {
   String get estimated => "예상";
   @override
   String get filters => "필터";
+  @override
+  String get send_bitcoin_address => "비트 코인 주소";
+  @override
+  String get btc_available_balance => "BTC 사용 가능한 잔액";
   @override
   String get settings_current_node => "현재 노드";
   @override
@@ -2322,6 +2372,8 @@ class $ko extends S {
   @override
   String get save => "구하다";
   @override
+  String get btc_hidden => "BTC 숨김";
+  @override
   String get seed_language_english => "영어";
   @override
   String get login => "로그인";
@@ -2392,6 +2444,8 @@ class $ko extends S {
   @override
   String get spend_key_private => "지출 키 (은밀한)";
   @override
+  String get send_title_monero => "모네로 보내기";
+  @override
   String get settings_only_trades => "거래 만";
   @override
   String get trade_state_to_be_created => "만들려면";
@@ -2419,8 +2473,6 @@ class $ko extends S {
   String get trade_state_confirming => "확인 중";
   @override
   String get send => "보내다";
-  @override
-  String get send_title => "모네로 보내기";
   @override
   String get error_text_keys => "지갑 키는 16 진수로 64 자만 포함 할 수 있습니다";
   @override
@@ -2513,6 +2565,8 @@ class $ko extends S {
   String get first_wallet_text => "멋진 지갑\n에 대한 Monero";
   @override
   String get settings_trades => "거래";
+  @override
+  String get error_text_btc => "BTC 값은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 12 이하 여야합니다";
   @override
   String get account => "계정";
   @override
@@ -2650,6 +2704,8 @@ class $pt extends S {
   @override
   String get trade_state_trading => "Em andamento";
   @override
+  String get send_title_bitcoin => "Enviar Bitcoin";
+  @override
   String get error_text_address => "O endereço da carteira deve corresponder à\ncriptomoeda selecionada";
   @override
   String get send_your_wallet => "Sua carteira";
@@ -2707,6 +2763,8 @@ class $pt extends S {
   String get create_new => "Criar carteira";
   @override
   String get trade_details_fetching => "Buscando";
+  @override
+  String get btc_full_balance => "Saldo BTC total";
   @override
   String get confirm_sending => "Confirmar o envio";
   @override
@@ -2791,6 +2849,10 @@ class $pt extends S {
   String get estimated => "Estimado";
   @override
   String get filters => "Filtros";
+  @override
+  String get send_bitcoin_address => "Endereço Bitcoin";
+  @override
+  String get btc_available_balance => "Saldo BTC disponível";
   @override
   String get settings_current_node => "Nó atual";
   @override
@@ -2890,6 +2952,8 @@ class $pt extends S {
   @override
   String get save => "Salvar";
   @override
+  String get btc_hidden => "Esconder saldo";
+  @override
   String get seed_language_english => "Inglesa";
   @override
   String get login => "Login";
@@ -2960,6 +3024,8 @@ class $pt extends S {
   @override
   String get spend_key_private => "Chave de gastos (privada)";
   @override
+  String get send_title_monero => "Enviar Monero";
+  @override
   String get settings_only_trades => "Somente trocas";
   @override
   String get trade_state_to_be_created => "A ser criada";
@@ -2987,8 +3053,6 @@ class $pt extends S {
   String get trade_state_confirming => "Confirmando";
   @override
   String get send => "Enviar";
-  @override
-  String get send_title => "Enviar Monero";
   @override
   String get error_text_keys => "As chaves da carteira podem conter apenas 64 caracteres em hexadecimal";
   @override
@@ -3081,6 +3145,8 @@ class $pt extends S {
   String get first_wallet_text => "Uma fantástica carteira\npara Monero";
   @override
   String get settings_trades => "Trocas";
+  @override
+  String get error_text_btc => "A quantia em BTC não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12";
   @override
   String get account => "Conta";
   @override
@@ -3218,6 +3284,8 @@ class $uk extends S {
   @override
   String get trade_state_trading => "Виконання операції";
   @override
+  String get send_title_bitcoin => "Відправити Bitcoin";
+  @override
   String get error_text_address => "Адреса гаманця повинна відповідати типу\nкриптовалюти";
   @override
   String get send_your_wallet => "Ваш гаманець";
@@ -3275,6 +3343,8 @@ class $uk extends S {
   String get create_new => "Створити новий";
   @override
   String get trade_details_fetching => "Отримання";
+  @override
+  String get btc_full_balance => "Весь BTC баланс";
   @override
   String get confirm_sending => "Підтвердити відправлення";
   @override
@@ -3359,6 +3429,10 @@ class $uk extends S {
   String get estimated => "Приблизно ";
   @override
   String get filters => "Фільтри";
+  @override
+  String get send_bitcoin_address => "Bitcoin адреса";
+  @override
+  String get btc_available_balance => "Доступний BTC баланс";
   @override
   String get settings_current_node => "Поточний вузол";
   @override
@@ -3458,6 +3532,8 @@ class $uk extends S {
   @override
   String get save => "Зберегти";
   @override
+  String get btc_hidden => "BTC Приховано";
+  @override
   String get seed_language_english => "Англійська";
   @override
   String get login => "Логін";
@@ -3528,6 +3604,8 @@ class $uk extends S {
   @override
   String get spend_key_private => "Приватний ключ витрати";
   @override
+  String get send_title_monero => "Відправити Monero";
+  @override
   String get settings_only_trades => "Операції";
   @override
   String get trade_state_to_be_created => "Буде створена";
@@ -3555,8 +3633,6 @@ class $uk extends S {
   String get trade_state_confirming => "Підтвердження";
   @override
   String get send => "Відправити";
-  @override
-  String get send_title => "Відправити Monero";
   @override
   String get error_text_keys => "Ключі гаманця можуть містити тільки 64 символів в hex";
   @override
@@ -3649,6 +3725,8 @@ class $uk extends S {
   String get first_wallet_text => "В самому зручному гаманці для Monero";
   @override
   String get settings_trades => "Операції";
+  @override
+  String get error_text_btc => "Значення BTC не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12";
   @override
   String get account => "Акаунт";
   @override
@@ -3786,6 +3864,8 @@ class $ja extends S {
   @override
   String get trade_state_trading => "トレーディング";
   @override
+  String get send_title_bitcoin => "Bitcoinを送信";
+  @override
   String get error_text_address => "ウォレットアドレスは、\n暗号通貨";
   @override
   String get send_your_wallet => "あなたの財布";
@@ -3843,6 +3923,8 @@ class $ja extends S {
   String get create_new => "新しく作る";
   @override
   String get trade_details_fetching => "フェッチング";
+  @override
+  String get btc_full_balance => "BTCフルバランス";
   @override
   String get confirm_sending => "送信を確認";
   @override
@@ -3927,6 +4009,10 @@ class $ja extends S {
   String get estimated => "推定";
   @override
   String get filters => "フィルター";
+  @override
+  String get send_bitcoin_address => "Bitcoin 住所";
+  @override
+  String get btc_available_balance => "BTC利用可能残高";
   @override
   String get settings_current_node => "現在のノード";
   @override
@@ -4026,6 +4112,8 @@ class $ja extends S {
   @override
   String get save => "セーブ";
   @override
+  String get btc_hidden => "BTC非表示";
+  @override
   String get seed_language_english => "英語";
   @override
   String get login => "ログイン";
@@ -4096,6 +4184,8 @@ class $ja extends S {
   @override
   String get spend_key_private => "キーを使う (プライベート)";
   @override
+  String get send_title_monero => "Moneroを送信";
+  @override
   String get settings_only_trades => "取引のみ";
   @override
   String get trade_state_to_be_created => "作成される";
@@ -4123,8 +4213,6 @@ class $ja extends S {
   String get trade_state_confirming => "確認中";
   @override
   String get send => "送る";
-  @override
-  String get send_title => "Moneroを送信";
   @override
   String get error_text_keys => "ウォレットキーには、16進数で64文字しか含めることができません";
   @override
@@ -4217,6 +4305,8 @@ class $ja extends S {
   String get first_wallet_text => "素晴らしい財布\nために Monero";
   @override
   String get settings_trades => "取引";
+  @override
+  String get error_text_btc => "BTC値は利用可能な残高を超えることはできません.\n小数桁数は12以下でなければなりません";
   @override
   String get account => "アカウント";
   @override
@@ -4358,6 +4448,8 @@ class $pl extends S {
   @override
   String get trade_state_trading => "Handlowy";
   @override
+  String get send_title_bitcoin => "Wyślij Bitcoin";
+  @override
   String get error_text_address => "Wallet address must correspond to the type\nof cryptocurrency";
   @override
   String get send_your_wallet => "Twój portfel";
@@ -4415,6 +4507,8 @@ class $pl extends S {
   String get create_new => "Tworzyć nowe";
   @override
   String get trade_details_fetching => "Ujmujący";
+  @override
+  String get btc_full_balance => "BTC Pełna równowaga";
   @override
   String get confirm_sending => "Potwierdź wysłanie";
   @override
@@ -4499,6 +4593,10 @@ class $pl extends S {
   String get estimated => "Oszacowano";
   @override
   String get filters => "Filtry";
+  @override
+  String get send_bitcoin_address => "Adres Bitcoin";
+  @override
+  String get btc_available_balance => "BTC Dostępne saldo";
   @override
   String get settings_current_node => "Bieżący węzeł";
   @override
@@ -4598,6 +4696,8 @@ class $pl extends S {
   @override
   String get save => "Zapisać";
   @override
+  String get btc_hidden => "BTC Ukryty";
+  @override
   String get seed_language_english => "Angielski";
   @override
   String get login => "Zaloguj Się";
@@ -4668,6 +4768,8 @@ class $pl extends S {
   @override
   String get spend_key_private => "Wydaj klucz (prywatny)";
   @override
+  String get send_title_monero => "Wyślij Monero";
+  @override
   String get settings_only_trades => "Tylko transakcje";
   @override
   String get trade_state_to_be_created => "Zostać stworzonym";
@@ -4695,8 +4797,6 @@ class $pl extends S {
   String get trade_state_confirming => "Potwierdzam";
   @override
   String get send => "Wysłać";
-  @override
-  String get send_title => "Wyślij Monero";
   @override
   String get error_text_keys => "Klucze portfela mogą zawierać tylko 64 znaki w systemie szesnastkowym";
   @override
@@ -4789,6 +4889,8 @@ class $pl extends S {
   String get first_wallet_text => "Niesamowity portfel\nfdla Monero";
   @override
   String get settings_trades => "Transakcje";
+  @override
+  String get error_text_btc => "Wartość BTC nie może przekraczać dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 12";
   @override
   String get account => "Konto";
   @override
@@ -4926,6 +5028,8 @@ class $es extends S {
   @override
   String get trade_state_trading => "Comercio";
   @override
+  String get send_title_bitcoin => "Enviar Bitcoin";
+  @override
   String get error_text_address => "La dirección de la billetera debe corresponder al tipo \nde criptomoneda";
   @override
   String get send_your_wallet => "Tu billetera";
@@ -4983,6 +5087,8 @@ class $es extends S {
   String get create_new => "Crear nuevo";
   @override
   String get trade_details_fetching => "Cargando";
+  @override
+  String get btc_full_balance => "BTC Saldo disponible";
   @override
   String get confirm_sending => "Confirmar envío";
   @override
@@ -5067,6 +5173,10 @@ class $es extends S {
   String get estimated => "Estimado";
   @override
   String get filters => "Filtros";
+  @override
+  String get send_bitcoin_address => "Dirección de Bitcoin";
+  @override
+  String get btc_available_balance => "BTC Available Balance";
   @override
   String get settings_current_node => "Nodo actual";
   @override
@@ -5166,6 +5276,8 @@ class $es extends S {
   @override
   String get save => "Salvar";
   @override
+  String get btc_hidden => "BTC Oculto";
+  @override
   String get seed_language_english => "Inglés";
   @override
   String get login => "Iniciar sesión";
@@ -5236,6 +5348,8 @@ class $es extends S {
   @override
   String get spend_key_private => "Spend clave (privado)";
   @override
+  String get send_title_monero => "Enviar Monero";
+  @override
   String get settings_only_trades => "Solo comercia";
   @override
   String get trade_state_to_be_created => "Ser creado";
@@ -5263,8 +5377,6 @@ class $es extends S {
   String get trade_state_confirming => "Confirmando";
   @override
   String get send => "Enviar";
-  @override
-  String get send_title => "Enviar Monero";
   @override
   String get error_text_keys => "Las llaves de billetera solo pueden contener 64 caracteres en hexadecimal";
   @override
@@ -5357,6 +5469,8 @@ class $es extends S {
   String get first_wallet_text => "Impresionante billetera\npara Monero";
   @override
   String get settings_trades => "Comercia";
+  @override
+  String get error_text_btc => "El valor BTC no puede exceder el saldo disponible.\nTEl número de dígitos de fracción debe ser menor o igual a 12";
   @override
   String get account => "Cuenta";
   @override
@@ -5494,6 +5608,8 @@ class $nl extends S {
   @override
   String get trade_state_trading => "Handel";
   @override
+  String get send_title_bitcoin => "Stuur Bitcoin";
+  @override
   String get error_text_address => "Portemonnee-adres moet overeenkomen met het type\nvan cryptocurrency";
   @override
   String get send_your_wallet => "Uw portemonnee";
@@ -5551,6 +5667,8 @@ class $nl extends S {
   String get create_new => "Maak nieuw";
   @override
   String get trade_details_fetching => "Ophalen";
+  @override
+  String get btc_full_balance => "BTC Volledig saldo";
   @override
   String get confirm_sending => "Bevestig verzending";
   @override
@@ -5635,6 +5753,10 @@ class $nl extends S {
   String get estimated => "Geschatte";
   @override
   String get filters => "Filters";
+  @override
+  String get send_bitcoin_address => "Bitcoin-adres";
+  @override
+  String get btc_available_balance => "BTC Beschikbaar saldo";
   @override
   String get settings_current_node => "Huidige knooppunt";
   @override
@@ -5734,6 +5856,8 @@ class $nl extends S {
   @override
   String get save => "Opslaan";
   @override
+  String get btc_hidden => "BTC Verborgen";
+  @override
   String get seed_language_english => "Engels";
   @override
   String get login => "Log in";
@@ -5804,6 +5928,8 @@ class $nl extends S {
   @override
   String get spend_key_private => "Sleutel uitgeven (privaat)";
   @override
+  String get send_title_monero => "Stuur Monero";
+  @override
   String get settings_only_trades => "Alleen handel";
   @override
   String get trade_state_to_be_created => "Om gecreëerd te worden";
@@ -5831,8 +5957,6 @@ class $nl extends S {
   String get trade_state_confirming => "Bevestiging";
   @override
   String get send => "Sturen";
-  @override
-  String get send_title => "Stuur Monero";
   @override
   String get error_text_keys => "Portefeuillesleutels kunnen maximaal 64 tekens bevatten in hexadecimale volgorde";
   @override
@@ -5925,6 +6049,8 @@ class $nl extends S {
   String get first_wallet_text => "Geweldige portemonnee\nfvoor Monero";
   @override
   String get settings_trades => "Trades";
+  @override
+  String get error_text_btc => "BTC-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12";
   @override
   String get account => "Account";
   @override
@@ -6062,6 +6188,8 @@ class $zh extends S {
   @override
   String get trade_state_trading => "贸易";
   @override
+  String get send_title_bitcoin => "發送比特幣";
+  @override
   String get error_text_address => "钱包地址必须与类型对应\n加密货币";
   @override
   String get send_your_wallet => "你的钱包";
@@ -6119,6 +6247,8 @@ class $zh extends S {
   String get create_new => "创建新的";
   @override
   String get trade_details_fetching => "正在取得";
+  @override
+  String get btc_full_balance => "BTC 全部余额";
   @override
   String get confirm_sending => "确认发送";
   @override
@@ -6203,6 +6333,10 @@ class $zh extends S {
   String get estimated => "估计的";
   @override
   String get filters => "筛选器";
+  @override
+  String get send_bitcoin_address => "比特幣地址";
+  @override
+  String get btc_available_balance => "BTC 可用余额 ";
   @override
   String get settings_current_node => "当前节点";
   @override
@@ -6302,6 +6436,8 @@ class $zh extends S {
   @override
   String get save => "保存";
   @override
+  String get btc_hidden => "BTC Hidden";
+  @override
   String get seed_language_english => "英語";
   @override
   String get login => "登录";
@@ -6372,6 +6508,8 @@ class $zh extends S {
   @override
   String get spend_key_private => "支出金钥 (私人的)";
   @override
+  String get send_title_monero => "发送门罗币";
+  @override
   String get settings_only_trades => "只交易";
   @override
   String get trade_state_to_be_created => "待创建";
@@ -6399,8 +6537,6 @@ class $zh extends S {
   String get trade_state_confirming => "确认中";
   @override
   String get send => "发送";
-  @override
-  String get send_title => "发送门罗币";
   @override
   String get error_text_keys => "钱包密钥只能包含16个字符的十六进制字符";
   @override
@@ -6493,6 +6629,8 @@ class $zh extends S {
   String get first_wallet_text => "很棒的钱包\n对于 Monero";
   @override
   String get settings_trades => "交易";
+  @override
+  String get error_text_btc => "BTC值不能超过可用余额.\n小数位数必须小于或等于12";
   @override
   String get account => "帐户";
   @override

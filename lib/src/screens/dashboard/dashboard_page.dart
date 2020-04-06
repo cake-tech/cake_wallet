@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:provider/provider.dart';
 import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/action_list/date_section_item.dart';
 import 'package:cake_wallet/src/stores/action_list/trade_list_item.dart';
 import 'package:cake_wallet/src/stores/action_list/transaction_list_item.dart';
+import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/date_section_raw.dart';
 import 'package:cake_wallet/src/screens/dashboard/trade_row.dart';
@@ -124,6 +126,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
     final actionListStore = Provider.of<ActionListStore>(context);
     final syncStore = Provider.of<SyncStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
+    final walletStore = Provider.of<WalletStore>(context);
     final transactionDateFormat = settingsStore.getCurrentDateFormat(
           formatUSA: "MMMM d, yyyy, HH:mm",
           formatDefault: "d MMMM yyyy, HH:mm");
@@ -231,7 +234,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                                                   .availableBalance)
                                           : savedDisplayMode;
 
-                                      return Text(displayMode.toString(),
+                                      return Text(_balanceDisplayModeToString(displayMode, walletStore.walletType),
                                           style: TextStyle(
                                               color: Palette.violet,
                                               fontSize: 16));
@@ -553,7 +556,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                   final formattedAmount =
                       savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'
-                          : transaction.amountFormatted(settingsStore.selectedWalletType);
+                          : transaction.amountFormatted(walletStore.walletType);
                   final formattedFiatAmount =
                       savedDisplayMode == BalanceDisplayMode.hiddenBalance
                           ? '---'
@@ -594,5 +597,32 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                 return Container();
               });
         });
+  }
+
+  String _balanceDisplayModeToString(BalanceDisplayMode mode, WalletType walletType) {
+    switch (walletType) {
+      case WalletType.monero:
+        switch (mode) {
+          case BalanceDisplayMode.availableBalance:
+            return S.current.xmr_available_balance;
+          case BalanceDisplayMode.fullBalance:
+            return S.current.xmr_full_balance;
+          case BalanceDisplayMode.hiddenBalance:
+            return S.current.xmr_hidden;
+        }
+        break;
+      case WalletType.bitcoin:
+        switch (mode) {
+          case BalanceDisplayMode.availableBalance:
+            return S.current.btc_available_balance;
+          case BalanceDisplayMode.fullBalance:
+            return S.current.btc_full_balance;
+          case BalanceDisplayMode.hiddenBalance:
+            return S.current.btc_hidden;
+        }
+        break;
+      case WalletType.none:
+        return "";
+    }
   }
 }

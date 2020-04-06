@@ -60,7 +60,7 @@ void onCurrentWalletChange(
     startUpdatingPrice(
       settingsStore: settingsStore,
       priceStore: priceStore,
-      currentCrypto: walletStore.type
+      walletStore: walletStore
     );
   });
 }

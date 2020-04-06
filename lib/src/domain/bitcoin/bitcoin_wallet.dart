@@ -16,6 +16,7 @@ import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_history.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_balance.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_transaction_creation_credentials.dart';
 
 class BitcoinWallet extends Wallet {
   BitcoinWallet({this.walletInfoSource, this.walletInfo}) {
@@ -159,9 +160,28 @@ class BitcoinWallet extends Wallet {
 
   @override
   Future<PendingTransaction> createTransaction(
-      TransactionCreationCredentials credentials) {
-    // TODO: implement createTransaction
-    return null;
+      TransactionCreationCredentials credentials) async {
+    final _credentials = credentials as BitcoinTransactionCreationCredentials;
+    final amount = _credentials.amount??'ALL';
+
+    final transactionDescription = await bitcoinWalletChannel.invokeMethod<Map<dynamic,dynamic>>('createTransaction',
+      <String,String> {
+        'amount' : amount,
+        'address' : _credentials.address
+      }
+    );
+
+    if (transactionDescription != null) {
+      final Map<String,String> map = Map<String,String>();
+
+      map['amount'] = transactionDescription['amount'].toString();
+      map['fee'] = transactionDescription['fee'].toString();
+      map['hash'] = transactionDescription['hash'].toString();
+
+      return PendingTransaction.fromBitcoinTransaction(map);
+    } else {
+      return null;
+    }
   }
 
   @override
@@ -169,9 +189,9 @@ class BitcoinWallet extends Wallet {
       await bitcoinWalletChannel.invokeMethod<String>('getAddress');
 
   @override
-  Future<int> getCurrentHeight() {
-    // TODO: implement getCurrentHeight
-    return null;
+  Future<int> getCurrentHeight() async {
+    final height = await getNodeHeight();
+    return height - _blocksLeft;
   }
 
   @override
@@ -180,8 +200,10 @@ class BitcoinWallet extends Wallet {
 
   @override
   Future<String> getUnlockedBalance() async {
-    final unlockedBalance = await bitcoinWalletChannel.invokeMethod<int>('getUnlockedBalance');
-    return bitcoinAmountToDouble(amount: unlockedBalance).toString();
+    //final unlockedBalance = await bitcoinWalletChannel.invokeMethod<int>('getUnlockedBalance');
+    //return bitcoinAmountToDouble(amount: unlockedBalance).toString();
+    final fullBalance = await bitcoinWalletChannel.invokeMethod<int>('getFullBalance');
+    return bitcoinAmountToDouble(amount: fullBalance).toString();
   }
 
   @override
@@ -253,15 +275,16 @@ class BitcoinWallet extends Wallet {
   WalletType getType() => WalletType.bitcoin;
 
   @override
-  Future<bool> isConnected() {
-    // TODO: implement isConnected
-    return null;
-  }
+  Future<bool> isConnected() async => await bitcoinWalletChannel.invokeMethod<bool>("isConnected");
 
   @override
-  Future rescan({int restoreHeight = 0}) {
-    // TODO: implement rescan
-    return null;
+  Future rescan({int restoreHeight = 0}) async {
+    try {
+      await bitcoinWalletChannel.invokeMethod<void>('refresh');
+    } on PlatformException catch (e) {
+      print(e);
+      rethrow;
+    }
   }
 
   @override
