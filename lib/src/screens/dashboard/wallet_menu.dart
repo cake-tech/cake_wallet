@@ -1,24 +1,43 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 
 class WalletMenu {
-  WalletMenu(this.context);
-
-  final List<String> items = [
-    S.current.reconnect,
-    S.current.rescan,
-    S.current.wallets,
-    S.current.show_seed,
-    S.current.show_keys,
-    S.current.accounts,
-    S.current.address_book_menu
-  ];
+  WalletMenu(this.context, this.walletStore) {
+    switch (walletStore.walletType) {
+      case WalletType.monero:
+        items = [
+          S.current.reconnect,
+          S.current.rescan,
+          S.current.wallets,
+          S.current.show_seed,
+          S.current.show_keys,
+          S.current.accounts,
+          S.current.address_book_menu
+        ];
+        break;
+      case WalletType.bitcoin:
+        items = [
+          S.current.reconnect,
+          S.current.rescan,
+          S.current.wallets,
+          S.current.show_seed,
+          S.current.show_keys,
+          S.current.address_book_menu
+        ];
+        break;
+      case WalletType.none:
+        items = [];
+        break;
+    }
+  }
 
   final BuildContext context;
+  final WalletStore walletStore;
+  List<String> items;
 
   void action(int index) {
     switch (index) {
@@ -49,7 +68,9 @@ class WalletMenu {
                     : null);
         break;
       case 5:
-        Navigator.of(context).pushNamed(Routes.accountList);
+        walletStore.walletType == WalletType.monero
+        ? Navigator.of(context).pushNamed(Routes.accountList)
+        : Navigator.of(context).pushNamed(Routes.addressBook);
         break;
       case 6:
         Navigator.of(context).pushNamed(Routes.addressBook);
@@ -60,8 +81,6 @@ class WalletMenu {
   }
 
   Future<void> _presentReconnectAlert(BuildContext context) async {
-    final walletStore = Provider.of<WalletStore>(context);
-
     await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
