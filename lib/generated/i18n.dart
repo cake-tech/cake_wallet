@@ -39,8 +39,8 @@ class S implements WidgetsLocalizations {
   String get authentication => "Authentication";
   String get available_balance => "Available Balance";
   String get biometric_auth_reason => "Scan your fingerprint to authenticate";
-  String get btc_available_balance => "BTC Available Balance";
-  String get btc_full_balance => "BTC Full Balance";
+  String get btc_available_balance => "BTC Balance";
+  String get btc_full_balance => "BTC Balance";
   String get btc_hidden => "BTC Hidden";
   String get cancel => "Cancel";
   String get change => "Change";
@@ -444,7 +444,7 @@ class $de extends S {
   @override
   String get trade_details_fetching => "Holen";
   @override
-  String get btc_full_balance => "BTC Volle Balance";
+  String get btc_full_balance => "BTC Balance";
   @override
   String get confirm_sending => "Bestätigen Sie das Senden";
   @override
@@ -532,7 +532,7 @@ class $de extends S {
   @override
   String get send_bitcoin_address => "Bitcoin-Adresse";
   @override
-  String get btc_available_balance => "BTC verfügbares Guthaben";
+  String get btc_available_balance => "BTC Balance";
   @override
   String get settings_current_node => "Aktueller Knoten";
   @override
@@ -1024,7 +1024,7 @@ class $hi extends S {
   @override
   String get trade_details_fetching => "ला रहा है";
   @override
-  String get btc_full_balance => "BTC पूर्ण संतुलन";
+  String get btc_full_balance => "BTC शेष";
   @override
   String get confirm_sending => "भेजने की पुष्टि करें";
   @override
@@ -1112,7 +1112,7 @@ class $hi extends S {
   @override
   String get send_bitcoin_address => "बिटकॉइन का पता";
   @override
-  String get btc_available_balance => "BTC उपलब्ध शेष राशि";
+  String get btc_available_balance => "BTC शेष";
   @override
   String get settings_current_node => "वर्तमान नोड";
   @override
@@ -1604,7 +1604,7 @@ class $ru extends S {
   @override
   String get trade_details_fetching => "Получение";
   @override
-  String get btc_full_balance => "Весь BTC баланс";
+  String get btc_full_balance => "BTC баланс";
   @override
   String get confirm_sending => "Подтвердить отправку";
   @override
@@ -1692,7 +1692,7 @@ class $ru extends S {
   @override
   String get send_bitcoin_address => "Bitcoin адрес";
   @override
-  String get btc_available_balance => "Доступный BTC баланс";
+  String get btc_available_balance => "BTC баланс";
   @override
   String get settings_current_node => "Текущая нода";
   @override
@@ -2184,7 +2184,7 @@ class $ko extends S {
   @override
   String get trade_details_fetching => "가져 오는 중";
   @override
-  String get btc_full_balance => "BTC 풀 밸런스";
+  String get btc_full_balance => "BTC 잔액";
   @override
   String get confirm_sending => "전송 확인";
   @override
@@ -2272,7 +2272,7 @@ class $ko extends S {
   @override
   String get send_bitcoin_address => "비트 코인 주소";
   @override
-  String get btc_available_balance => "BTC 사용 가능한 잔액";
+  String get btc_available_balance => "BTC 잔액";
   @override
   String get settings_current_node => "현재 노드";
   @override
@@ -2764,7 +2764,7 @@ class $pt extends S {
   @override
   String get trade_details_fetching => "Buscando";
   @override
-  String get btc_full_balance => "Saldo BTC total";
+  String get btc_full_balance => "Saldo BTC";
   @override
   String get confirm_sending => "Confirmar o envio";
   @override
@@ -2852,7 +2852,7 @@ class $pt extends S {
   @override
   String get send_bitcoin_address => "Endereço Bitcoin";
   @override
-  String get btc_available_balance => "Saldo BTC disponível";
+  String get btc_available_balance => "Saldo BTC";
   @override
   String get settings_current_node => "Nó atual";
   @override
@@ -3344,7 +3344,7 @@ class $uk extends S {
   @override
   String get trade_details_fetching => "Отримання";
   @override
-  String get btc_full_balance => "Весь BTC баланс";
+  String get btc_full_balance => "BTC баланс";
   @override
   String get confirm_sending => "Підтвердити відправлення";
   @override
@@ -3432,7 +3432,7 @@ class $uk extends S {
   @override
   String get send_bitcoin_address => "Bitcoin адреса";
   @override
-  String get btc_available_balance => "Доступний BTC баланс";
+  String get btc_available_balance => "BTC баланс";
   @override
   String get settings_current_node => "Поточний вузол";
   @override
@@ -3924,7 +3924,7 @@ class $ja extends S {
   @override
   String get trade_details_fetching => "フェッチング";
   @override
-  String get btc_full_balance => "BTCフルバランス";
+  String get btc_full_balance => "BTCバランス";
   @override
   String get confirm_sending => "送信を確認";
   @override
@@ -4012,7 +4012,7 @@ class $ja extends S {
   @override
   String get send_bitcoin_address => "Bitcoin 住所";
   @override
-  String get btc_available_balance => "BTC利用可能残高";
+  String get btc_available_balance => "BTCバランス";
   @override
   String get settings_current_node => "現在のノード";
   @override
@@ -4508,7 +4508,7 @@ class $pl extends S {
   @override
   String get trade_details_fetching => "Ujmujący";
   @override
-  String get btc_full_balance => "BTC Pełna równowaga";
+  String get btc_full_balance => "Bilans BTC";
   @override
   String get confirm_sending => "Potwierdź wysłanie";
   @override
@@ -4596,7 +4596,7 @@ class $pl extends S {
   @override
   String get send_bitcoin_address => "Adres Bitcoin";
   @override
-  String get btc_available_balance => "BTC Dostępne saldo";
+  String get btc_available_balance => "Bilans BTC";
   @override
   String get settings_current_node => "Bieżący węzeł";
   @override
@@ -5088,7 +5088,7 @@ class $es extends S {
   @override
   String get trade_details_fetching => "Cargando";
   @override
-  String get btc_full_balance => "BTC Saldo disponible";
+  String get btc_full_balance => "BTC Saldo";
   @override
   String get confirm_sending => "Confirmar envío";
   @override
@@ -5176,7 +5176,7 @@ class $es extends S {
   @override
   String get send_bitcoin_address => "Dirección de Bitcoin";
   @override
-  String get btc_available_balance => "BTC Available Balance";
+  String get btc_available_balance => "BTC Saldo";
   @override
   String get settings_current_node => "Nodo actual";
   @override
@@ -5668,7 +5668,7 @@ class $nl extends S {
   @override
   String get trade_details_fetching => "Ophalen";
   @override
-  String get btc_full_balance => "BTC Volledig saldo";
+  String get btc_full_balance => "BTC-saldo";
   @override
   String get confirm_sending => "Bevestig verzending";
   @override
@@ -5756,7 +5756,7 @@ class $nl extends S {
   @override
   String get send_bitcoin_address => "Bitcoin-adres";
   @override
-  String get btc_available_balance => "BTC Beschikbaar saldo";
+  String get btc_available_balance => "BTC-saldo";
   @override
   String get settings_current_node => "Huidige knooppunt";
   @override
@@ -6248,7 +6248,7 @@ class $zh extends S {
   @override
   String get trade_details_fetching => "正在取得";
   @override
-  String get btc_full_balance => "BTC 全部余额";
+  String get btc_full_balance => "BTC餘額";
   @override
   String get confirm_sending => "确认发送";
   @override
@@ -6336,7 +6336,7 @@ class $zh extends S {
   @override
   String get send_bitcoin_address => "比特幣地址";
   @override
-  String get btc_available_balance => "BTC 可用余额 ";
+  String get btc_available_balance => "BTC餘額";
   @override
   String get settings_current_node => "当前节点";
   @override

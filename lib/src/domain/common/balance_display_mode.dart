@@ -34,11 +34,11 @@ class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
   String toString() {
     switch (this) {
       case BalanceDisplayMode.fullBalance:
-        return S.current.xmr_full_balance;
+        return S.current.full_balance;
       case BalanceDisplayMode.availableBalance:
-        return S.current.xmr_available_balance;
+        return S.current.available_balance;
       case BalanceDisplayMode.hiddenBalance:
-        return S.current.xmr_hidden;
+        return S.current.hidden_balance;
       default:
         return '';
     }
