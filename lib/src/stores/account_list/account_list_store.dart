@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/monero/account.dart';
 import 'package:cake_wallet/src/domain/monero/account_list.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -83,7 +84,11 @@ abstract class AcountListStoreBase with Store {
       _onAccountsChangeSubscription =
           _accountList.accounts.listen((accounts) => this.accounts = accounts);
       updateAccountList();
+      return;
+    }
 
+    if (wallet is BitcoinWallet) {
+      _accountList = null;
       return;
     }
 

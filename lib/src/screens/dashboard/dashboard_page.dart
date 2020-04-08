@@ -90,7 +90,9 @@ class DashboardPage extends BasePage {
           .pushNamed(Routes.exchange));
 
   void _presentWalletMenu(BuildContext bodyContext) {
-    final walletMenu = WalletMenu(bodyContext);
+    final walletStore = Provider.of<WalletStore>(bodyContext);
+
+    final walletMenu = WalletMenu(bodyContext, walletStore);
 
     showDialog<void>(
         builder: (_) => Picker(
