@@ -68,9 +68,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
     if (price > 0) {
       try {
-        min /= price;
-        min = limitsFormat(min) + correction;
-        max /= price;
+        min = min/price + correction;
+        min = limitsFormat(min);
+        max = max/price - correction;
         max = limitsFormat(max);
       } catch (e) {
         min = 0;
