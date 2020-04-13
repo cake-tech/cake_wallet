@@ -12,7 +12,6 @@ import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_trade_request.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_not_created_exeption.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade_not_found_exeption.dart';
-import 'package:cake_wallet/src/domain/exchange/limits_format.dart';
 
 class XMRTOExchangeProvider extends ExchangeProvider {
   XMRTOExchangeProvider()
@@ -69,9 +68,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     if (price > 0) {
       try {
         min = min/price + correction;
-        min = limitsFormat(min);
+        min = _limitsFormat(min);
         max = max/price - correction;
-        max = limitsFormat(max);
+        max = _limitsFormat(max);
       } catch (e) {
         min = 0;
         max = 0;
@@ -194,4 +193,6 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       return 0.0;
     }
   }
+
+  double _limitsFormat(double limit) => double.parse(limit.toStringAsFixed(3));
 }
