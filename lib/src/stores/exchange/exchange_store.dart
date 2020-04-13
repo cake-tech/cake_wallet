@@ -157,13 +157,13 @@ abstract class ExchangeStoreBase with Store {
 
     if (provider is XMRTOExchangeProvider) {
       request = XMRTOTradeRequest(
-          to: receiveCurrency,
           from: depositCurrency,
-          amount: receiveAmount,
+          to: receiveCurrency,
+          amount: depositAmount,
           address: receiveAddress,
           refundAddress: depositAddress);
-      amount = receiveAmount;
-      currency = receiveCurrency;
+      amount = depositAmount;
+      currency = depositCurrency;
     }
 
     if (provider is ChangeNowExchangeProvider) {

@@ -168,12 +168,9 @@ class ExchangeFormState extends State<ExchangeForm> {
                       exchangeStore.depositCurrency == walletStore.type
                           ? walletStore.address
                           : null,
-                  initialIsAmountEditable:
-                      !(exchangeStore.provider is XMRTOExchangeProvider),
-                  initialIsAddressEditable:
-                      !(exchangeStore.provider is XMRTOExchangeProvider),
-                  isAmountEstimated:
-                      exchangeStore.provider is XMRTOExchangeProvider,
+                  initialIsAmountEditable: true,
+                  initialIsAddressEditable: true,
+                  isAmountEstimated: false,
                   currencies: CryptoCurrency.all,
                   onCurrencySelected: (currency) =>
                       exchangeStore.changeDepositCurrency(currency: currency),
@@ -209,12 +206,9 @@ class ExchangeFormState extends State<ExchangeForm> {
                               exchangeStore.receiveCurrency == walletStore.type
                                   ? walletStore.address
                                   : null,
-                          initialIsAmountEditable:
-                              exchangeStore.provider is XMRTOExchangeProvider,
-                          initialIsAddressEditable:
-                              exchangeStore.provider is XMRTOExchangeProvider,
-                          isAmountEstimated: !(exchangeStore.provider
-                              is XMRTOExchangeProvider),
+                          initialIsAmountEditable: false,
+                          initialIsAddressEditable: true,
+                          isAmountEstimated: true,
                           currencies: CryptoCurrency.all,
                           onCurrencySelected: (currency) => exchangeStore
                               .changeReceiveCurrency(currency: currency),
@@ -321,8 +315,7 @@ class ExchangeFormState extends State<ExchangeForm> {
       final max = limitsState.limits.max != null
           ? limitsState.limits.max.toString()
           : null;
-      final key =
-          store.provider is XMRTOExchangeProvider ? receiveKey : depositKey;
+      final key = depositKey;
       key.currentState.changeLimits(min: min, max: max);
     }
 
@@ -363,22 +356,12 @@ class ExchangeFormState extends State<ExchangeForm> {
     });
 
     reaction((_) => store.provider, (ExchangeProvider provider) {
-      final isReversed = provider is XMRTOExchangeProvider;
-
-      if (isReversed) {
-        receiveKey.currentState.isAddressEditable(isEditable: true);
-        receiveKey.currentState.isAmountEditable(isEditable: true);
-        depositKey.currentState.isAddressEditable(isEditable: false);
-        depositKey.currentState.isAmountEditable(isEditable: false);
-      } else {
         receiveKey.currentState.isAddressEditable(isEditable: true);
         receiveKey.currentState.isAmountEditable(isEditable: false);
         depositKey.currentState.isAddressEditable(isEditable: true);
         depositKey.currentState.isAmountEditable(isEditable: true);
-      }
 
-      depositKey.currentState.changeIsAmountEstimated(isReversed);
-      receiveKey.currentState.changeIsAmountEstimated(!isReversed);
+        receiveKey.currentState.changeIsAmountEstimated(true);
     });
 
     reaction((_) => store.tradeState, (ExchangeTradeState state) {
@@ -406,7 +389,6 @@ class ExchangeFormState extends State<ExchangeForm> {
     });
 
     reaction((_) => store.limitsState, (LimitsState state) {
-      final isXMRTO = store.provider is XMRTOExchangeProvider;
       String min;
       String max;
 
@@ -425,13 +407,8 @@ class ExchangeFormState extends State<ExchangeForm> {
         max = '...';
       }
 
-      final depositMin = isXMRTO ? null : min;
-      final depositMax = isXMRTO ? null : max;
-      final receiveMin = isXMRTO ? min : null;
-      final receiveMax = isXMRTO ? max : null;
-
-      depositKey.currentState.changeLimits(min: depositMin, max: depositMax);
-      receiveKey.currentState.changeLimits(min: receiveMin, max: receiveMax);
+      depositKey.currentState.changeLimits(min: min, max: max);
+      receiveKey.currentState.changeLimits(min: null, max: null);
     });
 
     depositAddressController.addListener(
