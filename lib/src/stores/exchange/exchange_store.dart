@@ -107,6 +107,7 @@ abstract class ExchangeStoreBase with Store {
 
     if (amount == null || amount.isEmpty) {
       depositAmount = '';
+      receiveAmount = '';
       return;
     }
 
@@ -125,6 +126,7 @@ abstract class ExchangeStoreBase with Store {
 
     if (amount == null || amount.isEmpty) {
       depositAmount = '';
+      receiveAmount = '';
       return;
     }
 
