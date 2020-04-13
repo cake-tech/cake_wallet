@@ -54,14 +54,31 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
     final url = await getApiUri() + _orderParameterUriSufix;
     final response = await get(url);
+    final correction = 0.001;
 
     if (response.statusCode != 200) {
       return Limits(min: 0, max: 0);
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min = responseJSON['lower_limit'] as double;
-    final max = responseJSON['upper_limit'] as double;
+    double min = responseJSON['lower_limit'] as double;
+    double max = responseJSON['upper_limit'] as double;
+    final price = responseJSON['price'] as double;
+
+    if (price > 0) {
+      try {
+        min = min/price + correction;
+        min = _limitsFormat(min);
+        max = max/price - correction;
+        max = _limitsFormat(max);
+      } catch (e) {
+        min = 0;
+        max = 0;
+      }
+    } else {
+      min = 0;
+      max = 0;
+    }
 
     return Limits(min: min, max: max);
   }
@@ -71,7 +88,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     final _request = request as XMRTOTradeRequest;
     final url = await getApiUri() + _orderCreateUriSufix;
     final body = {
-      'btc_amount': _request.amount,
+      'xmr_amount': _request.amount,
       'btc_dest_address': _request.address
     };
     final response = await post(url,
@@ -168,8 +185,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       final response =
           await get(url, headers: {'Content-Type': 'application/json'});
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final btcprice = responseJSON['price'] as double;
-      final price = 1 / btcprice;
+      final price = responseJSON['price'] as double;
 
       return price;
     } catch (e) {
@@ -177,4 +193,6 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       return 0.0;
     }
   }
+
+  double _limitsFormat(double limit) => double.parse(limit.toStringAsFixed(3));
 }
