@@ -69,4 +69,13 @@ class PaletteDark {
   static const Color switchBackground = Color.fromRGBO(100, 115, 137, 0.4);
   static const Color wildDarkBlueWithOpacity = Color.fromRGBO(155, 172, 197, 0.4);
   static const Color wildDarkBlue = Color.fromRGBO(155, 172, 197, 0.8);
+
+  // NEW
+
+  static const Color backgroundStart = Color.fromRGBO(231, 240, 253, 1.0);
+  static const Color backgroundEnd = Color.fromRGBO(172, 203, 238, 1.0);
+  static const Color walletCardTopStartSync = Color.fromRGBO(89, 104, 152, 1.0);
+  static const Color walletCardBottomStartSync = Color.fromRGBO(70, 85, 133, 1.0);
+  static const Color walletCardTopEndSync = Color.fromRGBO(70, 85, 133, 1.0);
+  static const Color walletCardBottomEndSync = Color.fromRGBO(45, 56, 95, 1.0);
 }

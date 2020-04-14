@@ -24,11 +24,12 @@ import 'package:cake_wallet/src/screens/dashboard/transaction_raw.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/wallet_card.dart';
 
 class DashboardPage extends BasePage {
   final _bodyKey = GlobalKey();
 
-  @override
+  /*@override
   Widget leading(BuildContext context) {
     return SizedBox(
         width: 30,
@@ -75,12 +76,14 @@ class DashboardPage extends BasePage {
           child: Image.asset('assets/images/settings_icon.png',
               color: Colors.grey, height: 20)),
     );
-  }
+  }*/
+  @override
+  ObstructingPreferredSizeWidget appBar(BuildContext context) => null;
 
   @override
   Widget body(BuildContext context) => DashboardPageBody(key: _bodyKey);
 
-  @override
+  /*@override
   Widget floatingActionButton(BuildContext context) => FloatingActionButton(
       child: Image.asset('assets/images/exchange_icon.png',
           color: Colors.white, height: 26, width: 22),
@@ -100,7 +103,7 @@ class DashboardPage extends BasePage {
             onItemSelected: (String item) =>
                 walletMenu.action(walletMenu.items.indexOf(item))),
         context: bodyContext);
-  }
+  }*/
 }
 
 class DashboardPageBody extends StatefulWidget {
@@ -120,7 +123,27 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    final balanceStore = Provider.of<BalanceStore>(context);
+    final List<Color> colors = [PaletteDark.backgroundStart, PaletteDark.backgroundEnd];
+
+    return SafeArea(
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: colors
+          )
+        ),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(left: 20, top: 78),
+              child: WalletCard(),
+            )
+          ],
+        ),
+      ),
+    );
+
+    /*final balanceStore = Provider.of<BalanceStore>(context);
     final actionListStore = Provider.of<ActionListStore>(context);
     final syncStore = Provider.of<SyncStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
@@ -593,6 +616,6 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
 
                 return Container();
               });
-        });
+        });*/
   }
 }
