@@ -25,6 +25,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/wallet_card.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/buttons_widget.dart';
 
 class DashboardPage extends BasePage {
   final _bodyKey = GlobalKey();
@@ -137,6 +138,14 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
             Padding(
               padding: EdgeInsets.only(left: 20, top: 78),
               child: WalletCard(),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 28),
+              child: ButtonsWidget(),
+            ),
+            Expanded(
+              child: Container(
+              )
             )
           ],
         ),
