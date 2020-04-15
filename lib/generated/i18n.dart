@@ -40,6 +40,7 @@ class S implements WidgetsLocalizations {
   String get available_balance => "Available Balance";
   String get biometric_auth_reason => "Scan your fingerprint to authenticate";
   String get cancel => "Cancel";
+  String get card_address => "Address:";
   String get change => "Change";
   String get change_currency => "Change Currency";
   String get change_exchange_provider => "Change Exchange Provider";
@@ -361,6 +362,8 @@ class $de extends S {
   String get settings_none => "Keiner";
   @override
   String get wallet_list_create_new_wallet => "Neue Wallet erstellen";
+  @override
+  String get card_address => "Adresse:";
   @override
   String get seed_language_portuguese => "Portugiesisch";
   @override
@@ -930,6 +933,8 @@ class $hi extends S {
   @override
   String get wallet_list_create_new_wallet => "नया बटुआ बनाएँ";
   @override
+  String get card_address => "पता:";
+  @override
   String get seed_language_portuguese => "पुर्तगाली";
   @override
   String get setup_pin => "पिन सेट करें";
@@ -1497,6 +1502,8 @@ class $ru extends S {
   String get settings_none => "Ничего";
   @override
   String get wallet_list_create_new_wallet => "Создать новый кошелёк";
+  @override
+  String get card_address => "Адрес:";
   @override
   String get seed_language_portuguese => "Португальский";
   @override
@@ -2066,6 +2073,8 @@ class $ko extends S {
   @override
   String get wallet_list_create_new_wallet => "새 월렛 만들기";
   @override
+  String get card_address => "주소:";
+  @override
   String get seed_language_portuguese => "포르투갈 인";
   @override
   String get setup_pin => "설정 PIN";
@@ -2633,6 +2642,8 @@ class $pt extends S {
   String get settings_none => "Nada";
   @override
   String get wallet_list_create_new_wallet => "Criar nova carteira";
+  @override
+  String get card_address => "Endereço:";
   @override
   String get seed_language_portuguese => "Português";
   @override
@@ -3202,6 +3213,8 @@ class $uk extends S {
   @override
   String get wallet_list_create_new_wallet => "Створити новий гаманець";
   @override
+  String get card_address => "Адреса:";
+  @override
   String get seed_language_portuguese => "Португальська";
   @override
   String get setup_pin => "Встановити PIN";
@@ -3769,6 +3782,8 @@ class $ja extends S {
   String get settings_none => "なし";
   @override
   String get wallet_list_create_new_wallet => "新しいウォレットを作成";
+  @override
+  String get card_address => "住所:";
   @override
   String get seed_language_portuguese => "ポルトガル語";
   @override
@@ -4342,6 +4357,8 @@ class $pl extends S {
   @override
   String get wallet_list_create_new_wallet => "Utwórz nowy portfel";
   @override
+  String get card_address => "Adres:";
+  @override
   String get seed_language_portuguese => "Portugalski";
   @override
   String get setup_pin => "Ustaw PIN";
@@ -4909,6 +4926,8 @@ class $es extends S {
   String get settings_none => "Ninguno";
   @override
   String get wallet_list_create_new_wallet => "Crear nueva billetera";
+  @override
+  String get card_address => "Dirección:";
   @override
   String get seed_language_portuguese => "Portugués";
   @override
@@ -5478,6 +5497,8 @@ class $nl extends S {
   @override
   String get wallet_list_create_new_wallet => "Maak een nieuwe portemonnee";
   @override
+  String get card_address => "Adres:";
+  @override
   String get seed_language_portuguese => "Portugees";
   @override
   String get setup_pin => "PIN instellen";
@@ -6045,6 +6066,8 @@ class $zh extends S {
   String get settings_none => "没有";
   @override
   String get wallet_list_create_new_wallet => "创建新钱包";
+  @override
+  String get card_address => "地址:";
   @override
   String get seed_language_portuguese => "葡萄牙語";
   @override

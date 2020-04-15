@@ -349,5 +349,7 @@
   "version" : "Versión ${currentVersion}",
 
   "openalias_alert_title" : "Destinatario XMR detectado",
-  "openalias_alert_content" : "Enviará fondos a\n${recipient_name}"
+  "openalias_alert_content" : "Enviará fondos a\n${recipient_name}",
+
+  "card_address" : "Dirección:"
 }

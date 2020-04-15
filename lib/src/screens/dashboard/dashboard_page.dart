@@ -114,12 +114,12 @@ class DashboardPageBody extends StatefulWidget {
 }
 
 class DashboardPageBodyState extends State<DashboardPageBody> {
-  final _connectionStatusObserverKey = GlobalKey();
+  /*final _connectionStatusObserverKey = GlobalKey();
   final _balanceObserverKey = GlobalKey();
   final _balanceTitleObserverKey = GlobalKey();
   final _syncingObserverKey = GlobalKey();
   final _listObserverKey = GlobalKey();
-  final _listKey = GlobalKey();
+  final _listKey = GlobalKey();*/
 
   @override
   Widget build(BuildContext context) {
