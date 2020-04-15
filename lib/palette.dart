@@ -78,4 +78,8 @@ class PaletteDark {
   static const Color walletCardBottomStartSync = Color.fromRGBO(70, 85, 133, 1.0);
   static const Color walletCardTopEndSync = Color.fromRGBO(70, 85, 133, 1.0);
   static const Color walletCardBottomEndSync = Color.fromRGBO(45, 56, 95, 1.0);
+  static const Color walletCardText = Color.fromRGBO(140, 153, 201, 1.0);
+  static const Color walletCardAddressField = Color.fromRGBO(51, 63, 104, 1.0);
+  static const Color walletCardAddressText = Color.fromRGBO(183, 197, 242, 1.0);
+  static const Color walletCardSubAddressField = Color.fromRGBO(63, 77, 122, 1.0);
 }

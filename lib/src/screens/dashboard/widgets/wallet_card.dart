@@ -1,12 +1,18 @@
+import 'dart:async';
+import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import 'package:cake_wallet/src/stores/balance/balance_store.dart';
+import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/stores/sync/sync_store.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
+import 'package:cake_wallet/src/screens/receive/qr_image.dart';
 
 class WalletCard extends StatefulWidget {
   @override
@@ -15,18 +21,25 @@ class WalletCard extends StatefulWidget {
 
 class WalletCardState extends State<WalletCard> {
   final _syncingObserverKey = GlobalKey();
-  final triangleButton = Image.asset('assets/images/triangle.png');
+  final _balanceObserverKey = GlobalKey();
+  final _addressObserverKey = GlobalKey();
 
   final List<Color> colorsSync = [PaletteDark.walletCardTopEndSync, PaletteDark.walletCardBottomEndSync];
   double cardWidth;
+  double cardHeight;
   double screenWidth;
   double opacity;
+  bool isDraw;
+  bool isFrontSide;
 
   @override
   void initState() {
     cardWidth = 0;
+    cardHeight = 220;
     screenWidth = 0;
     opacity = 0;
+    isDraw = false;
+    isFrontSide = true;
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(afterLayout);
   }
@@ -37,21 +50,21 @@ class WalletCardState extends State<WalletCard> {
       cardWidth = screenWidth;
       opacity = 1;
     });
+    Timer(Duration(milliseconds: 350), () =>
+        setState(() => isDraw = true)
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final syncStore = Provider.of<SyncStore>(context);
-    final walletStore = Provider.of<WalletStore>(context);
-
     return Container(
       width: double.infinity,
-      height: 220,
+      height: cardHeight,
       alignment: Alignment.centerRight,
       child: AnimatedContainer(
         alignment: Alignment.centerLeft,
         width: cardWidth,
-        height: 220,
+        height: cardHeight,
         duration: Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
         decoration: BoxDecoration(
@@ -63,98 +76,156 @@ class WalletCardState extends State<WalletCard> {
                 end: Alignment.bottomCenter
             )
         ),
-        child: screenWidth > 0 && cardWidth == screenWidth
-        ? InkWell(
-          onTap: (){print('TAP');},
-          child: Observer(
-            key: _syncingObserverKey,
-            builder: (_) {
-              final status = syncStore.status;
-              final statusText = status.title();
-              final progress = syncStore.status.progress();
-              //final isFialure = status is FailedSyncStatus;
+        child: InkWell(
+          onTap: () => setState(() => isFrontSide = !isFrontSide),
+          child: isFrontSide
+            ? frontSide()
+            : backSide()
+        ),
+      ),
+    );
+  }
 
-              var descriptionText = '';
+  Widget frontSide() {
+    final syncStore = Provider.of<SyncStore>(context);
+    final walletStore = Provider.of<WalletStore>(context);
+    final settingsStore = Provider.of<SettingsStore>(context);
+    final balanceStore = Provider.of<BalanceStore>(context);
+    final triangleButton = Image.asset('assets/images/triangle.png');
 
-              if (status is SyncingSyncStatus) {
-                descriptionText = S
-                    .of(context)
-                    .Blocks_remaining(
-                    syncStore.status.toString());
-              }
+    return Observer(
+      key: _syncingObserverKey,
+      builder: (_) {
+        final status = syncStore.status;
+        final statusText = status.title();
+        final progress = syncStore.status.progress();
 
-              if (status is FailedSyncStatus) {
-                descriptionText = S
-                    .of(context)
-                    .please_try_to_connect_to_another_node;
-              }
+        String shortAddress = walletStore.subaddress.address;
+        shortAddress = shortAddress.replaceRange(4, shortAddress.length - 4, '...');
 
-              return Container(
-                width: cardWidth,
-                height: 220,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      height: 220,
-                      width: progress * cardWidth,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-                          gradient: LinearGradient(
-                              colors: colorsSync,
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter
-                          )
-                      ),
-                    ),
-                    Positioned(
-                        left: 20,
-                        right: 20,
-                        top: 30,
-                        bottom: 30,
-                        child: Container(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+        var descriptionText = '';
+
+        if (status is SyncingSyncStatus) {
+          descriptionText = S
+              .of(context)
+              .Blocks_remaining(
+              syncStore.status.toString());
+        }
+
+        if (status is FailedSyncStatus) {
+          descriptionText = S
+              .of(context)
+              .please_try_to_connect_to_another_node;
+        }
+
+        return Container(
+          width: cardWidth,
+          height: cardHeight,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                height: cardHeight,
+                width: progress * cardWidth,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                    gradient: LinearGradient(
+                        colors: colorsSync,
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter
+                    )
+                ),
+              ),
+              isDraw ? Positioned(
+                  left: 20,
+                  right: 20,
+                  top: 30,
+                  bottom: 30,
+                  child: Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                InkWell(
+                                  onTap: () {print('TAP 2');},
+                                  child: Row(
                                     children: <Widget>[
-                                      InkWell(
-                                        onTap: (){print('TAP 2');},
-                                        child: Row(
-                                          children: <Widget>[
-                                            Text(
-                                              walletStore.name,
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold
-                                              ),
-                                            ),
-                                            SizedBox(width: 10),
-                                            triangleButton
-                                          ],
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
                                       Text(
-                                        walletStore.account.label,
+                                        walletStore.name,
                                         style: TextStyle(
-                                            fontSize: 12
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold
                                         ),
-                                      )
+                                      ),
+                                      SizedBox(width: 10),
+                                      triangleButton
                                     ],
                                   ),
-                                  Text(
-                                      walletStore.account.label
-                                  )
-                                ],
+                                ),
+                                SizedBox(
+                                  height: 5,
+                                ),
+                                Text(
+                                  walletStore.account.label,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: PaletteDark.walletCardText
+                                  ),
+                                )
+                              ],
+                            ),
+                            Container(
+                              width: 98,
+                              height: 32,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: PaletteDark.walletCardAddressField,
+                                  borderRadius: BorderRadius.all(Radius.circular(16))
                               ),
-                              Row(
+                              child: Text(
+                                shortAddress,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: PaletteDark.walletCardAddressText
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        status is SyncedSyncStatus
+                            ? Observer(
+                            key: _balanceObserverKey,
+                            builder: (_) {
+                              final balanceDisplayMode = settingsStore.balanceDisplayMode;
+                              final symbol = settingsStore
+                                  .fiatCurrency
+                                  .toString();
+                              var balance = '---';
+                              var fiatBalance = '---';
+
+                              if (balanceDisplayMode ==
+                                  BalanceDisplayMode.availableBalance) {
+                                balance =
+                                    balanceStore.unlockedBalance ??
+                                        '0.0';
+                                fiatBalance =
+                                '$symbol ${balanceStore.fiatUnlockedBalance}';
+                              }
+
+                              if (balanceDisplayMode ==
+                                  BalanceDisplayMode.fullBalance) {
+                                balance =
+                                    balanceStore.fullBalance ?? '0.0';
+                                fiatBalance =
+                                '$symbol ${balanceStore.fiatFullBalance}';
+                              }
+
+                              return Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
@@ -162,37 +233,198 @@ class WalletCardState extends State<WalletCard> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        statusText,
+                                        balanceDisplayMode.toString(),
                                         style: TextStyle(
-                                          fontSize: 12
+                                            fontSize: 12,
+                                            color: PaletteDark.walletCardText
                                         ),
                                       ),
                                       SizedBox(height: 5),
                                       Text(
-                                        descriptionText,
+                                        balance,
                                         style: TextStyle(
-                                          fontSize: 14
+                                            fontSize: 28
                                         ),
                                       )
                                     ],
                                   ),
                                   Text(
-                                      walletStore.account.label
+                                    fiatBalance,
+                                    style: TextStyle(
+                                        fontSize: 14
+                                    ),
                                   )
                                 ],
-                              )
-                            ],
+                              );
+                            }
+                          )
+                          : Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  statusText,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: PaletteDark.walletCardText
+                                  ),
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                  descriptionText,
+                                  style: TextStyle(
+                                      fontSize: 14
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
+                        )
+                      ],
+                    ),
+                  )
+              )
+              : Offstage()
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget backSide() {
+    final walletStore = Provider.of<WalletStore>(context);
+    final rightArrow = Image.asset('assets/images/right_arrow.png');
+    double messageBoxHeight = 0;
+
+    return Observer(
+      key: _addressObserverKey,
+      builder: (_) {
+        return Container(
+          width: cardWidth,
+          height: cardHeight,
+          alignment: Alignment.topCenter,
+          child: Stack(
+            children: <Widget>[
+              Container(
+                width: cardWidth,
+                height: cardHeight,
+                padding: EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 30),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                    gradient: LinearGradient(
+                        colors: colorsSync,
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter
+                    )
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Container(
+                            height: 72,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  S.current.card_address,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: PaletteDark.walletCardText
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    Clipboard.setData(ClipboardData(
+                                        text: walletStore.subaddress.address));
+                                    _addressObserverKey.currentState.setState(() => messageBoxHeight = 20);
+                                    Timer(Duration(milliseconds: 1000), () {
+                                      try {
+                                        _addressObserverKey.currentState.setState(() => messageBoxHeight = 0);
+                                      } catch(e) {
+                                        print('${e.toString()}');
+                                      }
+                                    });
+                                  },
+                                  child: Text(
+                                    walletStore.subaddress.address,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          )
+                        ),
+                        SizedBox(width: 20),
+                        Container(
+                          width: 72,
+                          height: 72,
+                          child: QrImage(
+                            data: walletStore.subaddress.address,
+                            backgroundColor: Colors.transparent,
+                            foregroundColor: PaletteDark.walletCardText,
                           ),
                         )
+                      ],
+                    ),
+                    Container(
+                      height: 44,
+                      padding: EdgeInsets.only(left: 20, right: 20),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(22)),
+                          color: PaletteDark.walletCardSubAddressField
+                      ),
+                      child: InkWell(
+                        onTap: () {},
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              S.current.subaddresses,
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                            rightArrow
+                          ],
+                        ),
+                      ),
                     )
                   ],
                 ),
-              );
-            },
-          )
-        )
-        : Offstage(),
-      ),
+              ),
+              AnimatedContainer(
+                width: cardWidth,
+                height: messageBoxHeight,
+                alignment: Alignment.center,
+                duration: Duration(milliseconds: 500),
+                curve: Curves.fastOutSlowIn,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
+                    color: Colors.green
+                ),
+                child: Text(
+                  S.of(context).copied_to_clipboard,
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Colors.white
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      }
     );
   }
 }

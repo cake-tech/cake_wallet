@@ -349,5 +349,7 @@
   "version" : "Wersja ${currentVersion}",
 
   "openalias_alert_title" : "Wykryto odbiorcę XMR",
-  "openalias_alert_content" : "Będziesz wysyłać środki na\n${recipient_name}"
+  "openalias_alert_content" : "Będziesz wysyłać środki na\n${recipient_name}",
+
+  "card_address" : "Adres:"
 }
