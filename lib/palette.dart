@@ -82,4 +82,7 @@ class PaletteDark {
   static const Color walletCardAddressField = Color.fromRGBO(51, 63, 104, 1.0);
   static const Color walletCardAddressText = Color.fromRGBO(183, 197, 242, 1.0);
   static const Color walletCardSubAddressField = Color.fromRGBO(63, 77, 122, 1.0);
+  static const Color historyPanel = Color.fromRGBO(33, 43, 73, 1.0);
+  static const Color historyPanelText = Color.fromRGBO(91, 112, 146, 1.0);
+  static const Color historyPanelButton = Color.fromRGBO(39, 53, 96, 1.0);
 }

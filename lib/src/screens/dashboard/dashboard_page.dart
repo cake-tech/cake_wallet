@@ -18,14 +18,15 @@ import 'package:cake_wallet/src/stores/action_list/date_section_item.dart';
 import 'package:cake_wallet/src/stores/action_list/trade_list_item.dart';
 import 'package:cake_wallet/src/stores/action_list/transaction_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/date_section_raw.dart';
-import 'package:cake_wallet/src/screens/dashboard/trade_row.dart';
-import 'package:cake_wallet/src/screens/dashboard/transaction_raw.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/date_section_raw.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/trade_row.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transaction_raw.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/wallet_card.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/buttons_widget.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/trade_history_panel.dart';
 
 class DashboardPage extends BasePage {
   final _bodyKey = GlobalKey();
@@ -115,6 +116,7 @@ class DashboardPageBody extends StatefulWidget {
 }
 
 class DashboardPageBodyState extends State<DashboardPageBody> {
+  final menuButton = Image.asset('assets/images/menu_button.png');
   /*final _connectionStatusObserverKey = GlobalKey();
   final _balanceObserverKey = GlobalKey();
   final _balanceTitleObserverKey = GlobalKey();
@@ -136,7 +138,27 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
         child: Column(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(left: 20, top: 78),
+              padding: EdgeInsets.only(top: 14),
+              child: Container(
+                width: double.infinity,
+                alignment: Alignment.centerRight,
+                child: SizedBox(
+                  height: 37,
+                  width: 37,
+                  child: ButtonTheme(
+                    minWidth: double.minPositive,
+                    child: FlatButton(
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
+                        padding: EdgeInsets.all(0),
+                        onPressed: () {},
+                        child: menuButton),
+                  ),
+                ),
+              )
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 20, top: 23),
               child: WalletCard(),
             ),
             Padding(
@@ -144,8 +166,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
               child: ButtonsWidget(),
             ),
             Expanded(
-              child: Container(
-              )
+              child: TradeHistoryPanel()
             )
           ],
         ),
