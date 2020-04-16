@@ -21,25 +21,25 @@ class TradeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final amountCrypto = provider == ExchangeProviderDescription.xmrto
-        ? to.toString()
-        : from.toString();
+    final amountCrypto = from.toString();
 
     return InkWell(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.only(top: 14, bottom: 14, left: 20, right: 20),
-          decoration: BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(
-                      color: PaletteDark.darkGrey,
-                      width: 0.5,
-                      style: BorderStyle.solid))),
+          padding: EdgeInsets.only(top: 5, bottom: 5),
           child: Row(children: <Widget>[
-            _getPoweredImage(provider),
+            Container(
+              height: 36,
+              width: 36,
+              decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: PaletteDark.historyPanelButton
+              ),
+              child: _getPoweredImage(provider),
+            ),
             Expanded(
                 child: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
+              padding: const EdgeInsets.only(left: 10),
               child: Column(
                 children: <Widget>[
                   Row(
@@ -48,23 +48,20 @@ class TradeRow extends StatelessWidget {
                         Text('${from.toString()} → ${to.toString()}',
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .subhead
-                                    .color)),
+                                )),
                         formattedAmount != null
                             ? Text(formattedAmount + ' ' + amountCrypto,
                                 style: const TextStyle(
-                                    fontSize: 16, color: Palette.purpleBlue))
+                                    fontSize: 16))
                             : Container()
                       ]),
-                  SizedBox(height: 6),
+                  SizedBox(height: 5),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(createdAtFormattedDate,
                             style: const TextStyle(
-                                fontSize: 13, color: Palette.blueGrey))
+                                fontSize: 14, color: PaletteDark.historyPanelText))
                       ]),
                 ],
               ),

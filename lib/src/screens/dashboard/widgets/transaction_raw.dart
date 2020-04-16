@@ -24,24 +24,25 @@ class TransactionRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.only(top: 14, bottom: 14, left: 20, right: 20),
-          decoration: BoxDecoration(
-              border: Border(
-                  bottom: BorderSide(
-                      color: PaletteDark.darkGrey,
-                      width: 0.5,
-                      style: BorderStyle.solid))),
+          padding: EdgeInsets.only(top: 5, bottom: 5),
           child: Row(children: <Widget>[
-            Image.asset(
-                direction == TransactionDirection.incoming
-                    ? 'assets/images/transaction_incoming.png'
-                    : 'assets/images/transaction_outgoing.png',
-                height: 25,
-                width: 25),
+            Container(
+              height: 36,
+              width: 36,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: PaletteDark.historyPanelButton
+              ),
+              child: Image.asset(
+                  direction == TransactionDirection.incoming
+                      ? 'assets/images/down_arrow.png'
+                      : 'assets/images/up_arrow.png'),
+            ),
             Expanded(
                 child: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10),
+              padding: const EdgeInsets.only(left: 10),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -53,24 +54,25 @@ class TransactionRow extends StatelessWidget {
                                 (isPending ? S.of(context).pending : ''),
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .subhead
-                                    .color)),
-                        Text(formattedAmount,
+                                )),
+                        Text(direction == TransactionDirection.incoming
+                            ? formattedAmount
+                            : '- ' + formattedAmount,
                             style: const TextStyle(
-                                fontSize: 16, color: Palette.purpleBlue))
+                                fontSize: 16))
                       ]),
-                  SizedBox(height: 6),
+                  SizedBox(height: 5,),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(formattedDate,
                             style: const TextStyle(
-                                fontSize: 13, color: Palette.blueGrey)),
-                        Text(formattedFiatAmount,
+                                fontSize: 14, color: PaletteDark.historyPanelText)),
+                        Text(direction == TransactionDirection.incoming
+                            ? formattedFiatAmount
+                            : '- ' + formattedFiatAmount,
                             style: const TextStyle(
-                                fontSize: 14, color: Palette.blueGrey))
+                                fontSize: 14, color: PaletteDark.historyPanelText))
                       ]),
                 ],
               ),
