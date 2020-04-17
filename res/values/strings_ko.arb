@@ -351,5 +351,6 @@
   "openalias_alert_title" : "XMR 수신자 감지",
   "openalias_alert_content" : "당신은에 자금을 보낼 것입니다\n${recipient_name}",
 
-  "card_address" : "주소:"
+  "card_address" : "주소:",
+  "buy" : "구입"
 }

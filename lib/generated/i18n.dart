@@ -39,6 +39,7 @@ class S implements WidgetsLocalizations {
   String get authentication => "Authentication";
   String get available_balance => "Available Balance";
   String get biometric_auth_reason => "Scan your fingerprint to authenticate";
+  String get buy => "Buy";
   String get cancel => "Cancel";
   String get card_address => "Address:";
   String get change => "Change";
@@ -438,6 +439,8 @@ class $de extends S {
   String get create_new => "Erstelle neu";
   @override
   String get trade_details_fetching => "Holen";
+  @override
+  String get buy => "Kaufen";
   @override
   String get confirm_sending => "Bestätigen Sie das Senden";
   @override
@@ -1009,6 +1012,8 @@ class $hi extends S {
   @override
   String get trade_details_fetching => "ला रहा है";
   @override
+  String get buy => "खरीदें";
+  @override
   String get confirm_sending => "भेजने की पुष्टि करें";
   @override
   String get settings_title => "सेटिंग्स";
@@ -1578,6 +1583,8 @@ class $ru extends S {
   String get create_new => "Создать новый";
   @override
   String get trade_details_fetching => "Получение";
+  @override
+  String get buy => "Купить";
   @override
   String get confirm_sending => "Подтвердить отправку";
   @override
@@ -2149,6 +2156,8 @@ class $ko extends S {
   @override
   String get trade_details_fetching => "가져 오는 중";
   @override
+  String get buy => "구입";
+  @override
   String get confirm_sending => "전송 확인";
   @override
   String get settings_title => "설정";
@@ -2718,6 +2727,8 @@ class $pt extends S {
   String get create_new => "Criar carteira";
   @override
   String get trade_details_fetching => "Buscando";
+  @override
+  String get buy => "Comprar";
   @override
   String get confirm_sending => "Confirmar o envio";
   @override
@@ -3289,6 +3300,8 @@ class $uk extends S {
   @override
   String get trade_details_fetching => "Отримання";
   @override
+  String get buy => "Купити";
+  @override
   String get confirm_sending => "Підтвердити відправлення";
   @override
   String get settings_title => "Налаштування";
@@ -3858,6 +3871,8 @@ class $ja extends S {
   String get create_new => "新しく作る";
   @override
   String get trade_details_fetching => "フェッチング";
+  @override
+  String get buy => "購入";
   @override
   String get confirm_sending => "送信を確認";
   @override
@@ -4433,6 +4448,8 @@ class $pl extends S {
   @override
   String get trade_details_fetching => "Ujmujący";
   @override
+  String get buy => "Kup";
+  @override
   String get confirm_sending => "Potwierdź wysłanie";
   @override
   String get settings_title => "Ustawienia";
@@ -5002,6 +5019,8 @@ class $es extends S {
   String get create_new => "Crear nuevo";
   @override
   String get trade_details_fetching => "Cargando";
+  @override
+  String get buy => "Comprar";
   @override
   String get confirm_sending => "Confirmar envío";
   @override
@@ -5573,6 +5592,8 @@ class $nl extends S {
   @override
   String get trade_details_fetching => "Ophalen";
   @override
+  String get buy => "Kopen";
+  @override
   String get confirm_sending => "Bevestig verzending";
   @override
   String get settings_title => "Instellingen";
@@ -6142,6 +6163,8 @@ class $zh extends S {
   String get create_new => "创建新的";
   @override
   String get trade_details_fetching => "正在取得";
+  @override
+  String get buy => "購買";
   @override
   String get confirm_sending => "确认发送";
   @override

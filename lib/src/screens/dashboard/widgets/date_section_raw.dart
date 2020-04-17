@@ -35,11 +35,12 @@ class DateSectionRaw extends StatelessWidget {
       title = dateSectionDateFormat.format(date);
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10),
-      child: Center(
-          child: Text(title,
-              style: TextStyle(fontSize: 12, color: PaletteDark.historyPanelText))),
+    return Container(
+      padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
+      alignment: Alignment.center,
+      color: PaletteDark.historyPanel,
+      child: Text(title,
+          style: TextStyle(fontSize: 12, color: PaletteDark.historyPanelText))
     );
   }
 }

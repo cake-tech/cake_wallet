@@ -351,5 +351,6 @@
   "openalias_alert_title" : "Отримувача XMR виявлено",
   "openalias_alert_content" : "Ви будете відправляти кошти\n${recipient_name}",
 
-  "card_address" : "Адреса:"
+  "card_address" : "Адреса:",
+  "buy" : "Купити"
 }
