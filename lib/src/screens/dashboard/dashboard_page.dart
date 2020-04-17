@@ -62,19 +62,10 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
               padding: EdgeInsets.only(left: 20, top: 23),
               child: WalletCard(),
             ),
-            Expanded(
-              child: Stack(
-                alignment: Alignment.topCenter,
-                fit: StackFit.expand,
-                children: <Widget>[
-                  Positioned(
-                    top: 28,
-                    left: 0,
-                    child: TradeHistoryPanel()
-                  ),
-                ],
-              )
-            )
+            SizedBox(
+              height: 28,
+            ),
+            Expanded(child: TradeHistoryPanel())
           ],
         ),
       ),
