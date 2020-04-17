@@ -159,7 +159,8 @@ class WalletCardState extends State<WalletCard> {
                                         walletStore.name,
                                         style: TextStyle(
                                             fontSize: 20,
-                                            fontWeight: FontWeight.bold
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white
                                         ),
                                       ),
                                       SizedBox(width: 10),
@@ -243,7 +244,8 @@ class WalletCardState extends State<WalletCard> {
                                       Text(
                                         balance,
                                         style: TextStyle(
-                                            fontSize: 28
+                                            fontSize: 28,
+                                            color: Colors.white
                                         ),
                                       )
                                     ],
@@ -251,7 +253,8 @@ class WalletCardState extends State<WalletCard> {
                                   Text(
                                     fiatBalance,
                                     style: TextStyle(
-                                        fontSize: 14
+                                        fontSize: 14,
+                                        color: Colors.white
                                     ),
                                   )
                                 ],
@@ -276,7 +279,8 @@ class WalletCardState extends State<WalletCard> {
                                 Text(
                                   descriptionText,
                                   style: TextStyle(
-                                      fontSize: 14
+                                      fontSize: 14,
+                                      color: Colors.white
                                   ),
                                 )
                               ],
@@ -299,6 +303,7 @@ class WalletCardState extends State<WalletCard> {
     final walletStore = Provider.of<WalletStore>(context);
     final rightArrow = Image.asset('assets/images/right_arrow.png');
     double messageBoxHeight = 0;
+    double messageBoxWidth = cardWidth - 30;
 
     return Observer(
       key: _addressObserverKey,
@@ -308,6 +313,7 @@ class WalletCardState extends State<WalletCard> {
           height: cardHeight,
           alignment: Alignment.topCenter,
           child: Stack(
+            alignment: Alignment.topRight,
             children: <Widget>[
               Container(
                 width: cardWidth,
@@ -328,7 +334,7 @@ class WalletCardState extends State<WalletCard> {
                       children: <Widget>[
                         Expanded(
                           child: Container(
-                            height: 72,
+                            height: 84,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,10 +350,16 @@ class WalletCardState extends State<WalletCard> {
                                   onTap: () {
                                     Clipboard.setData(ClipboardData(
                                         text: walletStore.subaddress.address));
-                                    _addressObserverKey.currentState.setState(() => messageBoxHeight = 20);
+                                    _addressObserverKey.currentState.setState(() {
+                                      messageBoxHeight = 20;
+                                      messageBoxWidth = cardWidth;
+                                    });
                                     Timer(Duration(milliseconds: 1000), () {
                                       try {
-                                        _addressObserverKey.currentState.setState(() => messageBoxHeight = 0);
+                                        _addressObserverKey.currentState.setState(() {
+                                          messageBoxHeight = 0;
+                                          messageBoxWidth = cardWidth - 30;
+                                        });
                                       } catch(e) {
                                         print('${e.toString()}');
                                       }
@@ -357,6 +369,7 @@ class WalletCardState extends State<WalletCard> {
                                     walletStore.subaddress.address,
                                     style: TextStyle(
                                         fontSize: 14,
+                                        color: Colors.white
                                     ),
                                   ),
                                 )
@@ -364,10 +377,10 @@ class WalletCardState extends State<WalletCard> {
                             ),
                           )
                         ),
-                        SizedBox(width: 20),
+                        SizedBox(width: 10),
                         Container(
-                          width: 72,
-                          height: 72,
+                          width: 84,
+                          height: 84,
                           child: QrImage(
                             data: walletStore.subaddress.address,
                             backgroundColor: Colors.transparent,
@@ -393,6 +406,7 @@ class WalletCardState extends State<WalletCard> {
                               S.current.subaddresses,
                               style: TextStyle(
                                 fontSize: 14,
+                                color: Colors.white
                               ),
                             ),
                             rightArrow
@@ -404,7 +418,7 @@ class WalletCardState extends State<WalletCard> {
                 ),
               ),
               AnimatedContainer(
-                width: cardWidth,
+                width: messageBoxWidth,
                 height: messageBoxHeight,
                 alignment: Alignment.center,
                 duration: Duration(milliseconds: 500),

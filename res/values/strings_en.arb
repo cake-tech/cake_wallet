@@ -351,5 +351,6 @@
   "openalias_alert_title" : "XMR Recipient Detected",
   "openalias_alert_content" : "You will be sending funds to\n${recipient_name}",
 
-  "card_address" : "Address:"
+  "card_address" : "Address:",
+  "buy" : "Buy"
 }

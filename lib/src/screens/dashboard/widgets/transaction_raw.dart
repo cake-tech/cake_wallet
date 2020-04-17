@@ -24,7 +24,8 @@ class TransactionRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.only(top: 5, bottom: 5),
+          color: PaletteDark.historyPanel,
+          padding: EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
           child: Row(children: <Widget>[
             Container(
               height: 36,
@@ -54,12 +55,15 @@ class TransactionRow extends StatelessWidget {
                                 (isPending ? S.of(context).pending : ''),
                             style: TextStyle(
                                 fontSize: 16,
+                                color: Colors.white
                                 )),
                         Text(direction == TransactionDirection.incoming
                             ? formattedAmount
                             : '- ' + formattedAmount,
                             style: const TextStyle(
-                                fontSize: 16))
+                                fontSize: 16,
+                                color: Colors.white
+                            ))
                       ]),
                   SizedBox(height: 5,),
                   Row(

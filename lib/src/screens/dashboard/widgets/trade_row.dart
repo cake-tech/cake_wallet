@@ -26,7 +26,8 @@ class TradeRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          padding: EdgeInsets.only(top: 5, bottom: 5),
+          color: PaletteDark.historyPanel,
+          padding: EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
           child: Row(children: <Widget>[
             Container(
               height: 36,
@@ -48,11 +49,14 @@ class TradeRow extends StatelessWidget {
                         Text('${from.toString()} → ${to.toString()}',
                             style: TextStyle(
                                 fontSize: 16,
+                                color: Colors.white
                                 )),
                         formattedAmount != null
                             ? Text(formattedAmount + ' ' + amountCrypto,
                                 style: const TextStyle(
-                                    fontSize: 16))
+                                    fontSize: 16,
+                                    color: Colors.white
+                                ))
                             : Container()
                       ]),
                   SizedBox(height: 5),
