@@ -4,6 +4,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/wallet_card.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/trade_history_panel.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 
 class DashboardPage extends BasePage {
   final _bodyKey = GlobalKey();
@@ -52,7 +53,10 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                         highlightColor: Colors.transparent,
                         splashColor: Colors.transparent,
                         padding: EdgeInsets.all(0),
-                        onPressed: () {},
+                        onPressed: () => showDialog<void>(
+                          builder: (_) => MenuWidget(),
+                          context: context
+                        ),
                         child: menuButton),
                   ),
                 ),
