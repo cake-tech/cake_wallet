@@ -36,6 +36,7 @@ class DateSectionRaw extends StatelessWidget {
     }
 
     return Container(
+      height: 36,
       padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
       alignment: Alignment.center,
         decoration: BoxDecoration(

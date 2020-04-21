@@ -26,10 +26,11 @@ class TradeRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
+          height: 56,
           decoration: BoxDecoration(
             color: PaletteDark.historyPanel,
             border: Border.all(
-                width: 0.5,
+                width: 1,
                 color: PaletteDark.historyPanel
             ),
           ),
