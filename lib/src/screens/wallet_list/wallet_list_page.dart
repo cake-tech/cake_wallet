@@ -28,6 +28,7 @@ class WalletListBody extends StatefulWidget {
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon = Image.asset('assets/images/monero.png', height: 24, width: 24);
   WalletListStore _walletListStore;
+  ScrollController scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +65,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         width: double.infinity,
                         child: CustomScrollView(
                           scrollDirection: Axis.horizontal,
+                          controller: scrollController,
                           slivers: <Widget>[
                             SliverPersistentHeader(
                               pinned: false,
@@ -105,8 +107,11 @@ class WalletListBodyState extends State<WalletListBody> {
 
                                     if (index == 0) {
                                       return GestureDetector(
-                                        onTap: () => walletMenu.action(
-                                            walletMenu.listItems.indexOf(item), wallet, isCurrentWallet),
+                                        onTap: () {
+                                          scrollController.animateTo(0.0, duration: Duration(milliseconds: 500), curve: Curves.fastOutSlowIn);
+                                          walletMenu.action(
+                                              walletMenu.listItems.indexOf(item), wallet, isCurrentWallet);
+                                        },
                                         child: Container(
                                           height: 108,
                                           width: 108,
@@ -127,8 +132,11 @@ class WalletListBodyState extends State<WalletListBody> {
                                     }
 
                                     return GestureDetector(
-                                      onTap: () => walletMenu.action(
-                                          walletMenu.listItems.indexOf(item), wallet, isCurrentWallet),
+                                      onTap: () {
+                                        scrollController.animateTo(0.0, duration: Duration(milliseconds: 500), curve: Curves.fastOutSlowIn);
+                                        walletMenu.action(
+                                            walletMenu.listItems.indexOf(item), wallet, isCurrentWallet);
+                                      },
                                       child: Container(
                                         height: 108,
                                         width: 108,
