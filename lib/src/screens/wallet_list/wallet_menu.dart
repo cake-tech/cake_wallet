@@ -27,7 +27,7 @@ class WalletMenu {
 
   final List<Image> listImages = [
     Image.asset('assets/images/load.png', height: 32, width: 32, color: Colors.white),
-    Image.asset('assets/images/eye.png', height: 32, width: 32, color: Colors.white),
+    Image.asset('assets/images/eye_action.png', height: 32, width: 32, color: Colors.white),
     Image.asset('assets/images/trash.png', height: 32, width: 32, color: Colors.white),
     Image.asset('assets/images/scanner.png', height: 32, width: 32, color: Colors.white)
   ];

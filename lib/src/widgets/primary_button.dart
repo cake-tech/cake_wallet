@@ -143,29 +143,42 @@ class PrimaryImageButton extends StatelessWidget {
       {@required this.onPressed,
       @required this.image,
       @required this.text,
-      this.color = Palette.purple,
-      this.borderColor = Palette.deepPink,
-      this.iconColor = Colors.black});
+      @required this.color,
+      @required this.textColor});
 
   final VoidCallback onPressed;
   final Image image;
   final Color color;
-  final Color borderColor;
-  final Color iconColor;
+  final Color textColor;
   final String text;
 
   @override
   Widget build(BuildContext context) {
     return ButtonTheme(
         minWidth: double.infinity,
-        height: 58.0,
+        height: 52.0,
         child: FlatButton(
           onPressed: onPressed,
           color: color,
           shape: RoundedRectangleBorder(
-              side: BorderSide(color: borderColor),
-              borderRadius: BorderRadius.circular(12.0)),
-          child: Row(
+            borderRadius: BorderRadius.circular(26.0)),
+          child:Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                image,
+                SizedBox(width: 15),
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: textColor
+                  ),
+                )
+              ],
+            ),
+          )
+          /*Row(
             children: <Widget>[
               Container(
                 width: 28.0,
@@ -192,7 +205,7 @@ class PrimaryImageButton extends StatelessWidget {
                     )
                   ]))
             ],
-          ),
+          ),*/
         ));
   }
 }
