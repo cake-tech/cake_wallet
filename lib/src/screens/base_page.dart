@@ -31,13 +31,16 @@ abstract class BasePage extends StatelessWidget {
     final _themeChanger = Provider.of<ThemeChanger>(context);
     Image _closeButton, _backButton;
 
-    if (_themeChanger.getTheme() == Themes.darkTheme) {
+    _backButton = _backArrowImageDarkTheme;
+    _closeButton = _closeButtonImageDarkTheme;
+
+    /*if (_themeChanger.getTheme() == Themes.darkTheme) {
       _backButton = _backArrowImageDarkTheme;
       _closeButton = _closeButtonImageDarkTheme;
     } else {
       _backButton = _backArrowImage;
       _closeButton = _closeButtonImage;
-    }
+    }*/
 
     return SizedBox(
       height: 37,
@@ -60,9 +63,10 @@ abstract class BasePage extends StatelessWidget {
         : Text(
             title,
             style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w600,
-                color: Theme.of(context).primaryTextTheme.title.color),
+                fontSize: 22.0,
+                fontWeight: FontWeight.bold,
+                color: Colors.white),
+                //color: Theme.of(context).primaryTextTheme.title.color),
           );
   }
 
@@ -81,9 +85,10 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
+            backgroundColor: backgroundColor);
+            /*backgroundColor: _isDarkTheme
                 ? Theme.of(context).backgroundColor
-                : backgroundColor);
+                : backgroundColor);*/
 
       case AppBarStyle.withShadow:
         return NavBar.withShadow(
@@ -91,9 +96,10 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
+            backgroundColor: backgroundColor);
+            /*backgroundColor: _isDarkTheme
                 ? Theme.of(context).backgroundColor
-                : backgroundColor);
+                : backgroundColor);*/
 
       default:
         return NavBar(
@@ -101,9 +107,10 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
+            backgroundColor: backgroundColor);
+            /*backgroundColor: _isDarkTheme
                 ? Theme.of(context).backgroundColor
-                : backgroundColor);
+                : backgroundColor);*/
     }
   }
 

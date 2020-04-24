@@ -19,8 +19,9 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
         middle: middle,
         trailing: trailing,
         height: _height,
-        backgroundColor:
-            _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor);
+        backgroundColor: backgroundColor);
+        /*backgroundColor:
+            _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor);*/
   }
 
   factory NavBar.withShadow(
@@ -37,8 +38,9 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       middle: middle,
       trailing: trailing,
       height: 80,
-      backgroundColor:
-          _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor,
+      backgroundColor: backgroundColor,
+      /*backgroundColor:
+          _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor,*/
       decoration: BoxDecoration(
           color: _isDarkTheme
               ? Theme.of(context).backgroundColor

@@ -16,7 +16,7 @@ import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_tile.dart';
 class WalletListPage extends BasePage {
 
   @override
-  ObstructingPreferredSizeWidget appBar(BuildContext context) => null;
+  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => WalletListBody();
@@ -30,7 +30,7 @@ class WalletListBody extends StatefulWidget {
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon = Image.asset('assets/images/monero.png', height: 24, width: 24);
   final newWalletImage = Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: PaletteDark.historyPanel);
-  final restoreWalletImage = Image.asset('assets/images/restore_wallet.png', height: 12, width: 12, color: Colors.white,);
+  final restoreWalletImage = Image.asset('assets/images/restore_wallet.png', height: 12, width: 12, color: Colors.white);
   WalletListStore _walletListStore;
   ScrollController scrollController = ScrollController();
 
@@ -41,7 +41,7 @@ class WalletListBodyState extends State<WalletListBody> {
 
     return SafeArea(
       child: Container(
-        padding: EdgeInsets.only(top: 32),
+        padding: EdgeInsets.only(top: 16),
         color: PaletteDark.historyPanel,
         child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 20),

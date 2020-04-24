@@ -9,14 +9,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/stores/wallet_seed/wallet_seed_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class SeedPage extends BasePage {
   SeedPage({this.onCloseCallback});
 
-  static final image = Image.asset('assets/images/seed_image.png');
+  static final image = Image.asset('assets/images/crypto_lock.png');
 
   @override
-  bool get isModalBackButton => true;
+  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   String get title => S.current.seed_title;
@@ -33,134 +34,131 @@ class SeedPage extends BasePage {
   }
 
   @override
+  Widget trailing(BuildContext context) {
+    return onCloseCallback != null
+        ? GestureDetector(
+          onTap: () => onClose(context),
+          child: Container(
+            width: 70,
+            height: 32,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(16)),
+              color: PaletteDark.menuList
+            ),
+            child: Text(
+              S.of(context).seed_language_next,
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.blue
+              ),
+            ),
+          ),
+        )
+        : Offstage();
+  }
+
+  @override
   Widget body(BuildContext context) {
     final walletSeedStore = Provider.of<WalletSeedStore>(context);
     String _seed;
 
     return Container(
-      padding: EdgeInsets.all(30.0),
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  image,
-                  Container(
-                    margin: EdgeInsets.only(left: 30.0, top: 10.0, right: 30.0),
-                    child: Observer(builder: (_) {
-                      _seed = walletSeedStore.seed;
-                      return Column(
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Expanded(
-                                  child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border(
-                                        bottom: BorderSide(
-                                            width: 1.0,
-                                            color: Theme.of(context)
-                                                .dividerColor))),
-                                padding: EdgeInsets.only(bottom: 20.0),
-                                margin: EdgeInsets.only(bottom: 10.0),
-                                child: Text(
-                                  walletSeedStore.name,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 18.0,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .button
-                                          .color),
-                                ),
-                              ))
-                            ],
-                          ),
-                          SizedBox(
-                            height: 10.0,
-                          ),
-                          Text(
-                            walletSeedStore.seed,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: 14.0,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color),
-                          )
-                        ],
-                      );
-                    }),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 30.0),
-                    child: Row(
-                      children: <Widget>[
-                        Flexible(
-                            child: Container(
-                          padding: EdgeInsets.only(right: 8.0),
-                          child: PrimaryButton(
-                              onPressed: () => Share.text(
-                                  S.of(context).seed_share,
-                                  _seed,
-                                  'text/plain'),
-                              color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .button
-                                  .backgroundColor,
-                              borderColor: Theme.of(context)
-                                  .primaryTextTheme
-                                  .button
-                                  .decorationColor,
-                              text: S.of(context).save),
-                        )),
-                        Flexible(
-                            child: Container(
-                                padding: EdgeInsets.only(left: 8.0),
-                                child: Builder(
-                                  builder: (context) => PrimaryButton(
-                                      onPressed: () {
-                                        Clipboard.setData(
-                                            ClipboardData(text: _seed));
-                                        Scaffold.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(S
-                                                .of(context)
-                                                .copied_to_clipboard),
-                                            backgroundColor: Colors.green,
-                                            duration:
-                                                Duration(milliseconds: 1500),
-                                          ),
-                                        );
-                                      },
-                                      text: S.of(context).copy,
-                                      color: Theme.of(context)
-                                          .accentTextTheme
-                                          .caption
-                                          .backgroundColor,
-                                      borderColor: Theme.of(context)
-                                          .accentTextTheme
-                                          .caption
-                                          .decorationColor),
-                                )))
-                      ],
-                    ),
-                  )
-                ],
-              ),
+      width: double.infinity,
+      height: double.infinity,
+      color: PaletteDark.historyPanel,
+      child: ScrollableWithBottomSection(
+        contentPadding: EdgeInsets.only(left: 40, right: 40, bottom: 20),
+        content: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 33),
+              child: image,
             ),
+            Padding(
+              padding: EdgeInsets.only(top: 33),
+              child: Observer(
+                builder: (_) {
+                  _seed = walletSeedStore.seed;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        walletSeedStore.name,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 20),
+                        child: Text(
+                          _seed,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: PaletteDark.walletCardText
+                          ),
+                        ),
+                      )
+                    ],
+                  );
+                }
+              ),
+            )
+          ],
+        ),
+        bottomSectionPadding: EdgeInsets.only(
+          left: 24,
+          right: 24,
+          bottom: 52
+        ),
+        bottomSection: Container(
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: PrimaryButton(
+                    onPressed: () => Share.text(
+                        S.of(context).seed_share,
+                        _seed,
+                        'text/plain'),
+                    text: S.of(context).save,
+                    color: Colors.green,
+                    textColor: Colors.white),
+                )
+              ),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(left: 8.0),
+                  child: Builder(
+                    builder: (context) => PrimaryButton(
+                        onPressed: () {
+                          Clipboard.setData(
+                              ClipboardData(text: _seed));
+                          Scaffold.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(S
+                                  .of(context)
+                                  .copied_to_clipboard),
+                              backgroundColor: Colors.green,
+                              duration: Duration(milliseconds: 1500),
+                            ),
+                          );
+                        },
+                        text: S.of(context).copy,
+                        color: Colors.blue,
+                        textColor: Colors.white)
+                  ),
+                )
+              )
+            ],
           ),
-          onCloseCallback != null
-              ? PrimaryButton(
-                  onPressed: () => onClose(context),
-                  text: S.of(context).restore_next,
-                  color: Palette.darkGrey,
-                  borderColor: Palette.darkGrey)
-              : Offstage()
-        ],
+        ),
       ),
     );
   }
