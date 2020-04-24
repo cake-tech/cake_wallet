@@ -195,8 +195,8 @@ class ContactFormState extends State<ContactForm> {
                   text: S.of(context).reset,
                   color:
                       Theme.of(context).accentTextTheme.button.backgroundColor,
-                  borderColor:
-                      Theme.of(context).accentTextTheme.button.decorationColor),
+                  textColor:
+                      Theme.of(context).primaryTextTheme.button.color),
             ),
             SizedBox(width: 20),
             Expanded(
@@ -248,10 +248,10 @@ class ContactFormState extends State<ContactForm> {
                         .primaryTextTheme
                         .button
                         .backgroundColor,
-                    borderColor: Theme.of(context)
+                    textColor: Theme.of(context)
                         .primaryTextTheme
                         .button
-                        .decorationColor))
+                        .color))
           ],
         ));
   }

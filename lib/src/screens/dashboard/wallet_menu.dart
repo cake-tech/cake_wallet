@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/reconnect_alert_dialog.dart';
 
 class WalletMenu {
   WalletMenu(this.context);
@@ -74,7 +75,19 @@ class WalletMenu {
     await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
+          return ReconnectAlertDialog(
+            reconnectTitleText: S.of(context).reconnection,
+            reconnectContentText: S.of(context).reconnect_alert_text,
+            reconnectLeftActionButtonText: S.of(context).ok,
+            reconnectRightActionButtonText: S.of(context).cancel,
+            reconnectActionLeft: () {
+              walletStore.reconnect();
+              Navigator.of(context).pop();
+            },
+            reconnectActionRight: () => Navigator.of(context).pop()
+          );
+
+            /*AlertDialog(
             title: Text(
               S.of(context).reconnection,
               textAlign: TextAlign.center,
@@ -91,7 +104,7 @@ class WalletMenu {
                   },
                   child: Text(S.of(context).ok))
             ],
-          );
+          );*/
         });
   }
 }
