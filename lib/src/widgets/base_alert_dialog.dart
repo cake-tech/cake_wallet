@@ -75,6 +75,11 @@ class BaseAlertDialog extends StatelessWidget {
               ),
             )
           ),
+          Container(
+            height: 52,
+            width: 1,
+            color: Colors.grey.withOpacity(0.2),
+          ),
           Flexible(
             child: Container(
               padding: EdgeInsets.only(left: 12, right: 12),

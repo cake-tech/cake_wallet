@@ -334,7 +334,7 @@ class WalletCardState extends State<WalletCard> {
                       children: <Widget>[
                         Expanded(
                           child: Container(
-                            height: 84,
+                            height: 90,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,8 +379,8 @@ class WalletCardState extends State<WalletCard> {
                         ),
                         SizedBox(width: 10),
                         Container(
-                          width: 84,
-                          height: 84,
+                          width: 90,
+                          height: 90,
                           child: QrImage(
                             data: walletStore.subaddress.address,
                             backgroundColor: Colors.transparent,
