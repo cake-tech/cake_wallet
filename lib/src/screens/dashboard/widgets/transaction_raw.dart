@@ -24,7 +24,7 @@ class TransactionRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          height: 56,
+          height: 60,
           decoration: BoxDecoration(
             color: PaletteDark.historyPanel,
             border: Border.all(
