@@ -1,8 +1,9 @@
 {
-  "welcome" : "WELKOM\nBIJ CAKE WALLET",
-  "first_wallet_text" : "Geweldige portemonnee\nfvoor Monero",
-  "please_make_selection" : "Maak hieronder uw keuze tot\nmaak of herstel je portemonnee.",
-  "create_new" : "Maak nieuw",
+  "welcome" : "Welkom bij",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Geweldige portemonnee fvoor Monero",
+  "please_make_selection" : "Maak hieronder uw keuze tot maak of herstel je portemonnee.",
+  "create_new" : "Maak een nieuwe portemonnee",
   "restore_wallet" : "Portemonnee herstellen",
 
 

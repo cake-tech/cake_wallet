@@ -89,10 +89,7 @@ class NewSubaddressFormState extends State<NewSubaddressForm> {
                         .accentTextTheme
                         .button
                         .backgroundColor,
-                    borderColor: Theme.of(context)
-                        .accentTextTheme
-                        .button
-                        .decorationColor,
+                    textColor: Theme.of(context).primaryTextTheme.button.color,
                     isLoading:
                         subaddressCreationStore.state is SubaddressIsCreating),
               ))

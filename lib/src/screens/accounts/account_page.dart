@@ -98,10 +98,7 @@ class AccountFormState extends State<AccountForm> {
                           .primaryTextTheme
                           .button
                           .backgroundColor,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .decorationColor,
+                      textColor: Theme.of(context).primaryTextTheme.button.color,
                       isLoading: accountListStore.isAccountCreating,
                     ))
           ],

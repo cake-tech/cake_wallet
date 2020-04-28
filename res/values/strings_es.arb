@@ -1,8 +1,9 @@
 {
-  "welcome" : "Bienvenido\n CAKE WALLET",
-  "first_wallet_text" : "Impresionante billetera\npara Monero",
-  "please_make_selection" : "Seleccione a continuación para\ncrear o recuperar su billetera.",
-  "create_new" : "Crear nuevo",
+  "welcome" : "Bienvenido",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Impresionante billetera para Monero",
+  "please_make_selection" : "Seleccione a continuación para crear o recuperar su billetera.",
+  "create_new" : "Crear nueva billetera",
   "restore_wallet" : "Restaurar billetera",
 
 

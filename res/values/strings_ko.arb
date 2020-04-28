@@ -1,9 +1,10 @@
 {
-  "welcome" : "환영\n에 CAKE WALLET",
-  "first_wallet_text" : "멋진 지갑\n에 대한 Monero",
-  "please_make_selection" : "아래에서 선택하십시오\n지갑 만들기 또는 복구.",
-  "create_new" : "새로 만들기",
-  "restore_wallet" : "지갑 복원",
+  "welcome" : "환영 에",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "멋진 지갑 에 대한 Monero",
+  "please_make_selection" : "아래에서 선택하십시오 지갑 만들기 또는 복구.",
+  "create_new" : "새 월렛 만들기",
+  "restore_wallet" : "월렛 복원",
 
 
   "accounts" : "계정",
