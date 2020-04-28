@@ -1,8 +1,9 @@
 {
-  "welcome" : "BEM-VINDO(A)\nÀ CAKE WALLET",
-  "first_wallet_text" : "Uma fantástica carteira\npara Monero",
-  "please_make_selection" : "Escolha se quer criar uma carteira nova\nou restaurar uma antiga.",
-  "create_new" : "Criar carteira",
+  "welcome" : "Bem-vindo ao",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Uma fantástica carteira para Monero",
+  "please_make_selection" : "Escolha se quer criar uma carteira nova ou restaurar uma antiga.",
+  "create_new" : "Criar nova carteira",
   "restore_wallet" : "Restaurar carteira",
 
 

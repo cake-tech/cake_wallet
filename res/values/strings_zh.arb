@@ -1,8 +1,9 @@
 {
-  "welcome" : "欢迎\nTO CAKE WALLET",
-  "first_wallet_text" : "很棒的钱包\n对于 Monero",
-  "please_make_selection" : "请在下面进行选择\nc创建或恢复您的钱包.",
-  "create_new" : "创建新的",
+  "welcome" : "歡迎來到",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "很棒的钱包 对于 Monero",
+  "please_make_selection" : "请在下面进行选择 创建或恢复您的钱包.",
+  "create_new" : "创建新钱包",
   "restore_wallet" : "恢复钱包",
 
 

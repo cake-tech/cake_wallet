@@ -1,9 +1,10 @@
 {
-  "welcome" : "ようこそ\nに CAKE WALLET",
-  "first_wallet_text" : "素晴らしい財布\nために Monero",
-  "please_make_selection" : "以下を選択してください\nウォレットを作成または回復する.",
-  "create_new" : "新しく作る",
-  "restore_wallet" : "ウォレットを復元する",
+  "welcome" : "ようこそ に",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "素晴らしい財布 ために Monero",
+  "please_make_selection" : "以下を選択してください ウォレットを作成または回復する.",
+  "create_new" : "新しいウォレットを作成",
+  "restore_wallet" : "ウォレットを復元",
 
 
   "accounts" : "アカウント",
