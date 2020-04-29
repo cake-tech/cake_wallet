@@ -41,6 +41,7 @@ class SeedPage extends BasePage {
           child: Container(
             width: 70,
             height: 32,
+            alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(16)),
               color: PaletteDark.menuList
@@ -48,7 +49,7 @@ class SeedPage extends BasePage {
             child: Text(
               S.of(context).seed_language_next,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 10,
                 fontWeight: FontWeight.w600,
                 color: Colors.blue
               ),
