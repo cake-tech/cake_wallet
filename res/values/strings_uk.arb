@@ -107,6 +107,7 @@
   "new_wallet" : "Новий гаманець",
   "wallet_name" : "Ім'я гаманця",
   "continue_text" : "Продовжити",
+  "choose_wallet_currency" : "Будь ласка, виберіть валюту гаманця:",
 
 
   "node_new" : "Новий вузол",
@@ -158,7 +159,8 @@
   "copy" : "Скопіювати",
 
 
-  "seed_language_choose" : "Будь ласка, виберіть мову мнемонічної фрази",
+  "seed_language_choose" : "Будь ласка, виберіть мову мнемонічної фрази:",
+  "seed_choose" : "Виберіть мову мнемонічної фрази",
   "seed_language_next" : "Продовжити",
   "seed_language_english" : "Англійська",
   "seed_language_chinese" : "Китайська",
