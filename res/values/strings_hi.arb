@@ -107,6 +107,7 @@
   "new_wallet" : "नया बटुआ",
   "wallet_name" : "बटुए का नाम",
   "continue_text" : "जारी रहना",
+  "choose_wallet_currency" : "कृपया बटुआ मुद्रा चुनें:",
 
 
   "node_new" : "नया नोड",
@@ -158,7 +159,8 @@
   "copy" : "प्रतिलिपि",
 
 
-  "seed_language_choose" : "कृपया बीज भाषा चुनें",
+  "seed_language_choose" : "कृपया बीज भाषा चुनें:",
+  "seed_choose" : "बीज भाषा चुनें",
   "seed_language_next" : "आगामी",
   "seed_language_english" : "अंग्रेज़ी",
   "seed_language_chinese" : "चीनी",

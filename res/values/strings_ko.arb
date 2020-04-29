@@ -107,6 +107,7 @@
   "new_wallet" : "새 월렛",
   "wallet_name" : "지갑 이름",
   "continue_text" : "잇다",
+  "choose_wallet_currency" : "지갑 통화를 선택하십시오:",
 
 
   "node_new" : "새로운 노드",
@@ -158,7 +159,8 @@
   "copy" : "부",
 
 
-  "seed_language_choose" : "종자 언어를 선택하십시오",
+  "seed_language_choose" : "종자 언어를 선택하십시오:",
+  "seed_choose" : "시드 언어를 선택하십시오",
   "seed_language_next" : "다음 것",
   "seed_language_english" : "영어",
   "seed_language_chinese" : "중국말",

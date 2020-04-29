@@ -107,6 +107,7 @@
   "new_wallet" : "New Wallet",
   "wallet_name" : "Wallet name",
   "continue_text" : "Continue",
+  "choose_wallet_currency" : "Please choose wallet currency:",
 
 
   "node_new" : "New Node",
@@ -158,7 +159,8 @@
   "copy" : "Copy",
 
 
-  "seed_language_choose" : "Please choose seed language",
+  "seed_language_choose" : "Please choose seed language:",
+  "seed_choose" : "Choose seed language",
   "seed_language_next" : "Next",
   "seed_language_english" : "English",
   "seed_language_chinese" : "Chinese",

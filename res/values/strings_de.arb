@@ -107,6 +107,7 @@
   "new_wallet" : "Neues Wallet",
   "wallet_name" : "Walletname",
   "continue_text" : "Fortsetzen",
+  "choose_wallet_currency" : "Bitte wählen Sie die Brieftaschenwährung:",
 
 
   "node_new" : "Neuer Knoten",
@@ -158,7 +159,8 @@
   "copy" : "Kopieren",
 
 
-  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache",
+  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache:",
+  "seed_choose" : "Wählen Sie die Ausgangssprache",
   "seed_language_next" : "Nächster",
   "seed_language_english" : "Englisch",
   "seed_language_chinese" : "Chinesisch",

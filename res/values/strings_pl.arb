@@ -107,6 +107,7 @@
   "new_wallet" : "Nowy portfel",
   "wallet_name" : "Nazwa portfela",
   "continue_text" : "Dalej",
+  "choose_wallet_currency" : "Wybierz walutę portfela:",
 
 
   "node_new" : "Nowy węzeł",
@@ -158,7 +159,8 @@
   "copy" : "Kopiuj",
 
 
-  "seed_language_choose" : "Proszę wybrać język początkowy",
+  "seed_language_choose" : "Proszę wybrać język początkowy:",
+  "seed_choose" : "Wybierz język początkowy",
   "seed_language_next" : "Kolejny",
   "seed_language_english" : "Angielski",
   "seed_language_chinese" : "Chiński",

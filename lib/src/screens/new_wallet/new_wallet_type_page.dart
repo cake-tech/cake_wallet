@@ -73,7 +73,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             Padding(
               padding: EdgeInsets.only(top: 48),
               child: Text(
-                'Please choose wallet currency:',
+                S.of(context).choose_wallet_currency,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,

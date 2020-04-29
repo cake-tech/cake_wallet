@@ -107,6 +107,7 @@
   "new_wallet" : "Nueva billetera",
   "wallet_name" : "Nombre de la billetera",
   "continue_text" : "Continuar",
+  "choose_wallet_currency" : "Por favor, elija la moneda de la billetera:",
 
 
   "node_new" : "Nuevo nodo",
@@ -158,7 +159,8 @@
   "copy" : "Dupdo",
 
 
-  "seed_language_choose" : "Por favor elija el idioma semilla",
+  "seed_language_choose" : "Por favor elija el idioma semilla:",
+  "seed_choose" : "Elige el idioma semilla",
   "seed_language_next" : "Próximo",
   "seed_language_english" : "Inglés",
   "seed_language_chinese" : "Chino",

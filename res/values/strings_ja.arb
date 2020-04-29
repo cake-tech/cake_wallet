@@ -107,6 +107,7 @@
   "new_wallet" : "新しいウォレット",
   "wallet_name" : "ウォレット名",
   "continue_text" : "持続する",
+  "choose_wallet_currency" : "ウォレット通貨を選択してください：",
 
 
   "node_new" : "新しいノード",
@@ -158,7 +159,8 @@
   "copy" : "コピー",
 
 
-  "seed_language_choose" : "シード言語を選択してください",
+  "seed_language_choose" : "シード言語を選択してください:",
+  "seed_choose" : "シード言語を選択してください",
   "seed_language_next" : "次",
   "seed_language_english" : "英語",
   "seed_language_chinese" : "中国語",

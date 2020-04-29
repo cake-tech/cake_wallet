@@ -15,6 +15,8 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
+import 'package:cake_wallet/src/screens/new_wallet/widgets/wallet_creation_dialog.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(
@@ -44,39 +46,9 @@ class WalletNameForm extends StatefulWidget {
 class _WalletNameFormState extends State<WalletNameForm> {
   static const aspectRatioImage = 1.22;
 
-  final List<String> seedLocales = [
-    S.current.seed_language_english,
-    S.current.seed_language_chinese,
-    S.current.seed_language_dutch,
-    S.current.seed_language_german,
-    S.current.seed_language_japanese,
-    S.current.seed_language_portuguese,
-    S.current.seed_language_russian,
-    S.current.seed_language_spanish
-  ];
-
   final _formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
-
-  bool isDisabledButton;
-
-  @override
-  void initState() {
-    isDisabledButton = true;
-
-    nameController.addListener(() {
-      if (nameController.text.isNotEmpty) {
-        isDisabledButton = false;
-      } else {
-        isDisabledButton = true;
-      }
-
-      setState(() {});
-    });
-
-    super.initState();
-  }
 
   @override
   void dispose() {
@@ -89,24 +61,29 @@ class _WalletNameFormState extends State<WalletNameForm> {
     final walletCreationStore = Provider.of<WalletCreationStore>(context);
     final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
+    nameController.addListener(() {
+      if (nameController.text.isNotEmpty) {
+        walletCreationStore.setDisabledStatus(false);
+      } else {
+        walletCreationStore.setDisabledStatus(true);
+      }
+    });
+
     reaction((_) => walletCreationStore.state, (WalletCreationState state) {
       if (state is WalletCreatedSuccessfully) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
 
-      if (state is WalletCreationFailure) { // FIXME: apply new alert dialog
+      if (state is WalletCreationFailure) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
               context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  content: Text(state.error),
-                  actions: <Widget>[
-                    FlatButton(
-                      child: Text(S.of(context).ok),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
+              builder: (_) {
+                return WalletCreationDialog(
+                    dialogTitle: S.current.new_wallet,
+                    dialogContent: state.error,
+                    dialogButtonText: S.of(context).ok,
+                    dialogButtonAction: () => Navigator.of(context).pop()
                 );
               });
         });
@@ -176,7 +153,10 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   text: seedLocales[seedLanguages.indexOf(seedLanguageStore.selectedSeedLanguage)],
                   color: PaletteDark.menuList,
                   textColor: Colors.white,
-                  onTap: () {} // FIXME: apply picker
+                  onTap: () async => await showDialog(
+                    context: context,
+                    builder: (BuildContext context) => SeedLanguagePicker()
+                  )
                 )
               ),
             )
@@ -195,7 +175,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 color: Colors.green,
                 textColor: Colors.white,
                 isLoading: walletCreationStore.state is WalletIsCreating,
-                isDisabled: isDisabledButton,
+                isDisabled: walletCreationStore.isDisabledStatus,
               );
             },
           )),
