@@ -61,6 +61,17 @@ class _WalletNameFormState extends State<WalletNameForm> {
     final walletCreationStore = Provider.of<WalletCreationStore>(context);
     final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
+    final List<String> seedLocales = [
+      S.current.seed_language_english,
+      S.current.seed_language_chinese,
+      S.current.seed_language_dutch,
+      S.current.seed_language_german,
+      S.current.seed_language_japanese,
+      S.current.seed_language_portuguese,
+      S.current.seed_language_russian,
+      S.current.seed_language_spanish
+    ];
+
     nameController.addListener(() {
       if (nameController.text.isNotEmpty) {
         walletCreationStore.setDisabledStatus(false);

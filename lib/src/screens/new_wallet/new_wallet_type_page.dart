@@ -89,7 +89,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 text: 'Bitcoin',
                 color: bitcoinBackgroundColor,
                 textColor: bitcoinTextColor,
-                onTap: () => onSelectBitcoinButton()),
+                onTap: () {}),
             ),
             Padding(
               padding: EdgeInsets.only(top: 20),

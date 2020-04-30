@@ -6,17 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-List<String> seedLocales = [
-  S.current.seed_language_english,
-  S.current.seed_language_chinese,
-  S.current.seed_language_dutch,
-  S.current.seed_language_german,
-  S.current.seed_language_japanese,
-  S.current.seed_language_portuguese,
-  S.current.seed_language_russian,
-  S.current.seed_language_spanish
-];
-
 List<Image> flagImages = [
   Image.asset('assets/images/usa.png'),
   Image.asset('assets/images/china.png'),
