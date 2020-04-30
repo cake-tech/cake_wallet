@@ -24,7 +24,7 @@ class WalletCardState extends State<WalletCard> {
   final _balanceObserverKey = GlobalKey();
   final _addressObserverKey = GlobalKey();
 
-  final List<Color> colorsSync = [PaletteDark.walletCardTopEndSync, PaletteDark.walletCardBottomEndSync];
+  final List<Color> colorsSync = [PaletteDark.walletCardSubAddressField, PaletteDark.walletCardBottomEndSync];
   double cardWidth;
   double cardHeight;
   double screenWidth;
@@ -67,20 +67,34 @@ class WalletCardState extends State<WalletCard> {
         height: cardHeight,
         duration: Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-            gradient: LinearGradient(
-                colors: [PaletteDark.walletCardTopStartSync.withOpacity(opacity),
-                         PaletteDark.walletCardBottomStartSync.withOpacity(opacity)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter
-            )
+        padding: EdgeInsets.only(
+          top: 1,
+          left: 1,
+          bottom: 1
         ),
-        child: InkWell(
-          onTap: () => setState(() => isFrontSide = !isFrontSide),
-          child: isFrontSide
-            ? frontSide()
-            : backSide()
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+          color: PaletteDark.borderCardColor,
+          boxShadow: [
+            BoxShadow(
+              color: PaletteDark.historyPanel.withOpacity(0.5),
+              blurRadius: 8,
+              offset: Offset(5, 5))
+          ]
+        ),
+        child: Container(
+          width: cardWidth,
+          height: cardHeight,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+              color: PaletteDark.historyPanel
+          ),
+          child: InkWell(
+              onTap: () => setState(() => isFrontSide = !isFrontSide),
+              child: isFrontSide
+                  ? frontSide()
+                  : backSide()
+          ),
         ),
       ),
     );
@@ -99,6 +113,7 @@ class WalletCardState extends State<WalletCard> {
         final status = syncStore.status;
         final statusText = status.title();
         final progress = syncStore.status.progress();
+        final indicatorWidth = progress * cardWidth;
 
         String shortAddress = walletStore.subaddress.address;
         shortAddress = shortAddress.replaceRange(4, shortAddress.length - 4, '...');
@@ -123,9 +138,10 @@ class WalletCardState extends State<WalletCard> {
           height: cardHeight,
           child: Stack(
             children: <Widget>[
-              Container(
+              AnimatedContainer(
+                duration: Duration(milliseconds: 0),
                 height: cardHeight,
-                width: progress * cardWidth,
+                width: indicatorWidth,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
                     gradient: LinearGradient(

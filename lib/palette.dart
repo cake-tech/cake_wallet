@@ -74,6 +74,8 @@ class PaletteDark {
 
   static const Color backgroundStart = Color.fromRGBO(231, 240, 253, 1.0);
   static const Color backgroundEnd = Color.fromRGBO(172, 203, 238, 1.0);
+  static const Color mainBackgroundColor = Color.fromRGBO(70, 85, 133, 1.0);
+  static const Color borderCardColor = Color.fromRGBO(81, 96, 147, 1.0);
   static const Color walletCardTopStartSync = Color.fromRGBO(89, 104, 152, 1.0);
   static const Color walletCardBottomStartSync = Color.fromRGBO(70, 85, 133, 1.0);
   static const Color walletCardTopEndSync = Color.fromRGBO(70, 85, 133, 1.0);
