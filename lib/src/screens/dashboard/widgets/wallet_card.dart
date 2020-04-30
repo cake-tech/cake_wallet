@@ -45,7 +45,7 @@ class WalletCardState extends State<WalletCard> {
   }
 
   void afterLayout(dynamic _) {
-    screenWidth = MediaQuery.of(context).size.width;
+    screenWidth = MediaQuery.of(context).size.width - 20;
     setState(() {
       cardWidth = screenWidth;
       opacity = 1;
@@ -138,8 +138,7 @@ class WalletCardState extends State<WalletCard> {
           height: cardHeight,
           child: Stack(
             children: <Widget>[
-              AnimatedContainer(
-                duration: Duration(milliseconds: 0),
+              Container(
                 height: cardHeight,
                 width: indicatorWidth,
                 decoration: BoxDecoration(
@@ -151,6 +150,18 @@ class WalletCardState extends State<WalletCard> {
                     )
                 ),
               ),
+              progress != 1
+              ? Positioned(
+                  left: indicatorWidth,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 1,
+                    height: cardHeight,
+                    color: PaletteDark.borderCardColor,
+                  )
+              )
+              : Offstage(),
               isDraw ? Positioned(
                   left: 20,
                   right: 20,
