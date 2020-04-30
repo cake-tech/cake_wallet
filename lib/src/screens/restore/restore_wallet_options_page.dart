@@ -24,7 +24,10 @@ class RestoreWalletOptionsPage extends BasePage {
     final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       padding: EdgeInsets.all(24),
+      color: PaletteDark.historyPanel,
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[

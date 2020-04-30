@@ -20,7 +20,10 @@ class RestoreOptionsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
+      width: double.infinity,
+      height: double.infinity,
       padding: EdgeInsets.all(24),
+      color: PaletteDark.historyPanel,
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[
