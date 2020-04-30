@@ -50,7 +50,7 @@ class WalletCardState extends State<WalletCard> {
       cardWidth = screenWidth;
       opacity = 1;
     });
-    Timer(Duration(milliseconds: 350), () =>
+    Timer(Duration(milliseconds: 500), () =>
         setState(() => isDraw = true)
     );
   }
@@ -330,7 +330,7 @@ class WalletCardState extends State<WalletCard> {
     final walletStore = Provider.of<WalletStore>(context);
     final rightArrow = Image.asset('assets/images/right_arrow.png');
     double messageBoxHeight = 0;
-    double messageBoxWidth = cardWidth - 30;
+    double messageBoxWidth = cardWidth - 10;
 
     return Observer(
       key: _addressObserverKey,
@@ -385,7 +385,7 @@ class WalletCardState extends State<WalletCard> {
                                       try {
                                         _addressObserverKey.currentState.setState(() {
                                           messageBoxHeight = 0;
-                                          messageBoxWidth = cardWidth - 30;
+                                          messageBoxWidth = cardWidth - 10;
                                         });
                                       } catch(e) {
                                         print('${e.toString()}');
