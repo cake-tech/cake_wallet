@@ -311,10 +311,10 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                         .primaryTextTheme
                         .button
                         .backgroundColor,
-                    borderColor: Theme.of(context)
+                    textColor: Theme.of(context)
                         .primaryTextTheme
                         .button
-                        .decorationColor,
+                        .color,
                   ),
                 )
               : Offstage(),

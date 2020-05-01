@@ -43,8 +43,8 @@ class SeedLanguage extends BasePage {
               text: S.of(context).seed_language_next,
               color:
               Theme.of(context).primaryTextTheme.button.backgroundColor,
-              borderColor:
-              Theme.of(context).primaryTextTheme.button.decorationColor),
+              textColor:
+              Theme.of(context).primaryTextTheme.button.color),
         ],
       ),
     );

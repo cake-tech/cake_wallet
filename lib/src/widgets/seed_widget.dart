@@ -337,10 +337,10 @@ class SeedWidgetState extends State<SeedWidget> {
                                   .primaryTextTheme
                                   .button
                                   .backgroundColor,
-                              borderColor: Theme.of(context)
+                              textColor: Theme.of(context)
                                   .primaryTextTheme
                                   .button
-                                  .decorationColor)
+                                  .color)
                           : PrimaryButton(
                               text: selectedItem != null
                                   ? S.of(context).save
@@ -351,7 +351,10 @@ class SeedWidgetState extends State<SeedWidget> {
                               onDisabledPressed: () => showErrorIfExist(),
                               isDisabled: !isCurrentMnemoticValid,
                               color: PaletteDark.darkThemeBlueButton,
-                              borderColor: Palette.brightBlue))
+                              textColor: Theme.of(context)
+                                  .primaryTextTheme
+                                  .button
+                                  .color))
                 ]))
       ]),
     );

@@ -18,6 +18,20 @@ class WalletMenu {
     S.current.rescan
   ];
 
+  final List<Color> listColors = [
+    Colors.blue,
+    Colors.orange,
+    Colors.red,
+    Colors.green
+  ];
+
+  final List<Image> listImages = [
+    Image.asset('assets/images/load.png', height: 32, width: 32, color: Colors.white),
+    Image.asset('assets/images/eye_action.png', height: 32, width: 32, color: Colors.white),
+    Image.asset('assets/images/trash.png', height: 32, width: 32, color: Colors.white),
+    Image.asset('assets/images/scanner.png', height: 32, width: 32, color: Colors.white)
+  ];
+
   List<String> generateItemsForWalletMenu(bool isCurrentWallet) {
     final items = List<String>();
 
@@ -27,6 +41,28 @@ class WalletMenu {
     if (isCurrentWallet) items.add(listItems[3]);
 
     return items;
+  }
+
+  List<Color> generateColorsForWalletMenu(bool isCurrentWallet) {
+    final colors = List<Color>();
+
+    if (!isCurrentWallet) colors.add(listColors[0]);
+    if (isCurrentWallet) colors.add(listColors[1]);
+    if (!isCurrentWallet) colors.add(listColors[2]);
+    if (isCurrentWallet) colors.add(listColors[3]);
+
+    return colors;
+  }
+
+  List<Image> generateImagesForWalletMenu(bool isCurrentWallet) {
+    final images = List<Image>();
+
+    if (!isCurrentWallet) images.add(listImages[0]);
+    if (isCurrentWallet) images.add(listImages[1]);
+    if (!isCurrentWallet) images.add(listImages[2]);
+    if (isCurrentWallet) images.add(listImages[3]);
+
+    return images;
   }
 
   void action(int index, WalletDescription wallet, bool isCurrentWallet) {
