@@ -1,8 +1,9 @@
 {
-  "welcome" : "Приветствуем в CAKE WALLET",
+  "welcome" : "Приветствуем в",
+  "cake_wallet" : "Cake Wallet",
   "first_wallet_text" : "В самом удобном кошельке для Monero",
   "please_make_selection" : "Выберите способ создания кошелька: создать новый или восстановить ваш существующий.",
-  "create_new" : "Создать новый",
+  "create_new" : "Создать новый кошелёк",
   "restore_wallet" : "Восстановить кошелёк",
 
 
@@ -106,6 +107,7 @@
   "new_wallet" : "Новый кошелёк",
   "wallet_name" : "Имя кошелька",
   "continue_text" : "Продолжить",
+  "choose_wallet_currency" : "Пожалуйста, выберите валюту кошелька:",
 
 
   "node_new" : "Новая нода",
@@ -157,7 +159,8 @@
   "copy" : "Скопировать",
 
 
-  "seed_language_choose" : "Пожалуйста, выберите язык мнемонической фразы",
+  "seed_language_choose" : "Пожалуйста, выберите язык мнемонической фразы:",
+  "seed_choose" : "Выберите язык мнемонической фразы",
   "seed_language_next" : "Продолжить",
   "seed_language_english" : "Английский",
   "seed_language_chinese" : "Китайский",

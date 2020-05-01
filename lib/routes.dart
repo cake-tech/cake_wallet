@@ -44,4 +44,5 @@ class Routes {
   static const rescan = '/rescan';
   static const faq = '/faq';
   static const changeLanguage = '/change_language';
+  static const newWalletType = '/new_wallet_type';
 }

@@ -1,9 +1,10 @@
 {
-  "welcome" : "WELCOME\nTO CAKE WALLET",
-  "first_wallet_text" : "Awesome wallet\nfor Monero",
-  "please_make_selection" : "Please make selection below to\ncreate or recover your wallet.",
-  "create_new" : "Create new",
-  "restore_wallet" : "Restore wallet",
+  "welcome" : "Welcome to",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Awesome wallet for Monero",
+  "please_make_selection" : "Please make selection below to create or recover your wallet.",
+  "create_new" : "Create New Wallet",
+  "restore_wallet" : "Restore Wallet",
 
 
   "accounts" : "Accounts",
@@ -106,6 +107,7 @@
   "new_wallet" : "New Wallet",
   "wallet_name" : "Wallet name",
   "continue_text" : "Continue",
+  "choose_wallet_currency" : "Please choose wallet currency:",
 
 
   "node_new" : "New Node",
@@ -157,7 +159,8 @@
   "copy" : "Copy",
 
 
-  "seed_language_choose" : "Please choose seed language",
+  "seed_language_choose" : "Please choose seed language:",
+  "seed_choose" : "Choose seed language",
   "seed_language_next" : "Next",
   "seed_language_english" : "English",
   "seed_language_chinese" : "Chinese",
