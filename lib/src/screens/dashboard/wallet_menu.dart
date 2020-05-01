@@ -86,25 +86,6 @@ class WalletMenu {
             },
             reconnectActionRight: () => Navigator.of(context).pop()
           );
-
-            /*AlertDialog(
-            title: Text(
-              S.of(context).reconnection,
-              textAlign: TextAlign.center,
-            ),
-            content: Text(S.of(context).reconnect_alert_text),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(S.of(context).cancel)),
-              FlatButton(
-                  onPressed: () {
-                    walletStore.reconnect();
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(S.of(context).ok))
-            ],
-          );*/
         });
   }
 }

@@ -27,8 +27,8 @@ class SelectButton extends StatelessWidget {
         padding: EdgeInsets.only(left: 30, right: 30),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(30)),
-            color: color
+          borderRadius: BorderRadius.all(Radius.circular(30)),
+          color: color
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -40,18 +40,18 @@ class SelectButton extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 image != null
-                    ? image
-                    : Offstage(),
+                ? image
+                : Offstage(),
                 Padding(
                   padding: image != null
-                      ? EdgeInsets.only(left: 15)
-                      : EdgeInsets.only(left: 0),
+                    ? EdgeInsets.only(left: 15)
+                    : EdgeInsets.only(left: 0),
                   child: Text(
                     text,
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: textColor
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: textColor
                     ),
                   ),
                 )

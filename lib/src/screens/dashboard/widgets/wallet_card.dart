@@ -24,7 +24,7 @@ class WalletCardState extends State<WalletCard> {
   final _balanceObserverKey = GlobalKey();
   final _addressObserverKey = GlobalKey();
 
-  final List<Color> colorsSync = [PaletteDark.walletCardTopEndSync, PaletteDark.walletCardBottomEndSync];
+  final List<Color> colorsSync = [PaletteDark.walletCardSubAddressField, PaletteDark.walletCardBottomEndSync];
   double cardWidth;
   double cardHeight;
   double screenWidth;
@@ -45,12 +45,12 @@ class WalletCardState extends State<WalletCard> {
   }
 
   void afterLayout(dynamic _) {
-    screenWidth = MediaQuery.of(context).size.width;
+    screenWidth = MediaQuery.of(context).size.width - 20;
     setState(() {
       cardWidth = screenWidth;
       opacity = 1;
     });
-    Timer(Duration(milliseconds: 350), () =>
+    Timer(Duration(milliseconds: 500), () =>
         setState(() => isDraw = true)
     );
   }
@@ -67,20 +67,34 @@ class WalletCardState extends State<WalletCard> {
         height: cardHeight,
         duration: Duration(milliseconds: 500),
         curve: Curves.fastOutSlowIn,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-            gradient: LinearGradient(
-                colors: [PaletteDark.walletCardTopStartSync.withOpacity(opacity),
-                         PaletteDark.walletCardBottomStartSync.withOpacity(opacity)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter
-            )
+        padding: EdgeInsets.only(
+          top: 1,
+          left: 1,
+          bottom: 1
         ),
-        child: InkWell(
-          onTap: () => setState(() => isFrontSide = !isFrontSide),
-          child: isFrontSide
-            ? frontSide()
-            : backSide()
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+          color: PaletteDark.borderCardColor,
+          boxShadow: [
+            BoxShadow(
+              color: PaletteDark.historyPanel.withOpacity(0.5),
+              blurRadius: 8,
+              offset: Offset(5, 5))
+          ]
+        ),
+        child: Container(
+          width: cardWidth,
+          height: cardHeight,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+              color: PaletteDark.historyPanel
+          ),
+          child: InkWell(
+              onTap: () => setState(() => isFrontSide = !isFrontSide),
+              child: isFrontSide
+                  ? frontSide()
+                  : backSide()
+          ),
         ),
       ),
     );
@@ -99,6 +113,7 @@ class WalletCardState extends State<WalletCard> {
         final status = syncStore.status;
         final statusText = status.title();
         final progress = syncStore.status.progress();
+        final indicatorWidth = progress * cardWidth;
 
         String shortAddress = walletStore.subaddress.address;
         shortAddress = shortAddress.replaceRange(4, shortAddress.length - 4, '...');
@@ -125,7 +140,7 @@ class WalletCardState extends State<WalletCard> {
             children: <Widget>[
               Container(
                 height: cardHeight,
-                width: progress * cardWidth,
+                width: indicatorWidth,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
                     gradient: LinearGradient(
@@ -135,6 +150,18 @@ class WalletCardState extends State<WalletCard> {
                     )
                 ),
               ),
+              progress != 1
+              ? Positioned(
+                  left: indicatorWidth,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 1,
+                    height: cardHeight,
+                    color: PaletteDark.borderCardColor,
+                  )
+              )
+              : Offstage(),
               isDraw ? Positioned(
                   left: 20,
                   right: 20,
@@ -303,7 +330,7 @@ class WalletCardState extends State<WalletCard> {
     final walletStore = Provider.of<WalletStore>(context);
     final rightArrow = Image.asset('assets/images/right_arrow.png');
     double messageBoxHeight = 0;
-    double messageBoxWidth = cardWidth - 30;
+    double messageBoxWidth = cardWidth - 10;
 
     return Observer(
       key: _addressObserverKey,
@@ -358,7 +385,7 @@ class WalletCardState extends State<WalletCard> {
                                       try {
                                         _addressObserverKey.currentState.setState(() {
                                           messageBoxHeight = 0;
-                                          messageBoxWidth = cardWidth - 30;
+                                          messageBoxWidth = cardWidth - 10;
                                         });
                                       } catch(e) {
                                         print('${e.toString()}');

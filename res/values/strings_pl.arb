@@ -1,8 +1,9 @@
 {
-  "welcome" : "WITAMY\nW CAKE WALLET",
-  "first_wallet_text" : "Niesamowity portfel\nfdla Monero",
-  "please_make_selection" : "Wybierz poniżej, aby\ncutwórz lub odzyskaj swój portfel.",
-  "create_new" : "Tworzyć nowe",
+  "welcome" : "Witamy w",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Niesamowity portfel dla Monero",
+  "please_make_selection" : "Wybierz poniżej, aby cutwórz lub odzyskaj swój portfel.",
+  "create_new" : "Utwórz nowy portfel",
   "restore_wallet" : "Przywróć portfel",
 
 
@@ -106,6 +107,7 @@
   "new_wallet" : "Nowy portfel",
   "wallet_name" : "Nazwa portfela",
   "continue_text" : "Dalej",
+  "choose_wallet_currency" : "Wybierz walutę portfela:",
 
 
   "node_new" : "Nowy węzeł",

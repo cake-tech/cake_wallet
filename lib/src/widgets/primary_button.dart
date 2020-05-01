@@ -185,34 +185,6 @@ class PrimaryImageButton extends StatelessWidget {
               ],
             ),
           )
-          /*Row(
-            children: <Widget>[
-              Container(
-                width: 28.0,
-                height: 56.0,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.transparent),
-                child: image,
-              ),
-              Expanded(
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                    Container(
-                      height: 56.0,
-                      child: Center(
-                        child: Text(text,
-                            style: TextStyle(
-                                fontSize: 18.0,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .button
-                                    .color)),
-                      ),
-                    )
-                  ]))
-            ],
-          ),*/
         ));
   }
 }
