@@ -33,8 +33,7 @@ class RescanPage extends BasePage {
                 },
                 color:
                     Theme.of(context).primaryTextTheme.button.backgroundColor,
-                borderColor:
-                    Theme.of(context).primaryTextTheme.button.decorationColor))
+                textColor: Theme.of(context).primaryTextTheme.button.color))
       ]),
     );
   }

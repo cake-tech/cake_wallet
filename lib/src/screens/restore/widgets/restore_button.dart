@@ -20,7 +20,7 @@ class RestoreButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        height: 140,
+        height: 150,
         padding: EdgeInsets.all(24),
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
@@ -52,7 +52,7 @@ class RestoreButton extends StatelessWidget {
                     Padding(
                       padding: EdgeInsets.only(top: 5),
                       child: Text(
-                        title,
+                        description,
                         style: TextStyle(
                             fontSize: 14,
                             color: PaletteDark.walletCardText

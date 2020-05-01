@@ -126,8 +126,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               },
               text: S.of(context).continue_text,
               color: Theme.of(context).primaryTextTheme.button.backgroundColor,
-              borderColor:
-                  Theme.of(context).primaryTextTheme.button.decorationColor,
+              textColor: Theme.of(context).primaryTextTheme.button.color,
               isLoading: walletCreationStore.state is WalletIsCreating,
             );
           },

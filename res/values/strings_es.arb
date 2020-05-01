@@ -150,6 +150,8 @@
   "restore_spend_key_private" : "Spend clave (privado)",
   "restore_recover" : "Recuperar",
   "restore_wallet_restore_description" : "Restaurar billetera",
+  "restore_new_seed" : "Nueva semilla",
+  "restore_active_seed" : "Semilla activa",
 
 
   "seed_title" : "Semilla",

@@ -150,6 +150,8 @@
   "restore_spend_key_private" : "キーを使う (プライベート)",
   "restore_recover" : "回復します",
   "restore_wallet_restore_description" : "ウォレットの復元",
+  "restore_new_seed" : "新しい種",
+  "restore_active_seed" : "アクティブシード",
 
 
   "seed_title" : "シード",

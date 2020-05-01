@@ -150,6 +150,8 @@
   "restore_spend_key_private" : "支出金钥 (私人的)",
   "restore_recover" : "恢复",
   "restore_wallet_restore_description" : "钱包还原说明",
+  "restore_new_seed" : "新種子",
+  "restore_active_seed" : "活性種子",
 
 
   "seed_title" : "种子",
