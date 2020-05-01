@@ -9,6 +9,7 @@ class BaseAlertDialog extends StatelessWidget {
   String get rightActionButtonText => '';
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
+  bool get barrierDismissible => true;
 
   Widget title(BuildContext context) {
     return Text(
@@ -113,7 +114,9 @@ class BaseAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).pop(),
+      onTap: () => barrierDismissible
+      ? Navigator.of(context).pop()
+      : null,
       child: Container(
         color: Colors.transparent,
         child: BackdropFilter(
