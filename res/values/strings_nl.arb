@@ -159,7 +159,8 @@
   "copy" : "Kopiëren",
 
 
-  "seed_language_choose" : "Kies een starttaal",
+  "seed_language_choose" : "Kies een starttaal:",
+  "seed_choose" : "Kies een starttaal",
   "seed_language_next" : "Volgende",
   "seed_language_english" : "Engels",
   "seed_language_chinese" : "Chinese",

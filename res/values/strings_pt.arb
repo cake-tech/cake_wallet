@@ -159,7 +159,8 @@
   "copy" : "Copiar",
 
 
-  "seed_language_choose" : "Por favor, escolha o idioma da semente",
+  "seed_language_choose" : "Por favor, escolha o idioma da semente:",
+  "seed_choose" : "Escolha o idioma da semente",
   "seed_language_next" : "Próximo",
   "seed_language_english" : "Inglesa",
   "seed_language_chinese" : "Chinesa",

@@ -159,7 +159,8 @@
   "copy" : "Dupdo",
 
 
-  "seed_language_choose" : "Por favor elija el idioma semilla",
+  "seed_language_choose" : "Por favor elija el idioma semilla:",
+  "seed_choose" : "Elige el idioma semilla",
   "seed_language_next" : "Próximo",
   "seed_language_english" : "Inglés",
   "seed_language_chinese" : "Chino",

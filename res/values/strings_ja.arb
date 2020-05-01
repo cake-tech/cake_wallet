@@ -159,7 +159,8 @@
   "copy" : "コピー",
 
 
-  "seed_language_choose" : "シード言語を選択してください",
+  "seed_language_choose" : "シード言語を選択してください:",
+  "seed_choose" : "シード言語を選択してください",
   "seed_language_next" : "次",
   "seed_language_english" : "英語",
   "seed_language_chinese" : "中国語",
