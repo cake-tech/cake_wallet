@@ -125,18 +125,20 @@ class S implements WidgetsLocalizations {
   String get remove_node_message => "Are you sure that you want to remove selected node?";
   String get rescan => "Rescan";
   String get reset => "Reset";
+  String get restore_active_seed => "Active seed";
   String get restore_address => "Address";
   String get restore_description_from_backup => "You can restore the whole Cake Wallet app from your back-up file";
   String get restore_description_from_keys => "Restore your wallet from generated keystrokes saved from your private keys";
   String get restore_description_from_seed => "Restore your wallet from either the 25 word or 13 word combination code";
   String get restore_description_from_seed_keys => "Get back your wallet from seed/keys that you've saved to secure place";
   String get restore_from_seed_placeholder => "Please enter or paste your seed here";
+  String get restore_new_seed => "New seed";
   String get restore_next => "Next";
   String get restore_recover => "Restore";
   String get restore_restore_wallet => "Restore Wallet";
   String get restore_seed_keys_restore => "Seed/Keys Restore";
   String get restore_spend_key_private => "Spend key (private)";
-  String get restore_title_from_backup => "Restore from a back-up file";
+  String get restore_title_from_backup => "Restore from back-up";
   String get restore_title_from_keys => "Restore from keys";
   String get restore_title_from_seed => "Restore from seed";
   String get restore_title_from_seed_keys => "Restore from seed/keys";
@@ -460,6 +462,8 @@ class $de extends S {
   @override
   String get transaction_priority_slow => "Schleppend";
   @override
+  String get restore_new_seed => "Neuer Seed";
+  @override
   String get add => "Hinzufügen";
   @override
   String get remove_node => "Knoten entfernen";
@@ -669,6 +673,8 @@ class $de extends S {
   String get widgets_seed => "Seed";
   @override
   String get settings_fee_priority => "Gebührenpriorität";
+  @override
+  String get restore_active_seed => "Aktives Seed";
   @override
   String get settings_personal => "persönlich";
   @override
@@ -1032,6 +1038,8 @@ class $hi extends S {
   @override
   String get transaction_priority_slow => "धीरे";
   @override
+  String get restore_new_seed => "नया बीज";
+  @override
   String get add => "जोड़ना";
   @override
   String get remove_node => "नोड निकालें";
@@ -1241,6 +1249,8 @@ class $hi extends S {
   String get widgets_seed => "बीज";
   @override
   String get settings_fee_priority => "शुल्क प्राथमिकता";
+  @override
+  String get restore_active_seed => "सक्रिय बीज";
   @override
   String get settings_personal => "निजी";
   @override
@@ -1604,6 +1614,8 @@ class $ru extends S {
   @override
   String get transaction_priority_slow => "Медленный";
   @override
+  String get restore_new_seed => "Новая мнемоническая фраза";
+  @override
   String get add => "Добавить";
   @override
   String get remove_node => "Удалить ноду";
@@ -1813,6 +1825,8 @@ class $ru extends S {
   String get widgets_seed => "Мнемоническая фраза";
   @override
   String get settings_fee_priority => "Приоритет транзакции";
+  @override
+  String get restore_active_seed => "Активная мнемоническая фраза";
   @override
   String get settings_personal => "Персональные";
   @override
@@ -2176,6 +2190,8 @@ class $ko extends S {
   @override
   String get transaction_priority_slow => "느린";
   @override
+  String get restore_new_seed => "새로운 씨앗";
+  @override
   String get add => "더하다";
   @override
   String get remove_node => "노드 제거";
@@ -2385,6 +2401,8 @@ class $ko extends S {
   String get widgets_seed => "씨";
   @override
   String get settings_fee_priority => "수수료 우선";
+  @override
+  String get restore_active_seed => "활성 종자";
   @override
   String get settings_personal => "개인적인";
   @override
@@ -2748,6 +2766,8 @@ class $pt extends S {
   @override
   String get transaction_priority_slow => "Lenta";
   @override
+  String get restore_new_seed => "Nova semente";
+  @override
   String get add => "Adicionar";
   @override
   String get remove_node => "Remover nó";
@@ -2957,6 +2977,8 @@ class $pt extends S {
   String get widgets_seed => "Semente";
   @override
   String get settings_fee_priority => "Prioridade da taxa";
+  @override
+  String get restore_active_seed => "Semente ativa";
   @override
   String get settings_personal => "Pessoal";
   @override
@@ -3320,6 +3342,8 @@ class $uk extends S {
   @override
   String get transaction_priority_slow => "Повільний";
   @override
+  String get restore_new_seed => "Нова мнемонічна фраза";
+  @override
   String get add => "Добавити";
   @override
   String get remove_node => "Видалити вузол";
@@ -3529,6 +3553,8 @@ class $uk extends S {
   String get widgets_seed => "Мнемонічна фраза";
   @override
   String get settings_fee_priority => "Пріоритет транзакції";
+  @override
+  String get restore_active_seed => "Активна мнемонічна фраза";
   @override
   String get settings_personal => "Персональні";
   @override
@@ -3892,6 +3918,8 @@ class $ja extends S {
   @override
   String get transaction_priority_slow => "スロー";
   @override
+  String get restore_new_seed => "新しい種";
+  @override
   String get add => "加える";
   @override
   String get remove_node => "ノードを削除";
@@ -4101,6 +4129,8 @@ class $ja extends S {
   String get widgets_seed => "シード";
   @override
   String get settings_fee_priority => "料金優先";
+  @override
+  String get restore_active_seed => "アクティブシード";
   @override
   String get settings_personal => "パーソナル";
   @override
@@ -4468,6 +4498,8 @@ class $pl extends S {
   @override
   String get transaction_priority_slow => "Powolny";
   @override
+  String get restore_new_seed => "Nowe nasienie";
+  @override
   String get add => "Dodaj";
   @override
   String get remove_node => "Usuń węzeł";
@@ -4677,6 +4709,8 @@ class $pl extends S {
   String get widgets_seed => "Ziarno";
   @override
   String get settings_fee_priority => "Priorytet opłaty";
+  @override
+  String get restore_active_seed => "Aktywne nasiona";
   @override
   String get settings_personal => "Osobisty";
   @override
@@ -5040,6 +5074,8 @@ class $es extends S {
   @override
   String get transaction_priority_slow => "Lento";
   @override
+  String get restore_new_seed => "Nueva semilla";
+  @override
   String get add => "Añadir";
   @override
   String get remove_node => "Eliminar nodo";
@@ -5249,6 +5285,8 @@ class $es extends S {
   String get widgets_seed => "Semilla";
   @override
   String get settings_fee_priority => "Prioridad de tasa";
+  @override
+  String get restore_active_seed => "Semilla activa";
   @override
   String get settings_personal => "Personal";
   @override
@@ -5612,6 +5650,8 @@ class $nl extends S {
   @override
   String get transaction_priority_slow => "Langzaam";
   @override
+  String get restore_new_seed => "Nieuw zaad";
+  @override
   String get add => "Toevoegen";
   @override
   String get remove_node => "Knoop verwijderen";
@@ -5821,6 +5861,8 @@ class $nl extends S {
   String get widgets_seed => "Zaad";
   @override
   String get settings_fee_priority => "Tariefprioriteit";
+  @override
+  String get restore_active_seed => "Actief zaad";
   @override
   String get settings_personal => "Persoonlijk";
   @override
@@ -6184,6 +6226,8 @@ class $zh extends S {
   @override
   String get transaction_priority_slow => "慢";
   @override
+  String get restore_new_seed => "新種子";
+  @override
   String get add => "加";
   @override
   String get remove_node => "删除节点";
@@ -6393,6 +6437,8 @@ class $zh extends S {
   String get widgets_seed => "种子";
   @override
   String get settings_fee_priority => "费用优先";
+  @override
+  String get restore_active_seed => "活性種子";
   @override
   String get settings_personal => "个人";
   @override

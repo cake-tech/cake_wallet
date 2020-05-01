@@ -150,6 +150,8 @@
   "restore_spend_key_private" : "Sleutel uitgeven (privaat)",
   "restore_recover" : "Herstellen",
   "restore_wallet_restore_description" : "Portemonnee-herstelbeschrijving",
+  "restore_new_seed" : "Nieuw zaad",
+  "restore_active_seed" : "Actief zaad",
 
 
   "seed_title" : "Zaad",

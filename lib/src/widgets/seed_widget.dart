@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/domain/monero/mnemonics/russian.dart';
 import 'package:cake_wallet/src/domain/monero/mnemonics/spanish.dart';
 import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/top_panel.dart';
 
 class SeedWidget extends StatefulWidget {
   SeedWidget({Key key, this.onMnemoticChange, this.onFinish, this.seedLanguage}) : super(key: key) {
@@ -235,127 +236,186 @@ class SeedWidgetState extends State<SeedWidget> {
       child: Column(children: [
         Flexible(
             fit: FlexFit.tight,
-            flex: 6,
-            child: SingleChildScrollView(
-              child: Wrap(
-                  children: items.map((item) {
-                final isValid = item.isCorrect();
-                final isSelected = selectedItem == item;
-
-                return InkWell(
-                  onTap: () => onMnemoticTap(item),
-                  child: Container(
-                      decoration: BoxDecoration(
-                          color: isValid ? Colors.transparent : Palette.red),
-                      margin: EdgeInsets.only(right: 7, bottom: 8),
-                      child: Text(
-                        item.toString(),
+            flex: 1,
+            child: TopPanel(
+                height: null,
+                color: PaletteDark.menuList,
+                widget: SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        S.of(context).restore_active_seed,
                         style: TextStyle(
-                            color:
-                                isValid ? Palette.blueGrey : Palette.lightGrey,
-                            fontSize: 18,
-                            fontWeight:
-                                isSelected ? FontWeight.w900 : FontWeight.w400,
-                            decoration: isSelected
-                                ? TextDecoration.underline
-                                : TextDecoration.none),
-                      )),
-                );
-              }).toList()),
-            )),
+                            fontSize: 14,
+                            color: PaletteDark.walletCardText
+                        ),
+                      ),
+                      Padding(
+                          padding: EdgeInsets.only(top: 5),
+                          child: Wrap(
+                            children: items.map((item) {
+                              final isValid = item.isCorrect();
+                              final isSelected = selectedItem == item;
+
+                              return InkWell(
+                                onTap: () => onMnemoticTap(item),
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                        color: isValid ? Colors.transparent : Palette.red),
+                                    margin: EdgeInsets.only(right: 7, bottom: 8),
+                                    child: Text(
+                                      item.toString(),
+                                      style: TextStyle(
+                                          color:
+                                          isValid ? Colors.white : Palette.lightGrey,
+                                          fontSize: 16,
+                                          fontWeight:
+                                          isSelected ? FontWeight.w900 : FontWeight.w400,
+                                          decoration: isSelected
+                                              ? TextDecoration.underline
+                                              : TextDecoration.none),
+                                    )),
+                              );
+                            }).toList(),)
+                      )
+                    ],
+                  ),
+                )
+            )
+        ),
         Flexible(
             fit: FlexFit.tight,
-            flex: 8,
-            child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            flex: 2,
+            child: Padding(
+              padding: EdgeInsets.only(left: 24, top: 48, right: 24, bottom: 24),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  Column(children: <Widget>[
-                    TextFormField(
-                      key: _seedTextFieldKey,
-                      onFieldSubmitted: (text) => isCurrentMnemoticValid
-                          ? saveCurrentMnemoticToItems()
-                          : null,
-                      style: TextStyle(fontSize: 14.0),
-                      controller: _seedController,
-                      textInputAction: TextInputAction.done,
-                      decoration: InputDecoration(
-                          suffixIcon: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            child: ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: 145),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: <Widget>[
-                                  Text(
-                                      '${items.length}/${SeedWidgetState.maxLength}',
-                                      style: TextStyle(
-                                          color: Colors.grey, fontSize: 12)),
-                                  SizedBox(width: 10),
-                                  InkWell(
-                                    onTap: () async =>
-                                        Clipboard.getData('text/plain').then(
-                                            (clipboard) =>
-                                                replaceText(clipboard.text)),
-                                    child: Container(
-                                        height: 35,
-                                        padding: EdgeInsets.all(7),
-                                        decoration: BoxDecoration(
-                                            color:
-                                                Palette.wildDarkBlueWithOpacity,
-                                            borderRadius:
-                                                BorderRadius.circular(10.0)),
-                                        child: Text(S.of(context).paste)),
-                                  )
-                                ],
-                              ),
+                Text(
+                  S.of(context).restore_new_seed,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: TextFormField(
+                    key: _seedTextFieldKey,
+                    onFieldSubmitted: (text) => isCurrentMnemoticValid
+                        ? saveCurrentMnemoticToItems()
+                        : null,
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.white
+                    ),
+                    controller: _seedController,
+                    textInputAction: TextInputAction.done,
+                    decoration: InputDecoration(
+                        suffixIcon: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: 145),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: <Widget>[
+                                Text(
+                                    '${items.length}/${SeedWidgetState.maxLength}',
+                                    style: TextStyle(
+                                        color: PaletteDark.walletCardText,
+                                        fontSize: 14)),
+                                SizedBox(width: 10),
+                                InkWell(
+                                  onTap: () async =>
+                                      Clipboard.getData('text/plain').then(
+                                              (clipboard) =>
+                                              replaceText(clipboard.text)),
+                                  child: Container(
+                                      height: 35,
+                                      padding: EdgeInsets.all(7),
+                                      decoration: BoxDecoration(
+                                          color:
+                                          PaletteDark.menuList,
+                                          borderRadius:
+                                          BorderRadius.circular(10.0)),
+                                      child: Text(
+                                          S.of(context).paste,
+                                          style: TextStyle(
+                                            color: Colors.white
+                                          ),
+                                      )),
+                                )
+                              ],
                             ),
                           ),
-                          hintStyle:
-                              TextStyle(color: Theme.of(context).hintColor),
-                          hintText: S.of(context).restore_from_seed_placeholder,
-                          errorText: _errorMessage,
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Palette.cakeGreen, width: 2.0)),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context).focusColor,
-                                  width: 1.0))),
-                      enableInteractiveSelection: false,
+                        ),
+                        hintStyle:
+                        TextStyle(
+                          color: PaletteDark.walletCardText,
+                          fontSize: 16
+                        ),
+                        hintText: S.of(context).restore_from_seed_placeholder,
+                        errorText: _errorMessage,
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: PaletteDark.menuList, width: 1.0)),
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: PaletteDark.menuList,
+                                width: 1.0))),
+                    enableInteractiveSelection: false,
+                  ),
+                )
+              ]),
+            )
+        ),
+        Padding(
+            padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+            child: Row(
+              children: <Widget>[
+                Flexible(
+                  child: Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: PrimaryButton(
+                      onPressed: clear,
+                      text: S.of(context).clear,
+                      color: Colors.red,
+                      textColor: Colors.white,
+                      isDisabled: items.isEmpty,
                     ),
-                  ]),
-                  Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: (selectedItem == null && items.length == maxLength)
-                          ? PrimaryButton(
-                              text: S.of(context).restore_next,
-                              isDisabled: !isSeedValid(),
-                              onPressed: () => widget.onFinish != null
-                                  ? widget.onFinish()
-                                  : null,
-                              color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .button
-                                  .backgroundColor,
-                              textColor: Theme.of(context)
-                                  .primaryTextTheme
-                                  .button
-                                  .color)
-                          : PrimaryButton(
-                              text: selectedItem != null
-                                  ? S.of(context).save
-                                  : S.of(context).add_new_word,
-                              onPressed: () => isCurrentMnemoticValid
-                                  ? saveCurrentMnemoticToItems()
-                                  : null,
-                              onDisabledPressed: () => showErrorIfExist(),
-                              isDisabled: !isCurrentMnemoticValid,
-                              color: PaletteDark.darkThemeBlueButton,
-                              textColor: Theme.of(context)
-                                  .primaryTextTheme
-                                  .button
-                                  .color))
-                ]))
+                  )
+                ),
+                Flexible(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: (selectedItem == null && items.length == maxLength)
+                        ? PrimaryButton(
+                        text: S.of(context).restore_next,
+                        isDisabled: !isSeedValid(),
+                        onPressed: () => widget.onFinish != null
+                            ? widget.onFinish()
+                            : null,
+                        color: Colors.green,
+                        textColor: Colors.white)
+                        : PrimaryButton(
+                        text: selectedItem != null
+                            ? S.of(context).save
+                            : S.of(context).add_new_word,
+                        onPressed: () => isCurrentMnemoticValid
+                            ? saveCurrentMnemoticToItems()
+                            : null,
+                        onDisabledPressed: () => showErrorIfExist(),
+                        isDisabled: !isCurrentMnemoticValid,
+                        color: Colors.green,
+                        textColor: Colors.white),
+                  ),
+                )
+              ],
+            ))
       ]),
     );
   }

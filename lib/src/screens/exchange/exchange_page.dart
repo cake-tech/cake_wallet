@@ -255,10 +255,7 @@ class ExchangeFormState extends State<ExchangeForm> {
                           .primaryTextTheme
                           .button
                           .backgroundColor,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .decorationColor,
+                  textColor: Theme.of(context).primaryTextTheme.button.color,
                       isLoading: exchangeStore.tradeState is TradeIsCreating,
                     )),
             Observer(builder: (_) {

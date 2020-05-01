@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_store.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
+import 'package:cake_wallet/palette.dart';
 
 class RestoreWalletFromSeedPage extends BasePage {
   RestoreWalletFromSeedPage(
@@ -27,13 +28,7 @@ class RestoreWalletFromSeedPage extends BasePage {
   String get title => S.current.restore_title_from_seed;
 
   @override
-  Widget trailing(BuildContext context) => SizedBox(
-      width: 80,
-      height: 20,
-      child: FlatButton(
-          child: Text(S.of(context).clear),
-          padding: EdgeInsets.all(0),
-          onPressed: () => formKey?.currentState?.clear()));
+  Color get backgroundColor => PaletteDark.menuList;
 
   @override
   Widget body(BuildContext context) => RestoreFromSeedForm(key: formKey);
@@ -59,7 +54,7 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
       onTap: () =>
           SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
       child: Container(
-        padding: EdgeInsets.only(left: 20.0, right: 20.0),
+        color: PaletteDark.historyPanel,
         child: SeedWidget(
           key: _seedKey,
           onMnemoticChange: (seed) => walletRestorationStore.setSeed(seed),

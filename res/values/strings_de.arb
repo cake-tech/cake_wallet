@@ -150,6 +150,8 @@
   "restore_spend_key_private" : "Schlüssel ausgeben (geheim)",
   "restore_recover" : "Genesen",
   "restore_wallet_restore_description" : "Beschreibung zur Wiederherstellung der Brieftasche",
+  "restore_new_seed" : "Neuer Seed",
+  "restore_active_seed" : "Aktives Seed",
 
 
   "seed_title" : "Seed",
