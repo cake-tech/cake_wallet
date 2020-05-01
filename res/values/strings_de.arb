@@ -159,7 +159,8 @@
   "copy" : "Kopieren",
 
 
-  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache",
+  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache:",
+  "seed_choose" : "Wählen Sie die Ausgangssprache",
   "seed_language_next" : "Nächster",
   "seed_language_english" : "Englisch",
   "seed_language_chinese" : "Chinesisch",

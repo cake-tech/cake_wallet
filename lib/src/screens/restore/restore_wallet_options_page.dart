@@ -56,40 +56,5 @@ class RestoreWalletOptionsPage extends BasePage {
         ),
       )
     );
-
-
-      /*BaseRestoreWidget(
-      firstRestoreButton: RestoreButton(
-        onPressed: () {
-          seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromSeed);
-          Navigator.pushNamed(context, Routes.seedLanguage);
-        },
-        imageWidget: ImageWidget(
-            image: _imageSeed,
-            aspectRatioImage: _aspectRatioImage,
-            isLargeScreen: isLargeScreen),
-        titleColor: Palette.lightViolet,
-        color: Palette.lightViolet,
-        title: S.of(context).restore_title_from_seed,
-        description: S.of(context).restore_description_from_seed,
-        textButton: S.of(context).restore_next,
-      ),
-      secondRestoreButton: RestoreButton(
-        onPressed: () {
-          seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromKeys);
-          Navigator.pushNamed(context, Routes.seedLanguage);
-        },
-        imageWidget: ImageWidget(
-            image: _imageKeys,
-            aspectRatioImage: _aspectRatioImage,
-            isLargeScreen: isLargeScreen),
-        titleColor: Palette.cakeGreen,
-        color: Palette.cakeGreen,
-        title: S.of(context).restore_title_from_keys,
-        description: S.of(context).restore_description_from_keys,
-        textButton: S.of(context).restore_next,
-      ),
-      isLargeScreen: isLargeScreen,
-    );*/
   }
 }

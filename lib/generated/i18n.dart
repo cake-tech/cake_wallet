@@ -148,8 +148,9 @@ class S implements WidgetsLocalizations {
   String get restore_wallet_restore_description => "Wallet restore description";
   String get save => "Save";
   String get saved_the_trade_id => "I've saved the trade ID";
+  String get seed_choose => "Choose seed language";
   String get seed_language_chinese => "Chinese";
-  String get seed_language_choose => "Please choose seed language";
+  String get seed_language_choose => "Please choose seed language:";
   String get seed_language_dutch => "Dutch";
   String get seed_language_english => "English";
   String get seed_language_german => "German";
@@ -398,7 +399,7 @@ class $de extends S {
   @override
   String get restore_title_from_keys => "Wiederherstellen von Schlüsseln";
   @override
-  String get seed_language_choose => "Bitte wählen Sie die Ausgangssprache";
+  String get seed_language_choose => "Bitte wählen Sie die Ausgangssprache:";
   @override
   String get wallet_keys => "Wallet schlüssel";
   @override
@@ -647,6 +648,8 @@ class $de extends S {
   String get node_port => "Knotenport";
   @override
   String get change_currency => "Währung ändern";
+  @override
+  String get seed_choose => "Wählen Sie die Ausgangssprache";
   @override
   String get transaction_details_amount => "Menge";
   @override
@@ -974,7 +977,7 @@ class $hi extends S {
   @override
   String get restore_title_from_keys => "कुंजी से पुनर्स्थापित करें";
   @override
-  String get seed_language_choose => "कृपया बीज भाषा चुनें";
+  String get seed_language_choose => "कृपया बीज भाषा चुनें:";
   @override
   String get wallet_keys => "बटुआ की";
   @override
@@ -1223,6 +1226,8 @@ class $hi extends S {
   String get node_port => "नोड पोर्ट";
   @override
   String get change_currency => "मुद्रा परिवर्तन करें";
+  @override
+  String get seed_choose => "बीज भाषा चुनें";
   @override
   String get transaction_details_amount => "रकम";
   @override
@@ -1550,7 +1555,7 @@ class $ru extends S {
   @override
   String get restore_title_from_keys => "Восстановить с помощью ключей";
   @override
-  String get seed_language_choose => "Пожалуйста, выберите язык мнемонической фразы";
+  String get seed_language_choose => "Пожалуйста, выберите язык мнемонической фразы:";
   @override
   String get wallet_keys => "Ключи кошелька";
   @override
@@ -1799,6 +1804,8 @@ class $ru extends S {
   String get node_port => "Порт ноды";
   @override
   String get change_currency => "Изменить валюту";
+  @override
+  String get seed_choose => "Выберите язык мнемонической фразы";
   @override
   String get transaction_details_amount => "Сумма";
   @override
@@ -2126,7 +2133,7 @@ class $ko extends S {
   @override
   String get restore_title_from_keys => "키에서 복원";
   @override
-  String get seed_language_choose => "종자 언어를 선택하십시오";
+  String get seed_language_choose => "종자 언어를 선택하십시오:";
   @override
   String get wallet_keys => "지갑 키";
   @override
@@ -2375,6 +2382,8 @@ class $ko extends S {
   String get node_port => "노드 포트";
   @override
   String get change_currency => "통화 변경";
+  @override
+  String get seed_choose => "시드 언어를 선택하십시오";
   @override
   String get transaction_details_amount => "양";
   @override
@@ -2702,7 +2711,7 @@ class $pt extends S {
   @override
   String get restore_title_from_keys => "Restaurar a partir de chaves";
   @override
-  String get seed_language_choose => "Por favor, escolha o idioma da semente";
+  String get seed_language_choose => "Por favor, escolha o idioma da semente:";
   @override
   String get wallet_keys => "Chaves da carteira";
   @override
@@ -2951,6 +2960,8 @@ class $pt extends S {
   String get node_port => "Porta do nó";
   @override
   String get change_currency => "Alterar moeda";
+  @override
+  String get seed_choose => "Escolha o idioma da semente";
   @override
   String get transaction_details_amount => "Quantia";
   @override
@@ -3278,7 +3289,7 @@ class $uk extends S {
   @override
   String get restore_title_from_keys => "Відновити за допомогою ключів";
   @override
-  String get seed_language_choose => "Будь ласка, виберіть мову мнемонічної фрази";
+  String get seed_language_choose => "Будь ласка, виберіть мову мнемонічної фрази:";
   @override
   String get wallet_keys => "Ключі гаманця";
   @override
@@ -3527,6 +3538,8 @@ class $uk extends S {
   String get node_port => "Порт вузла";
   @override
   String get change_currency => "Змінити валюту";
+  @override
+  String get seed_choose => "Виберіть мову мнемонічної фрази";
   @override
   String get transaction_details_amount => "Сума";
   @override
@@ -3854,7 +3867,7 @@ class $ja extends S {
   @override
   String get restore_title_from_keys => "キーから復元する";
   @override
-  String get seed_language_choose => "シード言語を選択してください";
+  String get seed_language_choose => "シード言語を選択してください:";
   @override
   String get wallet_keys => "ウォレットキー";
   @override
@@ -4103,6 +4116,8 @@ class $ja extends S {
   String get node_port => "ノードポート";
   @override
   String get change_currency => "通貨を変更する";
+  @override
+  String get seed_choose => "シード言語を選択してください";
   @override
   String get transaction_details_amount => "量";
   @override
@@ -4434,7 +4449,7 @@ class $pl extends S {
   @override
   String get restore_title_from_keys => "Przywróć z kluczy";
   @override
-  String get seed_language_choose => "Proszę wybrać język początkowy";
+  String get seed_language_choose => "Proszę wybrać język początkowy:";
   @override
   String get wallet_keys => "Klucze portfela";
   @override
@@ -4683,6 +4698,8 @@ class $pl extends S {
   String get node_port => "Port węzła";
   @override
   String get change_currency => "Change Currency";
+  @override
+  String get seed_choose => "Wybierz język początkowy";
   @override
   String get transaction_details_amount => "Ilość";
   @override
@@ -5010,7 +5027,7 @@ class $es extends S {
   @override
   String get restore_title_from_keys => "De las claves";
   @override
-  String get seed_language_choose => "Por favor elija el idioma semilla";
+  String get seed_language_choose => "Por favor elija el idioma semilla:";
   @override
   String get wallet_keys => "Billetera clave";
   @override
@@ -5259,6 +5276,8 @@ class $es extends S {
   String get node_port => "Puerto de nodo";
   @override
   String get change_currency => "Cambiar moneda";
+  @override
+  String get seed_choose => "Elige el idioma semilla";
   @override
   String get transaction_details_amount => "Cantidad";
   @override
@@ -5586,7 +5605,7 @@ class $nl extends S {
   @override
   String get restore_title_from_keys => "Herstel van sleutels";
   @override
-  String get seed_language_choose => "Kies een starttaal";
+  String get seed_language_choose => "Kies een starttaal:";
   @override
   String get wallet_keys => "Portemonnee sleutels";
   @override
@@ -5835,6 +5854,8 @@ class $nl extends S {
   String get node_port => "Knooppunt poort";
   @override
   String get change_currency => "Verander valuta";
+  @override
+  String get seed_choose => "Kies een starttaal";
   @override
   String get transaction_details_amount => "Bedrag";
   @override
@@ -6162,7 +6183,7 @@ class $zh extends S {
   @override
   String get restore_title_from_keys => "从密钥还原";
   @override
-  String get seed_language_choose => "請選擇種子語言";
+  String get seed_language_choose => "請選擇種子語言:";
   @override
   String get wallet_keys => "钱包钥匙";
   @override
@@ -6411,6 +6432,8 @@ class $zh extends S {
   String get node_port => "节点端口";
   @override
   String get change_currency => "更改币种";
+  @override
+  String get seed_choose => "選擇種子語言";
   @override
   String get transaction_details_amount => "量";
   @override

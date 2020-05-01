@@ -159,7 +159,8 @@
   "copy" : "复制",
 
 
-  "seed_language_choose" : "請選擇種子語言",
+  "seed_language_choose" : "請選擇種子語言:",
+  "seed_choose" : "選擇種子語言",
   "seed_language_next" : "下一个",
   "seed_language_english" : "英語",
   "seed_language_chinese" : "中文",
