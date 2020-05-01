@@ -87,4 +87,7 @@ class PaletteDark {
   static const Color historyPanel = Color.fromRGBO(33, 43, 73, 1.0);
   static const Color historyPanelText = Color.fromRGBO(91, 112, 146, 1.0);
   static const Color historyPanelButton = Color.fromRGBO(39, 53, 96, 1.0);
+  static const Color menuHeader = Color.fromRGBO(41, 52, 84, 1.0);
+  static const Color menuList = Color.fromRGBO(48, 59, 95, 1.0);
+  static const Color menuDivider = Color.fromRGBO(48, 59, 95, 1.0);
 }
