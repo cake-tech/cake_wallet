@@ -152,6 +152,8 @@
   "restore_spend_key_private" : "지출 키 (은밀한)",
   "restore_recover" : "다시 덮다",
   "restore_wallet_restore_description" : "월렛 복원 설명",
+  "restore_new_seed" : "새로운 씨앗",
+  "restore_active_seed" : "활성 종자",
 
 
   "seed_title" : "씨",

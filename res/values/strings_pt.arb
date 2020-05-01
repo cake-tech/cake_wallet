@@ -152,6 +152,8 @@
   "restore_spend_key_private" : "Chave de gastos (privada)",
   "restore_recover" : "Restaurar",
   "restore_wallet_restore_description" : "Restauração da carteira",
+  "restore_new_seed" : "Nova semente",
+  "restore_active_seed" : "Semente ativa",
 
 
   "seed_title" : "Semente",

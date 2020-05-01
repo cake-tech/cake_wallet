@@ -152,6 +152,8 @@
   "restore_spend_key_private" : "Приватный ключ траты",
   "restore_recover" : "Восстановить",
   "restore_wallet_restore_description" : "Описание восстановления кошелька",
+  "restore_new_seed" : "Новая мнемоническая фраза",
+  "restore_active_seed" : "Активная мнемоническая фраза",
 
 
   "seed_title" : "Мнемоническая фраза",
