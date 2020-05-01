@@ -1,8 +1,9 @@
 {
-  "welcome" : "Willkommen\nzu CAKE WALLET",
-  "first_wallet_text" : "tolle Brieftasche\nzum Monero",
-  "please_make_selection" : "Bitte treffen Sie unten eine Auswahl zu\nErstellen oder Wiederherstellen Ihrer Brieftasche.",
-  "create_new" : "Erstelle neu",
+  "welcome" : "Willkommen zu",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "tolle Brieftasche zum Monero",
+  "please_make_selection" : "Bitte treffen Sie unten eine Auswahl zu Erstellen oder Wiederherstellen Ihrer Brieftasche.",
+  "create_new" : "Neue Wallet erstellen",
   "restore_wallet" : "Wallet wiederherstellen",
 
 
@@ -106,6 +107,7 @@
   "new_wallet" : "Neues Wallet",
   "wallet_name" : "Walletname",
   "continue_text" : "Fortsetzen",
+  "choose_wallet_currency" : "Bitte wählen Sie die Brieftaschenwährung:",
 
 
   "node_new" : "Neuer Knoten",
@@ -157,7 +159,8 @@
   "copy" : "Kopieren",
 
 
-  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache",
+  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache:",
+  "seed_choose" : "Wählen Sie die Ausgangssprache",
   "seed_language_next" : "Nächster",
   "seed_language_english" : "Englisch",
   "seed_language_chinese" : "Chinesisch",

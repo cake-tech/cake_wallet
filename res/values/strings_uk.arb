@@ -1,8 +1,9 @@
 {
-  "welcome" : "Вітаємо в CAKE WALLET",
+  "welcome" : "Вітаємо в",
+  "cake_wallet" : "Cake Wallet",
   "first_wallet_text" : "В самому зручному гаманці для Monero",
-  "please_make_selection" : "Виберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.",
-  "create_new" : "Створити новий",
+  "please_make_selection" : "Оберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.",
+  "create_new" : "Створити новий гаманець",
   "restore_wallet" : "Відновити гаманець",
 
 
@@ -106,6 +107,7 @@
   "new_wallet" : "Новий гаманець",
   "wallet_name" : "Ім'я гаманця",
   "continue_text" : "Продовжити",
+  "choose_wallet_currency" : "Будь ласка, виберіть валюту гаманця:",
 
 
   "node_new" : "Новий вузол",
@@ -157,7 +159,8 @@
   "copy" : "Скопіювати",
 
 
-  "seed_language_choose" : "Будь ласка, виберіть мову мнемонічної фрази",
+  "seed_language_choose" : "Будь ласка, виберіть мову мнемонічної фрази:",
+  "seed_choose" : "Виберіть мову мнемонічної фрази",
   "seed_language_next" : "Продовжити",
   "seed_language_english" : "Англійська",
   "seed_language_chinese" : "Китайська",

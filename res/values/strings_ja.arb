@@ -1,9 +1,10 @@
 {
-  "welcome" : "ようこそ\nに CAKE WALLET",
-  "first_wallet_text" : "素晴らしい財布\nために Monero",
-  "please_make_selection" : "以下を選択してください\nウォレットを作成または回復する.",
-  "create_new" : "新しく作る",
-  "restore_wallet" : "ウォレットを復元する",
+  "welcome" : "ようこそ に",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "素晴らしい財布 ために Monero",
+  "please_make_selection" : "以下を選択してください ウォレットを作成または回復する.",
+  "create_new" : "新しいウォレットを作成",
+  "restore_wallet" : "ウォレットを復元",
 
 
   "accounts" : "アカウント",
@@ -106,6 +107,7 @@
   "new_wallet" : "新しいウォレット",
   "wallet_name" : "ウォレット名",
   "continue_text" : "持続する",
+  "choose_wallet_currency" : "ウォレット通貨を選択してください：",
 
 
   "node_new" : "新しいノード",
@@ -157,7 +159,8 @@
   "copy" : "コピー",
 
 
-  "seed_language_choose" : "シード言語を選択してください",
+  "seed_language_choose" : "シード言語を選択してください:",
+  "seed_choose" : "シード言語を選択してください",
   "seed_language_next" : "次",
   "seed_language_english" : "英語",
   "seed_language_chinese" : "中国語",

@@ -315,10 +315,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           .primaryTextTheme
                           .button
                           .backgroundColor,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .decorationColor),
+                      textColor: Theme.of(context).primaryTextTheme.button.color),
                 )
               : Offstage()),
     );

@@ -1,8 +1,9 @@
 {
-  "welcome" : "BEM-VINDO(A)\nÀ CAKE WALLET",
-  "first_wallet_text" : "Uma fantástica carteira\npara Monero",
-  "please_make_selection" : "Escolha se quer criar uma carteira nova\nou restaurar uma antiga.",
-  "create_new" : "Criar carteira",
+  "welcome" : "Bem-vindo ao",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Uma fantástica carteira para Monero",
+  "please_make_selection" : "Escolha se quer criar uma carteira nova ou restaurar uma antiga.",
+  "create_new" : "Criar nova carteira",
   "restore_wallet" : "Restaurar carteira",
 
 
@@ -106,6 +107,7 @@
   "new_wallet" : "Nova carteira",
   "wallet_name" : "Nome da carteira",
   "continue_text" : "Continuar",
+  "choose_wallet_currency" : "Escolha a moeda da carteira:",
 
 
   "node_new" : "Novo nó",
@@ -157,7 +159,8 @@
   "copy" : "Copiar",
 
 
-  "seed_language_choose" : "Por favor, escolha o idioma da semente",
+  "seed_language_choose" : "Por favor, escolha o idioma da semente:",
+  "seed_choose" : "Escolha o idioma da semente",
   "seed_language_next" : "Próximo",
   "seed_language_english" : "Inglesa",
   "seed_language_chinese" : "Chinesa",

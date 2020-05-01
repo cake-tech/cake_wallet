@@ -118,8 +118,7 @@ class _RestoreFromSeedDetailsFormState
             isLoading: walletRestorationStore.state is WalletIsRestoring,
             text: S.of(context).restore_recover,
             color: Theme.of(context).primaryTextTheme.button.backgroundColor,
-            borderColor:
-                Theme.of(context).primaryTextTheme.button.decorationColor);
+            textColor: Theme.of(context).primaryTextTheme.button.color,);
       }),
     );
   }
