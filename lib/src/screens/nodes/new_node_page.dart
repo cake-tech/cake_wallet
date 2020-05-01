@@ -173,10 +173,10 @@ class NewNodeFormState extends State<NewNodePageForm> {
                             .accentTextTheme
                             .button
                             .backgroundColor,
-                        borderColor: Theme.of(context)
-                            .accentTextTheme
+                        textColor: Theme.of(context)
+                            .primaryTextTheme
                             .button
-                            .decorationColor),
+                            .color),
                   )),
                   Flexible(
                       child: Container(
@@ -200,10 +200,10 @@ class NewNodeFormState extends State<NewNodePageForm> {
                           .primaryTextTheme
                           .button
                           .backgroundColor,
-                      borderColor: Theme.of(context)
+                      textColor: Theme.of(context)
                           .primaryTextTheme
                           .button
-                          .decorationColor,
+                          .color,
                     ),
                   )),
                 ],

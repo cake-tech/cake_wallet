@@ -77,16 +77,16 @@ class WelcomePage extends BasePage {
                 text: S.of(context).create_new,
                 color:
                     Theme.of(context).primaryTextTheme.button.backgroundColor,
-                borderColor:
-                    Theme.of(context).primaryTextTheme.button.decorationColor),
+                textColor:
+                    Theme.of(context).primaryTextTheme.button.color),
             SizedBox(height: 10),
             PrimaryButton(
               onPressed: () {
                 Navigator.pushNamed(context, Routes.restoreOptions);
               },
               color: Theme.of(context).accentTextTheme.caption.backgroundColor,
-              borderColor:
-                  Theme.of(context).accentTextTheme.caption.decorationColor,
+              textColor:
+                     Theme.of(context).primaryTextTheme.button.color,
               text: S.of(context).restore_wallet,
             )
           ]))

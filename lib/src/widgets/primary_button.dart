@@ -7,14 +7,14 @@ class PrimaryButton extends StatelessWidget {
       {@required this.onPressed,
       @required this.text,
       @required this.color,
-      @required this.borderColor,
+      @required this.textColor,
       this.isDisabled = false,
       this.onDisabledPressed});
 
   final VoidCallback onPressed;
   final VoidCallback onDisabledPressed;
   final Color color;
-  final Color borderColor;
+  final Color textColor;
   final String text;
   final bool isDisabled;
 
@@ -22,21 +22,21 @@ class PrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return ButtonTheme(
         minWidth: double.infinity,
-        height: 56.0,
+        height: 52.0,
         child: FlatButton(
           onPressed: isDisabled
               ? (onDisabledPressed != null ? onDisabledPressed : null)
               : onPressed,
           color: isDisabled ? Colors.transparent : color,
           shape: RoundedRectangleBorder(
-              side: BorderSide(color: borderColor),
-              borderRadius: BorderRadius.circular(10.0)),
+              borderRadius: BorderRadius.circular(26.0)),
           child: Text(text,
               style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 15.0,
+                  fontWeight: FontWeight.w600,
                   color: isDisabled
                       ? Palette.darkGrey
-                      : Theme.of(context).primaryTextTheme.button.color)),
+                      : textColor)),
         ));
   }
 }
@@ -143,29 +143,43 @@ class PrimaryImageButton extends StatelessWidget {
       {@required this.onPressed,
       @required this.image,
       @required this.text,
-      this.color = Palette.purple,
-      this.borderColor = Palette.deepPink,
-      this.iconColor = Colors.black});
+      @required this.color,
+      @required this.textColor});
 
   final VoidCallback onPressed;
   final Image image;
   final Color color;
-  final Color borderColor;
-  final Color iconColor;
+  final Color textColor;
   final String text;
 
   @override
   Widget build(BuildContext context) {
     return ButtonTheme(
         minWidth: double.infinity,
-        height: 58.0,
+        height: 52.0,
         child: FlatButton(
           onPressed: onPressed,
           color: color,
           shape: RoundedRectangleBorder(
-              side: BorderSide(color: borderColor),
-              borderRadius: BorderRadius.circular(12.0)),
-          child: Row(
+            borderRadius: BorderRadius.circular(26.0)),
+          child:Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                image,
+                SizedBox(width: 15),
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: textColor
+                  ),
+                )
+              ],
+            ),
+          )
+          /*Row(
             children: <Widget>[
               Container(
                 width: 28.0,
@@ -192,7 +206,7 @@ class PrimaryImageButton extends StatelessWidget {
                     )
                   ]))
             ],
-          ),
+          ),*/
         ));
   }
 }

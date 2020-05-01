@@ -69,10 +69,10 @@ class ExchangeConfirmPage extends BasePage {
                               .accentTextTheme
                               .caption
                               .backgroundColor,
-                          borderColor: Theme.of(context)
-                              .accentTextTheme
-                              .caption
-                              .decorationColor)
+                          textColor: Theme.of(context)
+                              .primaryTextTheme
+                              .button
+                              .color)
                     ],
                   ),
                 ))),
@@ -83,8 +83,8 @@ class ExchangeConfirmPage extends BasePage {
                   .pushReplacementNamed(Routes.exchangeTrade, arguments: trade),
               text: S.of(context).saved_the_trade_id,
               color: Theme.of(context).primaryTextTheme.button.backgroundColor,
-              borderColor:
-                  Theme.of(context).primaryTextTheme.button.decorationColor),
+              textColor:
+                     Theme.of(context).primaryTextTheme.button.color),
         )
       ],
     );
