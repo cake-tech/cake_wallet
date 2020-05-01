@@ -43,7 +43,7 @@ class TransactionInfo {
 
   String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} XMR';
 
-  String fiatAmount() => _fiatAmount ?? '';
+  String fiatAmount(String symbol) => _fiatAmount != null ? symbol + ' ' + _fiatAmount : '';
 
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }

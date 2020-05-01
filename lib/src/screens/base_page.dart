@@ -81,9 +81,10 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
+            backgroundColor: backgroundColor);
+            /*backgroundColor: _isDarkTheme
                 ? Theme.of(context).backgroundColor
-                : backgroundColor);
+                : backgroundColor);*/
 
       case AppBarStyle.withShadow:
         return NavBar.withShadow(
@@ -91,9 +92,10 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
+            backgroundColor: backgroundColor);
+            /*backgroundColor: _isDarkTheme
                 ? Theme.of(context).backgroundColor
-                : backgroundColor);
+                : backgroundColor);*/
 
       default:
         return NavBar(
@@ -101,9 +103,10 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
+            backgroundColor: backgroundColor);
+            /*backgroundColor: _isDarkTheme
                 ? Theme.of(context).backgroundColor
-                : backgroundColor);
+                : backgroundColor);*/
     }
   }
 
