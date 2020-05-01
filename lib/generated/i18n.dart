@@ -39,7 +39,9 @@ class S implements WidgetsLocalizations {
   String get authentication => "Authentication";
   String get available_balance => "Available Balance";
   String get biometric_auth_reason => "Scan your fingerprint to authenticate";
+  String get buy => "Buy";
   String get cancel => "Cancel";
+  String get card_address => "Address:";
   String get change => "Change";
   String get change_currency => "Change Currency";
   String get change_exchange_provider => "Change Exchange Provider";
@@ -362,6 +364,8 @@ class $de extends S {
   @override
   String get wallet_list_create_new_wallet => "Neue Wallet erstellen";
   @override
+  String get card_address => "Adresse:";
+  @override
   String get seed_language_portuguese => "Portugiesisch";
   @override
   String get setup_pin => "PIN einrichten";
@@ -435,6 +439,8 @@ class $de extends S {
   String get create_new => "Erstelle neu";
   @override
   String get trade_details_fetching => "Holen";
+  @override
+  String get buy => "Kaufen";
   @override
   String get confirm_sending => "Bestätigen Sie das Senden";
   @override
@@ -930,6 +936,8 @@ class $hi extends S {
   @override
   String get wallet_list_create_new_wallet => "नया बटुआ बनाएँ";
   @override
+  String get card_address => "पता:";
+  @override
   String get seed_language_portuguese => "पुर्तगाली";
   @override
   String get setup_pin => "पिन सेट करें";
@@ -1003,6 +1011,8 @@ class $hi extends S {
   String get create_new => "नया बनाओ";
   @override
   String get trade_details_fetching => "ला रहा है";
+  @override
+  String get buy => "खरीदें";
   @override
   String get confirm_sending => "भेजने की पुष्टि करें";
   @override
@@ -1498,6 +1508,8 @@ class $ru extends S {
   @override
   String get wallet_list_create_new_wallet => "Создать новый кошелёк";
   @override
+  String get card_address => "Адрес:";
+  @override
   String get seed_language_portuguese => "Португальский";
   @override
   String get setup_pin => "Настроить PIN";
@@ -1571,6 +1583,8 @@ class $ru extends S {
   String get create_new => "Создать новый";
   @override
   String get trade_details_fetching => "Получение";
+  @override
+  String get buy => "Купить";
   @override
   String get confirm_sending => "Подтвердить отправку";
   @override
@@ -2066,6 +2080,8 @@ class $ko extends S {
   @override
   String get wallet_list_create_new_wallet => "새 월렛 만들기";
   @override
+  String get card_address => "주소:";
+  @override
   String get seed_language_portuguese => "포르투갈 인";
   @override
   String get setup_pin => "설정 PIN";
@@ -2139,6 +2155,8 @@ class $ko extends S {
   String get create_new => "새로 만들기";
   @override
   String get trade_details_fetching => "가져 오는 중";
+  @override
+  String get buy => "구입";
   @override
   String get confirm_sending => "전송 확인";
   @override
@@ -2634,6 +2652,8 @@ class $pt extends S {
   @override
   String get wallet_list_create_new_wallet => "Criar nova carteira";
   @override
+  String get card_address => "Endereço:";
+  @override
   String get seed_language_portuguese => "Português";
   @override
   String get setup_pin => "Configurar PIN";
@@ -2707,6 +2727,8 @@ class $pt extends S {
   String get create_new => "Criar carteira";
   @override
   String get trade_details_fetching => "Buscando";
+  @override
+  String get buy => "Comprar";
   @override
   String get confirm_sending => "Confirmar o envio";
   @override
@@ -3202,6 +3224,8 @@ class $uk extends S {
   @override
   String get wallet_list_create_new_wallet => "Створити новий гаманець";
   @override
+  String get card_address => "Адреса:";
+  @override
   String get seed_language_portuguese => "Португальська";
   @override
   String get setup_pin => "Встановити PIN";
@@ -3275,6 +3299,8 @@ class $uk extends S {
   String get create_new => "Створити новий";
   @override
   String get trade_details_fetching => "Отримання";
+  @override
+  String get buy => "Купити";
   @override
   String get confirm_sending => "Підтвердити відправлення";
   @override
@@ -3770,6 +3796,8 @@ class $ja extends S {
   @override
   String get wallet_list_create_new_wallet => "新しいウォレットを作成";
   @override
+  String get card_address => "住所:";
+  @override
   String get seed_language_portuguese => "ポルトガル語";
   @override
   String get setup_pin => "PINのセットアップ";
@@ -3843,6 +3871,8 @@ class $ja extends S {
   String get create_new => "新しく作る";
   @override
   String get trade_details_fetching => "フェッチング";
+  @override
+  String get buy => "購入";
   @override
   String get confirm_sending => "送信を確認";
   @override
@@ -4342,6 +4372,8 @@ class $pl extends S {
   @override
   String get wallet_list_create_new_wallet => "Utwórz nowy portfel";
   @override
+  String get card_address => "Adres:";
+  @override
   String get seed_language_portuguese => "Portugalski";
   @override
   String get setup_pin => "Ustaw PIN";
@@ -4415,6 +4447,8 @@ class $pl extends S {
   String get create_new => "Tworzyć nowe";
   @override
   String get trade_details_fetching => "Ujmujący";
+  @override
+  String get buy => "Kup";
   @override
   String get confirm_sending => "Potwierdź wysłanie";
   @override
@@ -4910,6 +4944,8 @@ class $es extends S {
   @override
   String get wallet_list_create_new_wallet => "Crear nueva billetera";
   @override
+  String get card_address => "Dirección:";
+  @override
   String get seed_language_portuguese => "Portugués";
   @override
   String get setup_pin => "PIN de configuración";
@@ -4983,6 +5019,8 @@ class $es extends S {
   String get create_new => "Crear nuevo";
   @override
   String get trade_details_fetching => "Cargando";
+  @override
+  String get buy => "Comprar";
   @override
   String get confirm_sending => "Confirmar envío";
   @override
@@ -5478,6 +5516,8 @@ class $nl extends S {
   @override
   String get wallet_list_create_new_wallet => "Maak een nieuwe portemonnee";
   @override
+  String get card_address => "Adres:";
+  @override
   String get seed_language_portuguese => "Portugees";
   @override
   String get setup_pin => "PIN instellen";
@@ -5551,6 +5591,8 @@ class $nl extends S {
   String get create_new => "Maak nieuw";
   @override
   String get trade_details_fetching => "Ophalen";
+  @override
+  String get buy => "Kopen";
   @override
   String get confirm_sending => "Bevestig verzending";
   @override
@@ -6046,6 +6088,8 @@ class $zh extends S {
   @override
   String get wallet_list_create_new_wallet => "创建新钱包";
   @override
+  String get card_address => "地址:";
+  @override
   String get seed_language_portuguese => "葡萄牙語";
   @override
   String get setup_pin => "设定PIN码";
@@ -6119,6 +6163,8 @@ class $zh extends S {
   String get create_new => "创建新的";
   @override
   String get trade_details_fetching => "正在取得";
+  @override
+  String get buy => "購買";
   @override
   String get confirm_sending => "确认发送";
   @override
