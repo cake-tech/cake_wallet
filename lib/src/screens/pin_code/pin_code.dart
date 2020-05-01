@@ -30,7 +30,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   static const sixPinLength = 6;
   static const fourPinLength = 4;
   static final deleteIconImage = Image.asset('assets/images/delete_icon.png');
-  static final backArrowImage = Image.asset('assets/images/back_arrow.png');
+  static final faceImage = Image.asset('assets/images/face.png');
   final _gridViewKey = GlobalKey();
 
   int pinLength = defaultPinLength;
@@ -91,12 +91,15 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   Widget body(BuildContext context) {
     return SafeArea(
         child: Container(
-      color: Theme.of(context).backgroundColor,
+      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
       child: Column(children: <Widget>[
         Spacer(flex: 2),
         Text(title,
-            style: TextStyle(fontSize: 24, color: Palette.wildDarkBlue)),
+            style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.white)),
         Spacer(flex: 3),
         Container(
           width: 180,
@@ -111,8 +114,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                   height: size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isFilled ? Palette.deepPurple : Colors.transparent,
-                    border: Border.all(color: Palette.wildDarkBlue),
+                    color: isFilled ? Colors.white : PaletteDark.walletCardAddressField,
                   ));
             }),
           ),
@@ -127,7 +129,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
               },
               child: Text(
                 _changePinLengthText(),
-                style: TextStyle(fontSize: 16.0, color: Palette.wildDarkBlue),
+                style: TextStyle(fontSize: 14.0, color: PaletteDark.walletCardText),
               ))
         ],
         Spacer(flex: 1),
@@ -149,9 +151,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                             return Container(
                               margin: EdgeInsets.only(
                                   left: marginLeft, right: marginRight),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Theme.of(context).buttonColor,
+                              child: FlatButton(
+                                onPressed: () {},
+                                color: PaletteDark.historyPanel,
+                                shape: CircleBorder(),
+                                child: faceImage,
                               ),
                             );
                           } else if (index == 10) {
@@ -162,7 +166,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   left: marginLeft, right: marginRight),
                               child: FlatButton(
                                 onPressed: () => _pop(),
-                                color: Theme.of(context).buttonColor,
+                                color: PaletteDark.historyPanel,
                                 shape: CircleBorder(),
                                 child: deleteIconImage,
                               ),
@@ -176,14 +180,13 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 left: marginLeft, right: marginRight),
                             child: FlatButton(
                               onPressed: () => _push(index),
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .title
-                                  .backgroundColor,
+                              color: PaletteDark.historyPanel,
                               shape: CircleBorder(),
                               child: Text('$index',
                                   style: TextStyle(
-                                      fontSize: 23.0, color: Palette.blueGrey)),
+                                      fontSize: 30.0,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white)),
                             ),
                           );
                         }),

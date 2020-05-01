@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/stores/auth/auth_store.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
+import 'package:cake_wallet/palette.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
@@ -24,6 +25,8 @@ class AuthPage extends StatefulWidget {
 class AuthPageState extends State<AuthPage> {
   final _key = GlobalKey<ScaffoldState>();
   final _pinCodeKey = GlobalKey<PinCodeState>();
+  final _backArrowImageDarkTheme =
+  Image.asset('assets/images/back_arrow_dark_theme.png');
 
   void changeProcessText(String text) {
     _key.currentState.showSnackBar(
@@ -121,8 +124,22 @@ class AuthPageState extends State<AuthPage> {
     return Scaffold(
         key: _key,
         appBar: CupertinoNavigationBar(
-          leading: widget.closable ? CloseButton() : Container(),
-          backgroundColor: Theme.of(context).backgroundColor,
+          leading: widget.closable
+          ? SizedBox(
+            height: 37,
+            width: 20,
+            child: ButtonTheme(
+              minWidth: double.minPositive,
+              child: FlatButton(
+                  highlightColor: Colors.transparent,
+                  splashColor: Colors.transparent,
+                  padding: EdgeInsets.all(0),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: _backArrowImageDarkTheme),
+            ),
+          )
+          : Container(),
+          backgroundColor: PaletteDark.historyPanel,
           border: null,
         ),
         resizeToAvoidBottomPadding: false,
