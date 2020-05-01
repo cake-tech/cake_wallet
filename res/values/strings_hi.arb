@@ -1,8 +1,9 @@
 {
-  "welcome" : "स्वागत हे\nसेवा मेरे CAKE WALLET",
-  "first_wallet_text" : "बहुत बढ़िया बटुआ\nके लिये Monero",
-  "please_make_selection" : "कृपया नीचे चयन करें\nअपना बटुआ बनाएं या पुनर्प्राप्त करें.",
-  "create_new" : "नया बनाओ",
+  "welcome" : "स्वागत हे सेवा मेरे",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "बहुत बढ़िया बटुआ के लिये Monero",
+  "please_make_selection" : "कृपया नीचे चयन करें अपना बटुआ बनाएं या पुनर्प्राप्त करें.",
+  "create_new" : "नया बटुआ बनाएँ",
   "restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
 
 
@@ -106,6 +107,7 @@
   "new_wallet" : "नया बटुआ",
   "wallet_name" : "बटुए का नाम",
   "continue_text" : "जारी रहना",
+  "choose_wallet_currency" : "कृपया बटुआ मुद्रा चुनें:",
 
 
   "node_new" : "नया नोड",

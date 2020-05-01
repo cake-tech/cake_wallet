@@ -74,8 +74,8 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                         height: 300,
                         width: 300,
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(14)),
-                            color: PaletteDark.walletCardSubAddressField
+                          borderRadius: BorderRadius.all(Radius.circular(14)),
+                          color: PaletteDark.walletCardSubAddressField
                         ),
                         child: GridView.count(
                           shrinkWrap: true,
@@ -89,11 +89,11 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                             if (index == 8) {
 
                               return gridTile(
-                                  isCurrent: false,
-                                  place: Places.bottomRight,
-                                  image: null,
-                                  text: '',
-                                  onTap: null);
+                                isCurrent: false,
+                                place: Places.bottomRight,
+                                image: null,
+                                text: '',
+                                onTap: null);
 
                             } else {
 
@@ -103,52 +103,52 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
 
                               if (index == 0) {
                                 return gridTile(
-                                    isCurrent: isCurrent,
-                                    place: Places.topLeft,
-                                    image: flag,
-                                    text: code,
-                                    onTap: () {
-                                      seedLanguageStore.setSelectedSeedLanguage(seedLanguages[index]);
-                                      Navigator.of(context).pop();
-                                    }
-                                );
-                              }
-
-                              if (index == 2) {
-                                return gridTile(
-                                    isCurrent: isCurrent,
-                                    place: Places.topRight,
-                                    image: flag,
-                                    text: code,
-                                    onTap: () {
-                                      seedLanguageStore.setSelectedSeedLanguage(seedLanguages[index]);
-                                      Navigator.of(context).pop();
-                                    }
-                                );
-                              }
-
-                              if (index == 6) {
-                                return gridTile(
-                                    isCurrent: isCurrent,
-                                    place: Places.bottomLeft,
-                                    image: flag,
-                                    text: code,
-                                    onTap: () {
-                                      seedLanguageStore.setSelectedSeedLanguage(seedLanguages[index]);
-                                      Navigator.of(context).pop();
-                                    }
-                                );
-                              }
-
-                              return gridTile(
                                   isCurrent: isCurrent,
-                                  place: Places.inside,
+                                  place: Places.topLeft,
                                   image: flag,
                                   text: code,
                                   onTap: () {
                                     seedLanguageStore.setSelectedSeedLanguage(seedLanguages[index]);
                                     Navigator.of(context).pop();
                                   }
+                                );
+                              }
+
+                              if (index == 2) {
+                                return gridTile(
+                                  isCurrent: isCurrent,
+                                  place: Places.topRight,
+                                  image: flag,
+                                  text: code,
+                                  onTap: () {
+                                    seedLanguageStore.setSelectedSeedLanguage(seedLanguages[index]);
+                                    Navigator.of(context).pop();
+                                  }
+                                );
+                              }
+
+                              if (index == 6) {
+                                return gridTile(
+                                  isCurrent: isCurrent,
+                                  place: Places.bottomLeft,
+                                  image: flag,
+                                  text: code,
+                                  onTap: () {
+                                    seedLanguageStore.setSelectedSeedLanguage(seedLanguages[index]);
+                                    Navigator.of(context).pop();
+                                  }
+                                );
+                              }
+
+                              return gridTile(
+                                isCurrent: isCurrent,
+                                place: Places.inside,
+                                image: flag,
+                                text: code,
+                                onTap: () {
+                                  seedLanguageStore.setSelectedSeedLanguage(seedLanguages[index]);
+                                  Navigator.of(context).pop();
+                                }
                               );
                             }
                           }),
@@ -195,40 +195,40 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
     }
 
     return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              borderRadius: borderRadius,
-              color: color
-          ),
-          child: Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                image != null
-                    ? image
-                    : Offstage(),
-                Padding(
-                  padding: image != null
-                      ? EdgeInsets.only(left: 10)
-                      : EdgeInsets.only(left: 0),
-                  child: Text(
-                    text,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none,
-                        color: textColor
-                    ),
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          color: color
+        ),
+        child: Center(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              image != null
+              ? image
+              : Offstage(),
+              Padding(
+                padding: image != null
+                  ? EdgeInsets.only(left: 10)
+                  : EdgeInsets.only(left: 0),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                    color: textColor
                   ),
-                )
-              ],
-            ),
+                ),
+              )
+            ],
           ),
-        )
+        ),
+      )
     );
   }
 }

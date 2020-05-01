@@ -87,6 +87,7 @@ import 'package:cake_wallet/src/screens/auth/create_login_page.dart';
 import 'package:cake_wallet/src/screens/seed/create_seed_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/create_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 
 class Router {
   static Route<dynamic> generateRoute(
@@ -117,7 +118,10 @@ class Router {
                         sharedPreferences: sharedPreferences)),
                 child: SetupPinCodePage(
                     onPinCodeSetup: (context, _) =>
-                        Navigator.pushNamed(context, Routes.newWallet))));
+                        Navigator.pushNamed(context, Routes.newWalletType))));
+
+      case Routes.newWalletType:
+        return CupertinoPageRoute<void>(builder: (_) => NewWalletTypePage());
 
       case Routes.newWallet:
         return CupertinoPageRoute<void>(

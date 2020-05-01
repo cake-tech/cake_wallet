@@ -16,6 +16,7 @@ abstract class WalletCreationStoreBase with Store {
       @required this.walletListService,
       @required this.sharedPreferences}) {
     state = WalletCreationStateInitial();
+    isDisabledStatus = true;
   }
 
   final AuthenticationStore authStore;
@@ -31,6 +32,9 @@ abstract class WalletCreationStoreBase with Store {
   @observable
   bool isValid;
 
+  @observable
+  bool isDisabledStatus;
+
   @action
   Future create({String name, String language}) async {
     state = WalletCreationStateInitial();
@@ -43,6 +47,11 @@ abstract class WalletCreationStoreBase with Store {
     } catch (e) {
       state = WalletCreationFailure(error: e.toString());
     }
+  }
+
+  @action
+  void setDisabledStatus(bool isDisabled) {
+    isDisabledStatus = isDisabled;
   }
 
   void validateWalletName(String value) {
