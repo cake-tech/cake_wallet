@@ -9,13 +9,15 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
+import 'package:cake_wallet/palette.dart';
 
 class TradeDetailsPage extends BasePage {
-  @override
-  String get title => S.current.trade_details_title;
 
   @override
-  bool get isModalBackButton => true;
+  Color get backgroundColor => PaletteDark.historyPanel;
+
+  @override
+  String get title => S.current.trade_details_title;
 
   @override
   Widget body(BuildContext context) {
@@ -26,7 +28,8 @@ class TradeDetailsPage extends BasePage {
           formatDefault: "dd.MM.yyyy, HH:mm");
 
     return Container(
-        padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 20, right: 15),
+        color: PaletteDark.historyPanel,
+        padding: EdgeInsets.only(top: 20, bottom: 20),
         child: Observer(builder: (_) {
           final trade = exchangeStore.trade;
           final items = [
@@ -58,15 +61,22 @@ class TradeDetailsPage extends BasePage {
           }
 
           return ListView.separated(
-              separatorBuilder: (_, __) => Divider(
-                    color: Theme.of(context).dividerTheme.color,
-                    height: 1.0,
-                  ),
-              padding:
-                  EdgeInsets.only(left: 25, top: 10, right: 25, bottom: 15),
+              separatorBuilder: (_, __) => Container(
+                height: 1,
+                padding: EdgeInsets.only(left: 24),
+                color: PaletteDark.menuList,
+                child: Container(
+                  height: 1,
+                  color: PaletteDark.walletCardTopEndSync,
+                ),
+              ),
               itemCount: items.length,
               itemBuilder: (BuildContext context, int index) {
                 final item = items[index];
+
+                final isDrawTop = index == 0 ? true : false;
+                final isDrawBottom = index == items.length - 1 ? true : false;
+
                 return GestureDetector(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: '${item.value}'));
@@ -80,7 +90,11 @@ class TradeDetailsPage extends BasePage {
                       );
                     },
                     child: StandartListRow(
-                        title: '${item.title}', value: '${item.value}'));
+                      title: '${item.title}',
+                      value: '${item.value}',
+                      isDrawTop: isDrawTop,
+                      isDrawBottom: isDrawBottom,
+                    ));
               });
         }));
   }
