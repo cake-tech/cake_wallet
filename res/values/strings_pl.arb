@@ -152,6 +152,8 @@
   "restore_spend_key_private" : "Wydaj klucz (prywatny)",
   "restore_recover" : "Wyzdrowieć",
   "restore_wallet_restore_description" : "Opis przywracania portfela",
+  "restore_new_seed" : "Nowe nasienie",
+  "restore_active_seed" : "Aktywne nasiona",
 
 
   "seed_title" : "Ziarno",

@@ -139,7 +139,7 @@
   "restore_title_from_seed_keys" : "Restore from seed/keys",
   "restore_description_from_seed_keys" : "Get back your wallet from seed/keys that you've saved to secure place",
   "restore_next" : "Next",
-  "restore_title_from_backup" : "Restore from a back-up file",
+  "restore_title_from_backup" : "Restore from back-up",
   "restore_description_from_backup" : "You can restore the whole Cake Wallet app from your back-up file",
   "restore_seed_keys_restore" : "Seed/Keys Restore",
   "restore_title_from_seed" : "Restore from seed",
@@ -152,6 +152,8 @@
   "restore_spend_key_private" : "Spend key (private)",
   "restore_recover" : "Restore",
   "restore_wallet_restore_description" : "Wallet restore description",
+  "restore_new_seed" : "New seed",
+  "restore_active_seed" : "Active seed",
 
 
   "seed_title" : "Seed",

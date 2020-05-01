@@ -152,6 +152,8 @@
   "restore_spend_key_private" : "कुंजी खर्च करें (निजीe)",
   "restore_recover" : "वसूली",
   "restore_wallet_restore_description" : "बटुआ विवरण पुनर्स्थापित करें",
+  "restore_new_seed" : "नया बीज",
+  "restore_active_seed" : "सक्रिय बीज",
 
 
   "seed_title" : "बीज",

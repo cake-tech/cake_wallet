@@ -152,6 +152,8 @@
   "restore_spend_key_private" : "Приватний ключ витрати",
   "restore_recover" : "Відновити",
   "restore_wallet_restore_description" : "Опис відновлюваного гаманця",
+  "restore_new_seed" : "Нова мнемонічна фраза",
+  "restore_active_seed" : "Активна мнемонічна фраза",
 
 
   "seed_title" : "Мнемонічна фраза",
