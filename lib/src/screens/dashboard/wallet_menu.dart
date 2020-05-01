@@ -10,12 +10,22 @@ class WalletMenu {
 
   final List<String> items = [
     S.current.reconnect,
-    S.current.rescan,
     S.current.wallets,
+    S.current.nodes,
     S.current.show_seed,
     S.current.show_keys,
-    S.current.accounts,
-    S.current.address_book_menu
+    S.current.address_book_menu,
+    S.current.settings_title
+  ];
+
+  final List<Image> images = [
+    Image.asset('assets/images/reconnect.png'),
+    Image.asset('assets/images/wallet.png'),
+    Image.asset('assets/images/nodes.png'),
+    Image.asset('assets/images/eye.png'),
+    Image.asset('assets/images/key.png'),
+    Image.asset('assets/images/open_book.png'),
+    Image.asset('assets/images/settings.png'),
   ];
 
   final BuildContext context;
@@ -26,11 +36,10 @@ class WalletMenu {
         _presentReconnectAlert(context);
         break;
       case 1:
-        Navigator.of(context).pushNamed(Routes.rescan);
+        Navigator.of(context).pushNamed(Routes.walletList);
         break;
       case 2:
-        Navigator.of(context).pushNamed(Routes.walletList);
-
+        // FIXME: apply Nodes
         break;
       case 3:
         Navigator.of(context).pushNamed(Routes.auth,
@@ -49,10 +58,10 @@ class WalletMenu {
                     : null);
         break;
       case 5:
-        Navigator.of(context).pushNamed(Routes.accountList);
+        Navigator.of(context).pushNamed(Routes.addressBook);
         break;
       case 6:
-        Navigator.of(context).pushNamed(Routes.addressBook);
+        Navigator.of(context).pushNamed(Routes.settings);
         break;
       default:
         break;

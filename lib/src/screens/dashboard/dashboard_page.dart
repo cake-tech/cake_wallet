@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/palette.dart';
@@ -24,7 +25,12 @@ class DashboardPage extends BasePage {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           padding: EdgeInsets.all(0),
-          onPressed: () {},
+          onPressed: () async {
+            await showDialog<void>(
+                builder: (_) => MenuWidget(),
+                context: context
+            );
+          },
           child: menuButton),
       ),
     );
