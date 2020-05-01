@@ -274,7 +274,7 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
               width: 48,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: PaletteDark.borderCardColor,
                   shape: BoxShape.circle
               ),
               child: image,
