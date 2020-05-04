@@ -16,7 +16,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
-import 'package:cake_wallet/src/screens/new_wallet/widgets/wallet_creation_dialog.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(
@@ -90,11 +90,11 @@ class _WalletNameFormState extends State<WalletNameForm> {
           showDialog<void>(
               context: context,
               builder: (_) {
-                return WalletCreationDialog(
-                    dialogTitle: S.current.new_wallet,
-                    dialogContent: state.error,
-                    dialogButtonText: S.of(context).ok,
-                    dialogButtonAction: () => Navigator.of(context).pop()
+                return AlertWithOneAction(
+                    alertTitle: S.current.new_wallet,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop()
                 );
               });
         });

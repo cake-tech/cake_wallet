@@ -1,24 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 
-class RestoreAlertDialog extends BaseAlertDialog {
-  RestoreAlertDialog({
-    @required this.restoreTitle,
-    @required this.restoreContent,
-    @required this.restoreButtonText,
-    @required this.restoreButtonAction,
+class AlertWithOneAction extends BaseAlertDialog {
+  AlertWithOneAction({
+    @required this.alertTitle,
+    @required this.alertContent,
+    @required this.buttonText,
+    @required this.buttonAction,
+    this.alertBarrierDismissible = true
   });
 
-  final String restoreTitle;
-  final String restoreContent;
-  final String restoreButtonText;
-  final VoidCallback restoreButtonAction;
+  final String alertTitle;
+  final String alertContent;
+  final String buttonText;
+  final VoidCallback buttonAction;
+  final bool alertBarrierDismissible;
 
   @override
-  String get titleText => restoreTitle;
+  String get titleText => alertTitle;
 
   @override
-  String get contentText => restoreContent;
+  String get contentText => alertContent;
+
+  @override
+  bool get barrierDismissible => alertBarrierDismissible;
 
   @override
   Widget actionButtons(BuildContext context) {
@@ -36,11 +41,11 @@ class RestoreAlertDialog extends BaseAlertDialog {
       child: ButtonTheme(
         minWidth: double.infinity,
         child: FlatButton(
-            onPressed: restoreButtonAction,
+            onPressed: buttonAction,
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
             child: Text(
-              restoreButtonText,
+              buttonText,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 15,
@@ -52,5 +57,4 @@ class RestoreAlertDialog extends BaseAlertDialog {
       ),
     );
   }
-
 }

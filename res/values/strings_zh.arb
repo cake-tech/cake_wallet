@@ -124,6 +124,7 @@
   "remove_node_message" : "您确定要删除所选节点吗？",
   "remove" : "去掉",
   "delete" : "删除",
+  "add_new_node" : "添加新節點",
 
 
   "use" : "切換到 ",

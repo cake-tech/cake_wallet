@@ -12,6 +12,7 @@ class NodeListStore = NodeListBase with _$NodeListStore;
 abstract class NodeListBase with Store {
   NodeListBase({this.nodesSource}) {
     nodes = ObservableList<Node>();
+    disabledState = true;
     _onNodesChangeSubscription = nodesSource.watch().listen((e) => update());
     update();
   }
@@ -24,6 +25,9 @@ abstract class NodeListBase with Store {
 
   @observable
   String errorMessage;
+
+  @observable
+  bool disabledState;
 
   Box<Node> nodesSource;
 
@@ -60,6 +64,11 @@ abstract class NodeListBase with Store {
 
   @action
   Future reset() async => await resetToDefault(nodesSource);
+
+  @action
+  void setDisabledState(bool isDisable) {
+    disabledState = isDisable;
+  }
 
   Future<bool> isNodeOnline(Node node) async {
     try {

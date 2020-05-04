@@ -124,6 +124,7 @@
   "remove_node_message" : "Möchten Sie den ausgewählten Knoten wirklich entfernen?",
   "remove" : "Löschen",
   "delete" : "Löschen",
+  "add_new_node" : "Neuen Knoten hinzufügen",
 
 
   "use" : "Wechseln zu ",

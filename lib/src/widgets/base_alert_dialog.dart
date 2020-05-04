@@ -134,7 +134,6 @@ class BaseAlertDialog extends StatelessWidget {
                     color: PaletteDark.menuHeader
                   ),
                   child: Column(
-                    //mainAxisSize: MainAxisSize.max,
                     children: <Widget>[
                       Container(
                         width: 300,
