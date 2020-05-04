@@ -124,6 +124,7 @@
   "remove_node_message" : "Czy na pewno chcesz usunąć wybrany węzeł?",
   "remove" : "Usunąć",
   "delete" : "Kasować",
+  "add_new_node" : "Dodaj nowy węzeł",
 
 
   "use" : "Przełącz na ",

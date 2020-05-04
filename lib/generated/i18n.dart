@@ -24,6 +24,7 @@ class S implements WidgetsLocalizations {
   String get account => "Account";
   String get accounts => "Accounts";
   String get add => "Add";
+  String get add_new_node => "Add new node";
   String get add_new_word => "Add new word";
   String get address_book => "Address Book";
   String get address_book_menu => "Address book";
@@ -518,6 +519,8 @@ class $de extends S {
   String get widgets_or => "oder";
   @override
   String get remove => "Löschen";
+  @override
+  String get add_new_node => "Neuen Knoten hinzufügen";
   @override
   String get yesterday => "Gestern";
   @override
@@ -1101,6 +1104,8 @@ class $hi extends S {
   @override
   String get remove => "हटाना";
   @override
+  String get add_new_node => "नया नोड जोड़ें";
+  @override
   String get yesterday => "बिता कल";
   @override
   String get expired => "समय सीमा समाप्त";
@@ -1682,6 +1687,8 @@ class $ru extends S {
   String get widgets_or => "или";
   @override
   String get remove => "Удалить";
+  @override
+  String get add_new_node => "Добавить новую ноду";
   @override
   String get yesterday => "Вчера";
   @override
@@ -2265,6 +2272,8 @@ class $ko extends S {
   @override
   String get remove => "없애다";
   @override
+  String get add_new_node => "새 노드 추가";
+  @override
   String get yesterday => "어제";
   @override
   String get expired => "만료";
@@ -2846,6 +2855,8 @@ class $pt extends S {
   String get widgets_or => "ou";
   @override
   String get remove => "Remover";
+  @override
+  String get add_new_node => "Adicionar novo nó";
   @override
   String get yesterday => "Ontem";
   @override
@@ -3429,6 +3440,8 @@ class $uk extends S {
   @override
   String get remove => "Видалити";
   @override
+  String get add_new_node => "Додати новий вузол";
+  @override
   String get yesterday => "Вчора";
   @override
   String get expired => "Закінчується";
@@ -4010,6 +4023,8 @@ class $ja extends S {
   String get widgets_or => "または";
   @override
   String get remove => "削除する";
+  @override
+  String get add_new_node => "新しいノードを追加";
   @override
   String get yesterday => "昨日";
   @override
@@ -4597,6 +4612,8 @@ class $pl extends S {
   @override
   String get remove => "Usunąć";
   @override
+  String get add_new_node => "Dodaj nowy węzeł";
+  @override
   String get yesterday => "Wczoraj";
   @override
   String get expired => "Przedawniony";
@@ -5178,6 +5195,8 @@ class $es extends S {
   String get widgets_or => "o";
   @override
   String get remove => "Retirar";
+  @override
+  String get add_new_node => "Agregar nuevo nodo";
   @override
   String get yesterday => "Ayer";
   @override
@@ -5761,6 +5780,8 @@ class $nl extends S {
   @override
   String get remove => "Verwijderen";
   @override
+  String get add_new_node => "Voeg een nieuw knooppunt toe";
+  @override
   String get yesterday => "Gisteren";
   @override
   String get expired => "Verlopen";
@@ -6342,6 +6363,8 @@ class $zh extends S {
   String get widgets_or => "要么";
   @override
   String get remove => "去掉";
+  @override
+  String get add_new_node => "添加新節點";
   @override
   String get yesterday => "昨天";
   @override

@@ -124,6 +124,7 @@
   "remove_node_message" : "Weet u zeker dat u het geselecteerde knooppunt wilt verwijderen?",
   "remove" : "Verwijderen",
   "delete" : "Delete",
+  "add_new_node" : "Voeg een nieuw knooppunt toe",
 
 
   "use" : "Overschakelen naar ",

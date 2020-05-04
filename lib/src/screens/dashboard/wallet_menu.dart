@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/widgets/reconnect_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
 class WalletMenu {
   WalletMenu(this.context);
@@ -40,7 +40,7 @@ class WalletMenu {
         Navigator.of(context).pushNamed(Routes.walletList);
         break;
       case 2:
-        // FIXME: apply Nodes
+        Navigator.of(context).pushNamed(Routes.nodeList);
         break;
       case 3:
         Navigator.of(context).pushNamed(Routes.auth,
@@ -75,16 +75,16 @@ class WalletMenu {
     await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return ReconnectAlertDialog(
-            reconnectTitleText: S.of(context).reconnection,
-            reconnectContentText: S.of(context).reconnect_alert_text,
-            reconnectLeftActionButtonText: S.of(context).ok,
-            reconnectRightActionButtonText: S.of(context).cancel,
-            reconnectActionLeft: () {
-              walletStore.reconnect();
-              Navigator.of(context).pop();
-            },
-            reconnectActionRight: () => Navigator.of(context).pop()
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).reconnection,
+              alertContent: S.of(context).reconnect_alert_text,
+              leftButtonText: S.of(context).ok,
+              rightButtonText: S.of(context).cancel,
+              actionLeftButton: () {
+                walletStore.reconnect();
+                Navigator.of(context).pop();
+              },
+              actionRightButton: () => Navigator.of(context).pop()
           );
         });
   }

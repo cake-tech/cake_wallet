@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/screens/setup_pin_code/widgets/pin_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class SetupPinCodePage extends BasePage {
   SetupPinCodePage({this.onPinCodeSetup});
@@ -64,27 +64,28 @@ class _SetupPinCodeFormState<WidgetType extends SetupPinCodeForm>
         showDialog<void>(
             context: context,
             builder: (BuildContext context) {
-              return PinAlertDialog(
-                  pinTitleText: S.current.setup_pin,
-                  pinContentText: S.of(context).setup_successful,
-                  pinActionButtonText: S.of(context).ok,
-                  pinBarrierDismissible: false,
-                  pinAction: () {
+              return AlertWithOneAction(
+                  alertTitle: S.current.setup_pin,
+                  alertContent: S.of(context).setup_successful,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () {
                     Navigator.of(context).pop();
                     widget.onPinCodeSetup(context, pin);
                     reset();
-                  });
+                  },
+                  alertBarrierDismissible: false,
+              );
             });
       } else {
         showDialog<void>(
             context: context,
             builder: (BuildContext context) {
-              return PinAlertDialog(
-                  pinTitleText: S.current.setup_pin,
-                  pinContentText: S.of(context).pin_is_incorrect,
-                  pinActionButtonText: S.of(context).ok,
-                  pinBarrierDismissible: true,
-                  pinAction: () => Navigator.of(context).pop());
+              return AlertWithOneAction(
+                  alertTitle: S.current.setup_pin,
+                  alertContent: S.of(context).pin_is_incorrect,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop()
+              );
             });
 
         reset();

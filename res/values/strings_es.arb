@@ -124,6 +124,7 @@
   "remove_node_message" : "¿Está seguro de que desea eliminar el nodo seleccionado?",
   "remove" : "Retirar",
   "delete" : "Borrar",
+  "add_new_node" : "Agregar nuevo nodo",
 
 
   "use" : "Cambiar a ",

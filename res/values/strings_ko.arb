@@ -124,6 +124,7 @@
   "remove_node_message" : "선택한 노드를 제거 하시겠습니까?",
   "remove" : "없애다",
   "delete" : "지우다",
+  "add_new_node" : "새 노드 추가",
 
 
   "use" : "로 전환 ",

@@ -124,6 +124,7 @@
   "remove_node_message" : "Are you sure that you want to remove selected node?",
   "remove" : "Remove",
   "delete" : "Delete",
+  "add_new_node" : "Add new node",
 
 
   "use" : "Switch to ",
