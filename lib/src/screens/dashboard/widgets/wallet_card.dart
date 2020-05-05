@@ -12,7 +12,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
-import 'package:cake_wallet/src/screens/receive/qr_image.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
+import 'package:cake_wallet/routes.dart';
 
 class WalletCard extends StatefulWidget {
   @override
@@ -425,7 +426,9 @@ class WalletCardState extends State<WalletCard> {
                           color: PaletteDark.walletCardSubAddressField
                       ),
                       child: InkWell(
-                        onTap: () {},
+                        onTap: () => Navigator.of(context,
+                            rootNavigator: true)
+                            .pushNamed(Routes.receive),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
