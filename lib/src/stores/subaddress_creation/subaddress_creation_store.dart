@@ -17,6 +17,7 @@ class SubadrressCreationStore = SubadrressCreationStoreBase
 abstract class SubadrressCreationStoreBase with Store {
   SubadrressCreationStoreBase({@required WalletService walletService}) {
     state = SubaddressCreationStateInitial();
+    isDisabledStatus = true;
 
     if (walletService.currentWallet != null) {
       _onWalletChanged(walletService.currentWallet);
@@ -34,10 +35,18 @@ abstract class SubadrressCreationStoreBase with Store {
   @observable
   String errorMessage;
 
+  @observable
+  bool isDisabledStatus;
+
   SubaddressList _subaddressList;
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<Account> _onAccountChangeSubscription;
   Account _account;
+
+  @action
+  void setDisabledStatus(bool isDisabled) {
+    isDisabledStatus = isDisabled;
+  }
 
   @override
   void dispose() {

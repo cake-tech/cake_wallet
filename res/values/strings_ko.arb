@@ -133,6 +133,10 @@
   "share_address" : "주소 공유",
   "receive_amount" : "양",
   "subaddresses" : "하위 주소",
+  "rename" : "이름 바꾸기",
+  "choose_account" : "계정을 선택하십시오",
+  "create_new_account" : "새 계정을 만들",
+  "accounts_subaddresses" : "계정 및 하위 주소",
 
 
   "restore_restore_wallet" : "월렛 복원",

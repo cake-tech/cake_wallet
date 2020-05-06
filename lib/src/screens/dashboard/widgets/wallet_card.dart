@@ -433,7 +433,7 @@ class WalletCardState extends State<WalletCard> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Text(
-                              S.current.subaddresses,
+                              S.of(context).accounts_subaddresses,
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.white

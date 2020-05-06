@@ -133,6 +133,10 @@
   "share_address" : "Share address",
   "receive_amount" : "Amount",
   "subaddresses" : "Subaddresses",
+  "rename" : "Rename",
+  "choose_account" : "Choose account",
+  "create_new_account" : "Create new account",
+  "accounts_subaddresses" : "Accounts and subaddresses",
 
 
   "restore_restore_wallet" : "Restore Wallet",

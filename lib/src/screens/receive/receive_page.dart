@@ -11,6 +11,10 @@ import 'package:cake_wallet/src/stores/subaddress_list/subaddress_list_store.dar
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/accounts/account_list_page.dart';
+import 'package:cake_wallet/src/stores/account_list/account_list_store.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class ReceivePage extends BasePage {
   @override
@@ -37,7 +41,7 @@ class ReceivePage extends BasePage {
             splashColor: Colors.transparent,
             padding: EdgeInsets.all(0),
             onPressed: () => Share.text(
-                'Share address', walletStore.subaddress.address, 'text/plain'),
+                S.current.share_address, walletStore.subaddress.address, 'text/plain'),
             child: shareImage),
       ),
     );
@@ -66,6 +70,7 @@ class ReceiveBodyState extends State<ReceiveBody> {
   Widget build(BuildContext context) {
     final walletStore = Provider.of<WalletStore>(context);
     final subaddressListStore = Provider.of<SubaddressListStore>(context);
+    final accountListStore = Provider.of<AccountListStore>(context);
 
     final copyImage = Image.asset('assets/images/copy_content.png');
 
@@ -122,231 +127,185 @@ class ReceiveBodyState extends State<ReceiveBody> {
                 Expanded(
                     child: Form(
                         key: _formKey,
-                        child: TextFormField(
-                          keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
+                        child: BaseTextFormField(
+                          controller: amountController,
+                          keyboardType: TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [
                             BlacklistingTextInputFormatter(
                                 RegExp('[\\-|\\ |\\,]'))
                           ],
                           textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 20.0,
-                              color: Colors.white
-                          ),
-                          decoration: InputDecoration(
-                              hintStyle: TextStyle(
-                                  fontSize: 20,
-                                  color: PaletteDark.walletCardText),
-                              hintText: S.of(context).amount,
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: PaletteDark.walletCardText, width: 1.0)),
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: PaletteDark.walletCardText,
-                                      width: 1.0))),
+                          hintText: S.of(context).receive_amount,
+                          borderColor: PaletteDark.walletCardText,
                           validator: (value) {
                             walletStore.validateAmount(value);
                             return walletStore.errorMessage;
                           },
                           autovalidate: true,
-                          controller: amountController,
-                        )))
+                        )
+                    )
+                )
               ],
             ),
           ),
           Padding(
             padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             child: Observer(
-              builder: (_) => GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(
-                      text: walletStore.subaddress.address));
-                  Scaffold.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                      S.of(context).copied_to_clipboard,
-                      style: TextStyle(color: Colors.white),
+                builder: (_) => GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(
+                        text: walletStore.subaddress.address));
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                        S.of(context).copied_to_clipboard,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.green,
+                      duration: Duration(milliseconds: 500),
+                    ));
+                  },
+                  child: Container(
+                    height: 54,
+                    padding: EdgeInsets.only(left: 24, right: 24),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(27)),
+                        color: PaletteDark.walletCardSubAddressField
                     ),
-                    backgroundColor: Colors.green,
-                    duration: Duration(milliseconds: 500),
-                  ));
-                },
-                child: Container(
-                  height: 54,
-                  padding: EdgeInsets.only(left: 24, right: 24),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(27)),
-                      color: PaletteDark.walletCardSubAddressField
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: <Widget>[
-                      Expanded(
-                        child: Text(
-                          walletStore.subaddress.address,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            walletStore.subaddress.address,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white
+                            ),
                           ),
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 12),
-                        child: copyImage,
-                      )
-                    ],
+                        Padding(
+                          padding: EdgeInsets.only(left: 12),
+                          child: copyImage,
+                        )
+                      ],
+                    ),
                   ),
-                ),
-              )
+                )
             ),
           ),
           Flexible(
-            flex: 3,
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-              ),
-              child: Container(
-                color: PaletteDark.historyPanel,
-                child: Observer(
-                  builder: (_) => ListView.separated(
-                    separatorBuilder: (context, index) => Divider(
-                      height: 1,
-                      color: PaletteDark.menuList,
-                    ),
-                    itemCount: subaddressListStore.subaddresses.length + 2,
-                    itemBuilder: (context, index) {
-
-                      if (index == 0) {
-                        return accountTile(
-                            onTap: () {},
-                            title: walletStore.account.label,
-                            icon: Icon(
-                              Icons.arrow_forward_ios,
-                              size: 14,
-                              color: Colors.white,
-                            )
-                        );
-                      }
-
-                      if (index == 1) {
-                        return accountTile(
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(Routes.newSubaddress),
-                            title: S.of(context).subaddresses,
-                            icon: Icon(
-                              Icons.add,
-                              size: 20,
-                              color: Colors.white,
-                            )
-                        );
-                      }
-
-                      index -= 2;
-
-                      return Observer(
-                        builder: (_) {
-                          final subaddress = subaddressListStore.subaddresses[index];
-                          final isCurrent =
-                              walletStore.subaddress.address == subaddress.address;
-
-                          final label = subaddress.label;
-                          final address = subaddress.address;
-
-                          return InkWell(
-                            onTap: () => walletStore.setSubaddress(subaddress),
-                            child: Container(
-                              color: isCurrent ? currentColor : notCurrentColor,
-                              padding: EdgeInsets.only(
-                                  left: 24,
-                                  right: 24,
-                                  top: 32,
-                                  bottom: 32
-                              ),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    label.isNotEmpty
-                                        ? Text(
-                                      label,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: PaletteDark.walletCardText
-                                      ),
-                                    )
-                                        : Offstage(),
-                                    Padding(
-                                      padding: label.isNotEmpty
-                                          ? EdgeInsets.only(top: 10)
-                                          : EdgeInsets.only(top: 0),
-                                      child: Text(
-                                        address,
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white
-                                        ),
-                                      ),
-                                    )
-                                  ]),
-                            ),
-                          );
-                        }
-                      );
-                    }
-                  )
+              flex: 3,
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(24),
+                  topRight: Radius.circular(24),
                 ),
-              ),
-            )
+                child: Container(
+                  color: PaletteDark.historyPanel,
+                  child: Observer(
+                      builder: (_) => ListView.separated(
+                          separatorBuilder: (context, index) => Divider(
+                            height: 1,
+                            color: PaletteDark.menuList,
+                          ),
+                          itemCount: subaddressListStore.subaddresses.length + 2,
+                          itemBuilder: (context, index) {
+
+                            if (index == 0) {
+                              return HeaderTile(
+                                  onTap: () async {
+                                    await showDialog<void>(
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return AccountListPage(accountListStore: accountListStore);
+                                      }
+                                    );
+                                  },
+                                  title: walletStore.account.label,
+                                  icon: Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 14,
+                                    color: Colors.white,
+                                  )
+                              );
+                            }
+
+                            if (index == 1) {
+                              return HeaderTile(
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.newSubaddress),
+                                  title: S.of(context).subaddresses,
+                                  icon: Icon(
+                                    Icons.add,
+                                    size: 20,
+                                    color: Colors.white,
+                                  )
+                              );
+                            }
+
+                            index -= 2;
+
+                            return Observer(
+                                builder: (_) {
+                                  final subaddress = subaddressListStore.subaddresses[index];
+                                  final isCurrent =
+                                      walletStore.subaddress.address == subaddress.address;
+
+                                  final label = subaddress.label;
+                                  final address = subaddress.address;
+
+                                  return InkWell(
+                                    onTap: () => walletStore.setSubaddress(subaddress),
+                                    child: Container(
+                                      color: isCurrent ? currentColor : notCurrentColor,
+                                      padding: EdgeInsets.only(
+                                          left: 24,
+                                          right: 24,
+                                          top: 32,
+                                          bottom: 32
+                                      ),
+                                      child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: <Widget>[
+                                            label.isNotEmpty
+                                            ? Text(
+                                              label,
+                                              style: TextStyle(
+                                                  fontSize: 14,
+                                                  color: PaletteDark.walletCardText
+                                              ),
+                                            )
+                                            : Offstage(),
+                                            Padding(
+                                              padding: label.isNotEmpty
+                                              ? EdgeInsets.only(top: 10)
+                                              : EdgeInsets.only(top: 0),
+                                              child: Text(
+                                                address,
+                                                style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white
+                                                ),
+                                              ),
+                                            )
+                                          ]),
+                                    ),
+                                  );
+                                }
+                            );
+                          }
+                      )
+                  ),
+                ),
+              )
           )
         ],
       ),
     );
   }
-
-  Widget accountTile({
-    @required VoidCallback onTap,
-    @required String title,
-    @required Icon icon
-  }) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 32,
-        bottom: 32
-      ),
-      color: Colors.transparent,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white
-            ),
-          ),
-          Container(
-            height: 32,
-            width: 32,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: PaletteDark.menuList
-            ),
-            child: icon,
-          )
-        ],
-      ),
-    ),
-  );
 }

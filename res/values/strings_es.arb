@@ -133,6 +133,10 @@
   "share_address" : "Compartir dirección",
   "receive_amount" : "Cantidad",
   "subaddresses" : "Subdirecciones",
+  "rename" : "Rebautizar",
+  "choose_account" : "Elegir cuenta",
+  "create_new_account" : "Crear una nueva cuenta",
+  "accounts_subaddresses" : "Cuentas y subdirecciones",
 
 
   "restore_restore_wallet" : "Recuperar Cartera",

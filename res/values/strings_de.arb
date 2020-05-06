@@ -133,6 +133,10 @@
   "share_address" : "Adresse teilen ",
   "receive_amount" : "Menge",
   "subaddresses" : "Unteradressen",
+  "rename" : "Umbenennen",
+  "choose_account" : "Konto auswählen",
+  "create_new_account" : "Neues Konto erstellen",
+  "accounts_subaddresses" : "Konten und Unteradressen",
 
 
   "restore_restore_wallet" : "Wallet wiederherstellen",

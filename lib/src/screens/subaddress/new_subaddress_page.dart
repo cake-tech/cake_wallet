@@ -9,10 +9,14 @@ import 'package:cake_wallet/src/stores/subaddress_creation/subaddress_creation_s
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class NewSubaddressPage extends BasePage {
   @override
   String get title => S.current.new_subaddress_title;
+
+  @override
+  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => NewSubaddressForm();
@@ -43,39 +47,44 @@ class NewSubaddressFormState extends State<NewSubaddressForm> {
   final _labelController = TextEditingController();
 
   @override
+  void dispose() {
+    _labelController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final subaddressCreationStore =
         Provider.of<SubadrressCreationStore>(context);
 
+    _labelController.addListener(() {
+      if (_labelController.text.isNotEmpty) {
+        subaddressCreationStore.setDisabledStatus(false);
+      } else {
+        subaddressCreationStore.setDisabledStatus(true);
+      }
+    });
+
     return Form(
         key: _formKey,
-        child: Stack(children: <Widget>[
-          Center(
-            child: Padding(
-              padding: EdgeInsets.only(left: 35, right: 35),
-              child: TextFormField(
-                  controller: _labelController,
-                  decoration: InputDecoration(
-                      hintStyle: TextStyle(color: Theme.of(context).hintColor),
-                      hintText: S.of(context).new_subaddress_label_name,
-                      focusedBorder: UnderlineInputBorder(
-                          borderSide:
-                              BorderSide(color: Palette.cakeGreen, width: 2.0)),
-                      enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Theme.of(context).focusColor,
-                              width: 1.0))),
-                  validator: (value) {
-                    subaddressCreationStore.validateSubaddressName(value);
-                    return subaddressCreationStore.errorMessage;
-                  }),
-            ),
-          ),
-          Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: Observer(
+        child: Container(
+          color: PaletteDark.historyPanel,
+          padding: EdgeInsets.all(24.0),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: Center(
+                  child: BaseTextFormField(
+                    controller: _labelController,
+                    hintText: S.of(context).new_subaddress_label_name,
+                    validator: (value) {
+                      subaddressCreationStore.validateSubaddressName(value);
+                      return subaddressCreationStore.errorMessage;
+                    }
+                  )
+                )
+              ),
+              Observer(
                 builder: (_) => LoadingPrimaryButton(
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
@@ -85,14 +94,16 @@ class NewSubaddressFormState extends State<NewSubaddressForm> {
                       }
                     },
                     text: S.of(context).new_subaddress_create,
-                    color: Theme.of(context)
-                        .accentTextTheme
-                        .button
-                        .backgroundColor,
-                    textColor: Theme.of(context).primaryTextTheme.button.color,
+                    color: Colors.green,
+                    textColor: Colors.white,
                     isLoading:
-                        subaddressCreationStore.state is SubaddressIsCreating),
-              ))
-        ]));
+                    subaddressCreationStore.state is SubaddressIsCreating,
+                    isDisabled: subaddressCreationStore.isDisabledStatus,
+                ),
+              )
+            ],
+          ),
+        )
+    );
   }
 }
