@@ -133,6 +133,10 @@
   "share_address" : "Deel adres",
   "receive_amount" : "Bedrag",
   "subaddresses" : "Subadressen",
+  "rename" : "Hernoemen",
+  "choose_account" : "Kies account",
+  "create_new_account" : "Creëer een nieuw account",
+  "accounts_subaddresses" : "Accounts en subadressen",
 
 
   "restore_restore_wallet" : "Portemonnee herstellen",

@@ -25,7 +25,6 @@ class Routes {
   static const newNode = '/new_node_list';
   static const login = '/login';
   static const splash = '/splash';
-  static const accountList = '/account_list';
   static const accountCreation = '/account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';

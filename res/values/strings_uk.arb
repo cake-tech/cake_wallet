@@ -131,8 +131,12 @@
 
 
   "share_address" : "Поділитися адресою",
-  "receive_amount" : "Баланс",
+  "receive_amount" : "Сума",
   "subaddresses" : "Субадреси",
+  "rename" : "Перейменувати",
+  "choose_account" : "Оберіть акаунт",
+  "create_new_account" : "Створити новий акаунт",
+  "accounts_subaddresses" : "Акаунти та субадреси",
 
 
   "restore_restore_wallet" : "Відновити гаманець",
