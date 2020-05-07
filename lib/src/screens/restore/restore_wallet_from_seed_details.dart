@@ -11,7 +11,7 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/screens/restore/widgets/restore_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class RestoreWalletFromSeedDetailsPage extends BasePage {
   @override
@@ -64,11 +64,11 @@ class _RestoreFromSeedDetailsFormState
           showDialog<void>(
               context: context,
               builder: (BuildContext context) {
-                return RestoreAlertDialog(
-                  restoreTitle: S.current.restore_wallet_restore_description,
-                  restoreContent: state.error,
-                  restoreButtonText: S.of(context).ok,
-                  restoreButtonAction: () => Navigator.of(context).pop(),
+                return AlertWithOneAction(
+                    alertTitle: S.current.restore_title_from_seed,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop()
                 );
               });
         });
