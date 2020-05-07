@@ -238,7 +238,6 @@ class SeedWidgetState extends State<SeedWidget> {
             fit: FlexFit.tight,
             flex: 1,
             child: TopPanel(
-                height: null,
                 color: PaletteDark.menuList,
                 widget: SingleChildScrollView(
                   child: Column(
