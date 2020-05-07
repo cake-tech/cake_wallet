@@ -254,7 +254,6 @@ class ReceiveBodyState extends State<ReceiveBody> {
                                   walletStore.subaddress.address == subaddress.address;
 
                               final label = subaddress.label;
-                              final address = subaddress.address;
 
                               return InkWell(
                                 onTap: () => walletStore.setSubaddress(subaddress),
@@ -263,36 +262,17 @@ class ReceiveBodyState extends State<ReceiveBody> {
                                   padding: EdgeInsets.only(
                                       left: 24,
                                       right: 24,
-                                      top: 32,
-                                      bottom: 32
+                                      top: 28,
+                                      bottom: 28
                                   ),
-                                  child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        label.isNotEmpty
-                                            ? Text(
-                                          label,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: PaletteDark.walletCardText
-                                          ),
-                                        )
-                                            : Offstage(),
-                                        Padding(
-                                          padding: label.isNotEmpty
-                                              ? EdgeInsets.only(top: 10)
-                                              : EdgeInsets.only(top: 0),
-                                          child: Text(
-                                            address,
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white
-                                            ),
-                                          ),
-                                        )
-                                      ]),
+                                  child: Text(
+                                    label,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: PaletteDark.walletCardText
+                                    ),
+                                  ),
                                 ),
                               );
                             }
