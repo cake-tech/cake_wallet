@@ -20,8 +20,8 @@ class HeaderTile extends StatelessWidget {
         padding: EdgeInsets.only(
             left: 24,
             right: 24,
-            top: 32,
-            bottom: 32
+            top: 24,
+            bottom: 24
         ),
         color: Colors.transparent,
         child: Row(
