@@ -124,6 +124,7 @@
   "remove_node_message" : "選択したノードを削除してもよろしいですか？",
   "remove" : "削除する",
   "delete" : "削除する",
+  "add_new_node" : "新しいノードを追加",
 
 
   "use" : "切り替える ",
