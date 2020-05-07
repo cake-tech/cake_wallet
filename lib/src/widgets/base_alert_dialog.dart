@@ -138,7 +138,7 @@ class BaseAlertDialog extends StatelessWidget {
                       Container(
                         width: 300,
                         height: 77,
-                        padding: EdgeInsets.all(24),
+                        padding: EdgeInsets.only(left: 24, right: 24),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.only(
                             topLeft: Radius.circular(24),
