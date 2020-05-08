@@ -77,6 +77,7 @@ class S implements WidgetsLocalizations {
   String get error_text_node_port => "Node port can only contain numbers between 0 and 65535";
   String get error_text_payment_id => "Payment ID can only contain from 16 to 64 chars in hex";
   String get error_text_subaddress_name => "Subaddress name can't contain ` , ' \" symbols\nand must be between 1 and 20 characters long";
+  String get error_text_template => "Template name and address can't contain ` , ' \" symbols\nand must be between 1 and 106 characters long";
   String get error_text_wallet_name => "Wallet name can only contain letters, numbers\nand must be between 1 and 15 characters long";
   String get error_text_xmr => "XMR value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12";
   String get estimated => "Estimated";
@@ -165,12 +166,20 @@ class S implements WidgetsLocalizations {
   String get seed_share => "Share seed";
   String get seed_title => "Seed";
   String get send => "Send";
+  String get send_amount => "Amount:";
   String get send_creating_transaction => "Creating transaction";
   String get send_error_currency => "Currency can only contain numbers";
   String get send_error_minimum_value => "Minimum value of amount is 0.01";
   String get send_estimated_fee => "Estimated fee:";
+  String get send_fee => "Fee:";
+  String get send_got_it => "Got it";
   String get send_monero_address => "Monero address";
+  String get send_name => "Name";
+  String get send_new => "New";
   String get send_payment_id => "Payment ID (optional)";
+  String get send_sending => "Sending...";
+  String get send_success => "Your Monero was successfully sent";
+  String get send_templates => "Templates";
   String get send_title => "Send Monero";
   String get send_xmr => "Send XMR";
   String get send_your_wallet => "Your wallet";
@@ -338,6 +347,8 @@ class $de extends S {
   @override
   String get transaction_sent => "Transaktion gesendet!";
   @override
+  String get send_fee => "Gebühr:";
+  @override
   String get password => "Passwort";
   @override
   String get you_will_get => "Sie erhalten";
@@ -349,6 +360,8 @@ class $de extends S {
   String get welcome => "Willkommen zu";
   @override
   String get share_address => "Adresse teilen ";
+  @override
+  String get send_templates => "Vorlagen";
   @override
   String get please_try_to_connect_to_another_node => "Bitte versuchen Sie, eine Verbindung zu einem anderen Knoten herzustellen";
   @override
@@ -374,6 +387,8 @@ class $de extends S {
   @override
   String get seed_language_portuguese => "Portugiesisch";
   @override
+  String get send_new => "Neu";
+  @override
   String get setup_pin => "PIN einrichten";
   @override
   String get transaction_details_recipient_address => "Empfängeradresse";
@@ -387,6 +402,8 @@ class $de extends S {
   String get restore_next => "Nächster";
   @override
   String get trade_state_trading => "Handel";
+  @override
+  String get send_sending => "Senden...";
   @override
   String get error_text_address => "Die Walletadresse muss dem Typ entsprechen\nder Kryptowährung";
   @override
@@ -516,6 +533,8 @@ class $de extends S {
   @override
   String get paste => "Einfügen";
   @override
+  String get send_got_it => "Ich habs";
+  @override
   String get widgets_or => "oder";
   @override
   String get remove => "Löschen";
@@ -524,11 +543,15 @@ class $de extends S {
   @override
   String get yesterday => "Gestern";
   @override
+  String get send_amount => "Menge:";
+  @override
   String get expired => "Abgelaufen";
   @override
   String get transaction_priority_regular => "Regulär";
   @override
   String get trade_details_created_at => "Hergestellt in";
+  @override
+  String get send_success => "Ihr Monero wurde erfolgreich gesendet";
   @override
   String get settings_wallets => "Brieftaschen";
   @override
@@ -551,6 +574,8 @@ class $de extends S {
   String get trade_state_timeout => "Auszeit";
   @override
   String get nodes => "Knoten";
+  @override
+  String get error_text_template => "Vorlagenname und Adresse dürfen nicht enthalten ` , ' \" symbole\nund muss zwischen 1 und 106 Zeichen lang sein";
   @override
   String get seed_share => "Teilen Sie Seed";
   @override
@@ -687,6 +712,8 @@ class $de extends S {
   String get settings_fee_priority => "Gebührenpriorität";
   @override
   String get restore_active_seed => "Aktives Seed";
+  @override
+  String get send_name => "Name";
   @override
   String get settings_personal => "persönlich";
   @override
@@ -922,6 +949,8 @@ class $hi extends S {
   @override
   String get transaction_sent => "भेजा गया लेन-देन";
   @override
+  String get send_fee => "शुल्क:";
+  @override
   String get password => "पारण शब्द";
   @override
   String get you_will_get => "आपको मिल जायेगा";
@@ -933,6 +962,8 @@ class $hi extends S {
   String get welcome => "स्वागत हे सेवा मेरे";
   @override
   String get share_address => "पता साझा करें";
+  @override
+  String get send_templates => "टेम्पलेट्स";
   @override
   String get please_try_to_connect_to_another_node => "कृपया दूसरे नोड से कनेक्ट करने का प्रयास करें";
   @override
@@ -958,6 +989,8 @@ class $hi extends S {
   @override
   String get seed_language_portuguese => "पुर्तगाली";
   @override
+  String get send_new => "नया";
+  @override
   String get setup_pin => "पिन सेट करें";
   @override
   String get transaction_details_recipient_address => "प्राप्तकर्ता का पता";
@@ -971,6 +1004,8 @@ class $hi extends S {
   String get restore_next => "आगामी";
   @override
   String get trade_state_trading => "व्यापार";
+  @override
+  String get send_sending => "भेजना...";
   @override
   String get error_text_address => "वॉलेट पता प्रकार के अनुरूप होना चाहिए\nक्रिप्टोकरेंसी का";
   @override
@@ -1100,6 +1135,8 @@ class $hi extends S {
   @override
   String get paste => "पेस्ट करें";
   @override
+  String get send_got_it => "समझ गया";
+  @override
   String get widgets_or => "या";
   @override
   String get remove => "हटाना";
@@ -1108,11 +1145,15 @@ class $hi extends S {
   @override
   String get yesterday => "बिता कल";
   @override
+  String get send_amount => "रकम:";
+  @override
   String get expired => "समय सीमा समाप्त";
   @override
   String get transaction_priority_regular => "नियमित";
   @override
   String get trade_details_created_at => "पर बनाया गया";
+  @override
+  String get send_success => "आपका Monero सफलतापूर्वक भेजा गया";
   @override
   String get settings_wallets => "पर्स";
   @override
@@ -1135,6 +1176,8 @@ class $hi extends S {
   String get trade_state_timeout => "समय समाप्त";
   @override
   String get nodes => "नोड्स";
+  @override
+  String get error_text_template => "टेम्प्लेट का नाम और पता नहीं हो सकता ` , ' \" प्रतीकों\nऔर 1 और 106 वर्णों के बीच लंबा होना चाहिए";
   @override
   String get seed_share => "बीज साझा करें";
   @override
@@ -1271,6 +1314,8 @@ class $hi extends S {
   String get settings_fee_priority => "शुल्क प्राथमिकता";
   @override
   String get restore_active_seed => "सक्रिय बीज";
+  @override
+  String get send_name => "नाम";
   @override
   String get settings_personal => "निजी";
   @override
@@ -1506,6 +1551,8 @@ class $ru extends S {
   @override
   String get transaction_sent => "Tранзакция отправлена!";
   @override
+  String get send_fee => "Комиссия:";
+  @override
   String get password => "Пароль";
   @override
   String get you_will_get => "Вы получите";
@@ -1517,6 +1564,8 @@ class $ru extends S {
   String get welcome => "Приветствуем в";
   @override
   String get share_address => "Поделиться адресом";
+  @override
+  String get send_templates => "Шаблоны";
   @override
   String get please_try_to_connect_to_another_node => "Пожалуйста, попробуйте подключиться к другой ноде";
   @override
@@ -1542,6 +1591,8 @@ class $ru extends S {
   @override
   String get seed_language_portuguese => "Португальский";
   @override
+  String get send_new => "Новый";
+  @override
   String get setup_pin => "Настроить PIN";
   @override
   String get transaction_details_recipient_address => "Адрес получателя";
@@ -1555,6 +1606,8 @@ class $ru extends S {
   String get restore_next => "Продолжить";
   @override
   String get trade_state_trading => "Совершение сделки";
+  @override
+  String get send_sending => "Отправка...";
   @override
   String get error_text_address => "Адрес кошелька должен соответствовать типу\nкриптовалюты";
   @override
@@ -1684,6 +1737,8 @@ class $ru extends S {
   @override
   String get paste => "Вставить";
   @override
+  String get send_got_it => "Понял";
+  @override
   String get widgets_or => "или";
   @override
   String get remove => "Удалить";
@@ -1692,11 +1747,15 @@ class $ru extends S {
   @override
   String get yesterday => "Вчера";
   @override
+  String get send_amount => "Сумма:";
+  @override
   String get expired => "Истекает";
   @override
   String get transaction_priority_regular => "Обычный";
   @override
   String get trade_details_created_at => "Создано";
+  @override
+  String get send_success => "Ваш Monero был успешно отправлен";
   @override
   String get settings_wallets => "Кошельки";
   @override
@@ -1719,6 +1778,8 @@ class $ru extends S {
   String get trade_state_timeout => "Таймаут";
   @override
   String get nodes => "Ноды";
+  @override
+  String get error_text_template => "Имя и адрес шаблона не может содержать ` , ' \" символы\nи должно быть от 1 до 106 символов в длину";
   @override
   String get seed_share => "Поделиться мнемонической фразой";
   @override
@@ -1855,6 +1916,8 @@ class $ru extends S {
   String get settings_fee_priority => "Приоритет транзакции";
   @override
   String get restore_active_seed => "Активная мнемоническая фраза";
+  @override
+  String get send_name => "Имя";
   @override
   String get settings_personal => "Персональные";
   @override
@@ -2090,6 +2153,8 @@ class $ko extends S {
   @override
   String get transaction_sent => "거래가 전송되었습니다!";
   @override
+  String get send_fee => "회비:";
+  @override
   String get password => "암호";
   @override
   String get you_will_get => "당신은 얻을 것이다";
@@ -2101,6 +2166,8 @@ class $ko extends S {
   String get welcome => "환영 에";
   @override
   String get share_address => "주소 공유";
+  @override
+  String get send_templates => "템플릿";
   @override
   String get please_try_to_connect_to_another_node => "다른 노드에 연결을 시도하십시오";
   @override
@@ -2126,6 +2193,8 @@ class $ko extends S {
   @override
   String get seed_language_portuguese => "포르투갈 인";
   @override
+  String get send_new => "새로운";
+  @override
   String get setup_pin => "설정 PIN";
   @override
   String get transaction_details_recipient_address => "받는 사람 주소";
@@ -2139,6 +2208,8 @@ class $ko extends S {
   String get restore_next => "다음 것";
   @override
   String get trade_state_trading => "거래";
+  @override
+  String get send_sending => "배상...";
   @override
   String get error_text_address => "지갑 주소는 유형과 일치해야합니다\n암호 화폐";
   @override
@@ -2268,6 +2339,8 @@ class $ko extends S {
   @override
   String get paste => "풀";
   @override
+  String get send_got_it => "알았다";
+  @override
   String get widgets_or => "또는";
   @override
   String get remove => "없애다";
@@ -2276,11 +2349,15 @@ class $ko extends S {
   @override
   String get yesterday => "어제";
   @override
+  String get send_amount => "양:";
+  @override
   String get expired => "만료";
   @override
   String get transaction_priority_regular => "정규병";
   @override
   String get trade_details_created_at => "에 작성";
+  @override
+  String get send_success => "Monero가 성공적으로 전송되었습니다";
   @override
   String get settings_wallets => "지갑";
   @override
@@ -2303,6 +2380,8 @@ class $ko extends S {
   String get trade_state_timeout => "타임 아웃";
   @override
   String get nodes => "노드";
+  @override
+  String get error_text_template => "템플릿 이름과 주소는 포함 할 수 없습니다 ` , ' \" 기호 \n1 ~ 106 자 사이 여야합니다";
   @override
   String get seed_share => "시드 공유";
   @override
@@ -2439,6 +2518,8 @@ class $ko extends S {
   String get settings_fee_priority => "수수료 우선";
   @override
   String get restore_active_seed => "활성 종자";
+  @override
+  String get send_name => "이름";
   @override
   String get settings_personal => "개인적인";
   @override
@@ -2674,6 +2755,8 @@ class $pt extends S {
   @override
   String get transaction_sent => "Transação enviada!";
   @override
+  String get send_fee => "Taxa:";
+  @override
   String get password => "Senha";
   @override
   String get you_will_get => "Você receberá";
@@ -2685,6 +2768,8 @@ class $pt extends S {
   String get welcome => "Bem-vindo ao";
   @override
   String get share_address => "Compartilhar endereço";
+  @override
+  String get send_templates => "Modelos";
   @override
   String get please_try_to_connect_to_another_node => "Por favor, tente conectar-se a outro nó";
   @override
@@ -2710,6 +2795,8 @@ class $pt extends S {
   @override
   String get seed_language_portuguese => "Português";
   @override
+  String get send_new => "Novo";
+  @override
   String get setup_pin => "Configurar PIN";
   @override
   String get transaction_details_recipient_address => "Endereço do destinatário";
@@ -2723,6 +2810,8 @@ class $pt extends S {
   String get restore_next => "Próximo";
   @override
   String get trade_state_trading => "Em andamento";
+  @override
+  String get send_sending => "Enviando...";
   @override
   String get error_text_address => "O endereço da carteira deve corresponder à\ncriptomoeda selecionada";
   @override
@@ -2852,6 +2941,8 @@ class $pt extends S {
   @override
   String get paste => "Colar";
   @override
+  String get send_got_it => "Entendi";
+  @override
   String get widgets_or => "ou";
   @override
   String get remove => "Remover";
@@ -2860,11 +2951,15 @@ class $pt extends S {
   @override
   String get yesterday => "Ontem";
   @override
+  String get send_amount => "Montante:";
+  @override
   String get expired => "Expirada";
   @override
   String get transaction_priority_regular => "Regular";
   @override
   String get trade_details_created_at => "Criada em";
+  @override
+  String get send_success => "Seu Monero foi enviado com sucesso";
   @override
   String get settings_wallets => "Carteiras";
   @override
@@ -2887,6 +2982,8 @@ class $pt extends S {
   String get trade_state_timeout => "Tempo esgotado";
   @override
   String get nodes => "Nós";
+  @override
+  String get error_text_template => "O nome e o endereço do modelo não podem conter os símbolos ` , ' \" \ne deve ter entre 1 e 106 caracteres";
   @override
   String get seed_share => "Compartilhar semente";
   @override
@@ -3023,6 +3120,8 @@ class $pt extends S {
   String get settings_fee_priority => "Prioridade da taxa";
   @override
   String get restore_active_seed => "Semente ativa";
+  @override
+  String get send_name => "Nome";
   @override
   String get settings_personal => "Pessoal";
   @override
@@ -3258,6 +3357,8 @@ class $uk extends S {
   @override
   String get transaction_sent => "Tранзакцію відправлено!";
   @override
+  String get send_fee => "Комісія:";
+  @override
   String get password => "Пароль";
   @override
   String get you_will_get => "Ви отримаєте";
@@ -3269,6 +3370,8 @@ class $uk extends S {
   String get welcome => "Вітаємо в";
   @override
   String get share_address => "Поділитися адресою";
+  @override
+  String get send_templates => "Шаблони";
   @override
   String get please_try_to_connect_to_another_node => "Будь ласка, спробуйте підключитися до іншого вузлу";
   @override
@@ -3294,6 +3397,8 @@ class $uk extends S {
   @override
   String get seed_language_portuguese => "Португальська";
   @override
+  String get send_new => "Новий";
+  @override
   String get setup_pin => "Встановити PIN";
   @override
   String get transaction_details_recipient_address => "Адреса отримувача";
@@ -3307,6 +3412,8 @@ class $uk extends S {
   String get restore_next => "Продовжити";
   @override
   String get trade_state_trading => "Виконання операції";
+  @override
+  String get send_sending => "Відправлення...";
   @override
   String get error_text_address => "Адреса гаманця повинна відповідати типу\nкриптовалюти";
   @override
@@ -3334,7 +3441,7 @@ class $uk extends S {
   @override
   String get copy_address => "Cкопіювати адресу";
   @override
-  String get error_text_subaddress_name => "Ім'я субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину";
+  String get error_text_subaddress_name => "Ім'я субадреси не може містити ` , ' \" символи\nі може бути від 1 до 20 символів в довжину";
   @override
   String get incorrect_seed => "Введений текст невірний.";
   @override
@@ -3436,6 +3543,8 @@ class $uk extends S {
   @override
   String get paste => "Вставити";
   @override
+  String get send_got_it => "Зрозумів";
+  @override
   String get widgets_or => "або";
   @override
   String get remove => "Видалити";
@@ -3444,11 +3553,15 @@ class $uk extends S {
   @override
   String get yesterday => "Вчора";
   @override
+  String get send_amount => "Сума:";
+  @override
   String get expired => "Закінчується";
   @override
   String get transaction_priority_regular => "Звичайний";
   @override
   String get trade_details_created_at => "Створено";
+  @override
+  String get send_success => "Ваш Monero успішно надісланий";
   @override
   String get settings_wallets => "Гаманці";
   @override
@@ -3471,6 +3584,8 @@ class $uk extends S {
   String get trade_state_timeout => "Таймаут";
   @override
   String get nodes => "Вузли";
+  @override
+  String get error_text_template => "Ім'я та адреса шаблону не може містити ` , ' \" символи\nі може бути від 1 до 106 символів в довжину";
   @override
   String get seed_share => "Поділитися мнемонічною фразою";
   @override
@@ -3607,6 +3722,8 @@ class $uk extends S {
   String get settings_fee_priority => "Пріоритет транзакції";
   @override
   String get restore_active_seed => "Активна мнемонічна фраза";
+  @override
+  String get send_name => "Ім'я";
   @override
   String get settings_personal => "Персональні";
   @override
@@ -3842,6 +3959,8 @@ class $ja extends S {
   @override
   String get transaction_sent => "トランザクションが送信されました！";
   @override
+  String get send_fee => "費用：";
+  @override
   String get password => "パスワード";
   @override
   String get you_will_get => "あなたが取得します";
@@ -3853,6 +3972,8 @@ class $ja extends S {
   String get welcome => "ようこそ に";
   @override
   String get share_address => "住所を共有する";
+  @override
+  String get send_templates => "テンプレート";
   @override
   String get please_try_to_connect_to_another_node => "別のノードに接続してみてください";
   @override
@@ -3878,6 +3999,8 @@ class $ja extends S {
   @override
   String get seed_language_portuguese => "ポルトガル語";
   @override
+  String get send_new => "新着";
+  @override
   String get setup_pin => "PINのセットアップ";
   @override
   String get transaction_details_recipient_address => "受取人の住所";
@@ -3891,6 +4014,8 @@ class $ja extends S {
   String get restore_next => "次";
   @override
   String get trade_state_trading => "トレーディング";
+  @override
+  String get send_sending => "送信...";
   @override
   String get error_text_address => "ウォレットアドレスは、\n暗号通貨";
   @override
@@ -4020,6 +4145,8 @@ class $ja extends S {
   @override
   String get paste => "ペースト";
   @override
+  String get send_got_it => "とった";
+  @override
   String get widgets_or => "または";
   @override
   String get remove => "削除する";
@@ -4028,11 +4155,15 @@ class $ja extends S {
   @override
   String get yesterday => "昨日";
   @override
+  String get send_amount => "量：";
+  @override
   String get expired => "期限切れ";
   @override
   String get transaction_priority_regular => "レギュラー";
   @override
   String get trade_details_created_at => "で作成";
+  @override
+  String get send_success => "Moneroが送信されました";
   @override
   String get settings_wallets => "財布";
   @override
@@ -4055,6 +4186,8 @@ class $ja extends S {
   String get trade_state_timeout => "タイムアウト";
   @override
   String get nodes => "ノード";
+  @override
+  String get error_text_template => "テンプレートの名前とアドレスに含めることはできません ` , ' \" シンボル\n1〜106文字の長さである必要があります";
   @override
   String get seed_share => "シードを共有する";
   @override
@@ -4191,6 +4324,8 @@ class $ja extends S {
   String get settings_fee_priority => "料金優先";
   @override
   String get restore_active_seed => "アクティブシード";
+  @override
+  String get send_name => "名前";
   @override
   String get settings_personal => "パーソナル";
   @override
@@ -4430,6 +4565,8 @@ class $pl extends S {
   @override
   String get transaction_sent => "Transakcja wysłana!";
   @override
+  String get send_fee => "Opłata:";
+  @override
   String get password => "Hasło";
   @override
   String get you_will_get => "Dostaniesz";
@@ -4441,6 +4578,8 @@ class $pl extends S {
   String get welcome => "Witamy w";
   @override
   String get share_address => "Udostępnij adres";
+  @override
+  String get send_templates => "Szablony";
   @override
   String get please_try_to_connect_to_another_node => "Spróbuj połączyć się z innym węzłem";
   @override
@@ -4466,6 +4605,8 @@ class $pl extends S {
   @override
   String get seed_language_portuguese => "Portugalski";
   @override
+  String get send_new => "Nowy";
+  @override
   String get setup_pin => "Ustaw PIN";
   @override
   String get transaction_details_recipient_address => "Adres odbiorcy";
@@ -4479,6 +4620,8 @@ class $pl extends S {
   String get restore_next => "Kolejny";
   @override
   String get trade_state_trading => "Handlowy";
+  @override
+  String get send_sending => "Wysyłanie...";
   @override
   String get error_text_address => "Wallet address must correspond to the type\nof cryptocurrency";
   @override
@@ -4608,6 +4751,8 @@ class $pl extends S {
   @override
   String get paste => "Pasta";
   @override
+  String get send_got_it => "Rozumiem";
+  @override
   String get widgets_or => "lub";
   @override
   String get remove => "Usunąć";
@@ -4616,11 +4761,15 @@ class $pl extends S {
   @override
   String get yesterday => "Wczoraj";
   @override
+  String get send_amount => "Ilość:";
+  @override
   String get expired => "Przedawniony";
   @override
   String get transaction_priority_regular => "Regularny";
   @override
   String get trade_details_created_at => "Utworzono w";
+  @override
+  String get send_success => "Twoje Monero zostało pomyślnie wysłane";
   @override
   String get settings_wallets => "Portfele";
   @override
@@ -4643,6 +4792,8 @@ class $pl extends S {
   String get trade_state_timeout => "Koniec czasu";
   @override
   String get nodes => "Węzły";
+  @override
+  String get error_text_template => "Nazwa i adres szablonu nie mogą zawierać ` , ' \" symbolika\ni musi mieć od 1 do 106 znaków";
   @override
   String get seed_share => "Udostępnij ziarno";
   @override
@@ -4779,6 +4930,8 @@ class $pl extends S {
   String get settings_fee_priority => "Priorytet opłaty";
   @override
   String get restore_active_seed => "Aktywne nasiona";
+  @override
+  String get send_name => "Imię";
   @override
   String get settings_personal => "Osobisty";
   @override
@@ -5014,6 +5167,8 @@ class $es extends S {
   @override
   String get transaction_sent => "Transacción enviada!";
   @override
+  String get send_fee => "Cuota:";
+  @override
   String get password => "Contraseña";
   @override
   String get you_will_get => "Conseguirás";
@@ -5025,6 +5180,8 @@ class $es extends S {
   String get welcome => "Bienvenido";
   @override
   String get share_address => "Compartir dirección";
+  @override
+  String get send_templates => "Plantillas";
   @override
   String get please_try_to_connect_to_another_node => "Intenta conectarte a otro nodo";
   @override
@@ -5050,6 +5207,8 @@ class $es extends S {
   @override
   String get seed_language_portuguese => "Portugués";
   @override
+  String get send_new => "Nuevo";
+  @override
   String get setup_pin => "PIN de configuración";
   @override
   String get transaction_details_recipient_address => "Dirección del receptor";
@@ -5063,6 +5222,8 @@ class $es extends S {
   String get restore_next => "Próximo";
   @override
   String get trade_state_trading => "Comercio";
+  @override
+  String get send_sending => "Enviando...";
   @override
   String get error_text_address => "La dirección de la billetera debe corresponder al tipo \nde criptomoneda";
   @override
@@ -5192,6 +5353,8 @@ class $es extends S {
   @override
   String get paste => "Pegar";
   @override
+  String get send_got_it => "Entendido";
+  @override
   String get widgets_or => "o";
   @override
   String get remove => "Retirar";
@@ -5200,11 +5363,15 @@ class $es extends S {
   @override
   String get yesterday => "Ayer";
   @override
+  String get send_amount => "Cantidad:";
+  @override
   String get expired => "Muerto";
   @override
   String get transaction_priority_regular => "Regular";
   @override
   String get trade_details_created_at => "Creado en";
+  @override
+  String get send_success => "Su Monero fue enviado con éxito";
   @override
   String get settings_wallets => "Carteras";
   @override
@@ -5227,6 +5394,8 @@ class $es extends S {
   String get trade_state_timeout => "Se acabó el tiempo";
   @override
   String get nodes => "Nodos";
+  @override
+  String get error_text_template => "El nombre y la dirección de la plantilla no pueden contener símbolos ` , '\" \ny debe tener entre 1 y 106 caracteres de longitud";
   @override
   String get seed_share => "Compartir semillas";
   @override
@@ -5363,6 +5532,8 @@ class $es extends S {
   String get settings_fee_priority => "Prioridad de tasa";
   @override
   String get restore_active_seed => "Semilla activa";
+  @override
+  String get send_name => "Nombre";
   @override
   String get settings_personal => "Personal";
   @override
@@ -5598,6 +5769,8 @@ class $nl extends S {
   @override
   String get transaction_sent => "Transactie verzonden!";
   @override
+  String get send_fee => "Vergoeding:";
+  @override
   String get password => "Wachtwoord";
   @override
   String get you_will_get => "Je zult krijgen";
@@ -5609,6 +5782,8 @@ class $nl extends S {
   String get welcome => "Welkom bij";
   @override
   String get share_address => "Deel adres";
+  @override
+  String get send_templates => "Sjablonen";
   @override
   String get please_try_to_connect_to_another_node => "Probeer verbinding te maken met een ander knooppunt";
   @override
@@ -5634,6 +5809,8 @@ class $nl extends S {
   @override
   String get seed_language_portuguese => "Portugees";
   @override
+  String get send_new => "Nieuw";
+  @override
   String get setup_pin => "PIN instellen";
   @override
   String get transaction_details_recipient_address => "Adres van de ontvanger";
@@ -5647,6 +5824,8 @@ class $nl extends S {
   String get restore_next => "Volgende";
   @override
   String get trade_state_trading => "Handel";
+  @override
+  String get send_sending => "Bezig met verzenden...";
   @override
   String get error_text_address => "Portemonnee-adres moet overeenkomen met het type\nvan cryptocurrency";
   @override
@@ -5776,6 +5955,8 @@ class $nl extends S {
   @override
   String get paste => "Plakken";
   @override
+  String get send_got_it => "Ik snap het";
+  @override
   String get widgets_or => "of";
   @override
   String get remove => "Verwijderen";
@@ -5784,11 +5965,15 @@ class $nl extends S {
   @override
   String get yesterday => "Gisteren";
   @override
+  String get send_amount => "Bedrag:";
+  @override
   String get expired => "Verlopen";
   @override
   String get transaction_priority_regular => "Regelmatig";
   @override
   String get trade_details_created_at => "Gemaakt bij";
+  @override
+  String get send_success => "Uw Monero is succesvol verzonden";
   @override
   String get settings_wallets => "Portemonnee";
   @override
@@ -5811,6 +5996,8 @@ class $nl extends S {
   String get trade_state_timeout => "Time-out";
   @override
   String get nodes => "Knooppunten";
+  @override
+  String get error_text_template => "Sjabloonnaam en -adres mogen niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 106 tekens lang zijn";
   @override
   String get seed_share => "Deel zaad";
   @override
@@ -5947,6 +6134,8 @@ class $nl extends S {
   String get settings_fee_priority => "Tariefprioriteit";
   @override
   String get restore_active_seed => "Actief zaad";
+  @override
+  String get send_name => "Naam";
   @override
   String get settings_personal => "Persoonlijk";
   @override
@@ -6182,6 +6371,8 @@ class $zh extends S {
   @override
   String get transaction_sent => "交易已发送";
   @override
+  String get send_fee => "費用:";
+  @override
   String get password => "密码";
   @override
   String get you_will_get => "你会得到";
@@ -6193,6 +6384,8 @@ class $zh extends S {
   String get welcome => "歡迎來到";
   @override
   String get share_address => "分享地址";
+  @override
+  String get send_templates => "範本";
   @override
   String get please_try_to_connect_to_another_node => "请尝试连接到另一个节点";
   @override
@@ -6218,6 +6411,8 @@ class $zh extends S {
   @override
   String get seed_language_portuguese => "葡萄牙語";
   @override
+  String get send_new => "新";
+  @override
   String get setup_pin => "设定PIN码";
   @override
   String get transaction_details_recipient_address => "收件人地址";
@@ -6231,6 +6426,8 @@ class $zh extends S {
   String get restore_next => "下一个";
   @override
   String get trade_state_trading => "贸易";
+  @override
+  String get send_sending => "正在發送...";
   @override
   String get error_text_address => "钱包地址必须与类型对应\n加密货币";
   @override
@@ -6360,6 +6557,8 @@ class $zh extends S {
   @override
   String get paste => "糊";
   @override
+  String get send_got_it => "得到它了";
+  @override
   String get widgets_or => "要么";
   @override
   String get remove => "去掉";
@@ -6368,11 +6567,15 @@ class $zh extends S {
   @override
   String get yesterday => "昨天";
   @override
+  String get send_amount => "量:";
+  @override
   String get expired => "已过期";
   @override
   String get transaction_priority_regular => "定期";
   @override
   String get trade_details_created_at => "创建于";
+  @override
+  String get send_success => "你Monero已成功發送";
   @override
   String get settings_wallets => "皮夹";
   @override
@@ -6395,6 +6598,8 @@ class $zh extends S {
   String get trade_state_timeout => "超时";
   @override
   String get nodes => "节点";
+  @override
+  String get error_text_template => "模板名稱和地址不能包含`，' \" 符号\n并且必须在1到106个字符之间";
   @override
   String get seed_share => "分享种子";
   @override
@@ -6531,6 +6736,8 @@ class $zh extends S {
   String get settings_fee_priority => "费用优先";
   @override
   String get restore_active_seed => "活性種子";
+  @override
+  String get send_name => "名稱";
   @override
   String get settings_personal => "个人";
   @override

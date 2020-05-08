@@ -185,6 +185,14 @@
   "send_estimated_fee" : "예상 수수료:",
   "send_priority" : "현재 수수료는 ${transactionPriority} 우선 순위.\n거래 우선 순위는 설정에서 조정할 수 있습니다",
   "send_creating_transaction" : "거래 생성",
+  "send_templates" : "템플릿",
+  "send_new" : "새로운",
+  "send_amount" : "양:",
+  "send_fee" : "회비:",
+  "send_name" : "이름",
+  "send_got_it" : "알았다",
+  "send_sending" : "배상...",
+  "send_success" : "Monero가 성공적으로 전송되었습니다",
 
 
   "settings_title" : "설정",
@@ -291,6 +299,7 @@
   "error_text_minimal_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최소보다 적습니다. ${min} ${currency}",
   "error_text_maximum_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최대 값보다 많습니다. ${max} ${currency}",
   "error_text_limits_loading_failed" : "거래 ${provider} 가 생성되지 않습니다. 로딩 실패",
+  "error_text_template" : "템플릿 이름과 주소는 포함 할 수 없습니다 ` , ' \" 기호 \n1 ~ 106 자 사이 여야합니다",
 
 
   "auth_store_ban_timeout" : "타임 아웃 금지",

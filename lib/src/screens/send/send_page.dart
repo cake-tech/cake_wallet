@@ -27,6 +27,8 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/screens/send/widgets/sending_alert.dart';
+import 'package:cake_wallet/src/screens/send/widgets/template_tile.dart';
+import 'package:cake_wallet/src/stores/send_template/send_template_store.dart';
 
 class SendPage extends BasePage {
   @override
@@ -97,6 +99,7 @@ class SendFormState extends State<SendForm> {
     final balanceStore = Provider.of<BalanceStore>(context);
     final walletStore = Provider.of<WalletStore>(context);
     final syncStore = Provider.of<SyncStore>(context);
+    final sendTemplateStore = Provider.of<SendTemplateStore>(context);
 
     _setEffects(context);
 
@@ -280,7 +283,7 @@ class SendFormState extends State<SendForm> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Text(
-                    'Templates',
+                    S.of(context).send_templates,
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -294,47 +297,67 @@ class SendFormState extends State<SendForm> {
               height: 40,
               width: double.infinity,
               padding: EdgeInsets.only(left: 24),
-              child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 1,
-                  itemBuilder: (context, index) {
+              child: Observer(
+                builder: (_) {
+                  final itemCount = sendTemplateStore.templates.length + 1;
 
-                    if (index == 0) {
-                      return GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.only(right: 10),
-                          child: DottedBorder(
-                            borderType: BorderType.RRect,
-                            dashPattern: [8, 4],
-                            color: PaletteDark.menuList,
-                            strokeWidth: 2,
-                            radius: Radius.circular(20),
+                  return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: itemCount,
+                      itemBuilder: (context, index) {
+
+                        if (index == 0) {
+                          return GestureDetector(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed(Routes.sendTemplate, arguments: sendStore),
                             child: Container(
-                              height: 40,
-                              width: 75,
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(20)),
-                                color: Colors.transparent,
+                              padding: EdgeInsets.only(right: 10),
+                              child: DottedBorder(
+                                  borderType: BorderType.RRect,
+                                  dashPattern: [8, 4],
+                                  color: PaletteDark.menuList,
+                                  strokeWidth: 2,
+                                  radius: Radius.circular(20),
+                                  child: Container(
+                                    height: 40,
+                                    width: 75,
+                                    padding: EdgeInsets.only(left: 10, right: 10),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                                      color: Colors.transparent,
+                                    ),
+                                    child: Text(
+                                      S.of(context).send_new,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: PaletteDark.walletCardText
+                                      ),
+                                    ),
+                                  )
                               ),
-                              child: Text(
-                                'New',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: PaletteDark.walletCardText
-                                ),
-                              ),
-                            )
-                          ),
-                        ),
-                      );
-                    }
+                            ),
+                          );
+                        }
 
-                    return Container();
-                  }
+                        index -= 1;
+
+                        final template = sendTemplateStore.templates[index];
+
+                        return TemplateTile(
+                            name: template.name,
+                            amount: template.amount,
+                            cryptoCurrency: template.cryptoCurrency,
+                            onTap: () {
+                              _addressController.text = template.address;
+                              _cryptoAmountController.text = template.amount;
+                              getOpenaliasRecord(context);
+                            }
+                        );
+                      }
+                  );
+                }
               ),
             )
           ],
@@ -450,9 +473,9 @@ class SendFormState extends State<SendForm> {
               builder: (BuildContext context) {
                 return ConfirmSendingAlert(
                     alertTitle: S.of(context).confirm_sending,
-                    amount: 'Amount:',
+                    amount: S.of(context).send_amount,
                     amountValue: sendStore.pendingTransaction.amount,
-                    fee: 'Fee:',
+                    fee: S.of(context).send_fee,
                     feeValue: sendStore.pendingTransaction.fee,
                     leftButtonText: S.of(context).ok,
                     rightButtonText: S.of(context).cancel,

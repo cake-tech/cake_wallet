@@ -185,6 +185,14 @@
   "send_estimated_fee" : "Geschatte vergoeding:",
   "send_priority" : "Momenteel is de vergoeding vastgesteld op ${transactionPriority} prioriteit.\nTransactieprioriteit kan worden aangepast in de instellingen",
   "send_creating_transaction" : "Transactie maken",
+  "send_templates" : "Sjablonen",
+  "send_new" : "Nieuw",
+  "send_amount" : "Bedrag:",
+  "send_fee" : "Vergoeding:",
+  "send_name" : "Naam",
+  "send_got_it" : "Ik snap het",
+  "send_sending" : "Bezig met verzenden...",
+  "send_success" : "Uw Monero is succesvol verzonden",
 
 
   "settings_title" : "Instellingen",
@@ -291,6 +299,7 @@
   "error_text_minimal_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is minder dan minimaal: ${min} ${currency}",
   "error_text_maximum_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is meer dan maximaal: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Ruil voor ${provider} is niet gemaakt. Beperkingen laden mislukt",
+  "error_text_template" : "Sjabloonnaam en -adres mogen niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 106 tekens lang zijn",
 
 
   "auth_store_ban_timeout" : "time-out verbieden",

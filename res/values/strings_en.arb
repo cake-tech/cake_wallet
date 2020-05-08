@@ -185,6 +185,14 @@
   "send_estimated_fee" : "Estimated fee:",
   "send_priority" : "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings",
   "send_creating_transaction" : "Creating transaction",
+  "send_templates" : "Templates",
+  "send_new" : "New",
+  "send_amount" : "Amount:",
+  "send_fee" : "Fee:",
+  "send_name" : "Name",
+  "send_got_it" : "Got it",
+  "send_sending" : "Sending...",
+  "send_success" : "Your Monero was successfully sent",
 
 
   "settings_title" : "Settings",
@@ -291,6 +299,7 @@
   "error_text_minimal_limit" : "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}",
   "error_text_maximum_limit" : "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Trade for ${provider} is not created. Limits loading failed",
+  "error_text_template" : "Template name and address can't contain ` , ' \" symbols\nand must be between 1 and 106 characters long",
 
 
   "auth_store_ban_timeout" : "ban_timeout",

@@ -185,6 +185,14 @@
   "send_estimated_fee" : "预估费用:",
   "send_priority" : "目前，费用设置为 ${transactionPriority} 优先.\n交易优先级可以在设置中进行调整",
   "send_creating_transaction" : "创建交易",
+  "send_templates" : "範本",
+  "send_new" : "新",
+  "send_amount" : "量:",
+  "send_fee" : "費用:",
+  "send_name" : "名稱",
+  "send_got_it" : "得到它了",
+  "send_sending" : "正在發送...",
+  "send_success" : "你Monero已成功發送",
 
 
   "settings_title" : "设定值",
@@ -291,6 +299,7 @@
   "error_text_minimal_limit" : "未創建 ${provider} 交易。 金額少於最小值：${min} ${currency}",
   "error_text_maximum_limit" : "未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}",
   "error_text_limits_loading_failed" : "未創建 ${provider} 交易。 限制加載失敗",
+  "error_text_template" : "模板名稱和地址不能包含`，' \" 符号\n并且必须在1到106个字符之间",
 
 
   "auth_store_ban_timeout" : "禁止超时",
