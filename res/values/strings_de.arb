@@ -185,6 +185,14 @@
   "send_estimated_fee" : "Geschätzte Gebühr:",
   "send_priority" : "Derzeit ist die Gebühr auf festgelegt ${transactionPriority} priorität.\nDie Transaktionspriorität kann in den Einstellungen angepasst werden",
   "send_creating_transaction" : "Transaktion erstellen",
+  "send_templates" : "Vorlagen",
+  "send_new" : "Neu",
+  "send_amount" : "Menge:",
+  "send_fee" : "Gebühr:",
+  "send_name" : "Name",
+  "send_got_it" : "Ich habs",
+  "send_sending" : "Senden...",
+  "send_success" : "Ihr Monero wurde erfolgreich gesendet",
 
 
   "settings_title" : "die Einstellungen",
@@ -291,6 +299,7 @@
   "error_text_minimal_limit" : "Handel für ${provider} wird nicht erstellt. Menge ist weniger als minimal: ${min} ${currency}",
   "error_text_maximum_limit" : "Handel für ${provider} wird nicht erstellt. Menge ist mehr als maximal: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Handel für ${provider} wird nicht erstellt. Das Laden der Limits ist fehlgeschlagen",
+  "error_text_template" : "Vorlagenname und Adresse dürfen nicht enthalten ` , ' \" symbole\nund muss zwischen 1 und 106 Zeichen lang sein",
 
 
   "auth_store_ban_timeout" : "Auszeit verbieten",

@@ -88,6 +88,7 @@ import 'package:cake_wallet/src/screens/seed/create_seed_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/create_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
+import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 
 class Router {
   static Route<dynamic> generateRoute(
@@ -235,6 +236,13 @@ class Router {
                           priceStore: priceStore,
                           transactionDescriptions: transactionDescriptions)),
                 ], child: SendPage()));
+
+      case Routes.sendTemplate:
+        return CupertinoPageRoute<void>(
+          builder: (_) => SendTemplatePage(
+            sendStore: settings.arguments as SendStore,
+          )
+        );
 
       case Routes.receive:
         return CupertinoPageRoute<void>(

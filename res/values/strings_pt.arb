@@ -185,6 +185,14 @@
   "send_estimated_fee" : "Taxa estimada:",
   "send_priority" : "Atualmente, a taxa está definida para a prioridade: ${transactionPriority}.\nA prioridade da transação pode ser ajustada nas configurações",
   "send_creating_transaction" : "Criando transação",
+  "send_templates" : "Modelos",
+  "send_new" : "Novo",
+  "send_amount" : "Montante:",
+  "send_fee" : "Taxa:",
+  "send_name" : "Nome",
+  "send_got_it" : "Entendi",
+  "send_sending" : "Enviando...",
+  "send_success" : "Seu Monero foi enviado com sucesso",
 
 
   "settings_title" : "Configurações",
@@ -291,6 +299,7 @@
   "error_text_minimal_limit" : "A troca por ${provider} não é criada. O valor é menor que o mínimo: ${min} ${currency}",
   "error_text_maximum_limit" : "A troca por ${provider} não é criada. O valor é superior ao máximo: ${max} ${currency}",
   "error_text_limits_loading_failed" : "A troca por ${provider} não é criada. Falha no carregamento dos limites",
+  "error_text_template" : "O nome e o endereço do modelo não podem conter os símbolos ` , ' \" \ne deve ter entre 1 e 106 caracteres",
 
 
   "auth_store_ban_timeout" : "ban_timeout",

@@ -41,7 +41,7 @@ class SendingAlertState extends State<SendingAlert> {
                 child: Padding(
                   padding: EdgeInsets.only(top: 220, left: 24, right: 24),
                   child: Text(
-                    'Your Monero was successfully sent',
+                    S.of(context).send_success,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 22,
@@ -58,7 +58,7 @@ class SendingAlertState extends State<SendingAlert> {
                 bottom: 24,
                 child: PrimaryButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  text: 'Got it',
+                  text: S.of(context).send_got_it,
                   color: Colors.blue,
                   textColor: Colors.white
                 )
@@ -84,7 +84,7 @@ class SendingAlertState extends State<SendingAlert> {
                   child: Padding(
                     padding: EdgeInsets.only(top: 220),
                     child: Text(
-                      'Sending...',
+                      S.of(context).send_sending,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 22,
