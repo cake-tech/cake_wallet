@@ -41,6 +41,32 @@ class SendPage extends BasePage {
   bool get resizeToAvoidBottomPadding => false;
 
   @override
+  Widget trailing(context) {
+    final sendStore = Provider.of<SendStore>(context);
+
+    return Container(
+      height: 32,
+      width: 82,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        color: PaletteDark.menuHeader
+      ),
+      child: ButtonTheme(
+        minWidth: double.minPositive,
+        child: FlatButton(
+            onPressed: () => sendStore.clear(),
+            child: Text(
+              S.of(context).clear,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 10.0,
+                color: Colors.blue),
+            )),
+      ),
+    );
+  }
+
+  @override
   Widget body(BuildContext context) => SendForm();
 }
 
@@ -201,6 +227,7 @@ class SendFormState extends State<SendForm> {
                                           onTap: () => sendStore.setSendAll(),
                                           child: Center(
                                             child: Text(S.of(context).all,
+                                                textAlign: TextAlign.center,
                                                 style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.bold,
@@ -270,6 +297,27 @@ class SendFormState extends State<SendForm> {
                                     color: PaletteDark.walletCardSubAddressField,
                                     width: 1.0)))),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(S.of(context).send_estimated_fee,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            )),
+                        Text(
+                            '${calculateEstimatedFee(priority: settingsStore.transactionPriority)} XMR',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ))
+                      ],
+                    ),
+                  )
                 ]),
               ),
             ),
@@ -431,6 +479,20 @@ class SendFormState extends State<SendForm> {
     reaction((_) => sendStore.cryptoAmount, (String amount) {
       if (amount != _cryptoAmountController.text) {
         _cryptoAmountController.text = amount;
+      }
+    });
+
+    reaction((_) => sendStore.address, (String address) {
+      if (address != _addressController.text) {
+        _addressController.text = address;
+      }
+    });
+
+    _addressController.addListener(() {
+      final address = _addressController.text;
+
+      if (sendStore.address != address) {
+        sendStore.changeAddress(address);
       }
     });
 

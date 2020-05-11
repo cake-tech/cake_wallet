@@ -239,9 +239,12 @@ class Router {
 
       case Routes.sendTemplate:
         return CupertinoPageRoute<void>(
-          builder: (_) => SendTemplatePage(
-            sendStore: settings.arguments as SendStore,
-          )
+          builder: (_) => Provider(
+              create: (_) => SendStore(
+                  walletService: walletService,
+                  priceStore: priceStore,
+                  transactionDescriptions: transactionDescriptions),
+              child: SendTemplatePage())
         );
 
       case Routes.receive:
