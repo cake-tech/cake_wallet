@@ -27,6 +27,7 @@ abstract class SubadrressCreationStoreBase with Store {
         walletService.onWalletChange.listen(_onWalletChanged);
   }
 
+  @observable
   SubaddressCreationState state;
 
   @observable
@@ -64,6 +65,20 @@ abstract class SubadrressCreationStoreBase with Store {
       state = SubaddressIsCreating();
       await _subaddressList.addSubaddress(
           accountIndex: _account.id, label: label);
+      state = SubaddressCreatedSuccessfully();
+    } catch (e) {
+      state = SubaddressCreationFailure(error: e.toString());
+    }
+  }
+
+  Future<void> setLabel({int addressIndex, String label}) async {
+    try {
+      state = SubaddressIsCreating();
+      await _subaddressList.setLabelSubaddress(
+          accountIndex: _account.id,
+          addressIndex: addressIndex,
+          label: label
+      );
       state = SubaddressCreatedSuccessfully();
     } catch (e) {
       state = SubaddressCreationFailure(error: e.toString());

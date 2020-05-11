@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/monero/subaddress.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +13,10 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class NewSubaddressPage extends BasePage {
+  NewSubaddressPage({this.subaddress});
+
+  final Subaddress subaddress;
+
   @override
   String get title => S.current.new_subaddress_title;
 
@@ -19,7 +24,7 @@ class NewSubaddressPage extends BasePage {
   Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
-  Widget body(BuildContext context) => NewSubaddressForm();
+  Widget body(BuildContext context) => NewSubaddressForm(subaddress);
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +43,26 @@ class NewSubaddressPage extends BasePage {
 }
 
 class NewSubaddressForm extends StatefulWidget {
+  NewSubaddressForm(this.subaddress);
+
+  final Subaddress subaddress;
+
   @override
-  NewSubaddressFormState createState() => NewSubaddressFormState();
+  NewSubaddressFormState createState() => NewSubaddressFormState(subaddress);
 }
 
 class NewSubaddressFormState extends State<NewSubaddressForm> {
+  NewSubaddressFormState(this.subaddress);
+
   final _formKey = GlobalKey<FormState>();
   final _labelController = TextEditingController();
+  final Subaddress subaddress;
+
+  @override
+  void initState() {
+    if (subaddress != null) _labelController.text = subaddress.label;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -88,12 +106,20 @@ class NewSubaddressFormState extends State<NewSubaddressForm> {
                 builder: (_) => LoadingPrimaryButton(
                     onPressed: () async {
                       if (_formKey.currentState.validate()) {
-                        await subaddressCreationStore.add(
-                            label: _labelController.text);
-                        Navigator.of(context).pop();
+                        if (subaddress != null) {
+                          await subaddressCreationStore.setLabel(
+                            addressIndex: subaddress.id,
+                            label: _labelController.text
+                          );
+                        } else {
+                          await subaddressCreationStore.add(
+                              label: _labelController.text);
+                        }
                       }
                     },
-                    text: S.of(context).new_subaddress_create,
+                    text: subaddress != null
+                    ? S.of(context).rename
+                    : S.of(context).new_subaddress_create,
                     color: Colors.green,
                     textColor: Colors.white,
                     isLoading:

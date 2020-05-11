@@ -258,7 +258,7 @@ class Router {
             builder: (_) => Provider(
                 create: (_) =>
                     SubadrressCreationStore(walletService: walletService),
-                child: NewSubaddressPage()));
+                child: NewSubaddressPage(subaddress: settings.arguments as Subaddress,)));
 
       case Routes.disclaimer:
         return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());

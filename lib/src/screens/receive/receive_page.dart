@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/palette.dart';
@@ -76,6 +77,9 @@ class ReceiveBodyState extends State<ReceiveBody> {
 
     final currentColor = PaletteDark.menuList;
     final notCurrentColor = PaletteDark.historyPanel;
+
+    final currentTextColor = Colors.blue;
+    final notCurrentTextColor = PaletteDark.walletCardText;
 
     amountController.addListener(() {
       if (_formKey.currentState.validate()) {
@@ -253,9 +257,11 @@ class ReceiveBodyState extends State<ReceiveBody> {
                               final isCurrent =
                                   walletStore.subaddress.address == subaddress.address;
 
-                              final label = subaddress.label;
+                              final label = subaddress.label.isNotEmpty
+                              ? subaddress.label
+                              : subaddress.address;
 
-                              return InkWell(
+                              final content = InkWell(
                                 onTap: () => walletStore.setSubaddress(subaddress),
                                 child: Container(
                                   color: isCurrent ? currentColor : notCurrentColor,
@@ -268,12 +274,32 @@ class ReceiveBodyState extends State<ReceiveBody> {
                                   child: Text(
                                     label,
                                     style: TextStyle(
-                                      fontSize: 18,
+                                      fontSize: subaddress.label.isNotEmpty
+                                          ? 18 : 10,
                                       fontWeight: FontWeight.bold,
-                                      color: PaletteDark.walletCardText
+                                      color: isCurrent
+                                          ? currentTextColor
+                                          : notCurrentTextColor,
                                     ),
                                   ),
                                 ),
+                              );
+
+                              return isCurrent
+                              ? content
+                              : Slidable(
+                                key: Key(subaddress.address),
+                                actionPane: SlidableDrawerActionPane(),
+                                child: content,
+                                secondaryActions: <Widget>[
+                                  IconSlideAction(
+                                    caption: S.of(context).edit,
+                                    color: PaletteDark.walletCardSubAddressField,
+                                    icon: Icons.edit,
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.newSubaddress, arguments: subaddress),
+                                  )
+                                ]
                               );
                             }
                         );
