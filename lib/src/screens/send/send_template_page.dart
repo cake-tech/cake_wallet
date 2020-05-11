@@ -17,10 +17,6 @@ import 'package:cake_wallet/src/widgets/top_panel.dart';
 import 'package:cake_wallet/src/stores/send_template/send_template_store.dart';
 
 class SendTemplatePage extends BasePage {
-  SendTemplatePage({@required this.sendStore});
-
-  final SendStore sendStore;
-
   @override
   String get title => S.current.send_title;
 
@@ -31,23 +27,15 @@ class SendTemplatePage extends BasePage {
   bool get resizeToAvoidBottomPadding => false;
 
   @override
-  Widget body(BuildContext context) => SendTemplateForm(sendStore);
+  Widget body(BuildContext context) => SendTemplateForm();
 }
 
 class SendTemplateForm extends StatefulWidget {
-  SendTemplateForm(this.sendStore);
-
-  final SendStore sendStore;
-
   @override
-  SendTemplateFormState createState() => SendTemplateFormState(sendStore);
+  SendTemplateFormState createState() => SendTemplateFormState();
 }
 
 class SendTemplateFormState extends State<SendTemplateForm> {
-  SendTemplateFormState(this.sendStore);
-
-  final SendStore sendStore;
-
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
   final _cryptoAmountController = TextEditingController();
@@ -70,9 +58,11 @@ class SendTemplateFormState extends State<SendTemplateForm> {
   Widget build(BuildContext context) {
     final settingsStore = Provider.of<SettingsStore>(context);
     final balanceStore = Provider.of<BalanceStore>(context);
+    final sendStore = Provider.of<SendStore>(context);
+    sendStore.settingsStore = settingsStore;
     final sendTemplateStore = Provider.of<SendTemplateStore>(context);
 
-    _setEffects(context, sendStore);
+    _setEffects(context);
 
     return Container(
       color: PaletteDark.historyPanel,
@@ -163,30 +153,6 @@ class SendTemplateFormState extends State<SendTemplateForm> {
                                           color: Colors.white,
                                         )),
                                   ),
-                                  suffixIcon: Padding(
-                                    padding: EdgeInsets.only(
-                                        bottom: 5
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        Container(
-                                          width: MediaQuery.of(context).size.width/2,
-                                          alignment: Alignment.centerLeft,
-                                          child: Text(
-                                              ' / ' + balanceStore.unlockedBalance,
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  fontSize: 16,
-                                                  color: PaletteDark.walletCardText
-                                              )
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                   hintStyle: TextStyle(
                                       fontSize: 16.0,
                                       color: Colors.white),
@@ -199,11 +165,7 @@ class SendTemplateFormState extends State<SendTemplateForm> {
                                       borderSide: BorderSide(
                                           color: PaletteDark.walletCardSubAddressField,
                                           width: 1.0))),
-                              validator: (value) {
-                                sendStore.validateXMR(
-                                    value, balanceStore.unlockedBalance);
-                                return sendStore.errorMessage;
-                              }),
+                              ),
                         );
                       }
                   ),
@@ -271,12 +233,12 @@ class SendTemplateFormState extends State<SendTemplateForm> {
     );
   }
 
-  void _setEffects(BuildContext context, SendStore sendStore) {
+  void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
     }
 
-    //final sendStore = Provider.of<SendStore>(context);
+    final sendStore = Provider.of<SendStore>(context);
 
     reaction((_) => sendStore.fiatAmount, (String amount) {
       if (amount != _fiatAmountController.text) {

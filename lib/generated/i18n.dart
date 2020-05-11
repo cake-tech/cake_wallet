@@ -5049,7 +5049,7 @@ class $pl extends S {
   @override
   String get settings_change_language => "Zmień język";
   @override
-  String get clear => "Jasny";
+  String get clear => "Wyczyść";
   @override
   String get settings_change_pin => "Zmień PIN";
   @override
