@@ -15,6 +15,9 @@ class BaseTextFormField extends StatelessWidget {
     this.textColor = Colors.white,
     this.hintColor = PaletteDark.walletCardText,
     this.borderColor = PaletteDark.menuList,
+    this.prefix,
+    this.suffix,
+    this.enabled = true,
     this.validator
   });
 
@@ -29,6 +32,9 @@ class BaseTextFormField extends StatelessWidget {
   final Color textColor;
   final Color hintColor;
   final Color borderColor;
+  final Widget prefix;
+  final Widget suffix;
+  final bool enabled;
   final FormFieldValidator<String> validator;
 
   @override
@@ -41,11 +47,14 @@ class BaseTextFormField extends StatelessWidget {
       autovalidate: autovalidate,
       maxLines: maxLines,
       inputFormatters: inputFormatters,
+      enabled: enabled,
       style: TextStyle(
         fontSize: 16.0,
         color: textColor
       ),
       decoration: InputDecoration(
+        prefix: prefix,
+        suffix: suffix,
         hintStyle: TextStyle(
           color: hintColor,
           fontSize: 16
