@@ -23,6 +23,7 @@ class S implements WidgetsLocalizations {
 
   String get account => "Account";
   String get accounts => "Accounts";
+  String get accounts_subaddresses => "Accounts and subaddresses";
   String get add => "Add";
   String get add_new_node => "Add new node";
   String get add_new_word => "Add new word";
@@ -48,6 +49,7 @@ class S implements WidgetsLocalizations {
   String get change_currency => "Change Currency";
   String get change_exchange_provider => "Change Exchange Provider";
   String get change_language => "Change language";
+  String get choose_account => "Choose account";
   String get choose_wallet_currency => "Please choose wallet currency:";
   String get clear => "Clear";
   String get confirm => "Confirm";
@@ -60,6 +62,7 @@ class S implements WidgetsLocalizations {
   String get copy_address => "Copy Address";
   String get copy_id => "Copy ID";
   String get create_new => "Create New Wallet";
+  String get create_new_account => "Create new account";
   String get delete => "Delete";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
@@ -126,6 +129,7 @@ class S implements WidgetsLocalizations {
   String get remove => "Remove";
   String get remove_node => "Remove node";
   String get remove_node_message => "Are you sure that you want to remove selected node?";
+  String get rename => "Rename";
   String get rescan => "Rescan";
   String get reset => "Reset";
   String get restore_active_seed => "Active seed";
@@ -448,6 +452,8 @@ class $de extends S {
   @override
   String get trade_details_fetching => "Holen";
   @override
+  String get create_new_account => "Neues Konto erstellen";
+  @override
   String get buy => "Kaufen";
   @override
   String get confirm_sending => "Bestätigen Sie das Senden";
@@ -598,6 +604,8 @@ class $de extends S {
   @override
   String get change_language => "Sprache ändern";
   @override
+  String get accounts_subaddresses => "Konten und Unteradressen";
+  @override
   String get wallet_name => "Walletname";
   @override
   String get error_text_payment_id => "Die Zahlungs-ID kann nur 16 bis 64 hexadezimale Zeichen enthalten";
@@ -686,6 +694,8 @@ class $de extends S {
   @override
   String get settings_fee_priority => "Gebührenpriorität";
   @override
+  String get rename => "Umbenennen";
+  @override
   String get restore_active_seed => "Aktives Seed";
   @override
   String get settings_personal => "persönlich";
@@ -711,6 +721,8 @@ class $de extends S {
   String get seed_language_russian => "Russisch";
   @override
   String get spend_key_private => "Schlüssel ausgeben (geheim)";
+  @override
+  String get choose_account => "Konto auswählen";
   @override
   String get settings_only_trades => "Nur Trades";
   @override
@@ -1032,6 +1044,8 @@ class $hi extends S {
   @override
   String get trade_details_fetching => "ला रहा है";
   @override
+  String get create_new_account => "नया खाता बनाएँ";
+  @override
   String get buy => "खरीदें";
   @override
   String get confirm_sending => "भेजने की पुष्टि करें";
@@ -1182,6 +1196,8 @@ class $hi extends S {
   @override
   String get change_language => "भाषा बदलो";
   @override
+  String get accounts_subaddresses => "लेखा और उपदेस";
+  @override
   String get wallet_name => "बटुए का नाम";
   @override
   String get error_text_payment_id => "पेमेंट आईडी केवल हेक्स में 16 से 64 चार्ट तक हो सकती है";
@@ -1270,6 +1286,8 @@ class $hi extends S {
   @override
   String get settings_fee_priority => "शुल्क प्राथमिकता";
   @override
+  String get rename => "नाम बदलें";
+  @override
   String get restore_active_seed => "सक्रिय बीज";
   @override
   String get settings_personal => "निजी";
@@ -1295,6 +1313,8 @@ class $hi extends S {
   String get seed_language_russian => "रूसी";
   @override
   String get spend_key_private => "खर्च करना (निजी)";
+  @override
+  String get choose_account => "खाता चुनें";
   @override
   String get settings_only_trades => "केवल ट्रेड करता है";
   @override
@@ -1616,6 +1636,8 @@ class $ru extends S {
   @override
   String get trade_details_fetching => "Получение";
   @override
+  String get create_new_account => "Создать новый аккаунт";
+  @override
   String get buy => "Купить";
   @override
   String get confirm_sending => "Подтвердить отправку";
@@ -1766,6 +1788,8 @@ class $ru extends S {
   @override
   String get change_language => "Изменить язык";
   @override
+  String get accounts_subaddresses => "Аккаунты и субадреса";
+  @override
   String get wallet_name => "Имя кошелька";
   @override
   String get error_text_payment_id => "Идентификатор платежа может содержать от 16 до 64 символов в hex";
@@ -1854,6 +1878,8 @@ class $ru extends S {
   @override
   String get settings_fee_priority => "Приоритет транзакции";
   @override
+  String get rename => "Переименовать";
+  @override
   String get restore_active_seed => "Активная мнемоническая фраза";
   @override
   String get settings_personal => "Персональные";
@@ -1879,6 +1905,8 @@ class $ru extends S {
   String get seed_language_russian => "Русский";
   @override
   String get spend_key_private => "Приватный ключ траты";
+  @override
+  String get choose_account => "Выберите аккаунт";
   @override
   String get settings_only_trades => "Сделки";
   @override
@@ -2200,6 +2228,8 @@ class $ko extends S {
   @override
   String get trade_details_fetching => "가져 오는 중";
   @override
+  String get create_new_account => "새 계정을 만들";
+  @override
   String get buy => "구입";
   @override
   String get confirm_sending => "전송 확인";
@@ -2350,6 +2380,8 @@ class $ko extends S {
   @override
   String get change_language => "언어 변경";
   @override
+  String get accounts_subaddresses => "계정 및 하위 주소";
+  @override
   String get wallet_name => "지갑 이름";
   @override
   String get error_text_payment_id => "지불 ID는 16 ~ 64 자의 16 진 문자 만 포함 할 수 있습니다";
@@ -2438,6 +2470,8 @@ class $ko extends S {
   @override
   String get settings_fee_priority => "수수료 우선";
   @override
+  String get rename => "이름 바꾸기";
+  @override
   String get restore_active_seed => "활성 종자";
   @override
   String get settings_personal => "개인적인";
@@ -2463,6 +2497,8 @@ class $ko extends S {
   String get seed_language_russian => "러시아인";
   @override
   String get spend_key_private => "지출 키 (은밀한)";
+  @override
+  String get choose_account => "계정을 선택하십시오";
   @override
   String get settings_only_trades => "거래 만";
   @override
@@ -2784,6 +2820,8 @@ class $pt extends S {
   @override
   String get trade_details_fetching => "Buscando";
   @override
+  String get create_new_account => "Criar nova conta";
+  @override
   String get buy => "Comprar";
   @override
   String get confirm_sending => "Confirmar o envio";
@@ -2934,6 +2972,8 @@ class $pt extends S {
   @override
   String get change_language => "Mudar idioma";
   @override
+  String get accounts_subaddresses => "Contas e sub-endereços";
+  @override
   String get wallet_name => "Nome da carteira";
   @override
   String get error_text_payment_id => "O ID de pagamento pode conter apenas de 16 a 64 caracteres em hexadecimal";
@@ -3022,6 +3062,8 @@ class $pt extends S {
   @override
   String get settings_fee_priority => "Prioridade da taxa";
   @override
+  String get rename => "Renomear";
+  @override
   String get restore_active_seed => "Semente ativa";
   @override
   String get settings_personal => "Pessoal";
@@ -3047,6 +3089,8 @@ class $pt extends S {
   String get seed_language_russian => "Russa";
   @override
   String get spend_key_private => "Chave de gastos (privada)";
+  @override
+  String get choose_account => "Escolha uma conta";
   @override
   String get settings_only_trades => "Somente trocas";
   @override
@@ -3298,7 +3342,7 @@ class $uk extends S {
   @override
   String get transaction_details_recipient_address => "Адреса отримувача";
   @override
-  String get receive_amount => "Баланс";
+  String get receive_amount => "Сума";
   @override
   String get settings_allow_biometrical_authentication => "Включити біометричну аутентифікацію";
   @override
@@ -3367,6 +3411,8 @@ class $uk extends S {
   String get create_new => "Створити новий гаманець";
   @override
   String get trade_details_fetching => "Отримання";
+  @override
+  String get create_new_account => "Створити новий акаунт";
   @override
   String get buy => "Купити";
   @override
@@ -3518,6 +3564,8 @@ class $uk extends S {
   @override
   String get change_language => "Змінити мову";
   @override
+  String get accounts_subaddresses => "Акаунти та субадреси";
+  @override
   String get wallet_name => "Ім'я гаманця";
   @override
   String get error_text_payment_id => "Ідентифікатор платежу може містити від 16 до 64 символів в hex";
@@ -3606,6 +3654,8 @@ class $uk extends S {
   @override
   String get settings_fee_priority => "Пріоритет транзакції";
   @override
+  String get rename => "Перейменувати";
+  @override
   String get restore_active_seed => "Активна мнемонічна фраза";
   @override
   String get settings_personal => "Персональні";
@@ -3631,6 +3681,8 @@ class $uk extends S {
   String get seed_language_russian => "Російська";
   @override
   String get spend_key_private => "Приватний ключ витрати";
+  @override
+  String get choose_account => "Оберіть акаунт";
   @override
   String get settings_only_trades => "Операції";
   @override
@@ -3952,6 +4004,8 @@ class $ja extends S {
   @override
   String get trade_details_fetching => "フェッチング";
   @override
+  String get create_new_account => "新しいアカウントを作成する";
+  @override
   String get buy => "購入";
   @override
   String get confirm_sending => "送信を確認";
@@ -4102,6 +4156,8 @@ class $ja extends S {
   @override
   String get change_language => "言語を変えてください";
   @override
+  String get accounts_subaddresses => "アカウントとサブアドレス";
+  @override
   String get wallet_name => "ウォレット名";
   @override
   String get error_text_payment_id => "支払いIDには、16進数で16〜64文字しか含めることができません";
@@ -4190,6 +4246,8 @@ class $ja extends S {
   @override
   String get settings_fee_priority => "料金優先";
   @override
+  String get rename => "リネーム";
+  @override
   String get restore_active_seed => "アクティブシード";
   @override
   String get settings_personal => "パーソナル";
@@ -4215,6 +4273,8 @@ class $ja extends S {
   String get seed_language_russian => "ロシア";
   @override
   String get spend_key_private => "キーを使う (プライベート)";
+  @override
+  String get choose_account => "アカウントを選択";
   @override
   String get settings_only_trades => "取引のみ";
   @override
@@ -4540,6 +4600,8 @@ class $pl extends S {
   @override
   String get trade_details_fetching => "Ujmujący";
   @override
+  String get create_new_account => "Stwórz nowe konto";
+  @override
   String get buy => "Kup";
   @override
   String get confirm_sending => "Potwierdź wysłanie";
@@ -4690,6 +4752,8 @@ class $pl extends S {
   @override
   String get change_language => "Zmień język";
   @override
+  String get accounts_subaddresses => "Konta i podadresy";
+  @override
   String get wallet_name => "Nazwa portfela";
   @override
   String get error_text_payment_id => "ID może zawierać od 16 do 64 znaków w formacie szesnastkowym";
@@ -4778,6 +4842,8 @@ class $pl extends S {
   @override
   String get settings_fee_priority => "Priorytet opłaty";
   @override
+  String get rename => "Przemianować";
+  @override
   String get restore_active_seed => "Aktywne nasiona";
   @override
   String get settings_personal => "Osobisty";
@@ -4803,6 +4869,8 @@ class $pl extends S {
   String get seed_language_russian => "Rosyjski";
   @override
   String get spend_key_private => "Wydaj klucz (prywatny)";
+  @override
+  String get choose_account => "Wybierz konto";
   @override
   String get settings_only_trades => "Tylko transakcje";
   @override
@@ -5124,6 +5192,8 @@ class $es extends S {
   @override
   String get trade_details_fetching => "Cargando";
   @override
+  String get create_new_account => "Crear una nueva cuenta";
+  @override
   String get buy => "Comprar";
   @override
   String get confirm_sending => "Confirmar envío";
@@ -5274,6 +5344,8 @@ class $es extends S {
   @override
   String get change_language => "Cambiar idioma";
   @override
+  String get accounts_subaddresses => "Cuentas y subdirecciones";
+  @override
   String get wallet_name => "Nombre de la billetera";
   @override
   String get error_text_payment_id => "La ID de pago solo puede contener de 16 a 64 caracteres en hexadecimal";
@@ -5362,6 +5434,8 @@ class $es extends S {
   @override
   String get settings_fee_priority => "Prioridad de tasa";
   @override
+  String get rename => "Rebautizar";
+  @override
   String get restore_active_seed => "Semilla activa";
   @override
   String get settings_personal => "Personal";
@@ -5387,6 +5461,8 @@ class $es extends S {
   String get seed_language_russian => "Ruso";
   @override
   String get spend_key_private => "Spend clave (privado)";
+  @override
+  String get choose_account => "Elegir cuenta";
   @override
   String get settings_only_trades => "Solo comercia";
   @override
@@ -5708,6 +5784,8 @@ class $nl extends S {
   @override
   String get trade_details_fetching => "Ophalen";
   @override
+  String get create_new_account => "Creëer een nieuw account";
+  @override
   String get buy => "Kopen";
   @override
   String get confirm_sending => "Bevestig verzending";
@@ -5858,6 +5936,8 @@ class $nl extends S {
   @override
   String get change_language => "Verander de taal";
   @override
+  String get accounts_subaddresses => "Accounts en subadressen";
+  @override
   String get wallet_name => "Portemonnee naam";
   @override
   String get error_text_payment_id => "Betalings-ID kan alleen 16 tot 64 tekens bevatten in hexadecimale volgorde";
@@ -5946,6 +6026,8 @@ class $nl extends S {
   @override
   String get settings_fee_priority => "Tariefprioriteit";
   @override
+  String get rename => "Hernoemen";
+  @override
   String get restore_active_seed => "Actief zaad";
   @override
   String get settings_personal => "Persoonlijk";
@@ -5971,6 +6053,8 @@ class $nl extends S {
   String get seed_language_russian => "Russisch";
   @override
   String get spend_key_private => "Sleutel uitgeven (privaat)";
+  @override
+  String get choose_account => "Kies account";
   @override
   String get settings_only_trades => "Alleen handel";
   @override
@@ -6292,6 +6376,8 @@ class $zh extends S {
   @override
   String get trade_details_fetching => "正在取得";
   @override
+  String get create_new_account => "建立新帳戶";
+  @override
   String get buy => "購買";
   @override
   String get confirm_sending => "确认发送";
@@ -6442,6 +6528,8 @@ class $zh extends S {
   @override
   String get change_language => "改變語言";
   @override
+  String get accounts_subaddresses => "帳戶和子地址";
+  @override
   String get wallet_name => "钱包名称";
   @override
   String get error_text_payment_id => "付款ID只能包含16到64个字符（十六进制）";
@@ -6530,6 +6618,8 @@ class $zh extends S {
   @override
   String get settings_fee_priority => "费用优先";
   @override
+  String get rename => "改名";
+  @override
   String get restore_active_seed => "活性種子";
   @override
   String get settings_personal => "个人";
@@ -6555,6 +6645,8 @@ class $zh extends S {
   String get seed_language_russian => "俄語";
   @override
   String get spend_key_private => "支出金钥 (私人的)";
+  @override
+  String get choose_account => "選擇帳號";
   @override
   String get settings_only_trades => "只交易";
   @override

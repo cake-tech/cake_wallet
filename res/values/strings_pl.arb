@@ -134,6 +134,10 @@
   "share_address" : "Udostępnij adres",
   "receive_amount" : "Ilość",
   "subaddresses" : "Podadresy",
+  "rename" : "Przemianować",
+  "choose_account" : "Wybierz konto",
+  "create_new_account" : "Stwórz nowe konto",
+  "accounts_subaddresses" : "Konta i podadresy",
 
 
   "restore_restore_wallet" : "Przywróć portfel",

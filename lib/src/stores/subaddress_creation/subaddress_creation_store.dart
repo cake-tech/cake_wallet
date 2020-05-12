@@ -17,6 +17,7 @@ class SubadrressCreationStore = SubadrressCreationStoreBase
 abstract class SubadrressCreationStoreBase with Store {
   SubadrressCreationStoreBase({@required WalletService walletService}) {
     state = SubaddressCreationStateInitial();
+    isDisabledStatus = true;
 
     if (walletService.currentWallet != null) {
       _onWalletChanged(walletService.currentWallet);
@@ -26,6 +27,7 @@ abstract class SubadrressCreationStoreBase with Store {
         walletService.onWalletChange.listen(_onWalletChanged);
   }
 
+  @observable
   SubaddressCreationState state;
 
   @observable
@@ -34,10 +36,18 @@ abstract class SubadrressCreationStoreBase with Store {
   @observable
   String errorMessage;
 
+  @observable
+  bool isDisabledStatus;
+
   SubaddressList _subaddressList;
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<Account> _onAccountChangeSubscription;
   Account _account;
+
+  @action
+  void setDisabledStatus(bool isDisabled) {
+    isDisabledStatus = isDisabled;
+  }
 
   @override
   void dispose() {
@@ -55,6 +65,20 @@ abstract class SubadrressCreationStoreBase with Store {
       state = SubaddressIsCreating();
       await _subaddressList.addSubaddress(
           accountIndex: _account.id, label: label);
+      state = SubaddressCreatedSuccessfully();
+    } catch (e) {
+      state = SubaddressCreationFailure(error: e.toString());
+    }
+  }
+
+  Future<void> setLabel({int addressIndex, String label}) async {
+    try {
+      state = SubaddressIsCreating();
+      await _subaddressList.setLabelSubaddress(
+          accountIndex: _account.id,
+          addressIndex: addressIndex,
+          label: label
+      );
       state = SubaddressCreatedSuccessfully();
     } catch (e) {
       state = SubaddressCreationFailure(error: e.toString());
