@@ -44,4 +44,5 @@ class Routes {
   static const faq = '/faq';
   static const changeLanguage = '/change_language';
   static const newWalletType = '/new_wallet_type';
+  static const sendTemplate = '/send_template';
 }

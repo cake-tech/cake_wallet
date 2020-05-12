@@ -40,6 +40,10 @@ class AddressTextField extends StatelessWidget {
       enabled: isActive,
       controller: controller,
       focusNode: focusNode,
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.white
+      ),
       decoration: InputDecoration(
         suffixIcon: SizedBox(
           width: prefixIconWidth * options.length +
@@ -58,9 +62,9 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: Palette.wildDarkBlueWithOpacity,
+                              color: PaletteDark.walletCardSubAddressField,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
+                                  BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/qr_code_icon.png')),
                     ))
               ],
@@ -76,11 +80,11 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: Palette.wildDarkBlueWithOpacity,
+                              color: PaletteDark.walletCardSubAddressField,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
+                                  BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
-                              'assets/images/address_book_icon.png')),
+                              'assets/images/open_book.png')),
                     ))
               ],
               if (this
@@ -95,9 +99,9 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: Palette.wildDarkBlueWithOpacity,
+                              color: PaletteDark.walletCardSubAddressField,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
+                                  BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
                               'assets/images/receive_icon_raw.png')),
                     ))
@@ -105,13 +109,18 @@ class AddressTextField extends StatelessWidget {
             ],
           ),
         ),
-        hintStyle: TextStyle(color: Theme.of(context).hintColor),
+        hintStyle: TextStyle(
+          fontSize: 16,
+          color: PaletteDark.walletCardText
+        ),
         hintText: placeholder ?? S.current.widgets_address,
         focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Palette.cakeGreen, width: 2.0)),
+            borderSide: BorderSide(
+                color: PaletteDark.walletCardSubAddressField,
+                width: 1.0)),
         enabledBorder: UnderlineInputBorder(
             borderSide:
-                BorderSide(color: Theme.of(context).focusColor, width: 1.0)),
+                BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0)),
       ),
       validator: validator,
     );

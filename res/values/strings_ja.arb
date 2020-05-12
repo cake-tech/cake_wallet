@@ -189,6 +189,14 @@
   "send_estimated_fee" : "見積手数料:",
   "send_priority" : "現在、料金は ${transactionPriority} 優先度.\nトランザクションの優先度は設定で調整できます",
   "send_creating_transaction" : "トランザクションを作成する",
+  "send_templates" : "テンプレート",
+  "send_new" : "新着",
+  "send_amount" : "量：",
+  "send_fee" : "費用：",
+  "send_name" : "名前",
+  "send_got_it" : "とった",
+  "send_sending" : "送信...",
+  "send_success" : "Moneroが送信されました",
 
 
   "settings_title" : "設定",
@@ -295,6 +303,7 @@
   "error_text_minimal_limit" : "${provider} の取引は作成されません。 金額は最小額より少ない： ${min} ${currency}",
   "error_text_maximum_limit" : "${provider} の取引は作成されません。 金額は最大値を超えています： ${max} ${currency}",
   "error_text_limits_loading_failed" : "${provider} の取引は作成されません。 制限の読み込みに失敗しました",
+  "error_text_template" : "テンプレートの名前とアドレスに含めることはできません ` , ' \" シンボル\n1〜106文字の長さである必要があります",
 
 
   "auth_store_ban_timeout" : "禁止タイムアウト",
