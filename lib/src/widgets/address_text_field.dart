@@ -19,6 +19,7 @@ class AddressTextField extends StatelessWidget {
       ],
       this.onURIScanned,
       this.focusNode,
+      this.isBorderExist = true,
       this.validator});
 
   static const prefixIconWidth = 34.0;
@@ -31,6 +32,7 @@ class AddressTextField extends StatelessWidget {
   final Function(Uri) onURIScanned;
   final List<AddressTextFieldOption> options;
   final FormFieldValidator<String> validator;
+  final bool isBorderExist;
   FocusNode focusNode;
 
   @override
@@ -114,13 +116,17 @@ class AddressTextField extends StatelessWidget {
           color: PaletteDark.walletCardText
         ),
         hintText: placeholder ?? S.current.widgets_address,
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: isBorderExist
+          ? UnderlineInputBorder(
             borderSide: BorderSide(
                 color: PaletteDark.walletCardSubAddressField,
-                width: 1.0)),
-        enabledBorder: UnderlineInputBorder(
+                width: 1.0))
+          : InputBorder.none,
+        enabledBorder: isBorderExist
+          ? UnderlineInputBorder(
             borderSide:
-                BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0)),
+                BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0))
+          : InputBorder.none,
       ),
       validator: validator,
     );

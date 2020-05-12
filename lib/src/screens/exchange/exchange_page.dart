@@ -1,4 +1,6 @@
 import 'dart:ui';
+import 'package:dotted_border/dotted_border.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -19,16 +21,17 @@ import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/top_panel.dart';
 
 class ExchangePage extends BasePage {
   @override
   String get title => S.current.exchange;
 
   @override
-  bool get isModalBackButton => true;
+  Color get backgroundColor => PaletteDark.walletCardSubAddressField;
 
-  final Image arrowBottomPurple =
-      Image.asset('assets/images/arrow_bottom_purple_icon.png', height: 8);
+  final Image arrowBottom =
+      Image.asset('assets/images/arrow_bottom_purple_icon.png', color: Colors.white, height: 6);
 
   @override
   Widget middle(BuildContext context) {
@@ -38,31 +41,34 @@ class ExchangePage extends BasePage {
       onPressed: () => _presentProviderPicker(context),
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(S.of(context).exchange,
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w400,
-                        color: Theme.of(context).primaryTextTheme.title.color)),
-                SizedBox(width: 5),
-                arrowBottomPurple
-              ]),
-          Observer(
-              builder: (_) => Text('${exchangeStore.provider.title}',
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text(S.of(context).exchange,
                   style: TextStyle(
-                      fontSize: 10.0,
+                      fontSize: 16.0,
                       fontWeight: FontWeight.w400,
-                      color:
-                          Theme.of(context).primaryTextTheme.headline.color)))
+                      color: Colors.white)),
+              Observer(
+                  builder: (_) => Text('${exchangeStore.provider.title}',
+                      style: TextStyle(
+                          fontSize: 10.0,
+                          fontWeight: FontWeight.w400,
+                          color:PaletteDark.walletCardText)))
+            ],
+          ),
+          SizedBox(width: 5),
+          Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: arrowBottom,
+          )
         ],
-      ),
+      )
     );
   }
 
@@ -72,14 +78,16 @@ class ExchangePage extends BasePage {
 
     return ButtonTheme(
       minWidth: double.minPositive,
+      highlightColor: Colors.transparent,
+      splashColor: Colors.transparent,
       child: FlatButton(
           padding: EdgeInsets.all(0),
           child: Text(
             S.of(context).clear,
             style: TextStyle(
-                color: Theme.of(context).accentTextTheme.caption.color,
+                color: PaletteDark.walletCardText,
                 fontWeight: FontWeight.w500,
-                fontSize: 16),
+                fontSize: 14),
           ),
           onPressed: () => exchangeStore.reset()),
     );
@@ -117,10 +125,12 @@ class ExchangeFormState extends State<ExchangeForm> {
 
   final Image arrowBottomPurple = Image.asset(
     'assets/images/arrow_bottom_purple_icon.png',
+    color: Colors.white,
     height: 8,
   );
   final Image arrowBottomCakeGreen = Image.asset(
     'assets/images/arrow_bottom_cake_green.png',
+    color: Colors.white,
     height: 8,
   );
 
@@ -141,156 +151,309 @@ class ExchangeFormState extends State<ExchangeForm> {
     WidgetsBinding.instance.addPostFrameCallback(
         (_) => _setReactions(context, exchangeStore, walletStore));
 
-    return Form(
-        key: _formKey,
-        child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.only(left: 20, right: 20),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Container(
+      color: PaletteDark.historyPanel,
+      child: Form(
+          key: _formKey,
+          child: ScrollableWithBottomSection(
+            contentPadding: EdgeInsets.only(bottom: 24),
+            content: Column(
               children: <Widget>[
+                TopPanel(
+                    color: PaletteDark.menuList,
+                    edgeInsets: EdgeInsets.only(bottom: 24),
+                    widget: Column(
+                      children: <Widget>[
+                        TopPanel(
+                            color: PaletteDark.walletCardSubAddressField,
+                            widget: Observer(
+                              builder: (_) => ExchangeCard(
+                                key: depositKey,
+                                title: S.of(context).you_will_send,
+                                initialCurrency: exchangeStore.depositCurrency,
+                                initialWalletName: depositWalletName,
+                                initialAddress:
+                                exchangeStore.depositCurrency == walletStore.type
+                                    ? walletStore.address
+                                    : null,
+                                initialIsAmountEditable: true,
+                                initialIsAddressEditable: true,
+                                isAmountEstimated: false,
+                                currencies: CryptoCurrency.all,
+                                onCurrencySelected: (currency) =>
+                                    exchangeStore.changeDepositCurrency(currency: currency),
+                                imageArrow: arrowBottomPurple,
+                                currencyButtonColor: PaletteDark.walletCardSubAddressField,
+                                currencyValueValidator: (value) {
+                                  exchangeStore.validateCryptoCurrency(value);
+                                  return exchangeStore.errorMessage;
+                                },
+                                addressTextFieldValidator: (value) {
+                                  exchangeStore.validateAddress(value,
+                                      cryptoCurrency: exchangeStore.depositCurrency);
+                                  return exchangeStore.errorMessage;
+                                },
+                              ),
+                            )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 32, left: 24, right: 24),
+                          child: Observer(
+                              builder: (_) => ExchangeCard(
+                                key: receiveKey,
+                                title: S.of(context).you_will_get,
+                                initialCurrency: exchangeStore.receiveCurrency,
+                                initialWalletName: receiveWalletName,
+                                initialAddress:
+                                exchangeStore.receiveCurrency == walletStore.type
+                                    ? walletStore.address
+                                    : null,
+                                initialIsAmountEditable: false,
+                                initialIsAddressEditable: true,
+                                isAmountEstimated: true,
+                                currencies: CryptoCurrency.all,
+                                onCurrencySelected: (currency) => exchangeStore
+                                    .changeReceiveCurrency(currency: currency),
+                                imageArrow: arrowBottomCakeGreen,
+                                currencyButtonColor: PaletteDark.menuList,
+                                currencyValueValidator: (value) {
+                                  exchangeStore.validateCryptoCurrency(value);
+                                  return exchangeStore.errorMessage;
+                                },
+                                addressTextFieldValidator: (value) {
+                                  exchangeStore.validateAddress(value,
+                                      cryptoCurrency: exchangeStore.receiveCurrency);
+                                  return exchangeStore.errorMessage;
+                                },
+                              )),
+                        )
+                      ],
+                    )
+                ),
                 Padding(
-                  padding: EdgeInsets.only(top: 10, bottom: 20),
-                  child: Text(
-                    S.of(context).you_will_send,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                        height: 1.1,
-                        color: Theme.of(context).primaryTextTheme.title.color),
+                  padding: EdgeInsets.only(
+                      top: 32,
+                      left: 24,
+                      bottom: 24
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        S.of(context).send_templates,
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: PaletteDark.walletCardText
+                        ),
+                      )
+                    ],
                   ),
                 ),
-                ExchangeCard(
-                  key: depositKey,
-                  initialCurrency: exchangeStore.depositCurrency,
-                  initialWalletName: depositWalletName,
-                  initialAddress:
-                      exchangeStore.depositCurrency == walletStore.type
-                          ? walletStore.address
-                          : null,
-                  initialIsAmountEditable: true,
-                  initialIsAddressEditable: true,
-                  isAmountEstimated: false,
-                  currencies: CryptoCurrency.all,
-                  onCurrencySelected: (currency) =>
-                      exchangeStore.changeDepositCurrency(currency: currency),
-                  imageArrow: arrowBottomPurple,
-                  currencyValueValidator: (value) {
-                    exchangeStore.validateCryptoCurrency(value);
-                    return exchangeStore.errorMessage;
-                  },
-                  addressTextFieldValidator: (value) {
-                    exchangeStore.validateAddress(value,
-                        cryptoCurrency: exchangeStore.depositCurrency);
-                    return exchangeStore.errorMessage;
-                  },
-                ),
-                SizedBox(height: 35),
-                Padding(
-                    padding: EdgeInsets.only(bottom: 20),
+                Container(
+                  height: 40,
+                  width: double.infinity,
+                  padding: EdgeInsets.only(left: 24),
+                  child: Observer(
+                      builder: (_) {
+
+                        return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 1,
+                            itemBuilder: (context, index) {
+
+                              if (index == 0) {
+                                return GestureDetector(
+                                  onTap: () {},
+                                  child: Container(
+                                    padding: EdgeInsets.only(right: 10),
+                                    child: DottedBorder(
+                                        borderType: BorderType.RRect,
+                                        dashPattern: [8, 4],
+                                        color: PaletteDark.menuList,
+                                        strokeWidth: 2,
+                                        radius: Radius.circular(20),
+                                        child: Container(
+                                          height: 40,
+                                          width: 75,
+                                          padding: EdgeInsets.only(left: 10, right: 10),
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.all(Radius.circular(20)),
+                                            color: Colors.transparent,
+                                          ),
+                                          child: Text(
+                                            S.of(context).send_new,
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w600,
+                                                color: PaletteDark.walletCardText
+                                            ),
+                                          ),
+                                        )
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              index -= 1;
+
+                              return Container();
+                            }
+                        );
+                      }
+                  ),
+                )
+              ],
+            ),
+
+            /*SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 10, bottom: 20),
                     child: Text(
-                      S.of(context).you_will_get,
+                      S.of(context).you_will_send,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                           height: 1.1,
-                          color:
-                              Theme.of(context).primaryTextTheme.title.color),
-                    )),
-                Observer(
-                    builder: (_) => ExchangeCard(
-                          key: receiveKey,
-                          initialCurrency: exchangeStore.receiveCurrency,
-                          initialWalletName: receiveWalletName,
-                          initialAddress:
-                              exchangeStore.receiveCurrency == walletStore.type
-                                  ? walletStore.address
-                                  : null,
-                          initialIsAmountEditable: false,
-                          initialIsAddressEditable: true,
-                          isAmountEstimated: true,
-                          currencies: CryptoCurrency.all,
-                          onCurrencySelected: (currency) => exchangeStore
-                              .changeReceiveCurrency(currency: currency),
-                          imageArrow: arrowBottomCakeGreen,
-                          currencyValueValidator: (value) {
-                            exchangeStore.validateCryptoCurrency(value);
-                            return exchangeStore.errorMessage;
-                          },
-                          addressTextFieldValidator: (value) {
-                            exchangeStore.validateAddress(value,
-                                cryptoCurrency: exchangeStore.receiveCurrency);
-                            return exchangeStore.errorMessage;
-                          },
-                        )),
-              ],
-            ),
-          ),
-          bottomSectionPadding: EdgeInsets.only(top: 35, left: 20, right: 20),
-          bottomSection: Column(children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(bottom: 15),
-              child: Observer(builder: (_) {
-                final description =
-                    exchangeStore.provider is XMRTOExchangeProvider
-                        ? S.of(context).amount_is_guaranteed
-                        : S.of(context).amount_is_estimate;
-                return Center(
-                  child: Text(
-                    description,
-                    style: TextStyle(color: Palette.blueGrey, fontSize: 12),
+                          color: Theme.of(context).primaryTextTheme.title.color),
+                    ),
+                  ),
+                  ExchangeCard(
+                    key: depositKey,
+                    initialCurrency: exchangeStore.depositCurrency,
+                    initialWalletName: depositWalletName,
+                    initialAddress:
+                    exchangeStore.depositCurrency == walletStore.type
+                        ? walletStore.address
+                        : null,
+                    initialIsAmountEditable: true,
+                    initialIsAddressEditable: true,
+                    isAmountEstimated: false,
+                    currencies: CryptoCurrency.all,
+                    /*onCurrencySelected: (currency) =>
+                      exchangeStore.changeDepositCurrency(currency: currency),*/
+                    imageArrow: arrowBottomPurple,
+                    currencyValueValidator: (value) {
+                      exchangeStore.validateCryptoCurrency(value);
+                      return exchangeStore.errorMessage;
+                    },
+                    addressTextFieldValidator: (value) {
+                      exchangeStore.validateAddress(value,
+                          cryptoCurrency: exchangeStore.depositCurrency);
+                      return exchangeStore.errorMessage;
+                    },
+                  ),
+                  SizedBox(height: 35),
+                  Padding(
+                      padding: EdgeInsets.only(bottom: 20),
+                      child: Text(
+                        S.of(context).you_will_get,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            height: 1.1,
+                            color:
+                            Theme.of(context).primaryTextTheme.title.color),
+                      )),
+                  Observer(
+                      builder: (_) => ExchangeCard(
+                        key: receiveKey,
+                        initialCurrency: exchangeStore.receiveCurrency,
+                        initialWalletName: receiveWalletName,
+                        initialAddress:
+                        exchangeStore.receiveCurrency == walletStore.type
+                            ? walletStore.address
+                            : null,
+                        initialIsAmountEditable: false,
+                        initialIsAddressEditable: true,
+                        isAmountEstimated: true,
+                        currencies: CryptoCurrency.all,
+                        /*onCurrencySelected: (currency) => exchangeStore
+                              .changeReceiveCurrency(currency: currency),*/
+                        imageArrow: arrowBottomCakeGreen,
+                        currencyValueValidator: (value) {
+                          exchangeStore.validateCryptoCurrency(value);
+                          return exchangeStore.errorMessage;
+                        },
+                        addressTextFieldValidator: (value) {
+                          exchangeStore.validateAddress(value,
+                              cryptoCurrency: exchangeStore.receiveCurrency);
+                          return exchangeStore.errorMessage;
+                        },
+                      )),
+                ],
+              ),
+            ),*/
+            bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+            bottomSection: Column(children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(bottom: 15),
+                child: Observer(builder: (_) {
+                  final description =
+                  exchangeStore.provider is XMRTOExchangeProvider
+                      ? S.of(context).amount_is_guaranteed
+                      : S.of(context).amount_is_estimate;
+                  return Center(
+                    child: Text(
+                      description,
+                      style: TextStyle(
+                        color: PaletteDark.walletCardText,
+                        fontSize: 12
+                      ),
+                    ),
+                  );
+                }),
+              ),
+              Observer(
+                  builder: (_) => LoadingPrimaryButton(
+                    text: S.of(context).exchange,
+                    onPressed: () {
+                      if (_formKey.currentState.validate()) {
+                        exchangeStore.createTrade();
+                      }
+                    },
+                    color: Colors.blue,
+                    textColor: Colors.white,
+                    isLoading: exchangeStore.tradeState is TradeIsCreating,
+                  )),
+              /*Observer(builder: (_) {
+                final title = exchangeStore.provider.description.title;
+                var imageSrc = '';
+
+                switch (exchangeStore.provider.description) {
+                  case ExchangeProviderDescription.xmrto:
+                    imageSrc = 'assets/images/xmr_btc.png';
+                    break;
+                  case ExchangeProviderDescription.changeNow:
+                    imageSrc = 'assets/images/change_now.png';
+                    break;
+                  case ExchangeProviderDescription.morphToken:
+                    imageSrc = 'assets/images/morph_icon.png';
+                    break;
+                }
+
+                return Padding(
+                  padding: EdgeInsets.only(top: 20, bottom: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Image.asset(imageSrc),
+                      SizedBox(width: 10),
+                      Text(
+                        S.of(context).powered_by(title),
+                        style: TextStyle(fontSize: 14, color: Palette.powered),
+                      )
+                    ],
                   ),
                 );
-              }),
-            ),
-            Observer(
-                builder: (_) => LoadingPrimaryButton(
-                      text: S.of(context).exchange,
-                      onPressed: () {
-                        if (_formKey.currentState.validate()) {
-                          exchangeStore.createTrade();
-                        }
-                      },
-                      color: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .backgroundColor,
-                      textColor: Theme.of(context).primaryTextTheme.button.color,
-                      isLoading: exchangeStore.tradeState is TradeIsCreating,
-                    )),
-            Observer(builder: (_) {
-              final title = exchangeStore.provider.description.title;
-              var imageSrc = '';
-
-              switch (exchangeStore.provider.description) {
-                case ExchangeProviderDescription.xmrto:
-                  imageSrc = 'assets/images/xmr_btc.png';
-                  break;
-                case ExchangeProviderDescription.changeNow:
-                  imageSrc = 'assets/images/change_now.png';
-                  break;
-                case ExchangeProviderDescription.morphToken:
-                  imageSrc = 'assets/images/morph_icon.png';
-                  break;
-              }
-
-              return Padding(
-                padding: EdgeInsets.only(top: 20, bottom: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Image.asset(imageSrc),
-                    SizedBox(width: 10),
-                    Text(
-                      S.of(context).powered_by(title),
-                      style: TextStyle(fontSize: 14, color: Palette.powered),
-                    )
-                  ],
-                ),
-              );
-            })
-          ]),
-        ));
+              })*/
+            ]),
+          )),
+    );
   }
 
   void _setReactions(
