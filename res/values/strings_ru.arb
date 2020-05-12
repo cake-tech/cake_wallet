@@ -189,6 +189,14 @@
   "send_estimated_fee" : "Предполагаемая комиссия:",
   "send_priority" : "Комиссия установлена в зависимости от приоритета: ${transactionPriority}.\nПриоритет транзакции может быть изменён в настройках",
   "send_creating_transaction" : "Создать транзакцию",
+  "send_templates" : "Шаблоны",
+  "send_new" : "Новый",
+  "send_amount" : "Сумма:",
+  "send_fee" : "Комиссия:",
+  "send_name" : "Имя",
+  "send_got_it" : "Понял",
+  "send_sending" : "Отправка...",
+  "send_success" : "Ваш Monero был успешно отправлен",
 
 
   "settings_title" : "Настройки",
@@ -295,6 +303,7 @@
   "error_text_minimal_limit" : "Сделка для ${provider} не создана. Сумма меньше минимальной: ${min} ${currency}",
   "error_text_maximum_limit" : "Сделка для ${provider} не создана. Сумма больше максимальной: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Сделка для ${provider} не создана. Ошибка загрузки лимитов",
+  "error_text_template" : "Имя и адрес шаблона не может содержать ` , ' \" символы\nи должно быть от 1 до 106 символов в длину",
 
 
   "auth_store_ban_timeout" : "ban_timeout",

@@ -189,6 +189,14 @@
   "send_estimated_fee" : "Tarifa estimada:",
   "send_priority" : "Actualmente la tarifa se establece en ${transactionPriority} prioridad.\nLa prioridad de la transacción se puede ajustar en la configuración",
   "send_creating_transaction" : "Creando transacción",
+  "send_templates" : "Plantillas",
+  "send_new" : "Nuevo",
+  "send_amount" : "Cantidad:",
+  "send_fee" : "Cuota:",
+  "send_name" : "Nombre",
+  "send_got_it" : "Entendido",
+  "send_sending" : "Enviando...",
+  "send_success" : "Su Monero fue enviado con éxito",
 
 
   "settings_title" : "Configuraciones",
@@ -295,6 +303,7 @@
   "error_text_minimal_limit" : "El comercio por ${provider} no se crea. La cantidad es menos que mínima: ${min} ${currency}",
   "error_text_maximum_limit" : "El comercio por ${provider} no se crea. La cantidad es más que el máximo: ${max} ${currency}",
   "error_text_limits_loading_failed" : "El comercio por ${provider} no se crea. Límites de carga fallidos",
+  "error_text_template" : "El nombre y la dirección de la plantilla no pueden contener símbolos ` , '\" \ny debe tener entre 1 y 106 caracteres de longitud",
 
 
   "auth_store_ban_timeout" : "prohibición de tiempo de espera",

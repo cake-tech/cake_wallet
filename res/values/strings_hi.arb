@@ -189,6 +189,14 @@
   "send_estimated_fee" : "अनुमानित शुल्क:",
   "send_priority" : "वर्तमान में शुल्क निर्धारित है ${transactionPriority} प्राथमिकता.\nलेन-देन की प्राथमिकता को सेटिंग्स में समायोजित किया जा सकता है",
   "send_creating_transaction" : "लेन-देन बनाना",
+  "send_templates" : "टेम्पलेट्स",
+  "send_new" : "नया",
+  "send_amount" : "रकम:",
+  "send_fee" : "शुल्क:",
+  "send_name" : "नाम",
+  "send_got_it" : "समझ गया",
+  "send_sending" : "भेजना...",
+  "send_success" : "आपका Monero सफलतापूर्वक भेजा गया",
 
 
   "settings_title" : "सेटिंग्स",
@@ -295,6 +303,7 @@
   "error_text_minimal_limit" : "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि कम है तो न्यूनतम: ${min} ${currency}",
   "error_text_maximum_limit" : "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि अधिक है तो अधिकतम: ${max} ${currency}",
   "error_text_limits_loading_failed" : "व्यापार ${provider} के लिए नहीं बनाया गया है। लोडिंग की सीमाएं विफल रहीं",
+  "error_text_template" : "टेम्प्लेट का नाम और पता नहीं हो सकता ` , ' \" प्रतीकों\nऔर 1 और 106 वर्णों के बीच लंबा होना चाहिए",
 
 
   "auth_store_ban_timeout" : "समय की पाबंदी",

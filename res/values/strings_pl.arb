@@ -58,7 +58,7 @@
 
 
   "exchange" : "Wymieniać się",
-  "clear" : "Jasny",
+  "clear" : "Wyczyść",
   "change_exchange_provider" : "Zmień dostawcę programu Exchange",
   "you_will_send" : "Wyślesz",
   "you_will_get" : "Dostaniesz",
@@ -189,6 +189,14 @@
   "send_estimated_fee" : "Szacowana opłata:",
   "send_priority" : "Obecnie opłata ustalona jest na ${transactionPriority} priorytet.\nPriorytet transakcji można zmienić w ustawieniach",
   "send_creating_transaction" : "Tworzenie transakcji",
+  "send_templates" : "Szablony",
+  "send_new" : "Nowy",
+  "send_amount" : "Ilość:",
+  "send_fee" : "Opłata:",
+  "send_name" : "Imię",
+  "send_got_it" : "Rozumiem",
+  "send_sending" : "Wysyłanie...",
+  "send_success" : "Twoje Monero zostało pomyślnie wysłane",
 
 
   "settings_title" : "Ustawienia",
@@ -295,6 +303,7 @@
   "error_text_minimal_limit" : "Wymiana dla ${provider} nie została utworzona. Kwota jest mniejsza niż minimalna: ${min} ${currency}",
   "error_text_maximum_limit" : "Wymiana dla ${provider} nie została utworzona. Kwota jest większa niż maksymalna: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Wymiana dla ${provider} nie została utworzona. Ładowanie limitów nie powiodło się",
+  "error_text_template" : "Nazwa i adres szablonu nie mogą zawierać ` , ' \" symbolika\ni musi mieć od 1 do 106 znaków",
 
 
   "auth_store_ban_timeout" : "przekroczenie limitu czasu",
