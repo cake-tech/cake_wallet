@@ -25,10 +25,18 @@ class ShowKeysPage extends BasePage {
           builder: (_) {
             final keysMap = {
               S.of(context).view_key_public: walletKeysStore.publicViewKey,
-              S.of(context).view_key_private: walletKeysStore.privateViewKey,
-              S.of(context).spend_key_public: walletKeysStore.publicSpendKey,
               S.of(context).spend_key_private: walletKeysStore.privateSpendKey
             };
+
+            if (walletKeysStore.privateViewKey.isNotEmpty) {
+              keysMap[S.of(context).view_key_private] =
+                  walletKeysStore.privateViewKey;
+            }
+
+            if (walletKeysStore.publicSpendKey.isNotEmpty) {
+              keysMap[S.of(context).spend_key_public] =
+                  walletKeysStore.publicSpendKey;
+            }
 
             return ListView.separated(
                 separatorBuilder: (_, __) => Container(

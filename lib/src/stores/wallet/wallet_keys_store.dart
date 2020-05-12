@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
@@ -15,10 +16,17 @@ abstract class WalletKeysStoreBase with Store {
 
     if (walletService.currentWallet != null) {
       walletService.getKeys().then((keys) {
-        publicViewKey = keys['publicViewKey'];
-        privateViewKey = keys['privateViewKey'];
-        publicSpendKey = keys['publicSpendKey'];
-        privateSpendKey = keys['privateSpendKey'];
+        if (walletService.getType() == WalletType.monero) {
+          publicViewKey = keys['publicViewKey'];
+          privateViewKey = keys['privateViewKey'];
+          publicSpendKey = keys['publicSpendKey'];
+          privateSpendKey = keys['privateSpendKey'];
+        }
+
+        if (walletService.getType() == WalletType.bitcoin) {
+          publicViewKey = keys['publicKey'];
+          privateSpendKey = keys['privateKey'];
+        }
       });
     }
   }

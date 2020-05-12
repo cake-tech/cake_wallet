@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
@@ -9,7 +10,10 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class RestoreOptionsPage extends BasePage {
+  RestoreOptionsPage({@required this.type});
+  
   static const _aspectRatioImage = 2.086;
+  final WalletType type;
 
   @override
   String get title => S.current.restore_restore_wallet;

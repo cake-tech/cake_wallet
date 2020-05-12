@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:cake_wallet/src/domain/monero/monero_transaction_info.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:cw_monero/transaction_history.dart'
@@ -6,10 +7,11 @@ import 'package:cw_monero/transaction_history.dart'
 import 'package:cake_wallet/src/domain/common/transaction_history.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 
-List<TransactionInfo> _getAllTransactions(dynamic _) => monero_transaction_history
-    .getAllTransations()
-    .map((row) => TransactionInfo.fromRow(row))
-    .toList();
+List<TransactionInfo> _getAllTransactions(dynamic _) =>
+    monero_transaction_history
+        .getAllTransations()
+        .map((row) => MoneroTransactionInfo.fromRow(row))
+        .toList();
 
 class MoneroTransactionHistory extends TransactionHistory {
   MoneroTransactionHistory()
@@ -31,7 +33,6 @@ class MoneroTransactionHistory extends TransactionHistory {
 
     try {
       _isUpdating = true;
-      await refresh();
       _transactions.value = await getAll(force: true);
       _isUpdating = false;
 
@@ -46,13 +47,11 @@ class MoneroTransactionHistory extends TransactionHistory {
   }
 
   @override
-  Future<List<TransactionInfo>> getAll({bool force = false}) async =>
-      _getAllTransactions(null);
+  Future<List<TransactionInfo>> getAll({bool force = false}) async {
+    await refresh();
+    return _getAllTransactions(null);
+  }
 
-  @override
-  Future<int> count() async => monero_transaction_history.countOfTransactions();
-
-  @override
   Future refresh() async {
     if (_isRefreshing) {
       return;

@@ -6,12 +6,16 @@ import 'package:cake_wallet/src/screens/restore/widgets/restore_button.dart';
 import 'package:cake_wallet/src/screens/restore/widgets/image_widget.dart';
 import 'package:cake_wallet/src/screens/restore/widgets/base_restore_widget.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:provider/provider.dart';
 
 class RestoreWalletOptionsPage extends BasePage {
+  RestoreWalletOptionsPage({@required this.type});
+
   static const _aspectRatioImage = 2.086;
+  final WalletType type;
 
   @override
   String get title => S.current.restore_seed_keys_restore;
@@ -31,7 +35,7 @@ class RestoreWalletOptionsPage extends BasePage {
       firstRestoreButton: RestoreButton(
         onPressed: () {
           seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromSeed);
-          Navigator.pushNamed(context, Routes.seedLanguage);
+          Navigator.pushNamed(context, Routes.seedLanguage, arguments: type);
         },
         imageWidget: ImageWidget(
             image: _imageSeed,
@@ -46,7 +50,7 @@ class RestoreWalletOptionsPage extends BasePage {
       secondRestoreButton: RestoreButton(
         onPressed: () {
           seedLanguageStore.setCurrentRoute(Routes.restoreWalletFromKeys);
-          Navigator.pushNamed(context, Routes.seedLanguage);
+          Navigator.pushNamed(context, Routes.seedLanguage, arguments: type);
         },
         imageWidget: ImageWidget(
             image: _imageKeys,

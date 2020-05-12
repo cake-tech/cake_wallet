@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/bitcoin/bitcoin_balance.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/src/domain/common/wallet.dart';
@@ -87,15 +88,28 @@ abstract class BalanceStoreBase with Store {
   }
 
   Future _onBalanceChange(Balance balance) async {
-    final _balance = balance as MoneroBalance;
-
-    if (this.fullBalance != _balance.fullBalance) {
-      this.fullBalance = _balance.fullBalance;
+    if (balance is MoneroBalance) {
+      await _onMoneroBalanceChange(balance);
     }
 
-    if (this.unlockedBalance != _balance.unlockedBalance) {
-      this.unlockedBalance = _balance.unlockedBalance;
+    if (balance is BitcoinBalance) {
+      await _onBitcoinBalanceChange(balance);
     }
+  }
+
+  Future _onMoneroBalanceChange(MoneroBalance balance) async {
+    if (this.fullBalance != balance.fullBalance) {
+      this.fullBalance = balance.fullBalance;
+    }
+
+    if (this.unlockedBalance != balance.unlockedBalance) {
+      this.unlockedBalance = balance.unlockedBalance;
+    }
+  }
+
+  Future _onBitcoinBalanceChange(BitcoinBalance balance) async {
+    fullBalance = balance.totalFormatted;
+    unlockedBalance = balance.totalFormatted;
   }
 
   Future _onWalletChanged(Wallet wallet) async {

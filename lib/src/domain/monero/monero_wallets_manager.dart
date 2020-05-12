@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cake_wallet/src/domain/common/pathForWallet.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,17 +12,7 @@ import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/common/wallet_description.dart';
 
-Future<String> pathForWallet({String name}) async {
-  final directory = await getApplicationDocumentsDirectory();
-  final pathDir = directory.path + '/$name';
-  final dir = Directory(pathDir);
 
-  if (!await dir.exists()) {
-    await dir.create();
-  }
-
-  return pathDir + '/$name';
-}
 
 class MoneroWalletsManager extends WalletsManager {
   MoneroWalletsManager({@required this.walletInfoSource});
@@ -34,7 +25,7 @@ class MoneroWalletsManager extends WalletsManager {
   Future<Wallet> create(String name, String password, String language) async {
     try {
       const isRecovery = false;
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(name: name, type: WalletType.monero);
 
       await monero_wallet_manager.createWallet(path: path, password: password, language: language);
 

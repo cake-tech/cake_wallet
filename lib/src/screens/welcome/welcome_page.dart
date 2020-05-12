@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
@@ -5,14 +7,38 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
+WalletType _selectedType;
+
 class WelcomePage extends BasePage {
   static const _aspectRatioImage = 1.26;
   static const _baseWidth = 411.43;
   final _image = Image.asset('assets/images/welcomeImg.png');
   final _cakeLogo = Image.asset('assets/images/cake_logo.png');
+  final Map<String, WalletType> _picker =
+      walletTypes.fold(Map<String, WalletType>(), (acc, item) {
+    acc[walletTypeToString(item)] = item;
+    return acc;
+  });
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => _selectedType == null
+        ? showDialog<void>(
+            builder: (_) => Picker(
+                items: walletTypes
+                    .map((item) => walletTypeToString(item))
+                    .toList(),
+                selectedAtIndex: -1,
+                title: 'Select wallet type',
+                pickerHeight: 510,
+                onItemSelected: (String item) {
+                  print('before $_selectedType');
+                  _selectedType = _picker[item];
+                  print('after $_selectedType');
+                }),
+            context: context)
+        : null);
+
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         resizeToAvoidBottomPadding: false,
@@ -72,7 +98,8 @@ class WelcomePage extends BasePage {
           child: Column(children: <Widget>[
             PrimaryButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, Routes.newWalletFromWelcome);
+                  Navigator.pushNamed(context, Routes.newWalletFromWelcome,
+                      arguments: _selectedType);
                 },
                 text: S.of(context).create_new,
                 color:
@@ -82,7 +109,8 @@ class WelcomePage extends BasePage {
             SizedBox(height: 10),
             PrimaryButton(
               onPressed: () {
-                Navigator.pushNamed(context, Routes.restoreOptions);
+                Navigator.pushNamed(context, Routes.restoreOptions,
+                    arguments: _selectedType);
               },
               color: Theme.of(context).accentTextTheme.caption.backgroundColor,
               borderColor:

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/src/domain/monero/monero_transaction_info.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
@@ -98,10 +99,14 @@ abstract class ActionListBase with Store {
     final price = _priceStore.prices[symbol];
 
     _transactions.forEach((item) {
-      final amount = calculateFiatAmountRaw(
-          cryptoAmount: moneroAmountToDouble(amount: item.transaction.amount),
-          price: price);
-      item.transaction.changeFiatAmount(amount);
+      final tx = item.transaction;
+
+      if (tx is MoneroTransactionInfo) {
+        final amount = calculateFiatAmountRaw(
+            cryptoAmount: moneroAmountToDouble(amount: tx.amount),
+            price: price);
+        tx.changeFiatAmount(amount);
+      }
     });
 
     return _transactions;
@@ -171,7 +176,6 @@ abstract class ActionListBase with Store {
       tradesSource.values.map((trade) => TradeListItem(trade: trade)).toList();
 
   Future _updateTransactionsList() async {
-    await _history.refresh();
     final _transactions = await _history.getAll();
     await _setTransactions(_transactions);
   }
@@ -203,22 +207,29 @@ abstract class ActionListBase with Store {
   Future _setTransactions(List<TransactionInfo> transactions) async {
     final wallet = _walletService.currentWallet;
     List<TransactionInfo> sortedTransactions = transactions.map((transaction) {
-      if (transactionDescriptions.values.isNotEmpty) {
-        final description = transactionDescriptions.values.firstWhere(
-            (desc) => desc.id == transaction.id,
-            orElse: () => null);
+      if (transaction is MoneroTransactionInfo) {
+        if (transactionDescriptions.values.isNotEmpty) {
+          final description = transactionDescriptions.values.firstWhere(
+              (desc) => desc.id == transaction.id,
+              orElse: () => null);
 
-        if (description != null && description.recipientAddress != null) {
-          transaction.recipientAddress = description.recipientAddress;
+          if (description != null && description.recipientAddress != null) {
+            transaction.recipientAddress = description.recipientAddress;
+          }
         }
+
+        return transaction;
       }
 
       return transaction;
     }).toList();
 
     if (wallet is MoneroWallet) {
-      sortedTransactions =
-          transactions.where((tx) => tx.accountIndex == _account.id).toList();
+      sortedTransactions = transactions
+          .where((tx) => tx is MoneroTransactionInfo
+              ? tx.accountIndex == _account.id
+              : false)
+          .toList();
     }
 
     this._transactions = sortedTransactions

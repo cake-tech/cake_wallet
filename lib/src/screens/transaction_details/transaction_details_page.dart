@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/monero/monero_transaction_info.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,31 +47,33 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
   @override
   void initState() {
     final _dateFormat = widget.settingsStore.getCurrentDateFormat(
-          formatUSA: "yyyy.MM.dd, HH:mm",
-          formatDefault: "dd.MM.yyyy, HH:mm");
-    final items = [
-      StandartListItem(
-          title: S.current.transaction_details_transaction_id,
-          value: widget.transactionInfo.id),
-      StandartListItem(
-          title: S.current.transaction_details_date,
-          value: _dateFormat.format(widget.transactionInfo.date)),
-      StandartListItem(
-          title: S.current.transaction_details_height,
-          value: '${widget.transactionInfo.height}'),
-      StandartListItem(
-          title: S.current.transaction_details_amount,
-          value: widget.transactionInfo.amountFormatted())
-    ];
+        formatUSA: "yyyy.MM.dd, HH:mm", formatDefault: "dd.MM.yyyy, HH:mm");
+    final tx = widget.transactionInfo;
 
-    if (widget.settingsStore.shouldSaveRecipientAddress &&
-        widget.transactionInfo.recipientAddress != null) {
-      items.add(StandartListItem(
-          title: S.current.transaction_details_recipient_address,
-          value: widget.transactionInfo.recipientAddress));
+    if (tx is MoneroTransactionInfo) {
+      final items = [
+        StandartListItem(
+            title: S.current.transaction_details_transaction_id, value: tx.id),
+        StandartListItem(
+            title: S.current.transaction_details_date,
+            value: _dateFormat.format(tx.date)),
+        StandartListItem(
+            title: S.current.transaction_details_height, value: '${tx.height}'),
+        StandartListItem(
+            title: S.current.transaction_details_amount,
+            value: tx.amountFormatted())
+      ];
+
+      if (widget.settingsStore.shouldSaveRecipientAddress &&
+          tx.recipientAddress != null) {
+        items.add(StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: tx.recipientAddress));
+      }
+
+      _items.addAll(items);
     }
 
-    _items.addAll(items);
     super.initState();
   }
 
