@@ -134,6 +134,10 @@
   "share_address" : "Compartilhar endereço",
   "receive_amount" : "Quantia",
   "subaddresses" : "Sub-endereços",
+  "rename" : "Renomear",
+  "choose_account" : "Escolha uma conta",
+  "create_new_account" : "Criar nova conta",
+  "accounts_subaddresses" : "Contas e sub-endereços",
 
 
   "restore_restore_wallet" : "Restaurar carteira",

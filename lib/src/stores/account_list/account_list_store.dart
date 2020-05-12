@@ -16,6 +16,7 @@ abstract class AcountListStoreBase with Store {
   AcountListStoreBase({@required WalletService walletService}) {
     accounts = [];
     isAccountCreating = false;
+    isDisabledStatus = true;
 
     if (walletService.currentWallet != null) {
       _onWalletChanged(walletService.currentWallet);
@@ -37,9 +38,17 @@ abstract class AcountListStoreBase with Store {
   @observable
   bool isAccountCreating;
 
+  @observable
+  bool isDisabledStatus;
+
   AccountList _accountList;
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<List<Account>> _onAccountsChangeSubscription;
+
+  @action
+  void setDisabledStatus(bool isDisabled) {
+    isDisabledStatus = isDisabled;
+  }
 
   @override
   void dispose() {

@@ -68,7 +68,6 @@ import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/seed_language/seed_language_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/accounts/account_page.dart';
-import 'package:cake_wallet/src/screens/accounts/account_list_page.dart';
 import 'package:cake_wallet/src/screens/address_book/address_book_page.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/show_keys/show_keys_page.dart';
@@ -242,7 +241,10 @@ class Router {
             builder: (_) => MultiProvider(providers: [
                   Provider(
                       create: (_) =>
-                          SubaddressListStore(walletService: walletService))
+                          SubaddressListStore(walletService: walletService)),
+                  Provider(
+                      create: (_) =>
+                          AccountListStore(walletService: walletService))
                 ], child: ReceivePage()));
 
       case Routes.transactionDetails:
@@ -256,7 +258,7 @@ class Router {
             builder: (_) => Provider(
                 create: (_) =>
                     SubadrressCreationStore(walletService: walletService),
-                child: NewSubaddressPage()));
+                child: NewSubaddressPage(subaddress: settings.arguments as Subaddress,)));
 
       case Routes.disclaimer:
         return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
@@ -324,17 +326,6 @@ class Router {
               walletListService: walletListService,
               authenticationStore: authenticationStore);
         });
-
-      case Routes.accountList:
-        return MaterialPageRoute<void>(
-            builder: (context) {
-              return MultiProvider(providers: [
-                Provider(
-                    create: (_) =>
-                        AccountListStore(walletService: walletService)),
-              ], child: AccountListPage());
-            },
-            fullscreenDialog: true);
 
       case Routes.accountCreation:
         return CupertinoPageRoute<String>(builder: (context) {

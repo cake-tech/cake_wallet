@@ -134,6 +134,10 @@
   "share_address" : "Поделиться адресом",
   "receive_amount" : "Сумма",
   "subaddresses" : "Субадреса",
+  "rename" : "Переименовать",
+  "choose_account" : "Выберите аккаунт",
+  "create_new_account" : "Создать новый аккаунт",
+  "accounts_subaddresses" : "Аккаунты и субадреса",
 
 
   "restore_restore_wallet" : "Восстановить кошелёк",

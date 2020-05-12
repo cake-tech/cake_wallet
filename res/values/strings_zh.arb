@@ -134,6 +134,10 @@
   "share_address" : "分享地址",
   "receive_amount" : "量",
   "subaddresses" : "子地址",
+  "rename" : "改名",
+  "choose_account" : "選擇帳號",
+  "create_new_account" : "建立新帳戶",
+  "accounts_subaddresses" : "帳戶和子地址",
 
 
   "restore_restore_wallet" : "恢复钱包",

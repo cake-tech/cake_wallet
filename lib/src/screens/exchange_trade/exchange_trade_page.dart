@@ -13,7 +13,7 @@ import 'package:cake_wallet/src/stores/send/send_store.dart';
 import 'package:cake_wallet/src/stores/send/sending_state.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/copy_button.dart';
-import 'package:cake_wallet/src/screens/receive/qr_image.dart';
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';

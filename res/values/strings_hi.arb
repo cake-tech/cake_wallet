@@ -134,6 +134,10 @@
   "share_address" : "पता साझा करें",
   "receive_amount" : "रकम",
   "subaddresses" : "उप पते",
+  "rename" : "नाम बदलें",
+  "choose_account" : "खाता चुनें",
+  "create_new_account" : "नया खाता बनाएँ",
+  "accounts_subaddresses" : "लेखा और उपदेस",
 
 
   "restore_restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
