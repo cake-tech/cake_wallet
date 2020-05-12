@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet.manager.dart';
+import 'package:cake_wallet/bitcoin/key.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -29,13 +31,15 @@ class WalletListService {
       this.walletInfoSource,
       this.walletsManager,
       @required this.walletService,
-      @required this.sharedPreferences});
+      @required this.sharedPreferences})
+      : _type = WalletType.monero;
 
   final FlutterSecureStorage secureStorage;
   final WalletService walletService;
   final Box<WalletInfo> walletInfoSource;
   final SharedPreferences sharedPreferences;
   WalletsManager walletsManager;
+  WalletType _type;
 
   Future<List<WalletDescription>> getAll() async => walletInfoSource.values
       .map((info) => WalletDescription(name: info.name, type: info.type))
@@ -50,7 +54,7 @@ class WalletListService {
       await walletService.close();
     }
 
-    final password = Uuid().v4();
+    final password = _generatePassword();
     await saveWalletPassword(password: password, walletName: name);
 
     final wallet = await walletsManager.create(name, password, language);
@@ -67,7 +71,7 @@ class WalletListService {
       await walletService.close();
     }
 
-    final password = Uuid().v4();
+    final password = _generatePassword();
     await saveWalletPassword(password: password, walletName: name);
 
     final wallet = await walletsManager.restoreFromSeed(
@@ -76,8 +80,8 @@ class WalletListService {
     await onWalletChange(wallet);
   }
 
-  Future restoreFromKeys(String name, String language, int restoreHeight, String address,
-      String viewKey, String spendKey) async {
+  Future restoreFromKeys(String name, String language, int restoreHeight,
+      String address, String viewKey, String spendKey) async {
     if (await walletsManager.isWalletExit(name)) {
       throw WalletIsExistException(name);
     }
@@ -86,7 +90,7 @@ class WalletListService {
       await walletService.close();
     }
 
-    final password = Uuid().v4();
+    final password = _generatePassword();
     await saveWalletPassword(password: password, walletName: name);
 
     final wallet = await walletsManager.restoreFromKeys(
@@ -107,10 +111,15 @@ class WalletListService {
   }
 
   Future changeWalletManger({WalletType walletType}) async {
+    _type = walletType;
+
     switch (walletType) {
       case WalletType.monero:
         walletsManager =
             MoneroWalletsManager(walletInfoSource: walletInfoSource);
+        break;
+      case WalletType.bitcoin:
+        walletsManager = BitcoinWalletManager();
         break;
       case WalletType.none:
         walletsManager = null;
@@ -121,6 +130,7 @@ class WalletListService {
   Future onWalletChange(Wallet wallet) async {
     walletService.currentWallet = wallet;
     final walletName = await wallet.getName();
+    print('walletName $walletName ');
     await sharedPreferences.setString('current_wallet_name', walletName);
   }
 
@@ -141,5 +151,14 @@ class WalletListService {
     final encodedPassword = encodeWalletPassword(password: password);
 
     await secureStorage.write(key: key, value: encodedPassword);
+  }
+
+  String _generatePassword() {
+    switch (_type) {
+      case WalletType.bitcoin:
+        return generateKey();
+      default:
+        return Uuid().v4();
+    }
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -109,6 +110,9 @@ class Router {
         return MaterialPageRoute<void>(builder: (_) => createWelcomePage());
 
       case Routes.newWalletFromWelcome:
+        final type = settings.arguments as WalletType;
+        walletListService.changeWalletManger(walletType: type);
+
         return CupertinoPageRoute<void>(
             builder: (_) => Provider(
                 create: (_) => UserStore(
@@ -116,10 +120,14 @@ class Router {
                         secureStorage: FlutterSecureStorage(),
                         sharedPreferences: sharedPreferences)),
                 child: SetupPinCodePage(
-                    onPinCodeSetup: (context, _) =>
-                        Navigator.pushNamed(context, Routes.newWallet))));
+                    onPinCodeSetup: (context, _) => Navigator.pushNamed(
+                        context, Routes.newWallet,
+                        arguments: type))));
 
       case Routes.newWallet:
+        final type = settings.arguments as WalletType;
+        walletListService.changeWalletManger(walletType: type);
+
         return CupertinoPageRoute<void>(
             builder:
                 (_) =>
@@ -152,11 +160,18 @@ class Router {
             fullscreenDialog: true);
 
       case Routes.restoreOptions:
-        return CupertinoPageRoute<void>(builder: (_) => RestoreOptionsPage());
+        final type = settings.arguments as WalletType;
+        walletListService.changeWalletManger(walletType: type);
+
+        return CupertinoPageRoute<void>(
+            builder: (_) => RestoreOptionsPage(type: type));
 
       case Routes.restoreWalletOptions:
+        final type = settings.arguments as WalletType;
+        walletListService.changeWalletManger(walletType: type);
+
         return CupertinoPageRoute<void>(
-            builder: (_) => RestoreWalletOptionsPage());
+            builder: (_) => RestoreWalletOptionsPage(type: type));
 
       case Routes.restoreWalletOptionsFromWelcome:
         return CupertinoPageRoute<void>(
@@ -177,6 +192,9 @@ class Router {
                 callback: settings.arguments as void Function()));
 
       case Routes.restoreWalletFromSeed:
+        final type = settings.arguments as WalletType;
+        walletListService.changeWalletManger(walletType: type);
+
         return CupertinoPageRoute<void>(
             builder: (_) =>
                 ProxyProvider<AuthenticationStore, WalletRestorationStore>(
@@ -235,11 +253,15 @@ class Router {
       case Routes.receive:
         return CupertinoPageRoute<void>(
             fullscreenDialog: true,
-            builder: (_) => MultiProvider(providers: [
-                  Provider(
-                      create: (_) =>
-                          SubaddressListStore(walletService: walletService))
-                ], child: ReceivePage()));
+            builder: (_) => MultiProvider(
+                providers: walletService.getType() == WalletType.monero
+                    ? [
+                        Provider(
+                            create: (_) => SubaddressListStore(
+                                walletService: walletService))
+                      ]
+                    : [],
+                child: ReceivePage()));
 
       case Routes.transactionDetails:
         return CupertinoPageRoute<void>(

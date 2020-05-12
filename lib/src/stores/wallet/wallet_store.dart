@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/src/domain/common/node.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/monero/account.dart';
@@ -119,6 +120,7 @@ abstract class WalletStoreBase with Store {
       return;
     }
 
+    address = await wallet.getAddress();
     wallet.onNameChange.listen((name) => this.name = name);
     wallet.onAddressChange.listen((address) => this.address = address);
 
@@ -160,4 +162,9 @@ abstract class WalletStoreBase with Store {
   }
 
   Future<bool> isConnected() async => await _walletService.isConnected();
+
+  WalletType getType() => _walletService.getType();
+
+  String get getAddress =>
+      getType() == WalletType.monero ? subaddress.address : address;
 }
