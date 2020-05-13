@@ -27,7 +27,7 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/screens/send/widgets/sending_alert.dart';
-import 'package:cake_wallet/src/screens/send/widgets/template_tile.dart';
+import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/stores/send_template/send_template_store.dart';
 
 class SendPage extends BasePage {
@@ -394,9 +394,9 @@ class SendFormState extends State<SendForm> {
                         final template = sendTemplateStore.templates[index];
 
                         return TemplateTile(
-                            name: template.name,
+                            to: template.name,
                             amount: template.amount,
-                            cryptoCurrency: template.cryptoCurrency,
+                            from: template.cryptoCurrency,
                             onTap: () {
                               _addressController.text = template.address;
                               _cryptoAmountController.text = template.amount;

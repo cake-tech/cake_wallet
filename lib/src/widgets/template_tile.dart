@@ -3,15 +3,15 @@ import 'package:cake_wallet/palette.dart';
 
 class TemplateTile extends StatelessWidget {
   TemplateTile({
-    @required this.name,
+    @required this.to,
     @required this.amount,
-    @required this.cryptoCurrency,
+    @required this.from,
     @required this.onTap
   });
 
-  final String name;
+  final String to;
   final String amount;
-  final String cryptoCurrency;
+  final String from;
   final VoidCallback onTap;
 
   final toIcon = Image.asset('assets/images/to_icon.png');
@@ -44,7 +44,7 @@ class TemplateTile extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 5),
                 child: Text(
-                  cryptoCurrency,
+                  from,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -59,7 +59,7 @@ class TemplateTile extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(left: 5),
                 child: Text(
-                  name,
+                  to,
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 
 class ExchangeCard extends StatefulWidget {
   ExchangeCard(
@@ -21,6 +21,7 @@ class ExchangeCard extends StatefulWidget {
       this.onCurrencySelected,
       this.imageArrow,
       this.currencyButtonColor = Colors.transparent,
+      this.addressButtonsColor = PaletteDark.walletCardSubAddressField,
       this.currencyValueValidator,
       this.addressTextFieldValidator})
       : super(key: key);
@@ -36,6 +37,7 @@ class ExchangeCard extends StatefulWidget {
   final bool isAmountEstimated;
   final Image imageArrow;
   final Color currencyButtonColor;
+  final Color addressButtonsColor;
   final FormFieldValidator<String> currencyValueValidator;
   final FormFieldValidator<String> addressTextFieldValidator;
 
@@ -216,6 +218,7 @@ class ExchangeCardState extends State<ExchangeCard> {
             ]
             : [],
             isBorderExist: false,
+            buttonColor: widget.addressButtonsColor,
             validator: widget.addressTextFieldValidator,
           ),
         )
@@ -352,14 +355,14 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   void _presentPicker(BuildContext context) {
     showDialog<void>(
-        builder: (_) => Picker(
-            items: widget.currencies,
+        builder: (_) => CurrencyPicker(
             selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
+            items: widget.currencies,
             title: S.of(context).change_currency,
             onItemSelected: (CryptoCurrency item) =>
-                widget.onCurrencySelected != null
-                    ? widget.onCurrencySelected(item)
-                    : null),
+            widget.onCurrencySelected != null
+                ? widget.onCurrencySelected(item)
+                : null),
         context: context);
   }
 }
