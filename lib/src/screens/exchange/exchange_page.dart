@@ -19,9 +19,9 @@ import 'package:cake_wallet/src/stores/exchange/exchange_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/top_panel.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/provider_picker.dart';
 
 class ExchangePage extends BasePage {
   @override
@@ -102,7 +102,7 @@ class ExchangePage extends BasePage {
     final selectedItem = items.indexOf(exchangeStore.provider);
 
     showDialog<void>(
-        builder: (_) => Picker(
+        builder: (_) => ProviderPicker(
             items: items,
             selectedAtIndex: selectedItem,
             title: S.of(context).change_exchange_provider,
@@ -184,6 +184,7 @@ class ExchangeFormState extends State<ExchangeForm> {
                                     exchangeStore.changeDepositCurrency(currency: currency),
                                 imageArrow: arrowBottomPurple,
                                 currencyButtonColor: PaletteDark.walletCardSubAddressField,
+                                addressButtonsColor: PaletteDark.menuList,
                                 currencyValueValidator: (value) {
                                   exchangeStore.validateCryptoCurrency(value);
                                   return exchangeStore.errorMessage;
