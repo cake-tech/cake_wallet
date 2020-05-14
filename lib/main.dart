@@ -22,6 +22,7 @@ import 'package:cake_wallet/src/stores/balance/balance_store.dart';
 import 'package:cake_wallet/src/stores/sync/sync_store.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/send_template/send_template_store.dart';
+import 'package:cake_wallet/src/stores/exchange_template/exchange_template_store.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:cake_wallet/src/stores/authentication/authentication_store.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
@@ -34,6 +35,7 @@ import 'package:cake_wallet/src/domain/common/fiat_currency.dart';
 import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/template.dart';
+import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
@@ -51,6 +53,7 @@ void main() async {
   Hive.registerAdapter(WalletInfoAdapter(), 4);
   Hive.registerAdapter(WalletTypeAdapter(), 5);
   Hive.registerAdapter(TemplateAdapter(), 6);
+  Hive.registerAdapter(ExchangeTemplateAdapter(), 7);
 
   final secureStorage = FlutterSecureStorage();
   final transactionDescriptionsBoxKey = await getEncryptionKey(
@@ -69,6 +72,7 @@ void main() async {
       await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
   final templates = await Hive.openBox<Template>(Template.boxName);
+  final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
 
   final sharedPreferences = await SharedPreferences.getInstance();
   final walletService = WalletService();
@@ -106,6 +110,7 @@ void main() async {
       sharedPreferences: sharedPreferences, walletsService: walletListService);
   final seedLanguageStore = SeedLanguageStore();
   final sendTemplateStore = SendTemplateStore(templateSource: templates);
+  final exchangeTemplateStore = ExchangeTemplateStore(templateSource: exchangeTemplates);
 
   setReactions(
       settingsStore: settingsStore,
@@ -133,6 +138,7 @@ void main() async {
     Provider(create: (_) => trades),
     Provider(create: (_) => seedLanguageStore),
     Provider(create: (_) => sendTemplateStore),
+    Provider(create: (_) => exchangeTemplateStore),
   ], child: CakeWalletApp()));
 }
 

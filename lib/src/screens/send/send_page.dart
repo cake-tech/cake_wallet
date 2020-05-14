@@ -357,7 +357,7 @@ class SendFormState extends State<SendForm> {
                         if (index == 0) {
                           return GestureDetector(
                             onTap: () => Navigator.of(context)
-                                .pushNamed(Routes.sendTemplate, arguments: sendStore),
+                                .pushNamed(Routes.sendTemplate),
                             child: Container(
                               padding: EdgeInsets.only(right: 10),
                               child: DottedBorder(

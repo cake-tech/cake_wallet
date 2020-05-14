@@ -88,6 +88,7 @@ import 'package:cake_wallet/src/screens/dashboard/create_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 
 class Router {
   static Route<dynamic> generateRoute(
@@ -469,6 +470,25 @@ class Router {
                         walletStore: walletStore);
                   }),
                 ], child: ExchangePage()));
+
+      case Routes.exchangeTemplate:
+        return MaterialPageRoute<void>(
+            builder: (_) => Provider(create: (_) {
+              final xmrtoprovider = XMRTOExchangeProvider();
+
+              return ExchangeStore(
+                  initialProvider: xmrtoprovider,
+                  initialDepositCurrency: CryptoCurrency.xmr,
+                  initialReceiveCurrency: CryptoCurrency.btc,
+                  trades: trades,
+                  providerList: [
+                    xmrtoprovider,
+                    ChangeNowExchangeProvider(),
+                    MorphTokenExchangeProvider(trades: trades)
+                  ],
+                  walletStore: walletStore);
+            }, child: ExchangeTemplatePage(),)
+        );
 
       case Routes.settings:
         return MaterialPageRoute<void>(
