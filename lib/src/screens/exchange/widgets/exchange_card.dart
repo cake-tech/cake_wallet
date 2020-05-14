@@ -148,7 +148,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   validator: widget.currencyValueValidator
               ),
               Positioned(
-                bottom: 8,
+                top: 8,
                 right: 0,
                 child: Container(
                   height: 32,
@@ -222,133 +222,6 @@ class ExchangeCardState extends State<ExchangeCard> {
             validator: widget.addressTextFieldValidator,
           ),
         )
-
-        /*Container(
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  height: 52,
-                  width: 90,
-                  child: InkWell(
-                    onTap: () => _presentPicker(context),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(_selectedCurrency.toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 24,
-                                        color: Theme.of(context)
-                                            .primaryTextTheme
-                                            .title
-                                            .color)),
-                                widget.imageArrow
-                              ]),
-                          _walletName != null
-                              ? Text(_walletName,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Palette.wildDarkBlue))
-                              : SizedBox(),
-                        ]),
-                  ),
-                ),
-                SizedBox(width: 10),
-                Flexible(
-                  child: Column(
-                    children: [
-                      TextFormField(
-                          style: TextStyle(fontSize: 23, height: 1.21),
-                          controller: amountController,
-                          enabled: _isAmountEditable,
-                          textAlign: TextAlign.right,
-                          keyboardType: TextInputType.numberWithOptions(
-                              signed: false, decimal: true),
-                          inputFormatters: [
-                            BlacklistingTextInputFormatter(
-                                RegExp('[\\-|\\ |\\,]'))
-                          ],
-                          decoration: InputDecoration(
-                              hintStyle: TextStyle(
-                                  color: Theme.of(context).cardTheme.color,
-                                  fontSize: 23,
-                                  height: 1.21),
-                              hintText: '0.00000000',
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Palette.cakeGreen, width: 2.0)),
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: _isAmountEditable
-                                          ? Palette.deepPurple
-                                          : Theme.of(context).focusColor,
-                                      width: 1.0))),
-                          validator: widget.currencyValueValidator),
-                      SizedBox(height: 5),
-                      SizedBox(
-                        height: 15,
-                        width: double.infinity,
-                        child: Container(
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                _min != null
-                                    ? Text(
-                                        S.of(context).min_value(
-                                            _min, _selectedCurrency.toString()),
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            height: 1.2,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .subtitle
-                                                .color),
-                                      )
-                                    : SizedBox(),
-                                _min != null ? SizedBox(width: 10) : SizedBox(),
-                                _max != null
-                                    ? Text(
-                                        S.of(context).max_value(
-                                            _max, _selectedCurrency.toString()),
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            height: 1.2,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .subtitle
-                                                .color))
-                                    : SizedBox(),
-                              ]),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ]),
-        ),
-        SizedBox(height: 10),
-        AddressTextField(
-          controller: addressController,
-          isActive: _isAddressEditable,
-          options: _isAddressEditable
-              ? _walletName != null
-                  ? [
-                      AddressTextFieldOption.qrCode,
-                      AddressTextFieldOption.addressBook,
-                      AddressTextFieldOption.subaddressList
-                    ]
-                  : [
-                      AddressTextFieldOption.qrCode,
-                      AddressTextFieldOption.addressBook,
-                    ]
-              : [],
-          validator: widget.addressTextFieldValidator,
-        )*/
       ]),
     );
   }

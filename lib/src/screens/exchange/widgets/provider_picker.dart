@@ -8,12 +8,14 @@ class ProviderPicker extends StatelessWidget {
   ProviderPicker({
     @required this.selectedAtIndex,
     @required this.items,
+    @required this.images,
     @required this.title,
     @required this.onItemSelected,
   });
 
   final int selectedAtIndex;
   final List<ExchangeProvider> items;
+  final List<Image> images;
   final String title;
   final Function(ExchangeProvider) onItemSelected;
 
@@ -61,6 +63,7 @@ class ProviderPicker extends StatelessWidget {
                               itemCount: items == null ? 0 : items.length,
                               itemBuilder: (context, index) {
                                 final item = items[index];
+                                final image = images[index];
                                 final isItemSelected = index == selectedAtIndex;
 
                                 final color = isItemSelected
@@ -81,16 +84,26 @@ class ProviderPicker extends StatelessWidget {
                                   child: Container(
                                     height: 77,
                                     padding: EdgeInsets.only(left: 24, right: 24),
-                                    alignment: Alignment.center,
                                     color: color,
-                                    child: Text(
-                                      item.toString(),
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: textColor,
-                                        decoration: TextDecoration.none,
-                                      ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: <Widget>[
+                                        image,
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 12),
+                                          child: Text(
+                                            item.toString(),
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: textColor,
+                                              decoration: TextDecoration.none,
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
                                   ),
                                 );

@@ -33,6 +33,10 @@ abstract class ExchangeStoreBase with Store {
     provider = initialProvider;
     depositCurrency = initialDepositCurrency;
     receiveCurrency = initialReceiveCurrency;
+    depositAmount = '';
+    receiveAmount = '';
+    depositAddress = '';
+    receiveAddress = '';
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
@@ -64,16 +68,18 @@ abstract class ExchangeStoreBase with Store {
   String receiveAmount;
 
   @observable
+  String depositAddress;
+
+  @observable
+  String receiveAddress;
+
+  @observable
   bool isValid;
 
   @observable
   String errorMessage;
 
   Box<Trade> trades;
-
-  String depositAddress;
-
-  String receiveAddress;
 
   WalletStore walletStore;
 

@@ -1,4 +1,7 @@
 import 'dart:ui';
+import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
+import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +13,6 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/src/stores/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/src/stores/exchange/limits_state.dart';
@@ -22,6 +24,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/top_panel.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/provider_picker.dart';
+import 'package:cake_wallet/src/stores/exchange_template/exchange_template_store.dart';
 
 class ExchangePage extends BasePage {
   @override
@@ -100,10 +103,26 @@ class ExchangePage extends BasePage {
     final exchangeStore = Provider.of<ExchangeStore>(context);
     final items = exchangeStore.providersForCurrentPair();
     final selectedItem = items.indexOf(exchangeStore.provider);
+    final images = List<Image>();
+
+    for (ExchangeProvider provider in items) {
+      switch (provider.description) {
+        case ExchangeProviderDescription.xmrto:
+          images.add(Image.asset('assets/images/xmr_btc.png'));
+          break;
+        case ExchangeProviderDescription.changeNow:
+          images.add(Image.asset('assets/images/change_now.png'));
+          break;
+        case ExchangeProviderDescription.morphToken:
+          images.add(Image.asset('assets/images/morph_icon.png'));
+          break;
+      }
+    }
 
     showDialog<void>(
         builder: (_) => ProviderPicker(
             items: items,
+            images: images,
             selectedAtIndex: selectedItem,
             title: S.of(context).change_exchange_provider,
             onItemSelected: (ExchangeProvider provider) =>
@@ -138,6 +157,7 @@ class ExchangeFormState extends State<ExchangeForm> {
   Widget build(BuildContext context) {
     final exchangeStore = Provider.of<ExchangeStore>(context);
     final walletStore = Provider.of<WalletStore>(context);
+    final exchangeTemplateStore = Provider.of<ExchangeTemplateStore>(context);
 
     final depositWalletName =
         exchangeStore.depositCurrency == CryptoCurrency.xmr
@@ -175,7 +195,7 @@ class ExchangeFormState extends State<ExchangeForm> {
                                 initialAddress:
                                 exchangeStore.depositCurrency == walletStore.type
                                     ? walletStore.address
-                                    : null,
+                                    : exchangeStore.depositAddress,
                                 initialIsAmountEditable: true,
                                 initialIsAddressEditable: true,
                                 isAmountEstimated: false,
@@ -208,7 +228,7 @@ class ExchangeFormState extends State<ExchangeForm> {
                                 initialAddress:
                                 exchangeStore.receiveCurrency == walletStore.type
                                     ? walletStore.address
-                                    : null,
+                                    : exchangeStore.receiveAddress,
                                 initialIsAmountEditable: false,
                                 initialIsAddressEditable: true,
                                 isAmountEstimated: true,
@@ -257,15 +277,17 @@ class ExchangeFormState extends State<ExchangeForm> {
                   padding: EdgeInsets.only(left: 24),
                   child: Observer(
                       builder: (_) {
+                        final itemCount = exchangeTemplateStore.templates.length + 1;
 
                         return ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            itemCount: 1,
+                            itemCount: itemCount,
                             itemBuilder: (context, index) {
 
                               if (index == 0) {
                                 return GestureDetector(
-                                  onTap: () {},
+                                  onTap: () => Navigator.of(context)
+                                      .pushNamed(Routes.exchangeTemplate),
                                   child: Container(
                                     padding: EdgeInsets.only(right: 10),
                                     child: DottedBorder(
@@ -299,7 +321,16 @@ class ExchangeFormState extends State<ExchangeForm> {
 
                               index -= 1;
 
-                              return Container();
+                              final template = exchangeTemplateStore.templates[index];
+
+                              return TemplateTile(
+                                  amount: template.amount,
+                                  from: template.depositCurrency,
+                                  to: template.receiveCurrency,
+                                  onTap: () {
+                                    applyTemplate(exchangeStore, template);
+                                  }
+                              );
                             }
                         );
                       }
@@ -307,88 +338,6 @@ class ExchangeFormState extends State<ExchangeForm> {
                 )
               ],
             ),
-
-            /*SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(top: 10, bottom: 20),
-                    child: Text(
-                      S.of(context).you_will_send,
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          height: 1.1,
-                          color: Theme.of(context).primaryTextTheme.title.color),
-                    ),
-                  ),
-                  ExchangeCard(
-                    key: depositKey,
-                    initialCurrency: exchangeStore.depositCurrency,
-                    initialWalletName: depositWalletName,
-                    initialAddress:
-                    exchangeStore.depositCurrency == walletStore.type
-                        ? walletStore.address
-                        : null,
-                    initialIsAmountEditable: true,
-                    initialIsAddressEditable: true,
-                    isAmountEstimated: false,
-                    currencies: CryptoCurrency.all,
-                    /*onCurrencySelected: (currency) =>
-                      exchangeStore.changeDepositCurrency(currency: currency),*/
-                    imageArrow: arrowBottomPurple,
-                    currencyValueValidator: (value) {
-                      exchangeStore.validateCryptoCurrency(value);
-                      return exchangeStore.errorMessage;
-                    },
-                    addressTextFieldValidator: (value) {
-                      exchangeStore.validateAddress(value,
-                          cryptoCurrency: exchangeStore.depositCurrency);
-                      return exchangeStore.errorMessage;
-                    },
-                  ),
-                  SizedBox(height: 35),
-                  Padding(
-                      padding: EdgeInsets.only(bottom: 20),
-                      child: Text(
-                        S.of(context).you_will_get,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            height: 1.1,
-                            color:
-                            Theme.of(context).primaryTextTheme.title.color),
-                      )),
-                  Observer(
-                      builder: (_) => ExchangeCard(
-                        key: receiveKey,
-                        initialCurrency: exchangeStore.receiveCurrency,
-                        initialWalletName: receiveWalletName,
-                        initialAddress:
-                        exchangeStore.receiveCurrency == walletStore.type
-                            ? walletStore.address
-                            : null,
-                        initialIsAmountEditable: false,
-                        initialIsAddressEditable: true,
-                        isAmountEstimated: true,
-                        currencies: CryptoCurrency.all,
-                        /*onCurrencySelected: (currency) => exchangeStore
-                              .changeReceiveCurrency(currency: currency),*/
-                        imageArrow: arrowBottomCakeGreen,
-                        currencyValueValidator: (value) {
-                          exchangeStore.validateCryptoCurrency(value);
-                          return exchangeStore.errorMessage;
-                        },
-                        addressTextFieldValidator: (value) {
-                          exchangeStore.validateAddress(value,
-                              cryptoCurrency: exchangeStore.receiveCurrency);
-                          return exchangeStore.errorMessage;
-                        },
-                      )),
-                ],
-              ),
-            ),*/
             bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Column(children: <Widget>[
               Padding(
@@ -421,40 +370,30 @@ class ExchangeFormState extends State<ExchangeForm> {
                     textColor: Colors.white,
                     isLoading: exchangeStore.tradeState is TradeIsCreating,
                   )),
-              /*Observer(builder: (_) {
-                final title = exchangeStore.provider.description.title;
-                var imageSrc = '';
-
-                switch (exchangeStore.provider.description) {
-                  case ExchangeProviderDescription.xmrto:
-                    imageSrc = 'assets/images/xmr_btc.png';
-                    break;
-                  case ExchangeProviderDescription.changeNow:
-                    imageSrc = 'assets/images/change_now.png';
-                    break;
-                  case ExchangeProviderDescription.morphToken:
-                    imageSrc = 'assets/images/morph_icon.png';
-                    break;
-                }
-
-                return Padding(
-                  padding: EdgeInsets.only(top: 20, bottom: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Image.asset(imageSrc),
-                      SizedBox(width: 10),
-                      Text(
-                        S.of(context).powered_by(title),
-                        style: TextStyle(fontSize: 14, color: Palette.powered),
-                      )
-                    ],
-                  ),
-                );
-              })*/
             ]),
           )),
     );
+  }
+
+  void applyTemplate(ExchangeStore store, ExchangeTemplate template) {
+    store.changeDepositCurrency(currency: CryptoCurrency.fromString(template.depositCurrency));
+    store.changeReceiveCurrency(currency: CryptoCurrency.fromString(template.receiveCurrency));
+
+    switch (template.provider) {
+      case 'XMR.TO':
+        store.changeProvider(provider: store.providerList[0]);
+        break;
+      case 'ChangeNOW':
+        store.changeProvider(provider: store.providerList[1]);
+        break;
+      case 'MorphToken':
+        store.changeProvider(provider: store.providerList[2]);
+        break;
+    }
+
+    store.changeDepositAmount(amount: template.amount);
+    store.depositAddress = template.depositAddress;
+    store.receiveAddress = template.receiveAddress;
   }
 
   void _setReactions(
@@ -509,10 +448,22 @@ class ExchangeFormState extends State<ExchangeForm> {
       }
     });
 
+    reaction((_) => store.depositAddress, (String address) {
+      if (depositKey.currentState.addressController.text != address) {
+        depositKey.currentState.addressController.text = address;
+      }
+    });
+
     reaction((_) => store.receiveAmount, (String amount) {
       if (receiveKey.currentState.amountController.text !=
           store.receiveAmount) {
         receiveKey.currentState.amountController.text = amount;
+      }
+    });
+
+    reaction((_) => store.receiveAddress, (String address) {
+      if (receiveKey.currentState.addressController.text != address) {
+        receiveKey.currentState.addressController.text = address;
       }
     });
 
