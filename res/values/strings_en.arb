@@ -74,7 +74,7 @@
 
   "copy_id" : "Copy ID",
   "exchange_result_write_down_trade_id" : "Please copy or write down the trade ID to continue.",
-  "trade_id" : "Trade ID:\n${id}",
+  "trade_id" : "Trade ID:",
   "copied_to_clipboard" : "Copied to Clipboard",
   "saved_the_trade_id" : "I've saved the trade ID",
   "fetching" : "Fetching",

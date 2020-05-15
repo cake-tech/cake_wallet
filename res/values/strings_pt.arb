@@ -74,7 +74,7 @@
 
   "copy_id" : "Copiar ID",
   "exchange_result_write_down_trade_id" : "Copie ou anote o ID da troca para continuar.",
-  "trade_id" : "ID da troca:\n${id}",
+  "trade_id" : "ID da troca:",
   "copied_to_clipboard" : "Copiado para a área de transferência",
   "saved_the_trade_id" : "ID da troca salvo",
   "fetching" : "Buscando",

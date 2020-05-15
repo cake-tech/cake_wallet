@@ -74,7 +74,7 @@
 
   "copy_id" : "复印ID",
   "exchange_result_write_down_trade_id" : "请复制或写下交易编号以继续.",
-  "trade_id" : "贸易编号:\n${id}",
+  "trade_id" : "贸易编号:",
   "copied_to_clipboard" : "复制到剪贴板",
   "saved_the_trade_id" : "我已经保存了交易ID",
   "fetching" : "正在取得",

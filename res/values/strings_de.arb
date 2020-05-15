@@ -74,7 +74,7 @@
 
   "copy_id" : "ID kopieren",
   "exchange_result_write_down_trade_id" : "Bitte kopieren oder notieren Sie die Handel-ID, um fortzufahren.",
-  "trade_id" : "Handel-ID:\n${id}",
+  "trade_id" : "Handel-ID:",
   "copied_to_clipboard" : "In die Zwischenablage kopiert",
   "saved_the_trade_id" : "Ich habe die Geschäfts-ID gespeichert",
   "fetching" : "holen",
