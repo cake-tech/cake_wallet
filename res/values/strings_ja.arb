@@ -74,7 +74,7 @@
 
   "copy_id" : "IDをコピー",
   "exchange_result_write_down_trade_id" : "続行するには、取引IDをコピーまたは書き留めてください.",
-  "trade_id" : "取引ID:\n${id}",
+  "trade_id" : "取引ID:",
   "copied_to_clipboard" : "クリップボードにコピーしました",
   "saved_the_trade_id" : "取引IDを保存しました",
   "fetching" : "フェッチング",

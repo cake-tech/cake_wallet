@@ -6,54 +6,56 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/palette.dart';
 
 class ExchangeConfirmPage extends BasePage {
   ExchangeConfirmPage({@required this.trade});
 
   final Trade trade;
+  final copyImage = Image.asset('assets/images/copy_content.png', color: Colors.white);
 
   @override
   String get title => S.current.copy_id;
 
   @override
+  Color get backgroundColor => PaletteDark.historyPanel;
+
+  @override
   Widget body(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Expanded(
-            child: Container(
-                padding: EdgeInsets.only(left: 80.0, right: 80.0),
-                child: Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Text(
-                        S.of(context).exchange_result_write_down_trade_id,
+    return Container(
+      color: PaletteDark.historyPanel,
+      padding: EdgeInsets.all(24),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      S.of(context).exchange_result_write_down_trade_id,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 60),
+                      child: Text(
+                        S.of(context).trade_id,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 18.0,
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .button
-                                .color),
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white),
                       ),
-                      SizedBox(
-                        height: 70.0,
-                      ),
-                      Text(
-                        S.of(context).trade_id(trade.id),
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 18.0,
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .button
-                                .color),
-                      ),
-                      SizedBox(
-                        height: 70.0,
-                      ),
-                      PrimaryButton(
-                          onPressed: () {
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 24),
+                      child: Builder(
+                        builder: (context) => GestureDetector(
+                          onTap: () {
                             Clipboard.setData(ClipboardData(text: trade.id));
                             Scaffold.of(context).showSnackBar(SnackBar(
                               content: Text(
@@ -62,31 +64,52 @@ class ExchangeConfirmPage extends BasePage {
                                 style: TextStyle(color: Colors.white),
                               ),
                               backgroundColor: Colors.green,
+                              duration: Duration(milliseconds: 1500),
                             ));
                           },
-                          text: S.of(context).copy_id,
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .caption
-                              .backgroundColor,
-                          textColor: Theme.of(context)
-                              .primaryTextTheme
-                              .button
-                              .color)
-                    ],
-                  ),
-                ))),
-        Container(
-          padding: EdgeInsets.only(left: 20.0, right: 20.0, bottom: 40.0),
-          child: PrimaryButton(
+                          child: Container(
+                            height: 60,
+                            padding: EdgeInsets.only(left: 24, right: 24),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.all(Radius.circular(30)),
+                                color: PaletteDark.menuList
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.max,
+                              children: <Widget>[
+                                Expanded(
+                                  child: Text(
+                                    trade.id,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 12),
+                                  child: copyImage,
+                                )
+                              ],
+                            ),
+                          ),
+                        )
+                      ),
+                    )
+                  ],
+                ),
+              )),
+          PrimaryButton(
               onPressed: () => Navigator.of(context)
                   .pushReplacementNamed(Routes.exchangeTrade, arguments: trade),
               text: S.of(context).saved_the_trade_id,
-              color: Theme.of(context).primaryTextTheme.button.backgroundColor,
-              textColor:
-                     Theme.of(context).primaryTextTheme.button.color),
-        )
-      ],
+              color: Colors.green,
+              textColor: Colors.white)
+        ],
+      ),
     );
   }
 }

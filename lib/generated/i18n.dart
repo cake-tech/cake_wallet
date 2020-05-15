@@ -237,6 +237,7 @@ class S implements WidgetsLocalizations {
   String get trade_details_state => "State";
   String get trade_details_title => "Trade Details";
   String get trade_history_title => "Trade history";
+  String get trade_id => "Trade ID:";
   String get trade_not_created => "Trade not created.";
   String get trade_not_found => "Trade not found.";
   String get trade_state_btc_sent => "Btc sent";
@@ -313,7 +314,6 @@ class S implements WidgetsLocalizations {
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   String trade_details_copied(String title) => "${title} copied to Clipboard";
   String trade_for_not_created(String title) => "Trade for ${title} is not created.";
-  String trade_id(String id) => "Trade ID:\n${id}";
   String trade_id_not_found(String tradeId, String title) => "Trade ${tradeId} of ${title} not found.";
   String trade_is_powered_by(String provider) => "This trade is powered by ${provider}";
   String transaction_details_copied(String title) => "${title} copied to Clipboard";
@@ -356,6 +356,8 @@ class $de extends S {
   String get password => "Passwort";
   @override
   String get you_will_get => "Sie erhalten";
+  @override
+  String get trade_id => "Handel-ID:";
   @override
   String get restore_description_from_seed => "Stellen Sie Ihr Wallet aus den 25 Wörtern wieder her oder 13-Wort-Kombinationscode";
   @override
@@ -879,8 +881,6 @@ class $de extends S {
   @override
   String change_current_node(String node) => "Möchten Sie den aktuellen Knoten wirklich auf ändern? ${node}?";
   @override
-  String trade_id(String id) => "Handel-ID:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "Wird geladen ${wallet_name} Wallet";
   @override
   String version(String currentVersion) => "Ausführung ${currentVersion}";
@@ -966,6 +966,8 @@ class $hi extends S {
   String get password => "पारण शब्द";
   @override
   String get you_will_get => "आपको मिल जायेगा";
+  @override
+  String get trade_id => "व्यापार ID:";
   @override
   String get restore_description_from_seed => "या तो 25 शब्द से अपने वॉलेट को पुनर्स्थापित करें या 13 शब्द संयोजन कोड";
   @override
@@ -1489,8 +1491,6 @@ class $hi extends S {
   @override
   String change_current_node(String node) => "क्या आप वर्तमान नोड को बदलना सुनिश्चित करते हैं ${node}?";
   @override
-  String trade_id(String id) => "व्यापार ID:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "लोड हो रहा है ${wallet_name} बटुआ";
   @override
   String version(String currentVersion) => "संस्करण ${currentVersion}";
@@ -1576,6 +1576,8 @@ class $ru extends S {
   String get password => "Пароль";
   @override
   String get you_will_get => "Вы получите";
+  @override
+  String get trade_id => "ID сделки:";
   @override
   String get restore_description_from_seed => "Вы можете восстановить кошелёк используя 25-ти значную мнемоническую фразу";
   @override
@@ -2099,8 +2101,6 @@ class $ru extends S {
   @override
   String change_current_node(String node) => "Вы уверены, что хотите изменить текущую ноду на ${node}?";
   @override
-  String trade_id(String id) => "ID сделки:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "Загрузка ${wallet_name} кошелька";
   @override
   String version(String currentVersion) => "Версия ${currentVersion}";
@@ -2186,6 +2186,8 @@ class $ko extends S {
   String get password => "암호";
   @override
   String get you_will_get => "당신은 얻을 것이다";
+  @override
+  String get trade_id => "무역 ID:";
   @override
   String get restore_description_from_seed => "25 단어 또는 13 단어 조합 코드에서 지갑을 복원하십시오.";
   @override
@@ -2709,8 +2711,6 @@ class $ko extends S {
   @override
   String change_current_node(String node) => "현재 노드를 다음으로 변경 하시겠습니까 ${node}?";
   @override
-  String trade_id(String id) => "무역 ID:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "로딩 ${wallet_name} 지갑";
   @override
   String version(String currentVersion) => "버전 ${currentVersion}";
@@ -2796,6 +2796,8 @@ class $pt extends S {
   String get password => "Senha";
   @override
   String get you_will_get => "Você receberá";
+  @override
+  String get trade_id => "ID da troca:";
   @override
   String get restore_description_from_seed => "Restaure sua carteira a partir de semente com 25 palavras ou 13 palavras";
   @override
@@ -3319,8 +3321,6 @@ class $pt extends S {
   @override
   String change_current_node(String node) => "Você realmente deseja alterar o nó atual para ${node}?";
   @override
-  String trade_id(String id) => "ID da troca:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "Abrindo a carteira ${wallet_name}";
   @override
   String version(String currentVersion) => "Versão ${currentVersion}";
@@ -3406,6 +3406,8 @@ class $uk extends S {
   String get password => "Пароль";
   @override
   String get you_will_get => "Ви отримаєте";
+  @override
+  String get trade_id => "ID операції:";
   @override
   String get restore_description_from_seed => "Ви можете відновити гаманець використовуючи 25-ти слівну мнемонічну фразу";
   @override
@@ -3929,8 +3931,6 @@ class $uk extends S {
   @override
   String change_current_node(String node) => "Ви впевнені, що хочете змінити поточний вузол на ${node}?";
   @override
-  String trade_id(String id) => "ID операції:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "Завантаження ${wallet_name} гаманця";
   @override
   String version(String currentVersion) => "Версія ${currentVersion}";
@@ -4016,6 +4016,8 @@ class $ja extends S {
   String get password => "パスワード";
   @override
   String get you_will_get => "あなたが取得します";
+  @override
+  String get trade_id => "取引ID:";
   @override
   String get restore_description_from_seed => "25ワードからウォレットを復元しますまたは13ワードの組み合わせコード";
   @override
@@ -4539,8 +4541,6 @@ class $ja extends S {
   @override
   String change_current_node(String node) => "現在のノードを変更してよろしいですか ${node}?";
   @override
-  String trade_id(String id) => "取引ID:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "読み込み中 ${wallet_name} 財布";
   @override
   String version(String currentVersion) => "バージョン ${currentVersion}";
@@ -4630,6 +4630,8 @@ class $pl extends S {
   String get password => "Hasło";
   @override
   String get you_will_get => "Dostaniesz";
+  @override
+  String get trade_id => "Identyfikator handlu:";
   @override
   String get restore_description_from_seed => "Przywróć swój portfel z 25 słów lub 13-słowny kod kombinacji";
   @override
@@ -5153,8 +5155,6 @@ class $pl extends S {
   @override
   String change_current_node(String node) => "Czy na pewno chcesz przywrócić ustawienia domyślne? ${node}?";
   @override
-  String trade_id(String id) => "Identyfikator handlu:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "Ładuję ${wallet_name} portfel";
   @override
   String version(String currentVersion) => "Wersja ${currentVersion}";
@@ -5240,6 +5240,8 @@ class $es extends S {
   String get password => "Contraseña";
   @override
   String get you_will_get => "Conseguirás";
+  @override
+  String get trade_id => "Comercial ID:";
   @override
   String get restore_description_from_seed => "Restaure su billetera desde el código de combinación de 25 palabras i de 13 palabras";
   @override
@@ -5763,8 +5765,6 @@ class $es extends S {
   @override
   String change_current_node(String node) => "¿Está seguro de cambiar el nodo actual a ${node}?";
   @override
-  String trade_id(String id) => "Comercial ID:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "Billetera ${wallet_name} de carga";
   @override
   String version(String currentVersion) => "Versión ${currentVersion}";
@@ -5850,6 +5850,8 @@ class $nl extends S {
   String get password => "Wachtwoord";
   @override
   String get you_will_get => "Je zult krijgen";
+  @override
+  String get trade_id => "Trade ID:";
   @override
   String get restore_description_from_seed => "Herstel uw portemonnee van het 25 woord of 13 woord combinatiecode";
   @override
@@ -6373,8 +6375,6 @@ class $nl extends S {
   @override
   String change_current_node(String node) => "Weet u zeker dat u het huidige knooppunt wilt wijzigen in ${node}?";
   @override
-  String trade_id(String id) => "Trade ID:\n${id}";
-  @override
   String wallet_list_loading_wallet(String wallet_name) => "Bezig met laden ${wallet_name} portemonnee";
   @override
   String version(String currentVersion) => "Versie ${currentVersion}";
@@ -6460,6 +6460,8 @@ class $zh extends S {
   String get password => "密码";
   @override
   String get you_will_get => "你会得到";
+  @override
+  String get trade_id => "贸易编号:";
   @override
   String get restore_description_from_seed => "从25个字中恢复您的钱包或13个字的组合码";
   @override
@@ -6982,8 +6984,6 @@ class $zh extends S {
   String change_language_to(String language) => "將語言更改為 ${language}?";
   @override
   String change_current_node(String node) => "您确定将当前节点更改为 ${node}?";
-  @override
-  String trade_id(String id) => "贸易编号:\n${id}";
   @override
   String wallet_list_loading_wallet(String wallet_name) => "载入中 ${wallet_name} 钱包";
   @override

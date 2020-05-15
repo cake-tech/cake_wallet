@@ -74,7 +74,7 @@
 
   "copy_id" : "प्रतिलिपि ID",
   "exchange_result_write_down_trade_id" : "जारी रखने के लिए कृपया ट्रेड ID की प्रतिलिपि बनाएँ या लिखें.",
-  "trade_id" : "व्यापार ID:\n${id}",
+  "trade_id" : "व्यापार ID:",
   "copied_to_clipboard" : "क्लिपबोर्ड पर नकल",
   "saved_the_trade_id" : "मैंने व्यापार बचा लिया है ID",
   "fetching" : "ला रहा है",

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -75,10 +76,26 @@ class ExchangeTemplatePage extends BasePage {
     final exchangeStore = Provider.of<ExchangeStore>(context);
     final items = exchangeStore.providersForCurrentPair();
     final selectedItem = items.indexOf(exchangeStore.provider);
+    final images = List<Image>();
+
+    for (ExchangeProvider provider in items) {
+      switch (provider.description) {
+        case ExchangeProviderDescription.xmrto:
+          images.add(Image.asset('assets/images/xmr_btc.png'));
+          break;
+        case ExchangeProviderDescription.changeNow:
+          images.add(Image.asset('assets/images/change_now.png'));
+          break;
+        case ExchangeProviderDescription.morphToken:
+          images.add(Image.asset('assets/images/morph_icon.png'));
+          break;
+      }
+    }
 
     showDialog<void>(
         builder: (_) => ProviderPicker(
             items: items,
+            images: images,
             selectedAtIndex: selectedItem,
             title: S.of(context).change_exchange_provider,
             onItemSelected: (ExchangeProvider provider) =>

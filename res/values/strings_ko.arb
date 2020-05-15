@@ -74,7 +74,7 @@
 
   "copy_id" : "부 ID",
   "exchange_result_write_down_trade_id" : "계속하려면 거래 ID를 복사하거나 적어 두십시오..",
-  "trade_id" : "무역 ID:\n${id}",
+  "trade_id" : "무역 ID:",
   "copied_to_clipboard" : "클립 보드에 복사",
   "saved_the_trade_id" : "거래 ID를 저장했습니다",
   "fetching" : "가져 오는 중",
