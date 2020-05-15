@@ -74,7 +74,7 @@
 
   "copy_id" : "Скопіювати ID",
   "exchange_result_write_down_trade_id" : "Будь ласка, скопіюйте або запишіть ID операції.",
-  "trade_id" : "ID операції:\n${id}",
+  "trade_id" : "ID операції:",
   "copied_to_clipboard" : "Скопійовано в буфер обміну",
   "saved_the_trade_id" : "Я зберіг ID операції",
   "fetching" : "Завантаження",

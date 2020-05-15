@@ -25,6 +25,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/top_panel.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/provider_picker.dart';
 import 'package:cake_wallet/src/stores/exchange_template/exchange_template_store.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class ExchangePage extends BasePage {
   @override
@@ -482,14 +483,11 @@ class ExchangeFormState extends State<ExchangeForm> {
           showDialog<void>(
               context: context,
               builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text(S.of(context).error),
-                  content: Text(state.error),
-                  actions: <Widget>[
-                    FlatButton(
-                        child: Text(S.of(context).ok),
-                        onPressed: () => Navigator.of(context).pop())
-                  ],
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop()
                 );
               });
         });

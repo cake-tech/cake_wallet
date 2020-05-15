@@ -74,7 +74,7 @@
 
   "copy_id" : "ID kopiëren",
   "exchange_result_write_down_trade_id" : "Kopieer of noteer de handels-ID om door te gaan.",
-  "trade_id" : "Trade ID:\n${id}",
+  "trade_id" : "Trade ID:",
   "copied_to_clipboard" : "Gekopieerd naar het klembord",
   "saved_the_trade_id" : "Ik heb de ruil-ID opgeslagen",
   "fetching" : "Ophalen",

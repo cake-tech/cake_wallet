@@ -74,7 +74,7 @@
 
   "copy_id" : "ID kopii",
   "exchange_result_write_down_trade_id" : "Skopiuj lub zanotuj identyfikator transakcji, aby kontynuować.",
-  "trade_id" : "Identyfikator handlu:\n${id}",
+  "trade_id" : "Identyfikator handlu:",
   "copied_to_clipboard" : "Skopiowane do schowka",
   "saved_the_trade_id" : "Zapisałem ID",
   "fetching" : "Ujmujący",
