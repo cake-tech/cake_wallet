@@ -170,7 +170,7 @@ class ReceiveBodyState extends State<ReceiveBody> {
                       height: 48,
                       padding: EdgeInsets.only(left: 24, right: 24),
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(27)),
+                          borderRadius: BorderRadius.all(Radius.circular(24)),
                           color: PaletteDark.walletCardSubAddressField
                       ),
                       child: Row(

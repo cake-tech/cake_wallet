@@ -19,6 +19,8 @@ class AddressTextField extends StatelessWidget {
       ],
       this.onURIScanned,
       this.focusNode,
+      this.isBorderExist = true,
+      this.buttonColor = PaletteDark.walletCardSubAddressField,
       this.validator});
 
   static const prefixIconWidth = 34.0;
@@ -31,6 +33,8 @@ class AddressTextField extends StatelessWidget {
   final Function(Uri) onURIScanned;
   final List<AddressTextFieldOption> options;
   final FormFieldValidator<String> validator;
+  final bool isBorderExist;
+  final Color buttonColor;
   FocusNode focusNode;
 
   @override
@@ -62,7 +66,7 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: PaletteDark.walletCardSubAddressField,
+                              color: buttonColor,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/qr_code_icon.png')),
@@ -80,7 +84,7 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: PaletteDark.walletCardSubAddressField,
+                              color: buttonColor,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
@@ -99,7 +103,7 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: PaletteDark.walletCardSubAddressField,
+                              color: buttonColor,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
@@ -114,13 +118,17 @@ class AddressTextField extends StatelessWidget {
           color: PaletteDark.walletCardText
         ),
         hintText: placeholder ?? S.current.widgets_address,
-        focusedBorder: UnderlineInputBorder(
+        focusedBorder: isBorderExist
+          ? UnderlineInputBorder(
             borderSide: BorderSide(
                 color: PaletteDark.walletCardSubAddressField,
-                width: 1.0)),
-        enabledBorder: UnderlineInputBorder(
+                width: 1.0))
+          : InputBorder.none,
+        enabledBorder: isBorderExist
+          ? UnderlineInputBorder(
             borderSide:
-                BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0)),
+                BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0))
+          : InputBorder.none,
       ),
       validator: validator,
     );

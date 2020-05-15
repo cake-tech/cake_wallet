@@ -74,7 +74,7 @@
 
   "copy_id" : "Скопировать ID",
   "exchange_result_write_down_trade_id" : "Пожалуйста, скопируйте или запишите ID сделки.",
-  "trade_id" : "ID сделки:\n${id}",
+  "trade_id" : "ID сделки:",
   "copied_to_clipboard" : "Скопировано в буфер обмена",
   "saved_the_trade_id" : "Я сохранил ID сделки",
   "fetching" : "Загрузка",
