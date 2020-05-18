@@ -33,6 +33,8 @@ abstract class ExchangeStoreBase with Store {
     provider = initialProvider;
     depositCurrency = initialDepositCurrency;
     receiveCurrency = initialReceiveCurrency;
+    isDepositAddressEnabled = !(depositCurrency == walletStore.type);
+    isReceiveAddressEnabled = !(receiveCurrency == walletStore.type);
     depositAmount = '';
     receiveAmount = '';
     depositAddress = '';
@@ -74,6 +76,12 @@ abstract class ExchangeStoreBase with Store {
   String receiveAddress;
 
   @observable
+  bool isDepositAddressEnabled;
+
+  @observable
+  bool isReceiveAddressEnabled;
+
+  @observable
   bool isValid;
 
   @observable
@@ -99,12 +107,16 @@ abstract class ExchangeStoreBase with Store {
   void changeDepositCurrency({CryptoCurrency currency}) {
     depositCurrency = currency;
     _onPairChange();
+    isDepositAddressEnabled = !(depositCurrency == walletStore.type);
+    isReceiveAddressEnabled = !(receiveCurrency == walletStore.type);
   }
 
   @action
   void changeReceiveCurrency({CryptoCurrency currency}) {
     receiveCurrency = currency;
     _onPairChange();
+    isDepositAddressEnabled = !(depositCurrency == walletStore.type);
+    isReceiveAddressEnabled = !(receiveCurrency == walletStore.type);
   }
 
   @action
@@ -224,12 +236,13 @@ abstract class ExchangeStoreBase with Store {
   void reset() {
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = '';
-    receiveAddress = '';
-    provider = XMRTOExchangeProvider();
     depositCurrency = CryptoCurrency.xmr;
     receiveCurrency = CryptoCurrency.btc;
-    loadLimits();
+    depositAddress = depositCurrency == walletStore.type ? walletStore.address : '';
+    receiveAddress = receiveCurrency == walletStore.type ? walletStore.address : '';
+    isDepositAddressEnabled = !(depositCurrency == walletStore.type);
+    isReceiveAddressEnabled = !(receiveCurrency == walletStore.type);
+    _onPairChange();
   }
 
   List<ExchangeProvider> providersForCurrentPair() {

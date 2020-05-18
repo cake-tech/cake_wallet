@@ -96,6 +96,7 @@
   "expired" : "已过期",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "发送 XMR",
+  "exchange_new_template" : "新範本",
 
   "faq" : "FAQ",
 

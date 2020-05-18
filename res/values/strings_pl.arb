@@ -96,6 +96,7 @@
   "expired" : "Przedawniony",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Wysłać XMR",
+  "exchange_new_template" : "Nowy szablon",
 
   "faq" : "FAQ",
 

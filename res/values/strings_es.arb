@@ -96,6 +96,7 @@
   "expired" : "Muerto",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Enviar XMR",
+  "exchange_new_template" : "Nueva plantilla",
 
   "faq" : "FAQ",
 

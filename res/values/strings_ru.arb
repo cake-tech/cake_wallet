@@ -96,6 +96,7 @@
   "expired" : "Истекает",
   "time" : "${minutes}мин ${seconds}сек",
   "send_xmr" : "Отправить XMR",
+  "exchange_new_template" : "Новый шаблон",
 
   "faq" : "FAQ",
 

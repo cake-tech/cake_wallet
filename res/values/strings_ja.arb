@@ -96,6 +96,7 @@
   "expired" : "期限切れ",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "送る XMR",
+  "exchange_new_template" : "新しいテンプレート",
 
   "faq" : "FAQ",
 

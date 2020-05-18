@@ -85,6 +85,7 @@ class S implements WidgetsLocalizations {
   String get error_text_xmr => "XMR value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12";
   String get estimated => "Estimated";
   String get exchange => "Exchange";
+  String get exchange_new_template => "New template";
   String get exchange_result_write_down_ID => "*Please copy or write down your ID shown above.";
   String get exchange_result_write_down_trade_id => "Please copy or write down the trade ID to continue.";
   String get expired => "Expired";
@@ -869,6 +870,8 @@ class $de extends S {
   @override
   String get add_new_word => "Neues Wort hinzufügen";
   @override
+  String get exchange_new_template => "Neue Vorlage";
+  @override
   String get digit_pin => "-stelliger PIN";
   @override
   String get first_wallet_text => "tolle Brieftasche zum Monero";
@@ -1478,6 +1481,8 @@ class $hi extends S {
   String get error_text_node_port => "नोड पोर्ट में केवल 0 और 65535 के बीच संख्याएँ हो सकती हैं";
   @override
   String get add_new_word => "नया शब्द जोड़ें";
+  @override
+  String get exchange_new_template => "नया टेम्पलेट";
   @override
   String get digit_pin => "-अंक पिन";
   @override
@@ -2089,6 +2094,8 @@ class $ru extends S {
   @override
   String get add_new_word => "Добавить новое слово";
   @override
+  String get exchange_new_template => "Новый шаблон";
+  @override
   String get digit_pin => "-значный PIN";
   @override
   String get first_wallet_text => "В самом удобном кошельке для Monero";
@@ -2698,6 +2705,8 @@ class $ko extends S {
   String get error_text_node_port => "노드 포트는 0에서 65535 사이의 숫자 만 포함 할 수 있습니다";
   @override
   String get add_new_word => "새로운 단어 추가";
+  @override
+  String get exchange_new_template => "새 템플릿";
   @override
   String get digit_pin => "숫자 PIN";
   @override
@@ -3309,6 +3318,8 @@ class $pt extends S {
   @override
   String get add_new_word => "Adicionar nova palavra";
   @override
+  String get exchange_new_template => "Novo modelo";
+  @override
   String get digit_pin => "dígitos";
   @override
   String get first_wallet_text => "Uma fantástica carteira para Monero";
@@ -3919,6 +3930,8 @@ class $uk extends S {
   @override
   String get add_new_word => "Добавити нове слово";
   @override
+  String get exchange_new_template => "Новий шаблон";
+  @override
   String get digit_pin => "-значний PIN";
   @override
   String get first_wallet_text => "В самому зручному гаманці для Monero";
@@ -4528,6 +4541,8 @@ class $ja extends S {
   String get error_text_node_port => "ノードポートには、0〜65535の数字のみを含めることができます";
   @override
   String get add_new_word => "新しい単語を追加";
+  @override
+  String get exchange_new_template => "新しいテンプレート";
   @override
   String get digit_pin => "桁ピン";
   @override
@@ -5143,6 +5158,8 @@ class $pl extends S {
   @override
   String get add_new_word => "Dodaj nowe słowo";
   @override
+  String get exchange_new_template => "Nowy szablon";
+  @override
   String get digit_pin => "-znak PIN";
   @override
   String get first_wallet_text => "Niesamowity portfel dla Monero";
@@ -5752,6 +5769,8 @@ class $es extends S {
   String get error_text_node_port => "El puerto de nodo solo puede contener números entre 0 y 65535";
   @override
   String get add_new_word => "Agregar palabra nueva";
+  @override
+  String get exchange_new_template => "Nueva plantilla";
   @override
   String get digit_pin => "-dígito PIN";
   @override
@@ -6363,6 +6382,8 @@ class $nl extends S {
   @override
   String get add_new_word => "Nieuw woord toevoegen";
   @override
+  String get exchange_new_template => "Nieuwe sjabloon";
+  @override
   String get digit_pin => "-cijferige PIN";
   @override
   String get first_wallet_text => "Geweldige portemonnee fvoor Monero";
@@ -6972,6 +6993,8 @@ class $zh extends S {
   String get error_text_node_port => "节点端口只能包含0到65535之间的数字";
   @override
   String get add_new_word => "添加新词";
+  @override
+  String get exchange_new_template => "新範本";
   @override
   String get digit_pin => "数字别针";
   @override

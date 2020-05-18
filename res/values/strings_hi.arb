@@ -96,6 +96,7 @@
   "expired" : "समय सीमा समाप्त",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "संदेश XMR",
+  "exchange_new_template" : "नया टेम्पलेट",
 
   "faq" : "FAQ",
 
