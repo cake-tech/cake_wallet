@@ -96,6 +96,7 @@
   "expired" : "만료",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "보내다 XMR",
+  "exchange_new_template" : "새 템플릿",
 
   "faq" : "FAQ",
 

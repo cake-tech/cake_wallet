@@ -124,6 +124,11 @@ class AddressTextField extends StatelessWidget {
                 color: PaletteDark.walletCardSubAddressField,
                 width: 1.0))
           : InputBorder.none,
+        disabledBorder: isBorderExist
+            ? UnderlineInputBorder(
+            borderSide:
+            BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0))
+            : InputBorder.none,
         enabledBorder: isBorderExist
           ? UnderlineInputBorder(
             borderSide:

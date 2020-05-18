@@ -96,6 +96,7 @@
   "expired" : "Verlopen",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Sturen XMR",
+  "exchange_new_template" : "Nieuwe sjabloon",
 
   "faq" : "FAQ",
 
