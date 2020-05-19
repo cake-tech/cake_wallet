@@ -21,6 +21,8 @@
   "contact_name" : "Nazwa Kontaktu",
   "reset" : "Nastawić",
   "save" : "Zapisać",
+  "address_remove_contact" : "Usuń kontakt",
+  "address_remove_content" : "Czy na pewno chcesz usunąć wybrany kontakt?",
 
 
   "authenticated" : "Zalegalizowany",

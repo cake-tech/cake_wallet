@@ -21,6 +21,8 @@
   "contact_name" : "संपर्क नाम",
   "reset" : "रीसेट",
   "save" : "बचाना",
+  "address_remove_contact" : "संपर्क हटाये",
+  "address_remove_content" : "क्या आप वाकई चयनित संपर्क को हटाना चाहते हैं?",
 
 
   "authenticated" : "प्रमाणीकृत",

@@ -21,6 +21,8 @@
   "contact_name" : "Nome do contato",
   "reset" : "Limpar",
   "save" : "Salvar",
+  "address_remove_contact" : "Remover contato",
+  "address_remove_content" : "Tem certeza de que deseja remover o contato selecionado?",
 
 
   "authenticated" : "Autenticado",
