@@ -21,6 +21,8 @@
   "contact_name" : "담당자 이름",
   "reset" : "다시 놓기",
   "save" : "구하다",
+  "address_remove_contact" : "연락처 삭제",
+  "address_remove_content" : "선택한 연락처를 삭제 하시겠습니까?",
 
 
   "authenticated" : "인증",
