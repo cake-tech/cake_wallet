@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/stores/exchange_trade/exchange_trade_store.dart'
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/palette.dart';
 
 class TradeDetailsPage extends BasePage {
