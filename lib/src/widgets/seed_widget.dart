@@ -13,7 +13,6 @@ import 'package:cake_wallet/src/domain/monero/mnemonics/russian.dart';
 import 'package:cake_wallet/src/domain/monero/mnemonics/spanish.dart';
 import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/top_panel.dart';
 
 class SeedWidget extends StatefulWidget {
   SeedWidget({Key key, this.onMnemoticChange, this.onFinish, this.seedLanguage}) : super(key: key) {
@@ -237,52 +236,61 @@ class SeedWidgetState extends State<SeedWidget> {
         Flexible(
             fit: FlexFit.tight,
             flex: 1,
-            child: TopPanel(
-                color: PaletteDark.menuList,
-                widget: SingleChildScrollView(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        S.of(context).restore_active_seed,
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: PaletteDark.walletCardText
-                        ),
-                      ),
-                      Padding(
-                          padding: EdgeInsets.only(top: 5),
-                          child: Wrap(
-                            children: items.map((item) {
-                              final isValid = item.isCorrect();
-                              final isSelected = selectedItem == item;
-
-                              return InkWell(
-                                onTap: () => onMnemoticTap(item),
-                                child: Container(
-                                    decoration: BoxDecoration(
-                                        color: isValid ? Colors.transparent : Palette.red),
-                                    margin: EdgeInsets.only(right: 7, bottom: 8),
-                                    child: Text(
-                                      item.toString(),
-                                      style: TextStyle(
-                                          color:
-                                          isValid ? Colors.white : Palette.lightGrey,
-                                          fontSize: 16,
-                                          fontWeight:
-                                          isSelected ? FontWeight.w900 : FontWeight.w400,
-                                          decoration: isSelected
-                                              ? TextDecoration.underline
-                                              : TextDecoration.none),
-                                    )),
-                              );
-                            }).toList(),)
-                      )
-                    ],
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24)
                   ),
-                )
-            )
+                  color: PaletteDark.menuList
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      S.of(context).restore_active_seed,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: PaletteDark.walletCardText
+                      ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(top: 5),
+                        child: Wrap(
+                          children: items.map((item) {
+                            final isValid = item.isCorrect();
+                            final isSelected = selectedItem == item;
+
+                            return InkWell(
+                              onTap: () => onMnemoticTap(item),
+                              child: Container(
+                                  decoration: BoxDecoration(
+                                      color: isValid ? Colors.transparent : Palette.red),
+                                  margin: EdgeInsets.only(right: 7, bottom: 8),
+                                  child: Text(
+                                    item.toString(),
+                                    style: TextStyle(
+                                        color:
+                                        isValid ? Colors.white : Palette.lightGrey,
+                                        fontSize: 16,
+                                        fontWeight:
+                                        isSelected ? FontWeight.w900 : FontWeight.w400,
+                                        decoration: isSelected
+                                            ? TextDecoration.underline
+                                            : TextDecoration.none),
+                                  )),
+                            );
+                          }).toList(),)
+                    )
+                  ],
+                ),
+              ),
+            ),
         ),
         Flexible(
             fit: FlexFit.tight,

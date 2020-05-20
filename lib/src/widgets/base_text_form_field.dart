@@ -17,6 +17,7 @@ class BaseTextFormField extends StatelessWidget {
     this.borderColor = PaletteDark.menuList,
     this.prefix,
     this.suffix,
+    this.suffixIcon,
     this.enabled = true,
     this.validator
   });
@@ -34,6 +35,7 @@ class BaseTextFormField extends StatelessWidget {
   final Color borderColor;
   final Widget prefix;
   final Widget suffix;
+  final Widget suffixIcon;
   final bool enabled;
   final FormFieldValidator<String> validator;
 
@@ -55,6 +57,7 @@ class BaseTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         prefix: prefix,
         suffix: suffix,
+        suffixIcon: suffixIcon,
         hintStyle: TextStyle(
           color: hintColor,
           fontSize: 16
