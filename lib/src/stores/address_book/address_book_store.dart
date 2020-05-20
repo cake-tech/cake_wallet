@@ -12,10 +12,14 @@ class AddressBookStore = AddressBookStoreBase with _$AddressBookStore;
 abstract class AddressBookStoreBase with Store {
   AddressBookStoreBase({@required this.contacts}) {
     updateContactList();
+    isDisabledStatus = true;
   }
 
   @observable
   List<Contact> contactList;
+
+  @observable
+  bool isDisabledStatus;
 
   @observable
   bool isValid;
@@ -36,6 +40,11 @@ abstract class AddressBookStoreBase with Store {
 
   @action
   Future delete({Contact contact}) async => await contact.delete();
+
+  @action
+  void setDisabledStatus(bool isDisabled) {
+    isDisabledStatus = isDisabled;
+  }
 
   void validateContactName(String value) {
     const pattern = '''^[^`,'"]{1,32}\$''';

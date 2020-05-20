@@ -216,43 +216,43 @@ class AddressBookPage extends BasePage {
         image = Image.asset('assets/images/monero.png', height: 24, width: 24);
         break;
       case CryptoCurrency.ada:
-        image = null;
+        image = Image.asset('assets/images/ada.png', height: 24, width: 24);
         break;
       case CryptoCurrency.bch:
-        image = null;
+        image = Image.asset('assets/images/bch.png', height: 24, width: 24);
         break;
       case CryptoCurrency.bnb:
-        image = null;
+        image = Image.asset('assets/images/bnb.png', height: 24, width: 24);
         break;
       case CryptoCurrency.btc:
         image = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
         break;
       case CryptoCurrency.dash:
-        image = null;
+        image = Image.asset('assets/images/dash.png', height: 24, width: 24);
         break;
       case CryptoCurrency.eos:
-        image = null;
+        image = Image.asset('assets/images/eos.png', height: 24, width: 24);
         break;
       case CryptoCurrency.eth:
-        image = null;
+        image = Image.asset('assets/images/eth.png', height: 24, width: 24);
         break;
       case CryptoCurrency.ltc:
         image = Image.asset('assets/images/litecoin.png', height: 24, width: 24);
         break;
       case CryptoCurrency.nano:
-        image = null;
+        image = Image.asset('assets/images/nano.png', height: 24, width: 24);
         break;
       case CryptoCurrency.trx:
-        image = null;
+        image = Image.asset('assets/images/trx.png', height: 24, width: 24);
         break;
       case CryptoCurrency.usdt:
-        image = null;
+        image = Image.asset('assets/images/usdt.png', height: 24, width: 24);
         break;
       case CryptoCurrency.xlm:
-        image = null;
+        image = Image.asset('assets/images/xlm.png', height: 24, width: 24);
         break;
       case CryptoCurrency.xrp:
-        image = null;
+        image = Image.asset('assets/images/xrp.png', height: 24, width: 24);
         break;
       default:
         image = null;
