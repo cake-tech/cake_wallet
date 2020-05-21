@@ -17,7 +17,7 @@ import 'package:cake_wallet/src/screens/settings/attributes.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/settings/items/settings_item.dart';
 import 'package:cake_wallet/src/screens/settings/items/item_headers.dart';
-import 'package:cake_wallet/src/widgets/present_picker.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 // Settings widgets
 import 'package:cake_wallet/src/screens/settings/widgets/settings_arrow_list_row.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_header_list_row.dart';
@@ -31,10 +31,7 @@ class SettingsPage extends BasePage {
   String get title => S.current.settings_title;
 
   @override
-  bool get isModalBackButton => true;
-
-  @override
-  Color get backgroundColor => Palette.lightGrey2;
+  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) {
@@ -73,21 +70,6 @@ class SettingsFormState extends State<SettingsForm> {
     settingsStore.setItemHeaders();
 
     _items.addAll([
-      SettingsItem(title: ItemHeaders.nodes, attribute: Attributes.header),
-      SettingsItem(
-          onTaped: () => Navigator.of(context).pushNamed(Routes.nodeList),
-          title: ItemHeaders.currentNode,
-          widget: Observer(
-              builder: (_) => Text(
-                    settingsStore.node == null ? '' : settingsStore.node.uri,
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        color:
-                            Theme.of(context).primaryTextTheme.subtitle.color),
-                  )),
-          attribute: Attributes.widget),
-      SettingsItem(title: ItemHeaders.wallets, attribute: Attributes.header),
       SettingsItem(
           onTaped: () => _setBalance(context),
           title: ItemHeaders.displayBalanceAs,
@@ -96,9 +78,8 @@ class SettingsFormState extends State<SettingsForm> {
                     settingsStore.balanceDisplayMode.toString(),
                     textAlign: TextAlign.right,
                     style: TextStyle(
-                        fontSize: 16.0,
-                        color:
-                            Theme.of(context).primaryTextTheme.subtitle.color),
+                        fontSize: 14.0,
+                        color: PaletteDark.walletCardText),
                   )),
           attribute: Attributes.widget),
       SettingsItem(
@@ -109,9 +90,8 @@ class SettingsFormState extends State<SettingsForm> {
                     settingsStore.fiatCurrency.toString(),
                     textAlign: TextAlign.right,
                     style: TextStyle(
-                        fontSize: 16.0,
-                        color:
-                            Theme.of(context).primaryTextTheme.subtitle.color),
+                        fontSize: 14.0,
+                        color: PaletteDark.walletCardText),
                   )),
           attribute: Attributes.widget),
       SettingsItem(
@@ -122,15 +102,14 @@ class SettingsFormState extends State<SettingsForm> {
                     settingsStore.transactionPriority.toString(),
                     textAlign: TextAlign.right,
                     style: TextStyle(
-                        fontSize: 16.0,
-                        color:
-                            Theme.of(context).primaryTextTheme.subtitle.color),
+                        fontSize: 14.0,
+                        color: PaletteDark.walletCardText),
                   )),
           attribute: Attributes.widget),
       SettingsItem(
           title: ItemHeaders.saveRecipientAddress,
           attribute: Attributes.switcher),
-      SettingsItem(title: ItemHeaders.personal, attribute: Attributes.header),
+      SettingsItem(title: '', attribute: Attributes.header),
       SettingsItem(
           onTaped: () {
             Navigator.of(context).pushNamed(Routes.auth,
@@ -196,17 +175,14 @@ class SettingsFormState extends State<SettingsForm> {
                     ],
                 child: Container(
                   height: 56,
-                  padding: EdgeInsets.only(left: 20, right: 20),
+                  padding: EdgeInsets.only(left: 24, right: 24),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(S.of(context).settings_display_on_dashboard_list,
                             style: TextStyle(
-                                fontSize: 16,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color)),
+                                fontSize: 14,
+                                color: Colors.white)),
                         Observer(builder: (_) {
                           var title = '';
 
@@ -233,17 +209,14 @@ class SettingsFormState extends State<SettingsForm> {
 
                           return Text(title,
                               style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .subtitle
-                                      .color));
+                                  fontSize: 14.0,
+                                  color: PaletteDark.walletCardText));
                         })
                       ]),
                 ));
           },
           attribute: Attributes.rawWidget),
-      SettingsItem(title: ItemHeaders.support, attribute: Attributes.header),
+      SettingsItem(title: '', attribute: Attributes.header),
       SettingsItem(
           onTaped: () => _launchUrl(_emailUrl),
           title: 'Email',
@@ -253,13 +226,13 @@ class SettingsFormState extends State<SettingsForm> {
       SettingsItem(
           onTaped: () => _launchUrl(_telegramUrl),
           title: 'Telegram',
-          link: 't.me/cakewallet_bot',
+          link: 'Cake_Wallet',
           image: _telegramImage,
           attribute: Attributes.link),
       SettingsItem(
           onTaped: () => _launchUrl(_twitterUrl),
           title: 'Twitter',
-          link: 'twitter.com/CakewalletXMR',
+          link: '@CakeWalletXMR',
           image: _twitterImage,
           attribute: Attributes.link),
       SettingsItem(
@@ -269,16 +242,16 @@ class SettingsFormState extends State<SettingsForm> {
           image: _changeNowImage,
           attribute: Attributes.link),
       SettingsItem(
+          onTaped: () => _launchUrl(_morphUrl),
+          title: 'Morph',
+          link: 'support@morphtoken.com',
+          image: _morphImage,
+          attribute: Attributes.link),
+      SettingsItem(
           onTaped: () => _launchUrl(_xmrToUrl),
           title: 'XMR.to',
           link: 'support@xmr.to',
           image: _xmrBtcImage,
-          attribute: Attributes.link),
-      SettingsItem(
-          onTaped: () => _launchUrl(_morphUrl),
-          title: 'MorphToken',
-          link: 'support@morphtoken.com',
-          image: _morphImage,
           attribute: Attributes.link),
       SettingsItem(
           onTaped: () {
@@ -345,87 +318,116 @@ class SettingsFormState extends State<SettingsForm> {
     final settingsStore = Provider.of<SettingsStore>(context);
     settingsStore.setItemHeaders();
 
-    return SingleChildScrollView(
-        child: Column(
-      children: <Widget>[
-        ListView.builder(
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            itemCount: _items.length,
-            itemBuilder: (context, index) {
-              final item = _items[index];
-              bool _isDrawDivider = true;
+    final shortDivider = Container(
+      height: 1,
+      padding: EdgeInsets.only(left: 24),
+      color: PaletteDark.menuList,
+      child: Container(
+        height: 1,
+        color: PaletteDark.mainBackgroundColor,
+      ),
+    );
 
-              if (item.attribute == Attributes.header || item == _items.last) {
-                _isDrawDivider = false;
-              } else {
-                if (_items[index + 1].attribute == Attributes.header) {
-                  _isDrawDivider = false;
-                }
-              }
+    final longDivider = Container(
+      height: 1,
+      color: PaletteDark.mainBackgroundColor,
+    );
 
-              return Column(
-                children: <Widget>[
-                  _getWidget(item),
-                  _isDrawDivider
-                      ? Container(
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .headline
-                              .backgroundColor,
-                          padding: EdgeInsets.only(
-                            left: 20.0,
-                            right: 20.0,
-                          ),
-                          child: Divider(
-                            color: Theme.of(context).dividerColor,
-                            height: 1.0,
-                          ),
-                        )
-                      : Offstage()
-                ],
-              );
-            }),
-        ListTile(
-          contentPadding: EdgeInsets.only(left: 20.0),
-          title: Text(
-            settingsStore.itemHeaders[ItemHeaders.version],
-            style: TextStyle(
-              fontSize: 14.0, color: Palette.wildDarkBlue)
-          ),
-        )
-      ],
-    ));
+    return Container(
+      color: PaletteDark.historyPanel,
+      padding: EdgeInsets.only(top: 12),
+      child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              longDivider,
+              ListView.builder(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: _items.length,
+                  itemBuilder: (context, index) {
+                    final item = _items[index];
+
+                    Widget divider;
+
+                    if (item.attribute == Attributes.header || item == _items.last) {
+                      divider = longDivider;
+                    } else if (_items[index + 1].attribute == Attributes.header){
+                      divider = longDivider;
+                    } else {
+                      divider = shortDivider;
+                    }
+
+                    return Column(
+                      children: <Widget>[
+                        _getWidget(item),
+                        divider
+                      ],
+                    );
+                  }),
+              Padding(
+                padding: EdgeInsets.only(top: 12),
+                child: ListTile(
+                  title: Center(
+                    child: Text(
+                        settingsStore.itemHeaders[ItemHeaders.version],
+                        style: TextStyle(
+                            fontSize: 14.0, color: PaletteDark.walletCardText)
+                    ),
+                  ),
+                ),
+              )
+            ],
+          )),
+    );
   }
 
   Future<void> _setBalance(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
-    final selectedDisplayMode =
-        await presentPicker(context, BalanceDisplayMode.all);
+    final items = BalanceDisplayMode.all;
+    final selectedItem = items.indexOf(settingsStore.balanceDisplayMode);
 
-    if (selectedDisplayMode != null) {
-      await settingsStore.setCurrentBalanceDisplayMode(
-          balanceDisplayMode: selectedDisplayMode);
-    }
+    await showDialog<void>(
+        builder: (_) => Picker(
+            items: items,
+            selectedAtIndex: selectedItem,
+            title: S.of(context).please_select,
+            mainAxisAlignment: MainAxisAlignment.center,
+            onItemSelected: (BalanceDisplayMode mode) async =>
+            await settingsStore.setCurrentBalanceDisplayMode(
+            balanceDisplayMode: mode)),
+        context: context);
   }
 
   Future<void> _setCurrency(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
-    final selectedCurrency = await presentPicker(context, FiatCurrency.all);
+    final items = FiatCurrency.all;
+    final selectedItem = items.indexOf(settingsStore.fiatCurrency);
 
-    if (selectedCurrency != null) {
-      await settingsStore.setCurrentFiatCurrency(currency: selectedCurrency);
-    }
+    await showDialog<void>(
+        builder: (_) => Picker(
+            items: items,
+            selectedAtIndex: selectedItem,
+            title: S.of(context).please_select,
+            mainAxisAlignment: MainAxisAlignment.center,
+            onItemSelected: (FiatCurrency currency) async =>
+            await settingsStore.setCurrentFiatCurrency(currency: currency)),
+        context: context);
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
     final settingsStore = Provider.of<SettingsStore>(context);
-    final selectedPriority =
-        await presentPicker(context, TransactionPriority.all);
+    final items = TransactionPriority.all;
+    final selectedItem = items.indexOf(settingsStore.transactionPriority);
 
-    if (selectedPriority != null) {
-      await settingsStore.setCurrentTransactionPriority(
-          priority: selectedPriority);
-    }
+    await showDialog<void>(
+        builder: (_) => Picker(
+            items: items,
+            selectedAtIndex: selectedItem,
+            title: S.of(context).please_select,
+            mainAxisAlignment: MainAxisAlignment.center,
+            onItemSelected: (TransactionPriority priority) async =>
+            await settingsStore.setCurrentTransactionPriority(
+                priority: priority)),
+        context: context);
   }
 }
