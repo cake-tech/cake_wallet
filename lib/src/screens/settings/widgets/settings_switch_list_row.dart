@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -61,14 +62,14 @@ class SettingsSwitchListRow extends StatelessWidget {
     final settingsStore = Provider.of<SettingsStore>(context);
 
     return Container(
-      color: Theme.of(context).accentTextTheme.headline.backgroundColor,
+      color: PaletteDark.menuList,
       child: ListTile(
-          contentPadding: EdgeInsets.only(left: 20.0, right: 20.0),
+          contentPadding: EdgeInsets.only(left: 24.0, right: 24.0),
           title: Observer(
             builder: (_) => Text(settingsStore.itemHeaders[title],
                 style: TextStyle(
-                    fontSize: 16.0,
-                    color: Theme.of(context).primaryTextTheme.title.color)),
+                    fontSize: 14,
+                    color: Colors.white)),
           ),
           trailing: _getSwitch(context)),
     );

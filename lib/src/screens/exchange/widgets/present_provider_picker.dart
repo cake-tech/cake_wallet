@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/stores/exchange/exchange_store.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/provider_picker.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 
 class PresentProviderPicker extends StatelessWidget {
   PresentProviderPicker({@required this.exchangeStore});
@@ -72,7 +72,7 @@ class PresentProviderPicker extends StatelessWidget {
     }
 
     showDialog<void>(
-        builder: (_) => ProviderPicker(
+        builder: (_) => Picker(
             items: items,
             images: images,
             selectedAtIndex: selectedItem,

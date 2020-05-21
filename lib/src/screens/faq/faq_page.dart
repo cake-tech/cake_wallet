@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -11,40 +12,54 @@ class FaqPage extends BasePage {
   String get title => S.current.faq;
 
   @override
+  Color get backgroundColor => PaletteDark.historyPanel;
+
+  @override
   Widget body(BuildContext context) {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        final faqItems = jsonDecode(snapshot.data.toString()) as List;
+    return Container(
+      color: PaletteDark.historyPanel,
+      padding: EdgeInsets.only(top: 12),
+      child: Container(
+        color: PaletteDark.menuList,
+        child: FutureBuilder(
+          builder: (context, snapshot) {
+            final faqItems = jsonDecode(snapshot.data.toString()) as List;
 
-        return ListView.separated(
-          itemBuilder: (BuildContext context, int index) {
-            final itemTitle = faqItems[index]["question"].toString();
-            final itemChild = faqItems[index]["answer"].toString();
+            return ListView.separated(
+              itemBuilder: (BuildContext context, int index) {
+                final itemTitle = faqItems[index]["question"].toString();
+                final itemChild = faqItems[index]["answer"].toString();
 
-            return ExpansionTile(
-              title: Text(itemTitle),
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                return ExpansionTile(
+                  title: Padding(
+                    padding: EdgeInsets.only(left: 8, top: 12, bottom: 12),
+                    child: Text(itemTitle),
+                  ),
+                  backgroundColor: PaletteDark.menuHeader,
                   children: <Widget>[
-                    Expanded(
-                        child: Container(
-                      padding: EdgeInsets.only(left: 15.0, right: 15.0),
-                      child: Text(
-                        itemChild,
-                      ),
-                    ))
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                            child: Container(
+                              padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 4),
+                              child: Text(
+                                itemChild,
+                              ),
+                            ))
+                      ],
+                    )
                   ],
-                )
-              ],
+                );
+              },
+              separatorBuilder: (_, __) =>
+                  Divider(color: PaletteDark.mainBackgroundColor, height: 1.0),
+              itemCount: faqItems == null ? 0 : faqItems.length,
             );
           },
-          separatorBuilder: (_, __) =>
-              Divider(color: Theme.of(context).dividerTheme.color, height: 1.0),
-          itemCount: faqItems == null ? 0 : faqItems.length,
-        );
-      },
-      future: rootBundle.loadString(getFaqPath(context)),
+          future: rootBundle.loadString(getFaqPath(context)),
+        ),
+      ),
     );
   }
 
