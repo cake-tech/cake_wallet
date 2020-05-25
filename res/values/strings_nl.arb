@@ -21,6 +21,8 @@
   "contact_name" : "Contactnaam",
   "reset" : "Reset",
   "save" : "Opslaan",
+  "address_remove_contact" : "Contact verwijderen",
+  "address_remove_content" : "Weet u zeker dat u het geselecteerde contact wilt verwijderen?",
 
 
   "authenticated" : "Authenticated",

@@ -21,6 +21,8 @@
   "contact_name" : "联系人姓名",
   "reset" : "重启",
   "save" : "保存",
+  "address_remove_contact" : "刪除聯繫人",
+  "address_remove_content" : "您確定要刪除所選的聯繫人嗎？",
 
 
   "authenticated" : "已认证",
