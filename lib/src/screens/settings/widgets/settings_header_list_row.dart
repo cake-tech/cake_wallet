@@ -16,7 +16,7 @@ class SettingsHeaderListRow extends StatelessWidget {
     return Column(
       children: <Widget>[
         SizedBox(
-          height: 28.0,
+          height: 20.0,
         ),
         Container(
           padding: EdgeInsets.only(left: 20.0),
@@ -25,7 +25,9 @@ class SettingsHeaderListRow extends StatelessWidget {
             children: <Widget>[
               Observer(
                   builder: (_) => Text(
-                        settingsStore.itemHeaders[title],
+                        title.isNotEmpty
+                        ? settingsStore.itemHeaders[title]
+                        : '',
                         style: TextStyle(
                             fontSize: 15.0, color: Palette.wildDarkBlue),
                       ))
