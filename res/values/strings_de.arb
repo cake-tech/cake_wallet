@@ -21,6 +21,8 @@
   "contact_name" : "Name des Ansprechpartners",
   "reset" : "Zurücksetzen",
   "save" : "speichern",
+  "address_remove_contact" : "Kontakt entfernen",
+  "address_remove_content" : "Sind Sie sicher, dass Sie den ausgewählten Kontakt entfernen möchten?",
 
 
   "authenticated" : "Authentifiziert",

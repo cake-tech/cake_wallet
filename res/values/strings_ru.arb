@@ -21,6 +21,8 @@
   "contact_name" : "Имя контакта",
   "reset" : "Сброс",
   "save" : "Сохранить",
+  "address_remove_contact" : "Удалить контакт",
+  "address_remove_content" : "Вы уверены, что хотите удалить выбранный контакт?",
 
 
   "authenticated" : "Аутентифицировано",

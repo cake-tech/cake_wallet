@@ -21,6 +21,8 @@
   "contact_name" : "連絡先",
   "reset" : "リセットする",
   "save" : "セーブ",
+  "address_remove_contact" : "連絡先を削除します",
+  "address_remove_content" : "選択した連絡先を削除してもよろしいですか？",
 
 
   "authenticated" : "認証済み",
