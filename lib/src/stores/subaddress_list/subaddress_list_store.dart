@@ -33,19 +33,19 @@ abstract class SubaddressListStoreBase with Store {
   StreamSubscription<Account> _onAccountChangeSubscription;
   Account _account;
 
-  @override
-  void dispose() {
-    if (_onSubaddressesChangeSubscription != null) {
-      _onSubaddressesChangeSubscription.cancel();
-    }
+  // @override
+  // void dispose() {
+  //   if (_onSubaddressesChangeSubscription != null) {
+  //     _onSubaddressesChangeSubscription.cancel();
+  //   }
 
-    if (_onAccountChangeSubscription != null) {
-      _onAccountChangeSubscription.cancel();
-    }
+  //   if (_onAccountChangeSubscription != null) {
+  //     _onAccountChangeSubscription.cancel();
+  //   }
 
-    _onWalletChangeSubscription.cancel();
-    super.dispose();
-  }
+  //   _onWalletChangeSubscription.cancel();
+  //   super.dispose();
+  // }
 
   Future<void> _updateSubaddressList({int accountIndex}) async {
     await _subaddressList.refresh(accountIndex: accountIndex);

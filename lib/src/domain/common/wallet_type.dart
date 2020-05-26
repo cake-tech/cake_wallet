@@ -4,7 +4,7 @@ part 'wallet_type.g.dart';
 
 const walletTypes = [WalletType.monero, WalletType.bitcoin];
 
-@HiveType()
+@HiveType(typeId: 5)
 enum WalletType {
   @HiveField(0)
   monero,

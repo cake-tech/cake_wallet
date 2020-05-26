@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/domain/common/format_amount.dart';
 
 part 'trade.g.dart';
 
-@HiveType()
+@HiveType(typeId: 3)
 class Trade extends HiveObject {
   Trade(
       {this.id,
