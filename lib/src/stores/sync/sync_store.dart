@@ -29,15 +29,15 @@ abstract class SyncStoreBase with Store {
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<SyncStatus> _onSyncStatusChangeSubscription;
 
-  @override
-  void dispose() {
-    if (_onSyncStatusChangeSubscription != null) {
-      _onSyncStatusChangeSubscription.cancel();
-    }
+  // @override
+  // void dispose() {
+  //   if (_onSyncStatusChangeSubscription != null) {
+  //     _onSyncStatusChangeSubscription.cancel();
+  //   }
 
-    _onWalletChangeSubscription.cancel();
-    super.dispose();
-  }
+  //   _onWalletChangeSubscription.cancel();
+  //   super.dispose();
+  // }
 
   void _onWalletChanged(Wallet wallet) {
     if (_onSyncStatusChangeSubscription != null) {

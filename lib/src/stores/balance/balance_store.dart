@@ -76,16 +76,16 @@ abstract class BalanceStoreBase with Store {
   SettingsStore _settingsStore;
   PriceStore _priceStore;
 
-  @override
-  void dispose() {
-    _onWalletChangeSubscription.cancel();
+  // @override
+  // void dispose() {
+  //   _onWalletChangeSubscription.cancel();
 
-    if (_onBalanceChangeSubscription != null) {
-      _onBalanceChangeSubscription.cancel();
-    }
+  //   if (_onBalanceChangeSubscription != null) {
+  //     _onBalanceChangeSubscription.cancel();
+  //   }
 
-    super.dispose();
-  }
+  //   super.dispose();
+  // }
 
   Future _onBalanceChange(Balance balance) async {
     if (balance is MoneroBalance) {

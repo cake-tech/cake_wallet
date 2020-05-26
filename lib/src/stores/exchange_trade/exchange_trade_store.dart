@@ -48,14 +48,14 @@ abstract class ExchangeTradeStoreBase with Store {
 
   Timer _timer;
 
-  @override
-  void dispose() {
-    super.dispose();
+  // @override
+  // void dispose() {
+  //   super.dispose();
 
-    if (_timer != null) {
-      _timer.cancel();
-    }
-  }
+  //   if (_timer != null) {
+  //     _timer.cancel();
+  //   }
+  // }
 
   @action
   Future<void> _updateTrade() async {

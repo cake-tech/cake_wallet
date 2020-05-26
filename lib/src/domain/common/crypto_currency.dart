@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 part 'crypto_currency.g.dart';
 
-@HiveType()
+@HiveType(typeId: 0)
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   const CryptoCurrency({final String title, final int raw})
       : super(title: title, raw: raw);

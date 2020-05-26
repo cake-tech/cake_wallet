@@ -70,11 +70,11 @@ void _setLabelForSubaddress(Map<String, dynamic> args) {
 }
 
 Future addSubaddress({int accountIndex, String label}) async =>
-    compute(_addSubaddress, {'accountIndex': accountIndex, 'label': label});
+    compute<Map<String, Object>, void>(_addSubaddress, {'accountIndex': accountIndex, 'label': label});
 
 Future setLabelForSubaddress(
         {int accountIndex, int addressIndex, String label}) =>
-    compute(_setLabelForSubaddress, {
+    compute<Map<String, Object>, void>(_setLabelForSubaddress, {
       'accountIndex': accountIndex,
       'addressIndex': addressIndex,
       'label': label

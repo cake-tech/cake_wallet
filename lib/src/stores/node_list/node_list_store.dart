@@ -29,14 +29,14 @@ abstract class NodeListBase with Store {
 
   StreamSubscription<BoxEvent> _onNodesChangeSubscription;
 
-  @override
-  void dispose() {
-    super.dispose();
+  // @override
+  // void dispose() {
+  //   super.dispose();
 
-    if (_onNodesChangeSubscription != null) {
-      _onNodesChangeSubscription.cancel();
-    }
-  }
+  //   if (_onNodesChangeSubscription != null) {
+  //     _onNodesChangeSubscription.cancel();
+  //   }
+  // }
 
   @action
   void update() =>

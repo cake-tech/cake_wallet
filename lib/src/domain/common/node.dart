@@ -6,7 +6,7 @@ import 'package:cake_wallet/src/domain/common/digest_request.dart';
 
 part 'node.g.dart';
 
-@HiveType()
+@HiveType(typeId: 1)
 class Node extends HiveObject {
   Node({@required this.uri, this.login, this.password});
 

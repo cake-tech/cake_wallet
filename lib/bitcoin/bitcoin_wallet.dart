@@ -108,18 +108,6 @@ class BitcoinWallet extends Wallet {
         wallet: wallet);
     wallet.history = history;
     await history.init();
-
-    // await wallet.connectToNode(
-    //     node: Node(uri: 'https://electrum2.hodlister.co:50002'));
-
-    // final transactions = await history.fetchTransactions();
-
-    // final balance = await wallet.fetchBalance();
-
-    // print('balance\n$balance');
-
-    // transactions.forEach((tx) => print(tx.id));
-
     await wallet.updateInfo();
 
     return wallet;
@@ -160,10 +148,20 @@ class BitcoinWallet extends Wallet {
 
   @override
   Future<PendingTransaction> createTransaction(
-      TransactionCreationCredentials credentials) {
-        final txb = TransactionBuilder(network: bitcoin.bitcoin);
+      TransactionCreationCredentials credentials) async {
+    final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
+    final transactions = history.transactionsAll;
+    history.transactionsAll.sort((q, w) => q.height.compareTo(w.height));
+    final prevTx = transactions.first;
 
-    // TODO: implement createTransaction
+    txb.setVersion(1);
+    txb.addInput(prevTx, 0);
+    txb.addOutput('address', 112);
+    txb.sign(vin: null, keyPair: null);
+    
+    final hex = txb.build().toHex();
+
+    // broadcast transaction to electrum
     return null;
   }
 

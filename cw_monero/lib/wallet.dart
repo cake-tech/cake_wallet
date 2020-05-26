@@ -277,7 +277,7 @@ Future setupNode(
         String password,
         bool useSSL = false,
         bool isLightWallet = false}) =>
-    compute(_setupNodeSync, {
+    compute<Map<String, Object>, void>(_setupNodeSync, {
       'address': address,
       'login': login,
       'password': password,
@@ -285,7 +285,7 @@ Future setupNode(
       'isLightWallet': isLightWallet
     });
 
-Future store() => compute(_storeSync, 0);
+Future store() => compute<int, void>(_storeSync, 0);
 
 Future<bool> isConnected() => compute(_isConnected, 0);
 
