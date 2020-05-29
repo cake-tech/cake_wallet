@@ -1,7 +1,6 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -29,8 +28,6 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   static const defaultPinLength = 4;
   static const sixPinLength = 6;
   static const fourPinLength = 4;
-  static final deleteIconImage = Image.asset('assets/images/delete_icon.png');
-  static final faceImage = Image.asset('assets/images/face.png');
   final _gridViewKey = GlobalKey();
 
   int pinLength = defaultPinLength;
@@ -89,9 +86,18 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   Widget build(BuildContext context) => Scaffold(body: body(context));
 
   Widget body(BuildContext context) {
+    final deleteIconImage = Image.asset(
+      'assets/images/delete_icon.png',
+      color: Theme.of(context).primaryTextTheme.title.color,
+    );
+    final faceImage = Image.asset(
+      'assets/images/face.png',
+      color: Theme.of(context).primaryTextTheme.title.color,
+    );
+
     return SafeArea(
         child: Container(
-      color: PaletteDark.historyPanel,
+      color: Theme.of(context).backgroundColor,
       padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
       child: Column(children: <Widget>[
         Spacer(flex: 2),
@@ -99,7 +105,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Colors.white)),
+                color: Theme.of(context).primaryTextTheme.title.color
+            )),
         Spacer(flex: 3),
         Container(
           width: 180,
@@ -114,7 +121,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                   height: size,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isFilled ? Colors.white : PaletteDark.walletCardAddressField,
+                    color: isFilled
+                        ? Theme.of(context).primaryTextTheme.title.color
+                        : Theme.of(context).primaryTextTheme.caption.color,
                   ));
             }),
           ),
@@ -129,7 +138,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
               },
               child: Text(
                 _changePinLengthText(),
-                style: TextStyle(fontSize: 14.0, color: PaletteDark.walletCardText),
+                style: TextStyle(fontSize: 14.0, color: Theme.of(context).primaryTextTheme.caption.color),
               ))
         ],
         Spacer(flex: 1),
@@ -153,7 +162,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   left: marginLeft, right: marginRight),
                               child: FlatButton(
                                 onPressed: () {},
-                                color: PaletteDark.historyPanel,
+                                color: Theme.of(context).backgroundColor,
                                 shape: CircleBorder(),
                                 child: faceImage,
                               ),
@@ -166,7 +175,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   left: marginLeft, right: marginRight),
                               child: FlatButton(
                                 onPressed: () => _pop(),
-                                color: PaletteDark.historyPanel,
+                                color: Theme.of(context).backgroundColor,
                                 shape: CircleBorder(),
                                 child: deleteIconImage,
                               ),
@@ -180,13 +189,13 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                 left: marginLeft, right: marginRight),
                             child: FlatButton(
                               onPressed: () => _push(index),
-                              color: PaletteDark.historyPanel,
+                              color: Theme.of(context).backgroundColor,
                               shape: CircleBorder(),
                               child: Text('$index',
                                   style: TextStyle(
                                       fontSize: 30.0,
                                       fontWeight: FontWeight.bold,
-                                      color: Colors.white)),
+                                      color: Theme.of(context).primaryTextTheme.title.color)),
                             ),
                           );
                         }),

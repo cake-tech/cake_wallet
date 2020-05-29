@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -9,15 +8,15 @@ class SettingsArrowListRow extends StatelessWidget {
 
   final VoidCallback onTaped;
   final String title;
-  final _cakeArrowImage = Image.asset('assets/images/select_arrow.png',
-      color: PaletteDark.walletCardText);
 
   @override
   Widget build(BuildContext context) {
     final settingsStore = Provider.of<SettingsStore>(context);
+    final _cakeArrowImage = Image.asset('assets/images/select_arrow.png',
+        color: Theme.of(context).primaryTextTheme.caption.color);
 
     return Container(
-      color: PaletteDark.menuList,
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
       child: ListTile(
           contentPadding: EdgeInsets.only(left: 24.0, right: 24.0),
           title: Observer(
@@ -25,7 +24,7 @@ class SettingsArrowListRow extends StatelessWidget {
                     settingsStore.itemHeaders[title],
                     style: TextStyle(
                         fontSize: 14.0,
-                        color: Colors.white),
+                        color: Theme.of(context).primaryTextTheme.title.color),
                   )),
           trailing: _cakeArrowImage,
           onTap: onTaped),

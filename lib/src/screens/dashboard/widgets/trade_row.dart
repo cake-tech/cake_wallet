@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 
@@ -28,10 +27,10 @@ class TradeRow extends StatelessWidget {
         child: Container(
           height: 60,
           decoration: BoxDecoration(
-            color: PaletteDark.historyPanel,
+            color: Theme.of(context).backgroundColor,
             border: Border.all(
                 width: 1,
-                color: PaletteDark.historyPanel
+                color: Theme.of(context).backgroundColor
             ),
           ),
           padding: EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
@@ -41,7 +40,7 @@ class TradeRow extends StatelessWidget {
               width: 36,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: PaletteDark.historyPanelButton
+                  color: Theme.of(context).backgroundColor
               ),
               child: _getPoweredImage(provider),
             ),
@@ -56,13 +55,13 @@ class TradeRow extends StatelessWidget {
                         Text('${from.toString()} → ${to.toString()}',
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.white
+                                color: Theme.of(context).primaryTextTheme.title.color
                                 )),
                         formattedAmount != null
                             ? Text(formattedAmount + ' ' + amountCrypto,
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white
+                                    color: Theme.of(context).primaryTextTheme.title.color
                                 ))
                             : Container()
                       ]),
@@ -71,8 +70,8 @@ class TradeRow extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(createdAtFormattedDate,
-                            style: const TextStyle(
-                                fontSize: 14, color: PaletteDark.historyPanelText))
+                            style: TextStyle(
+                                fontSize: 14, color: Theme.of(context).primaryTextTheme.headline.color))
                       ]),
                 ],
               ),

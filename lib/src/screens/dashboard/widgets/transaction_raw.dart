@@ -26,10 +26,10 @@ class TransactionRow extends StatelessWidget {
         child: Container(
           height: 60,
           decoration: BoxDecoration(
-            color: PaletteDark.historyPanel,
+            color: Theme.of(context).backgroundColor,
             border: Border.all(
                 width: 1,
-                color: PaletteDark.historyPanel
+                color: Theme.of(context).backgroundColor
             ),
           ),
           padding: EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
@@ -39,7 +39,7 @@ class TransactionRow extends StatelessWidget {
               width: 36,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: PaletteDark.historyPanelButton
+                color: Theme.of(context).primaryTextTheme.display3.color
               ),
               child: Image.asset(
                   direction == TransactionDirection.incoming
@@ -62,14 +62,14 @@ class TransactionRow extends StatelessWidget {
                                 (isPending ? S.of(context).pending : ''),
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.white
+                                color: Theme.of(context).primaryTextTheme.title.color
                                 )),
                         Text(direction == TransactionDirection.incoming
                             ? formattedAmount
                             : '- ' + formattedAmount,
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 16,
-                                color: Colors.white
+                                color: Theme.of(context).primaryTextTheme.title.color
                             ))
                       ]),
                   SizedBox(height: 5,),
@@ -77,13 +77,13 @@ class TransactionRow extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(formattedDate,
-                            style: const TextStyle(
-                                fontSize: 14, color: PaletteDark.historyPanelText)),
+                            style: TextStyle(
+                                fontSize: 14, color: Theme.of(context).primaryTextTheme.headline.color)),
                         Text(direction == TransactionDirection.incoming
                             ? formattedFiatAmount
                             : '- ' + formattedFiatAmount,
-                            style: const TextStyle(
-                                fontSize: 14, color: PaletteDark.historyPanelText))
+                            style: TextStyle(
+                                fontSize: 14, color: Theme.of(context).primaryTextTheme.headline.color))
                       ]),
                 ],
               ),

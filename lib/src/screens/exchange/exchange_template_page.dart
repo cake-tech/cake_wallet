@@ -16,7 +16,10 @@ class ExchangeTemplatePage extends BasePage {
   String get title => S.current.exchange_new_template;
 
   @override
-  Color get backgroundColor => PaletteDark.walletCardSubAddressField;
+  Color get backgroundLightColor => Palette.darkLavender;
+
+  @override
+  Color get backgroundDarkColor => PaletteDark.moderateBlue;
 
   @override
   Widget trailing(BuildContext context) {

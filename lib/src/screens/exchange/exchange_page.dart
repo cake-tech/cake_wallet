@@ -16,7 +16,10 @@ class ExchangePage extends BasePage {
   String get title => S.current.exchange;
 
   @override
-  Color get backgroundColor => PaletteDark.walletCardSubAddressField;
+  Color get backgroundLightColor => Palette.darkLavender;
+
+  @override
+  Color get backgroundDarkColor => PaletteDark.moderateBlue;
 
   @override
   Widget middle(BuildContext context) {
@@ -38,7 +41,7 @@ class ExchangePage extends BasePage {
           child: Text(
             S.of(context).clear,
             style: TextStyle(
-                color: PaletteDark.walletCardText,
+                color: Theme.of(context).primaryTextTheme.caption.color,
                 fontWeight: FontWeight.w500,
                 fontSize: 14),
           ),

@@ -5,7 +5,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
 class ChangeLanguage extends BasePage {
@@ -13,33 +12,29 @@ class ChangeLanguage extends BasePage {
   String get title => S.current.settings_change_language;
 
   @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
-  @override
   Widget body(BuildContext context) {
     final settingsStore = Provider.of<SettingsStore>(context);
     final currentLanguage = Provider.of<Language>(context);
 
     final currentColor = Colors.green;
-    final notCurrentColor = Colors.white;
+    final notCurrentColor = Theme.of(context).primaryTextTheme.title.color;
 
     final shortDivider = Container(
       height: 1,
       padding: EdgeInsets.only(left: 24),
-      color: PaletteDark.menuList,
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
       child: Container(
         height: 1,
-        color: PaletteDark.mainBackgroundColor,
+        color: Theme.of(context).dividerColor,
       ),
     );
 
     final longDivider = Container(
       height: 1,
-      color: PaletteDark.mainBackgroundColor,
+      color: Theme.of(context).dividerColor,
     );
 
     return Container(
-        color: PaletteDark.historyPanel,
         padding: EdgeInsets.only(top: 10.0),
         child: ListView.builder(
           itemCount: languages.values.length,
@@ -56,7 +51,7 @@ class ChangeLanguage extends BasePage {
                 index == 0 ? longDivider : Offstage(),
                 Container(
                   padding: EdgeInsets.only(top: 4, bottom: 4),
-                  color: PaletteDark.menuList,
+                  color: Theme.of(context).accentTextTheme.title.backgroundColor,
                   child: ListTile(
                     contentPadding: EdgeInsets.only(left: 24, right: 24),
                     title: Text(

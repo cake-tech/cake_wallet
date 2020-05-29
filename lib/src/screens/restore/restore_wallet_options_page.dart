@@ -13,9 +13,6 @@ class RestoreWalletOptionsPage extends BasePage {
   @override
   String get title => S.current.restore_seed_keys_restore;
 
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
   final imageSeed = Image.asset('assets/images/restore_seed.png');
   final imageKeys = Image.asset('assets/images/restore_keys.png');
 
@@ -27,7 +24,6 @@ class RestoreWalletOptionsPage extends BasePage {
       width: double.infinity,
       height: double.infinity,
       padding: EdgeInsets.all(24),
-      color: PaletteDark.historyPanel,
       child: SingleChildScrollView(
         child: Column(
           children: <Widget>[

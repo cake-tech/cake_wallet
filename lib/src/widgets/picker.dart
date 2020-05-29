@@ -28,7 +28,7 @@ class Picker<Item extends Object> extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-              decoration: BoxDecoration(color: PaletteDark.historyPanel.withOpacity(0.75)),
+              decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
               child: Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -54,10 +54,10 @@ class Picker<Item extends Object> extends StatelessWidget {
                           borderRadius: BorderRadius.all(Radius.circular(14)),
                           child: Container(
                               height: 233,
-                              color: PaletteDark.menuList,
+                              color: Theme.of(context).accentTextTheme.title.backgroundColor,
                               child: ListView.separated(
                                 separatorBuilder: (context, index) => Divider(
-                                  color: PaletteDark.mainBackgroundColor,
+                                  color: Theme.of(context).dividerColor,
                                   height: 1,
                                 ),
                                 itemCount: items == null ? 0 : items.length,
@@ -67,11 +67,11 @@ class Picker<Item extends Object> extends StatelessWidget {
                                   final isItemSelected = index == selectedAtIndex;
 
                                   final color = isItemSelected
-                                      ? PaletteDark.menuHeader
+                                      ? Theme.of(context).accentTextTheme.subtitle.decorationColor
                                       : Colors.transparent;
                                   final textColor = isItemSelected
                                       ? Colors.blue
-                                      : Colors.white;
+                                      : Theme.of(context).primaryTextTheme.title.color;
 
                                   return GestureDetector(
                                     onTap: () {

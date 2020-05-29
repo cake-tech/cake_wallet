@@ -19,9 +19,6 @@ class AccountPage extends BasePage {
   String get title => S.current.account;
 
   @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
-  @override
   Widget body(BuildContext context) => AccountForm(account);
 }
 
@@ -65,7 +62,7 @@ class AccountFormState extends State<AccountForm> {
     return Form(
       key: _formKey,
       child: Container(
-        color: PaletteDark.historyPanel,
+        color: Theme.of(context).backgroundColor,
         padding: EdgeInsets.all(24.0),
         child: Column(
           children: <Widget>[

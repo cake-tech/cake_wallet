@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -16,7 +15,7 @@ class SettingsTextListRow extends StatelessWidget {
     final settingsStore = Provider.of<SettingsStore>(context);
 
     return Container(
-      color: PaletteDark.menuList,
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
       child: ListTile(
         contentPadding: EdgeInsets.only(left: 24.0, right: 24.0),
         title: Row(
@@ -28,7 +27,7 @@ class SettingsTextListRow extends StatelessWidget {
                   settingsStore.itemHeaders[title],
                   style: TextStyle(
                            fontSize: 14.0,
-                           color: Colors.white),
+                           color: Theme.of(context).primaryTextTheme.title.color),
                   )),
             ),
             Flexible(

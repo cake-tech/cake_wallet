@@ -26,7 +26,7 @@ class CurrencyPicker extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(color: PaletteDark.historyPanel.withOpacity(0.75)),
+            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -53,7 +53,7 @@ class CurrencyPicker extends StatelessWidget {
                         child: Container(
                           height: 400,
                           width: 300,
-                          color: PaletteDark.walletCardSubAddressField,
+                          color: Theme.of(context).dividerColor,
                           child: GridView.count(
                               shrinkWrap: true,
                               crossAxisCount: 3,
@@ -65,7 +65,7 @@ class CurrencyPicker extends StatelessWidget {
 
                                 if (index == 14) {
                                   return Container(
-                                    color: PaletteDark.menuList,
+                                    color: Theme.of(context).primaryTextTheme.display1.color,
                                   );
                                 }
 
@@ -73,11 +73,11 @@ class CurrencyPicker extends StatelessWidget {
                                 final isItemSelected = index == selectedAtIndex;
 
                                 final color = isItemSelected
-                                    ? PaletteDark.historyPanel
-                                    : PaletteDark.menuList;
+                                    ? Theme.of(context).accentTextTheme.subtitle.decorationColor
+                                    : Theme.of(context).primaryTextTheme.display1.color;
                                 final textColor = isItemSelected
                                     ? Colors.blue
-                                    : Colors.white;
+                                    : Theme.of(context).primaryTextTheme.title.color;
 
                                 return GestureDetector(
                                   onTap: () {

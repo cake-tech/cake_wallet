@@ -9,11 +9,6 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
   final welcomeImage = Image.asset('assets/images/welcome.png');
-  final newWalletImage = Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: PaletteDark.historyPanel);
-  final restoreWalletImage = Image.asset('assets/images/restore_wallet.png', height: 12, width: 12, color: Colors.white);
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +20,17 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final newWalletImage = Image.asset('assets/images/new_wallet.png',
+        height: 12,
+        width: 12,
+        color: Palette.oceanBlue);
+    final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme.title.color);
+
     return Container(
       padding: EdgeInsets.only(top: 20),
-      color: PaletteDark.historyPanel,
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(bottom: 20),
         content: Column(
@@ -45,7 +48,7 @@ class WelcomePage extends BasePage {
                     S.of(context).welcome,
                     style: TextStyle(
                       fontSize: 18,
-                      color: PaletteDark.walletCardText,
+                      color: Theme.of(context).primaryTextTheme.caption.color,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -56,7 +59,7 @@ class WelcomePage extends BasePage {
                       style: TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.title.color,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -68,7 +71,7 @@ class WelcomePage extends BasePage {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: PaletteDark.walletCardText,
+                        color: Theme.of(context).primaryTextTheme.caption.color,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -84,7 +87,7 @@ class WelcomePage extends BasePage {
             S.of(context).please_make_selection,
             style: TextStyle(
               fontSize: 12,
-              color: PaletteDark.walletCardText,
+              color: Theme.of(context).primaryTextTheme.caption.color,
             ),
             textAlign: TextAlign.center,
           ),
@@ -95,7 +98,9 @@ class WelcomePage extends BasePage {
                 image: newWalletImage,
                 text: S.of(context).create_new,
                 color: Colors.white,
-                textColor: PaletteDark.historyPanel),
+                textColor: Palette.oceanBlue,
+                borderColor: Palette.oceanBlue,
+            ),
           ),
           Padding(
             padding: EdgeInsets.only(top: 10),
@@ -103,8 +108,8 @@ class WelcomePage extends BasePage {
                 onPressed: () => Navigator.pushNamed(context, Routes.restoreOptions),
                 image: restoreWalletImage,
                 text: S.of(context).restore_wallet,
-                color: PaletteDark.historyPanelButton,
-                textColor: Colors.white),
+                color: Theme.of(context).primaryTextTheme.overline.color,
+                textColor: Theme.of(context).primaryTextTheme.title.color),
           )
         ]),
       ),

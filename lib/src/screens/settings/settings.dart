@@ -1,7 +1,6 @@
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
@@ -29,9 +28,6 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_raw_widget_lis
 class SettingsPage extends BasePage {
   @override
   String get title => S.current.settings_title;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) {
@@ -79,7 +75,7 @@ class SettingsFormState extends State<SettingsForm> {
                     textAlign: TextAlign.right,
                     style: TextStyle(
                         fontSize: 14.0,
-                        color: PaletteDark.walletCardText),
+                        color: Theme.of(context).primaryTextTheme.caption.color),
                   )),
           attribute: Attributes.widget),
       SettingsItem(
@@ -91,7 +87,7 @@ class SettingsFormState extends State<SettingsForm> {
                     textAlign: TextAlign.right,
                     style: TextStyle(
                         fontSize: 14.0,
-                        color: PaletteDark.walletCardText),
+                        color: Theme.of(context).primaryTextTheme.caption.color),
                   )),
           attribute: Attributes.widget),
       SettingsItem(
@@ -103,7 +99,7 @@ class SettingsFormState extends State<SettingsForm> {
                     textAlign: TextAlign.right,
                     style: TextStyle(
                         fontSize: 14.0,
-                        color: PaletteDark.walletCardText),
+                        color: Theme.of(context).primaryTextTheme.caption.color),
                   )),
           attribute: Attributes.widget),
       SettingsItem(
@@ -145,7 +141,11 @@ class SettingsFormState extends State<SettingsForm> {
                                       children: [
                                         Text(S
                                             .of(context)
-                                            .settings_transactions),
+                                            .settings_transactions,
+                                          style: TextStyle(
+                                              color: Theme.of(context).primaryTextTheme.title.color
+                                          ),
+                                        ),
                                         Checkbox(
                                           value: settingsStore
                                               .actionlistDisplayMode
@@ -162,7 +162,12 @@ class SettingsFormState extends State<SettingsForm> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(S.of(context).settings_trades),
+                                        Text(
+                                            S.of(context).settings_trades,
+                                          style: TextStyle(
+                                            color: Theme.of(context).primaryTextTheme.title.color
+                                          ),
+                                        ),
                                         Checkbox(
                                           value: settingsStore
                                               .actionlistDisplayMode
@@ -182,7 +187,7 @@ class SettingsFormState extends State<SettingsForm> {
                         Text(S.of(context).settings_display_on_dashboard_list,
                             style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.white)),
+                                color: Theme.of(context).primaryTextTheme.title.color)),
                         Observer(builder: (_) {
                           var title = '';
 
@@ -210,7 +215,7 @@ class SettingsFormState extends State<SettingsForm> {
                           return Text(title,
                               style: TextStyle(
                                   fontSize: 14.0,
-                                  color: PaletteDark.walletCardText));
+                                  color: Theme.of(context).primaryTextTheme.caption.color));
                         })
                       ]),
                 ));
@@ -321,20 +326,19 @@ class SettingsFormState extends State<SettingsForm> {
     final shortDivider = Container(
       height: 1,
       padding: EdgeInsets.only(left: 24),
-      color: PaletteDark.menuList,
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
       child: Container(
         height: 1,
-        color: PaletteDark.mainBackgroundColor,
+        color: Theme.of(context).dividerColor,
       ),
     );
 
     final longDivider = Container(
       height: 1,
-      color: PaletteDark.mainBackgroundColor,
+      color: Theme.of(context).dividerColor,
     );
 
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(top: 12),
       child: SingleChildScrollView(
           child: Column(
@@ -371,7 +375,8 @@ class SettingsFormState extends State<SettingsForm> {
                     child: Text(
                         settingsStore.itemHeaders[ItemHeaders.version],
                         style: TextStyle(
-                            fontSize: 14.0, color: PaletteDark.walletCardText)
+                            fontSize: 14.0,
+                            color: Theme.of(context).primaryTextTheme.caption.color)
                     ),
                   ),
                 ),

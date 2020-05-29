@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class StandartListRow extends StatelessWidget {
   StandartListRow({this.title, this.value, this.isDrawTop, this.isDrawBottom});
@@ -17,12 +16,12 @@ class StandartListRow extends StatelessWidget {
         ? Container(
           width: double.infinity,
           height: 1,
-          color: PaletteDark.walletCardTopEndSync,
+          color: Theme.of(context).dividerColor,
         )
         : Offstage(),
         Container(
           width: double.infinity,
-          color: PaletteDark.menuList,
+          color: Theme.of(context).accentTextTheme.title.backgroundColor,
           child: Padding(
             padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
             child: Column(
@@ -32,7 +31,7 @@ class StandartListRow extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: PaletteDark.walletCardText),
+                          color: Theme.of(context).primaryTextTheme.caption.color),
                       textAlign: TextAlign.left),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
@@ -40,7 +39,7 @@ class StandartListRow extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white)),
+                            color: Theme.of(context).primaryTextTheme.title.color)),
                   )
                 ]),
           ),
@@ -49,7 +48,7 @@ class StandartListRow extends StatelessWidget {
         ? Container(
           width: double.infinity,
           height: 1,
-          color: PaletteDark.walletCardTopEndSync,
+          color: Theme.of(context).dividerColor,
         )
         : Offstage(),
       ],

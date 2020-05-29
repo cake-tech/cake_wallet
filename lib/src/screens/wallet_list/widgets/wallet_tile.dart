@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/palette.dart';
 
 class WalletTile extends SliverPersistentHeaderDelegate {
   WalletTile({
@@ -29,8 +28,8 @@ class WalletTile extends SliverPersistentHeaderDelegate {
     panelWidth = panelWidth < 12 ? 0 : 12;
 
     final currentColor = isCurrent
-        ? Colors.white
-        : PaletteDark.historyPanel;
+        ? Theme.of(context).accentTextTheme.caption.color
+        : Theme.of(context).backgroundColor;
 
     return Stack(
       fit: StackFit.expand,
@@ -55,7 +54,7 @@ class WalletTile extends SliverPersistentHeaderDelegate {
             height: 108,
             width: max - 16,
             padding: EdgeInsets.only(left: 20, right: 20),
-            color: PaletteDark.historyPanel,
+            color: Theme.of(context).backgroundColor,
             child: Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
@@ -71,7 +70,7 @@ class WalletTile extends SliverPersistentHeaderDelegate {
                       style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white
+                          color: Theme.of(context).primaryTextTheme.title.color
                       ),
                     )
                   ],
@@ -87,7 +86,7 @@ class WalletTile extends SliverPersistentHeaderDelegate {
                       walletAddress,
                       style: TextStyle(
                         fontSize: 12,
-                        color: PaletteDark.walletCardText
+                        color: Theme.of(context).primaryTextTheme.caption.color
                       ),
                     )
                   ],
@@ -105,16 +104,27 @@ class WalletTile extends SliverPersistentHeaderDelegate {
               child: Container(
                 height: 108,
                 width: panelWidth,
+                padding: EdgeInsets.only(
+                  top: 1,
+                  left: 1,
+                  bottom: 1
+                ),
                 decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
+                  color: Theme.of(context).accentTextTheme.subtitle.color
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
                     borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
                     gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          PaletteDark.walletCardTopEndSync,
-                          PaletteDark.walletCardBottomEndSync
-                        ]
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Theme.of(context).accentTextTheme.caption.backgroundColor,
+                        Theme.of(context).accentTextTheme.caption.decorationColor
+                      ]
                     )
+                  ),
                 ),
               ),
             )

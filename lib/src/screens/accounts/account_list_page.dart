@@ -35,7 +35,7 @@ class AccountListPageForm extends State<AccountListPage> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(color: PaletteDark.historyPanel.withOpacity(0.75)),
+            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -61,7 +61,7 @@ class AccountListPageForm extends State<AccountListPage> {
                         borderRadius: BorderRadius.all(Radius.circular(14)),
                         child: Container(
                           height: 296,
-                          color: PaletteDark.menuList,
+                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
                           child: Column(
                             children: <Widget>[
                               Expanded(
@@ -71,7 +71,7 @@ class AccountListPageForm extends State<AccountListPage> {
 
                                     return ListView.separated(
                                       separatorBuilder: (context, index) => Divider(
-                                        color: PaletteDark.mainBackgroundColor,
+                                        color: Theme.of(context).dividerColor,
                                         height: 1,
                                       ),
                                       itemCount: accounts == null ? 0 : accounts.length,
@@ -117,7 +117,7 @@ class AccountListPageForm extends State<AccountListPage> {
                                       children: <Widget>[
                                         Icon(
                                           Icons.add,
-                                          color: PaletteDark.historyPanel,
+                                          color: PaletteDark.darkNightBlue,
                                         ),
                                         Padding(
                                           padding: EdgeInsets.only(left: 5),
@@ -126,7 +126,7 @@ class AccountListPageForm extends State<AccountListPage> {
                                             style: TextStyle(
                                               fontSize: 15,
                                               fontWeight: FontWeight.w600,
-                                              color: PaletteDark.historyPanel,
+                                              color: PaletteDark.darkNightBlue,
                                               decoration: TextDecoration.none,
                                             ),
                                           ),

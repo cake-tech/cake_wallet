@@ -48,7 +48,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(color: PaletteDark.historyPanel.withOpacity(0.75)),
+            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -75,7 +75,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                         width: 300,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(14)),
-                          color: PaletteDark.walletCardSubAddressField
+                          color: Theme.of(context).dividerColor
                         ),
                         child: GridView.count(
                           shrinkWrap: true,
@@ -173,8 +173,12 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
     @required VoidCallback onTap}) {
 
     BorderRadius borderRadius;
-    final color = isCurrent ? PaletteDark.historyPanel : PaletteDark.menuList;
-    final textColor = isCurrent ? Colors.blue : Colors.white;
+    final color = isCurrent
+        ? Theme.of(context).accentTextTheme.subtitle.decorationColor
+        : Theme.of(context).primaryTextTheme.display1.color;
+    final textColor = isCurrent
+        ? Colors.blue
+        : Theme.of(context).primaryTextTheme.title.color;
 
     switch (place) {
       case Places.topLeft:

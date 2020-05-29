@@ -245,7 +245,7 @@ class SeedWidgetState extends State<SeedWidget> {
                       bottomLeft: Radius.circular(24),
                       bottomRight: Radius.circular(24)
                   ),
-                  color: PaletteDark.menuList
+                  color: Theme.of(context).accentTextTheme.title.backgroundColor
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -256,7 +256,7 @@ class SeedWidgetState extends State<SeedWidget> {
                       S.of(context).restore_active_seed,
                       style: TextStyle(
                           fontSize: 14,
-                          color: PaletteDark.walletCardText
+                          color: Theme.of(context).primaryTextTheme.caption.color
                       ),
                     ),
                     Padding(
@@ -275,8 +275,9 @@ class SeedWidgetState extends State<SeedWidget> {
                                   child: Text(
                                     item.toString(),
                                     style: TextStyle(
-                                        color:
-                                        isValid ? Colors.white : Palette.lightGrey,
+                                        color: isValid
+                                            ? Theme.of(context).primaryTextTheme.title.color
+                                            : Theme.of(context).primaryTextTheme.caption.color,
                                         fontSize: 16,
                                         fontWeight:
                                         isSelected ? FontWeight.w900 : FontWeight.w400,
@@ -306,7 +307,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white
+                    color: Theme.of(context).primaryTextTheme.title.color
                   ),
                 ),
                 Padding(
@@ -318,7 +319,7 @@ class SeedWidgetState extends State<SeedWidget> {
                         : null,
                     style: TextStyle(
                       fontSize: 16.0,
-                      color: Colors.white
+                      color: Theme.of(context).primaryTextTheme.title.color
                     ),
                     controller: _seedController,
                     textInputAction: TextInputAction.done,
@@ -333,7 +334,7 @@ class SeedWidgetState extends State<SeedWidget> {
                                 Text(
                                     '${items.length}/${SeedWidgetState.maxLength}',
                                     style: TextStyle(
-                                        color: PaletteDark.walletCardText,
+                                        color: Theme.of(context).primaryTextTheme.caption.color,
                                         fontSize: 14)),
                                 SizedBox(width: 10),
                                 InkWell(
@@ -346,13 +347,13 @@ class SeedWidgetState extends State<SeedWidget> {
                                       padding: EdgeInsets.all(7),
                                       decoration: BoxDecoration(
                                           color:
-                                          PaletteDark.menuList,
+                                          Theme.of(context).accentTextTheme.title.backgroundColor,
                                           borderRadius:
                                           BorderRadius.circular(10.0)),
                                       child: Text(
                                           S.of(context).paste,
                                           style: TextStyle(
-                                            color: Colors.white
+                                            color: Theme.of(context).primaryTextTheme.title.color
                                           ),
                                       )),
                                 )
@@ -362,17 +363,17 @@ class SeedWidgetState extends State<SeedWidget> {
                         ),
                         hintStyle:
                         TextStyle(
-                          color: PaletteDark.walletCardText,
+                          color: Theme.of(context).primaryTextTheme.caption.color,
                           fontSize: 16
                         ),
                         hintText: S.of(context).restore_from_seed_placeholder,
                         errorText: _errorMessage,
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: PaletteDark.menuList, width: 1.0)),
+                                color: Theme.of(context).dividerColor, width: 1.0)),
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: PaletteDark.menuList,
+                                color: Theme.of(context).dividerColor,
                                 width: 1.0))),
                     enableInteractiveSelection: false,
                   ),

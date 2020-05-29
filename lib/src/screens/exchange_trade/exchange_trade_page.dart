@@ -6,7 +6,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/exchange_trade/exchange_trade_store.dart';
 import 'package:cake_wallet/src/stores/send/send_store.dart';
@@ -23,9 +22,6 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 class ExchangeTradePage extends BasePage {
   @override
   String get title => S.current.exchange;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => ExchangeTradeForm();
@@ -51,7 +47,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     _setEffects(context);
 
     return Container(
-      color: PaletteDark.historyPanel,
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(left: 24, right: 24, top: 24),
         content: Observer(builder: (_) {
@@ -78,14 +73,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   height: 2,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14.0,
-                                  color: Colors.white),
+                                  color: Theme.of(context).primaryTextTheme.title.color),
                             ),
                             Text(
                               '${trade.id ?? fetchingLabel}',
                               style: TextStyle(
                                   fontSize: 14.0,
                                   height: 2,
-                                  color: PaletteDark.walletCardText),
+                                  color: Theme.of(context).primaryTextTheme.caption.color),
                             )
                           ],
                         ),
@@ -98,14 +93,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   height: 2,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14.0,
-                                  color: Colors.white),
+                                  color: Theme.of(context).primaryTextTheme.title.color),
                             ),
                             Text(
                               '${trade.amount ?? fetchingLabel}',
                               style: TextStyle(
                                   fontSize: 14.0,
                                   height: 2,
-                                  color: PaletteDark.walletCardText),
+                                  color: Theme.of(context).primaryTextTheme.caption.color),
                             )
                           ],
                         ),
@@ -119,14 +114,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   height: 2,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14.0,
-                                  color: Colors.white),
+                                  color: Theme.of(context).primaryTextTheme.title.color),
                             ),
                             Text(
                               '${trade.extraId ?? fetchingLabel}',
                               style: TextStyle(
                                   fontSize: 14.0,
                                   height: 2,
-                                  color: PaletteDark.walletCardText),
+                                  color: Theme.of(context).primaryTextTheme.caption.color),
                             )
                           ],
                         )
@@ -139,7 +134,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                               style: TextStyle(
                                   fontSize: 14.0,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Theme.of(context).primaryTextTheme.title.color,
                                   height: 2),
                             ),
                             Text(
@@ -147,7 +142,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                               style: TextStyle(
                                   fontSize: 14.0,
                                   height: 2,
-                                  color: PaletteDark.walletCardText),
+                                  color: Theme.of(context).primaryTextTheme.caption.color),
                             )
                           ],
                         ),
@@ -159,10 +154,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                               S.of(context).offer_expires_in,
                               style: TextStyle(
                                   fontSize: 14.0,
-                                  color: Colors.white),
+                                  color: Theme.of(context).primaryTextTheme.title.color),
                             ),
                             TimerWidget(trade.expiredAt,
-                                color: PaletteDark.walletCardText)
+                                color: Theme.of(context).primaryTextTheme.caption.color)
                           ],
                         )
                             : Container(),
@@ -186,7 +181,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             child: QrImage(
                               data: trade.inputAddress ?? fetchingLabel,
                               backgroundColor: Colors.transparent,
-                              foregroundColor: PaletteDark.walletCardText,
+                              foregroundColor: Theme.of(context).primaryTextTheme.display4.color,
                             ),
                           ),
                         )),
@@ -208,7 +203,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   style: TextStyle(
                       fontSize: 14.0,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                      color: Theme.of(context).primaryTextTheme.title.color),
                 ),
               ),
               Container(
@@ -217,7 +212,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   child: Text(
                     trade.inputAddress ?? fetchingLabel,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14.0, color: PaletteDark.walletCardText),
+                    style: TextStyle(
+                        fontSize: 14.0,
+                        color: Theme.of(context).primaryTextTheme.caption.color),
                   ),
                 ),
               ),
@@ -242,8 +239,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   ));
                                 },
                                 text: S.of(context).copy_address,
-                                color: PaletteDark.menuList,
-                                textColor: Colors.white)
+                                color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                                textColor: Theme.of(context).primaryTextTheme.title.color)
                           ),
                         )),
                     Flexible(
@@ -264,8 +261,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   ));
                                 },
                                 text: S.of(context).copy_id,
-                                color: PaletteDark.menuList,
-                                textColor: Colors.white)
+                                color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                                textColor: Theme.of(context).primaryTextTheme.title.color)
                           ),
                         ))
                   ],
@@ -284,7 +281,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   textAlign: TextAlign.left,
                   style: TextStyle(
                       fontSize: 13.0,
-                      color: Colors.white),
+                      color: Theme.of(context).primaryTextTheme.title.color),
                 ),
               ),
               Text(
@@ -292,7 +289,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 textAlign: TextAlign.left,
                 style: TextStyle(
                     fontSize: 13.0,
-                    color: Colors.white),
+                    color: Theme.of(context).primaryTextTheme.title.color),
               )
             ],
           );
