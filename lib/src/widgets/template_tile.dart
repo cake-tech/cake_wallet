@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class TemplateTile extends StatelessWidget {
   TemplateTile({
@@ -14,10 +13,12 @@ class TemplateTile extends StatelessWidget {
   final String from;
   final VoidCallback onTap;
 
-  final toIcon = Image.asset('assets/images/to_icon.png');
-
   @override
   Widget build(BuildContext context) {
+    final toIcon = Image.asset('assets/images/to_icon.png',
+      color: Theme.of(context).primaryTextTheme.title.color,
+    );
+
     return Container(
       padding: EdgeInsets.only(right: 10),
       child: GestureDetector(
@@ -27,7 +28,7 @@ class TemplateTile extends StatelessWidget {
           padding: EdgeInsets.only(left: 24, right: 24),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20)),
-              color: PaletteDark.menuList
+              color: Theme.of(context).accentTextTheme.title.backgroundColor
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -38,7 +39,7 @@ class TemplateTile extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Colors.white
+                    color: Theme.of(context).primaryTextTheme.title.color
                 ),
               ),
               Padding(
@@ -48,7 +49,7 @@ class TemplateTile extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white
+                      color: Theme.of(context).primaryTextTheme.title.color
                   ),
                 ),
               ),
@@ -63,7 +64,7 @@ class TemplateTile extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white
+                      color: Theme.of(context).primaryTextTheme.title.color
                   ),
                 ),
               ),

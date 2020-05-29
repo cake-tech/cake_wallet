@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class SettingsLinktListRow extends StatelessWidget {
   SettingsLinktListRow(
@@ -13,7 +12,7 @@ class SettingsLinktListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: PaletteDark.menuList,
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
       child: ListTile(
         contentPadding: EdgeInsets.only(left: 24.0, right: 24.0),
         title: Row(
@@ -27,7 +26,7 @@ class SettingsLinktListRow extends StatelessWidget {
                 title,
                 style: TextStyle(
                     fontSize: 14.0,
-                    color: Colors.white),
+                    color: Theme.of(context).primaryTextTheme.title.color),
               ),
             )
           ],

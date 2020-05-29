@@ -78,7 +78,7 @@ class MenuWidgetState extends State<MenuWidget> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(color: PaletteDark.historyPanel.withOpacity(0.75)),
+            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
             child: Row(
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -91,7 +91,7 @@ class MenuWidgetState extends State<MenuWidget> {
                     width: 4,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(2)),
-                        color: PaletteDark.walletCardText
+                        color: Theme.of(context).hintColor //
                     ),
                   )
                   : Container(
@@ -115,7 +115,7 @@ class MenuWidgetState extends State<MenuWidget> {
                           curve: Curves.fastOutSlowIn,
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.only(topLeft: Radius.circular(24), bottomLeft: Radius.circular(24)),
-                              color: PaletteDark.menuList.withOpacity(opacity)
+                              color: Theme.of(context).primaryTextTheme.display1.color.withOpacity(opacity)
                           ),
                           child: isDraw
                               ? ListView.separated(
@@ -131,7 +131,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                         bottom: fromBottomEdge),
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.only(topLeft: Radius.circular(24)),
-                                        color: PaletteDark.menuHeader
+                                        color: Theme.of(context).primaryTextTheme.display2.color
                                     ),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.start,
@@ -148,7 +148,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                                   Text(
                                                     walletStore.name,
                                                     style: TextStyle(
-                                                        color: Colors.white,
+                                                        color: Theme.of(context).primaryTextTheme.title.color,
                                                         decoration: TextDecoration.none,
                                                         fontFamily: 'Lato',
                                                         fontSize: 20,
@@ -158,7 +158,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                                   Text(
                                                     walletStore.account.label,
                                                     style: TextStyle(
-                                                        color: PaletteDark.walletCardText,
+                                                        color: Theme.of(context).primaryTextTheme.caption.color,
                                                         decoration: TextDecoration.none,
                                                         fontFamily: 'Lato',
                                                         fontSize: 12
@@ -193,7 +193,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                     alignment: Alignment.topLeft,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
-                                      color: PaletteDark.menuList,
+                                      color: Theme.of(context).primaryTextTheme.display1.color,
                                     ),
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.start,
@@ -206,7 +206,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                               item,
                                               style: TextStyle(
                                                   decoration: TextDecoration.none,
-                                                  color: Colors.white,
+                                                  color: Theme.of(context).primaryTextTheme.title.color,
                                                   fontFamily: 'Lato',
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold
@@ -219,7 +219,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                       : Container(
                                     height: tileHeight,
                                     padding: EdgeInsets.only(left: 24, right: 24),
-                                    color: PaletteDark.menuList,
+                                    color: Theme.of(context).primaryTextTheme.display1.color,
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.start,
                                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -231,7 +231,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                               item,
                                               style: TextStyle(
                                                   decoration: TextDecoration.none,
-                                                  color: Colors.white,
+                                                  color: Theme.of(context).primaryTextTheme.title.color,
                                                   fontFamily: 'Lato',
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold
@@ -244,9 +244,9 @@ class MenuWidgetState extends State<MenuWidget> {
                                 );
                               },
                               separatorBuilder: (_, index) =>
-                                  Divider(
+                                  Container(
                                     height: 1,
-                                    color: PaletteDark.walletCardText,
+                                    color: Theme.of(context).dividerColor,
                                   ),
                               itemCount: itemCount + 1)
                               : Offstage()

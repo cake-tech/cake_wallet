@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class SettingRawWidgetListRow extends StatelessWidget {
   SettingRawWidgetListRow({@required this.widgetBuilder});
@@ -9,7 +8,7 @@ class SettingRawWidgetListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: PaletteDark.menuList,
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
       child: widgetBuilder(context) ?? Container(),
     );
   }

@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/send/sending_state.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -31,7 +30,7 @@ class SendingAlertState extends State<SendingAlert> {
           return Stack(
             children: <Widget>[
               Container(
-                color: PaletteDark.historyPanel,
+                color: Theme.of(context).backgroundColor,
                   child: Center(
                     child: Image.asset(
                         'assets/images/birthday_cake.png'),
@@ -46,7 +45,7 @@ class SendingAlertState extends State<SendingAlert> {
                     style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Theme.of(context).primaryTextTheme.title.color,
                       decoration: TextDecoration.none,
                     ),
                   ),
@@ -70,7 +69,7 @@ class SendingAlertState extends State<SendingAlert> {
         return Stack(
           children: <Widget>[
             Container(
-              color: PaletteDark.historyPanel,
+              color: Theme.of(context).backgroundColor,
               child: Center(
                 child: Image.asset(
                     'assets/images/birthday_cake.png'),
@@ -79,7 +78,7 @@ class SendingAlertState extends State<SendingAlert> {
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
               child: Container(
-                decoration: BoxDecoration(color: PaletteDark.historyPanel.withOpacity(0.25)),
+                decoration: BoxDecoration(color: Theme.of(context).backgroundColor.withOpacity(0.25)),
                 child: Center(
                   child: Padding(
                     padding: EdgeInsets.only(top: 220),
@@ -89,7 +88,7 @@ class SendingAlertState extends State<SendingAlert> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.title.color,
                         decoration: TextDecoration.none,
                       ),
                     ),

@@ -9,12 +9,8 @@ import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
-import 'package:cake_wallet/palette.dart';
 
 class TradeDetailsPage extends BasePage {
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   String get title => S.current.trade_details_title;
@@ -28,7 +24,6 @@ class TradeDetailsPage extends BasePage {
           formatDefault: "dd.MM.yyyy, HH:mm");
 
     return Container(
-        color: PaletteDark.historyPanel,
         padding: EdgeInsets.only(top: 20, bottom: 20),
         child: Observer(builder: (_) {
           final trade = exchangeStore.trade;
@@ -64,10 +59,10 @@ class TradeDetailsPage extends BasePage {
               separatorBuilder: (_, __) => Container(
                 height: 1,
                 padding: EdgeInsets.only(left: 24),
-                color: PaletteDark.menuList,
+                color: Theme.of(context).accentTextTheme.title.backgroundColor,
                 child: Container(
                   height: 1,
-                  color: PaletteDark.walletCardTopEndSync,
+                  color: Theme.of(context).dividerColor,
                 ),
               ),
               itemCount: items.length,

@@ -19,9 +19,6 @@ class NodeListPage extends BasePage {
   String get title => S.current.nodes;
 
   @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
-  @override
   Widget trailing(context) {
     final nodeList = Provider.of<NodeListStore>(context);
     final settings = Provider.of<SettingsStore>(context);
@@ -31,7 +28,7 @@ class NodeListPage extends BasePage {
       width: 72,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(16)),
-        color: PaletteDark.menuList
+        color: Theme.of(context).accentTextTheme.title.backgroundColor
       ),
       child: ButtonTheme(
         minWidth: double.minPositive,
@@ -82,24 +79,25 @@ class NodeListPageBodyState extends State<NodeListPageBody> {
 
     final trashImage = Image.asset('assets/images/trash.png', height: 32, width: 32, color: Colors.white);
 
-    final currentColor = PaletteDark.menuHeader;
-    final notCurrentColor = PaletteDark.menuList;
+    final currentColor = Theme.of(context).accentTextTheme.subtitle.decorationColor;
+    final notCurrentColor = Theme.of(context).accentTextTheme.title.backgroundColor;
 
     final currentTextColor = Colors.blue;
-    final notCurrentTextColor = Colors.white;
+    final notCurrentTextColor = Theme.of(context).primaryTextTheme.title.color;
 
     return Container(
       height: double.infinity,
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(top: 12),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           NodeListRow(
               title: S.of(context).add_new_node,
-              trailing: Icon(Icons.add, color: Colors.white, size: 24.0),
-              color: PaletteDark.menuList,
-              textColor: Colors.white,
+              trailing: Icon(Icons.add,
+                  color: Theme.of(context).primaryTextTheme.title.color,
+                  size: 24.0),
+              color: Theme.of(context).accentTextTheme.title.backgroundColor,
+              textColor: Theme.of(context).primaryTextTheme.title.color,
               onTap: () async =>
               await Navigator.of(context).pushNamed(Routes.newNode),
               isDrawTop: true,
@@ -112,10 +110,10 @@ class NodeListPageBodyState extends State<NodeListPageBody> {
                     separatorBuilder: (_, __) => Container(
                       height: 1,
                       padding: EdgeInsets.only(left: 24),
-                      color: PaletteDark.menuList,
+                      color: Theme.of(context).accentTextTheme.title.backgroundColor,
                       child: Container(
                         height: 1,
-                        color: PaletteDark.walletCardTopEndSync,
+                        color: Theme.of(context).dividerColor,
                       ),
                     ),
                     itemCount: nodeList.nodes.length,

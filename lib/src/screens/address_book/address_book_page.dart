@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/stores/address_book/address_book_store.dart';
@@ -16,9 +15,6 @@ class AddressBookPage extends BasePage {
   AddressBookPage({this.isEditable = true});
 
   final bool isEditable;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   String get title => S.current.address_book;
@@ -35,11 +31,15 @@ class AddressBookPage extends BasePage {
         width: 32.0,
         height: 32.0,
         decoration: BoxDecoration(
-            shape: BoxShape.circle, color: PaletteDark.menuList),
+            shape: BoxShape.circle,
+            color: Theme.of(context).accentTextTheme.title.backgroundColor
+        ),
         child: Stack(
           alignment: Alignment.center,
           children: <Widget>[
-            Icon(Icons.add, color: Colors.white, size: 22.0),
+            Icon(Icons.add,
+                color: Theme.of(context).primaryTextTheme.title.color,
+                size: 22.0),
             ButtonTheme(
               minWidth: 32.0,
               height: 32.0,
@@ -61,17 +61,17 @@ class AddressBookPage extends BasePage {
     final addressBookStore = Provider.of<AddressBookStore>(context);
 
     return Container(
-        color: PaletteDark.historyPanel,
+        color: Theme.of(context).backgroundColor,
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
           builder: (_) => ListView.separated(
               separatorBuilder: (_, __) => Container(
                 height: 1,
                 padding: EdgeInsets.only(left: 24),
-                color: PaletteDark.menuList,
+                color: Theme.of(context).accentTextTheme.title.backgroundColor,
                 child: Container(
                   height: 1,
-                  color: PaletteDark.mainBackgroundColor,
+                  color: Theme.of(context).dividerColor,
                 ),
               ),
               itemCount: addressBookStore.contactList == null
@@ -117,12 +117,12 @@ class AddressBookPage extends BasePage {
                       ? Container(
                         width: double.infinity,
                         height: 1,
-                        color: PaletteDark.mainBackgroundColor,
+                        color: Theme.of(context).dividerColor,
                       )
                       : Offstage(),
                       Container(
                         width: double.infinity,
-                        color: PaletteDark.menuList,
+                        color: Theme.of(context).accentTextTheme.title.backgroundColor,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
                           child: Row(
@@ -141,7 +141,7 @@ class AddressBookPage extends BasePage {
                                   contact.name,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.white
+                                    color: Theme.of(context).primaryTextTheme.title.color
                                   ),
                                 ),
                               )
@@ -153,7 +153,7 @@ class AddressBookPage extends BasePage {
                       ? Container(
                         width: double.infinity,
                         height: 1,
-                        color: PaletteDark.mainBackgroundColor,
+                        color: Theme.of(context).dividerColor,
                       )
                       : Offstage(),
                     ],

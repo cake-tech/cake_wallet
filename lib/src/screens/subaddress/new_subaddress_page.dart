@@ -9,7 +9,6 @@ import 'package:cake_wallet/src/stores/subaddress_creation/subaddress_creation_s
 import 'package:cake_wallet/src/stores/subaddress_creation/subaddress_creation_store.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class NewSubaddressPage extends BasePage {
@@ -19,9 +18,6 @@ class NewSubaddressPage extends BasePage {
 
   @override
   String get title => S.current.new_subaddress_title;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => NewSubaddressForm(subaddress);
@@ -86,7 +82,6 @@ class NewSubaddressFormState extends State<NewSubaddressForm> {
     return Form(
         key: _formKey,
         child: Container(
-          color: PaletteDark.historyPanel,
           padding: EdgeInsets.all(24.0),
           child: Column(
             children: <Widget>[

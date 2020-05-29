@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
@@ -63,19 +62,18 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
   final _formKey = GlobalKey<FormState>();
   var _isReactionsSet = false;
 
-  final Image arrowBottomPurple = Image.asset(
-    'assets/images/arrow_bottom_purple_icon.png',
-    color: Colors.white,
-    height: 8,
-  );
-  final Image arrowBottomCakeGreen = Image.asset(
-    'assets/images/arrow_bottom_cake_green.png',
-    color: Colors.white,
-    height: 8,
-  );
-
   @override
   Widget build(BuildContext context) {
+    final Image arrowBottomPurple = Image.asset(
+      'assets/images/arrow_bottom_purple_icon.png',
+      color: Theme.of(context).primaryTextTheme.title.color,
+      height: 8,
+    );
+    final Image arrowBottomCakeGreen = Image.asset(
+      'assets/images/arrow_bottom_cake_green.png',
+      color: Theme.of(context).primaryTextTheme.title.color,
+      height: 8,
+    );
 
     final depositWalletName =
     exchangeStore.depositCurrency == CryptoCurrency.xmr
@@ -90,7 +88,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
             (_) => _setReactions(context, exchangeStore, walletStore));
 
     return Container(
-      color: PaletteDark.historyPanel,
+      color: Theme.of(context).backgroundColor,
       child: Form(
           key: _formKey,
           child: ScrollableWithBottomSection(
@@ -98,12 +96,12 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
             content: Column(
               children: <Widget>[
                 TopPanel(
-                    color: PaletteDark.menuList,
+                    color: Theme.of(context).accentTextTheme.title.backgroundColor,
                     edgeInsets: EdgeInsets.only(bottom: 24),
                     widget: Column(
                       children: <Widget>[
                         TopPanel(
-                            color: PaletteDark.walletCardSubAddressField,
+                            color: Theme.of(context).accentTextTheme.title.color,
                             widget: Observer(
                               builder: (_) => ExchangeCard(
                                 key: depositKey,
@@ -121,8 +119,8 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                 onCurrencySelected: (currency) =>
                                     exchangeStore.changeDepositCurrency(currency: currency),
                                 imageArrow: arrowBottomPurple,
-                                currencyButtonColor: PaletteDark.walletCardSubAddressField,
-                                addressButtonsColor: PaletteDark.menuList,
+                                currencyButtonColor: Theme.of(context).accentTextTheme.title.color,
+                                addressButtonsColor: Theme.of(context).accentTextTheme.title.backgroundColor,
                                 currencyValueValidator: (value) {
                                   exchangeStore.validateCryptoCurrency(value);
                                   return exchangeStore.errorMessage;
@@ -154,7 +152,8 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                 onCurrencySelected: (currency) => exchangeStore
                                     .changeReceiveCurrency(currency: currency),
                                 imageArrow: arrowBottomCakeGreen,
-                                currencyButtonColor: PaletteDark.menuList,
+                                currencyButtonColor: Theme.of(context).accentTextTheme.title.backgroundColor,
+                                addressButtonsColor: Theme.of(context).accentTextTheme.title.color,
                                 currencyValueValidator: (value) {
                                   exchangeStore.validateCryptoCurrency(value);
                                   return exchangeStore.errorMessage;
@@ -185,7 +184,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
-                            color: PaletteDark.walletCardText
+                            color: Theme.of(context).primaryTextTheme.caption.color
                         ),
                       )
                     ],
@@ -215,7 +214,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                     child: DottedBorder(
                                         borderType: BorderType.RRect,
                                         dashPattern: [8, 4],
-                                        color: PaletteDark.menuList,
+                                        color: Theme.of(context).accentTextTheme.title.backgroundColor,
                                         strokeWidth: 2,
                                         radius: Radius.circular(20),
                                         child: Container(
@@ -232,7 +231,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                             style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w600,
-                                                color: PaletteDark.walletCardText
+                                                color: Theme.of(context).primaryTextTheme.caption.color
                                             ),
                                           ),
                                         )
@@ -273,7 +272,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                     child: Text(
                       description,
                       style: TextStyle(
-                          color: PaletteDark.walletCardText,
+                          color: Theme.of(context).primaryTextTheme.caption.color,
                           fontSize: 12
                       ),
                     ),

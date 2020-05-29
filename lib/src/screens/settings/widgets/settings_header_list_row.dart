@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:provider/provider.dart';
 
 class SettingsHeaderListRow extends StatelessWidget {
@@ -29,7 +28,8 @@ class SettingsHeaderListRow extends StatelessWidget {
                         ? settingsStore.itemHeaders[title]
                         : '',
                         style: TextStyle(
-                            fontSize: 15.0, color: Palette.wildDarkBlue),
+                            fontSize: 15.0,
+                            color: Theme.of(context).primaryTextTheme.caption.color),
                       ))
             ],
           ),

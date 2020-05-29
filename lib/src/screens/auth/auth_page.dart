@@ -8,7 +8,6 @@ import 'package:cake_wallet/src/stores/auth/auth_store.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
-import 'package:cake_wallet/palette.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
@@ -139,7 +138,7 @@ class AuthPageState extends State<AuthPage> {
             ),
           )
           : Container(),
-          backgroundColor: PaletteDark.historyPanel,
+          backgroundColor: Theme.of(context).backgroundColor,
           border: null,
         ),
         resizeToAvoidBottomPadding: false,
