@@ -88,7 +88,7 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
                   alignment: Alignment.center,
                   children: <Widget>[
                     Text(
-                      S.of(context).trade_history_title,
+                      S.of(context).transactions,
                       style: TextStyle(
                           fontSize: 20,
                           color: Theme.of(context).primaryTextTheme.title.color
