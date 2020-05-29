@@ -30,7 +30,8 @@ class PrimaryButton extends StatelessWidget {
           color: isDisabled ? color.withOpacity(0.5) : color,
           disabledColor: color.withOpacity(0.5),
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(26.0)),
+            borderRadius: BorderRadius.circular(26.0),
+          ),
           child: Text(text,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -150,12 +151,14 @@ class PrimaryImageButton extends StatelessWidget {
       @required this.image,
       @required this.text,
       @required this.color,
-      @required this.textColor});
+      @required this.textColor,
+      this.borderColor = Colors.transparent});
 
   final VoidCallback onPressed;
   final Image image;
   final Color color;
   final Color textColor;
+  final Color borderColor;
   final String text;
 
   @override
@@ -167,6 +170,7 @@ class PrimaryImageButton extends StatelessWidget {
           onPressed: onPressed,
           color: color,
           shape: RoundedRectangleBorder(
+            side: BorderSide(color: borderColor),
             borderRadius: BorderRadius.circular(26.0)),
           child:Center(
             child: Row(

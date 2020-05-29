@@ -35,7 +35,10 @@ class SendPage extends BasePage {
   String get title => S.current.send_title;
 
   @override
-  Color get backgroundColor => PaletteDark.menuList;
+  Color get backgroundLightColor => Palette.lavender;
+
+  @override
+  Color get backgroundDarkColor => PaletteDark.lightNightBlue;
 
   @override
   bool get resizeToAvoidBottomPadding => false;
@@ -49,7 +52,7 @@ class SendPage extends BasePage {
       width: 82,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(16)),
-        color: PaletteDark.menuHeader
+        color: Theme.of(context).accentTextTheme.title.color
       ),
       child: ButtonTheme(
         minWidth: double.minPositive,
@@ -130,13 +133,13 @@ class SendFormState extends State<SendForm> {
     _setEffects(context);
 
     return Container(
-      color: PaletteDark.historyPanel,
+      color: Theme.of(context).backgroundColor,
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(bottom: 24),
         content: Column(
           children: <Widget>[
             TopPanel(
-              color: PaletteDark.menuList,
+              color: Theme.of(context).accentTextTheme.title.backgroundColor,
               widget: Form(
                 key: _formKey,
                 child: Column(children: <Widget>[
@@ -162,6 +165,7 @@ class SendFormState extends State<SendForm> {
                       AddressTextFieldOption.qrCode,
                       AddressTextFieldOption.addressBook
                     ],
+                    buttonColor: Theme.of(context).accentTextTheme.title.color,
                     validator: (value) {
                       sendStore.validateAddress(value,
                           cryptoCurrency: CryptoCurrency.xmr);
@@ -175,7 +179,7 @@ class SendFormState extends State<SendForm> {
                         child: TextFormField(
                             style: TextStyle(
                                 fontSize: 16.0,
-                                color: Colors.white
+                                color: Theme.of(context).primaryTextTheme.title.color
                             ),
                             controller: _cryptoAmountController,
                             keyboardType: TextInputType.numberWithOptions(
@@ -191,7 +195,7 @@ class SendFormState extends State<SendForm> {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.white,
+                                        color: Theme.of(context).primaryTextTheme.title.color,
                                       )),
                                 ),
                                 suffixIcon: Padding(
@@ -211,7 +215,7 @@ class SendFormState extends State<SendForm> {
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                                 fontSize: 16,
-                                                color: PaletteDark.walletCardText
+                                                color: Theme.of(context).primaryTextTheme.caption.color
                                             )
                                         ),
                                       ),
@@ -220,7 +224,7 @@ class SendFormState extends State<SendForm> {
                                         width: 32,
                                         margin: EdgeInsets.only(left: 12, bottom: 7, top: 4),
                                         decoration: BoxDecoration(
-                                            color: PaletteDark.walletCardSubAddressField,
+                                            color: Theme.of(context).accentTextTheme.title.color,
                                             borderRadius: BorderRadius.all(Radius.circular(6))
                                         ),
                                         child: InkWell(
@@ -231,7 +235,7 @@ class SendFormState extends State<SendForm> {
                                                 style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.bold,
-                                                    color: PaletteDark.walletCardText
+                                                    color: Theme.of(context).primaryTextTheme.caption.color
                                                 )
                                             ),
                                           ),
@@ -242,15 +246,15 @@ class SendFormState extends State<SendForm> {
                                 ),
                                 hintStyle: TextStyle(
                                     fontSize: 16.0,
-                                    color: Colors.white),
+                                    color: Theme.of(context).primaryTextTheme.title.color),
                                 hintText: '0.0000',
                                 focusedBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: PaletteDark.walletCardSubAddressField,
+                                        color: Theme.of(context).dividerColor,
                                         width: 1.0)),
                                 enabledBorder: UnderlineInputBorder(
                                     borderSide: BorderSide(
-                                        color: PaletteDark.walletCardSubAddressField,
+                                        color: Theme.of(context).dividerColor,
                                         width: 1.0))),
                             validator: (value) {
                               sendStore.validateXMR(
@@ -265,7 +269,7 @@ class SendFormState extends State<SendForm> {
                     child: TextFormField(
                         style: TextStyle(
                             fontSize: 16.0,
-                            color: Colors.white),
+                            color: Theme.of(context).primaryTextTheme.title.color),
                         controller: _fiatAmountController,
                         keyboardType: TextInputType.numberWithOptions(
                             signed: false, decimal: true),
@@ -281,20 +285,20 @@ class SendFormState extends State<SendForm> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Theme.of(context).primaryTextTheme.title.color,
                                   )),
                             ),
                             hintStyle: TextStyle(
                                 fontSize: 16.0,
-                                color: PaletteDark.walletCardText),
+                                color: Theme.of(context).primaryTextTheme.caption.color),
                             hintText: '0.00',
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: PaletteDark.walletCardSubAddressField,
+                                    color: Theme.of(context).dividerColor,
                                     width: 1.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: PaletteDark.walletCardSubAddressField,
+                                    color: Theme.of(context).dividerColor,
                                     width: 1.0)))),
                   ),
                   Padding(
@@ -306,14 +310,14 @@ class SendFormState extends State<SendForm> {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: Theme.of(context).primaryTextTheme.title.color,
                             )),
                         Text(
                             '${calculateEstimatedFee(priority: settingsStore.transactionPriority)} XMR',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: Colors.white,
+                              color: Theme.of(context).primaryTextTheme.title.color,
                             ))
                       ],
                     ),
@@ -335,7 +339,7 @@ class SendFormState extends State<SendForm> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: PaletteDark.walletCardText
+                        color: Theme.of(context).primaryTextTheme.caption.color
                     ),
                   )
                 ],
@@ -363,7 +367,7 @@ class SendFormState extends State<SendForm> {
                               child: DottedBorder(
                                   borderType: BorderType.RRect,
                                   dashPattern: [8, 4],
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).accentTextTheme.title.backgroundColor,
                                   strokeWidth: 2,
                                   radius: Radius.circular(20),
                                   child: Container(
@@ -380,7 +384,7 @@ class SendFormState extends State<SendForm> {
                                       style: TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
-                                          color: PaletteDark.walletCardText
+                                          color: Theme.of(context).primaryTextTheme.caption.color
                                       ),
                                     ),
                                   )

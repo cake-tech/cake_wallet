@@ -1,8 +1,5 @@
-import 'package:cake_wallet/theme_changer.dart';
-import 'package:cake_wallet/themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
   factory NavBar(
@@ -11,8 +8,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       Widget middle,
       Widget trailing,
       Color backgroundColor}) {
-    final _themeChanger = Provider.of<ThemeChanger>(context);
-    final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
 
     return NavBar._internal(
         leading: leading,
@@ -20,8 +15,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
         trailing: trailing,
         height: _height,
         backgroundColor: backgroundColor);
-        /*backgroundColor:
-            _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor);*/
   }
 
   factory NavBar.withShadow(
@@ -30,8 +23,6 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       Widget middle,
       Widget trailing,
       Color backgroundColor}) {
-    final _themeChanger = Provider.of<ThemeChanger>(context);
-    final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
 
     return NavBar._internal(
       leading: leading,
@@ -39,13 +30,8 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
       trailing: trailing,
       height: 80,
       backgroundColor: backgroundColor,
-      /*backgroundColor:
-          _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor,*/
       decoration: BoxDecoration(
           color: backgroundColor,
-          /*_isDarkTheme
-              ? Theme.of(context).backgroundColor
-              : backgroundColor,*/
           boxShadow: [
             BoxShadow(
                 color: Color.fromRGBO(132, 141, 198, 0.11),

@@ -4,13 +4,15 @@ import 'package:cake_wallet/src/widgets/nav_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/themes.dart';
 import 'package:cake_wallet/theme_changer.dart';
+import 'package:cake_wallet/palette.dart';
 
 enum AppBarStyle { regular, withShadow }
 
 abstract class BasePage extends StatelessWidget {
   String get title => null;
   bool get isModalBackButton => false;
-  Color get backgroundColor => Colors.white;
+  Color get backgroundLightColor => Colors.white;
+  Color get backgroundDarkColor => PaletteDark.darkNightBlue;
   bool get resizeToAvoidBottomPadding => true;
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
@@ -31,16 +33,13 @@ abstract class BasePage extends StatelessWidget {
     final _themeChanger = Provider.of<ThemeChanger>(context);
     Image _closeButton, _backButton;
 
-    _backButton = _backArrowImageDarkTheme;
-    _closeButton = _closeButtonImageDarkTheme;
-
-    /*if (_themeChanger.getTheme() == Themes.darkTheme) {
+    if (_themeChanger.getTheme() == Themes.darkTheme) {
       _backButton = _backArrowImageDarkTheme;
       _closeButton = _closeButtonImageDarkTheme;
     } else {
       _backButton = _backArrowImage;
       _closeButton = _closeButtonImage;
-    }*/
+    }
 
     return SizedBox(
       height: 37,
@@ -65,8 +64,7 @@ abstract class BasePage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
-                color: Colors.white),
-                //color: Theme.of(context).primaryTextTheme.title.color),
+                color: Theme.of(context).primaryTextTheme.title.color),
           );
   }
 
@@ -85,10 +83,9 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: backgroundColor);
-            /*backgroundColor: _isDarkTheme
-                ? Theme.of(context).backgroundColor
-                : backgroundColor);*/
+            backgroundColor: _isDarkTheme
+                ? backgroundDarkColor
+                : backgroundLightColor);
 
       case AppBarStyle.withShadow:
         return NavBar.withShadow(
@@ -96,10 +93,9 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: backgroundColor);
-            /*backgroundColor: _isDarkTheme
-                ? Theme.of(context).backgroundColor
-                : backgroundColor);*/
+            backgroundColor: _isDarkTheme
+                ? backgroundDarkColor
+                : backgroundLightColor);
 
       default:
         return NavBar(
@@ -107,10 +103,9 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: backgroundColor);
-            /*backgroundColor: _isDarkTheme
-                ? Theme.of(context).backgroundColor
-                : backgroundColor);*/
+            backgroundColor: _isDarkTheme
+                ? backgroundDarkColor
+                : backgroundLightColor);
     }
   }
 
@@ -122,8 +117,9 @@ abstract class BasePage extends StatelessWidget {
     final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
 
     return Scaffold(
-        backgroundColor:
-            _isDarkTheme ? Theme.of(context).backgroundColor : backgroundColor,
+        backgroundColor: _isDarkTheme
+            ? backgroundDarkColor
+            : backgroundLightColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
         appBar: appBar(context),
         body: SafeArea(child: body(context)),

@@ -5,14 +5,10 @@ import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/palette.dart';
 
 class FaqPage extends BasePage {
   @override
   String get title => S.current.faq;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => FaqForm();
@@ -24,25 +20,25 @@ class FaqForm extends StatefulWidget {
 }
 
 class FaqFormState extends State<FaqForm> {
-  final addIcon = Icon(Icons.add, color: Colors.white);
-  final removeIcon = Icon(Icons.remove, color: Colors.green);
   List<Icon> icons;
   List<Color> colors;
   bool isLoaded = false;
 
   @override
   Widget build(BuildContext context) {
+    final addIcon = Icon(Icons.add, color: Theme.of(context).primaryTextTheme.title.color);
+    final removeIcon = Icon(Icons.remove, color: Colors.green);
+
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(top: 12),
       child: Container(
-        color: PaletteDark.menuList,
+        color: Theme.of(context).accentTextTheme.headline.color,
         child: FutureBuilder(
           builder: (context, snapshot) {
             final faqItems = jsonDecode(snapshot.data.toString()) as List;
 
             if (snapshot.hasData) {
-              setIconsAndColors(faqItems.length);
+              setIconsAndColors(context, faqItems.length, addIcon);
             }
 
             return SingleChildScrollView(
@@ -74,7 +70,7 @@ class FaqFormState extends State<FaqForm> {
                         ),
                       ),
                     ),
-                    backgroundColor: PaletteDark.menuHeader,
+                    backgroundColor: Theme.of(context).accentTextTheme.headline.backgroundColor,
                     onExpansionChanged: (value) {
                       setState(() {
                         if (value) {
@@ -82,7 +78,7 @@ class FaqFormState extends State<FaqForm> {
                           colors[index] = Colors.green;
                         } else {
                           icons[index] = addIcon;
-                          colors[index] = Colors.white;
+                          colors[index] = Theme.of(context).primaryTextTheme.title.color;
                         }
                       });
                     },
@@ -101,7 +97,7 @@ class FaqFormState extends State<FaqForm> {
                                   itemChild,
                                   style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.white
+                                      color: Theme.of(context).primaryTextTheme.title.color
                                   ),
                                 ),
                               ))
@@ -111,7 +107,7 @@ class FaqFormState extends State<FaqForm> {
                   );
                 },
                 separatorBuilder: (_, __) =>
-                    Container(color: PaletteDark.mainBackgroundColor, height: 1.0),
+                    Container(color: Theme.of(context).dividerColor, height: 1.0),
                 itemCount: faqItems == null ? 0 : faqItems.length,
               ),
             );
@@ -122,13 +118,13 @@ class FaqFormState extends State<FaqForm> {
     );
   }
 
-  void setIconsAndColors(int index) {
+  void setIconsAndColors(BuildContext context, int index, Icon icon) {
     if (isLoaded) {
       return;
     }
 
-    icons = List.generate(index, (int i) => addIcon);
-    colors = List.generate(index, (int i) => Colors.white);
+    icons = List.generate(index, (int i) => icon);
+    colors = List.generate(index, (int i) => Theme.of(context).primaryTextTheme.title.color);
 
     isLoaded = true;
   }

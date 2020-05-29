@@ -4,16 +4,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/routes.dart';
 
 class NewWalletTypePage extends BasePage {
   @override
   String get title => S.current.new_wallet;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => WalletTypeForm();
@@ -35,10 +31,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   bool isMoneroSelected;
   bool isBitcoinSelected;
 
-  Color moneroBackgroundColor;
-  Color moneroTextColor;
-  Color bitcoinBackgroundColor;
-  Color bitcoinTextColor;
+  Color moneroBackgroundColor = Colors.transparent;
+  Color moneroTextColor = Colors.transparent;
+  Color bitcoinBackgroundColor = Colors.transparent;
+  Color bitcoinTextColor = Colors.transparent;
 
   @override
   void initState() {
@@ -46,18 +42,21 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     isMoneroSelected = false;
     isBitcoinSelected = false;
 
-    moneroBackgroundColor = PaletteDark.menuList;
-    moneroTextColor = Colors.white;
-    bitcoinBackgroundColor = PaletteDark.menuList;
-    bitcoinTextColor = Colors.white;
-
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(afterLayout);
+  }
+
+  void afterLayout(dynamic _) {
+    moneroBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
+    moneroTextColor = Theme.of(context).primaryTextTheme.title.color;
+    bitcoinBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
+    bitcoinTextColor = Theme.of(context).primaryTextTheme.title.color;
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
@@ -78,7 +77,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white
+                  color: Theme.of(context).primaryTextTheme.title.color
                 ),
               ),
             ),
@@ -98,7 +97,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 text: 'Monero',
                 color: moneroBackgroundColor,
                 textColor: moneroTextColor,
-                onTap: () => onSelectMoneroButton()),
+                onTap: () => onSelectMoneroButton(context)),
             )
           ],
         ),
@@ -118,28 +117,28 @@ class WalletTypeFormState extends State<WalletTypeForm> {
     );
   }
 
-  void onSelectMoneroButton() {
+  void onSelectMoneroButton(BuildContext context) {
     isMoneroSelected = true;
     isBitcoinSelected = false;
     isDisabledButton = false;
 
-    moneroBackgroundColor = Colors.white;
-    moneroTextColor = PaletteDark.selectButtonText;
-    bitcoinBackgroundColor = PaletteDark.menuList;
-    bitcoinTextColor = Colors.white;
+    moneroBackgroundColor = Theme.of(context).accentTextTheme.title.decorationColor;
+    moneroTextColor = Theme.of(context).primaryTextTheme.title.backgroundColor;
+    bitcoinBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
+    bitcoinTextColor = Theme.of(context).primaryTextTheme.title.color;
 
     setState(() {});
   }
 
-  void onSelectBitcoinButton() {
+  void onSelectBitcoinButton(BuildContext context) {
     isMoneroSelected = false;
     isBitcoinSelected = true;
     isDisabledButton = false;
 
-    moneroBackgroundColor = PaletteDark.menuList;
-    moneroTextColor = Colors.white;
-    bitcoinBackgroundColor = Colors.white;
-    bitcoinTextColor = PaletteDark.selectButtonText;
+    moneroBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
+    moneroTextColor = Theme.of(context).primaryTextTheme.title.color;
+    bitcoinBackgroundColor = moneroBackgroundColor = Theme.of(context).accentTextTheme.title.decorationColor;
+    bitcoinTextColor = Theme.of(context).primaryTextTheme.title.backgroundColor;
 
     setState(() {});
   }

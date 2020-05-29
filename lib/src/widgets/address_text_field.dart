@@ -1,6 +1,5 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/contact.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
@@ -20,7 +19,7 @@ class AddressTextField extends StatelessWidget {
       this.onURIScanned,
       this.focusNode,
       this.isBorderExist = true,
-      this.buttonColor = PaletteDark.walletCardSubAddressField,
+      this.buttonColor,
       this.validator});
 
   static const prefixIconWidth = 34.0;
@@ -46,7 +45,7 @@ class AddressTextField extends StatelessWidget {
       focusNode: focusNode,
       style: TextStyle(
         fontSize: 16,
-        color: Colors.white
+        color: Theme.of(context).primaryTextTheme.title.color
       ),
       decoration: InputDecoration(
         suffixIcon: SizedBox(
@@ -66,7 +65,7 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: buttonColor,
+                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/qr_code_icon.png')),
@@ -84,7 +83,7 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: buttonColor,
+                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
@@ -103,7 +102,7 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: buttonColor,
+                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
                               borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
@@ -115,24 +114,24 @@ class AddressTextField extends StatelessWidget {
         ),
         hintStyle: TextStyle(
           fontSize: 16,
-          color: PaletteDark.walletCardText
+          color: Theme.of(context).primaryTextTheme.caption.color
         ),
         hintText: placeholder ?? S.current.widgets_address,
         focusedBorder: isBorderExist
           ? UnderlineInputBorder(
             borderSide: BorderSide(
-                color: PaletteDark.walletCardSubAddressField,
+                color: Theme.of(context).dividerColor,
                 width: 1.0))
           : InputBorder.none,
         disabledBorder: isBorderExist
             ? UnderlineInputBorder(
             borderSide:
-            BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0))
+            BorderSide(color: Theme.of(context).dividerColor, width: 1.0))
             : InputBorder.none,
         enabledBorder: isBorderExist
           ? UnderlineInputBorder(
             borderSide:
-                BorderSide(color: PaletteDark.walletCardSubAddressField, width: 1.0))
+                BorderSide(color: Theme.of(context).dividerColor, width: 1.0))
           : InputBorder.none,
       ),
       validator: validator,

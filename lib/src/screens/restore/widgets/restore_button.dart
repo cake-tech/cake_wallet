@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class RestoreButton extends StatelessWidget {
   const RestoreButton({
@@ -25,7 +24,7 @@ class RestoreButton extends StatelessWidget {
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(12)),
-            color: PaletteDark.menuList
+            color: Theme.of(context).accentTextTheme.title.backgroundColor,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -46,7 +45,7 @@ class RestoreButton extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white
+                          color: Theme.of(context).primaryTextTheme.title.color
                       ),
                     ),
                     Padding(
@@ -55,7 +54,7 @@ class RestoreButton extends StatelessWidget {
                         description,
                         style: TextStyle(
                             fontSize: 14,
-                            color: PaletteDark.walletCardText
+                            color: Theme.of(context).primaryTextTheme.caption.color
                         ),
                       ),
                     )

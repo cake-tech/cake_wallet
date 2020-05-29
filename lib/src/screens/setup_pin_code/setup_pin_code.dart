@@ -7,16 +7,12 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class SetupPinCodePage extends BasePage {
   SetupPinCodePage({this.onPinCodeSetup});
 
   final Function(BuildContext, String) onPinCodeSetup;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   String get title => S.current.setup_pin;

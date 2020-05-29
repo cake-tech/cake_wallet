@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:provider/provider.dart';
@@ -40,14 +39,17 @@ class DateSectionRaw extends StatelessWidget {
       padding: EdgeInsets.only(top: 10, bottom: 10, left: 20, right: 20),
       alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: PaletteDark.historyPanel,
+          color: Theme.of(context).backgroundColor,
           border: Border.all(
             width: 1,
-            color: PaletteDark.historyPanel
+            color: Theme.of(context).backgroundColor
           ),
         ),
       child: Text(title,
-          style: TextStyle(fontSize: 12, color: PaletteDark.historyPanelText))
+          style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).primaryTextTheme.headline.color
+          ))
     );
   }
 }

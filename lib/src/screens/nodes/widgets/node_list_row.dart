@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class NodeListRow extends StatelessWidget {
   NodeListRow({
@@ -27,7 +26,7 @@ class NodeListRow extends StatelessWidget {
         ? Container(
           width: double.infinity,
           height: 1,
-          color: PaletteDark.walletCardTopEndSync,
+          color: Theme.of(context).dividerColor,
         )
         : Offstage(),
         Container(
@@ -54,7 +53,7 @@ class NodeListRow extends StatelessWidget {
         ? Container(
           width: double.infinity,
           height: 1,
-          color: PaletteDark.walletCardTopEndSync,
+          color: Theme.of(context).dividerColor,
         )
         : Offstage(),
       ],

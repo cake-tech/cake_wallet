@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter/services.dart';
 
 class BaseTextFormField extends StatelessWidget {
@@ -12,9 +11,9 @@ class BaseTextFormField extends StatelessWidget {
     this.hintText = '',
     this.maxLines = 1,
     this.inputFormatters,
-    this.textColor = Colors.white,
-    this.hintColor = PaletteDark.walletCardText,
-    this.borderColor = PaletteDark.menuList,
+    this.textColor,
+    this.hintColor,
+    this.borderColor,
     this.prefix,
     this.suffix,
     this.suffixIcon,
@@ -52,26 +51,26 @@ class BaseTextFormField extends StatelessWidget {
       enabled: enabled,
       style: TextStyle(
         fontSize: 16.0,
-        color: textColor
+        color: textColor ?? Theme.of(context).primaryTextTheme.title.color
       ),
       decoration: InputDecoration(
         prefix: prefix,
         suffix: suffix,
         suffixIcon: suffixIcon,
         hintStyle: TextStyle(
-          color: hintColor,
+          color: hintColor ?? Theme.of(context).primaryTextTheme.caption.color,
           fontSize: 16
         ),
         hintText: hintText,
         focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: borderColor,
+            color: borderColor ?? Theme.of(context).dividerColor,
             width: 1.0
           )
         ),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: borderColor,
+            color: borderColor ?? Theme.of(context).dividerColor,
             width: 1.0
           )
         )

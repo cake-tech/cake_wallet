@@ -12,7 +12,6 @@ import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
@@ -30,9 +29,6 @@ class NewWalletPage extends BasePage {
 
   @override
   String get title => S.current.new_wallet;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => WalletNameForm();
@@ -102,7 +98,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
     });
 
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
@@ -124,21 +119,21 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     style: TextStyle(
                         fontSize: 20.0,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white),
+                        color: Theme.of(context).primaryTextTheme.title.color),
                     controller: nameController,
                     decoration: InputDecoration(
                         hintStyle: TextStyle(
                             fontSize: 16.0,
-                            color: PaletteDark.walletCardText),
+                            color: Theme.of(context).primaryTextTheme.caption.color),
                         hintText: S.of(context).wallet_name,
                         focusedBorder: UnderlineInputBorder(
                             borderSide:
                             BorderSide(
-                                color: PaletteDark.walletCardSubAddressField,
+                                color: Theme.of(context).dividerColor,
                                 width: 1.0)),
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: PaletteDark.walletCardSubAddressField,
+                                color: Theme.of(context).dividerColor,
                                 width: 1.0))),
                     validator: (value) {
                       walletCreationStore.validateWalletName(value);
@@ -153,7 +148,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 style: TextStyle(
                   fontSize: 16.0,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white
+                  color: Theme.of(context).primaryTextTheme.title.color
                 ),
               ),
             ),
@@ -162,8 +157,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 builder: (_) => SelectButton(
                   image: null,
                   text: seedLocales[seedLanguages.indexOf(seedLanguageStore.selectedSeedLanguage)],
-                  color: PaletteDark.menuList,
-                  textColor: Colors.white,
+                  color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                  textColor: Theme.of(context).primaryTextTheme.title.color,
                   onTap: () async => await showDialog(
                     context: context,
                     builder: (BuildContext context) => SeedLanguagePicker()

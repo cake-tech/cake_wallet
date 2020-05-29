@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -13,9 +12,6 @@ class DisclaimerPage extends BasePage {
   DisclaimerPage({this.isReadOnly = false});
 
   final bool isReadOnly;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   String get title => 'Terms of Use';
@@ -78,7 +74,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: PaletteDark.historyPanel,
+      color: Theme.of(context).backgroundColor,
       child: Column(
         children: <Widget>[
           SizedBox(height: 10.0),
@@ -99,7 +95,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                   fontSize: 20.0,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white
+                                  color: Theme.of(context).primaryTextTheme.title.color
                                 ),
                               ),
                             )
@@ -120,7 +116,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 12.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white
+                                    color: Theme.of(context).primaryTextTheme.title.color
                                 ),
                               ),
                             )
@@ -136,7 +132,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   _fileText,
                                   style: TextStyle(
                                       fontSize: 12.0,
-                                      color: Colors.white
+                                      color: Theme.of(context).primaryTextTheme.title.color
                                   ),
                                 ))
                           ],
@@ -154,7 +150,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                 style: TextStyle(
                                     fontSize: 14.0,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white
+                                    color: Theme.of(context).primaryTextTheme.title.color
                                 ),
                               ),
                             )
@@ -240,8 +236,8 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  PaletteDark.historyPanel.withOpacity(0.0),
-                                  PaletteDark.historyPanel,
+                                  Theme.of(context).backgroundColor.withOpacity(0.0),
+                                  Theme.of(context).backgroundColor,
                                 ],
                                 begin: FractionalOffset.topCenter,
                                 end: FractionalOffset.bottomCenter,
@@ -279,10 +275,10 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               ),
                               decoration: BoxDecoration(
                                   border: Border.all(
-                                      color: Palette.lightGrey, width: 1.0),
+                                      color: Theme.of(context).primaryTextTheme.caption.color, width: 1.0),
                                   borderRadius: BorderRadius.all(
                                       Radius.circular(8.0)),
-                                  color: PaletteDark.historyPanel),
+                                  color: Theme.of(context).backgroundColor),
                               child: _checked
                               ? Icon(
                                 Icons.check,
@@ -296,7 +292,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 14.0,
-                                  color: Colors.white
+                                  color: Theme.of(context).primaryTextTheme.title.color
                               ),
                             )
                           ],

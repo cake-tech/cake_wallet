@@ -6,7 +6,6 @@ import 'package:cake_wallet/src/stores/action_list/transaction_list_item.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -58,101 +57,104 @@ class TradeHistoryPanelState extends State<TradeHistoryPanel> {
         height: panelHeight,
         duration: Duration(milliseconds: 1000),
         curve: Curves.fastOutSlowIn,
-        child: CustomScrollView(
-          slivers: <Widget>[
-            SliverPersistentHeader(
-              delegate: ButtonHeader(),
-              pinned: true,
-              floating: false,
-            ),
-            Observer(
-                key: _listObserverKey,
-                builder: (_) {
-                  final items = actionListStore.items == null
-                      ? <String>[]
-                      : actionListStore.items;
-                  final itemsCount = items.length + 1;
-                  final symbol = settingsStore.fiatCurrency.toString();
-                  double freeSpaceHeight = MediaQuery.of(context).size.height - 496;
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverPersistentHeader(
+                delegate: ButtonHeader(),
+                pinned: true,
+                floating: false,
+              ),
+              Observer(
+                  key: _listObserverKey,
+                  builder: (_) {
+                    final items = actionListStore.items == null
+                        ? <String>[]
+                        : actionListStore.items;
+                    final itemsCount = items.length + 1;
+                    final symbol = settingsStore.fiatCurrency.toString();
+                    double freeSpaceHeight = MediaQuery.of(context).size.height - 496;
 
-                  return SliverList(
-                    key: _listKey,
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
+                    return SliverList(
+                        key: _listKey,
+                        delegate: SliverChildBuilderDelegate(
+                                (context, index) {
 
-                        if (index == itemsCount - 1) {
-                          freeSpaceHeight = freeSpaceHeight >= 0 ? freeSpaceHeight : 0;
+                              if (index == itemsCount - 1) {
+                                freeSpaceHeight = freeSpaceHeight >= 0 ? freeSpaceHeight : 0;
 
-                          return Container(
-                            height: freeSpaceHeight,
-                            width: MediaQuery.of(context).size.width,
-                            color: PaletteDark.historyPanel,
-                          );
-                        }
+                                return Container(
+                                  height: freeSpaceHeight,
+                                  width: MediaQuery.of(context).size.width,
+                                  color: Theme.of(context).backgroundColor,
+                                );
+                              }
 
-                        final item = items[index];
+                              final item = items[index];
 
-                        if (item is DateSectionItem) {
-                          freeSpaceHeight -= 38;
-                          return DateSectionRaw(date: item.date);
-                        }
+                              if (item is DateSectionItem) {
+                                freeSpaceHeight -= 38;
+                                return DateSectionRaw(date: item.date);
+                              }
 
-                        if (item is TransactionListItem) {
-                          freeSpaceHeight -= 62;
-                          final transaction = item.transaction;
-                          final savedDisplayMode = settingsStore.balanceDisplayMode;
-                          final formattedAmount =
-                          savedDisplayMode == BalanceDisplayMode.hiddenBalance
-                              ? '---'
-                              : transaction.amountFormatted();
-                          final formattedFiatAmount =
-                          savedDisplayMode == BalanceDisplayMode.hiddenBalance
-                              ? '---'
-                              : transaction.fiatAmount(symbol);
+                              if (item is TransactionListItem) {
+                                freeSpaceHeight -= 62;
+                                final transaction = item.transaction;
+                                final savedDisplayMode = settingsStore.balanceDisplayMode;
+                                final formattedAmount =
+                                savedDisplayMode == BalanceDisplayMode.hiddenBalance
+                                    ? '---'
+                                    : transaction.amountFormatted();
+                                final formattedFiatAmount =
+                                savedDisplayMode == BalanceDisplayMode.hiddenBalance
+                                    ? '---'
+                                    : transaction.fiatAmount(symbol);
 
-                          return TransactionRow(
-                              onTap: () => Navigator.of(context).pushNamed(
-                                  Routes.transactionDetails,
-                                  arguments: transaction),
-                              direction: transaction.direction,
-                              formattedDate:
-                              transactionDateFormat.format(transaction.date),
-                              formattedAmount: formattedAmount,
-                              formattedFiatAmount: formattedFiatAmount,
-                              isPending: transaction.isPending);
-                        }
+                                return TransactionRow(
+                                    onTap: () => Navigator.of(context).pushNamed(
+                                        Routes.transactionDetails,
+                                        arguments: transaction),
+                                    direction: transaction.direction,
+                                    formattedDate:
+                                    transactionDateFormat.format(transaction.date),
+                                    formattedAmount: formattedAmount,
+                                    formattedFiatAmount: formattedFiatAmount,
+                                    isPending: transaction.isPending);
+                              }
 
-                        if (item is TradeListItem) {
-                          freeSpaceHeight -= 62;
-                          final trade = item.trade;
-                          final savedDisplayMode = settingsStore.balanceDisplayMode;
-                          final formattedAmount = trade.amount != null
-                              ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
-                              ? '---'
-                              : trade.amountFormatted()
-                              : trade.amount;
+                              if (item is TradeListItem) {
+                                freeSpaceHeight -= 62;
+                                final trade = item.trade;
+                                final savedDisplayMode = settingsStore.balanceDisplayMode;
+                                final formattedAmount = trade.amount != null
+                                    ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
+                                    ? '---'
+                                    : trade.amountFormatted()
+                                    : trade.amount;
 
-                          return TradeRow(
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(Routes.tradeDetails, arguments: trade),
-                              provider: trade.provider,
-                              from: trade.from,
-                              to: trade.to,
-                              createdAtFormattedDate:
-                              transactionDateFormat.format(trade.createdAt),
-                              formattedAmount: formattedAmount);
-                        }
+                                return TradeRow(
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.tradeDetails, arguments: trade),
+                                    provider: trade.provider,
+                                    from: trade.from,
+                                    to: trade.to,
+                                    createdAtFormattedDate:
+                                    transactionDateFormat.format(trade.createdAt),
+                                    formattedAmount: formattedAmount);
+                              }
 
-                        return Container(
-                          color: PaletteDark.historyPanel
-                        );
-                      },
+                              return Container(
+                                  color: Theme.of(context).backgroundColor
+                              );
+                            },
 
-                      childCount: itemsCount
-                    )
-                  );
-                })
-          ],
+                            childCount: itemsCount
+                        )
+                    );
+                  })
+            ],
+          ),
         )
       ),
     );

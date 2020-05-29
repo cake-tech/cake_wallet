@@ -21,7 +21,10 @@ class SendTemplatePage extends BasePage {
   String get title => S.current.send_title;
 
   @override
-  Color get backgroundColor => PaletteDark.menuList;
+  Color get backgroundLightColor => Palette.lavender;
+
+  @override
+  Color get backgroundDarkColor => PaletteDark.lightNightBlue;
 
   @override
   bool get resizeToAvoidBottomPadding => false;
@@ -65,33 +68,33 @@ class SendTemplateFormState extends State<SendTemplateForm> {
     _setEffects(context);
 
     return Container(
-      color: PaletteDark.historyPanel,
+      color: Theme.of(context).backgroundColor,
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(bottom: 24),
         content: Column(
           children: <Widget>[
             TopPanel(
-              color: PaletteDark.menuList,
+              color: Theme.of(context).accentTextTheme.title.backgroundColor,
               widget: Form(
                 key: _formKey,
                 child: Column(children: <Widget>[
                   TextFormField(
                       style: TextStyle(
                           fontSize: 16.0,
-                          color: Colors.white),
+                          color: Theme.of(context).primaryTextTheme.title.color),
                       controller: _nameController,
                       decoration: InputDecoration(
                           hintStyle: TextStyle(
                               fontSize: 16.0,
-                              color: PaletteDark.walletCardText),
+                              color: Theme.of(context).primaryTextTheme.caption.color),
                           hintText: S.of(context).send_name,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.walletCardSubAddressField,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0)),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.walletCardSubAddressField,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0))),
                       validator: (value) {
                         sendTemplateStore.validateTemplate(value);
@@ -121,6 +124,7 @@ class SendTemplateFormState extends State<SendTemplateForm> {
                         AddressTextFieldOption.qrCode,
                         AddressTextFieldOption.addressBook
                       ],
+                      buttonColor: Theme.of(context).accentTextTheme.title.color,
                       validator: (value) {
                         sendTemplateStore.validateTemplate(value);
                         return sendTemplateStore.errorMessage;
@@ -134,7 +138,7 @@ class SendTemplateFormState extends State<SendTemplateForm> {
                           child: TextFormField(
                               style: TextStyle(
                                   fontSize: 16.0,
-                                  color: Colors.white
+                                  color: Theme.of(context).primaryTextTheme.title.color
                               ),
                               controller: _cryptoAmountController,
                               keyboardType: TextInputType.numberWithOptions(
@@ -150,20 +154,20 @@ class SendTemplateFormState extends State<SendTemplateForm> {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white,
+                                          color: Theme.of(context).primaryTextTheme.title.color,
                                         )),
                                   ),
                                   hintStyle: TextStyle(
                                       fontSize: 16.0,
-                                      color: Colors.white),
+                                      color: Theme.of(context).primaryTextTheme.title.color),
                                   hintText: '0.0000',
                                   focusedBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
-                                          color: PaletteDark.walletCardSubAddressField,
+                                          color: Theme.of(context).dividerColor,
                                           width: 1.0)),
                                   enabledBorder: UnderlineInputBorder(
                                       borderSide: BorderSide(
-                                          color: PaletteDark.walletCardSubAddressField,
+                                          color: Theme.of(context).dividerColor,
                                           width: 1.0))),
                               ),
                         );
@@ -174,7 +178,7 @@ class SendTemplateFormState extends State<SendTemplateForm> {
                     child: TextFormField(
                         style: TextStyle(
                             fontSize: 16.0,
-                            color: Colors.white),
+                            color: Theme.of(context).primaryTextTheme.title.color),
                         controller: _fiatAmountController,
                         keyboardType: TextInputType.numberWithOptions(
                             signed: false, decimal: true),
@@ -190,20 +194,20 @@ class SendTemplateFormState extends State<SendTemplateForm> {
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: Theme.of(context).primaryTextTheme.title.color,
                                   )),
                             ),
                             hintStyle: TextStyle(
                                 fontSize: 16.0,
-                                color: PaletteDark.walletCardText),
+                                color: Theme.of(context).primaryTextTheme.caption.color),
                             hintText: '0.00',
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: PaletteDark.walletCardSubAddressField,
+                                    color: Theme.of(context).dividerColor,
                                     width: 1.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: PaletteDark.walletCardSubAddressField,
+                                    color: Theme.of(context).dividerColor,
                                     width: 1.0)))),
                   ),
                 ]),
