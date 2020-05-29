@@ -6,24 +6,21 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
-import 'package:cake_wallet/palette.dart';
 
 class ExchangeConfirmPage extends BasePage {
   ExchangeConfirmPage({@required this.trade});
 
   final Trade trade;
-  final copyImage = Image.asset('assets/images/copy_content.png', color: Colors.white);
 
   @override
   String get title => S.current.copy_id;
 
   @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
-  @override
   Widget body(BuildContext context) {
+    final copyImage = Image.asset('assets/images/copy_content.png',
+        color: Theme.of(context).primaryTextTheme.title.color);
+
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.all(24),
       child: Column(
         children: <Widget>[
@@ -38,7 +35,7 @@ class ExchangeConfirmPage extends BasePage {
                       style: TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white),
+                          color: Theme.of(context).primaryTextTheme.title.color),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 60),
@@ -48,7 +45,7 @@ class ExchangeConfirmPage extends BasePage {
                         style: TextStyle(
                             fontSize: 16.0,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white),
+                            color: Theme.of(context).primaryTextTheme.title.color),
                       ),
                     ),
                     Padding(
@@ -72,7 +69,7 @@ class ExchangeConfirmPage extends BasePage {
                             padding: EdgeInsets.only(left: 24, right: 24),
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.all(Radius.circular(30)),
-                                color: PaletteDark.menuList
+                                color: Theme.of(context).accentTextTheme.title.backgroundColor
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.max,
@@ -85,7 +82,7 @@ class ExchangeConfirmPage extends BasePage {
                                     style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w600,
-                                        color: Colors.white
+                                        color: Theme.of(context).primaryTextTheme.title.color
                                     ),
                                   ),
                                 ),

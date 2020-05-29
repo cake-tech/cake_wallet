@@ -28,7 +28,10 @@ class RestoreWalletFromSeedPage extends BasePage {
   String get title => S.current.restore_title_from_seed;
 
   @override
-  Color get backgroundColor => PaletteDark.menuList;
+  Color get backgroundLightColor => Palette.lavender;
+
+  @override
+  Color get backgroundDarkColor => PaletteDark.lightNightBlue;
 
   @override
   Widget body(BuildContext context) => RestoreFromSeedForm(key: formKey);
@@ -54,7 +57,7 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
       onTap: () =>
           SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
       child: Container(
-        color: PaletteDark.historyPanel,
+        color: Theme.of(context).backgroundColor,
         child: SeedWidget(
           key: _seedKey,
           onMnemoticChange: (seed) => walletRestorationStore.setSeed(seed),

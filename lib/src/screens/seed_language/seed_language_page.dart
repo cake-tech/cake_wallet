@@ -6,15 +6,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 
 class SeedLanguage extends BasePage {
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
   @override
   Widget body(BuildContext context) => SeedLanguageForm();
 }
@@ -44,7 +40,6 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
     ];
 
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
@@ -64,7 +59,7 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
                     style: TextStyle(
                         fontSize: 16.0,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white
+                        color: Theme.of(context).primaryTextTheme.title.color
                     ),
                   ),
                 ),
@@ -73,8 +68,8 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
                       builder: (_) => SelectButton(
                           image: null,
                           text: seedLocales[seedLanguages.indexOf(seedLanguageStore.selectedSeedLanguage)],
-                          color: PaletteDark.menuList,
-                          textColor: Colors.white,
+                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                          textColor: Theme.of(context).primaryTextTheme.title.color,
                           onTap: () async => await showDialog(
                               context: context,
                               builder: (BuildContext context) => SeedLanguagePicker()

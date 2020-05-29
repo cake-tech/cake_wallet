@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/node_list/node_list_store.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -12,9 +11,6 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 class NewNodePage extends BasePage {
   @override
   String get title => S.current.node_new;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => NewNodePageForm();
@@ -58,7 +54,6 @@ class NewNodeFormState extends State<NewNodePageForm> {
     _nodePortController.addListener(() {onHandleControllers(nodeList);});
 
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(left: 24, right: 24),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(bottom: 24.0),
@@ -72,22 +67,22 @@ class NewNodeFormState extends State<NewNodePageForm> {
                     child: TextFormField(
                       style: TextStyle(
                           fontSize: 16.0,
-                          color: Colors.white
+                          color: Theme.of(context).primaryTextTheme.title.color
                       ),
                       decoration: InputDecoration(
                           hintStyle:
                           TextStyle(
-                              color: PaletteDark.walletCardText,
+                              color: Theme.of(context).primaryTextTheme.caption.color,
                               fontSize: 16
                           ),
                           hintText: S.of(context).node_address,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0)),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0))),
                       controller: _nodeAddressController,
                       validator: (value) {
@@ -105,24 +100,24 @@ class NewNodeFormState extends State<NewNodePageForm> {
                     child: TextFormField(
                       style: TextStyle(
                           fontSize: 16.0,
-                          color: Colors.white
+                          color: Theme.of(context).primaryTextTheme.title.color
                       ),
                       keyboardType: TextInputType.numberWithOptions(
                           signed: false, decimal: false),
                       decoration: InputDecoration(
                           hintStyle:
                           TextStyle(
-                              color: PaletteDark.walletCardText,
+                              color: Theme.of(context).primaryTextTheme.caption.color,
                               fontSize: 16
                           ),
                           hintText: S.of(context).node_port,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0)),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0))),
                       controller: _nodePortController,
                       validator: (value) {
@@ -140,22 +135,22 @@ class NewNodeFormState extends State<NewNodePageForm> {
                     child: TextFormField(
                       style: TextStyle(
                           fontSize: 16.0,
-                          color: Colors.white
+                          color: Theme.of(context).primaryTextTheme.title.color
                       ),
                       decoration: InputDecoration(
                           hintStyle:
                           TextStyle(
-                              color: PaletteDark.walletCardText,
+                              color: Theme.of(context).primaryTextTheme.caption.color,
                               fontSize: 16
                           ),
                           hintText: S.of(context).login,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0)),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0))),
                       controller: _loginController,
                       validator: (value) => null,
@@ -170,22 +165,22 @@ class NewNodeFormState extends State<NewNodePageForm> {
                     child: TextFormField(
                       style: TextStyle(
                           fontSize: 16.0,
-                          color: Colors.white
+                          color: Theme.of(context).primaryTextTheme.title.color
                       ),
                       decoration: InputDecoration(
                           hintStyle:
                           TextStyle(
-                              color: PaletteDark.walletCardText,
+                              color: Theme.of(context).primaryTextTheme.caption.color,
                               fontSize: 16
                           ),
                           hintText: S.of(context).password,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0)),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: PaletteDark.menuList,
+                                  color: Theme.of(context).dividerColor,
                                   width: 1.0))),
                       controller: _passwordController,
                       validator: (value) => null,

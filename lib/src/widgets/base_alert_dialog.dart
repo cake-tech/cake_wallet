@@ -18,7 +18,7 @@ class BaseAlertDialog extends StatelessWidget {
       style: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,
       ),
     );
@@ -31,7 +31,7 @@ class BaseAlertDialog extends StatelessWidget {
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.w600,
-        color: Colors.white,
+        color: Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,
       ),
     );
@@ -122,7 +122,7 @@ class BaseAlertDialog extends StatelessWidget {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
           child: Container(
-            decoration: BoxDecoration(color: PaletteDark.historyPanel.withOpacity(0.75)),
+            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
             child: Center(
               child: GestureDetector(
                 onTap: () => null,
@@ -131,7 +131,7 @@ class BaseAlertDialog extends StatelessWidget {
                   height: 257,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(24)),
-                    color: PaletteDark.menuHeader
+                    color: Theme.of(context).accentTextTheme.title.backgroundColor
                   ),
                   child: Column(
                     children: <Widget>[
@@ -152,7 +152,7 @@ class BaseAlertDialog extends StatelessWidget {
                       Container(
                         width: 300,
                         height: 1,
-                        color: PaletteDark.menuList,
+                        color: Theme.of(context).dividerColor,
                       ),
                       Container(
                         width: 300,

@@ -16,9 +16,6 @@ class TransactionDetailsPage extends BasePage {
   final TransactionInfo transactionInfo;
 
   @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
-  @override
   String get title => S.current.transaction_details_title;
 
   @override
@@ -78,16 +75,15 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: PaletteDark.historyPanel,
       padding: EdgeInsets.only(top: 20, bottom: 20),
       child: ListView.separated(
           separatorBuilder: (context, index) => Container(
             height: 1,
             padding: EdgeInsets.only(left: 24),
-            color: PaletteDark.menuList,
+            color: Theme.of(context).accentTextTheme.title.backgroundColor,
             child: Container(
               height: 1,
-              color: PaletteDark.walletCardTopEndSync,
+              color: Theme.of(context).dividerColor,
             ),
           ),
           itemCount: _items.length,

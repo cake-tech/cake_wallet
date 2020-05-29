@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -22,9 +21,6 @@ class ContactPage extends BasePage {
 
   @override
   String get title => S.current.contact;
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   Widget body(BuildContext context) => ContactForm(contact);
@@ -45,10 +41,6 @@ class ContactFormState extends State<ContactForm> {
   final _currencyTypeController = TextEditingController();
   final _addressController = TextEditingController();
   final currencies = CryptoCurrency.all;
-  final downArrow = Image.asset(
-      'assets/images/arrow_bottom_purple_icon.png',
-      color: PaletteDark.walletCardText,
-      height: 8);
 
   CryptoCurrency _selectectCrypto;
 
@@ -90,13 +82,17 @@ class ContactFormState extends State<ContactForm> {
   @override
   Widget build(BuildContext context) {
     final addressBookStore = Provider.of<AddressBookStore>(context);
+    final downArrow = Image.asset(
+        'assets/images/arrow_bottom_purple_icon.png',
+        color: Theme.of(context).dividerColor,
+        height: 8);
 
     _contactNameController.addListener(() {onHandleControllers(addressBookStore);});
     _currencyTypeController.addListener(() {onHandleControllers(addressBookStore);});
     _addressController.addListener(() {onHandleControllers(addressBookStore);});
 
     return Container(
-      color: PaletteDark.historyPanel,
+      color: Theme.of(context).backgroundColor,
       child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.all(24),
           content: Form(
@@ -107,7 +103,6 @@ class ContactFormState extends State<ContactForm> {
                 BaseTextFormField(
                   controller: _contactNameController,
                   hintText: S.of(context).contact_name,
-                  borderColor: PaletteDark.walletCardSubAddressField,
                   validator: (value) {
                     addressBookStore.validateContactName(value);
                     return addressBookStore.errorMessage;
@@ -122,7 +117,6 @@ class ContactFormState extends State<ContactForm> {
                         child: BaseTextFormField(
                           controller: _currencyTypeController,
                           hintText: S.of(context).settings_currency,
-                          borderColor: PaletteDark.walletCardSubAddressField,
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.end,

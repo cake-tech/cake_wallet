@@ -23,7 +23,7 @@ class HeaderTile extends StatelessWidget {
             top: 24,
             bottom: 24
         ),
-        color: Colors.transparent,
+        color: Theme.of(context).backgroundColor,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -33,7 +33,7 @@ class HeaderTile extends StatelessWidget {
               style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white
+                  color: Theme.of(context).primaryTextTheme.title.color
               ),
             ),
             Container(
@@ -41,7 +41,7 @@ class HeaderTile extends StatelessWidget {
               width: 32,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: PaletteDark.menuList
+                  color: Theme.of(context).primaryTextTheme.overline.color
               ),
               child: icon,
             )

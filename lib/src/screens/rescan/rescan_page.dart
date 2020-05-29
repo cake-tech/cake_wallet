@@ -17,7 +17,7 @@ class RescanPage extends BasePage {
     final rescanWalletStore = Provider.of<RescanWalletStore>(context);
 
     return Padding(
-      padding: EdgeInsets.only(left: 20, right: 20, bottom: 20),
+      padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
       child:
           Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         BlockchainHeightWidget(key: blockchainKey),
@@ -31,9 +31,8 @@ class RescanPage extends BasePage {
                       restoreHeight: blockchainKey.currentState.height);
                   Navigator.of(context).pop();
                 },
-                color:
-                    Theme.of(context).primaryTextTheme.button.backgroundColor,
-                textColor: Theme.of(context).primaryTextTheme.button.color,))
+                color: Colors.blue,
+                textColor: Colors.white,))
       ]),
     );
   }

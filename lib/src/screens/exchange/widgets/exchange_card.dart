@@ -1,6 +1,5 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
@@ -21,7 +20,7 @@ class ExchangeCard extends StatefulWidget {
       this.onCurrencySelected,
       this.imageArrow,
       this.currencyButtonColor = Colors.transparent,
-      this.addressButtonsColor = PaletteDark.walletCardSubAddressField,
+      this.addressButtonsColor = Colors.transparent,
       this.currencyValueValidator,
       this.addressTextFieldValidator})
       : super(key: key);
@@ -124,7 +123,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: PaletteDark.walletCardText
+                color: Theme.of(context).primaryTextTheme.caption.color
               ),
             )
           ],
@@ -144,7 +143,6 @@ class ExchangeCardState extends State<ExchangeCard> {
                         RegExp('[\\-|\\ |\\,]'))
                   ],
                   hintText: '0.0000',
-                  borderColor: PaletteDark.borderCardColor,
                   validator: widget.currencyValueValidator
               ),
               Positioned(
@@ -165,7 +163,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                               style: TextStyle(
                                   fontWeight: FontWeight.w600,
                                   fontSize: 16,
-                                  color: Colors.white)),
+                                  color: Theme.of(context).primaryTextTheme.title.color)),
                           Padding(
                             padding: EdgeInsets.only(left: 5),
                             child: widget.imageArrow,
@@ -189,7 +187,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   style: TextStyle(
                       fontSize: 10,
                       height: 1.2,
-                      color: PaletteDark.walletCardText),
+                      color: Theme.of(context).primaryTextTheme.caption.color),
                 )
                     : Offstage(),
                 _min != null ? SizedBox(width: 10) : Offstage(),
@@ -200,7 +198,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                     style: TextStyle(
                         fontSize: 10,
                         height: 1.2,
-                        color: PaletteDark.walletCardText))
+                        color: Theme.of(context).primaryTextTheme.caption.color))
                     : Offstage(),
               ]),
         ),

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/stores/wallet_seed/wallet_seed_store.dart';
@@ -15,9 +14,6 @@ class SeedPage extends BasePage {
   SeedPage({this.onCloseCallback});
 
   static final image = Image.asset('assets/images/crypto_lock.png');
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
 
   @override
   String get title => S.current.seed_title;
@@ -44,7 +40,7 @@ class SeedPage extends BasePage {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(16)),
-              color: PaletteDark.menuList
+              color: Theme.of(context).accentTextTheme.title.color
             ),
             child: Text(
               S.of(context).seed_language_next,
@@ -67,7 +63,6 @@ class SeedPage extends BasePage {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: PaletteDark.historyPanel,
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(left: 40, right: 40, bottom: 20),
         content: Column(
@@ -90,7 +85,7 @@ class SeedPage extends BasePage {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white
+                          color: Theme.of(context).primaryTextTheme.title.color
                         ),
                       ),
                       Padding(
@@ -100,7 +95,7 @@ class SeedPage extends BasePage {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
-                            color: PaletteDark.walletCardText
+                            color: Theme.of(context).primaryTextTheme.caption.color
                           ),
                         ),
                       )

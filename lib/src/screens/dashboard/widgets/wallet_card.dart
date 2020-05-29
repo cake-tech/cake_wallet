@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +10,6 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
@@ -25,7 +25,6 @@ class WalletCardState extends State<WalletCard> {
   final _balanceObserverKey = GlobalKey();
   final _addressObserverKey = GlobalKey();
 
-  final List<Color> colorsSync = [PaletteDark.walletCardSubAddressField, PaletteDark.walletCardBottomEndSync];
   double cardWidth;
   double cardHeight;
   double screenWidth;
@@ -58,6 +57,11 @@ class WalletCardState extends State<WalletCard> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Color> colorsSync = [
+      Theme.of(context).cardTheme.color,
+      Theme.of(context).hoverColor
+    ];
+
     return Container(
       width: double.infinity,
       height: cardHeight,
@@ -75,38 +79,40 @@ class WalletCardState extends State<WalletCard> {
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-          color: PaletteDark.borderCardColor,
+          color: Theme.of(context).focusColor,
           boxShadow: [
             BoxShadow(
-              color: PaletteDark.historyPanel.withOpacity(0.5),
+              color: PaletteDark.darkNightBlue.withOpacity(0.5),
               blurRadius: 8,
               offset: Offset(5, 5))
           ]
         ),
-        child: Container(
-          width: cardWidth,
-          height: cardHeight,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-              color: PaletteDark.historyPanel
+        child: ClipRRect(
+          borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+          child: Container(
+            width: cardWidth,
+            height: cardHeight,
+            color: Theme.of(context).cardColor,
+            child: InkWell(
+                onTap: () => setState(() => isFrontSide = !isFrontSide),
+                child: isFrontSide
+                    ? frontSide(colorsSync)
+                    : backSide(colorsSync)
+            ),
           ),
-          child: InkWell(
-              onTap: () => setState(() => isFrontSide = !isFrontSide),
-              child: isFrontSide
-                  ? frontSide()
-                  : backSide()
-          ),
-        ),
+        )
       ),
     );
   }
 
-  Widget frontSide() {
+  Widget frontSide(List<Color> colorsSync) {
     final syncStore = Provider.of<SyncStore>(context);
     final walletStore = Provider.of<WalletStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
     final balanceStore = Provider.of<BalanceStore>(context);
-    final triangleButton = Image.asset('assets/images/triangle.png');
+    final triangleButton = Image.asset('assets/images/triangle.png',
+      color: Theme.of(context).primaryTextTheme.title.color,
+    );
 
     return Observer(
       key: _syncingObserverKey,
@@ -159,7 +165,7 @@ class WalletCardState extends State<WalletCard> {
                   child: Container(
                     width: 1,
                     height: cardHeight,
-                    color: PaletteDark.borderCardColor,
+                    color: Theme.of(context).focusColor,
                   )
               )
               : Offstage(),
@@ -180,7 +186,7 @@ class WalletCardState extends State<WalletCard> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 InkWell(
-                                  onTap: () {print('TAP 2');},
+                                  onTap: () {},
                                   child: Row(
                                     children: <Widget>[
                                       Text(
@@ -188,7 +194,7 @@ class WalletCardState extends State<WalletCard> {
                                         style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.bold,
-                                            color: Colors.white
+                                            color: Theme.of(context).primaryTextTheme.title.color
                                         ),
                                       ),
                                       SizedBox(width: 10),
@@ -202,8 +208,8 @@ class WalletCardState extends State<WalletCard> {
                                 Text(
                                   walletStore.account.label,
                                   style: TextStyle(
-                                      fontSize: 12,
-                                      color: PaletteDark.walletCardText
+                                    fontSize: 12,
+                                    color: Theme.of(context).primaryTextTheme.caption.color
                                   ),
                                 )
                               ],
@@ -213,14 +219,14 @@ class WalletCardState extends State<WalletCard> {
                               height: 32,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                  color: PaletteDark.walletCardAddressField,
+                                  color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
                                   borderRadius: BorderRadius.all(Radius.circular(16))
                               ),
                               child: Text(
                                 shortAddress,
                                 style: TextStyle(
                                     fontSize: 12,
-                                    color: PaletteDark.walletCardAddressText
+                                    color: Theme.of(context).primaryTextTheme.caption.color
                                 ),
                               ),
                             )
@@ -265,7 +271,7 @@ class WalletCardState extends State<WalletCard> {
                                         balanceDisplayMode.toString(),
                                         style: TextStyle(
                                             fontSize: 12,
-                                            color: PaletteDark.walletCardText
+                                            color: Theme.of(context).primaryTextTheme.caption.color
                                         ),
                                       ),
                                       SizedBox(height: 5),
@@ -273,7 +279,7 @@ class WalletCardState extends State<WalletCard> {
                                         balance,
                                         style: TextStyle(
                                             fontSize: 28,
-                                            color: Colors.white
+                                            color: Theme.of(context).primaryTextTheme.title.color
                                         ),
                                       )
                                     ],
@@ -282,7 +288,7 @@ class WalletCardState extends State<WalletCard> {
                                     fiatBalance,
                                     style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.white
+                                        color: Theme.of(context).primaryTextTheme.title.color
                                     ),
                                   )
                                 ],
@@ -300,7 +306,7 @@ class WalletCardState extends State<WalletCard> {
                                   statusText,
                                   style: TextStyle(
                                       fontSize: 12,
-                                      color: PaletteDark.walletCardText
+                                      color: Theme.of(context).primaryTextTheme.caption.color
                                   ),
                                 ),
                                 SizedBox(height: 5),
@@ -308,7 +314,7 @@ class WalletCardState extends State<WalletCard> {
                                   descriptionText,
                                   style: TextStyle(
                                       fontSize: 14,
-                                      color: Colors.white
+                                      color: Theme.of(context).primaryTextTheme.title.color
                                   ),
                                 )
                               ],
@@ -327,9 +333,11 @@ class WalletCardState extends State<WalletCard> {
     );
   }
 
-  Widget backSide() {
+  Widget backSide(List<Color> colorsSync) {
     final walletStore = Provider.of<WalletStore>(context);
-    final rightArrow = Image.asset('assets/images/right_arrow.png');
+    final rightArrow = Image.asset('assets/images/right_arrow.png',
+      color: Theme.of(context).primaryTextTheme.title.color,
+    );
     double messageBoxHeight = 0;
     double messageBoxWidth = cardWidth - 10;
 
@@ -371,7 +379,7 @@ class WalletCardState extends State<WalletCard> {
                                   S.current.card_address,
                                   style: TextStyle(
                                       fontSize: 12,
-                                      color: PaletteDark.walletCardText
+                                      color: Theme.of(context).primaryTextTheme.caption.color
                                   ),
                                 ),
                                 GestureDetector(
@@ -397,7 +405,7 @@ class WalletCardState extends State<WalletCard> {
                                     walletStore.subaddress.address,
                                     style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.white
+                                        color: Theme.of(context).primaryTextTheme.title.color
                                     ),
                                   ),
                                 )
@@ -412,7 +420,7 @@ class WalletCardState extends State<WalletCard> {
                           child: QrImage(
                             data: walletStore.subaddress.address,
                             backgroundColor: Colors.transparent,
-                            foregroundColor: PaletteDark.walletCardText,
+                            foregroundColor: Theme.of(context).primaryTextTheme.caption.color
                           ),
                         )
                       ],
@@ -423,7 +431,7 @@ class WalletCardState extends State<WalletCard> {
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(22)),
-                          color: PaletteDark.walletCardSubAddressField
+                          color: Theme.of(context).primaryTextTheme.overline.color
                       ),
                       child: InkWell(
                         onTap: () => Navigator.of(context,
@@ -436,7 +444,7 @@ class WalletCardState extends State<WalletCard> {
                               S.of(context).accounts_subaddresses,
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.white
+                                color: Theme.of(context).primaryTextTheme.title.color
                               ),
                             ),
                             rightArrow

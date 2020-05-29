@@ -14,10 +14,6 @@ import 'package:cake_wallet/src/screens/wallet_list/wallet_menu.dart';
 import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_tile.dart';
 
 class WalletListPage extends BasePage {
-
-  @override
-  Color get backgroundColor => PaletteDark.historyPanel;
-
   @override
   Widget body(BuildContext context) => WalletListBody();
 }
@@ -29,8 +25,6 @@ class WalletListBody extends StatefulWidget {
 
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon = Image.asset('assets/images/monero.png', height: 24, width: 24);
-  final newWalletImage = Image.asset('assets/images/new_wallet.png', height: 12, width: 12, color: PaletteDark.historyPanel);
-  final restoreWalletImage = Image.asset('assets/images/restore_wallet.png', height: 12, width: 12, color: Colors.white);
   WalletListStore _walletListStore;
   ScrollController scrollController = ScrollController();
 
@@ -39,10 +33,18 @@ class WalletListBodyState extends State<WalletListBody> {
     final walletStore = Provider.of<WalletStore>(context);
     _walletListStore = Provider.of<WalletListStore>(context);
 
+    final newWalletImage = Image.asset('assets/images/new_wallet.png',
+        height: 12,
+        width: 12,
+        color: Palette.oceanBlue);
+    final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme.title.color);
+
     return SafeArea(
       child: Container(
         padding: EdgeInsets.only(top: 16),
-        color: PaletteDark.historyPanel,
         child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 20),
             content: Container(
@@ -51,7 +53,8 @@ class WalletListBodyState extends State<WalletListBody> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     separatorBuilder: (_, index) => Divider(
-                        color: PaletteDark.historyPanel, height: 16),
+                        color: Theme.of(context).backgroundColor,
+                        height: 16),
                     itemCount: _walletListStore.wallets.length,
                     itemBuilder: (__, index) {
                       final wallet = _walletListStore.wallets[index];
@@ -110,7 +113,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                       child: Container(
                                         height: 108,
                                         width: 108,
-                                        color: PaletteDark.historyPanel,
+                                        color: Theme.of(context).backgroundColor,
                                         child: Container(
                                           padding: EdgeInsets.only(left: 5, right: 5),
                                           decoration: BoxDecoration(
@@ -156,15 +159,17 @@ class WalletListBodyState extends State<WalletListBody> {
                 image: newWalletImage,
                 text: S.of(context).wallet_list_create_new_wallet,
                 color: Colors.white,
-                textColor: PaletteDark.historyPanel),
+                textColor: Palette.oceanBlue,
+                borderColor: Palette.oceanBlue,
+              ),
               SizedBox(height: 10.0),
               PrimaryImageButton(
                 onPressed: () =>
                     Navigator.of(context).pushNamed(Routes.restoreWalletOptions),
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: PaletteDark.historyPanelButton,
-                textColor: Colors.white)
+                color: Theme.of(context).primaryTextTheme.overline.color,
+                textColor: Theme.of(context).primaryTextTheme.title.color)
             ])),
       )
     );
