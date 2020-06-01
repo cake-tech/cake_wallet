@@ -4,18 +4,29 @@ import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
 class WalletMenu {
   WalletMenu(this.context);
 
   final List<String> items = [
     S.current.reconnect,
-    S.current.rescan,
     S.current.wallets,
+    S.current.nodes,
     S.current.show_seed,
     S.current.show_keys,
-    S.current.accounts,
-    S.current.address_book_menu
+    S.current.address_book_menu,
+    S.current.settings_title
+  ];
+
+  final List<Image> images = [
+    Image.asset('assets/images/reconnect.png'),
+    Image.asset('assets/images/wallet.png'),
+    Image.asset('assets/images/nodes.png'),
+    Image.asset('assets/images/eye.png'),
+    Image.asset('assets/images/key.png'),
+    Image.asset('assets/images/open_book.png'),
+    Image.asset('assets/images/settings.png'),
   ];
 
   final BuildContext context;
@@ -26,11 +37,10 @@ class WalletMenu {
         _presentReconnectAlert(context);
         break;
       case 1:
-        Navigator.of(context).pushNamed(Routes.rescan);
+        Navigator.of(context).pushNamed(Routes.walletList);
         break;
       case 2:
-        Navigator.of(context).pushNamed(Routes.walletList);
-
+        Navigator.of(context).pushNamed(Routes.nodeList);
         break;
       case 3:
         Navigator.of(context).pushNamed(Routes.auth,
@@ -49,10 +59,10 @@ class WalletMenu {
                     : null);
         break;
       case 5:
-        Navigator.of(context).pushNamed(Routes.accountList);
+        Navigator.of(context).pushNamed(Routes.addressBook);
         break;
       case 6:
-        Navigator.of(context).pushNamed(Routes.addressBook);
+        Navigator.of(context).pushNamed(Routes.settings);
         break;
       default:
         break;
@@ -65,23 +75,16 @@ class WalletMenu {
     await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              S.of(context).reconnection,
-              textAlign: TextAlign.center,
-            ),
-            content: Text(S.of(context).reconnect_alert_text),
-            actions: <Widget>[
-              FlatButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(S.of(context).cancel)),
-              FlatButton(
-                  onPressed: () {
-                    walletStore.reconnect();
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(S.of(context).ok))
-            ],
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).reconnection,
+              alertContent: S.of(context).reconnect_alert_text,
+              leftButtonText: S.of(context).ok,
+              rightButtonText: S.of(context).cancel,
+              actionLeftButton: () {
+                walletStore.reconnect();
+                Navigator.of(context).pop();
+              },
+              actionRightButton: () => Navigator.of(context).pop()
           );
         });
   }

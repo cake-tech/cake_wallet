@@ -1,8 +1,9 @@
 {
-  "welcome" : "WELKOM\nBIJ CAKE WALLET",
-  "first_wallet_text" : "Geweldige portemonnee\nfvoor Monero",
-  "please_make_selection" : "Maak hieronder uw keuze tot\nmaak of herstel je portemonnee.",
-  "create_new" : "Maak nieuw",
+  "welcome" : "Welkom bij",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Geweldige portemonnee fvoor Monero",
+  "please_make_selection" : "Maak hieronder uw keuze tot maak of herstel je portemonnee.",
+  "create_new" : "Maak een nieuwe portemonnee",
   "restore_wallet" : "Portemonnee herstellen",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "Contactnaam",
   "reset" : "Reset",
   "save" : "Opslaan",
+  "address_remove_contact" : "Contact verwijderen",
+  "address_remove_content" : "Weet u zeker dat u het geselecteerde contact wilt verwijderen?",
 
 
   "authenticated" : "Authenticated",
@@ -73,7 +76,7 @@
 
   "copy_id" : "ID kopiëren",
   "exchange_result_write_down_trade_id" : "Kopieer of noteer de handels-ID om door te gaan.",
-  "trade_id" : "Trade ID:\n${id}",
+  "trade_id" : "Trade ID:",
   "copied_to_clipboard" : "Gekopieerd naar het klembord",
   "saved_the_trade_id" : "Ik heb de ruil-ID opgeslagen",
   "fetching" : "Ophalen",
@@ -95,6 +98,7 @@
   "expired" : "Verlopen",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Sturen XMR",
+  "exchange_new_template" : "Nieuwe sjabloon",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "Nieuwe portemonnee",
   "wallet_name" : "Portemonnee naam",
   "continue_text" : "Doorgaan met",
+  "choose_wallet_currency" : "Kies een portemonnee-valuta:",
 
 
   "node_new" : "Nieuw knooppunt",
@@ -122,15 +127,20 @@
   "remove_node_message" : "Weet u zeker dat u het geselecteerde knooppunt wilt verwijderen?",
   "remove" : "Verwijderen",
   "delete" : "Delete",
+  "add_new_node" : "Voeg een nieuw knooppunt toe",
 
 
-  "use" : "Overschakelen naar ",
+  "use" : "Gebruik ",
   "digit_pin" : "-cijferige PIN",
 
 
   "share_address" : "Deel adres",
   "receive_amount" : "Bedrag",
   "subaddresses" : "Subadressen",
+  "rename" : "Hernoemen",
+  "choose_account" : "Kies account",
+  "create_new_account" : "Creëer een nieuw account",
+  "accounts_subaddresses" : "Accounts en subadressen",
 
 
   "restore_restore_wallet" : "Portemonnee herstellen",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "Sleutel uitgeven (privaat)",
   "restore_recover" : "Herstellen",
   "restore_wallet_restore_description" : "Portemonnee-herstelbeschrijving",
+  "restore_new_seed" : "Nieuw zaad",
+  "restore_active_seed" : "Actief zaad",
 
 
   "seed_title" : "Zaad",
@@ -157,7 +169,8 @@
   "copy" : "Kopiëren",
 
 
-  "seed_language_choose" : "Kies een starttaal",
+  "seed_language_choose" : "Kies een starttaal:",
+  "seed_choose" : "Kies een starttaal",
   "seed_language_next" : "Volgende",
   "seed_language_english" : "Engels",
   "seed_language_chinese" : "Chinese",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "Geschatte vergoeding:",
   "send_priority" : "Momenteel is de vergoeding vastgesteld op ${transactionPriority} prioriteit.\nTransactieprioriteit kan worden aangepast in de instellingen",
   "send_creating_transaction" : "Transactie maken",
+  "send_templates" : "Sjablonen",
+  "send_new" : "Nieuw",
+  "send_amount" : "Bedrag:",
+  "send_fee" : "Vergoeding:",
+  "send_name" : "Naam",
+  "send_got_it" : "Ik snap het",
+  "send_sending" : "Bezig met verzenden...",
+  "send_success" : "Uw Monero is succesvol verzonden",
 
 
   "settings_title" : "Instellingen",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is minder dan minimaal: ${min} ${currency}",
   "error_text_maximum_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is meer dan maximaal: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Ruil voor ${provider} is niet gemaakt. Beperkingen laden mislukt",
+  "error_text_template" : "Sjabloonnaam en -adres mogen niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 106 tekens lang zijn",
 
 
   "auth_store_ban_timeout" : "time-out verbieden",
@@ -349,5 +371,8 @@
   "version" : "Versie ${currentVersion}",
 
   "openalias_alert_title" : "XMR-ontvanger gedetecteerd",
-  "openalias_alert_content" : "U stuurt geld naar\n${recipient_name}"
+  "openalias_alert_content" : "U stuurt geld naar\n${recipient_name}",
+
+  "card_address" : "Adres:",
+  "buy" : "Kopen"
 }

@@ -1,14 +1,15 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
 
 class ExchangeCard extends StatefulWidget {
   ExchangeCard(
       {Key key,
+      this.title = '',
       this.initialCurrency,
       this.initialAddress,
       this.initialWalletName,
@@ -18,12 +19,15 @@ class ExchangeCard extends StatefulWidget {
       this.currencies,
       this.onCurrencySelected,
       this.imageArrow,
+      this.currencyButtonColor = Colors.transparent,
+      this.addressButtonsColor = Colors.transparent,
       this.currencyValueValidator,
       this.addressTextFieldValidator})
       : super(key: key);
 
   final List<CryptoCurrency> currencies;
   final Function(CryptoCurrency) onCurrencySelected;
+  final String title;
   final CryptoCurrency initialCurrency;
   final String initialWalletName;
   final String initialAddress;
@@ -31,6 +35,8 @@ class ExchangeCard extends StatefulWidget {
   final bool initialIsAddressEditable;
   final bool isAmountEstimated;
   final Image imageArrow;
+  final Color currencyButtonColor;
+  final Color addressButtonsColor;
   final FormFieldValidator<String> currencyValueValidator;
   final FormFieldValidator<String> addressTextFieldValidator;
 
@@ -42,6 +48,7 @@ class ExchangeCardState extends State<ExchangeCard> {
   final addressController = TextEditingController();
   final amountController = TextEditingController();
 
+  String _title;
   String _min;
   String _max;
   CryptoCurrency _selectedCurrency;
@@ -52,6 +59,7 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   @override
   void initState() {
+    _title = widget.title;
     _isAmountEditable = widget.initialIsAmountEditable;
     _isAddressEditable = widget.initialIsAddressEditable;
     _walletName = widget.initialWalletName;
@@ -103,157 +111,114 @@ class ExchangeCardState extends State<ExchangeCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(22, 15, 22, 30),
       width: double.infinity,
-      decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.all(Radius.circular(12))),
-      child: Column(children: <Widget>[
-        _isAmountEstimated != null && _isAmountEstimated
-            ? Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-                SizedBox(
-                  height: 30,
-                  child: Container(
-                    padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                    decoration: BoxDecoration(
-                        color: Palette.lightGrey,
-                        borderRadius: BorderRadius.circular(10.0)),
-                    child: Text(
-                      S.of(context).estimated,
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Palette.wildDarkBlue,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ])
-            : Container(),
-        Container(
-          child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                Container(
-                  height: 52,
-                  width: 90,
+      color: Colors.transparent,
+      child: Column(
+        children: <Widget>[
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              _title,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).primaryTextTheme.caption.color
+              ),
+            )
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: Stack(
+            children: <Widget>[
+              BaseTextFormField(
+                  controller: amountController,
+                  enabled: _isAmountEditable,
+                  textAlign: TextAlign.left,
+                  keyboardType: TextInputType.numberWithOptions(
+                      signed: false, decimal: true),
+                  inputFormatters: [
+                    BlacklistingTextInputFormatter(
+                        RegExp('[\\-|\\ |\\,]'))
+                  ],
+                  hintText: '0.0000',
+                  validator: widget.currencyValueValidator
+              ),
+              Positioned(
+                top: 8,
+                right: 0,
+                child: Container(
+                  height: 32,
+                  padding: EdgeInsets.only(left: 10),
+                  color: widget.currencyButtonColor,
                   child: InkWell(
                     onTap: () => _presentPicker(context),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Text(_selectedCurrency.toString(),
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 24,
-                                        color: Theme.of(context)
-                                            .primaryTextTheme
-                                            .title
-                                            .color)),
-                                widget.imageArrow
-                              ]),
-                          _walletName != null
-                              ? Text(_walletName,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Palette.wildDarkBlue))
-                              : SizedBox(),
+                          Text(
+                              _selectedCurrency.toString(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: Theme.of(context).primaryTextTheme.title.color)),
+                          Padding(
+                            padding: EdgeInsets.only(left: 5),
+                            child: widget.imageArrow,
+                          )
                         ]),
                   ),
                 ),
-                SizedBox(width: 10),
-                Flexible(
-                  child: Column(
-                    children: [
-                      TextFormField(
-                          style: TextStyle(fontSize: 23, height: 1.21),
-                          controller: amountController,
-                          enabled: _isAmountEditable,
-                          textAlign: TextAlign.right,
-                          keyboardType: TextInputType.numberWithOptions(
-                              signed: false, decimal: true),
-                          inputFormatters: [
-                            BlacklistingTextInputFormatter(
-                                RegExp('[\\-|\\ |\\,]'))
-                          ],
-                          decoration: InputDecoration(
-                              hintStyle: TextStyle(
-                                  color: Theme.of(context).cardTheme.color,
-                                  fontSize: 23,
-                                  height: 1.21),
-                              hintText: '0.00000000',
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Palette.cakeGreen, width: 2.0)),
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: _isAmountEditable
-                                          ? Palette.deepPurple
-                                          : Theme.of(context).focusColor,
-                                      width: 1.0))),
-                          validator: widget.currencyValueValidator),
-                      SizedBox(height: 5),
-                      SizedBox(
-                        height: 15,
-                        width: double.infinity,
-                        child: Container(
-                          child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                _min != null
-                                    ? Text(
-                                        S.of(context).min_value(
-                                            _min, _selectedCurrency.toString()),
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            height: 1.2,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .subtitle
-                                                .color),
-                                      )
-                                    : SizedBox(),
-                                _min != null ? SizedBox(width: 10) : SizedBox(),
-                                _max != null
-                                    ? Text(
-                                        S.of(context).max_value(
-                                            _max, _selectedCurrency.toString()),
-                                        style: TextStyle(
-                                            fontSize: 10,
-                                            height: 1.2,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .subtitle
-                                                .color))
-                                    : SizedBox(),
-                              ]),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              )
+            ],
+          )
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 5),
+          child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                _min != null
+                    ? Text(
+                  S.of(context).min_value(
+                      _min, _selectedCurrency.toString()),
+                  style: TextStyle(
+                      fontSize: 10,
+                      height: 1.2,
+                      color: Theme.of(context).primaryTextTheme.caption.color),
+                )
+                    : Offstage(),
+                _min != null ? SizedBox(width: 10) : Offstage(),
+                _max != null
+                    ? Text(
+                    S.of(context).max_value(
+                        _max, _selectedCurrency.toString()),
+                    style: TextStyle(
+                        fontSize: 10,
+                        height: 1.2,
+                        color: Theme.of(context).primaryTextTheme.caption.color))
+                    : Offstage(),
               ]),
         ),
-        SizedBox(height: 10),
-        AddressTextField(
-          controller: addressController,
-          isActive: _isAddressEditable,
-          options: _isAddressEditable
-              ? _walletName != null
-                  ? [
-                      AddressTextFieldOption.qrCode,
-                      AddressTextFieldOption.addressBook,
-                      AddressTextFieldOption.subaddressList
-                    ]
-                  : [
-                      AddressTextFieldOption.qrCode,
-                      AddressTextFieldOption.addressBook,
-                    ]
-              : [],
-          validator: widget.addressTextFieldValidator,
+        Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: AddressTextField(
+            controller: addressController,
+            isActive: _isAddressEditable,
+            options: _isAddressEditable
+            ? _walletName != null
+            ? []
+            : [
+              AddressTextFieldOption.qrCode,
+              AddressTextFieldOption.addressBook,
+            ]
+            : [],
+            isBorderExist: false,
+            buttonColor: widget.addressButtonsColor,
+            validator: widget.addressTextFieldValidator,
+          ),
         )
       ]),
     );
@@ -261,14 +226,14 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   void _presentPicker(BuildContext context) {
     showDialog<void>(
-        builder: (_) => Picker(
-            items: widget.currencies,
+        builder: (_) => CurrencyPicker(
             selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
+            items: widget.currencies,
             title: S.of(context).change_currency,
             onItemSelected: (CryptoCurrency item) =>
-                widget.onCurrencySelected != null
-                    ? widget.onCurrencySelected(item)
-                    : null),
+            widget.onCurrencySelected != null
+                ? widget.onCurrencySelected(item)
+                : null),
         context: context);
   }
 }

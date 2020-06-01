@@ -1,9 +1,10 @@
 {
-  "welcome" : "환영\n에 CAKE WALLET",
-  "first_wallet_text" : "멋진 지갑\n에 대한 Monero",
-  "please_make_selection" : "아래에서 선택하십시오\n지갑 만들기 또는 복구.",
-  "create_new" : "새로 만들기",
-  "restore_wallet" : "지갑 복원",
+  "welcome" : "환영 에",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "멋진 지갑 에 대한 Monero",
+  "please_make_selection" : "아래에서 선택하십시오 지갑 만들기 또는 복구.",
+  "create_new" : "새 월렛 만들기",
+  "restore_wallet" : "월렛 복원",
 
 
   "accounts" : "계정",
@@ -20,6 +21,8 @@
   "contact_name" : "담당자 이름",
   "reset" : "다시 놓기",
   "save" : "구하다",
+  "address_remove_contact" : "연락처 삭제",
+  "address_remove_content" : "선택한 연락처를 삭제 하시겠습니까?",
 
 
   "authenticated" : "인증",
@@ -73,7 +76,7 @@
 
   "copy_id" : "부 ID",
   "exchange_result_write_down_trade_id" : "계속하려면 거래 ID를 복사하거나 적어 두십시오..",
-  "trade_id" : "무역 ID:\n${id}",
+  "trade_id" : "무역 ID:",
   "copied_to_clipboard" : "클립 보드에 복사",
   "saved_the_trade_id" : "거래 ID를 저장했습니다",
   "fetching" : "가져 오는 중",
@@ -95,6 +98,7 @@
   "expired" : "만료",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "보내다 XMR",
+  "exchange_new_template" : "새 템플릿",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "새 월렛",
   "wallet_name" : "지갑 이름",
   "continue_text" : "잇다",
+  "choose_wallet_currency" : "지갑 통화를 선택하십시오:",
 
 
   "node_new" : "새로운 노드",
@@ -122,15 +127,20 @@
   "remove_node_message" : "선택한 노드를 제거 하시겠습니까?",
   "remove" : "없애다",
   "delete" : "지우다",
+  "add_new_node" : "새 노드 추가",
 
 
-  "use" : "로 전환 ",
+  "use" : "사용하다 ",
   "digit_pin" : "숫자 PIN",
 
 
   "share_address" : "주소 공유",
   "receive_amount" : "양",
   "subaddresses" : "하위 주소",
+  "rename" : "이름 바꾸기",
+  "choose_account" : "계정을 선택하십시오",
+  "create_new_account" : "새 계정을 만들",
+  "accounts_subaddresses" : "계정 및 하위 주소",
 
 
   "restore_restore_wallet" : "월렛 복원",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "지출 키 (은밀한)",
   "restore_recover" : "다시 덮다",
   "restore_wallet_restore_description" : "월렛 복원 설명",
+  "restore_new_seed" : "새로운 씨앗",
+  "restore_active_seed" : "활성 종자",
 
 
   "seed_title" : "씨",
@@ -157,7 +169,8 @@
   "copy" : "부",
 
 
-  "seed_language_choose" : "종자 언어를 선택하십시오",
+  "seed_language_choose" : "종자 언어를 선택하십시오:",
+  "seed_choose" : "시드 언어를 선택하십시오",
   "seed_language_next" : "다음 것",
   "seed_language_english" : "영어",
   "seed_language_chinese" : "중국말",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "예상 수수료:",
   "send_priority" : "현재 수수료는 ${transactionPriority} 우선 순위.\n거래 우선 순위는 설정에서 조정할 수 있습니다",
   "send_creating_transaction" : "거래 생성",
+  "send_templates" : "템플릿",
+  "send_new" : "새로운",
+  "send_amount" : "양:",
+  "send_fee" : "회비:",
+  "send_name" : "이름",
+  "send_got_it" : "알았다",
+  "send_sending" : "배상...",
+  "send_success" : "Monero가 성공적으로 전송되었습니다",
 
 
   "settings_title" : "설정",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최소보다 적습니다. ${min} ${currency}",
   "error_text_maximum_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최대 값보다 많습니다. ${max} ${currency}",
   "error_text_limits_loading_failed" : "거래 ${provider} 가 생성되지 않습니다. 로딩 실패",
+  "error_text_template" : "템플릿 이름과 주소는 포함 할 수 없습니다 ` , ' \" 기호 \n1 ~ 106 자 사이 여야합니다",
 
 
   "auth_store_ban_timeout" : "타임 아웃 금지",
@@ -349,5 +371,8 @@
   "version" : "버전 ${currentVersion}",
 
   "openalias_alert_title" : "XMR 수신자 감지",
-  "openalias_alert_content" : "당신은에 자금을 보낼 것입니다\n${recipient_name}"
+  "openalias_alert_content" : "당신은에 자금을 보낼 것입니다\n${recipient_name}",
+
+  "card_address" : "주소:",
+  "buy" : "구입"
 }

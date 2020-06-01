@@ -1,8 +1,9 @@
 {
-  "welcome" : "Приветствуем в CAKE WALLET",
+  "welcome" : "Приветствуем в",
+  "cake_wallet" : "Cake Wallet",
   "first_wallet_text" : "В самом удобном кошельке для Monero",
   "please_make_selection" : "Выберите способ создания кошелька: создать новый или восстановить ваш существующий.",
-  "create_new" : "Создать новый",
+  "create_new" : "Создать новый кошелёк",
   "restore_wallet" : "Восстановить кошелёк",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "Имя контакта",
   "reset" : "Сброс",
   "save" : "Сохранить",
+  "address_remove_contact" : "Удалить контакт",
+  "address_remove_content" : "Вы уверены, что хотите удалить выбранный контакт?",
 
 
   "authenticated" : "Аутентифицировано",
@@ -73,7 +76,7 @@
 
   "copy_id" : "Скопировать ID",
   "exchange_result_write_down_trade_id" : "Пожалуйста, скопируйте или запишите ID сделки.",
-  "trade_id" : "ID сделки:\n${id}",
+  "trade_id" : "ID сделки:",
   "copied_to_clipboard" : "Скопировано в буфер обмена",
   "saved_the_trade_id" : "Я сохранил ID сделки",
   "fetching" : "Загрузка",
@@ -95,6 +98,7 @@
   "expired" : "Истекает",
   "time" : "${minutes}мин ${seconds}сек",
   "send_xmr" : "Отправить XMR",
+  "exchange_new_template" : "Новый шаблон",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "Новый кошелёк",
   "wallet_name" : "Имя кошелька",
   "continue_text" : "Продолжить",
+  "choose_wallet_currency" : "Пожалуйста, выберите валюту кошелька:",
 
 
   "node_new" : "Новая нода",
@@ -122,15 +127,20 @@
   "remove_node_message" : "Вы уверены, что хотите удалить текущую ноду?",
   "remove" : "Удалить",
   "delete" : "Удалить",
+  "add_new_node" : "Добавить новую ноду",
 
 
-  "use" : "Переключиться на ",
+  "use" : "Использовать ",
   "digit_pin" : "-значный PIN",
 
 
   "share_address" : "Поделиться адресом",
   "receive_amount" : "Сумма",
   "subaddresses" : "Субадреса",
+  "rename" : "Переименовать",
+  "choose_account" : "Выберите аккаунт",
+  "create_new_account" : "Создать новый аккаунт",
+  "accounts_subaddresses" : "Аккаунты и субадреса",
 
 
   "restore_restore_wallet" : "Восстановить кошелёк",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "Приватный ключ траты",
   "restore_recover" : "Восстановить",
   "restore_wallet_restore_description" : "Описание восстановления кошелька",
+  "restore_new_seed" : "Новая мнемоническая фраза",
+  "restore_active_seed" : "Активная мнемоническая фраза",
 
 
   "seed_title" : "Мнемоническая фраза",
@@ -157,7 +169,8 @@
   "copy" : "Скопировать",
 
 
-  "seed_language_choose" : "Пожалуйста, выберите язык мнемонической фразы",
+  "seed_language_choose" : "Пожалуйста, выберите язык мнемонической фразы:",
+  "seed_choose" : "Выберите язык мнемонической фразы",
   "seed_language_next" : "Продолжить",
   "seed_language_english" : "Английский",
   "seed_language_chinese" : "Китайский",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "Предполагаемая комиссия:",
   "send_priority" : "Комиссия установлена в зависимости от приоритета: ${transactionPriority}.\nПриоритет транзакции может быть изменён в настройках",
   "send_creating_transaction" : "Создать транзакцию",
+  "send_templates" : "Шаблоны",
+  "send_new" : "Новый",
+  "send_amount" : "Сумма:",
+  "send_fee" : "Комиссия:",
+  "send_name" : "Имя",
+  "send_got_it" : "Понял",
+  "send_sending" : "Отправка...",
+  "send_success" : "Ваш Monero был успешно отправлен",
 
 
   "settings_title" : "Настройки",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "Сделка для ${provider} не создана. Сумма меньше минимальной: ${min} ${currency}",
   "error_text_maximum_limit" : "Сделка для ${provider} не создана. Сумма больше максимальной: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Сделка для ${provider} не создана. Ошибка загрузки лимитов",
+  "error_text_template" : "Имя и адрес шаблона не может содержать ` , ' \" символы\nи должно быть от 1 до 106 символов в длину",
 
 
   "auth_store_ban_timeout" : "ban_timeout",
@@ -349,5 +371,8 @@
   "version" : "Версия ${currentVersion}",
 
   "openalias_alert_title" : "Получатель XMR обнаружен",
-  "openalias_alert_content" : "Вы будете отправлять средства\n${recipient_name}"
+  "openalias_alert_content" : "Вы будете отправлять средства\n${recipient_name}",
+
+  "card_address" : "Адрес:",
+  "buy" : "Купить"
 }

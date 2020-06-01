@@ -1,120 +1,153 @@
+import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/account_list/account_list_store.dart';
+import 'package:cake_wallet/src/screens/accounts/widgets/account_tile.dart';
 import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 
-class AccountListPage extends BasePage {
-  @override
-  String get title => S.current.accounts;
+class AccountListPage extends StatefulWidget {
+  AccountListPage({@required this.accountListStore});
 
-  @override
-  Widget trailing(BuildContext context) {
-    final accountListStore = Provider.of<AccountListStore>(context);
-
-    return Container(
-        width: 28.0,
-        height: 28.0,
-        decoration: BoxDecoration(
-            shape: BoxShape.circle, color: Theme.of(context).selectedRowColor),
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Icon(Icons.add, color: Palette.violet, size: 22.0),
-            ButtonTheme(
-              minWidth: 28.0,
-              height: 28.0,
-              child: FlatButton(
-                  shape: CircleBorder(),
-                  onPressed: () async {
-                    await Navigator.of(context)
-                        .pushNamed(Routes.accountCreation);
-                    accountListStore.updateAccountList();
-                  },
-                  child: Offstage()),
-            )
-          ],
-        ));
-  }
+  final AccountListStore accountListStore;
 
   @override
-  Widget body(BuildContext context) {
-    final accountListStore = Provider.of<AccountListStore>(context);
+  AccountListPageForm createState() => AccountListPageForm(accountListStore);
+}
+
+class AccountListPageForm extends State<AccountListPage> {
+  AccountListPageForm(this.accountListStore);
+
+  final AccountListStore accountListStore;
+
+  @override
+  Widget build(BuildContext context) {
     final walletStore = Provider.of<WalletStore>(context);
 
-    final currentColor = Theme.of(context).selectedRowColor;
-    final notCurrentColor = Theme.of(context).backgroundColor;
-
-    return Container(
-      padding: EdgeInsets.only(top: 10, bottom: 20),
-      child: Observer(builder: (_) {
-        final accounts = accountListStore.accounts;
-        return ListView.builder(
-            itemCount: accounts == null ? 0 : accounts.length,
-            itemBuilder: (BuildContext context, int index) {
-              final account = accounts[index];
-
-              return Observer(builder: (_) {
-                final isCurrent = walletStore.account.id == account.id;
-
-                return Slidable(
-                  key: Key(account.id.toString()),
-                  actionPane: SlidableDrawerActionPane(),
-                  child: Container(
-                    color: isCurrent ? currentColor : notCurrentColor,
-                    child: Column(
-                      children: <Widget>[
-                        ListTile(
-                          title: Text(
-                            account.label,
-                            style: TextStyle(
-                                fontSize: 16.0,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .color),
-                          ),
-                          onTap: () {
-                            if (isCurrent) {
-                              return;
-                            }
-
-                            walletStore.setAccount(account);
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        Divider(
-                          color: Theme.of(context).dividerTheme.color,
-                          height: 1.0,
-                        )
-                      ],
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        color: Colors.transparent,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+          child: Container(
+            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    padding: EdgeInsets.only(left: 24, right: 24),
+                    child: Text(
+                      S.of(context).choose_account,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.none,
+                        color: Colors.white
+                      ),
                     ),
                   ),
-                  secondaryActions: <Widget>[
-                    IconSlideAction(
-                      caption: S.of(context).edit,
-                      color: Colors.blue,
-                      icon: Icons.edit,
-                      onTap: () async {
-                        await Navigator.of(context).pushNamed(
-                            Routes.accountCreation,
-                            arguments: account);
-                        // await accountListStore.updateAccountList().then((_) {
-                        //   if (isCurrent) walletStore.setAccount(accountListStore.accounts[index]);
-                        // });
-                      },
-                    )
-                  ],
-                );
-              });
-            });
-      }),
+                  Padding(
+                    padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                    child: GestureDetector(
+                      onTap: () => null,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        child: Container(
+                          height: 296,
+                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                          child: Column(
+                            children: <Widget>[
+                              Expanded(
+                                child: Observer(
+                                  builder: (_) {
+                                    final accounts = accountListStore.accounts;
+
+                                    return ListView.separated(
+                                      separatorBuilder: (context, index) => Divider(
+                                        color: Theme.of(context).dividerColor,
+                                        height: 1,
+                                      ),
+                                      itemCount: accounts == null ? 0 : accounts.length,
+                                      itemBuilder: (context, index) {
+                                        final account = accounts[index];
+
+                                        return Observer(
+                                          builder: (_) {
+                                            final isCurrent = walletStore.account.id == account.id;
+
+                                            return AccountTile(
+                                              isCurrent: isCurrent,
+                                              accountName: account.label,
+                                              onTap: () {
+                                                if (isCurrent) {
+                                                  return;
+                                                }
+
+                                                walletStore.setAccount(account);
+                                                Navigator.of(context).pop();
+                                              }
+                                            );
+                                          }
+                                        );
+                                      },
+                                    );
+                                  }
+                                )
+                              ),
+                              GestureDetector(
+                                onTap: () async {
+                                  await Navigator.of(context)
+                                      .pushNamed(Routes.accountCreation);
+                                  accountListStore.updateAccountList();
+                                },
+                                child: Container(
+                                  height: 62,
+                                  color: Colors.white,
+                                  padding: EdgeInsets.only(left: 24, right: 24),
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: <Widget>[
+                                        Icon(
+                                          Icons.add,
+                                          color: PaletteDark.darkNightBlue,
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 5),
+                                          child: Text(
+                                            S.of(context).create_new_account,
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                              color: PaletteDark.darkNightBlue,
+                                              decoration: TextDecoration.none,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

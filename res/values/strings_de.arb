@@ -1,8 +1,9 @@
 {
-  "welcome" : "Willkommen\nzu CAKE WALLET",
-  "first_wallet_text" : "tolle Brieftasche\nzum Monero",
-  "please_make_selection" : "Bitte treffen Sie unten eine Auswahl zu\nErstellen oder Wiederherstellen Ihrer Brieftasche.",
-  "create_new" : "Erstelle neu",
+  "welcome" : "Willkommen zu",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "tolle Brieftasche zum Monero",
+  "please_make_selection" : "Bitte treffen Sie unten eine Auswahl zu Erstellen oder Wiederherstellen Ihrer Brieftasche.",
+  "create_new" : "Neue Wallet erstellen",
   "restore_wallet" : "Wallet wiederherstellen",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "Name des Ansprechpartners",
   "reset" : "Zurücksetzen",
   "save" : "speichern",
+  "address_remove_contact" : "Kontakt entfernen",
+  "address_remove_content" : "Sind Sie sicher, dass Sie den ausgewählten Kontakt entfernen möchten?",
 
 
   "authenticated" : "Authentifiziert",
@@ -73,7 +76,7 @@
 
   "copy_id" : "ID kopieren",
   "exchange_result_write_down_trade_id" : "Bitte kopieren oder notieren Sie die Handel-ID, um fortzufahren.",
-  "trade_id" : "Handel-ID:\n${id}",
+  "trade_id" : "Handel-ID:",
   "copied_to_clipboard" : "In die Zwischenablage kopiert",
   "saved_the_trade_id" : "Ich habe die Geschäfts-ID gespeichert",
   "fetching" : "holen",
@@ -95,6 +98,7 @@
   "expired" : "Abgelaufen",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Senden XMR",
+  "exchange_new_template" : "Neue Vorlage",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "Neues Wallet",
   "wallet_name" : "Walletname",
   "continue_text" : "Fortsetzen",
+  "choose_wallet_currency" : "Bitte wählen Sie die Brieftaschenwährung:",
 
 
   "node_new" : "Neuer Knoten",
@@ -122,15 +127,20 @@
   "remove_node_message" : "Möchten Sie den ausgewählten Knoten wirklich entfernen?",
   "remove" : "Löschen",
   "delete" : "Löschen",
+  "add_new_node" : "Neuen Knoten hinzufügen",
 
 
-  "use" : "Wechseln zu ",
+  "use" : "Verwenden Sie ",
   "digit_pin" : "-stelliger PIN",
 
 
   "share_address" : "Adresse teilen ",
   "receive_amount" : "Menge",
   "subaddresses" : "Unteradressen",
+  "rename" : "Umbenennen",
+  "choose_account" : "Konto auswählen",
+  "create_new_account" : "Neues Konto erstellen",
+  "accounts_subaddresses" : "Konten und Unteradressen",
 
 
   "restore_restore_wallet" : "Wallet wiederherstellen",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "Schlüssel ausgeben (geheim)",
   "restore_recover" : "Genesen",
   "restore_wallet_restore_description" : "Beschreibung zur Wiederherstellung der Brieftasche",
+  "restore_new_seed" : "Neuer Seed",
+  "restore_active_seed" : "Aktives Seed",
 
 
   "seed_title" : "Seed",
@@ -157,7 +169,8 @@
   "copy" : "Kopieren",
 
 
-  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache",
+  "seed_language_choose" : "Bitte wählen Sie die Ausgangssprache:",
+  "seed_choose" : "Wählen Sie die Ausgangssprache",
   "seed_language_next" : "Nächster",
   "seed_language_english" : "Englisch",
   "seed_language_chinese" : "Chinesisch",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "Geschätzte Gebühr:",
   "send_priority" : "Derzeit ist die Gebühr auf festgelegt ${transactionPriority} priorität.\nDie Transaktionspriorität kann in den Einstellungen angepasst werden",
   "send_creating_transaction" : "Transaktion erstellen",
+  "send_templates" : "Vorlagen",
+  "send_new" : "Neu",
+  "send_amount" : "Menge:",
+  "send_fee" : "Gebühr:",
+  "send_name" : "Name",
+  "send_got_it" : "Ich habs",
+  "send_sending" : "Senden...",
+  "send_success" : "Ihr Monero wurde erfolgreich gesendet",
 
 
   "settings_title" : "die Einstellungen",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "Handel für ${provider} wird nicht erstellt. Menge ist weniger als minimal: ${min} ${currency}",
   "error_text_maximum_limit" : "Handel für ${provider} wird nicht erstellt. Menge ist mehr als maximal: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Handel für ${provider} wird nicht erstellt. Das Laden der Limits ist fehlgeschlagen",
+  "error_text_template" : "Vorlagenname und Adresse dürfen nicht enthalten ` , ' \" symbole\nund muss zwischen 1 und 106 Zeichen lang sein",
 
 
   "auth_store_ban_timeout" : "Auszeit verbieten",
@@ -349,5 +371,8 @@
   "version" : "Ausführung ${currentVersion}",
 
   "openalias_alert_title" : "XMR-Empfänger erkannt",
-  "openalias_alert_content" : "Sie senden Geld an\n${recipient_name}"
+  "openalias_alert_content" : "Sie senden Geld an\n${recipient_name}",
+
+  "card_address" : "Adresse:",
+  "buy" : "Kaufen"
 }

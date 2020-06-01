@@ -1,8 +1,9 @@
 {
-  "welcome" : "Вітаємо в CAKE WALLET",
+  "welcome" : "Вітаємо в",
+  "cake_wallet" : "Cake Wallet",
   "first_wallet_text" : "В самому зручному гаманці для Monero",
-  "please_make_selection" : "Виберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.",
-  "create_new" : "Створити новий",
+  "please_make_selection" : "Оберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.",
+  "create_new" : "Створити новий гаманець",
   "restore_wallet" : "Відновити гаманець",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "Ім'я контакту",
   "reset" : "Скинути",
   "save" : "Зберегти",
+  "address_remove_contact" : "Видалити контакт",
+  "address_remove_content" : "Ви впевнені, що хочете видалити вибраний контакт?",
 
 
   "authenticated" : "Аутентифіковано",
@@ -73,7 +76,7 @@
 
   "copy_id" : "Скопіювати ID",
   "exchange_result_write_down_trade_id" : "Будь ласка, скопіюйте або запишіть ID операції.",
-  "trade_id" : "ID операції:\n${id}",
+  "trade_id" : "ID операції:",
   "copied_to_clipboard" : "Скопійовано в буфер обміну",
   "saved_the_trade_id" : "Я зберіг ID операції",
   "fetching" : "Завантаження",
@@ -95,6 +98,7 @@
   "expired" : "Закінчується",
   "time" : "${minutes}хв ${seconds}сек",
   "send_xmr" : "Відправити XMR",
+  "exchange_new_template" : "Новий шаблон",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "Новий гаманець",
   "wallet_name" : "Ім'я гаманця",
   "continue_text" : "Продовжити",
+  "choose_wallet_currency" : "Будь ласка, виберіть валюту гаманця:",
 
 
   "node_new" : "Новий вузол",
@@ -122,15 +127,20 @@
   "remove_node_message" : "Ви впевнені, що хочете видалити поточний вузол?",
   "remove" : "Видалити",
   "delete" : "Видалити",
+  "add_new_node" : "Додати новий вузол",
 
 
-  "use" : "Переключитися на ",
+  "use" : "Використати ",
   "digit_pin" : "-значний PIN",
 
 
   "share_address" : "Поділитися адресою",
-  "receive_amount" : "Баланс",
+  "receive_amount" : "Сума",
   "subaddresses" : "Субадреси",
+  "rename" : "Перейменувати",
+  "choose_account" : "Оберіть акаунт",
+  "create_new_account" : "Створити новий акаунт",
+  "accounts_subaddresses" : "Акаунти та субадреси",
 
 
   "restore_restore_wallet" : "Відновити гаманець",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "Приватний ключ витрати",
   "restore_recover" : "Відновити",
   "restore_wallet_restore_description" : "Опис відновлюваного гаманця",
+  "restore_new_seed" : "Нова мнемонічна фраза",
+  "restore_active_seed" : "Активна мнемонічна фраза",
 
 
   "seed_title" : "Мнемонічна фраза",
@@ -157,7 +169,8 @@
   "copy" : "Скопіювати",
 
 
-  "seed_language_choose" : "Будь ласка, виберіть мову мнемонічної фрази",
+  "seed_language_choose" : "Будь ласка, виберіть мову мнемонічної фрази:",
+  "seed_choose" : "Виберіть мову мнемонічної фрази",
   "seed_language_next" : "Продовжити",
   "seed_language_english" : "Англійська",
   "seed_language_chinese" : "Китайська",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "Ймовірна комісія:",
   "send_priority" : "Комісія встановлена в залежності від пріоритету: ${transactionPriority}.\nПріоритет транзакції може бути змінений в налаштуваннях",
   "send_creating_transaction" : "Створити транзакцію",
+  "send_templates" : "Шаблони",
+  "send_new" : "Новий",
+  "send_amount" : "Сума:",
+  "send_fee" : "Комісія:",
+  "send_name" : "Ім'я",
+  "send_got_it" : "Зрозумів",
+  "send_sending" : "Відправлення...",
+  "send_success" : "Ваш Monero успішно надісланий",
 
 
   "settings_title" : "Налаштування",
@@ -277,7 +298,7 @@
   "error_text_payment_id" : "Ідентифікатор платежу може містити від 16 до 64 символів в hex",
   "error_text_xmr" : "Значення XMR не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12",
   "error_text_fiat" : "Значення суми не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 2",
-  "error_text_subaddress_name" : "Ім'я субадреси не може містити ` , ' \" символи\nі може бути від 1 до 32 символів в довжину",
+  "error_text_subaddress_name" : "Ім'я субадреси не може містити ` , ' \" символи\nі може бути від 1 до 20 символів в довжину",
   "error_text_amount" : "Баланс може містити тільки цифри",
   "error_text_wallet_name" : "Ім'я гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину",
   "error_text_keys" : "Ключі гаманця можуть містити тільки 64 символів в hex",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "Операція для ${provider} не створена. Сума менша мінімальної: ${min} ${currency}",
   "error_text_maximum_limit" : "Операція для ${provider} не створена. Сума більше максимальної: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Операція для ${provider} не створена. Помилка завантаження лімітів",
+  "error_text_template" : "Ім'я та адреса шаблону не може містити ` , ' \" символи\nі може бути від 1 до 106 символів в довжину",
 
 
   "auth_store_ban_timeout" : "ban_timeout",
@@ -349,5 +371,8 @@
   "version" : "Версія ${currentVersion}",
 
   "openalias_alert_title" : "Отримувача XMR виявлено",
-  "openalias_alert_content" : "Ви будете відправляти кошти\n${recipient_name}"
+  "openalias_alert_content" : "Ви будете відправляти кошти\n${recipient_name}",
+
+  "card_address" : "Адреса:",
+  "buy" : "Купити"
 }

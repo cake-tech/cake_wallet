@@ -1,9 +1,10 @@
 {
-  "welcome" : "WELCOME\nTO CAKE WALLET",
-  "first_wallet_text" : "Awesome wallet\nfor Monero",
-  "please_make_selection" : "Please make selection below to\ncreate or recover your wallet.",
-  "create_new" : "Create new",
-  "restore_wallet" : "Restore wallet",
+  "welcome" : "Welcome to",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Awesome wallet for Monero",
+  "please_make_selection" : "Please make selection below to create or recover your wallet.",
+  "create_new" : "Create New Wallet",
+  "restore_wallet" : "Restore Wallet",
 
 
   "accounts" : "Accounts",
@@ -20,6 +21,8 @@
   "contact_name" : "Contact Name",
   "reset" : "Reset",
   "save" : "Save",
+  "address_remove_contact" : "Remove contact",
+  "address_remove_content" : "Are you sure that you want to remove selected contact?",
 
 
   "authenticated" : "Authenticated",
@@ -73,7 +76,7 @@
 
   "copy_id" : "Copy ID",
   "exchange_result_write_down_trade_id" : "Please copy or write down the trade ID to continue.",
-  "trade_id" : "Trade ID:\n${id}",
+  "trade_id" : "Trade ID:",
   "copied_to_clipboard" : "Copied to Clipboard",
   "saved_the_trade_id" : "I've saved the trade ID",
   "fetching" : "Fetching",
@@ -95,6 +98,7 @@
   "expired" : "Expired",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Send XMR",
+  "exchange_new_template" : "New template",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "New Wallet",
   "wallet_name" : "Wallet name",
   "continue_text" : "Continue",
+  "choose_wallet_currency" : "Please choose wallet currency:",
 
 
   "node_new" : "New Node",
@@ -122,22 +127,27 @@
   "remove_node_message" : "Are you sure that you want to remove selected node?",
   "remove" : "Remove",
   "delete" : "Delete",
+  "add_new_node" : "Add new node",
 
 
-  "use" : "Switch to ",
+  "use" : "Use ",
   "digit_pin" : "-digit PIN",
 
 
   "share_address" : "Share address",
   "receive_amount" : "Amount",
   "subaddresses" : "Subaddresses",
+  "rename" : "Rename",
+  "choose_account" : "Choose account",
+  "create_new_account" : "Create new account",
+  "accounts_subaddresses" : "Accounts and subaddresses",
 
 
   "restore_restore_wallet" : "Restore Wallet",
   "restore_title_from_seed_keys" : "Restore from seed/keys",
   "restore_description_from_seed_keys" : "Get back your wallet from seed/keys that you've saved to secure place",
   "restore_next" : "Next",
-  "restore_title_from_backup" : "Restore from a back-up file",
+  "restore_title_from_backup" : "Restore from back-up",
   "restore_description_from_backup" : "You can restore the whole Cake Wallet app from your back-up file",
   "restore_seed_keys_restore" : "Seed/Keys Restore",
   "restore_title_from_seed" : "Restore from seed",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "Spend key (private)",
   "restore_recover" : "Restore",
   "restore_wallet_restore_description" : "Wallet restore description",
+  "restore_new_seed" : "New seed",
+  "restore_active_seed" : "Active seed",
 
 
   "seed_title" : "Seed",
@@ -157,7 +169,8 @@
   "copy" : "Copy",
 
 
-  "seed_language_choose" : "Please choose seed language",
+  "seed_language_choose" : "Please choose seed language:",
+  "seed_choose" : "Choose seed language",
   "seed_language_next" : "Next",
   "seed_language_english" : "English",
   "seed_language_chinese" : "Chinese",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "Estimated fee:",
   "send_priority" : "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings",
   "send_creating_transaction" : "Creating transaction",
+  "send_templates" : "Templates",
+  "send_new" : "New",
+  "send_amount" : "Amount:",
+  "send_fee" : "Fee:",
+  "send_name" : "Name",
+  "send_got_it" : "Got it",
+  "send_sending" : "Sending...",
+  "send_success" : "Your Monero was successfully sent",
 
 
   "settings_title" : "Settings",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}",
   "error_text_maximum_limit" : "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Trade for ${provider} is not created. Limits loading failed",
+  "error_text_template" : "Template name and address can't contain ` , ' \" symbols\nand must be between 1 and 106 characters long",
 
 
   "auth_store_ban_timeout" : "ban_timeout",
@@ -349,5 +371,8 @@
   "version" : "Version ${currentVersion}",
 
   "openalias_alert_title" : "XMR Recipient Detected",
-  "openalias_alert_content" : "You will be sending funds to\n${recipient_name}"
+  "openalias_alert_content" : "You will be sending funds to\n${recipient_name}",
+
+  "card_address" : "Address:",
+  "buy" : "Buy"
 }

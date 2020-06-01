@@ -49,7 +49,7 @@ class SubaddressList {
       {int accountIndex, int addressIndex, String label}) async {
     await subaddress_list.setLabelForSubaddress(
         accountIndex: accountIndex, addressIndex: addressIndex, label: label);
-    await update();
+    await update(accountIndex: accountIndex);
   }
 
   void refresh({int accountIndex}) {

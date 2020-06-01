@@ -1,6 +1,5 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/contact.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
@@ -19,6 +18,8 @@ class AddressTextField extends StatelessWidget {
       ],
       this.onURIScanned,
       this.focusNode,
+      this.isBorderExist = true,
+      this.buttonColor,
       this.validator});
 
   static const prefixIconWidth = 34.0;
@@ -31,6 +32,8 @@ class AddressTextField extends StatelessWidget {
   final Function(Uri) onURIScanned;
   final List<AddressTextFieldOption> options;
   final FormFieldValidator<String> validator;
+  final bool isBorderExist;
+  final Color buttonColor;
   FocusNode focusNode;
 
   @override
@@ -40,6 +43,10 @@ class AddressTextField extends StatelessWidget {
       enabled: isActive,
       controller: controller,
       focusNode: focusNode,
+      style: TextStyle(
+        fontSize: 16,
+        color: Theme.of(context).primaryTextTheme.title.color
+      ),
       decoration: InputDecoration(
         suffixIcon: SizedBox(
           width: prefixIconWidth * options.length +
@@ -58,9 +65,9 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: Palette.wildDarkBlueWithOpacity,
+                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
+                                  BorderRadius.all(Radius.circular(6))),
                           child: Image.asset('assets/images/qr_code_icon.png')),
                     ))
               ],
@@ -76,11 +83,11 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: Palette.wildDarkBlueWithOpacity,
+                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
+                                  BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
-                              'assets/images/address_book_icon.png')),
+                              'assets/images/open_book.png')),
                     ))
               ],
               if (this
@@ -95,9 +102,9 @@ class AddressTextField extends StatelessWidget {
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                              color: Palette.wildDarkBlueWithOpacity,
+                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(8))),
+                                  BorderRadius.all(Radius.circular(6))),
                           child: Image.asset(
                               'assets/images/receive_icon_raw.png')),
                     ))
@@ -105,13 +112,27 @@ class AddressTextField extends StatelessWidget {
             ],
           ),
         ),
-        hintStyle: TextStyle(color: Theme.of(context).hintColor),
+        hintStyle: TextStyle(
+          fontSize: 16,
+          color: Theme.of(context).primaryTextTheme.caption.color
+        ),
         hintText: placeholder ?? S.current.widgets_address,
-        focusedBorder: UnderlineInputBorder(
-            borderSide: BorderSide(color: Palette.cakeGreen, width: 2.0)),
-        enabledBorder: UnderlineInputBorder(
+        focusedBorder: isBorderExist
+          ? UnderlineInputBorder(
+            borderSide: BorderSide(
+                color: Theme.of(context).dividerColor,
+                width: 1.0))
+          : InputBorder.none,
+        disabledBorder: isBorderExist
+            ? UnderlineInputBorder(
             borderSide:
-                BorderSide(color: Theme.of(context).focusColor, width: 1.0)),
+            BorderSide(color: Theme.of(context).dividerColor, width: 1.0))
+            : InputBorder.none,
+        enabledBorder: isBorderExist
+          ? UnderlineInputBorder(
+            borderSide:
+                BorderSide(color: Theme.of(context).dividerColor, width: 1.0))
+          : InputBorder.none,
       ),
       validator: validator,
     );

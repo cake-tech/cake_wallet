@@ -25,7 +25,6 @@ class Routes {
   static const newNode = '/new_node_list';
   static const login = '/login';
   static const splash = '/splash';
-  static const accountList = '/account_list';
   static const accountCreation = '/account_new';
   static const addressBook = '/address_book';
   static const pickerAddressBook = '/picker_address_book';
@@ -44,4 +43,7 @@ class Routes {
   static const rescan = '/rescan';
   static const faq = '/faq';
   static const changeLanguage = '/change_language';
+  static const newWalletType = '/new_wallet_type';
+  static const sendTemplate = '/send_template';
+  static const exchangeTemplate = '/exchange_template';
 }

@@ -1,8 +1,9 @@
 {
-  "welcome" : "WITAMY\nW CAKE WALLET",
-  "first_wallet_text" : "Niesamowity portfel\nfdla Monero",
-  "please_make_selection" : "Wybierz poniżej, aby\ncutwórz lub odzyskaj swój portfel.",
-  "create_new" : "Tworzyć nowe",
+  "welcome" : "Witamy w",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Niesamowity portfel dla Monero",
+  "please_make_selection" : "Wybierz poniżej, aby cutwórz lub odzyskaj swój portfel.",
+  "create_new" : "Utwórz nowy portfel",
   "restore_wallet" : "Przywróć portfel",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "Nazwa Kontaktu",
   "reset" : "Nastawić",
   "save" : "Zapisać",
+  "address_remove_contact" : "Usuń kontakt",
+  "address_remove_content" : "Czy na pewno chcesz usunąć wybrany kontakt?",
 
 
   "authenticated" : "Zalegalizowany",
@@ -57,7 +60,7 @@
 
 
   "exchange" : "Wymieniać się",
-  "clear" : "Jasny",
+  "clear" : "Wyczyść",
   "change_exchange_provider" : "Zmień dostawcę programu Exchange",
   "you_will_send" : "Wyślesz",
   "you_will_get" : "Dostaniesz",
@@ -73,7 +76,7 @@
 
   "copy_id" : "ID kopii",
   "exchange_result_write_down_trade_id" : "Skopiuj lub zanotuj identyfikator transakcji, aby kontynuować.",
-  "trade_id" : "Identyfikator handlu:\n${id}",
+  "trade_id" : "Identyfikator handlu:",
   "copied_to_clipboard" : "Skopiowane do schowka",
   "saved_the_trade_id" : "Zapisałem ID",
   "fetching" : "Ujmujący",
@@ -95,6 +98,7 @@
   "expired" : "Przedawniony",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Wysłać XMR",
+  "exchange_new_template" : "Nowy szablon",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "Nowy portfel",
   "wallet_name" : "Nazwa portfela",
   "continue_text" : "Dalej",
+  "choose_wallet_currency" : "Wybierz walutę portfela:",
 
 
   "node_new" : "Nowy węzeł",
@@ -122,15 +127,20 @@
   "remove_node_message" : "Czy na pewno chcesz usunąć wybrany węzeł?",
   "remove" : "Usunąć",
   "delete" : "Kasować",
+  "add_new_node" : "Dodaj nowy węzeł",
 
 
-  "use" : "Przełącz na ",
+  "use" : "Używać ",
   "digit_pin" : "-znak PIN",
 
 
   "share_address" : "Udostępnij adres",
   "receive_amount" : "Ilość",
   "subaddresses" : "Podadresy",
+  "rename" : "Przemianować",
+  "choose_account" : "Wybierz konto",
+  "create_new_account" : "Stwórz nowe konto",
+  "accounts_subaddresses" : "Konta i podadresy",
 
 
   "restore_restore_wallet" : "Przywróć portfel",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "Wydaj klucz (prywatny)",
   "restore_recover" : "Wyzdrowieć",
   "restore_wallet_restore_description" : "Opis przywracania portfela",
+  "restore_new_seed" : "Nowe nasienie",
+  "restore_active_seed" : "Aktywne nasiona",
 
 
   "seed_title" : "Ziarno",
@@ -157,7 +169,8 @@
   "copy" : "Kopiuj",
 
 
-  "seed_language_choose" : "Proszę wybrać język początkowy",
+  "seed_language_choose" : "Proszę wybrać język początkowy:",
+  "seed_choose" : "Wybierz język początkowy",
   "seed_language_next" : "Kolejny",
   "seed_language_english" : "Angielski",
   "seed_language_chinese" : "Chiński",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "Szacowana opłata:",
   "send_priority" : "Obecnie opłata ustalona jest na ${transactionPriority} priorytet.\nPriorytet transakcji można zmienić w ustawieniach",
   "send_creating_transaction" : "Tworzenie transakcji",
+  "send_templates" : "Szablony",
+  "send_new" : "Nowy",
+  "send_amount" : "Ilość:",
+  "send_fee" : "Opłata:",
+  "send_name" : "Imię",
+  "send_got_it" : "Rozumiem",
+  "send_sending" : "Wysyłanie...",
+  "send_success" : "Twoje Monero zostało pomyślnie wysłane",
 
 
   "settings_title" : "Ustawienia",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "Wymiana dla ${provider} nie została utworzona. Kwota jest mniejsza niż minimalna: ${min} ${currency}",
   "error_text_maximum_limit" : "Wymiana dla ${provider} nie została utworzona. Kwota jest większa niż maksymalna: ${max} ${currency}",
   "error_text_limits_loading_failed" : "Wymiana dla ${provider} nie została utworzona. Ładowanie limitów nie powiodło się",
+  "error_text_template" : "Nazwa i adres szablonu nie mogą zawierać ` , ' \" symbolika\ni musi mieć od 1 do 106 znaków",
 
 
   "auth_store_ban_timeout" : "przekroczenie limitu czasu",
@@ -349,5 +371,8 @@
   "version" : "Wersja ${currentVersion}",
 
   "openalias_alert_title" : "Wykryto odbiorcę XMR",
-  "openalias_alert_content" : "Będziesz wysyłać środki na\n${recipient_name}"
+  "openalias_alert_content" : "Będziesz wysyłać środki na\n${recipient_name}",
+
+  "card_address" : "Adres:",
+  "buy" : "Kup"
 }

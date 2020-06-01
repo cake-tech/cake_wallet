@@ -5,6 +5,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
 class ChangeLanguage extends BasePage {
   @override
@@ -15,66 +16,85 @@ class ChangeLanguage extends BasePage {
     final settingsStore = Provider.of<SettingsStore>(context);
     final currentLanguage = Provider.of<Language>(context);
 
-    final currentColor = Theme.of(context).selectedRowColor;
-    final notCurrentColor = Theme.of(context).accentTextTheme.subhead.backgroundColor;
+    final currentColor = Colors.green;
+    final notCurrentColor = Theme.of(context).primaryTextTheme.title.color;
+
+    final shortDivider = Container(
+      height: 1,
+      padding: EdgeInsets.only(left: 24),
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
+      child: Container(
+        height: 1,
+        color: Theme.of(context).dividerColor,
+      ),
+    );
+
+    final longDivider = Container(
+      height: 1,
+      color: Theme.of(context).dividerColor,
+    );
 
     return Container(
-        padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+        padding: EdgeInsets.only(top: 10.0),
         child: ListView.builder(
           itemCount: languages.values.length,
           itemBuilder: (BuildContext context, int index) {
+            final item = languages.values.elementAt(index);
+            final code = languages.keys.elementAt(index);
+
             final isCurrent = settingsStore.languageCode == null
                 ? false
-                : languages.keys.elementAt(index) ==
-                    settingsStore.languageCode;
+                : code == settingsStore.languageCode;
 
-            return Container(
-              margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
-              color: isCurrent ? currentColor : notCurrentColor,
-              child: ListTile(
-                title: Text(
-                  languages.values.elementAt(index),
-                  style: TextStyle(
-                      fontSize: 16.0,
-                      color: Theme.of(context).primaryTextTheme.title.color),
-                ),
-                onTap: () async {
-                  if (!isCurrent) {
-                    await showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            title: Text(
-                              S.of(context).change_language,
-                              textAlign: TextAlign.center,
-                            ),
-                            content: Text(
-                              S.of(context).change_language_to(
-                                  languages.values.elementAt(index)),
-                              textAlign: TextAlign.center,
-                            ),
-                            actions: <Widget>[
-                              FlatButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text(S.of(context).cancel)),
-                              FlatButton(
-                                  onPressed: () {
+            return Column(
+              children: <Widget>[
+                index == 0 ? longDivider : Offstage(),
+                Container(
+                  padding: EdgeInsets.only(top: 4, bottom: 4),
+                  color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.only(left: 24, right: 24),
+                    title: Text(
+                      item,
+                      style: TextStyle(
+                          fontSize: 14.0,
+                          fontWeight: FontWeight.w600,
+                          color: isCurrent ? currentColor : notCurrentColor
+                      ),
+                    ),
+                    trailing: isCurrent
+                        ? Icon(Icons.done, color: currentColor)
+                        : Offstage(),
+                    onTap: () async {
+                      if (!isCurrent) {
+                        await showDialog<void>(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertWithTwoActions(
+                                  alertTitle: S.of(context).change_language,
+                                  alertContent: S.of(context).change_language_to(item),
+                                  leftButtonText: S.of(context).change,
+                                  rightButtonText: S.of(context).cancel,
+                                  actionLeftButton: () {
                                     settingsStore.saveLanguageCode(
-                                        languageCode:
-                                            languages.keys.elementAt(index));
-                                    currentLanguage.setCurrentLanguage(
-                                        languages.keys.elementAt(index));
+                                        languageCode: code);
+                                    currentLanguage.setCurrentLanguage(code);
                                     Navigator.of(context).pop();
                                   },
-                                  child: Text(S.of(context).change)),
-                            ],
-                          );
-                        });
-                  }
-                },
-              ),
+                                  actionRightButton: () => Navigator.of(context).pop()
+                              );
+                            });
+                      }
+                    },
+                  ),
+                ),
+                item == languages.values.last
+                    ? longDivider
+                    : shortDivider
+              ],
             );
           },
-        ));
+        )
+    );
   }
 }

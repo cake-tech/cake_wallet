@@ -1,4 +1,3 @@
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -25,6 +24,7 @@ import 'package:cake_wallet/src/domain/monero/account.dart';
 import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 // MARK: Import stores
 
@@ -69,7 +69,6 @@ import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/seed_language/seed_language_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/accounts/account_page.dart';
-import 'package:cake_wallet/src/screens/accounts/account_list_page.dart';
 import 'package:cake_wallet/src/screens/address_book/address_book_page.dart';
 import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
 import 'package:cake_wallet/src/screens/show_keys/show_keys_page.dart';
@@ -88,6 +87,9 @@ import 'package:cake_wallet/src/screens/auth/create_login_page.dart';
 import 'package:cake_wallet/src/screens/seed/create_seed_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/create_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
+import 'package:cake_wallet/src/screens/send/send_template_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 
 class Router {
   static Route<dynamic> generateRoute(
@@ -120,9 +122,8 @@ class Router {
                         secureStorage: FlutterSecureStorage(),
                         sharedPreferences: sharedPreferences)),
                 child: SetupPinCodePage(
-                    onPinCodeSetup: (context, _) => Navigator.pushNamed(
-                        context, Routes.newWallet,
-                        arguments: type))));
+                    onPinCodeSetup: (context, _) =>
+                        Navigator.pushNamed(context, Routes.newWallet))));
 
       case Routes.newWallet:
         final type = settings.arguments as WalletType;
@@ -250,18 +251,24 @@ class Router {
                           transactionDescriptions: transactionDescriptions)),
                 ], child: SendPage()));
 
+      case Routes.sendTemplate:
+        return CupertinoPageRoute<void>(
+          builder: (_) => Provider(
+              create: (_) => SendStore(
+                  walletService: walletService,
+                  priceStore: priceStore,
+                  transactionDescriptions: transactionDescriptions),
+              child: SendTemplatePage())
+        );
+
       case Routes.receive:
         return CupertinoPageRoute<void>(
             fullscreenDialog: true,
-            builder: (_) => MultiProvider(
-                providers: walletService.getType() == WalletType.monero
-                    ? [
-                        Provider(
-                            create: (_) => SubaddressListStore(
-                                walletService: walletService))
-                      ]
-                    : [],
-                child: ReceivePage()));
+            builder: (_) => MultiProvider(providers: [
+                  Provider(
+                      create: (_) =>
+                          SubaddressListStore(walletService: walletService))
+                ], child: ReceivePage()));
 
       case Routes.transactionDetails:
         return CupertinoPageRoute<void>(
@@ -342,17 +349,6 @@ class Router {
               walletListService: walletListService,
               authenticationStore: authenticationStore);
         });
-
-      case Routes.accountList:
-        return MaterialPageRoute<void>(
-            builder: (context) {
-              return MultiProvider(providers: [
-                Provider(
-                    create: (_) =>
-                        AccountListStore(walletService: walletService)),
-              ], child: AccountListPage());
-            },
-            fullscreenDialog: true);
 
       case Routes.accountCreation:
         return CupertinoPageRoute<String>(builder: (context) {
@@ -485,6 +481,25 @@ class Router {
                         walletStore: walletStore);
                   }),
                 ], child: ExchangePage()));
+
+      case Routes.exchangeTemplate:
+        return MaterialPageRoute<void>(
+            builder: (_) => Provider(create: (_) {
+              final xmrtoprovider = XMRTOExchangeProvider();
+
+              return ExchangeStore(
+                  initialProvider: xmrtoprovider,
+                  initialDepositCurrency: CryptoCurrency.xmr,
+                  initialReceiveCurrency: CryptoCurrency.btc,
+                  trades: trades,
+                  providerList: [
+                    xmrtoprovider,
+                    ChangeNowExchangeProvider(),
+                    MorphTokenExchangeProvider(trades: trades)
+                  ],
+                  walletStore: walletStore);
+            }, child: ExchangeTemplatePage(),)
+        );
 
       case Routes.settings:
         return MaterialPageRoute<void>(
