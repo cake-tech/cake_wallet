@@ -190,8 +190,6 @@ class MaterialAppWithTheme extends StatelessWidget {
     final syncStore = Provider.of<SyncStore>(context);
     final balanceStore = Provider.of<BalanceStore>(context);
     final theme = Provider.of<ThemeChanger>(context);
-    final statusBarColor =
-        settingsStore.isDarkTheme ? Colors.black : Colors.white;
     final currentLanguage = Provider.of<Language>(context);
     final contacts = Provider.of<Box<Contact>>(context);
     final nodes = Provider.of<Box<Node>>(context);
@@ -199,8 +197,19 @@ class MaterialAppWithTheme extends StatelessWidget {
     final transactionDescriptions =
         Provider.of<Box<TransactionDescription>>(context);
 
+    final statusBarColor =
+    settingsStore.isDarkTheme ? Colors.black : Colors.white;
+    final statusBarBrightness =
+    settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+    final statusBarIconBrightness =
+    settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+
     SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: statusBarColor));
+        SystemUiOverlayStyle(
+            statusBarColor: statusBarColor,
+            statusBarBrightness: statusBarBrightness,
+            statusBarIconBrightness: statusBarIconBrightness
+        ));
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,
