@@ -209,41 +209,74 @@ String getSecretSpendKey() =>
 String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
-Timer _updateSyncInfoTimer;
+class SyncListner {
+  SyncListner({this.onNewBlock, this.onNeedToRefresh, this.onNewTransaction});
 
-int _lastKnownBlockHeight = 0;
+  void Function(int, int, double) onNewBlock;
+  void Function() onNeedToRefresh;
+  void Function() onNewTransaction;
 
-void setListeners(Future Function(int) onNewBlock,
-    Future Function() onNeedToRefresh, Future Function() onNewTransaction) {
-  if (_updateSyncInfoTimer != null) {
-    _updateSyncInfoTimer.cancel();
+  Timer _updateSyncInfoTimer;
+  int _cachedBlockchainHeight = 0;
+  int _lastKnownBlockHeight = 0;
+  int _initialSyncHeight = 0;
+
+  Future<int> getNodeHeightOrUpdate(int baseHeight) async {
+    if (_cachedBlockchainHeight < baseHeight) {
+      _cachedBlockchainHeight = await getNodeHeight();
+    }
+
+    return _cachedBlockchainHeight;
   }
 
-  _updateSyncInfoTimer = Timer.periodic(Duration(milliseconds: 200), (_) async {
-    final syncHeight = getSyncingHeight();
-    final needToRefresh = isNeededToRefresh();
-    final newTransactionExist = isNewTransactionExist();
+  void start() {
+    _cachedBlockchainHeight = 0;
+    _lastKnownBlockHeight = 0;
+    _initialSyncHeight = 0;
+    _updateSyncInfoTimer ??=
+        Timer.periodic(Duration(milliseconds: 200), (_) async {
+      final syncHeight = getSyncingHeight();
+      final needToRefresh = isNeededToRefresh();
+      final newTransactionExist = isNewTransactionExist();
+      final bchHeight = await getNodeHeightOrUpdate(syncHeight);
 
-    if (_lastKnownBlockHeight != syncHeight && syncHeight != null) {
-      _lastKnownBlockHeight = syncHeight;
-      await onNewBlock(syncHeight);
-    }
+      if (_lastKnownBlockHeight != syncHeight && syncHeight != null) {
+        if (_initialSyncHeight <= 0) {
+          _initialSyncHeight = syncHeight;
+        }
 
-    if (newTransactionExist && onNewTransaction != null) {
-      await onNewTransaction();
-    }
+        _lastKnownBlockHeight = syncHeight;
+        final line = bchHeight - _initialSyncHeight;
+        final diff = line - (bchHeight - syncHeight);
+        final ptc = diff <= 0 ? 0.0 : diff / line;
+        final left = bchHeight - syncHeight;
+        // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
+        onNewBlock(syncHeight, left, ptc);
+      }
 
-    if (needToRefresh && onNeedToRefresh != null) {
-      await onNeedToRefresh();
-    }
-  });
-  setListenerNative();
+      if (newTransactionExist && onNewTransaction != null) {
+        onNewTransaction();
+      }
+
+      if (needToRefresh && onNeedToRefresh != null) {
+        onNeedToRefresh();
+      }
+    });
+  }
+
+  void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-void closeListeners() {
-  if (_updateSyncInfoTimer != null) {
-    _updateSyncInfoTimer.cancel();
-  }
+SyncListner setListeners(void Function(int, int, double) onNewBlock,
+    void Function() onNeedToRefresh, void Function() onNewTransaction) {
+  final listener = SyncListner(
+      onNewBlock: onNewBlock,
+      onNeedToRefresh: onNeedToRefresh,
+      onNewTransaction: onNewTransaction);
+
+  setListenerNative();
+
+  return listener;
 }
 
 void onStartup() => onStartupNative();

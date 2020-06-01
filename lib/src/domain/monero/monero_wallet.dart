@@ -139,11 +139,10 @@ class MoneroWallet extends Wallet {
   @override
   Future updateInfo() async {
     _name.value = await getName();
-    final acccountList = getAccountList();
-    acccountList.refresh();
+    final acccountList = getAccountList()..refresh();
     _account.value = acccountList.getAll().first;
     final subaddressList = getSubaddress();
-    await subaddressList.refresh(
+    subaddressList.refresh(
         accountIndex: _account.value != null ? _account.value.id : 0);
     final subaddresses = subaddressList.getAll();
     _subaddress.value = subaddresses.first;
@@ -218,7 +217,7 @@ class MoneroWallet extends Wallet {
 
   @override
   Future close() async {
-    monero_wallet.closeListeners();
+//    monero_wallet.closeListeners();
     monero_wallet.closeCurrentWallet();
     await _name.close();
     await _address.close();
@@ -330,11 +329,8 @@ class MoneroWallet extends Wallet {
 
   void changeAccount(Account account) {
     _account.add(account);
-
-    getSubaddress()
-        .refresh(accountIndex: account.id)
-        .then((dynamic _) => getSubaddress().getAll())
-        .then((subaddresses) => _subaddress.value = subaddresses[0]);
+    final subaddress = getSubaddress()..refresh(accountIndex: account.id);
+    _subaddress.value = subaddress.getAll().first;
   }
 
   Future store() async {
@@ -353,77 +349,72 @@ class MoneroWallet extends Wallet {
     }
   }
 
-  void setListeners() => monero_wallet.setListeners(
-      _onNewBlock, _onNeedToRefresh, _onNewTransaction);
+  void setListeners() => null;
+//  monero_wallet.setListeners(
+//      _onNewBlock, _onNeedToRefresh, _onNewTransaction);
 
-  Future _onNewBlock(int height) async {
-    try {
-      final nodeHeight = await getNodeHeightOrUpdate(height);
+//  Future _onNewBlock(int height) async {
+//    try {
+//      final nodeHeight = await getNodeHeightOrUpdate(height);
+//
+//      if (isRecovery && _refreshHeight <= 0) {
+//        _refreshHeight = height;
+//      }
+//
+//      if (isRecovery &&
+//          (_lastSyncHeight == 0 ||
+//              (height - _lastSyncHeight) > moneroBlockSize)) {
+//        _lastSyncHeight = height;
+//        await askForUpdateBalance();
+//        await askForUpdateTransactionHistory();
+//      }
+//
+//      if (height > 0 && ((nodeHeight - height) < moneroBlockSize)) {
+//        _syncStatus.add(SyncedSyncStatus());
+//      } else {
+//        _syncStatus.add(SyncingSyncStatus(height, nodeHeight, _refreshHeight));
+//      }
+//    } catch (e) {
+//      print(e);
+//    }
+//  }
 
-      if (isRecovery && _refreshHeight <= 0) {
-        _refreshHeight = height;
-      }
+//  Future _onNeedToRefresh() async {
+//    try {
+//
+//
+//      if (_syncStatus.value is FailedSyncStatus) {
+//        return;
+//      }
+//
+//      await askForUpdateBalance();
+//
+//      _syncStatus.add(SyncedSyncStatus());
+//
+//      if (isRecovery) {
+//        await askForUpdateTransactionHistory();
+//      }
+//
+////      if (isRecovery && (nodeHeight - currentHeight < moneroBlockSize)) {
+////        await setAsRecovered();
+////      }
+//
+//      final now = DateTime.now().millisecondsSinceEpoch;
+//      final diff = now - _lastRefreshTime;
+//
+//      if (diff >= 0 && diff < 60000) {
+//        return;
+//      }
+//
+//      await store();
+//      _lastRefreshTime = now;
+//    } catch (e) {
+//      print(e);
+//    }
+//  }
 
-      if (isRecovery &&
-          (_lastSyncHeight == 0 ||
-              (height - _lastSyncHeight) > moneroBlockSize)) {
-        _lastSyncHeight = height;
-        await askForUpdateBalance();
-        await askForUpdateTransactionHistory();
-      }
-
-      if (height > 0 && ((nodeHeight - height) < moneroBlockSize)) {
-        _syncStatus.add(SyncedSyncStatus());
-      } else {
-        _syncStatus.add(SyncingSyncStatus(height, nodeHeight, _refreshHeight));
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future _onNeedToRefresh() async {
-    try {
-      final currentHeight = await getCurrentHeight();
-      final nodeHeight = await getNodeHeightOrUpdate(currentHeight);
-
-      // no blocks - maybe we're not connected to the node ?
-      if (currentHeight <= 1 || nodeHeight == 0) {
-        return;
-      }
-
-      if (_syncStatus.value is FailedSyncStatus) {
-        return;
-      }
-
-      await askForUpdateBalance();
-
-      _syncStatus.add(SyncedSyncStatus());
-
-      if (isRecovery) {
-        await askForUpdateTransactionHistory();
-      }
-
-      if (isRecovery && (nodeHeight - currentHeight < moneroBlockSize)) {
-        await setAsRecovered();
-      }
-
-      final now = DateTime.now().millisecondsSinceEpoch;
-      final diff = now - _lastRefreshTime;
-
-      if (diff >= 0 && diff < 60000) {
-        return;
-      }
-
-      await store();
-      _lastRefreshTime = now;
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future _onNewTransaction() async {
-    await askForUpdateBalance();
-    await askForUpdateTransactionHistory();
-  }
+//  Future _onNewTransaction() async {
+//    await askForUpdateBalance();
+//    await askForUpdateTransactionHistory();
+//  }
 }

@@ -16,16 +16,15 @@ class SubaddressList {
   bool _isRefreshing;
   bool _isUpdating;
 
-  Future update({int accountIndex}) async {
+  void update({int accountIndex}) {
     if (_isUpdating) {
       return;
     }
 
     try {
       _isUpdating = true;
-      await refresh(accountIndex: accountIndex);
-      final subaddresses = getAll();
-      _subaddress.add(subaddresses);
+      refresh(accountIndex: accountIndex);
+      _subaddress.add(getAll());
       _isUpdating = false;
     } catch (e) {
       _isUpdating = false;
@@ -53,7 +52,7 @@ class SubaddressList {
     await update();
   }
 
-  Future refresh({int accountIndex}) async {
+  void refresh({int accountIndex}) {
     if (_isRefreshing) {
       return;
     }
