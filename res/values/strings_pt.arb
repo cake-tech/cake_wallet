@@ -1,8 +1,9 @@
 {
-  "welcome" : "BEM-VINDO(A)\nÀ CAKE WALLET",
-  "first_wallet_text" : "Uma fantástica carteira\npara Monero",
-  "please_make_selection" : "Escolha se quer criar uma carteira nova\nou restaurar uma antiga.",
-  "create_new" : "Criar carteira",
+  "welcome" : "Bem-vindo ao",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Uma fantástica carteira para Monero",
+  "please_make_selection" : "Escolha se quer criar uma carteira nova ou restaurar uma antiga.",
+  "create_new" : "Criar nova carteira",
   "restore_wallet" : "Restaurar carteira",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "Nome do contato",
   "reset" : "Limpar",
   "save" : "Salvar",
+  "address_remove_contact" : "Remover contato",
+  "address_remove_content" : "Tem certeza de que deseja remover o contato selecionado?",
 
 
   "authenticated" : "Autenticado",
@@ -73,7 +76,7 @@
 
   "copy_id" : "Copiar ID",
   "exchange_result_write_down_trade_id" : "Copie ou anote o ID da troca para continuar.",
-  "trade_id" : "ID da troca:\n${id}",
+  "trade_id" : "ID da troca:",
   "copied_to_clipboard" : "Copiado para a área de transferência",
   "saved_the_trade_id" : "ID da troca salvo",
   "fetching" : "Buscando",
@@ -95,6 +98,7 @@
   "expired" : "Expirada",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Enviar XMR",
+  "exchange_new_template" : "Novo modelo",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "Nova carteira",
   "wallet_name" : "Nome da carteira",
   "continue_text" : "Continuar",
+  "choose_wallet_currency" : "Escolha a moeda da carteira:",
 
 
   "node_new" : "Novo nó",
@@ -122,15 +127,20 @@
   "remove_node_message" : "Você realmente deseja remover o nó selecionado?",
   "remove" : "Remover",
   "delete" : "Excluir",
+  "add_new_node" : "Adicionar novo nó",
 
 
-  "use" : "Trocar para PIN de ",
+  "use" : "Use PIN de ",
   "digit_pin" : "dígitos",
 
 
   "share_address" : "Compartilhar endereço",
   "receive_amount" : "Quantia",
   "subaddresses" : "Sub-endereços",
+  "rename" : "Renomear",
+  "choose_account" : "Escolha uma conta",
+  "create_new_account" : "Criar nova conta",
+  "accounts_subaddresses" : "Contas e sub-endereços",
 
 
   "restore_restore_wallet" : "Restaurar carteira",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "Chave de gastos (privada)",
   "restore_recover" : "Restaurar",
   "restore_wallet_restore_description" : "Restauração da carteira",
+  "restore_new_seed" : "Nova semente",
+  "restore_active_seed" : "Semente ativa",
 
 
   "seed_title" : "Semente",
@@ -157,7 +169,8 @@
   "copy" : "Copiar",
 
 
-  "seed_language_choose" : "Por favor, escolha o idioma da semente",
+  "seed_language_choose" : "Por favor, escolha o idioma da semente:",
+  "seed_choose" : "Escolha o idioma da semente",
   "seed_language_next" : "Próximo",
   "seed_language_english" : "Inglesa",
   "seed_language_chinese" : "Chinesa",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "Taxa estimada:",
   "send_priority" : "Atualmente, a taxa está definida para a prioridade: ${transactionPriority}.\nA prioridade da transação pode ser ajustada nas configurações",
   "send_creating_transaction" : "Criando transação",
+  "send_templates" : "Modelos",
+  "send_new" : "Novo",
+  "send_amount" : "Montante:",
+  "send_fee" : "Taxa:",
+  "send_name" : "Nome",
+  "send_got_it" : "Entendi",
+  "send_sending" : "Enviando...",
+  "send_success" : "Seu Monero foi enviado com sucesso",
 
 
   "settings_title" : "Configurações",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "A troca por ${provider} não é criada. O valor é menor que o mínimo: ${min} ${currency}",
   "error_text_maximum_limit" : "A troca por ${provider} não é criada. O valor é superior ao máximo: ${max} ${currency}",
   "error_text_limits_loading_failed" : "A troca por ${provider} não é criada. Falha no carregamento dos limites",
+  "error_text_template" : "O nome e o endereço do modelo não podem conter os símbolos ` , ' \" \ne deve ter entre 1 e 106 caracteres",
 
 
   "auth_store_ban_timeout" : "ban_timeout",
@@ -349,5 +371,8 @@
   "version" : "Versão ${currentVersion}",
 
   "openalias_alert_title" : "Destinatário XMR detectado",
-  "openalias_alert_content" : "Você enviará fundos para\n${recipient_name}"
+  "openalias_alert_content" : "Você enviará fundos para\n${recipient_name}",
+
+  "card_address" : "Endereço:",
+  "buy" : "Comprar"
 }

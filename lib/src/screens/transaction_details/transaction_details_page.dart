@@ -7,16 +7,14 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_row.dart';
+import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/palette.dart';
 
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage({this.transactionInfo});
 
   final TransactionInfo transactionInfo;
-
-  @override
-  bool get isModalBackButton => true;
 
   @override
   String get title => S.current.transaction_details_title;
@@ -80,16 +78,23 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(left: 20, right: 15, top: 10, bottom: 10),
+      padding: EdgeInsets.only(top: 20, bottom: 20),
       child: ListView.separated(
           separatorBuilder: (context, index) => Container(
-                height: 1,
-                color: Theme.of(context).dividerTheme.color,
-              ),
-          padding: EdgeInsets.only(left: 25, top: 10, right: 25, bottom: 15),
+            height: 1,
+            padding: EdgeInsets.only(left: 24),
+            color: Theme.of(context).accentTextTheme.title.backgroundColor,
+            child: Container(
+              height: 1,
+              color: Theme.of(context).dividerColor,
+            ),
+          ),
           itemCount: _items.length,
           itemBuilder: (context, index) {
             final item = _items[index];
+
+            final isDrawTop = index == 0 ? true : false;
+            final isDrawBottom = index == _items.length - 1 ? true : false;
 
             return GestureDetector(
               onTap: () {
@@ -104,7 +109,11 @@ class TransactionDetailsFormState extends State<TransactionDetailsForm> {
                 );
               },
               child:
-                  StandartListRow(title: '${item.title}:', value: item.value),
+              StandartListRow(
+                  title: '${item.title}:',
+                  value: item.value,
+                  isDrawTop: isDrawTop,
+                  isDrawBottom: isDrawBottom),
             );
           }),
     );

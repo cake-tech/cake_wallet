@@ -46,6 +46,9 @@ abstract class SendStoreBase with Store {
   String cryptoAmount;
 
   @observable
+  String address;
+
+  @observable
   bool isValid;
 
   @observable
@@ -155,6 +158,18 @@ abstract class SendStoreBase with Store {
     } catch (e) {
       cryptoAmount = '0.00';
     }
+  }
+
+  @action
+  void changeAddress(String address) {
+    this.address = address;
+  }
+
+  @action
+  void clear() {
+    address = '';
+    cryptoAmount = '';
+    fiatAmount = '';
   }
 
   Future<bool> isOpenaliasRecord(String name) async {

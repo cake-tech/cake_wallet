@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/node_list/node_list_store.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class NewNodePage extends BasePage {
   @override
@@ -36,130 +37,166 @@ class NewNodeFormState extends State<NewNodePageForm> {
     super.dispose();
   }
 
+  void onHandleControllers(NodeListStore nodeListStore) {
+    if (_nodeAddressController.text.isNotEmpty &&
+        _nodePortController.text.isNotEmpty) {
+      nodeListStore.setDisabledState(false);
+    } else {
+      nodeListStore.setDisabledState(true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final nodeList = Provider.of<NodeListStore>(context);
 
-    return Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            Expanded(
-                child: Container(
-              padding: EdgeInsets.only(left: 38.0, right: 38.0, top: 0),
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextFormField(
-                            style: TextStyle(fontSize: 14.0),
-                            decoration: InputDecoration(
-                                hintStyle:
-                                    TextStyle(color: Palette.wildDarkBlue),
-                                hintText: S.of(context).node_address,
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Palette.cakeGreen, width: 2.0)),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).focusColor,
-                                        width: 1.0))),
-                            controller: _nodeAddressController,
-                            validator: (value) {
-                              nodeList.validateNodeAddress(value);
-                              return nodeList.errorMessage;
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 10.0),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextFormField(
-                            style: TextStyle(fontSize: 14.0),
-                            keyboardType: TextInputType.numberWithOptions(
-                                signed: false, decimal: false),
-                            decoration: InputDecoration(
-                                hintStyle:
-                                    TextStyle(color: Palette.wildDarkBlue),
-                                hintText: S.of(context).node_port,
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Palette.cakeGreen, width: 2.0)),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).focusColor,
-                                        width: 1.0))),
-                            controller: _nodePortController,
-                            validator: (value) {
-                              nodeList.validateNodePort(value);
-                              return nodeList.errorMessage;
-                            },
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 10.0),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextFormField(
-                            style: TextStyle(fontSize: 14.0),
-                            decoration: InputDecoration(
-                                hintStyle:
-                                    TextStyle(color: Palette.wildDarkBlue),
-                                hintText: S.of(context).login,
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Palette.cakeGreen, width: 2.0)),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).focusColor,
-                                        width: 1.0))),
-                            controller: _loginController,
-                            validator: (value) => null,
-                          ),
-                        )
-                      ],
-                    ),
-                    SizedBox(height: 10.0),
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: TextFormField(
-                            style: TextStyle(fontSize: 14.0),
-                            decoration: InputDecoration(
-                                hintStyle:
-                                    TextStyle(color: Palette.wildDarkBlue),
-                                hintText: S.of(context).password,
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Palette.cakeGreen, width: 2.0)),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).focusColor,
-                                        width: 1.0))),
-                            controller: _passwordController,
-                            validator: (value) => null,
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            )),
-            Container(
-              padding: EdgeInsets.only(bottom: 20.0, left: 20.0, right: 20.0),
-              child: Row(
+    _nodeAddressController.addListener(() {onHandleControllers(nodeList);});
+    _nodePortController.addListener(() {onHandleControllers(nodeList);});
+
+    return Container(
+      padding: EdgeInsets.only(left: 24, right: 24),
+      child: ScrollableWithBottomSection(
+        contentPadding: EdgeInsets.only(bottom: 24.0),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              Row(
                 children: <Widget>[
-                  Flexible(
-                      child: Container(
+                  Expanded(
+                    child: TextFormField(
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: Theme.of(context).primaryTextTheme.title.color
+                      ),
+                      decoration: InputDecoration(
+                          hintStyle:
+                          TextStyle(
+                              color: Theme.of(context).primaryTextTheme.caption.color,
+                              fontSize: 16
+                          ),
+                          hintText: S.of(context).node_address,
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0)),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0))),
+                      controller: _nodeAddressController,
+                      validator: (value) {
+                        nodeList.validateNodeAddress(value);
+                        return nodeList.errorMessage;
+                      },
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(height: 10.0),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: TextFormField(
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: Theme.of(context).primaryTextTheme.title.color
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(
+                          signed: false, decimal: false),
+                      decoration: InputDecoration(
+                          hintStyle:
+                          TextStyle(
+                              color: Theme.of(context).primaryTextTheme.caption.color,
+                              fontSize: 16
+                          ),
+                          hintText: S.of(context).node_port,
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0)),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0))),
+                      controller: _nodePortController,
+                      validator: (value) {
+                        nodeList.validateNodePort(value);
+                        return nodeList.errorMessage;
+                      },
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(height: 10.0),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: TextFormField(
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: Theme.of(context).primaryTextTheme.title.color
+                      ),
+                      decoration: InputDecoration(
+                          hintStyle:
+                          TextStyle(
+                              color: Theme.of(context).primaryTextTheme.caption.color,
+                              fontSize: 16
+                          ),
+                          hintText: S.of(context).login,
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0)),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0))),
+                      controller: _loginController,
+                      validator: (value) => null,
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(height: 10.0),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: TextFormField(
+                      style: TextStyle(
+                          fontSize: 16.0,
+                          color: Theme.of(context).primaryTextTheme.title.color
+                      ),
+                      decoration: InputDecoration(
+                          hintStyle:
+                          TextStyle(
+                              color: Theme.of(context).primaryTextTheme.caption.color,
+                              fontSize: 16
+                          ),
+                          hintText: S.of(context).password,
+                          focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0)),
+                          enabledBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(
+                                  color: Theme.of(context).dividerColor,
+                                  width: 1.0))),
+                      controller: _passwordController,
+                      validator: (value) => null,
+                    ),
+                  )
+                ],
+              )
+            ],
+          )
+        ),
+        bottomSectionPadding: EdgeInsets.only(bottom: 24),
+        bottomSection: Observer(
+          builder: (_) => Row(
+            children: <Widget>[
+              Flexible(
+                  child: Container(
                     padding: EdgeInsets.only(right: 8.0),
                     child: PrimaryButton(
                         onPressed: () {
@@ -169,17 +206,11 @@ class NewNodeFormState extends State<NewNodePageForm> {
                           _passwordController.text = '';
                         },
                         text: S.of(context).reset,
-                        color: Theme.of(context)
-                            .accentTextTheme
-                            .button
-                            .backgroundColor,
-                        borderColor: Theme.of(context)
-                            .accentTextTheme
-                            .button
-                            .decorationColor),
+                        color: Colors.red,
+                        textColor: Colors.white),
                   )),
-                  Flexible(
-                      child: Container(
+              Flexible(
+                  child: Container(
                     padding: EdgeInsets.only(left: 8.0),
                     child: PrimaryButton(
                       onPressed: () async {
@@ -196,20 +227,15 @@ class NewNodeFormState extends State<NewNodePageForm> {
                         Navigator.of(context).pop();
                       },
                       text: S.of(context).save,
-                      color: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .backgroundColor,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .decorationColor,
+                      color: Colors.green,
+                      textColor: Colors.white,
+                      isDisabled: nodeList.disabledState,
                     ),
                   )),
-                ],
-              ),
-            )
-          ],
-        ));
+            ],
+          )
+        ),
+      )
+    );
   }
 }

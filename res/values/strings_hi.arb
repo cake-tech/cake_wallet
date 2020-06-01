@@ -1,8 +1,9 @@
 {
-  "welcome" : "स्वागत हे\nसेवा मेरे CAKE WALLET",
-  "first_wallet_text" : "बहुत बढ़िया बटुआ\nके लिये Monero",
-  "please_make_selection" : "कृपया नीचे चयन करें\nअपना बटुआ बनाएं या पुनर्प्राप्त करें.",
-  "create_new" : "नया बनाओ",
+  "welcome" : "स्वागत हे सेवा मेरे",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "बहुत बढ़िया बटुआ के लिये Monero",
+  "please_make_selection" : "कृपया नीचे चयन करें अपना बटुआ बनाएं या पुनर्प्राप्त करें.",
+  "create_new" : "नया बटुआ बनाएँ",
   "restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "संपर्क नाम",
   "reset" : "रीसेट",
   "save" : "बचाना",
+  "address_remove_contact" : "संपर्क हटाये",
+  "address_remove_content" : "क्या आप वाकई चयनित संपर्क को हटाना चाहते हैं?",
 
 
   "authenticated" : "प्रमाणीकृत",
@@ -73,7 +76,7 @@
 
   "copy_id" : "प्रतिलिपि ID",
   "exchange_result_write_down_trade_id" : "जारी रखने के लिए कृपया ट्रेड ID की प्रतिलिपि बनाएँ या लिखें.",
-  "trade_id" : "व्यापार ID:\n${id}",
+  "trade_id" : "व्यापार ID:",
   "copied_to_clipboard" : "क्लिपबोर्ड पर नकल",
   "saved_the_trade_id" : "मैंने व्यापार बचा लिया है ID",
   "fetching" : "ला रहा है",
@@ -95,6 +98,7 @@
   "expired" : "समय सीमा समाप्त",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "संदेश XMR",
+  "exchange_new_template" : "नया टेम्पलेट",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "नया बटुआ",
   "wallet_name" : "बटुए का नाम",
   "continue_text" : "जारी रहना",
+  "choose_wallet_currency" : "कृपया बटुआ मुद्रा चुनें:",
 
 
   "node_new" : "नया नोड",
@@ -122,15 +127,20 @@
   "remove_node_message" : "क्या आप वाकई चयनित नोड को निकालना चाहते हैं?",
   "remove" : "हटाना",
   "delete" : "हटाएं",
+  "add_new_node" : "नया नोड जोड़ें",
 
 
-  "use" : "पर स्विच ",
+  "use" : "उपयोग ",
   "digit_pin" : "-अंक पिन",
 
 
   "share_address" : "पता साझा करें",
   "receive_amount" : "रकम",
   "subaddresses" : "उप पते",
+  "rename" : "नाम बदलें",
+  "choose_account" : "खाता चुनें",
+  "create_new_account" : "नया खाता बनाएँ",
+  "accounts_subaddresses" : "लेखा और उपदेस",
 
 
   "restore_restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "कुंजी खर्च करें (निजीe)",
   "restore_recover" : "वसूली",
   "restore_wallet_restore_description" : "बटुआ विवरण पुनर्स्थापित करें",
+  "restore_new_seed" : "नया बीज",
+  "restore_active_seed" : "सक्रिय बीज",
 
 
   "seed_title" : "बीज",
@@ -157,7 +169,8 @@
   "copy" : "प्रतिलिपि",
 
 
-  "seed_language_choose" : "कृपया बीज भाषा चुनें",
+  "seed_language_choose" : "कृपया बीज भाषा चुनें:",
+  "seed_choose" : "बीज भाषा चुनें",
   "seed_language_next" : "आगामी",
   "seed_language_english" : "अंग्रेज़ी",
   "seed_language_chinese" : "चीनी",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "अनुमानित शुल्क:",
   "send_priority" : "वर्तमान में शुल्क निर्धारित है ${transactionPriority} प्राथमिकता.\nलेन-देन की प्राथमिकता को सेटिंग्स में समायोजित किया जा सकता है",
   "send_creating_transaction" : "लेन-देन बनाना",
+  "send_templates" : "टेम्पलेट्स",
+  "send_new" : "नया",
+  "send_amount" : "रकम:",
+  "send_fee" : "शुल्क:",
+  "send_name" : "नाम",
+  "send_got_it" : "समझ गया",
+  "send_sending" : "भेजना...",
+  "send_success" : "आपका Monero सफलतापूर्वक भेजा गया",
 
 
   "settings_title" : "सेटिंग्स",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि कम है तो न्यूनतम: ${min} ${currency}",
   "error_text_maximum_limit" : "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि अधिक है तो अधिकतम: ${max} ${currency}",
   "error_text_limits_loading_failed" : "व्यापार ${provider} के लिए नहीं बनाया गया है। लोडिंग की सीमाएं विफल रहीं",
+  "error_text_template" : "टेम्प्लेट का नाम और पता नहीं हो सकता ` , ' \" प्रतीकों\nऔर 1 और 106 वर्णों के बीच लंबा होना चाहिए",
 
 
   "auth_store_ban_timeout" : "समय की पाबंदी",
@@ -349,5 +371,8 @@
   "version" : "संस्करण ${currentVersion}",
 
   "openalias_alert_title" : "XMR प्राप्तकर्ता का पता लगाया",
-  "openalias_alert_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}"
+  "openalias_alert_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}",
+
+  "card_address" : "पता:",
+  "buy" : "खरीदें"
 }

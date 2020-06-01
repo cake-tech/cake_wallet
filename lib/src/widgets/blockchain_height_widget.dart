@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/monero/get_height_by_date.dart';
-import 'package:cake_wallet/palette.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({GlobalKey key}) : super(key: key);
@@ -37,19 +36,27 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                 child: Container(
               padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
               child: TextFormField(
-                style: TextStyle(fontSize: 14.0),
+                style: TextStyle(
+                    fontSize: 16.0,
+                    color: Theme.of(context).primaryTextTheme.title.color
+                ),
                 controller: restoreHeightController,
                 keyboardType: TextInputType.numberWithOptions(
                     signed: false, decimal: false),
                 decoration: InputDecoration(
-                    hintStyle: TextStyle(color: Theme.of(context).hintColor),
+                    hintStyle: TextStyle(
+                        color: Theme.of(context).primaryTextTheme.caption.color,
+                        fontSize: 16
+                    ),
                     hintText: S.of(context).widgets_restore_from_blockheight,
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                            color: Palette.cakeGreen, width: 2.0)),
+                            color: Theme.of(context).dividerColor,
+                            width: 1.0)),
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                            color: Theme.of(context).focusColor, width: 1.0))),
+                            color: Theme.of(context).dividerColor,
+                            width: 1.0))),
               ),
             ))
           ],
@@ -72,18 +79,23 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                 onTap: () => _selectDate(context),
                 child: IgnorePointer(
                   child: TextFormField(
-                    style: TextStyle(fontSize: 14.0),
+                    style: TextStyle(
+                        fontSize: 16.0,
+                        color: Theme.of(context).primaryTextTheme.title.color
+                    ),
                     decoration: InputDecoration(
-                        hintStyle:
-                            TextStyle(color: Theme.of(context).hintColor),
+                        hintStyle: TextStyle(
+                            color: Theme.of(context).primaryTextTheme.caption.color,
+                            fontSize: 16
+                        ),
                         hintText: S.of(context).widgets_restore_from_date,
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: Palette.cakeGreen,
-                                width: 2.0)),
+                                color: Theme.of(context).dividerColor,
+                                width: 1.0)),
                         enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                                color: Theme.of(context).focusColor,
+                                color: Theme.of(context).dividerColor,
                                 width: 1.0))),
                     controller: dateController,
                     validator: (value) {

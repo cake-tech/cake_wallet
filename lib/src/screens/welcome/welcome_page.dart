@@ -1,44 +1,17 @@
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-
-WalletType _selectedType;
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class WelcomePage extends BasePage {
-  static const _aspectRatioImage = 1.26;
-  static const _baseWidth = 411.43;
-  final _image = Image.asset('assets/images/welcomeImg.png');
-  final _cakeLogo = Image.asset('assets/images/cake_logo.png');
-  final Map<String, WalletType> _picker =
-      walletTypes.fold(Map<String, WalletType>(), (acc, item) {
-    acc[walletTypeToString(item)] = item;
-    return acc;
-  });
+  static const aspectRatioImage = 1.25;
+  final welcomeImage = Image.asset('assets/images/welcome.png');
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) => _selectedType == null
-        ? showDialog<void>(
-            builder: (_) => Picker(
-                items: walletTypes
-                    .map((item) => walletTypeToString(item))
-                    .toList(),
-                selectedAtIndex: -1,
-                title: 'Select wallet type',
-                pickerHeight: 510,
-                onItemSelected: (String item) {
-                  print('before $_selectedType');
-                  _selectedType = _picker[item];
-                  print('after $_selectedType');
-                }),
-            context: context)
-        : null);
-
     return Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         resizeToAvoidBottomPadding: false,
@@ -47,77 +20,99 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final _screenWidth = MediaQuery.of(context).size.width;
-    final textScaleFactor = _screenWidth < _baseWidth ? 0.76 : 1.0;
+    final newWalletImage = Image.asset('assets/images/new_wallet.png',
+        height: 12,
+        width: 12,
+        color: Palette.oceanBlue);
+    final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
+        height: 12,
+        width: 12,
+        color: Theme.of(context).primaryTextTheme.title.color);
 
-    return Column(children: <Widget>[
-      Stack(
-        alignment: Alignment.center,
-        children: <Widget>[
-          AspectRatio(
-              aspectRatio: _aspectRatioImage,
-              child: FittedBox(child: _image, fit: BoxFit.fill)),
-          Positioned(bottom: 0.0, child: _cakeLogo)
-        ],
-      ),
-      Expanded(
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Text(
-                S.of(context).welcome,
-                style: TextStyle(
-                  fontSize: 30.0,
-                  fontWeight: FontWeight.bold,
-                ),
-                textScaleFactor: textScaleFactor,
-                textAlign: TextAlign.center,
+    return Container(
+      padding: EdgeInsets.only(top: 20),
+      child: ScrollableWithBottomSection(
+        contentPadding: EdgeInsets.only(bottom: 20),
+        content: Column(
+          children: <Widget>[
+            AspectRatio(
+              aspectRatio: aspectRatioImage,
+              child: FittedBox(child: welcomeImage, fit: BoxFit.fill)),
+            Padding(
+              padding: EdgeInsets.only(left: 24, right: 24, top: 40),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    S.of(context).welcome,
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Theme.of(context).primaryTextTheme.caption.color,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: Text(
+                      S.of(context).cake_wallet,
+                      style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).primaryTextTheme.title.color,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 14),
+                    child: Text(
+                      S.of(context).first_wallet_text,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).primaryTextTheme.caption.color,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
               ),
-              Text(
-                S.of(context).first_wallet_text,
-                style: TextStyle(
-                  fontSize: 22.0,
-                  color: Palette.lightBlue,
-                ),
-                textScaleFactor: textScaleFactor,
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                S.of(context).please_make_selection,
-                style: TextStyle(
-                  fontSize: 16.0,
-                  color: Palette.lightBlue,
-                ),
-                textScaleFactor: textScaleFactor,
-                textAlign: TextAlign.center,
-              )
-            ]),
-      ),
-      Container(
-          padding: EdgeInsets.fromLTRB(20.0, 10.0, 20.0, 20.0),
-          child: Column(children: <Widget>[
-            PrimaryButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, Routes.newWalletFromWelcome,
-                      arguments: _selectedType);
-                },
-                text: S.of(context).create_new,
-                color:
-                    Theme.of(context).primaryTextTheme.button.backgroundColor,
-                borderColor:
-                    Theme.of(context).primaryTextTheme.button.decorationColor),
-            SizedBox(height: 10),
-            PrimaryButton(
-              onPressed: () {
-                Navigator.pushNamed(context, Routes.restoreOptions,
-                    arguments: _selectedType);
-              },
-              color: Theme.of(context).accentTextTheme.caption.backgroundColor,
-              borderColor:
-                  Theme.of(context).accentTextTheme.caption.decorationColor,
-              text: S.of(context).restore_wallet,
             )
-          ]))
-    ]);
+          ],
+        ),
+        bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 20),
+        bottomSection: Column(children: <Widget>[
+          Text(
+            S.of(context).please_make_selection,
+            style: TextStyle(
+              fontSize: 12,
+              color: Theme.of(context).primaryTextTheme.caption.color,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 24),
+            child: PrimaryImageButton(
+                onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
+                image: newWalletImage,
+                text: S.of(context).create_new,
+                color: Colors.white,
+                textColor: Palette.oceanBlue,
+                borderColor: Palette.oceanBlue,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: PrimaryImageButton(
+                onPressed: () => Navigator.pushNamed(context, Routes.restoreOptions),
+                image: restoreWalletImage,
+                text: S.of(context).restore_wallet,
+                color: Theme.of(context).primaryTextTheme.overline.color,
+                textColor: Theme.of(context).primaryTextTheme.title.color),
+          )
+        ]),
+      ),
+    );
   }
 }

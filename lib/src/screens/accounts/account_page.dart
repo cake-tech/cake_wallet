@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/domain/monero/account.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class AccountPage extends BasePage {
   AccountPage({this.account});
@@ -15,7 +16,7 @@ class AccountPage extends BasePage {
   final Account account;
 
   @override
-  String get title => 'Account';
+  String get title => S.current.account;
 
   @override
   Widget body(BuildContext context) => AccountForm(account);
@@ -50,30 +51,31 @@ class AccountFormState extends State<AccountForm> {
   Widget build(BuildContext context) {
     final accountListStore = Provider.of<AccountListStore>(context);
 
+    _textController.addListener(() {
+      if (_textController.text.isNotEmpty) {
+        accountListStore.setDisabledStatus(false);
+      } else {
+        accountListStore.setDisabledStatus(true);
+      }
+    });
+
     return Form(
       key: _formKey,
       child: Container(
-        padding: EdgeInsets.all(20.0),
+        color: Theme.of(context).backgroundColor,
+        padding: EdgeInsets.all(24.0),
         child: Column(
           children: <Widget>[
             Expanded(
                 child: Center(
-              child: TextFormField(
-                decoration: InputDecoration(
-                    hintStyle: TextStyle(color: Theme.of(context).hintColor),
+                  child: BaseTextFormField(
+                    controller: _textController,
                     hintText: S.of(context).account,
-                    focusedBorder: UnderlineInputBorder(
-                        borderSide:
-                            BorderSide(color: Palette.cakeGreen, width: 2.0)),
-                    enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Theme.of(context).focusColor, width: 1.0))),
-                controller: _textController,
-                validator: (value) {
-                  accountListStore.validateAccountName(value);
-                  return accountListStore.errorMessage;
-                },
-              ),
+                    validator: (value) {
+                      accountListStore.validateAccountName(value);
+                      return accountListStore.errorMessage;
+                    },
+                  )
             )),
             Observer(
                 builder: (_) => LoadingPrimaryButton(
@@ -93,16 +95,11 @@ class AccountFormState extends State<AccountForm> {
                         Navigator.of(context).pop(_textController.text);
                       },
                       text:
-                          widget.account != null ? 'Rename' : S.of(context).add,
-                      color: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .backgroundColor,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .button
-                          .decorationColor,
+                          widget.account != null ? S.of(context).rename : S.of(context).add,
+                      color: Colors.green,
+                      textColor: Colors.white,
                       isLoading: accountListStore.isAccountCreating,
+                      isDisabled: accountListStore.isDisabledStatus,
                     ))
           ],
         ),

@@ -1,9 +1,10 @@
 {
-  "welcome" : "ようこそ\nに CAKE WALLET",
-  "first_wallet_text" : "素晴らしい財布\nために Monero",
-  "please_make_selection" : "以下を選択してください\nウォレットを作成または回復する.",
-  "create_new" : "新しく作る",
-  "restore_wallet" : "ウォレットを復元する",
+  "welcome" : "ようこそ に",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "素晴らしい財布 ために Monero",
+  "please_make_selection" : "以下を選択してください ウォレットを作成または回復する.",
+  "create_new" : "新しいウォレットを作成",
+  "restore_wallet" : "ウォレットを復元",
 
 
   "accounts" : "アカウント",
@@ -20,6 +21,8 @@
   "contact_name" : "連絡先",
   "reset" : "リセットする",
   "save" : "セーブ",
+  "address_remove_contact" : "連絡先を削除します",
+  "address_remove_content" : "選択した連絡先を削除してもよろしいですか？",
 
 
   "authenticated" : "認証済み",
@@ -73,7 +76,7 @@
 
   "copy_id" : "IDをコピー",
   "exchange_result_write_down_trade_id" : "続行するには、取引IDをコピーまたは書き留めてください.",
-  "trade_id" : "取引ID:\n${id}",
+  "trade_id" : "取引ID:",
   "copied_to_clipboard" : "クリップボードにコピーしました",
   "saved_the_trade_id" : "取引IDを保存しました",
   "fetching" : "フェッチング",
@@ -95,6 +98,7 @@
   "expired" : "期限切れ",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "送る XMR",
+  "exchange_new_template" : "新しいテンプレート",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "新しいウォレット",
   "wallet_name" : "ウォレット名",
   "continue_text" : "持続する",
+  "choose_wallet_currency" : "ウォレット通貨を選択してください：",
 
 
   "node_new" : "新しいノード",
@@ -122,15 +127,20 @@
   "remove_node_message" : "選択したノードを削除してもよろしいですか？",
   "remove" : "削除する",
   "delete" : "削除する",
+  "add_new_node" : "新しいノードを追加",
 
 
-  "use" : "切り替える ",
+  "use" : "使用する ",
   "digit_pin" : "桁ピン",
 
 
   "share_address" : "住所を共有する",
   "receive_amount" : "量",
   "subaddresses" : "サブアドレス",
+  "rename" : "リネーム",
+  "choose_account" : "アカウントを選択",
+  "create_new_account" : "新しいアカウントを作成する",
+  "accounts_subaddresses" : "アカウントとサブアドレス",
 
 
   "restore_restore_wallet" : "ウォレットを復元",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "キーを使う (プライベート)",
   "restore_recover" : "回復します",
   "restore_wallet_restore_description" : "ウォレットの復元",
+  "restore_new_seed" : "新しい種",
+  "restore_active_seed" : "アクティブシード",
 
 
   "seed_title" : "シード",
@@ -157,7 +169,8 @@
   "copy" : "コピー",
 
 
-  "seed_language_choose" : "シード言語を選択してください",
+  "seed_language_choose" : "シード言語を選択してください:",
+  "seed_choose" : "シード言語を選択してください",
   "seed_language_next" : "次",
   "seed_language_english" : "英語",
   "seed_language_chinese" : "中国語",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "見積手数料:",
   "send_priority" : "現在、料金は ${transactionPriority} 優先度.\nトランザクションの優先度は設定で調整できます",
   "send_creating_transaction" : "トランザクションを作成する",
+  "send_templates" : "テンプレート",
+  "send_new" : "新着",
+  "send_amount" : "量：",
+  "send_fee" : "費用：",
+  "send_name" : "名前",
+  "send_got_it" : "とった",
+  "send_sending" : "送信...",
+  "send_success" : "Moneroが送信されました",
 
 
   "settings_title" : "設定",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "${provider} の取引は作成されません。 金額は最小額より少ない： ${min} ${currency}",
   "error_text_maximum_limit" : "${provider} の取引は作成されません。 金額は最大値を超えています： ${max} ${currency}",
   "error_text_limits_loading_failed" : "${provider} の取引は作成されません。 制限の読み込みに失敗しました",
+  "error_text_template" : "テンプレートの名前とアドレスに含めることはできません ` , ' \" シンボル\n1〜106文字の長さである必要があります",
 
 
   "auth_store_ban_timeout" : "禁止タイムアウト",
@@ -349,5 +371,8 @@
   "version" : "バージョン ${currentVersion}",
 
   "openalias_alert_title" : "XMR受信者が検出されました",
-  "openalias_alert_content" : "に送金します\n${recipient_name}"
+  "openalias_alert_content" : "に送金します\n${recipient_name}",
+
+  "card_address" : "住所:",
+  "buy" : "購入"
 }

@@ -1,8 +1,9 @@
 {
-  "welcome" : "欢迎\nTO CAKE WALLET",
-  "first_wallet_text" : "很棒的钱包\n对于 Monero",
-  "please_make_selection" : "请在下面进行选择\nc创建或恢复您的钱包.",
-  "create_new" : "创建新的",
+  "welcome" : "歡迎來到",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "很棒的钱包 对于 Monero",
+  "please_make_selection" : "请在下面进行选择 创建或恢复您的钱包.",
+  "create_new" : "创建新钱包",
   "restore_wallet" : "恢复钱包",
 
 
@@ -20,6 +21,8 @@
   "contact_name" : "联系人姓名",
   "reset" : "重启",
   "save" : "保存",
+  "address_remove_contact" : "刪除聯繫人",
+  "address_remove_content" : "您確定要刪除所選的聯繫人嗎？",
 
 
   "authenticated" : "已认证",
@@ -73,7 +76,7 @@
 
   "copy_id" : "复印ID",
   "exchange_result_write_down_trade_id" : "请复制或写下交易编号以继续.",
-  "trade_id" : "贸易编号:\n${id}",
+  "trade_id" : "贸易编号:",
   "copied_to_clipboard" : "复制到剪贴板",
   "saved_the_trade_id" : "我已经保存了交易ID",
   "fetching" : "正在取得",
@@ -95,6 +98,7 @@
   "expired" : "已过期",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "发送 XMR",
+  "exchange_new_template" : "新範本",
 
   "faq" : "FAQ",
 
@@ -106,6 +110,7 @@
   "new_wallet" : "新钱包",
   "wallet_name" : "钱包名称",
   "continue_text" : "继续",
+  "choose_wallet_currency" : "請選擇錢包貨幣：",
 
 
   "node_new" : "新节点",
@@ -122,15 +127,20 @@
   "remove_node_message" : "您确定要删除所选节点吗？",
   "remove" : "去掉",
   "delete" : "删除",
+  "add_new_node" : "添加新節點",
 
 
-  "use" : "切換到 ",
+  "use" : "採用 ",
   "digit_pin" : "数字别针",
 
 
   "share_address" : "分享地址",
   "receive_amount" : "量",
   "subaddresses" : "子地址",
+  "rename" : "改名",
+  "choose_account" : "選擇帳號",
+  "create_new_account" : "建立新帳戶",
+  "accounts_subaddresses" : "帳戶和子地址",
 
 
   "restore_restore_wallet" : "恢复钱包",
@@ -150,6 +160,8 @@
   "restore_spend_key_private" : "支出金钥 (私人的)",
   "restore_recover" : "恢复",
   "restore_wallet_restore_description" : "钱包还原说明",
+  "restore_new_seed" : "新種子",
+  "restore_active_seed" : "活性種子",
 
 
   "seed_title" : "种子",
@@ -157,7 +169,8 @@
   "copy" : "复制",
 
 
-  "seed_language_choose" : "請選擇種子語言",
+  "seed_language_choose" : "請選擇種子語言:",
+  "seed_choose" : "選擇種子語言",
   "seed_language_next" : "下一个",
   "seed_language_english" : "英語",
   "seed_language_chinese" : "中文",
@@ -179,6 +192,14 @@
   "send_estimated_fee" : "预估费用:",
   "send_priority" : "目前，费用设置为 ${transactionPriority} 优先.\n交易优先级可以在设置中进行调整",
   "send_creating_transaction" : "创建交易",
+  "send_templates" : "範本",
+  "send_new" : "新",
+  "send_amount" : "量:",
+  "send_fee" : "費用:",
+  "send_name" : "名稱",
+  "send_got_it" : "得到它了",
+  "send_sending" : "正在發送...",
+  "send_success" : "你Monero已成功發送",
 
 
   "settings_title" : "设定值",
@@ -285,6 +306,7 @@
   "error_text_minimal_limit" : "未創建 ${provider} 交易。 金額少於最小值：${min} ${currency}",
   "error_text_maximum_limit" : "未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}",
   "error_text_limits_loading_failed" : "未創建 ${provider} 交易。 限制加載失敗",
+  "error_text_template" : "模板名稱和地址不能包含`，' \" 符号\n并且必须在1到106个字符之间",
 
 
   "auth_store_ban_timeout" : "禁止超时",
@@ -349,5 +371,8 @@
   "version" : "版 ${currentVersion}",
 
   "openalias_alert_title" : "檢測到XMR收件人",
-  "openalias_alert_content" : "您將匯款至\n${recipient_name}"
+  "openalias_alert_content" : "您將匯款至\n${recipient_name}",
+
+  "card_address" : "地址:",
+  "buy" : "購買"
 }

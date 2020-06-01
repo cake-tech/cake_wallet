@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class SetupPinCodePage extends BasePage {
   SetupPinCodePage({this.onPinCodeSetup});
@@ -58,36 +59,28 @@ class _SetupPinCodeFormState<WidgetType extends SetupPinCodeForm>
 
         showDialog<void>(
             context: context,
-            barrierDismissible: false,
             builder: (BuildContext context) {
-              return AlertDialog(
-                content: Text(S.of(context).setup_successful),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text(S.of(context).ok),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      widget.onPinCodeSetup(context, pin);
-                      reset();
-                    },
-                  ),
-                ],
+              return AlertWithOneAction(
+                  alertTitle: S.current.setup_pin,
+                  alertContent: S.of(context).setup_successful,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () {
+                    Navigator.of(context).pop();
+                    widget.onPinCodeSetup(context, pin);
+                    reset();
+                  },
+                  alertBarrierDismissible: false,
               );
             });
       } else {
         showDialog<void>(
             context: context,
             builder: (BuildContext context) {
-              return AlertDialog(
-                content: Text(S.of(context).pin_is_incorrect),
-                actions: <Widget>[
-                  FlatButton(
-                    child: Text(S.of(context).ok),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
+              return AlertWithOneAction(
+                  alertTitle: S.current.setup_pin,
+                  alertContent: S.of(context).pin_is_incorrect,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop()
               );
             });
 

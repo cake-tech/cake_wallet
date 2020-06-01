@@ -15,9 +15,9 @@ class SettingsTextListRow extends StatelessWidget {
     final settingsStore = Provider.of<SettingsStore>(context);
 
     return Container(
-      color: Theme.of(context).accentTextTheme.headline.backgroundColor,
+      color: Theme.of(context).accentTextTheme.title.backgroundColor,
       child: ListTile(
-        contentPadding: EdgeInsets.only(left: 20.0, right: 20.0),
+        contentPadding: EdgeInsets.only(left: 24.0, right: 24.0),
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
@@ -26,7 +26,7 @@ class SettingsTextListRow extends StatelessWidget {
                 builder: (_) => Text(
                   settingsStore.itemHeaders[title],
                   style: TextStyle(
-                           fontSize: 16.0,
+                           fontSize: 14.0,
                            color: Theme.of(context).primaryTextTheme.title.color),
                   )),
             ),

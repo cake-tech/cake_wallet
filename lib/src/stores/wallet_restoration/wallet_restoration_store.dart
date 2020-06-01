@@ -20,6 +20,7 @@ abstract class WalleRestorationStoreBase with Store {
       @required this.walletListService,
       @required this.sharedPreferences}) {
     state = WalletRestorationStateInitial();
+    disabledState = true;
   }
 
   final AuthenticationStore authStore;
@@ -37,6 +38,9 @@ abstract class WalleRestorationStoreBase with Store {
 
   @observable
   List<MnemoticItem> seed;
+
+  @observable
+  bool disabledState;
 
   @action
   Future restoreFromSeed({String name, String seed, int restoreHeight}) async {
@@ -107,6 +111,11 @@ abstract class WalleRestorationStoreBase with Store {
 
   String _seedText() {
     return seed.fold('', (acc, item) => acc + ' ' + item.toString());
+  }
+
+  @action
+  void setDisabledState(bool isDisable) {
+    disabledState = isDisable;
   }
 
   void validateWalletName(String value) {

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:provider/provider.dart';
 
 class SettingsHeaderListRow extends StatelessWidget {
@@ -16,7 +15,7 @@ class SettingsHeaderListRow extends StatelessWidget {
     return Column(
       children: <Widget>[
         SizedBox(
-          height: 28.0,
+          height: 20.0,
         ),
         Container(
           padding: EdgeInsets.only(left: 20.0),
@@ -25,9 +24,12 @@ class SettingsHeaderListRow extends StatelessWidget {
             children: <Widget>[
               Observer(
                   builder: (_) => Text(
-                        settingsStore.itemHeaders[title],
+                        title.isNotEmpty
+                        ? settingsStore.itemHeaders[title]
+                        : '',
                         style: TextStyle(
-                            fontSize: 15.0, color: Palette.wildDarkBlue),
+                            fontSize: 15.0,
+                            color: Theme.of(context).primaryTextTheme.caption.color),
                       ))
             ],
           ),

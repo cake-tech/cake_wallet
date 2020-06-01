@@ -11,41 +11,122 @@ class FaqPage extends BasePage {
   String get title => S.current.faq;
 
   @override
-  Widget body(BuildContext context) {
-    return FutureBuilder(
-      builder: (context, snapshot) {
-        final faqItems = jsonDecode(snapshot.data.toString()) as List;
+  Widget body(BuildContext context) => FaqForm();
+}
 
-        return ListView.separated(
-          itemBuilder: (BuildContext context, int index) {
-            final itemTitle = faqItems[index]["question"].toString();
-            final itemChild = faqItems[index]["answer"].toString();
+class FaqForm extends StatefulWidget {
+  @override
+  FaqFormState createState() => FaqFormState();
+}
 
-            return ExpansionTile(
-              title: Text(itemTitle),
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Expanded(
-                        child: Container(
-                      padding: EdgeInsets.only(left: 15.0, right: 15.0),
+class FaqFormState extends State<FaqForm> {
+  List<Icon> icons;
+  List<Color> colors;
+  bool isLoaded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final addIcon = Icon(Icons.add, color: Theme.of(context).primaryTextTheme.title.color);
+    final removeIcon = Icon(Icons.remove, color: Colors.green);
+
+    return Container(
+      padding: EdgeInsets.only(top: 12),
+      child: Container(
+        color: Theme.of(context).accentTextTheme.headline.color,
+        child: FutureBuilder(
+          builder: (context, snapshot) {
+            final faqItems = jsonDecode(snapshot.data.toString()) as List;
+
+            if (snapshot.hasData) {
+              setIconsAndColors(context, faqItems.length, addIcon);
+            }
+
+            return SingleChildScrollView(
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  final itemTitle = faqItems[index]["question"].toString();
+                  final itemChild = faqItems[index]["answer"].toString();
+
+                  return ExpansionTile(
+                    title: Padding(
+                      padding: EdgeInsets.only(left: 8, top: 12, bottom: 12),
                       child: Text(
-                        itemChild,
+                        itemTitle,
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: colors[index]
+                        ),
                       ),
-                    ))
-                  ],
-                )
-              ],
+                    ),
+                    trailing: Padding(
+                      padding: EdgeInsets.only(right: 24),
+                      child: Container(
+                        width: double.minPositive,
+                        child: Center(
+                            child: icons[index]
+                        ),
+                      ),
+                    ),
+                    backgroundColor: Theme.of(context).accentTextTheme.headline.backgroundColor,
+                    onExpansionChanged: (value) {
+                      setState(() {
+                        if (value) {
+                          icons[index] = removeIcon;
+                          colors[index] = Colors.green;
+                        } else {
+                          icons[index] = addIcon;
+                          colors[index] = Theme.of(context).primaryTextTheme.title.color;
+                        }
+                      });
+                    },
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          Expanded(
+                              child: Container(
+                                padding: EdgeInsets.only(
+                                    left: 24.0,
+                                    right: 24.0,
+                                    bottom: 8
+                                ),
+                                child: Text(
+                                  itemChild,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).primaryTextTheme.title.color
+                                  ),
+                                ),
+                              ))
+                        ],
+                      )
+                    ],
+                  );
+                },
+                separatorBuilder: (_, __) =>
+                    Container(color: Theme.of(context).dividerColor, height: 1.0),
+                itemCount: faqItems == null ? 0 : faqItems.length,
+              ),
             );
           },
-          separatorBuilder: (_, __) =>
-              Divider(color: Theme.of(context).dividerTheme.color, height: 1.0),
-          itemCount: faqItems == null ? 0 : faqItems.length,
-        );
-      },
-      future: rootBundle.loadString(getFaqPath(context)),
+          future: rootBundle.loadString(getFaqPath(context)),
+        ),
+      ),
     );
+  }
+
+  void setIconsAndColors(BuildContext context, int index, Icon icon) {
+    if (isLoaded) {
+      return;
+    }
+
+    icons = List.generate(index, (int i) => icon);
+    colors = List.generate(index, (int i) => Theme.of(context).primaryTextTheme.title.color);
+
+    isLoaded = true;
   }
 
   String getFaqPath(BuildContext context) {

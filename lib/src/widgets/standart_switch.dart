@@ -1,3 +1,5 @@
+import 'package:cake_wallet/palette.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class StandartSwitch extends StatefulWidget {
@@ -16,29 +18,22 @@ class StandartSwitchState extends State<StandartSwitch> {
     return GestureDetector(
       onTap: widget.onTaped,
       child: AnimatedContainer(
-        padding: EdgeInsets.only(left: 4.0, right: 4.0),
+        padding: EdgeInsets.only(left: 2.0, right: 2.0),
         alignment: widget.value ? Alignment.centerRight : Alignment.centerLeft,
         duration: Duration(milliseconds: 250),
-        width: 55.0,
-        height: 33.0,
+        width: 50,
+        height: 28,
         decoration: BoxDecoration(
-            color: Theme.of(context).toggleButtonsTheme.color,
-            border: Border.all(
-                color: Theme.of(context).toggleButtonsTheme.borderColor),
-            borderRadius: BorderRadius.all(Radius.circular(10.0))),
+            color: widget.value
+                ? Colors.green
+                : PaletteDark.distantBlue,
+            borderRadius: BorderRadius.all(Radius.circular(14.0))),
         child: Container(
-          width: 25.0,
-          height: 25.0,
+          width: 24.0,
+          height: 24.0,
           decoration: BoxDecoration(
-              color: widget.value
-                  ? Theme.of(context).toggleButtonsTheme.selectedColor
-                  : Theme.of(context).toggleButtonsTheme.disabledColor,
-              borderRadius: BorderRadius.all(Radius.circular(8.0))),
-          child: Icon(
-            widget.value ? Icons.check : Icons.close,
-            color: Colors.white,
-            size: 16.0,
-          ),
+              color: Colors.white,
+              shape: BoxShape.circle),
         ),
       ),
     );
