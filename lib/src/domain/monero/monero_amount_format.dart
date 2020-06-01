@@ -11,3 +11,5 @@ String moneroAmountToString({int amount}) =>
     moneroAmountFormat.format(cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider));
 
 double moneroAmountToDouble({int amount}) => cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider);
+
+int moneroParseAmount({String amount}) => moneroAmountFormat.parse(amount).toInt();

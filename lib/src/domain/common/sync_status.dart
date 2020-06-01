@@ -9,24 +9,19 @@ abstract class SyncStatus {
 }
 
 class SyncingSyncStatus extends SyncStatus {
-  SyncingSyncStatus(this.height, this.blockchainHeight, this.refreshHeight);
+  SyncingSyncStatus(this.blocksLeft, this.ptc);
 
-  final int height;
-  final int blockchainHeight;
-  final int refreshHeight;
+  final double ptc;
+  final int blocksLeft;
 
   @override
-  double progress() {
-    final line = blockchainHeight - refreshHeight;
-    final diff = line - (blockchainHeight - height);
-    return diff <= 0 ? 0.0 : diff / line;
-  }
+  double progress() => ptc;
 
   @override
   String title() => S.current.sync_status_syncronizing;
 
   @override
-  String toString() => '${blockchainHeight - height}';
+  String toString() => '$blocksLeft';
 }
 
 class SyncedSyncStatus extends SyncStatus {

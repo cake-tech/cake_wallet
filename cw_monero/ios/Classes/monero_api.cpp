@@ -14,6 +14,7 @@ using namespace std::chrono_literals;
 extern "C"
 {
 #endif
+    const uint64_t MONERO_BLOCK_SIZE = 1000;
 
     struct Utf8Box
     {
@@ -173,6 +174,8 @@ extern "C"
     Monero::Subaddress *m_subaddress;
     Monero::SubaddressAccount *m_account;
     uint64_t m_last_known_wallet_height;
+    uint64_t m_cached_syncing_blockchain_height = 0;
+
 
     void change_current_wallet(Monero::Wallet *wallet)
     {
@@ -481,20 +484,34 @@ extern "C"
         return committed;
     }
 
+    uint64_t get_node_height_or_update(uint64_t base_eight)
+    {
+        if (m_cached_syncing_blockchain_height < base_eight) {
+            m_cached_syncing_blockchain_height = base_eight;
+        }
+
+        return m_cached_syncing_blockchain_height;
+    }
+
     uint64_t get_syncing_height()
     {
         if (m_listener == nullptr) {
             return 0;
         }
 
-        uint64_t _height = m_listener->height();
+        uint64_t height = m_listener->height();
+        uint64_t node_height = get_node_height_or_update(height);
 
-        if (_height != m_last_known_wallet_height)
-        {
-            m_last_known_wallet_height = _height;
+        if (height <= 1 || node_height <= 0) {
+            return 0;
         }
 
-        return _height;
+        if (height != m_last_known_wallet_height)
+        {
+            m_last_known_wallet_height = height;
+        }
+
+        return height;
     }
 
     uint64_t is_needed_to_refresh()
@@ -504,8 +521,9 @@ extern "C"
         }
 
         bool should_refresh = m_listener->isNeedToRefresh();
+        uint64_t node_height = get_node_height_or_update(m_last_known_wallet_height);
 
-        if (should_refresh)
+        if (should_refresh || (node_height - m_last_known_wallet_height < MONERO_BLOCK_SIZE))
         {
             m_listener->resetNeedToRefresh();
         }
