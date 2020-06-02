@@ -64,148 +64,163 @@ class AddressBookPage extends BasePage {
         color: Theme.of(context).backgroundColor,
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
-          builder: (_) => ListView.separated(
-              separatorBuilder: (_, __) => Container(
-                height: 1,
-                padding: EdgeInsets.only(left: 24),
-                color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                child: Container(
+          builder: (_) {
+            final count = addressBookStore.contactList == null
+                ? 0
+                : addressBookStore.contactList.length;
+
+            return count > 0
+            ? ListView.separated(
+                separatorBuilder: (_, __) => Container(
                   height: 1,
-                  color: Theme.of(context).dividerColor,
+                  padding: EdgeInsets.only(left: 24),
+                  color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                  child: Container(
+                    height: 1,
+                    color: Theme.of(context).dividerColor,
+                  ),
+                ),
+                itemCount: count,
+                itemBuilder: (BuildContext context, int index) {
+                  final contact = addressBookStore.contactList[index];
+                  final image = _getCurrencyImage(contact.type);
+
+                  final isDrawTop = index == 0 ? true : false;
+                  final isDrawBottom = index == addressBookStore.contactList.length - 1 ? true : false;
+
+                  final content = GestureDetector(
+                    onTap: () async {
+                      if (!isEditable) {
+                        Navigator.of(context).pop(contact);
+                        return;
+                      }
+
+                      final isCopied = await showNameAndAddressDialog(
+                          context, contact.name, contact.address);
+
+                      if (isCopied != null && isCopied) {
+                        await Clipboard.setData(
+                            ClipboardData(text: contact.address));
+                        Scaffold.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              S.of(context).copied_to_clipboard,
+                              style: TextStyle(
+                                  color: Colors.white
+                              ),
+                            ),
+                            backgroundColor: Colors.green,
+                            duration: Duration(milliseconds: 1500),
+                          ),
+                        );
+                      }
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        isDrawTop
+                            ? Container(
+                          width: double.infinity,
+                          height: 1,
+                          color: Theme.of(context).dividerColor,
+                        )
+                            : Offstage(),
+                        Container(
+                          width: double.infinity,
+                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                          child: Padding(
+                              padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  image != null
+                                      ? image
+                                      : Offstage(),
+                                  Padding(
+                                    padding: image != null
+                                        ? EdgeInsets.only(left: 12)
+                                        : EdgeInsets.only(left: 0),
+                                    child: Text(
+                                      contact.name,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Theme.of(context).primaryTextTheme.title.color
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              )
+                          ),
+                        ),
+                        isDrawBottom
+                            ? Container(
+                          width: double.infinity,
+                          height: 1,
+                          color: Theme.of(context).dividerColor,
+                        )
+                            : Offstage(),
+                      ],
+                    ),
+                  );
+
+                  return !isEditable
+                      ? content
+                      : Slidable(
+                    key: Key('${contact.key}'),
+                    actionPane: SlidableDrawerActionPane(),
+                    child: content,
+                    secondaryActions: <Widget>[
+                      IconSlideAction(
+                        caption: S.of(context).edit,
+                        color: Colors.blue,
+                        icon: Icons.edit,
+                        onTap: () async {
+                          await Navigator.of(context).pushNamed(
+                              Routes.addressBookAddContact,
+                              arguments: contact);
+                          await addressBookStore.updateContactList();
+                        },
+                      ),
+                      IconSlideAction(
+                        caption: S.of(context).delete,
+                        color: Colors.red,
+                        icon: CupertinoIcons.delete,
+                        onTap: () async {
+                          await showAlertDialog(context)
+                              .then((isDelete) async {
+                            if (isDelete != null && isDelete) {
+                              await addressBookStore.delete(
+                                  contact: contact);
+                              await addressBookStore.updateContactList();
+                            }
+                          });
+                        },
+                      ),
+                    ],
+                    dismissal: SlidableDismissal(
+                      child: SlidableDrawerDismissal(),
+                      onDismissed: (actionType) async {
+                        await addressBookStore.delete(contact: contact);
+                        await addressBookStore.updateContactList();
+                      },
+                      onWillDismiss: (actionType) async {
+                        return await showAlertDialog(context);
+                      },
+                    ),
+                  );
+                })
+            : Center(
+              child: Text(
+                S.of(context).placeholder_contacts,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Theme.of(context).primaryTextTheme.caption.color.withOpacity(0.5),
+                    fontSize: 12
                 ),
               ),
-              itemCount: addressBookStore.contactList == null
-                  ? 0
-                  : addressBookStore.contactList.length,
-              itemBuilder: (BuildContext context, int index) {
-                final contact = addressBookStore.contactList[index];
-                final image = _getCurrencyImage(contact.type);
-
-                final isDrawTop = index == 0 ? true : false;
-                final isDrawBottom = index == addressBookStore.contactList.length - 1 ? true : false;
-
-                final content = GestureDetector(
-                  onTap: () async {
-                    if (!isEditable) {
-                      Navigator.of(context).pop(contact);
-                      return;
-                    }
-
-                    final isCopied = await showNameAndAddressDialog(
-                        context, contact.name, contact.address);
-
-                    if (isCopied != null && isCopied) {
-                      await Clipboard.setData(
-                          ClipboardData(text: contact.address));
-                      Scaffold.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            S.of(context).copied_to_clipboard,
-                            style: TextStyle(
-                              color: Colors.white
-                            ),
-                          ),
-                          backgroundColor: Colors.green,
-                          duration: Duration(milliseconds: 1500),
-                        ),
-                      );
-                    }
-                  },
-                  child: Column(
-                    children: <Widget>[
-                      isDrawTop
-                      ? Container(
-                        width: double.infinity,
-                        height: 1,
-                        color: Theme.of(context).dividerColor,
-                      )
-                      : Offstage(),
-                      Container(
-                        width: double.infinity,
-                        color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              image != null
-                              ? image
-                              : Offstage(),
-                              Padding(
-                                padding: image != null
-                                  ? EdgeInsets.only(left: 12)
-                                  : EdgeInsets.only(left: 0),
-                                child: Text(
-                                  contact.name,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context).primaryTextTheme.title.color
-                                  ),
-                                ),
-                              )
-                            ],
-                          )
-                        ),
-                      ),
-                      isDrawBottom
-                      ? Container(
-                        width: double.infinity,
-                        height: 1,
-                        color: Theme.of(context).dividerColor,
-                      )
-                      : Offstage(),
-                    ],
-                  ),
-                );
-
-                return !isEditable
-                    ? content
-                    : Slidable(
-                        key: Key('${contact.key}'),
-                        actionPane: SlidableDrawerActionPane(),
-                        child: content,
-                        secondaryActions: <Widget>[
-                          IconSlideAction(
-                            caption: S.of(context).edit,
-                            color: Colors.blue,
-                            icon: Icons.edit,
-                            onTap: () async {
-                              await Navigator.of(context).pushNamed(
-                                  Routes.addressBookAddContact,
-                                  arguments: contact);
-                              await addressBookStore.updateContactList();
-                            },
-                          ),
-                          IconSlideAction(
-                            caption: S.of(context).delete,
-                            color: Colors.red,
-                            icon: CupertinoIcons.delete,
-                            onTap: () async {
-                              await showAlertDialog(context)
-                                  .then((isDelete) async {
-                                if (isDelete != null && isDelete) {
-                                  await addressBookStore.delete(
-                                      contact: contact);
-                                  await addressBookStore.updateContactList();
-                                }
-                              });
-                            },
-                          ),
-                        ],
-                        dismissal: SlidableDismissal(
-                          child: SlidableDrawerDismissal(),
-                          onDismissed: (actionType) async {
-                            await addressBookStore.delete(contact: contact);
-                            await addressBookStore.updateContactList();
-                          },
-                          onWillDismiss: (actionType) async {
-                            return await showAlertDialog(context);
-                          },
-                        ),
-                      );
-              }),
+            );
+          },
         ));
   }
 

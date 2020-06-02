@@ -279,6 +279,7 @@ class WalletCardState extends State<WalletCard> {
                                         balance,
                                         style: TextStyle(
                                             fontSize: 28,
+                                            height: 1,
                                             color: Theme.of(context).primaryTextTheme.title.color
                                         ),
                                       )
@@ -288,6 +289,7 @@ class WalletCardState extends State<WalletCard> {
                                     fiatBalance,
                                     style: TextStyle(
                                         fontSize: 14,
+                                        height: 2,
                                         color: Theme.of(context).primaryTextTheme.title.color
                                     ),
                                   )

@@ -121,6 +121,8 @@ class S implements WidgetsLocalizations {
   String get payment_id => "Payment ID: ";
   String get pending => " (pending)";
   String get pin_is_incorrect => "PIN is incorrect";
+  String get placeholder_contacts => "Your contacts will be displayed here";
+  String get placeholder_transactions => "Your transactions will be displayed here";
   String get please_make_selection => "Please make selection below to create or recover your wallet.";
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
@@ -392,6 +394,8 @@ class $de extends S {
   @override
   String get wallet_list_create_new_wallet => "Neue Wallet erstellen";
   @override
+  String get placeholder_contacts => "Ihre Kontakte werden hier angezeigt";
+  @override
   String get card_address => "Adresse:";
   @override
   String get seed_language_portuguese => "Portugiesisch";
@@ -461,6 +465,8 @@ class $de extends S {
   String get confirm => "Bestätigen";
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
+  @override
+  String get placeholder_transactions => "Ihre Transaktionen werden hier angezeigt";
   @override
   String get trade_details_provider => "Anbieter";
   @override
@@ -1008,6 +1014,8 @@ class $hi extends S {
   @override
   String get wallet_list_create_new_wallet => "नया बटुआ बनाएँ";
   @override
+  String get placeholder_contacts => "आपके संपर्क यहां प्रदर्शित होंगे";
+  @override
   String get card_address => "पता:";
   @override
   String get seed_language_portuguese => "पुर्तगाली";
@@ -1077,6 +1085,8 @@ class $hi extends S {
   String get confirm => "की पुष्टि करें";
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
+  @override
+  String get placeholder_transactions => "आपके लेनदेन यहां प्रदर्शित होंगे";
   @override
   String get trade_details_provider => "प्रदाता";
   @override
@@ -1624,6 +1634,8 @@ class $ru extends S {
   @override
   String get wallet_list_create_new_wallet => "Создать новый кошелёк";
   @override
+  String get placeholder_contacts => "Ваши контакты будут отображаться здесь";
+  @override
   String get card_address => "Адрес:";
   @override
   String get seed_language_portuguese => "Португальский";
@@ -1693,6 +1705,8 @@ class $ru extends S {
   String get confirm => "Подтвердить";
   @override
   String get settings_display_balance_as => "Отображать баланс как";
+  @override
+  String get placeholder_transactions => "Ваши транзакции будут отображаться здесь";
   @override
   String get trade_details_provider => "Провайдер";
   @override
@@ -2240,6 +2254,8 @@ class $ko extends S {
   @override
   String get wallet_list_create_new_wallet => "새 월렛 만들기";
   @override
+  String get placeholder_contacts => "연락처가 여기에 표시됩니다";
+  @override
   String get card_address => "주소:";
   @override
   String get seed_language_portuguese => "포르투갈 인";
@@ -2309,6 +2325,8 @@ class $ko extends S {
   String get confirm => "확인";
   @override
   String get settings_display_balance_as => "잔액 표시";
+  @override
+  String get placeholder_transactions => "거래가 여기에 표시됩니다";
   @override
   String get trade_details_provider => "공급자";
   @override
@@ -2856,6 +2874,8 @@ class $pt extends S {
   @override
   String get wallet_list_create_new_wallet => "Criar nova carteira";
   @override
+  String get placeholder_contacts => "Seus contatos serão exibidos aqui";
+  @override
   String get card_address => "Endereço:";
   @override
   String get seed_language_portuguese => "Português";
@@ -2925,6 +2945,8 @@ class $pt extends S {
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Saldo a exibir";
+  @override
+  String get placeholder_transactions => "Suas transações serão exibidas aqui";
   @override
   String get trade_details_provider => "Provedor";
   @override
@@ -3472,6 +3494,8 @@ class $uk extends S {
   @override
   String get wallet_list_create_new_wallet => "Створити новий гаманець";
   @override
+  String get placeholder_contacts => "Тут будуть показані ваші контакти";
+  @override
   String get card_address => "Адреса:";
   @override
   String get seed_language_portuguese => "Португальська";
@@ -3541,6 +3565,8 @@ class $uk extends S {
   String get confirm => "Підтвердити";
   @override
   String get settings_display_balance_as => "Відображати баланс як";
+  @override
+  String get placeholder_transactions => "Тут відображатимуться ваші транзакції";
   @override
   String get trade_details_provider => "Провайдер";
   @override
@@ -4088,6 +4114,8 @@ class $ja extends S {
   @override
   String get wallet_list_create_new_wallet => "新しいウォレットを作成";
   @override
+  String get placeholder_contacts => "連絡先はここに表示されます";
+  @override
   String get card_address => "住所:";
   @override
   String get seed_language_portuguese => "ポルトガル語";
@@ -4157,6 +4185,8 @@ class $ja extends S {
   String get confirm => "確認する";
   @override
   String get settings_display_balance_as => "残高を表示";
+  @override
+  String get placeholder_transactions => "あなたの取引はここに表示されます";
   @override
   String get trade_details_provider => "プロバイダー";
   @override
@@ -4708,6 +4738,8 @@ class $pl extends S {
   @override
   String get wallet_list_create_new_wallet => "Utwórz nowy portfel";
   @override
+  String get placeholder_contacts => "Twoje kontakty zostaną wyświetlone tutaj";
+  @override
   String get card_address => "Adres:";
   @override
   String get seed_language_portuguese => "Portugalski";
@@ -4777,6 +4809,8 @@ class $pl extends S {
   String get confirm => "Potwierdzać";
   @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
+  @override
+  String get placeholder_transactions => "Twoje transakcje zostaną wyświetlone tutaj";
   @override
   String get trade_details_provider => "Dostawca";
   @override
@@ -5324,6 +5358,8 @@ class $es extends S {
   @override
   String get wallet_list_create_new_wallet => "Crear nueva billetera";
   @override
+  String get placeholder_contacts => "Tus contactos se mostrarán aquí";
+  @override
   String get card_address => "Dirección:";
   @override
   String get seed_language_portuguese => "Portugués";
@@ -5393,6 +5429,8 @@ class $es extends S {
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Mostrar saldo como";
+  @override
+  String get placeholder_transactions => "Sus transacciones se mostrarán aquí";
   @override
   String get trade_details_provider => "Proveedor";
   @override
@@ -5940,6 +5978,8 @@ class $nl extends S {
   @override
   String get wallet_list_create_new_wallet => "Maak een nieuwe portemonnee";
   @override
+  String get placeholder_contacts => "Je contacten worden hier weergegeven";
+  @override
   String get card_address => "Adres:";
   @override
   String get seed_language_portuguese => "Portugees";
@@ -6009,6 +6049,8 @@ class $nl extends S {
   String get confirm => "Bevestigen";
   @override
   String get settings_display_balance_as => "Toon saldo als";
+  @override
+  String get placeholder_transactions => "Uw transacties worden hier weergegeven";
   @override
   String get trade_details_provider => "Leverancier";
   @override
@@ -6556,6 +6598,8 @@ class $zh extends S {
   @override
   String get wallet_list_create_new_wallet => "创建新钱包";
   @override
+  String get placeholder_contacts => "您的聯繫人將顯示在這裡";
+  @override
   String get card_address => "地址:";
   @override
   String get seed_language_portuguese => "葡萄牙語";
@@ -6625,6 +6669,8 @@ class $zh extends S {
   String get confirm => "确认";
   @override
   String get settings_display_balance_as => "将余额显示为";
+  @override
+  String get placeholder_transactions => "您的交易將顯示在這裡";
   @override
   String get trade_details_provider => "提供者";
   @override

@@ -374,5 +374,8 @@
   "openalias_alert_content" : "आपको धनराशि भेजी जाएगी\n${recipient_name}",
 
   "card_address" : "पता:",
-  "buy" : "खरीदें"
+  "buy" : "खरीदें",
+
+  "placeholder_transactions" : "आपके लेनदेन यहां प्रदर्शित होंगे",
+  "placeholder_contacts" : "आपके संपर्क यहां प्रदर्शित होंगे"
 }
