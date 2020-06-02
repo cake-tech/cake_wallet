@@ -374,5 +374,8 @@
   "openalias_alert_content" : "您將匯款至\n${recipient_name}",
 
   "card_address" : "地址:",
-  "buy" : "購買"
+  "buy" : "購買",
+
+  "placeholder_transactions" : "您的交易將顯示在這裡",
+  "placeholder_contacts" : "您的聯繫人將顯示在這裡"
 }

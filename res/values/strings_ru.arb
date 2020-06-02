@@ -374,5 +374,8 @@
   "openalias_alert_content" : "Вы будете отправлять средства\n${recipient_name}",
 
   "card_address" : "Адрес:",
-  "buy" : "Купить"
+  "buy" : "Купить",
+
+  "placeholder_transactions" : "Ваши транзакции будут отображаться здесь",
+  "placeholder_contacts" : "Ваши контакты будут отображаться здесь"
 }

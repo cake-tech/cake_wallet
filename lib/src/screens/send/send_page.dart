@@ -29,6 +29,7 @@ import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart'
 import 'package:cake_wallet/src/screens/send/widgets/sending_alert.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/stores/send_template/send_template_store.dart';
+import 'package:cake_wallet/src/widgets/clear_button.dart';
 
 class SendPage extends BasePage {
   @override
@@ -47,25 +48,8 @@ class SendPage extends BasePage {
   Widget trailing(context) {
     final sendStore = Provider.of<SendStore>(context);
 
-    return Container(
-      height: 32,
-      width: 82,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(16)),
-        color: Theme.of(context).accentTextTheme.title.color
-      ),
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: FlatButton(
-            onPressed: () => sendStore.clear(),
-            child: Text(
-              S.of(context).clear,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 10.0,
-                color: Colors.blue),
-            )),
-      ),
+    return ClearButton(
+      onPressed: () => sendStore.clear()
     );
   }
 

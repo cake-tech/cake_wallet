@@ -374,5 +374,8 @@
   "openalias_alert_content" : "U stuurt geld naar\n${recipient_name}",
 
   "card_address" : "Adres:",
-  "buy" : "Kopen"
+  "buy" : "Kopen",
+
+  "placeholder_transactions" : "Uw transacties worden hier weergegeven",
+  "placeholder_contacts" : "Je contacten worden hier weergegeven"
 }
