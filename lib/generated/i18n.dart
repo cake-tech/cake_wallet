@@ -272,7 +272,7 @@ class S implements WidgetsLocalizations {
   String get transaction_sent => "Transaction sent!";
   String get transactions => "Transactions";
   String get transactions_by_date => "Transactions by date";
-  String get use => "Switch to ";
+  String get use => "Use ";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
   String get wallet_keys => "Wallet keys";
@@ -746,7 +746,7 @@ class $de extends S {
   @override
   String get restore_from_seed_placeholder => "Bitte geben Sie hier Ihren Code ein";
   @override
-  String get use => "Wechseln zu ";
+  String get use => "Verwenden Sie ";
   @override
   String get trade_details_state => "Zustand";
   @override
@@ -1362,7 +1362,7 @@ class $hi extends S {
   @override
   String get restore_from_seed_placeholder => "कृपया अपना कोड वाक्यांश यहां दर्ज करें या पेस्ट करें";
   @override
-  String get use => "पर स्विच ";
+  String get use => "उपयोग ";
   @override
   String get trade_details_state => "राज्य";
   @override
@@ -1978,7 +1978,7 @@ class $ru extends S {
   @override
   String get restore_from_seed_placeholder => "Введите или вставьте мнемоническую фразу вашего кошелька";
   @override
-  String get use => "Переключиться на ";
+  String get use => "Использовать ";
   @override
   String get trade_details_state => "Статус";
   @override
@@ -2594,7 +2594,7 @@ class $ko extends S {
   @override
   String get restore_from_seed_placeholder => "여기에 코드 문구를 입력하거나 붙여 넣으십시오.";
   @override
-  String get use => "로 전환 ";
+  String get use => "사용하다 ";
   @override
   String get trade_details_state => "상태";
   @override
@@ -3210,7 +3210,7 @@ class $pt extends S {
   @override
   String get restore_from_seed_placeholder => "Digite ou cole sua frase de código aqui";
   @override
-  String get use => "Trocar para PIN de ";
+  String get use => "Use PIN de ";
   @override
   String get trade_details_state => "Status";
   @override
@@ -3826,7 +3826,7 @@ class $uk extends S {
   @override
   String get restore_from_seed_placeholder => "Введіть або вставте мнемонічну фразу вашого гаманця";
   @override
-  String get use => "Переключитися на ";
+  String get use => "Використати ";
   @override
   String get trade_details_state => "Статус";
   @override
@@ -4442,7 +4442,7 @@ class $ja extends S {
   @override
   String get restore_from_seed_placeholder => "ここにコードフレーズを入力または貼り付けてください";
   @override
-  String get use => "切り替える ";
+  String get use => "使用する ";
   @override
   String get trade_details_state => "状態";
   @override
@@ -5062,7 +5062,7 @@ class $pl extends S {
   @override
   String get restore_from_seed_placeholder => "Wpisz lub wklej tutaj swoją frazę kodową";
   @override
-  String get use => "Przełącz na ";
+  String get use => "Używać ";
   @override
   String get trade_details_state => "Stan";
   @override
@@ -5678,7 +5678,7 @@ class $es extends S {
   @override
   String get restore_from_seed_placeholder => "Ingrese o pegue su frase de código aquí";
   @override
-  String get use => "Cambiar a ";
+  String get use => "Utilizar a ";
   @override
   String get trade_details_state => "Estado";
   @override
@@ -6294,7 +6294,7 @@ class $nl extends S {
   @override
   String get restore_from_seed_placeholder => "Voer hier uw codefrase in of plak deze";
   @override
-  String get use => "Overschakelen naar ";
+  String get use => "Gebruik ";
   @override
   String get trade_details_state => "Staat";
   @override
@@ -6910,7 +6910,7 @@ class $zh extends S {
   @override
   String get restore_from_seed_placeholder => "请在此处输入或粘贴您的代码短语";
   @override
-  String get use => "切換到 ";
+  String get use => "採用 ";
   @override
   String get trade_details_state => "条件";
   @override
