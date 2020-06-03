@@ -47,7 +47,7 @@ class MoneroWalletsManager extends WalletsManager {
       String name, String password, String seed, int restoreHeight) async {
     try {
       const isRecovery = true;
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(name: name, type: WalletType.monero);
 
       await monero_wallet_manager.restoreFromSeed(
           path: path,
@@ -80,7 +80,7 @@ class MoneroWalletsManager extends WalletsManager {
       String spendKey) async {
     try {
       const isRecovery = true;
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(name: name, type: WalletType.monero);
 
       await monero_wallet_manager.restoreFromKeys(
           path: path,
@@ -108,7 +108,7 @@ class MoneroWalletsManager extends WalletsManager {
   @override
   Future<Wallet> openWallet(String name, String password) async {
     try {
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(name: name, type: WalletType.monero);
       monero_wallet_manager.openWallet(path: path, password: password);
       final wallet = await MoneroWallet.load(walletInfoSource, name, type);
       await wallet.updateInfo();
@@ -123,7 +123,7 @@ class MoneroWalletsManager extends WalletsManager {
   @override
   Future<bool> isWalletExit(String name) async {
     try {
-      final path = await pathForWallet(name: name);
+      final path = await pathForWallet(name: name, type: WalletType.monero);
       return monero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       print('MoneroWalletsManager Error: $e');
