@@ -216,7 +216,7 @@ class AddressBookPage extends BasePage {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     color: Theme.of(context).primaryTextTheme.caption.color.withOpacity(0.5),
-                    fontSize: 12
+                    fontSize: 14
                 ),
               ),
             );
