@@ -1,3 +1,7 @@
+import 'package:cake_wallet/core/monero_wallet_list_service.dart';
+import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/core/wallet_credentials.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,9 +59,13 @@ class _WalletNameFormState extends State<WalletNameForm> {
   @override
   Widget build(BuildContext context) {
     final walletCreationStore = Provider.of<WalletCreationStore>(context);
+    final walletCreationService = Provider.of<WalletCreationService>(context);
+
+    // FIXME: Does seed language store is really needed ???
+
     final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
-    final List<String> seedLocales = [
+    final seedLocales = [
       S.current.seed_language_english,
       S.current.seed_language_chinese,
       S.current.seed_language_dutch,
@@ -68,13 +76,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
       S.current.seed_language_spanish
     ];
 
-    nameController.addListener(() {
-      if (nameController.text.isNotEmpty) {
-        walletCreationStore.setDisabledStatus(false);
-      } else {
-        walletCreationStore.setDisabledStatus(true);
-      }
-    });
+    nameController.addListener(() =>
+        walletCreationStore.setDisabledStatus(!nameController.text.isNotEmpty));
 
     reaction((_) => walletCreationStore.state, (WalletCreationState state) {
       if (state is WalletCreatedSuccessfully) {
@@ -90,8 +93,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     alertTitle: S.current.new_wallet,
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop()
-                );
+                    buttonAction: () => Navigator.of(context).pop());
               });
         });
       }
@@ -101,15 +103,14 @@ class _WalletNameFormState extends State<WalletNameForm> {
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 12, right: 12),
-                child: AspectRatio(
-                    aspectRatio: aspectRatioImage,
-                    child: FittedBox(child: walletNameImage, fit: BoxFit.fill)),
-              ),
+          content:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Padding(
+              padding: EdgeInsets.only(left: 12, right: 12),
+              child: AspectRatio(
+                  aspectRatio: aspectRatioImage,
+                  child: FittedBox(child: walletNameImage, fit: BoxFit.fill)),
+            ),
             Padding(
               padding: EdgeInsets.only(top: 24),
               child: Form(
@@ -124,11 +125,13 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     decoration: InputDecoration(
                         hintStyle: TextStyle(
                             fontSize: 16.0,
-                            color: Theme.of(context).primaryTextTheme.caption.color),
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .caption
+                                .color),
                         hintText: S.of(context).wallet_name,
                         focusedBorder: UnderlineInputBorder(
-                            borderSide:
-                            BorderSide(
+                            borderSide: BorderSide(
                                 color: Theme.of(context).dividerColor,
                                 width: 1.0)),
                         enabledBorder: UnderlineInputBorder(
@@ -141,42 +144,42 @@ class _WalletNameFormState extends State<WalletNameForm> {
                     },
                   )),
             ),
-            Padding(padding: EdgeInsets.only(top: 40),
+            Padding(
+              padding: EdgeInsets.only(top: 40),
               child: Text(
                 S.of(context).seed_language_choose,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).primaryTextTheme.title.color
-                ),
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).primaryTextTheme.title.color),
               ),
             ),
-            Padding(padding: EdgeInsets.only(top: 24),
+            Padding(
+              padding: EdgeInsets.only(top: 24),
               child: Observer(
-                builder: (_) => SelectButton(
-                  image: null,
-                  text: seedLocales[seedLanguages.indexOf(seedLanguageStore.selectedSeedLanguage)],
-                  color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                  textColor: Theme.of(context).primaryTextTheme.title.color,
-                  onTap: () async => await showDialog(
-                    context: context,
-                    builder: (BuildContext context) => SeedLanguagePicker()
-                  )
-                )
-              ),
+                  builder: (_) => SelectButton(
+                      image: null,
+                      text: seedLocales[seedLanguages
+                          .indexOf(seedLanguageStore.selectedSeedLanguage)],
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .title
+                          .backgroundColor,
+                      textColor: Theme.of(context).primaryTextTheme.title.color,
+                      onTap: () async => await showDialog(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              SeedLanguagePicker()))),
             )
           ]),
-          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          bottomSectionPadding:
+              EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Observer(
             builder: (context) {
               return LoadingPrimaryButton(
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {
-                    walletCreationStore.create(name: nameController.text,
-                        language: seedLanguageStore.selectedSeedLanguage);
-                  }
-                },
+                onPressed: () => _confirmForm(walletCreationService,
+                    seedLanguageStore.selectedSeedLanguage),
                 text: S.of(context).continue_text,
                 color: Colors.green,
                 textColor: Colors.white,
@@ -186,5 +189,21 @@ class _WalletNameFormState extends State<WalletNameForm> {
             },
           )),
     );
+  }
+
+  void _confirmForm(
+      WalletCreationService walletCreationService, String language) {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+
+    WalletCredentials credentials;
+
+    if (walletCreationService.type == WalletType.monero) {
+      credentials = MoneroNewWalletCredentials(
+          name: nameController.text, language: language);
+    }
+
+    walletCreationService.create(credentials);
   }
 }

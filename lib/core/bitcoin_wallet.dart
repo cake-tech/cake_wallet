@@ -24,7 +24,7 @@ part 'bitcoin_wallet.g.dart';
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
-  static Future<BitcoinWallet> load(
+  static Future<BitcoinWalletBase> load(
       {@required String name, @required String password}) async {
     final walletDirPath =
         await pathForWalletDir(name: name, type: WalletType.bitcoin);
@@ -37,7 +37,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
             ? 0
             : int.parse(jsoned['account_index'] as String);
 
-    return BitcoinWallet.build(
+    return BitcoinWalletBase.build(
         mnemonic: mnemonic,
         password: password,
         name: name,

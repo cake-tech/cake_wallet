@@ -16,9 +16,13 @@ abstract class WalletCreationServiceBase with Store {
   @observable
   WalletCreationState state;
 
+  WalletType type;
+
   WalletListService _service;
 
   void changeWalletType({@required WalletType type}) {
+    this.type = type;
+
     switch (type) {
       case WalletType.monero:
         _service = MoneroWalletListService();
