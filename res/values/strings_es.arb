@@ -374,5 +374,8 @@
   "openalias_alert_content" : "Enviará fondos a\n${recipient_name}",
 
   "card_address" : "Dirección:",
-  "buy" : "Comprar"
+  "buy" : "Comprar",
+
+  "placeholder_transactions" : "Sus transacciones se mostrarán aquí",
+  "placeholder_contacts" : "Tus contactos se mostrarán aquí"
 }

@@ -374,5 +374,8 @@
   "openalias_alert_content" : "に送金します\n${recipient_name}",
 
   "card_address" : "住所:",
-  "buy" : "購入"
+  "buy" : "購入",
+
+  "placeholder_transactions" : "あなたの取引はここに表示されます",
+  "placeholder_contacts" : "連絡先はここに表示されます"
 }

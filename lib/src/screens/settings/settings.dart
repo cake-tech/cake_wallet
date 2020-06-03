@@ -24,6 +24,7 @@ import 'package:cake_wallet/src/screens/settings/widgets/settings_link_list_row.
 import 'package:cake_wallet/src/screens/settings/widgets/settings_switch_list_row.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_text_list_row.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_raw_widget_list_row.dart';
+import 'package:cake_wallet/src/screens/settings/widgets/fiat_currency_picker.dart';
 
 class SettingsPage extends BasePage {
   @override
@@ -409,13 +410,13 @@ class SettingsFormState extends State<SettingsForm> {
     final selectedItem = items.indexOf(settingsStore.fiatCurrency);
 
     await showDialog<void>(
-        builder: (_) => Picker(
-            items: items,
-            selectedAtIndex: selectedItem,
-            title: S.of(context).please_select,
-            mainAxisAlignment: MainAxisAlignment.center,
-            onItemSelected: (FiatCurrency currency) async =>
-            await settingsStore.setCurrentFiatCurrency(currency: currency)),
+        builder: (_) => FiatCurrencyPicker(
+          selectedAtIndex: selectedItem,
+          items: items,
+          title: S.of(context).please_select,
+          onItemSelected: (currency) async =>
+          await settingsStore.setCurrentFiatCurrency(currency: currency)
+        ),
         context: context);
   }
 
