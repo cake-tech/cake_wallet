@@ -62,14 +62,6 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
                         route: Routes.exchange
                     )
                 ),
-                Flexible(
-                    child: actionButton(
-                        context: context,
-                        image: buyImage,
-                        title: S.of(context).buy,
-                        route: ''
-                    )
-                )
               ],
             ),
           ),

@@ -28,7 +28,7 @@ class Themes {
         color: Palette.lavender // address field in the wallet card
       ),
       subhead: TextStyle(
-        color: Colors.white // send, exchange, buy buttons on dashboard page
+        color: Colors.white.withOpacity(0.5) // send, exchange, buy buttons on dashboard page
       ),
       headline: TextStyle(
         color: Palette.lightBlueGrey // historyPanelText
