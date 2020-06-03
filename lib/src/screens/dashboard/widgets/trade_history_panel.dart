@@ -14,6 +14,7 @@ import 'date_section_raw.dart';
 import 'trade_row.dart';
 import 'transaction_raw.dart';
 import 'button_header.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class TradeHistoryPanel extends StatefulWidget {
   @override
@@ -88,6 +89,18 @@ class TradeHistoryPanelState extends State<TradeHistoryPanel> {
                                   height: freeSpaceHeight,
                                   width: MediaQuery.of(context).size.width,
                                   color: Theme.of(context).backgroundColor,
+                                  child: itemsCount > 1
+                                  ? Offstage()
+                                  : Center(
+                                    child: Text(
+                                      S.of(context).placeholder_transactions,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          color: Theme.of(context).primaryTextTheme.caption.color.withOpacity(0.5),
+                                          fontSize: 14
+                                      ),
+                                    ),
+                                  ),
                                 );
                               }
 
