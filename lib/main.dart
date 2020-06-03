@@ -1,3 +1,6 @@
+import 'package:cake_wallet/core/app_service.dart';
+import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +44,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -73,7 +75,8 @@ void main() async {
       await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
   final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
   final templates = await Hive.openBox<Template>(Template.boxName);
-  final exchangeTemplates = await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+  final exchangeTemplates =
+      await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
 
   final sharedPreferences = await SharedPreferences.getInstance();
   final walletService = WalletService();
@@ -111,7 +114,13 @@ void main() async {
       sharedPreferences: sharedPreferences, walletsService: walletListService);
   final seedLanguageStore = SeedLanguageStore();
   final sendTemplateStore = SendTemplateStore(templateSource: templates);
-  final exchangeTemplateStore = ExchangeTemplateStore(templateSource: exchangeTemplates);
+  final exchangeTemplateStore =
+      ExchangeTemplateStore(templateSource: exchangeTemplates);
+
+  final walletCreationService = WalletCreationService();
+  final authService = AuthService();
+  final appStore = AppService(
+      walletCreationService: walletCreationService, authService: authService);
 
   setReactions(
       settingsStore: settingsStore,
@@ -140,6 +149,9 @@ void main() async {
     Provider(create: (_) => seedLanguageStore),
     Provider(create: (_) => sendTemplateStore),
     Provider(create: (_) => exchangeTemplateStore),
+    Provider(create: (_) => appStore),
+    Provider(create: (_) => walletCreationService),
+    Provider(create: (_) => authService)
   ], child: CakeWalletApp()));
 }
 
