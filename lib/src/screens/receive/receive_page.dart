@@ -304,9 +304,6 @@ class ReceivePageState extends State<ReceivePage> {
                                         final isCurrent =
                                             walletStore.subaddress.address == subaddress.address;
 
-                                        String shortAddress = subaddress.address;
-                                        shortAddress = shortAddress.replaceRange(8, shortAddress.length - 8, '...');
-
                                         final content = Observer(
                                             builder: (_) {
                                               final isShortAddressShow = subaddressListStore.isShortAddressShow[index];
@@ -315,7 +312,7 @@ class ReceivePageState extends State<ReceivePage> {
                                                   ? 'Primary subaddress'
                                                   : subaddress.label.isNotEmpty
                                                     ? subaddress.label
-                                                    : isShortAddressShow ? shortAddress : subaddress.address;
+                                                    : subaddress.address;
 
                                               return InkWell(
                                                 onTap: () => walletStore.setSubaddress(subaddress),
@@ -335,6 +332,8 @@ class ReceivePageState extends State<ReceivePage> {
                                                   ),
                                                   child: Text(
                                                     label,
+                                                    maxLines: isShortAddressShow ? 1 : 10,
+                                                    overflow: TextOverflow.ellipsis,
                                                     style: TextStyle(
                                                       fontSize: 18,
                                                       fontWeight: FontWeight.bold,
