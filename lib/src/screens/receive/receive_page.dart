@@ -245,110 +245,130 @@ class ReceivePageState extends State<ReceivePage> {
                         ),
                       ),
                       Observer(
-                          builder: (_) => ListView.separated(
-                              separatorBuilder: (context, index) => Divider(
-                                height: 1,
-                                color: Theme.of(context).dividerColor,
-                              ),
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: subaddressListStore.subaddresses.length + 2,
-                              itemBuilder: (context, index) {
+                          builder: (_) {
+                            subaddressListStore.updateShortAddressShow();
 
-                                if (index == 0) {
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(24),
-                                      topRight: Radius.circular(24)
-                                    ),
-                                    child: HeaderTile(
-                                        onTap: () async {
-                                          await showDialog<void>(
-                                              context: context,
-                                              builder: (BuildContext context) {
-                                                return AccountListPage(accountListStore: accountListStore);
-                                              }
-                                          );
-                                        },
-                                        title: walletStore.account.label,
+                            return ListView.separated(
+                                separatorBuilder: (context, index) => Divider(
+                                  height: 1,
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: subaddressListStore.subaddresses.length + 2,
+                                itemBuilder: (context, index) {
+
+                                  if (index == 0) {
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(24),
+                                          topRight: Radius.circular(24)
+                                      ),
+                                      child: HeaderTile(
+                                          onTap: () async {
+                                            await showDialog<void>(
+                                                context: context,
+                                                builder: (BuildContext context) {
+                                                  return AccountListPage(accountListStore: accountListStore);
+                                                }
+                                            );
+                                          },
+                                          title: walletStore.account.label,
+                                          icon: Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 14,
+                                            color: Theme.of(context).primaryTextTheme.title.color,
+                                          )
+                                      ),
+                                    );
+                                  }
+
+                                  if (index == 1) {
+                                    return HeaderTile(
+                                        onTap: () => Navigator.of(context)
+                                            .pushNamed(Routes.newSubaddress),
+                                        title: S.of(context).subaddresses,
                                         icon: Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 14,
+                                          Icons.add,
+                                          size: 20,
                                           color: Theme.of(context).primaryTextTheme.title.color,
                                         )
-                                    ),
+                                    );
+                                  }
+
+                                  index -= 2;
+
+                                  return Observer(
+                                      builder: (_) {
+                                        final subaddress = subaddressListStore.subaddresses[index];
+                                        final isCurrent =
+                                            walletStore.subaddress.address == subaddress.address;
+
+                                        String shortAddress = subaddress.address;
+                                        shortAddress = shortAddress.replaceRange(8, shortAddress.length - 8, '...');
+
+                                        final content = Observer(
+                                            builder: (_) {
+                                              final isShortAddressShow = subaddressListStore.isShortAddressShow[index];
+
+                                              final label = index == 0
+                                                  ? 'Primary subaddress'
+                                                  : subaddress.label.isNotEmpty
+                                                    ? subaddress.label
+                                                    : isShortAddressShow ? shortAddress : subaddress.address;
+
+                                              return InkWell(
+                                                onTap: () => walletStore.setSubaddress(subaddress),
+                                                onLongPress: () {
+                                                  if (subaddress.label.isNotEmpty) {
+                                                    return;
+                                                  }
+                                                  subaddressListStore.setShortAddressShow(index, !isShortAddressShow);
+                                                },
+                                                child: Container(
+                                                  color: isCurrent ? currentColor : notCurrentColor,
+                                                  padding: EdgeInsets.only(
+                                                      left: 24,
+                                                      right: 24,
+                                                      top: 28,
+                                                      bottom: 28
+                                                  ),
+                                                  child: Text(
+                                                    label,
+                                                    style: TextStyle(
+                                                      fontSize: 18,
+                                                      fontWeight: FontWeight.bold,
+                                                      color: isCurrent
+                                                          ? currentTextColor
+                                                          : notCurrentTextColor,
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            }
+                                        );
+
+                                        return isCurrent || index == 0
+                                            ? content
+                                            : Slidable(
+                                            key: Key(subaddress.address),
+                                            actionPane: SlidableDrawerActionPane(),
+                                            child: content,
+                                            secondaryActions: <Widget>[
+                                              IconSlideAction(
+                                                caption: S.of(context).edit,
+                                                color: Theme.of(context).primaryTextTheme.overline.color,
+                                                icon: Icons.edit,
+                                                onTap: () => Navigator.of(context)
+                                                    .pushNamed(Routes.newSubaddress, arguments: subaddress),
+                                              )
+                                            ]
+                                        );
+                                      }
                                   );
                                 }
-
-                                if (index == 1) {
-                                  return HeaderTile(
-                                      onTap: () => Navigator.of(context)
-                                          .pushNamed(Routes.newSubaddress),
-                                      title: S.of(context).subaddresses,
-                                      icon: Icon(
-                                        Icons.add,
-                                        size: 20,
-                                        color: Theme.of(context).primaryTextTheme.title.color,
-                                      )
-                                  );
-                                }
-
-                                index -= 2;
-
-                                return Observer(
-                                    builder: (_) {
-                                      final subaddress = subaddressListStore.subaddresses[index];
-                                      final isCurrent =
-                                          walletStore.subaddress.address == subaddress.address;
-
-                                      final label = subaddress.label.isNotEmpty
-                                          ? subaddress.label
-                                          : subaddress.address;
-
-                                      final content = InkWell(
-                                        onTap: () => walletStore.setSubaddress(subaddress),
-                                        child: Container(
-                                          color: isCurrent ? currentColor : notCurrentColor,
-                                          padding: EdgeInsets.only(
-                                              left: 24,
-                                              right: 24,
-                                              top: 28,
-                                              bottom: 28
-                                          ),
-                                          child: Text(
-                                            label,
-                                            style: TextStyle(
-                                              fontSize: subaddress.label.isNotEmpty
-                                                  ? 18 : 10,
-                                              fontWeight: FontWeight.bold,
-                                              color: isCurrent
-                                                  ? currentTextColor
-                                                  : notCurrentTextColor,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-
-                                      return isCurrent
-                                          ? content
-                                          : Slidable(
-                                          key: Key(subaddress.address),
-                                          actionPane: SlidableDrawerActionPane(),
-                                          child: content,
-                                          secondaryActions: <Widget>[
-                                            IconSlideAction(
-                                              caption: S.of(context).edit,
-                                              color: Theme.of(context).primaryTextTheme.overline.color,
-                                              icon: Icons.edit,
-                                              onTap: () => Navigator.of(context)
-                                                  .pushNamed(Routes.newSubaddress, arguments: subaddress),
-                                            )
-                                          ]
-                                      );
-                                    }
-                                );
-                              }
-                          )
+                            );
+                          }
                       ),
                     ],
                   ),

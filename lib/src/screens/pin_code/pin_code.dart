@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/stores/auth/auth_store.dart';
+import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
 
 abstract class PinCodeWidget extends StatefulWidget {
   PinCodeWidget({Key key, this.onPinCodeEntered, this.hasLengthSwitcher})
@@ -14,21 +16,26 @@ abstract class PinCodeWidget extends StatefulWidget {
 
 class PinCode extends PinCodeWidget {
   PinCode(Function(List<int> pin, PinCodeState state) onPinCodeEntered,
-      bool hasLengthSwitcher, Key key)
+      bool hasLengthSwitcher, Key key, {this.authStore})
       : super(
             key: key,
             onPinCodeEntered: onPinCodeEntered,
             hasLengthSwitcher: hasLengthSwitcher);
 
+  final AuthStore authStore;
+
   @override
-  PinCodeState createState() => PinCodeState();
+  PinCodeState createState() => PinCodeState(authStore: authStore);
 }
 
 class PinCodeState<T extends PinCodeWidget> extends State<T> {
+  PinCodeState({this.authStore});
   static const defaultPinLength = 4;
   static const sixPinLength = 6;
   static const fourPinLength = 4;
   final _gridViewKey = GlobalKey();
+  final AuthStore authStore;
+  final _key = GlobalKey<ScaffoldState>();
 
   int pinLength = defaultPinLength;
   List<int> pin = List<int>.filled(defaultPinLength, null);
@@ -83,9 +90,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(body: body(context));
+  Widget build(BuildContext context) => Scaffold(key: _key, body: body(context));
 
   Widget body(BuildContext context) {
+    final settingsStore = Provider.of<SettingsStore>(context);
+
     final deleteIconImage = Image.asset(
       'assets/images/delete_icon.png',
       color: Theme.of(context).primaryTextTheme.title.color,
@@ -161,10 +170,35 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                               margin: EdgeInsets.only(
                                   left: marginLeft, right: marginRight),
                               child: FlatButton(
-                                onPressed: () {},
+                                onPressed: (widget.hasLengthSwitcher ||
+                                    !settingsStore.allowBiometricalAuthentication)
+                                    ? null
+                                    : () {
+                                        if (authStore != null) {
+                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                                            final biometricAuth = BiometricAuth();
+                                            biometricAuth.isAuthenticated().then(
+                                                    (isAuth) {
+                                                  if (isAuth) {
+                                                    authStore.biometricAuth();
+                                                    _key.currentState.showSnackBar(
+                                                      SnackBar(
+                                                        content: Text(S.of(context).authenticated),
+                                                        backgroundColor: Colors.green,
+                                                      ),
+                                                    );
+                                                  }
+                                                }
+                                            );
+                                          });
+                                        }
+                                      },
                                 color: Theme.of(context).backgroundColor,
                                 shape: CircleBorder(),
-                                child: faceImage,
+                                child: (widget.hasLengthSwitcher ||
+                                    !settingsStore.allowBiometricalAuthentication)
+                                    ? Offstage()
+                                    : faceImage,
                               ),
                             );
                           } else if (index == 10) {
