@@ -8,6 +8,8 @@ import 'package:cake_wallet/src/stores/auth/auth_store.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
+import 'package:cake_wallet/themes.dart';
+import 'package:cake_wallet/theme_changer.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
@@ -26,6 +28,7 @@ class AuthPageState extends State<AuthPage> {
   final _pinCodeKey = GlobalKey<PinCodeState>();
   final _backArrowImageDarkTheme =
   Image.asset('assets/images/back_arrow_dark_theme.png');
+  final _backArrowImage = Image.asset('assets/images/back_arrow.png');
 
   void changeProcessText(String text) {
     _key.currentState.showSnackBar(
@@ -38,6 +41,10 @@ class AuthPageState extends State<AuthPage> {
   Widget build(BuildContext context) {
     final authStore = Provider.of<AuthStore>(context);
     final settingsStore = Provider.of<SettingsStore>(context);
+
+    final _themeChanger = Provider.of<ThemeChanger>(context);
+    final _backButton = _themeChanger.getTheme() == Themes.darkTheme
+    ? _backArrowImageDarkTheme : _backArrowImage;
 
     if (settingsStore.allowBiometricalAuthentication) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -134,7 +141,7 @@ class AuthPageState extends State<AuthPage> {
                   splashColor: Colors.transparent,
                   padding: EdgeInsets.all(0),
                   onPressed: () => Navigator.of(context).pop(),
-                  child: _backArrowImageDarkTheme),
+                  child: _backButton),
             ),
           )
           : Container(),
@@ -146,6 +153,7 @@ class AuthPageState extends State<AuthPage> {
             (pin, _) => authStore.auth(
                 password: pin.fold('', (ac, val) => ac + '$val')),
             false,
-            _pinCodeKey));
+            _pinCodeKey,
+            authStore: authStore,));
   }
 }

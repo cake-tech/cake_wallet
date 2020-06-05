@@ -15,6 +15,7 @@ class SubaddressListStore = SubaddressListStoreBase with _$SubaddressListStore;
 abstract class SubaddressListStoreBase with Store {
   SubaddressListStoreBase({@required WalletService walletService}) {
     subaddresses = ObservableList<Subaddress>();
+    isShortAddressShow = ObservableList<bool>();
 
     if (walletService.currentWallet != null) {
       _onWalletChanged(walletService.currentWallet);
@@ -27,11 +28,19 @@ abstract class SubaddressListStoreBase with Store {
   @observable
   ObservableList<Subaddress> subaddresses;
 
+  @observable
+  ObservableList<bool> isShortAddressShow;
+
   SubaddressList _subaddressList;
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<List<Subaddress>> _onSubaddressesChangeSubscription;
   StreamSubscription<Account> _onAccountChangeSubscription;
   Account _account;
+
+  @action
+  void setShortAddressShow(int index, bool isShow) {
+    isShortAddressShow[index] = isShow;
+  }
 
   @override
   void dispose() {
@@ -45,6 +54,10 @@ abstract class SubaddressListStoreBase with Store {
 
     _onWalletChangeSubscription.cancel();
     super.dispose();
+  }
+
+  void updateShortAddressShow() {
+    isShortAddressShow = ObservableList.of(List.generate(subaddresses.length, (i) => true));
   }
 
   Future<void> _updateSubaddressList({int accountIndex}) async {
