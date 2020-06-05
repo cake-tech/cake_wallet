@@ -77,8 +77,6 @@ class NodeListPageBodyState extends State<NodeListPageBody> {
     final nodeList = Provider.of<NodeListStore>(context);
     final settings = Provider.of<SettingsStore>(context);
 
-    final trashImage = Image.asset('assets/images/trash.png', height: 32, width: 32, color: Colors.white);
-
     final currentColor = Theme.of(context).accentTextTheme.subtitle.decorationColor;
     final notCurrentColor = Theme.of(context).accentTextTheme.title.backgroundColor;
 
@@ -194,12 +192,16 @@ class NodeListPageBodyState extends State<NodeListPageBody> {
                               await nodeList.remove(node: node),
                               direction: DismissDirection.endToStart,
                               background: Container(
-                                  padding: EdgeInsets.only(right: 10.0, top: 2),
+                                  padding: EdgeInsets.only(right: 10.0),
                                   alignment: AlignmentDirectional.centerEnd,
                                   color: Palette.red,
                                   child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
-                                      trashImage,
+                                      const Icon(
+                                        CupertinoIcons.delete,
+                                        color: Colors.white,
+                                      ),
                                       Text(
                                         S.of(context).delete,
                                         style: TextStyle(color: Colors.white),
