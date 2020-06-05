@@ -28,6 +28,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
 
     return SafeArea(
       child: Scaffold(
+        endDrawer: MenuWidget(),
         body: Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -49,17 +50,16 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                   width: 44,
                   child: ButtonTheme(
                     minWidth: double.minPositive,
-                    child: FlatButton(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        padding: EdgeInsets.all(0),
-                        onPressed: () async {
-                          await showDialog<void>(
-                              builder: (_) => MenuWidget(),
-                              context: context
-                          );
-                        },
-                        child: menuButton),
+                    child: Builder(
+                      builder: (context) {
+                        return FlatButton(
+                            highlightColor: Colors.transparent,
+                            splashColor: Colors.transparent,
+                            padding: EdgeInsets.all(0),
+                            onPressed: () => Scaffold.of(context).openEndDrawer(),
+                            child: menuButton);
+                      }
+                    ),
                   ),
                 ),
               ),
