@@ -4,11 +4,14 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:provider/provider.dart';
+import 'package:cake_wallet/themes.dart';
+import 'package:cake_wallet/theme_changer.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
-  final welcomeImage = Image.asset('assets/images/welcome.png');
+  final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
+  final welcomeImageDark = Image.asset('assets/images/welcome.png');
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +23,10 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final _themeChanger = Provider.of<ThemeChanger>(context);
+    final welcomeImage = _themeChanger.getTheme() == Themes.darkTheme
+    ? welcomeImageDark : welcomeImageLight;
+
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
@@ -30,89 +37,97 @@ class WelcomePage extends BasePage {
         color: Theme.of(context).primaryTextTheme.title.color);
 
     return Container(
-      padding: EdgeInsets.only(top: 20),
-      child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(bottom: 20),
-        content: Column(
-          children: <Widget>[
-            AspectRatio(
+      padding: EdgeInsets.all(24),
+      child: Column(
+        children: <Widget>[
+          Flexible(
+            flex: 2,
+            child: AspectRatio(
               aspectRatio: aspectRatioImage,
-              child: FittedBox(child: welcomeImage, fit: BoxFit.fill)),
-            Padding(
-              padding: EdgeInsets.only(left: 24, right: 24, top: 40),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    S.of(context).welcome,
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Theme.of(context).primaryTextTheme.caption.color,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 10),
-                    child: Text(
-                      S.of(context).cake_wallet,
-                      style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).primaryTextTheme.title.color,
+              child: FittedBox(child: welcomeImage, fit: BoxFit.fill)
+            )
+          ),
+          Flexible(
+            flex: 3,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(top: 24),
+                      child: Text(
+                        S.of(context).welcome,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Theme.of(context).primaryTextTheme.caption.color,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: 14),
-                    child: Text(
-                      S.of(context).first_wallet_text,
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Text(
+                        S.of(context).cake_wallet,
+                        style: TextStyle(
+                          fontSize: 36,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryTextTheme.title.color,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 14),
+                      child: Text(
+                        S.of(context).first_wallet_text,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).primaryTextTheme.caption.color,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    Text(
+                      S.of(context).please_make_selection,
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
                         color: Theme.of(context).primaryTextTheme.caption.color,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                  ),
-                ],
-              ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 24),
+                      child: PrimaryImageButton(
+                        onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
+                        image: newWalletImage,
+                        text: S.of(context).create_new,
+                        color: Colors.white,
+                        textColor: Palette.oceanBlue,
+                        borderColor: Palette.oceanBlue,
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: PrimaryImageButton(
+                          onPressed: () => Navigator.pushNamed(context, Routes.restoreOptions),
+                          image: restoreWalletImage,
+                          text: S.of(context).restore_wallet,
+                          color: Theme.of(context).primaryTextTheme.overline.color,
+                          textColor: Theme.of(context).primaryTextTheme.title.color),
+                    )
+                  ],
+                )
+              ],
             )
-          ],
-        ),
-        bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 20),
-        bottomSection: Column(children: <Widget>[
-          Text(
-            S.of(context).please_make_selection,
-            style: TextStyle(
-              fontSize: 12,
-              color: Theme.of(context).primaryTextTheme.caption.color,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: PrimaryImageButton(
-                onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
-                image: newWalletImage,
-                text: S.of(context).create_new,
-                color: Colors.white,
-                textColor: Palette.oceanBlue,
-                borderColor: Palette.oceanBlue,
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: PrimaryImageButton(
-                onPressed: () => Navigator.pushNamed(context, Routes.restoreOptions),
-                image: restoreWalletImage,
-                text: S.of(context).restore_wallet,
-                color: Theme.of(context).primaryTextTheme.overline.color,
-                textColor: Theme.of(context).primaryTextTheme.title.color),
           )
-        ]),
-      ),
+        ],
+      )
     );
   }
 }
