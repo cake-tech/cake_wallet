@@ -14,6 +14,8 @@ class BaseTextFormField extends StatelessWidget {
     this.textColor,
     this.hintColor,
     this.borderColor,
+    this.textFontSize = 16.0,
+    this.hintFontSize = 16.0,
     this.prefix,
     this.suffix,
     this.suffixIcon,
@@ -32,6 +34,8 @@ class BaseTextFormField extends StatelessWidget {
   final Color textColor;
   final Color hintColor;
   final Color borderColor;
+  final double textFontSize;
+  final double hintFontSize;
   final Widget prefix;
   final Widget suffix;
   final Widget suffixIcon;
@@ -50,7 +54,7 @@ class BaseTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       enabled: enabled,
       style: TextStyle(
-        fontSize: 16.0,
+        fontSize: textFontSize,
         color: textColor ?? Theme.of(context).primaryTextTheme.title.color
       ),
       decoration: InputDecoration(
@@ -59,7 +63,7 @@ class BaseTextFormField extends StatelessWidget {
         suffixIcon: suffixIcon,
         hintStyle: TextStyle(
           color: hintColor ?? Theme.of(context).primaryTextTheme.caption.color,
-          fontSize: 16
+          fontSize: hintFontSize
         ),
         hintText: hintText,
         focusedBorder: UnderlineInputBorder(
