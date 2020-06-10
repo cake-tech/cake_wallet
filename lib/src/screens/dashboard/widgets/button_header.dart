@@ -244,7 +244,7 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  double get maxExtent => 174;
+  double get maxExtent => 154;
 
   @override
   double get minExtent => 66;

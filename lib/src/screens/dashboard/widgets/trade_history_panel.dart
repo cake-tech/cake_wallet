@@ -75,7 +75,7 @@ class TradeHistoryPanelState extends State<TradeHistoryPanel> {
                         : actionListStore.items;
                     final itemsCount = items.length + 1;
                     final symbol = settingsStore.fiatCurrency.toString();
-                    double freeSpaceHeight = MediaQuery.of(context).size.height - 496;
+                    double freeSpaceHeight = MediaQuery.of(context).size.height - 460;
 
                     return SliverList(
                         key: _listKey,
