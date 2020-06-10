@@ -29,7 +29,7 @@ import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart'
 import 'package:cake_wallet/src/screens/send/widgets/sending_alert.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/stores/send_template/send_template_store.dart';
-import 'package:cake_wallet/src/widgets/clear_button.dart';
+import 'package:cake_wallet/src/widgets/trail_button.dart';
 
 class SendPage extends BasePage {
   @override
@@ -48,7 +48,8 @@ class SendPage extends BasePage {
   Widget trailing(context) {
     final sendStore = Provider.of<SendStore>(context);
 
-    return ClearButton(
+    return TrailButton(
+      caption: S.of(context).clear,
       onPressed: () => sendStore.clear()
     );
   }

@@ -35,9 +35,10 @@ class SeedPage extends BasePage {
         ? GestureDetector(
           onTap: () => onClose(context),
           child: Container(
-            width: 70,
-            height: 32,
+            width: 100,
+            height: 42,
             alignment: Alignment.center,
+            margin: EdgeInsets.only(left: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(16)),
               color: Theme.of(context).accentTextTheme.title.color
@@ -45,7 +46,7 @@ class SeedPage extends BasePage {
             child: Text(
               S.of(context).seed_language_next,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Colors.blue
               ),
