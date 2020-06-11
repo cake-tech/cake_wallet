@@ -8,12 +8,14 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/stores/wallet_seed/wallet_seed_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/themes.dart';
+import 'package:cake_wallet/theme_changer.dart';
 
 class SeedPage extends BasePage {
   SeedPage({this.onCloseCallback});
 
-  static final image = Image.asset('assets/images/crypto_lock.png');
+  static final imageLight = Image.asset('assets/images/crypto_lock_light.png');
+  static final imageDark = Image.asset('assets/images/crypto_lock.png');
 
   @override
   String get title => S.current.seed_title;
@@ -58,104 +60,108 @@ class SeedPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final walletSeedStore = Provider.of<WalletSeedStore>(context);
+    final _themeChanger = Provider.of<ThemeChanger>(context);
+    final image = _themeChanger.getTheme() == Themes.darkTheme
+        ? imageDark : imageLight;
+
     String _seed;
 
     return Container(
-      width: double.infinity,
-      height: double.infinity,
-      child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(left: 40, right: 40, bottom: 20),
-        content: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(top: 33),
-              child: image,
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 33),
-              child: Observer(
-                builder: (_) {
-                  _seed = walletSeedStore.seed;
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        walletSeedStore.name,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryTextTheme.title.color
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: Text(
-                          _seed,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Theme.of(context).primaryTextTheme.caption.color
-                          ),
-                        ),
-                      )
-                    ],
-                  );
-                }
-              ),
+      padding: EdgeInsets.all(24),
+      child: Column(
+        children: <Widget>[
+          Flexible(
+            flex: 2,
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: FittedBox(child: image, fit: BoxFit.fill)
             )
-          ],
-        ),
-        bottomSectionPadding: EdgeInsets.only(
-          left: 24,
-          right: 24,
-          bottom: 52
-        ),
-        bottomSection: Container(
-          child: Row(
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: PrimaryButton(
-                    onPressed: () => Share.text(
-                        S.of(context).seed_share,
-                        _seed,
-                        'text/plain'),
-                    text: S.of(context).save,
-                    color: Colors.green,
-                    textColor: Colors.white),
-                )
-              ),
-              Flexible(
-                child: Container(
-                  padding: EdgeInsets.only(left: 8.0),
-                  child: Builder(
-                    builder: (context) => PrimaryButton(
-                        onPressed: () {
-                          Clipboard.setData(
-                              ClipboardData(text: _seed));
-                          Scaffold.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(S
-                                  .of(context)
-                                  .copied_to_clipboard),
-                              backgroundColor: Colors.green,
-                              duration: Duration(milliseconds: 1500),
-                            ),
-                          );
-                        },
-                        text: S.of(context).copy,
-                        color: Colors.blue,
-                        textColor: Colors.white)
-                  ),
-                )
-              )
-            ],
           ),
-        ),
-      ),
+          Flexible(
+            flex: 3,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.only(top: 33),
+                  child: Observer(
+                      builder: (_) {
+                        _seed = walletSeedStore.seed;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              walletSeedStore.name,
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Theme.of(context).primaryTextTheme.title.color
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(top: 20),
+                              child: Text(
+                                _seed,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).primaryTextTheme.caption.color
+                                ),
+                              ),
+                            )
+                          ],
+                        );
+                      }
+                  ),
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                    Flexible(
+                        child: Container(
+                          padding: EdgeInsets.only(right: 8.0),
+                          child: PrimaryButton(
+                              onPressed: () => Share.text(
+                                  S.of(context).seed_share,
+                                  _seed,
+                                  'text/plain'),
+                              text: S.of(context).save,
+                              color: Colors.green,
+                              textColor: Colors.white),
+                        )
+                    ),
+                    Flexible(
+                        child: Container(
+                          padding: EdgeInsets.only(left: 8.0),
+                          child: Builder(
+                              builder: (context) => PrimaryButton(
+                                  onPressed: () {
+                                    Clipboard.setData(
+                                        ClipboardData(text: _seed));
+                                    Scaffold.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(S
+                                            .of(context)
+                                            .copied_to_clipboard),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(milliseconds: 1500),
+                                      ),
+                                    );
+                                  },
+                                  text: S.of(context).copy,
+                                  color: Colors.blue,
+                                  textColor: Colors.white)
+                          ),
+                        )
+                    )
+                  ],
+                )
+              ],
+            )
+          )
+        ],
+      )
     );
   }
 }
