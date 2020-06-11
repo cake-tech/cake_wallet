@@ -68,7 +68,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                 child: WalletCard(),
               ),
               SizedBox(
-                height: 18,
+                height: 28,
               ),
               Expanded(child: TradeHistoryPanel())
             ],
