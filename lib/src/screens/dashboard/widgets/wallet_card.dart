@@ -374,7 +374,6 @@ class WalletCardState extends State<WalletCard> {
                           child: Container(
                             height: 90,
                             child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
@@ -396,18 +395,21 @@ class WalletCardState extends State<WalletCard> {
                                       try {
                                         _addressObserverKey.currentState.setState(() {
                                           messageBoxHeight = 0;
-                                          messageBoxWidth = cardWidth - 10;
+                                          messageBoxWidth = cardWidth;
                                         });
                                       } catch(e) {
                                         print('${e.toString()}');
                                       }
                                     });
                                   },
-                                  child: Text(
-                                    walletStore.subaddress.address,
-                                    style: TextStyle(
-                                        fontSize: 14,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(top: 5),
+                                    child: Text(
+                                      walletStore.subaddress.address,
+                                      style: TextStyle(
+                                        fontSize: 12,
                                         color: Theme.of(context).primaryTextTheme.title.color
+                                      ),
                                     ),
                                   ),
                                 )
