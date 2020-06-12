@@ -22,8 +22,10 @@ class WalletCard extends StatefulWidget {
 
 class WalletCardState extends State<WalletCard> {
   final _syncingObserverKey = GlobalKey();
-  final _balanceObserverKey = GlobalKey();
   final _addressObserverKey = GlobalKey();
+  final _connectionStatusObserverKey = GlobalKey();
+  final _balanceObserverKey = GlobalKey();
+  final _balanceTitleObserverKey = GlobalKey();
 
   double cardWidth;
   double cardHeight;
@@ -54,6 +56,8 @@ class WalletCardState extends State<WalletCard> {
         setState(() => isDraw = true)
     );
   }
+
+  void rollCard() => setState(() => isFrontSide = !isFrontSide);
 
   @override
   Widget build(BuildContext context) {
@@ -93,12 +97,9 @@ class WalletCardState extends State<WalletCard> {
             width: cardWidth,
             height: cardHeight,
             color: Theme.of(context).cardColor,
-            child: InkWell(
-                onTap: () => setState(() => isFrontSide = !isFrontSide),
-                child: isFrontSide
-                    ? frontSide(colorsSync)
-                    : backSide(colorsSync)
-            ),
+            child: isFrontSide
+                 ? frontSide(colorsSync)
+                 : backSide(colorsSync),
           ),
         )
       ),
@@ -214,88 +215,146 @@ class WalletCardState extends State<WalletCard> {
                                 )
                               ],
                             ),
-                            Container(
-                              width: 98,
-                              height: 32,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
-                                  borderRadius: BorderRadius.all(Radius.circular(16))
-                              ),
-                              child: Text(
-                                shortAddress,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context).primaryTextTheme.caption.color
+                            GestureDetector(
+                              onTap: () => rollCard(),
+                              child: Container(
+                                width: 98,
+                                height: 32,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
+                                    borderRadius: BorderRadius.all(Radius.circular(16))
+                                ),
+                                child: Text(
+                                  shortAddress,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: Theme.of(context).primaryTextTheme.caption.color
+                                  ),
                                 ),
                               ),
                             )
                           ],
                         ),
                         status is SyncedSyncStatus
-                            ? Observer(
-                            key: _balanceObserverKey,
-                            builder: (_) {
-                              final balanceDisplayMode = settingsStore.balanceDisplayMode;
-                              final symbol = settingsStore
-                                  .fiatCurrency
-                                  .toString();
-                              var balance = '---';
-                              var fiatBalance = '---';
-
-                              if (balanceDisplayMode ==
-                                  BalanceDisplayMode.availableBalance) {
-                                balance =
-                                    balanceStore.unlockedBalance ??
-                                        '0.0';
-                                fiatBalance =
-                                '$symbol ${balanceStore.fiatUnlockedBalance}';
-                              }
-
-                              if (balanceDisplayMode ==
-                                  BalanceDisplayMode.fullBalance) {
-                                balance =
-                                    balanceStore.fullBalance ?? '0.0';
-                                fiatBalance =
-                                '$symbol ${balanceStore.fiatFullBalance}';
-                              }
-
-                              return Row(
+                          ? GestureDetector(
+                              onTapUp: (_) => balanceStore.isReversing = false,
+                              onTapDown: (_) => balanceStore.isReversing = true,
+                              child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
-                                      Text(
-                                        balanceDisplayMode.toString(),
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            color: Theme.of(context).primaryTextTheme.caption.color
-                                        ),
-                                      ),
+                                      Observer(
+                                          key: _balanceTitleObserverKey,
+                                          builder: (_) {
+                                            final savedDisplayMode =
+                                                settingsStore.balanceDisplayMode;
+                                            final displayMode = balanceStore
+                                                .isReversing
+                                                ? (savedDisplayMode ==
+                                                BalanceDisplayMode
+                                                    .availableBalance
+                                                ? BalanceDisplayMode.fullBalance
+                                                : BalanceDisplayMode
+                                                .availableBalance)
+                                                : savedDisplayMode;
+
+                                            return Text(
+                                              displayMode.toString(),
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Theme.of(context).primaryTextTheme.caption.color
+                                              ),
+                                            );
+                                      }),
                                       SizedBox(height: 5),
-                                      Text(
-                                        balance,
-                                        style: TextStyle(
-                                            fontSize: 28,
-                                            height: 1,
-                                            color: Theme.of(context).primaryTextTheme.title.color
-                                        ),
-                                      )
+                                      Observer(
+                                          key: _connectionStatusObserverKey,
+                                          builder: (_) {
+                                            final savedDisplayMode =
+                                                settingsStore.balanceDisplayMode;
+                                            var balance = '---';
+                                            final displayMode = balanceStore
+                                                .isReversing
+                                                ? (savedDisplayMode ==
+                                                BalanceDisplayMode
+                                                    .availableBalance
+                                                ? BalanceDisplayMode.fullBalance
+                                                : BalanceDisplayMode
+                                                .availableBalance)
+                                                : savedDisplayMode;
+
+                                            if (displayMode ==
+                                                BalanceDisplayMode.availableBalance) {
+                                              balance =
+                                                  balanceStore.unlockedBalance ??
+                                                      '0.0';
+                                            }
+
+                                            if (displayMode ==
+                                                BalanceDisplayMode.fullBalance) {
+                                              balance =
+                                                  balanceStore.fullBalance ?? '0.0';
+                                            }
+
+                                            return Text(
+                                              balance,
+                                              style: TextStyle(
+                                                  fontSize: 28,
+                                                  height: 1,
+                                                  color: Theme.of(context).primaryTextTheme.title.color
+                                              ),
+                                            );
+                                      }),
                                     ],
                                   ),
-                                  Text(
-                                    fiatBalance,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        height: 2,
-                                        color: Theme.of(context).primaryTextTheme.title.color
-                                    ),
-                                  )
+                                  Observer(
+                                      key: _balanceObserverKey,
+                                      builder: (_) {
+                                        final savedDisplayMode =
+                                            settingsStore.balanceDisplayMode;
+                                        final displayMode =
+                                        balanceStore.isReversing
+                                            ? (savedDisplayMode ==
+                                            BalanceDisplayMode
+                                                .availableBalance
+                                            ? BalanceDisplayMode
+                                            .fullBalance
+                                            : BalanceDisplayMode
+                                            .availableBalance)
+                                            : savedDisplayMode;
+                                        final symbol = settingsStore
+                                            .fiatCurrency
+                                            .toString();
+                                        var balance = '---';
+
+                                        if (displayMode ==
+                                            BalanceDisplayMode
+                                                .availableBalance) {
+                                          balance =
+                                          '$symbol ${balanceStore.fiatUnlockedBalance}';
+                                        }
+
+                                        if (displayMode ==
+                                            BalanceDisplayMode.fullBalance) {
+                                          balance =
+                                          '$symbol ${balanceStore.fiatFullBalance}';
+                                        }
+
+                                        return Text(
+                                          balance,
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              height: 2,
+                                              color: Theme.of(context).primaryTextTheme.title.color
+                                          ),
+                                        );
+                                  })
                                 ],
-                              );
-                            }
+                              )
                           )
                           : Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -343,144 +402,147 @@ class WalletCardState extends State<WalletCard> {
     double messageBoxHeight = 0;
     double messageBoxWidth = cardWidth - 10;
 
-    return Observer(
-      key: _addressObserverKey,
-      builder: (_) {
-        return Container(
-          width: cardWidth,
-          height: cardHeight,
-          alignment: Alignment.topCenter,
-          child: Stack(
-            alignment: Alignment.topRight,
-            children: <Widget>[
-              Container(
-                width: cardWidth,
-                height: cardHeight,
-                padding: EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 30),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
-                    gradient: LinearGradient(
-                        colors: colorsSync,
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter
-                    )
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(
+    return GestureDetector(
+      onTap: () => rollCard(),
+      child: Observer(
+          key: _addressObserverKey,
+          builder: (_) {
+            return Container(
+              width: cardWidth,
+              height: cardHeight,
+              alignment: Alignment.topCenter,
+              child: Stack(
+                alignment: Alignment.topRight,
+                children: <Widget>[
+                  Container(
+                    width: cardWidth,
+                    height: cardHeight,
+                    padding: EdgeInsets.only(left: 20, right: 20, top: 30, bottom: 30),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                        gradient: LinearGradient(
+                            colors: colorsSync,
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter
+                        )
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Expanded(
-                          child: Container(
-                            height: 90,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  S.current.card_address,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context).primaryTextTheme.caption.color
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    Clipboard.setData(ClipboardData(
-                                        text: walletStore.subaddress.address));
-                                    _addressObserverKey.currentState.setState(() {
-                                      messageBoxHeight = 20;
-                                      messageBoxWidth = cardWidth;
-                                    });
-                                    Timer(Duration(milliseconds: 1000), () {
-                                      try {
-                                        _addressObserverKey.currentState.setState(() {
-                                          messageBoxHeight = 0;
-                                          messageBoxWidth = cardWidth;
-                                        });
-                                      } catch(e) {
-                                        print('${e.toString()}');
-                                      }
-                                    });
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.only(top: 5),
-                                    child: Text(
-                                      walletStore.subaddress.address,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Theme.of(context).primaryTextTheme.title.color
+                        Row(
+                          children: <Widget>[
+                            Expanded(
+                                child: Container(
+                                  height: 90,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: <Widget>[
+                                      Text(
+                                        S.current.card_address,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: Theme.of(context).primaryTextTheme.caption.color
+                                        ),
                                       ),
-                                    ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Clipboard.setData(ClipboardData(
+                                              text: walletStore.subaddress.address));
+                                          _addressObserverKey.currentState.setState(() {
+                                            messageBoxHeight = 20;
+                                            messageBoxWidth = cardWidth;
+                                          });
+                                          Timer(Duration(milliseconds: 1000), () {
+                                            try {
+                                              _addressObserverKey.currentState.setState(() {
+                                                messageBoxHeight = 0;
+                                                messageBoxWidth = cardWidth;
+                                              });
+                                            } catch(e) {
+                                              print('${e.toString()}');
+                                            }
+                                          });
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 5),
+                                          child: Text(
+                                            walletStore.subaddress.address,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Theme.of(context).primaryTextTheme.title.color
+                                            ),
+                                          ),
+                                        ),
+                                      )
+                                    ],
                                   ),
                                 )
+                            ),
+                            SizedBox(width: 10),
+                            Container(
+                              width: 90,
+                              height: 90,
+                              child: QrImage(
+                                  data: walletStore.subaddress.address,
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Theme.of(context).primaryTextTheme.caption.color
+                              ),
+                            )
+                          ],
+                        ),
+                        Container(
+                          height: 44,
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(22)),
+                              color: Theme.of(context).primaryTextTheme.overline.color
+                          ),
+                          child: InkWell(
+                            onTap: () => Navigator.of(context,
+                                rootNavigator: true)
+                                .pushNamed(Routes.receive),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  S.of(context).accounts_subaddresses,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context).primaryTextTheme.title.color
+                                  ),
+                                ),
+                                rightArrow
                               ],
                             ),
-                          )
-                        ),
-                        SizedBox(width: 10),
-                        Container(
-                          width: 90,
-                          height: 90,
-                          child: QrImage(
-                            data: walletStore.subaddress.address,
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Theme.of(context).primaryTextTheme.caption.color
                           ),
                         )
                       ],
                     ),
-                    Container(
-                      height: 44,
-                      padding: EdgeInsets.only(left: 20, right: 20),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(22)),
-                          color: Theme.of(context).primaryTextTheme.overline.color
-                      ),
-                      child: InkWell(
-                        onTap: () => Navigator.of(context,
-                            rootNavigator: true)
-                            .pushNamed(Routes.receive),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(
-                              S.of(context).accounts_subaddresses,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context).primaryTextTheme.title.color
-                              ),
-                            ),
-                            rightArrow
-                          ],
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              AnimatedContainer(
-                width: messageBoxWidth,
-                height: messageBoxHeight,
-                alignment: Alignment.center,
-                duration: Duration(milliseconds: 500),
-                curve: Curves.fastOutSlowIn,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
-                    color: Colors.green
-                ),
-                child: Text(
-                  S.of(context).copied_to_clipboard,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.white
                   ),
-                ),
-              )
-            ],
-          ),
-        );
-      }
+                  AnimatedContainer(
+                    width: messageBoxWidth,
+                    height: messageBoxHeight,
+                    alignment: Alignment.center,
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.fastOutSlowIn,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10)),
+                        color: Colors.green
+                    ),
+                    child: Text(
+                      S.of(context).copied_to_clipboard,
+                      style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.white
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            );
+          }
+      ),
     );
   }
 }
