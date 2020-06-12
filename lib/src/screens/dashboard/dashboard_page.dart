@@ -64,7 +64,7 @@ class DashboardPageBodyState extends State<DashboardPageBody> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(left: 20, top: 20),
+                padding: EdgeInsets.only(left: 20, top: 5),
                 child: WalletCard(),
               ),
               SizedBox(
