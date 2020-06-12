@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
-class ClearButton extends StatelessWidget {
-  ClearButton({@required this.onPressed});
+class TrailButton extends StatelessWidget {
+  TrailButton({
+    @required this.caption,
+    @required this.onPressed
+  });
 
+  final String caption;
   final VoidCallback onPressed;
 
   @override
@@ -16,7 +19,7 @@ class ClearButton extends StatelessWidget {
       child: FlatButton(
         padding: EdgeInsets.all(0),
         child: Text(
-          S.of(context).clear,
+          caption,
           style: TextStyle(
             color: Theme.of(context).primaryTextTheme.caption.color,
             fontWeight: FontWeight.w500,

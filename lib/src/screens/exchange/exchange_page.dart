@@ -10,7 +10,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/stores/exchange_template/exchange_template_store.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/base_exchange_widget.dart';
-import 'package:cake_wallet/src/widgets/clear_button.dart';
+import 'package:cake_wallet/src/widgets/trail_button.dart';
 
 class ExchangePage extends BasePage {
   @override
@@ -33,7 +33,8 @@ class ExchangePage extends BasePage {
   Widget trailing(BuildContext context) {
     final exchangeStore = Provider.of<ExchangeStore>(context);
 
-    return ClearButton(
+    return TrailButton(
+      caption: S.of(context).reset,
       onPressed: () => exchangeStore.reset()
     );
   }
