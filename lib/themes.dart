@@ -44,9 +44,10 @@ class Themes {
       ),
       display4: TextStyle(
         color: Palette.oceanBlue // QR code
-      )
+      ),
+//      headline1: TextStyle(color: Palette.nightBlue)
     ),
-    dividerColor: Palette.periwinkle,
+    dividerColor: Palette.eee,
     accentTextTheme: TextTheme(
       title: TextStyle(
         color: Palette.darkLavender, // top panel
@@ -112,7 +113,8 @@ class Themes {
       ),
       display4: TextStyle(
         color: PaletteDark.gray // QR code
-      )
+      ),
+//        headline5: TextStyle(color: PaletteDark.gray)
     ),
     dividerColor: PaletteDark.distantBlue,
     accentTextTheme: TextTheme(

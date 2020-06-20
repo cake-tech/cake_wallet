@@ -1,1 +1,3 @@
-abstract class Balance {}
+abstract class Balance {
+  const Balance();
+}

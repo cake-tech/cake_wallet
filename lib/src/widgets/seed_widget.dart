@@ -1,94 +1,64 @@
-import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/english.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/chinese_simplified.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/dutch.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/german.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/japanese.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/portuguese.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/russian.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/spanish.dart';
-import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
+import 'package:cake_wallet/core/seed_validator.dart';
+import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/domain/common/mnemonic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SeedWidget extends StatefulWidget {
-  SeedWidget({Key key, this.onMnemoticChange, this.onFinish, this.seedLanguage}) : super(key: key) {
-    switch (seedLanguage) {
-      case 'English':
-        words = EnglishMnemonics.words;
-        break;
-      case 'Chinese (simplified)':
-        words = ChineseSimplifiedMnemonics.words;
-        break;
-      case 'Dutch':
-        words = DutchMnemonics.words;
-        break;
-      case 'German':
-        words = GermanMnemonics.words;
-        break;
-      case 'Japanese':
-        words = JapaneseMnemonics.words;
-        break;
-      case 'Portuguese':
-        words = PortugueseMnemonics.words;
-        break;
-      case 'Russian':
-        words = RussianMnemonics.words;
-        break;
-      case 'Spanish':
-        words = SpanishMnemonics.words;
-        break;
-      default:
-        words = EnglishMnemonics.words;
-    }
-  }
+  SeedWidget(
+      {Key key,
+      this.maxLength,
+      this.onMnemonicChange,
+      this.onFinish,
+      this.validator})
+      : super(key: key);
 
-  final Function(List<MnemoticItem>) onMnemoticChange;
+  final int maxLength;
+  final Function(List<MnemonicItem>) onMnemonicChange;
   final Function() onFinish;
-  final String seedLanguage;
-  List<String> words;
+  final SeedValidator validator;
 
   @override
-  SeedWidgetState createState() => SeedWidgetState();
+  SeedWidgetState createState() => SeedWidgetState(maxLength: maxLength);
 }
 
 class SeedWidgetState extends State<SeedWidget> {
-  static const maxLength = 25;
+  SeedWidgetState({this.maxLength});
 
-  List<MnemoticItem> items = <MnemoticItem>[];
+  List<MnemonicItem> items = <MnemonicItem>[];
+  final int maxLength;
   final _seedController = TextEditingController();
   final _seedTextFieldKey = GlobalKey();
-  MnemoticItem selectedItem;
+  MnemonicItem selectedItem;
   bool isValid;
   String errorMessage;
 
-  List<MnemoticItem> currentMnemotics;
-  bool isCurrentMnemoticValid;
+  List<MnemonicItem> currentMnemonics;
+  bool isCurrentMnemonicValid;
   String _errorMessage;
 
   @override
   void initState() {
     super.initState();
     isValid = false;
-    isCurrentMnemoticValid = false;
+    isCurrentMnemonicValid = false;
     _seedController
-        .addListener(() => changeCurrentMnemotic(_seedController.text));
+        .addListener(() => changeCurrentMnemonic(_seedController.text));
   }
 
-  void addMnemotic(String text) {
-    setState(() => items.add(MnemoticItem(
-        text: text.trim().toLowerCase(), dic: widget.words)));
+  void addMnemonic(String text) {
+    setState(() => items.add(MnemonicItem(text: text.trim().toLowerCase())));
     _seedController.text = '';
 
-    if (widget.onMnemoticChange != null) {
-      widget.onMnemoticChange(items);
+    if (widget.onMnemonicChange != null) {
+      widget.onMnemonicChange(items);
     }
   }
 
-  void mnemoticFromText(String text) {
+  void mnemonicFromText(String text) {
     final splitted = text.split(' ');
 
     if (splitted.length >= 2) {
@@ -98,18 +68,18 @@ class SeedWidgetState extends State<SeedWidget> {
         }
 
         if (selectedItem != null) {
-          editTextOfSelectedMnemotic(text);
+          editTextOfSelectedMnemonic(text);
         } else {
-          addMnemotic(text);
+          addMnemonic(text);
         }
       }
     }
   }
 
-  void selectMnemotic(MnemoticItem item) {
+  void selectMnemonic(MnemonicItem item) {
     setState(() {
       selectedItem = item;
-      currentMnemotics = [item];
+      currentMnemonics = [item];
 
       _seedController
         ..text = item.text
@@ -117,23 +87,23 @@ class SeedWidgetState extends State<SeedWidget> {
     });
   }
 
-  void onMnemoticTap(MnemoticItem item) {
+  void onMnemonicTap(MnemonicItem item) {
     if (selectedItem == item) {
       setState(() => selectedItem = null);
       _seedController.text = '';
       return;
     }
 
-    selectMnemotic(item);
+    selectMnemonic(item);
   }
 
-  void editTextOfSelectedMnemotic(String text) {
+  void editTextOfSelectedMnemonic(String text) {
     setState(() => selectedItem.changeText(text));
     selectedItem = null;
     _seedController.text = '';
 
-    if (widget.onMnemoticChange != null) {
-      widget.onMnemoticChange(items);
+    if (widget.onMnemonicChange != null) {
+      widget.onMnemonicChange(items);
     }
   }
 
@@ -143,83 +113,77 @@ class SeedWidgetState extends State<SeedWidget> {
       selectedItem = null;
       _seedController.text = '';
 
-      if (widget.onMnemoticChange != null) {
-        widget.onMnemoticChange(items);
+      if (widget.onMnemonicChange != null) {
+        widget.onMnemonicChange(items);
       }
     });
   }
 
-  void invalidate() {
-    setState(() => isValid = false);
-  }
+  void invalidate() => setState(() => isValid = false);
 
-  void validated() {
-    setState(() => isValid = true);
-  }
+  void validated() => setState(() => isValid = true);
 
-  void setErrorMessage(String errorMessage) {
-    setState(() => this.errorMessage = errorMessage);
-  }
+  void setErrorMessage(String errorMessage) =>
+      setState(() => this.errorMessage = errorMessage);
 
   void replaceText(String text) {
     setState(() => items = []);
-    mnemoticFromText(text);
+    mnemonicFromText(text);
   }
 
-  void changeCurrentMnemotic(String text) {
+  void changeCurrentMnemonic(String text) {
     setState(() {
       final trimmedText = text.trim();
       final splitted = trimmedText.split(' ');
       _errorMessage = null;
 
       if (text == null) {
-        currentMnemotics = [];
-        isCurrentMnemoticValid = false;
+        currentMnemonics = [];
+        isCurrentMnemonicValid = false;
         return;
       }
 
-      currentMnemotics = splitted
-          .map((text) => MnemoticItem(text: text, dic: widget.words))
-          .toList();
+      currentMnemonics =
+          splitted.map((text) => MnemonicItem(text: text)).toList();
 
-      bool isValid = true;
+      var isValid = true;
 
-      for (final word in currentMnemotics) {
-        isValid = word.isCorrect();
+      for (final word in currentMnemonics) {
+        isValid = widget.validator.isValid(word);
 
         if (!isValid) {
           break;
         }
       }
 
-      isCurrentMnemoticValid = isValid;
+      isCurrentMnemonicValid = isValid;
     });
   }
 
-  void saveCurrentMnemoticToItems() {
+  void saveCurrentMnemonicToItems() {
     setState(() {
       if (selectedItem != null) {
-        selectedItem.changeText(currentMnemotics.first.text.trim());
+        selectedItem.changeText(currentMnemonics.first.text.trim());
         selectedItem = null;
       } else {
-        items.addAll(currentMnemotics);
+        items.addAll(currentMnemonics);
       }
 
-      currentMnemotics = [];
+      currentMnemonics = [];
       _seedController.text = '';
     });
   }
 
   void showErrorIfExist() {
     setState(() => _errorMessage =
-        !isCurrentMnemoticValid ? S.current.incorrect_seed : null);
+        !isCurrentMnemonicValid ? S.current.incorrect_seed : null);
   }
 
   bool isSeedValid() {
     bool isValid;
 
     for (final item in items) {
-      isValid = item.isCorrect();
+      isValid = widget.validator.isValid(item);
 
       if (!isValid) {
         break;
@@ -234,192 +198,207 @@ class SeedWidgetState extends State<SeedWidget> {
     return Container(
       child: Column(children: [
         Flexible(
-            fit: FlexFit.tight,
-            flex: 1,
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              padding: EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24)
+          fit: FlexFit.tight,
+          flex: 1,
+          child: Container(
+            width: double.infinity,
+            height: double.infinity,
+            padding: EdgeInsets.all(24),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(24),
+                    bottomRight: Radius.circular(24)),
+                color: Theme.of(context).accentTextTheme.title.backgroundColor),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    S.of(context).restore_active_seed,
+                    style: TextStyle(
+                        fontSize: 14,
+                        color:
+                            Theme.of(context).primaryTextTheme.caption.color),
                   ),
-                  color: Theme.of(context).accentTextTheme.title.backgroundColor
-              ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      S.of(context).restore_active_seed,
-                      style: TextStyle(
-                          fontSize: 14,
-                          color: Theme.of(context).primaryTextTheme.caption.color
-                      ),
-                    ),
-                    Padding(
-                        padding: EdgeInsets.only(top: 5),
-                        child: Wrap(
-                          children: items.map((item) {
-                            final isValid = item.isCorrect();
-                            final isSelected = selectedItem == item;
+                  Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Wrap(
+                        children: items.map((item) {
+                          final isValid = widget.validator.isValid(item);
+                          final isSelected = selectedItem == item;
 
-                            return InkWell(
-                              onTap: () => onMnemoticTap(item),
-                              child: Container(
-                                  decoration: BoxDecoration(
-                                      color: isValid ? Colors.transparent : Palette.red),
-                                  margin: EdgeInsets.only(right: 7, bottom: 8),
-                                  child: Text(
-                                    item.toString(),
-                                    style: TextStyle(
-                                        color: isValid
-                                            ? Theme.of(context).primaryTextTheme.title.color
-                                            : Theme.of(context).primaryTextTheme.caption.color,
-                                        fontSize: 16,
-                                        fontWeight:
-                                        isSelected ? FontWeight.w900 : FontWeight.w400,
-                                        decoration: isSelected
-                                            ? TextDecoration.underline
-                                            : TextDecoration.none),
-                                  )),
-                            );
-                          }).toList(),)
-                    )
-                  ],
-                ),
+                          return InkWell(
+                            onTap: () => onMnemonicTap(item),
+                            child: Container(
+                                decoration: BoxDecoration(
+                                    color: isValid
+                                        ? Colors.transparent
+                                        : Palette.red),
+                                margin: EdgeInsets.only(right: 7, bottom: 8),
+                                child: Text(
+                                  item.toString(),
+                                  style: TextStyle(
+                                      color: isValid
+                                          ? Theme.of(context)
+                                              .primaryTextTheme
+                                              .title
+                                              .color
+                                          : Theme.of(context)
+                                              .primaryTextTheme
+                                              .caption
+                                              .color,
+                                      fontSize: 16,
+                                      fontWeight: isSelected
+                                          ? FontWeight.w900
+                                          : FontWeight.w400,
+                                      decoration: isSelected
+                                          ? TextDecoration.underline
+                                          : TextDecoration.none),
+                                )),
+                          );
+                        }).toList(),
+                      ))
+                ],
               ),
             ),
+          ),
         ),
         Flexible(
             fit: FlexFit.tight,
             flex: 2,
             child: Padding(
-              padding: EdgeInsets.only(left: 24, top: 48, right: 24, bottom: 24),
+              padding:
+                  EdgeInsets.only(left: 24, top: 48, right: 24, bottom: 24),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                Text(
-                  S.of(context).restore_new_seed,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryTextTheme.title.color
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: TextFormField(
-                    key: _seedTextFieldKey,
-                    onFieldSubmitted: (text) => isCurrentMnemoticValid
-                        ? saveCurrentMnemoticToItems()
-                        : null,
-                    style: TextStyle(
-                      fontSize: 16.0,
-                      color: Theme.of(context).primaryTextTheme.title.color
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      S.of(context).restore_new_seed,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color:
+                              Theme.of(context).primaryTextTheme.title.color),
                     ),
-                    controller: _seedController,
-                    textInputAction: TextInputAction.done,
-                    decoration: InputDecoration(
-                        suffixIcon: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(maxWidth: 145),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Text(
-                                    '${items.length}/${SeedWidgetState.maxLength}',
-                                    style: TextStyle(
-                                        color: Theme.of(context).primaryTextTheme.caption.color,
-                                        fontSize: 14)),
-                                SizedBox(width: 10),
-                                InkWell(
-                                  onTap: () async =>
-                                      Clipboard.getData('text/plain').then(
+                    Padding(
+                      padding: EdgeInsets.only(top: 24),
+                      child: TextFormField(
+                        key: _seedTextFieldKey,
+                        onFieldSubmitted: (text) => isCurrentMnemonicValid
+                            ? saveCurrentMnemonicToItems()
+                            : null,
+                        style: TextStyle(
+                            fontSize: 16.0,
+                            color:
+                                Theme.of(context).primaryTextTheme.title.color),
+                        controller: _seedController,
+                        textInputAction: TextInputAction.done,
+                        decoration: InputDecoration(
+                            suffixIcon: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: 145),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    Text('${items.length}/$maxLength',
+                                        style: TextStyle(
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .caption
+                                                .color,
+                                            fontSize: 14)),
+                                    SizedBox(width: 10),
+                                    InkWell(
+                                      onTap: () async =>
+                                          Clipboard.getData('text/plain').then(
                                               (clipboard) =>
-                                              replaceText(clipboard.text)),
-                                  child: Container(
-                                      height: 35,
-                                      padding: EdgeInsets.all(7),
-                                      decoration: BoxDecoration(
-                                          color:
-                                          Theme.of(context).accentTextTheme.title.backgroundColor,
-                                          borderRadius:
-                                          BorderRadius.circular(10.0)),
-                                      child: Text(
-                                          S.of(context).paste,
-                                          style: TextStyle(
-                                            color: Theme.of(context).primaryTextTheme.title.color
-                                          ),
-                                      )),
-                                )
-                              ],
+                                                  replaceText(clipboard.text)),
+                                      child: Container(
+                                          height: 35,
+                                          padding: EdgeInsets.all(7),
+                                          decoration: BoxDecoration(
+                                              color: Theme.of(context)
+                                                  .accentTextTheme
+                                                  .title
+                                                  .backgroundColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0)),
+                                          child: Text(
+                                            S.of(context).paste,
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .title
+                                                    .color),
+                                          )),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        hintStyle:
-                        TextStyle(
-                          color: Theme.of(context).primaryTextTheme.caption.color,
-                          fontSize: 16
-                        ),
-                        hintText: S.of(context).restore_from_seed_placeholder,
-                        errorText: _errorMessage,
-                        focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor, width: 1.0)),
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0))),
-                    enableInteractiveSelection: false,
-                  ),
-                )
-              ]),
-            )
-        ),
+                            hintStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .caption
+                                    .color,
+                                fontSize: 16),
+                            hintText:
+                                S.of(context).restore_from_seed_placeholder,
+                            errorText: _errorMessage,
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).dividerColor,
+                                    width: 1.0)),
+                            enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Theme.of(context).dividerColor,
+                                    width: 1.0))),
+                        enableInteractiveSelection: false,
+                      ),
+                    )
+                  ]),
+            )),
         Padding(
             padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
             child: Row(
               children: <Widget>[
                 Flexible(
-                  child: Padding(
-                    padding: EdgeInsets.only(right: 8),
-                    child: PrimaryButton(
-                      onPressed: clear,
-                      text: S.of(context).clear,
-                      color: Colors.red,
-                      textColor: Colors.white,
-                      isDisabled: items.isEmpty,
-                    ),
-                  )
-                ),
+                    child: Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: PrimaryButton(
+                    onPressed: clear,
+                    text: S.of(context).clear,
+                    color: Colors.red,
+                    textColor: Colors.white,
+                    isDisabled: items.isEmpty,
+                  ),
+                )),
                 Flexible(
                   child: Padding(
                     padding: EdgeInsets.only(left: 8),
                     child: (selectedItem == null && items.length == maxLength)
                         ? PrimaryButton(
-                        text: S.of(context).restore_next,
-                        isDisabled: !isSeedValid(),
-                        onPressed: () => widget.onFinish != null
-                            ? widget.onFinish()
-                            : null,
-                        color: Colors.green,
-                        textColor: Colors.white)
+                            text: S.of(context).restore_next,
+                            isDisabled: !isSeedValid(),
+                            onPressed: () => widget.onFinish != null
+                                ? widget.onFinish()
+                                : null,
+                            color: Colors.green,
+                            textColor: Colors.white)
                         : PrimaryButton(
-                        text: selectedItem != null
-                            ? S.of(context).save
-                            : S.of(context).add_new_word,
-                        onPressed: () => isCurrentMnemoticValid
-                            ? saveCurrentMnemoticToItems()
-                            : null,
-                        onDisabledPressed: () => showErrorIfExist(),
-                        isDisabled: !isCurrentMnemoticValid,
-                        color: Colors.green,
-                        textColor: Colors.white),
+                            text: selectedItem != null
+                                ? S.of(context).save
+                                : S.of(context).add_new_word,
+                            onPressed: () => isCurrentMnemonicValid
+                                ? saveCurrentMnemonicToItems()
+                                : null,
+                            onDisabledPressed: () => showErrorIfExist(),
+                            isDisabled: !isCurrentMnemonicValid,
+                            color: Colors.green,
+                            textColor: Colors.white),
                   ),
                 )
               ],

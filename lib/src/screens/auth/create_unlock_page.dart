@@ -11,13 +11,14 @@ Widget createUnlockPage(
           @required UserService userService,
           @required WalletService walletService,
           @required Function(bool, AuthPageState) onAuthenticationFinished}) =>
-      WillPopScope(
-          onWillPop: () async => false,
-          child: Provider(
-              create: (_) => AuthStore(
-                  sharedPreferences: sharedPreferences,
-                  userService: userService,
-                  walletService: walletService),
-              child: AuthPage(
-                  onAuthenticationFinished: onAuthenticationFinished,
-                  closable: false)));
+     null;
+//      WillPopScope(
+//          onWillPop: () async => false,
+//          child: Provider(
+//              create: (_) => AuthStore(
+//                  sharedPreferences: sharedPreferences,
+//                  userService: userService,
+//                  walletService: walletService),
+//              child: AuthPage(
+//                  onAuthenticationFinished: onAuthenticationFinished,
+//                  closable: false)));

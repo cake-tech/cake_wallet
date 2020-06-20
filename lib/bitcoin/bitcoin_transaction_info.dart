@@ -66,7 +66,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
   String amountFormatted() => bitcoinAmountToString(amount: amount);
 
   @override
-  String fiatAmount() => '';
+  String fiatAmount() => '\$ 24.5';
 
   Map<String, dynamic> toJson() {
     final m = Map<String, dynamic>();

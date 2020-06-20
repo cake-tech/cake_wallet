@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -11,79 +12,68 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 
 class SeedLanguage extends BasePage {
+  SeedLanguage({this.onConfirm});
+
+  final Function(BuildContext, String) onConfirm;
+
   @override
-  Widget body(BuildContext context) => SeedLanguageForm();
+  Widget body(BuildContext context) => SeedLanguageForm(onConfirm: onConfirm);
 }
 
 class SeedLanguageForm extends StatefulWidget {
+  SeedLanguageForm({this.onConfirm});
+
+  final Function(BuildContext, String) onConfirm;
+
   @override
   SeedLanguageFormState createState() => SeedLanguageFormState();
 }
 
 class SeedLanguageFormState extends State<SeedLanguageForm> {
   static const aspectRatioImage = 1.22;
+
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
+  final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
 
   @override
   Widget build(BuildContext context) {
-    final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
-
-    final List<String> seedLocales = [
-      S.current.seed_language_english,
-      S.current.seed_language_chinese,
-      S.current.seed_language_dutch,
-      S.current.seed_language_german,
-      S.current.seed_language_japanese,
-      S.current.seed_language_portuguese,
-      S.current.seed_language_russian,
-      S.current.seed_language_spanish
-    ];
-
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          content: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 12, right: 12),
-                  child: AspectRatio(
-                      aspectRatio: aspectRatioImage,
-                      child: FittedBox(child: walletNameImage, fit: BoxFit.fill)),
-                ),
-                Padding(padding: EdgeInsets.only(top: 40),
-                  child: Text(
-                    S.of(context).seed_language_choose,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryTextTheme.title.color
-                    ),
-                  ),
-                ),
-                Padding(padding: EdgeInsets.only(top: 24),
-                  child: Observer(
-                      builder: (_) => SelectButton(
-                          image: null,
-                          text: seedLocales[seedLanguages.indexOf(seedLanguageStore.selectedSeedLanguage)],
-                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                          textColor: Theme.of(context).primaryTextTheme.title.color,
-                          onTap: () async => await showDialog(
-                              context: context,
-                              builder: (BuildContext context) => SeedLanguagePicker()
-                          )
-                      )
-                  ),
-                )
-              ]),
-          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          content:
+              Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
+            Padding(
+              padding: EdgeInsets.only(left: 12, right: 12),
+              child: AspectRatio(
+                  aspectRatio: aspectRatioImage,
+                  child: FittedBox(child: walletNameImage, fit: BoxFit.fill)),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 40),
+              child: Text(
+                S.of(context).seed_language_choose,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).primaryTextTheme.title.color),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 24),
+              child: SeedLanguageSelector(
+                  key: _languageSelectorKey,
+                  initialSelected: defaultSeedLanguage),
+            )
+          ]),
+          bottomSectionPadding:
+              EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Observer(
             builder: (context) {
               return PrimaryButton(
-                  onPressed: () =>
-                      Navigator.of(context).popAndPushNamed(seedLanguageStore.currentRoute),
+                  onPressed: () => widget
+                      .onConfirm(context, _languageSelectorKey.currentState.selected),
                   text: S.of(context).seed_language_next,
                   color: Colors.green,
                   textColor: Colors.white);

@@ -17,7 +17,7 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final actionListStore = Provider.of<ActionListStore>(context);
+//    final actionListStore = Provider.of<ActionListStore>(context);
     final historyPanelWidth = MediaQuery.of(context).size.width;
 
     final _themeChanger = Provider.of<ThemeChanger>(context);
@@ -97,44 +97,44 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Theme.of(context).primaryTextTheme.caption.color))),
-                          PopupMenuItem(
-                              value: 0,
-                              child: Observer(
-                                  builder: (_) => Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment
-                                          .spaceBetween,
-                                      children: [
-                                        Text(S.of(context).incoming),
-                                        Checkbox(
-                                          value: actionListStore
-                                              .transactionFilterStore
-                                              .displayIncoming,
-                                          onChanged: (value) =>
-                                              actionListStore
-                                                  .transactionFilterStore
-                                                  .toggleIncoming(),
-                                        )
-                                      ]))),
-                          PopupMenuItem(
-                              value: 1,
-                              child: Observer(
-                                  builder: (_) => Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment
-                                          .spaceBetween,
-                                      children: [
-                                        Text(S.of(context).outgoing),
-                                        Checkbox(
-                                          value: actionListStore
-                                              .transactionFilterStore
-                                              .displayOutgoing,
-                                          onChanged: (value) =>
-                                              actionListStore
-                                                  .transactionFilterStore
-                                                  .toggleOutgoing(),
-                                        )
-                                      ]))),
+//                          PopupMenuItem(
+//                              value: 0,
+//                              child: Observer(
+//                                  builder: (_) => Row(
+//                                      mainAxisAlignment:
+//                                      MainAxisAlignment
+//                                          .spaceBetween,
+//                                      children: [
+//                                        Text(S.of(context).incoming),
+//                                        Checkbox(
+//                                          value: actionListStore
+//                                              .transactionFilterStore
+//                                              .displayIncoming,
+//                                          onChanged: (value) =>
+//                                              actionListStore
+//                                                  .transactionFilterStore
+//                                                  .toggleIncoming(),
+//                                        )
+//                                      ]))),
+//                          PopupMenuItem(
+//                              value: 1,
+//                              child: Observer(
+//                                  builder: (_) => Row(
+//                                      mainAxisAlignment:
+//                                      MainAxisAlignment
+//                                          .spaceBetween,
+//                                      children: [
+//                                        Text(S.of(context).outgoing),
+//                                        Checkbox(
+//                                          value: actionListStore
+//                                              .transactionFilterStore
+//                                              .displayOutgoing,
+//                                          onChanged: (value) =>
+//                                              actionListStore
+//                                                  .transactionFilterStore
+//                                                  .toggleOutgoing(),
+//                                        )
+//                                      ]))),
                           PopupMenuItem(
                               value: 2,
                               child:
@@ -156,17 +156,17 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
                                           .spaceBetween,
                                       children: [
                                         Text('XMR.TO'),
-                                        Checkbox(
-                                          value: actionListStore
-                                              .tradeFilterStore
-                                              .displayXMRTO,
-                                          onChanged: (value) =>
-                                              actionListStore
-                                                  .tradeFilterStore
-                                                  .toggleDisplayExchange(
-                                                  ExchangeProviderDescription
-                                                      .xmrto),
-                                        )
+//                                        Checkbox(
+//                                          value: actionListStore
+//                                              .tradeFilterStore
+//                                              .displayXMRTO,
+//                                          onChanged: (value) =>
+//                                              actionListStore
+//                                                  .tradeFilterStore
+//                                                  .toggleDisplayExchange(
+//                                                  ExchangeProviderDescription
+//                                                      .xmrto),
+//                                        )
                                       ]))),
                           PopupMenuItem(
                               value: 4,
@@ -177,17 +177,17 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
                                           .spaceBetween,
                                       children: [
                                         Text('Change.NOW'),
-                                        Checkbox(
-                                          value: actionListStore
-                                              .tradeFilterStore
-                                              .displayChangeNow,
-                                          onChanged: (value) =>
-                                              actionListStore
-                                                  .tradeFilterStore
-                                                  .toggleDisplayExchange(
-                                                  ExchangeProviderDescription
-                                                      .changeNow),
-                                        )
+//                                        Checkbox(
+//                                          value: actionListStore
+//                                              .tradeFilterStore
+//                                              .displayChangeNow,
+//                                          onChanged: (value) =>
+//                                              actionListStore
+//                                                  .tradeFilterStore
+//                                                  .toggleDisplayExchange(
+//                                                  ExchangeProviderDescription
+//                                                      .changeNow),
+//                                        )
                                       ]))),
                           PopupMenuItem(
                               value: 5,
@@ -198,17 +198,17 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
                                           .spaceBetween,
                                       children: [
                                         Text('MorphToken'),
-                                        Checkbox(
-                                          value: actionListStore
-                                              .tradeFilterStore
-                                              .displayMorphToken,
-                                          onChanged: (value) =>
-                                              actionListStore
-                                                  .tradeFilterStore
-                                                  .toggleDisplayExchange(
-                                                  ExchangeProviderDescription
-                                                      .morphToken),
-                                        )
+//                                        Checkbox(
+//                                          value: actionListStore
+//                                              .tradeFilterStore
+//                                              .displayMorphToken,
+//                                          onChanged: (value) =>
+//                                              actionListStore
+//                                                  .tradeFilterStore
+//                                                  .toggleDisplayExchange(
+//                                                  ExchangeProviderDescription
+//                                                      .morphToken),
+//                                        )
                                       ])))
                         ],
                         child: filterButton,
@@ -225,10 +225,10 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
                                     .add(Duration(days: 1)));
 
                             if (picked != null && picked.length == 2) {
-                              actionListStore.transactionFilterStore
-                                  .changeStartDate(picked.first);
-                              actionListStore.transactionFilterStore
-                                  .changeEndDate(picked.last);
+//                              actionListStore.transactionFilterStore
+//                                  .changeStartDate(picked.first);
+//                              actionListStore.transactionFilterStore
+//                                  .changeEndDate(picked.last);
                             }
                           }
                         },

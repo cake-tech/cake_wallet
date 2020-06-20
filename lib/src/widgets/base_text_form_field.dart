@@ -2,24 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class BaseTextFormField extends StatelessWidget {
-  BaseTextFormField({
-    this.controller,
-    this.keyboardType = TextInputType.text,
-    this.textInputAction = TextInputAction.done,
-    this.textAlign = TextAlign.start,
-    this.autovalidate = false,
-    this.hintText = '',
-    this.maxLines = 1,
-    this.inputFormatters,
-    this.textColor,
-    this.hintColor,
-    this.borderColor,
-    this.prefix,
-    this.suffix,
-    this.suffixIcon,
-    this.enabled = true,
-    this.validator
-  });
+  BaseTextFormField(
+      {this.controller,
+      this.keyboardType = TextInputType.text,
+      this.textInputAction = TextInputAction.done,
+      this.textAlign = TextAlign.start,
+      this.autovalidate = false,
+      this.hintText = '',
+      this.maxLines = 1,
+      this.inputFormatters,
+      this.textColor,
+      this.hintColor,
+      this.borderColor,
+      this.prefix,
+      this.suffix,
+      this.suffixIcon,
+      this.enabled = true,
+      this.validator,
+      this.placeholderTextStyle});
 
   final TextEditingController controller;
   final TextInputType keyboardType;
@@ -37,6 +37,7 @@ class BaseTextFormField extends StatelessWidget {
   final Widget suffixIcon;
   final bool enabled;
   final FormFieldValidator<String> validator;
+  final TextStyle placeholderTextStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -50,31 +51,26 @@ class BaseTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       enabled: enabled,
       style: TextStyle(
-        fontSize: 16.0,
-        color: textColor ?? Theme.of(context).primaryTextTheme.title.color
-      ),
+          fontSize: 16.0,
+          color: textColor ?? Theme.of(context).primaryTextTheme.title.color),
       decoration: InputDecoration(
-        prefix: prefix,
-        suffix: suffix,
-        suffixIcon: suffixIcon,
-        hintStyle: TextStyle(
-          color: hintColor ?? Theme.of(context).primaryTextTheme.caption.color,
-          fontSize: 16
-        ),
-        hintText: hintText,
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: borderColor ?? Theme.of(context).dividerColor,
-            width: 1.0
-          )
-        ),
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: borderColor ?? Theme.of(context).dividerColor,
-            width: 1.0
-          )
-        )
-      ),
+          prefix: prefix,
+          suffix: suffix,
+          suffixIcon: suffixIcon,
+          hintStyle: placeholderTextStyle ??
+              TextStyle(
+                  color: hintColor ??
+                      Theme.of(context).primaryTextTheme.caption.color,
+                  fontSize: 16),
+          hintText: hintText,
+          focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).dividerColor,
+                  width: 1.0)),
+          enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).dividerColor,
+                  width: 1.0))),
       validator: validator,
     );
   }

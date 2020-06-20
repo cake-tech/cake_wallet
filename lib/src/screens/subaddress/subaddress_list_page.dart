@@ -32,9 +32,7 @@ class SubaddressListPage extends BasePage {
         child: Observer(
           builder: (_) => ListView.separated(
               separatorBuilder: (_, __) => Divider(
-                    color: Theme.of(context).dividerTheme.color,
-                    height: 1.0,
-                  ),
+                  color: Theme.of(context).dividerTheme.color, height: 1.0),
               itemCount: subaddressListStore.subaddresses == null
                   ? 0
                   : subaddressListStore.subaddresses.length,
@@ -42,9 +40,7 @@ class SubaddressListPage extends BasePage {
                 final subaddress = subaddressListStore.subaddresses[index];
                 final isCurrent =
                     walletStore.subaddress.address == subaddress.address;
-                final label = subaddress.label != null
-                    ? subaddress.label
-                    : subaddress.address;
+                final label = subaddress.label ?? subaddress.address;
 
                 return InkWell(
                   onTap: () => Navigator.of(context).pop(subaddress),

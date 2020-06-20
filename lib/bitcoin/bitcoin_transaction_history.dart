@@ -1,61 +1,78 @@
 import 'dart:convert';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:flutter/foundation.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/transaction_history.dart';
+import 'package:cake_wallet/bitcoin/file.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/electrum.dart';
-import 'package:cake_wallet/src/domain/common/transaction_history.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
-import 'package:cake_wallet/bitcoin/file.dart';
+import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
 
-class BitcoinTransactionHistory extends TransactionHistory {
-  BitcoinTransactionHistory(
-      {@required this.eclient,
-      @required this.path,
-      @required String password,
-      @required this.wallet})
-      : _transactions = BehaviorSubject<List<TransactionInfo>>.seeded([]),
+part 'bitcoin_transaction_history.g.dart';
+
+// TODO: Think about another transaction store for bitcoin transaction history..
+
+const _transactionsHistoryFileName = 'transactions.json';
+
+class BitcoinTransactionHistory = BitcoinTransactionHistoryBase
+    with _$BitcoinTransactionHistory;
+
+abstract class BitcoinTransactionHistoryBase
+    extends TransactionHistoryBase<BitcoinTransactionInfo> with Store {
+  BitcoinTransactionHistoryBase(
+      {this.eclient, String dirPath, @required String password})
+      : path = '$dirPath/$_transactionsHistoryFileName',
         _password = password,
         _height = 0;
 
-  final BitcoinWallet wallet;
+  BitcoinWallet wallet;
   final ElectrumClient eclient;
   final String path;
   final String _password;
   int _height;
 
-  @override
-  Observable<List<TransactionInfo>> get transactions => _transactions.stream;
-  List<TransactionInfo> get transactionsAll => _transactions.value;
-  final BehaviorSubject<List<TransactionInfo>> _transactions;
-  bool _isUpdating = false;
-
   Future<void> init() async {
+    // TODO: throw exeption if wallet is null;
     final info = await _read();
     _height = (info['height'] as int) ?? _height;
-    _transactions.value = info['transactions'] as List<TransactionInfo>;
+    // FIXME: remove hardcoded value
+    transactions = ObservableList.of([
+      BitcoinTransactionInfo(
+          id: 'test',
+          height: 12,
+          amount: 12,
+          direction: TransactionDirection.incoming,
+          date: DateTime.now(),
+          isPending: false)
+    ]);
   }
 
   @override
-  Future<List<TransactionInfo>> getAll() async => _transactions.value;
+  Future update() async {
+    await super.update();
+    _updateHeight();
+  }
 
   @override
-  Future update() async {
-    if (_isUpdating) {
-      return;
-    }
+  Future<List<BitcoinTransactionInfo>> fetchTransactions() async {
+    final addresses = wallet.addresses;
+    final histories =
+        addresses.map((record) => eclient.getHistory(address: record.address));
+    final _historiesWithDetails = await Future.wait(histories)
+        .then((histories) => histories
+            .map((h) => h.where((tx) => (tx['height'] as int) > _height))
+            .expand((i) => i)
+            .toList())
+        .then((histories) => histories.map((tx) => fetchTransactionInfo(
+            hash: tx['tx_hash'] as String, height: tx['height'] as int)));
+    final historiesWithDetails = await Future.wait(_historiesWithDetails);
 
-    try {
-      _isUpdating = true;
-      final newTransasctions = await fetchTransactions();
-      _transactions.value = _transactions.value + newTransasctions;
-      _updateHeight();
-      await save();
-      _isUpdating = false;
-    } catch (e) {
-      _isUpdating = false;
-      rethrow;
-    }
+    return historiesWithDetails
+        .map((info) => BitcoinTransactionInfo.fromHexAndHeader(
+            info['raw'] as String, info['header'] as Map<String, Object>,
+            addresses: addresses.map((record) => record.address).toList()))
+        .toList();
   }
 
   Future<Map<String, Object>> fetchTransactionInfo(
@@ -69,51 +86,20 @@ class BitcoinTransactionHistory extends TransactionHistory {
     return {'raw': raw, 'header': header};
   }
 
-  Future<List<BitcoinTransactionInfo>> fetchTransactions() async {
-    final addresses = wallet.getAddresses();
-    final histories =
-        addresses.map((address) => eclient.getHistory(address: address));
-    final _historiesWithDetails = await Future.wait(histories)
-        .then((histories) => histories
-            .map((h) => h.where((tx) => (tx['height'] as int) > _height))
-            .expand((i) => i)
-            .toList())
-        .then((histories) => histories.map((tx) => fetchTransactionInfo(
-            hash: tx['tx_hash'] as String, height: tx['height'] as int)));
-    final historiesWithDetails = await Future.wait(_historiesWithDetails);
-
-    return historiesWithDetails
-        .map((info) => BitcoinTransactionInfo.fromHexAndHeader(
-            info['raw'] as String, info['header'] as Map<String, Object>,
-            addresses: addresses))
-        .toList();
-  }
-
   Future<void> add(List<BitcoinTransactionInfo> transactions) async {
-    final txs = await getAll()
-      ..addAll(transactions);
-    await writeData(
-        path: path,
-        password: _password,
-        data: json
-            .encode(txs.map((tx) => (tx as BitcoinTransactionInfo).toJson())));
+    this.transactions.addAll(transactions);
+    await save();
   }
 
   Future<void> addOne(BitcoinTransactionInfo tx) async {
-    final txs = await getAll()
-      ..add(tx);
-    await writeData(
-        path: path,
-        password: _password,
-        data: json
-            .encode(txs.map((tx) => (tx as BitcoinTransactionInfo).toJson())));
+    transactions.add(tx);
+    await save();
   }
 
   Future<void> save() async => writeData(
       path: path,
       password: _password,
-      data: json
-          .encode({'height': _height, 'transactions': _transactions.value}));
+      data: json.encode({'height': _height, 'transactions': transactions}));
 
   Future<Map<String, Object>> _read() async {
     try {
@@ -133,13 +119,13 @@ class BitcoinTransactionHistory extends TransactionHistory {
 
       return {'transactions': transactions, 'height': height};
     } catch (_) {
-      return {'transactions': List<TransactionInfo>(), 'height': 0};
+      return {'transactions': <TransactionInfo>[], 'height': 0};
     }
   }
 
   void _updateHeight() {
-    final int newHeight = _transactions.value
-        .fold(0, (acc, val) => val.height > acc ? val.height : acc);
+    final newHeight = transactions.fold(
+        0, (int acc, val) => val.height > acc ? val.height : acc);
     _height = newHeight > _height ? newHeight : _height;
   }
 }

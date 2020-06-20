@@ -1,27 +1,19 @@
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/domain/services/wallet_list_service.dart';
-import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_store.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
-import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/core/mnemonic_length.dart';
 
 class RestoreWalletFromSeedPage extends BasePage {
-  RestoreWalletFromSeedPage(
-      {@required this.walletsService,
-      @required this.walletService,
-      @required this.sharedPreferences});
+  RestoreWalletFromSeedPage({@required this.type, @required this.language});
 
-  final WalletListService walletsService;
-  final WalletService walletService;
-  final SharedPreferences sharedPreferences;
+  final WalletType type;
+  final String language;
   final formKey = GlobalKey<_RestoreFromSeedFormState>();
 
   @override
@@ -34,11 +26,14 @@ class RestoreWalletFromSeedPage extends BasePage {
   Color get backgroundDarkColor => PaletteDark.lightNightBlue;
 
   @override
-  Widget body(BuildContext context) => RestoreFromSeedForm(key: formKey);
+  Widget body(BuildContext context) =>
+      RestoreFromSeedForm(key: formKey, type: type, language: language);
 }
 
 class RestoreFromSeedForm extends StatefulWidget {
-  RestoreFromSeedForm({Key key}) : super(key: key);
+  RestoreFromSeedForm({Key key, this.type, this.language}) : super(key: key);
+  final WalletType type;
+  final String language;
 
   @override
   _RestoreFromSeedFormState createState() => _RestoreFromSeedFormState();
@@ -46,13 +41,11 @@ class RestoreFromSeedForm extends StatefulWidget {
 
 class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
   final _seedKey = GlobalKey<SeedWidgetState>();
-  void clear() => _seedKey.currentState.clear();
+
+  String mnemonic() => _seedKey.currentState.items.map((e) => e.text).join(' ');
 
   @override
   Widget build(BuildContext context) {
-    final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
-    final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
-
     return GestureDetector(
       onTap: () =>
           SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
@@ -60,11 +53,13 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
         color: Theme.of(context).backgroundColor,
         child: SeedWidget(
           key: _seedKey,
-          onMnemoticChange: (seed) => walletRestorationStore.setSeed(seed),
+          maxLength: mnemonicLength(widget.type),
+          onMnemonicChange: (seed) => null,
           onFinish: () => Navigator.of(context).pushNamed(
               Routes.restoreWalletFromSeedDetails,
-              arguments: _seedKey.currentState.items),
-          seedLanguage: seedLanguageStore.selectedSeedLanguage,
+              arguments: [widget.type, widget.language, mnemonic()]),
+          validator:
+              SeedValidator(type: widget.type, language: widget.language),
         ),
       ),
     );

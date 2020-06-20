@@ -1,3 +1,5 @@
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -6,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-
+import 'di.dart';
 // MARK: Import domains
 
 import 'package:cake_wallet/src/domain/common/contact.dart';
@@ -21,7 +23,7 @@ import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/src/domain/monero/transaction_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/domain/monero/account.dart';
-import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
+import 'package:cake_wallet/src/domain/common/mnemonic_item.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
@@ -56,7 +58,7 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/nodes/new_node_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
-import 'package:cake_wallet/src/screens/subaddress/new_subaddress_page.dart';
+import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_page.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
@@ -126,24 +128,18 @@ class Router {
                         Navigator.pushNamed(context, Routes.newWalletType))));
 
       case Routes.newWalletType:
-        return CupertinoPageRoute<void>(builder: (_) => NewWalletTypePage());
+        return CupertinoPageRoute<void>(
+            builder: (_) => NewWalletTypePage(
+                  onTypeSelected: (context, type) => Navigator.of(context)
+                      .pushNamed(Routes.newWallet, arguments: type),
+                ));
 
       case Routes.newWallet:
         final type = settings.arguments as WalletType;
-        walletListService.changeWalletManger(walletType: type);
+        final walletNewVM = getIt.get<WalletNewVM>(param1: type);
 
         return CupertinoPageRoute<void>(
-            builder:
-                (_) =>
-                    ProxyProvider<AuthenticationStore, WalletCreationStore>(
-                        update: (_, authStore, __) => WalletCreationStore(
-                            authStore: authStore,
-                            sharedPreferences: sharedPreferences,
-                            walletListService: walletListService),
-                        child: NewWalletPage(
-                            walletsService: walletListService,
-                            walletService: walletService,
-                            sharedPreferences: sharedPreferences)));
+            builder: (_) => NewWalletPage(walletNewVM));
 
       case Routes.setupPin:
         Function(BuildContext, String) callback;
@@ -163,6 +159,13 @@ class Router {
                         callback == null ? null : callback(context, pin))),
             fullscreenDialog: true);
 
+      case Routes.restoreWalletType:
+        return CupertinoPageRoute<void>(
+            builder: (_) => NewWalletTypePage(
+                  onTypeSelected: (context, type) => Navigator.of(context)
+                      .pushNamed(Routes.restoreWalletOptions, arguments: type),
+                ));
+
       case Routes.restoreOptions:
         final type = settings.arguments as WalletType;
         walletListService.changeWalletManger(walletType: type);
@@ -175,7 +178,28 @@ class Router {
         walletListService.changeWalletManger(walletType: type);
 
         return CupertinoPageRoute<void>(
-            builder: (_) => RestoreWalletOptionsPage(type: type));
+            builder: (_) => RestoreWalletOptionsPage(
+                type: type,
+                onRestoreFromSeed: (context) {
+                  final route = type == WalletType.monero
+                      ? Routes.seedLanguage
+                      : Routes.restoreWalletFromSeed;
+                  final args = type == WalletType.monero
+                      ? [type, Routes.restoreWalletFromSeed]
+                      : [type];
+
+                  Navigator.of(context).pushNamed(route, arguments: args);
+                },
+                onRestoreFromKeys: (context) {
+                  final route = type == WalletType.monero
+                      ? Routes.seedLanguage
+                      : Routes.restoreWalletFromKeys;
+                  final args = type == WalletType.monero
+                      ? [type, Routes.restoreWalletFromSeed]
+                      : [type];
+
+                  Navigator.of(context).pushNamed(route, arguments: args);
+                }));
 
       case Routes.restoreWalletOptionsFromWelcome:
         return CupertinoPageRoute<void>(
@@ -186,7 +210,7 @@ class Router {
                         sharedPreferences: sharedPreferences)),
                 child: SetupPinCodePage(
                     onPinCodeSetup: (context, _) => Navigator.pushNamed(
-                        context, Routes.restoreWalletOptions))));
+                        context, Routes.restoreWalletType))));
 
       case Routes.seed:
         return MaterialPageRoute<void>(
@@ -196,8 +220,11 @@ class Router {
                 callback: settings.arguments as void Function()));
 
       case Routes.restoreWalletFromSeed:
-        final type = settings.arguments as WalletType;
-        walletListService.changeWalletManger(walletType: type);
+        final args = settings.arguments as List<dynamic>;
+        final type = args.first as WalletType;
+        final language = type == WalletType.monero
+            ? args[1] as String
+            : 'English'; // FIXME: Unnamed constant; English default and only one language for bitcoin.
 
         return CupertinoPageRoute<void>(
             builder: (_) =>
@@ -207,11 +234,15 @@ class Router {
                         sharedPreferences: sharedPreferences,
                         walletListService: walletListService),
                     child: RestoreWalletFromSeedPage(
-                        walletsService: walletListService,
-                        walletService: walletService,
-                        sharedPreferences: sharedPreferences)));
+                        type: type, language: language)));
 
       case Routes.restoreWalletFromKeys:
+        final args = settings.arguments as List<dynamic>;
+        final type = args.first as WalletType;
+        final language = type == WalletType.monero
+            ? args[1] as String
+            : 'English'; // FIXME: Unnamed constant; English default and only one language for bitcoin.
+
         return CupertinoPageRoute<void>(
             builder: (_) =>
                 ProxyProvider<AuthenticationStore, WalletRestorationStore>(
@@ -256,22 +287,16 @@ class Router {
 
       case Routes.sendTemplate:
         return CupertinoPageRoute<void>(
-          builder: (_) => Provider(
-              create: (_) => SendStore(
-                  walletService: walletService,
-                  priceStore: priceStore,
-                  transactionDescriptions: transactionDescriptions),
-              child: SendTemplatePage())
-        );
+            builder: (_) => Provider(
+                create: (_) => SendStore(
+                    walletService: walletService,
+                    priceStore: priceStore,
+                    transactionDescriptions: transactionDescriptions),
+                child: SendTemplatePage()));
 
       case Routes.receive:
         return CupertinoPageRoute<void>(
-            fullscreenDialog: true,
-            builder: (_) => MultiProvider(providers: [
-                  Provider(
-                      create: (_) =>
-                          SubaddressListStore(walletService: walletService))
-                ], child: ReceivePage()));
+            fullscreenDialog: true, builder: (_) => getIt.get<ReceivePage>());
 
       case Routes.transactionDetails:
         return CupertinoPageRoute<void>(
@@ -281,10 +306,8 @@ class Router {
 
       case Routes.newSubaddress:
         return CupertinoPageRoute<void>(
-            builder: (_) => Provider(
-                create: (_) =>
-                    SubadrressCreationStore(walletService: walletService),
-                child: NewSubaddressPage()));
+            builder: (_) =>
+                getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
 
       case Routes.disclaimer:
         return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
@@ -294,7 +317,15 @@ class Router {
             builder: (_) => DisclaimerPage(isReadOnly: true));
 
       case Routes.seedLanguage:
-        return CupertinoPageRoute<void>(builder: (_) => SeedLanguage());
+        final args = settings.arguments as List<dynamic>;
+        final type = args.first as WalletType;
+        final redirectRoute = args[1] as String;
+
+        return CupertinoPageRoute<void>(builder: (_) {
+          return SeedLanguage(
+              onConfirm: (context, lang) => Navigator.of(context)
+                  .popAndPushNamed(redirectRoute, arguments: [type, lang]));
+        });
 
       case Routes.walletList:
         return MaterialPageRoute<void>(
@@ -306,17 +337,18 @@ class Router {
                 child: WalletListPage()));
 
       case Routes.auth:
-        return MaterialPageRoute<void>(
-            fullscreenDialog: true,
-            builder: (_) => Provider(
-                  create: (_) => AuthStore(
-                      sharedPreferences: sharedPreferences,
-                      userService: userService,
-                      walletService: walletService),
-                  child: AuthPage(
-                      onAuthenticationFinished:
-                          settings.arguments as OnAuthenticationFinished),
-                ));
+        return null;
+//        return MaterialPageRoute<void>(
+//            fullscreenDialog: true,
+//            builder: (_) => Provider(
+//                  create: (_) => AuthStore(
+//                      sharedPreferences: sharedPreferences,
+//                      userService: userService,
+//                      walletService: walletService),
+//                  child: AuthPage(
+//                      onAuthenticationFinished:
+//                          settings.arguments as OnAuthenticationFinished),
+//                ));
 
       case Routes.unlock:
         return MaterialPageRoute<void>(
@@ -455,15 +487,13 @@ class Router {
                 ], child: SubaddressListPage()));
 
       case Routes.restoreWalletFromSeedDetails:
+        final args = settings.arguments as List;
+        final walletRestorationFromSeedVM =
+            getIt.get<WalletRestorationFromSeedVM>(param1: args);
+
         return CupertinoPageRoute<void>(
-            builder: (_) =>
-                ProxyProvider<AuthenticationStore, WalletRestorationStore>(
-                    update: (_, authStore, __) => WalletRestorationStore(
-                        authStore: authStore,
-                        sharedPreferences: sharedPreferences,
-                        walletListService: walletListService,
-                        seed: settings.arguments as List<MnemoticItem>),
-                    child: RestoreWalletFromSeedDetailsPage()));
+            builder: (_) => RestoreWalletFromSeedDetailsPage(
+                walletRestorationFromSeedVM: walletRestorationFromSeedVM));
 
       case Routes.exchange:
         return MaterialPageRoute<void>(
@@ -487,22 +517,24 @@ class Router {
 
       case Routes.exchangeTemplate:
         return MaterialPageRoute<void>(
-            builder: (_) => Provider(create: (_) {
-              final xmrtoprovider = XMRTOExchangeProvider();
+            builder: (_) => Provider(
+                  create: (_) {
+                    final xmrtoprovider = XMRTOExchangeProvider();
 
-              return ExchangeStore(
-                  initialProvider: xmrtoprovider,
-                  initialDepositCurrency: CryptoCurrency.xmr,
-                  initialReceiveCurrency: CryptoCurrency.btc,
-                  trades: trades,
-                  providerList: [
-                    xmrtoprovider,
-                    ChangeNowExchangeProvider(),
-                    MorphTokenExchangeProvider(trades: trades)
-                  ],
-                  walletStore: walletStore);
-            }, child: ExchangeTemplatePage(),)
-        );
+                    return ExchangeStore(
+                        initialProvider: xmrtoprovider,
+                        initialDepositCurrency: CryptoCurrency.xmr,
+                        initialReceiveCurrency: CryptoCurrency.btc,
+                        trades: trades,
+                        providerList: [
+                          xmrtoprovider,
+                          ChangeNowExchangeProvider(),
+                          MorphTokenExchangeProvider(trades: trades)
+                        ],
+                        walletStore: walletStore);
+                  },
+                  child: ExchangeTemplatePage(),
+                ));
 
       case Routes.settings:
         return MaterialPageRoute<void>(

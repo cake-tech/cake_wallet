@@ -4,7 +4,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/monero/get_height_by_date.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
-  BlockchainHeightWidget({GlobalKey key}) : super(key: key);
+  BlockchainHeightWidget({GlobalKey key, this.onHeightChange})
+      : super(key: key);
+
+  final Function(int) onHeightChange;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -13,15 +16,23 @@ class BlockchainHeightWidget extends StatefulWidget {
 class BlockchainHeightState extends State<BlockchainHeightWidget> {
   final dateController = TextEditingController();
   final restoreHeightController = TextEditingController();
+
   int get height => _height;
   int _height = 0;
 
   @override
   void initState() {
-    restoreHeightController.addListener(() => _height =
-        restoreHeightController.text != null
+    restoreHeightController.addListener(() {
+      try {
+        _changeHeight(restoreHeightController.text != null &&
+                restoreHeightController.text.isNotEmpty
             ? int.parse(restoreHeightController.text)
             : 0);
+      } catch (_) {
+        _changeHeight(0);
+      }
+    });
+
     super.initState();
   }
 
@@ -38,21 +49,18 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               child: TextFormField(
                 style: TextStyle(
                     fontSize: 16.0,
-                    color: Theme.of(context).primaryTextTheme.title.color
-                ),
+                    color: Theme.of(context).primaryTextTheme.title.color),
                 controller: restoreHeightController,
                 keyboardType: TextInputType.numberWithOptions(
                     signed: false, decimal: false),
                 decoration: InputDecoration(
                     hintStyle: TextStyle(
                         color: Theme.of(context).primaryTextTheme.caption.color,
-                        fontSize: 16
-                    ),
+                        fontSize: 16),
                     hintText: S.of(context).widgets_restore_from_blockheight,
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 1.0)),
+                            color: Theme.of(context).dividerColor, width: 1.0)),
                     enabledBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
                             color: Theme.of(context).dividerColor,
@@ -81,13 +89,14 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                   child: TextFormField(
                     style: TextStyle(
                         fontSize: 16.0,
-                        color: Theme.of(context).primaryTextTheme.title.color
-                    ),
+                        color: Theme.of(context).primaryTextTheme.title.color),
                     decoration: InputDecoration(
                         hintStyle: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.caption.color,
-                            fontSize: 16
-                        ),
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .caption
+                                .color,
+                            fontSize: 16),
                         hintText: S.of(context).widgets_restore_from_date,
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
@@ -113,7 +122,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
   Future _selectDate(BuildContext context) async {
     final now = DateTime.now();
-    final DateTime date = await showDatePicker(
+    final date = await showDatePicker(
         context: context,
         initialDate: now.subtract(Duration(days: 1)),
         firstDate: DateTime(2014, DateTime.april),
@@ -125,8 +134,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
         restoreHeightController.text = '$height';
-        _height = height;
+        _changeHeight(height);
       });
     }
+  }
+
+  void _changeHeight(int height) {
+    _height = height;
+    widget.onHeightChange?.call(height);
   }
 }

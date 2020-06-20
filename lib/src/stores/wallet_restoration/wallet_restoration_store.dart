@@ -2,7 +2,7 @@ import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/src/domain/services/wallet_list_service.dart';
-import 'package:cake_wallet/src/domain/common/mnemotic_item.dart';
+import 'package:cake_wallet/src/domain/common/mnemonic_item.dart';
 import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_state.dart';
 import 'package:cake_wallet/src/stores/authentication/authentication_store.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
@@ -37,7 +37,7 @@ abstract class WalleRestorationStoreBase with Store {
   bool isValid;
 
   @observable
-  List<MnemoticItem> seed;
+  List<MnemonicItem> seed;
 
   @observable
   bool disabledState;
@@ -79,35 +79,35 @@ abstract class WalleRestorationStoreBase with Store {
   }
 
   @action
-  void setSeed(List<MnemoticItem> seed) {
+  void setSeed(List<MnemonicItem> seed) {
     this.seed = seed;
   }
 
-  @action
-  void validateSeed(List<MnemoticItem> seed) {
-    final _seed = seed != null ? seed : this.seed;
-    bool isValid = _seed != null ? _seed.length == 25 : false;
-
-    if (!isValid) {
-      errorMessage = S.current.wallet_restoration_store_incorrect_seed_length;
-      this.isValid = isValid;
-      return;
-    }
-
-    for (final item in _seed) {
-      if (!item.isCorrect()) {
-        isValid = false;
-        break;
-      }
-    }
-
-    if (isValid) {
-      errorMessage = null;
-    }
-
-    this.isValid = isValid;
-    return;
-  }
+//  @action
+//  void validateSeed(List<MnemonicItem> seed) {
+//    final _seed = seed != null ? seed : this.seed;
+//    bool isValid = _seed != null ? _seed.length == 25 : false;
+//
+//    if (!isValid) {
+//      errorMessage = S.current.wallet_restoration_store_incorrect_seed_length;
+//      this.isValid = isValid;
+//      return;
+//    }
+//
+//    for (final item in _seed) {
+//      if (!item.isCorrect()) {
+//        isValid = false;
+//        break;
+//      }
+//    }
+//
+//    if (isValid) {
+//      errorMessage = null;
+//    }
+//
+//    this.isValid = isValid;
+//    return;
+//  }
 
   String _seedText() {
     return seed.fold('', (acc, item) => acc + ' ' + item.toString());

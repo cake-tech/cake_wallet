@@ -35,10 +35,10 @@ void setReactions(
       settingsStore: settingsStore,
       priceStore: priceStore);
   autorun((_) async {
-    if (authenticationStore.state == AuthenticationState.allowed) {
-      await loginStore.loadCurrentWallet();
-      authenticationStore.state = AuthenticationState.readyToLogin;
-    }
+//    if (authenticationStore.state == AuthenticationState.allowed) {
+//      await loginStore.loadCurrentWallet();
+//      authenticationStore.state = AuthenticationState.readyToLogin;
+//    }
   });
 }
 

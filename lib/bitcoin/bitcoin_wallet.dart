@@ -1,251 +1,184 @@
-import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
-import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_balance.dart';
-import 'package:cake_wallet/src/domain/common/sync_status.dart';
-import 'package:flutter/foundation.dart';
-import 'package:rxdart/rxdart.dart';
+import 'dart:convert';
+import 'package:mobx/mobx.dart';
 import 'package:bip39/bip39.dart' as bip39;
+import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_history.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
 import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/electrum.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_history.dart';
-import 'package:cake_wallet/src/domain/common/pathForWallet.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_balance.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
-import 'package:cake_wallet/src/domain/common/pending_transaction.dart';
-import 'package:cake_wallet/src/domain/common/transaction_creation_credentials.dart';
-import 'package:cake_wallet/src/domain/common/transaction_history.dart';
-import 'package:cake_wallet/src/domain/common/wallet.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 
-class BitcoinWallet extends Wallet {
-  BitcoinWallet(
-      {@required this.hdwallet,
-      @required this.eclient,
-      @required this.path,
-      @required String password,
-      int accountIndex = 0,
-      this.mnemonic})
-      : _accountIndex = accountIndex,
-        _password = password,
-        _syncStatus = BehaviorSubject<SyncStatus>(),
-        _onBalanceChange = BehaviorSubject<BitcoinBalance>(),
-        _onAddressChange = BehaviorSubject<String>(),
-        _onNameChange = BehaviorSubject<String>();
+part 'bitcoin_wallet.g.dart';
 
-  @override
-  Observable<BitcoinBalance> get onBalanceChange => _onBalanceChange.stream;
+/* TODO: Save balance to a wallet file.
+  Load balance from the wallet file in `init` method.
+*/
 
-  @override
-  Observable<SyncStatus> get syncStatus => _syncStatus.stream;
+class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
-  @override
-  String get name => path.split('/').last ?? '';
-  @override
-  String get address => hdwallet.address;
-  String get xpub => hdwallet.base58;
-
-  final String path;
-  final bitcoin.HDWallet hdwallet;
-  final ElectrumClient eclient;
-  final String mnemonic;
-  BitcoinTransactionHistory history;
-
-  final BehaviorSubject<SyncStatus> _syncStatus;
-  final BehaviorSubject<BitcoinBalance> _onBalanceChange;
-  final BehaviorSubject<String> _onAddressChange;
-  final BehaviorSubject<String> _onNameChange;
-  BehaviorSubject<Object> _addressUpdatesSubject;
-  StreamSubscription<Object> _addressUpdatesSubscription;
-  final String _password;
-  int _accountIndex;
-
-  static Future<BitcoinWallet> load(
-      {@required String name, @required String password}) async {
-    final walletDirPath =
-        await pathForWalletDir(name: name, type: WalletType.bitcoin);
-    final walletPath = '$walletDirPath/$name';
-    final walletJSONRaw = await read(path: walletPath, password: password);
-    final jsoned = json.decode(walletJSONRaw) as Map<String, Object>;
-    final mnemonic = jsoned['mnemonic'] as String;
+abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
+  static BitcoinWallet fromJSON(
+      {@required String password,
+      @required String name,
+      @required String dirPath,
+      String jsonSource}) {
+    final data = json.decode(jsonSource) as Map;
+    final mnemonic = data['mnemonic'] as String;
     final accountIndex =
-        (jsoned['account_index'] == "null" || jsoned['account_index'] == null)
+        (data['account_index'] == "null" || data['account_index'] == null)
             ? 0
-            : int.parse(jsoned['account_index'] as String);
+            : int.parse(data['account_index'] as String);
+    final _addresses = data['addresses'] as List;
+    final addresses = <BitcoinAddressRecord>[];
+    final balance = BitcoinBalance.fromJSON(data['balance'] as String) ??
+        BitcoinBalance(confirmed: 0, unconfirmed: 0);
 
-    return await build(
+    _addresses?.forEach((Object el) {
+      if (el is String) {
+        addresses.add(BitcoinAddressRecord.fromJSON(el));
+      }
+    });
+
+    return BitcoinWalletBase.build(
+        dirPath: dirPath,
         mnemonic: mnemonic,
         password: password,
         name: name,
-        accountIndex: accountIndex);
+        accountIndex: accountIndex,
+        initialAddresses: addresses,
+        initialBalance: balance);
   }
 
-  static Future<BitcoinWallet> build(
+  static BitcoinWallet build(
       {@required String mnemonic,
       @required String password,
       @required String name,
-      int accountIndex = 0}) async {
-    final hd = bitcoin.HDWallet.fromSeed(bip39.mnemonicToSeed(mnemonic),
-        network: bitcoin.bitcoin);
-    final walletDirPath =
-        await pathForWalletDir(name: name, type: WalletType.bitcoin);
-    final walletPath = '$walletDirPath/$name';
-    final historyPath = '$walletDirPath/transactions.json';
+      @required String dirPath,
+      List<BitcoinAddressRecord> initialAddresses,
+      BitcoinBalance initialBalance,
+      int accountIndex = 0}) {
+    final walletPath = '$dirPath/$name';
     final eclient = ElectrumClient();
-    final wallet = BitcoinWallet(
-        hdwallet: hd,
+    final history = BitcoinTransactionHistory(
+        eclient: eclient, dirPath: dirPath, password: password);
+
+    return BitcoinWallet._internal(
         eclient: eclient,
         path: walletPath,
+        name: name,
         mnemonic: mnemonic,
         password: password,
-        accountIndex: accountIndex);
-    final history = BitcoinTransactionHistory(
-        eclient: eclient,
-        path: historyPath,
-        password: password,
-        wallet: wallet);
-    wallet.history = history;
-    await history.init();
-    await wallet.updateInfo();
-
-    return wallet;
+        accountIndex: accountIndex,
+        initialAddresses: initialAddresses,
+        initialBalance: initialBalance,
+        transactionHistory: history);
   }
 
-  List<String> getAddresses() => _accountIndex == 0
-      ? [address]
-      : List<String>.generate(
-          _accountIndex, (i) => _getAddress(hd: hdwallet, index: i));
+  BitcoinWalletBase._internal(
+      {@required this.eclient,
+      @required this.path,
+      @required String password,
+      @required this.name,
+      List<BitcoinAddressRecord> initialAddresses,
+      int accountIndex = 0,
+      this.transactionHistory,
+      this.mnemonic,
+      BitcoinBalance initialBalance}) {
+    balance = initialBalance ?? BitcoinBalance(confirmed: 0, unconfirmed: 0);
+    hd = bitcoin.HDWallet.fromSeed(bip39.mnemonicToSeed(mnemonic),
+        network: bitcoin.bitcoin);
+    addresses = initialAddresses != null
+        ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
+        : ObservableList<BitcoinAddressRecord>();
 
-  Future<String> newAddress() async {
+    if (addresses.isEmpty) {
+      addresses.add(BitcoinAddressRecord(hd.address));
+    }
+
+    address = addresses.first.address;
+
+    _password = password;
+    _accountIndex = accountIndex;
+  }
+
+  @override
+  final BitcoinTransactionHistory transactionHistory;
+  final String path;
+  bitcoin.HDWallet hd;
+  final ElectrumClient eclient;
+  final String mnemonic;
+  int _accountIndex;
+  String _password;
+
+  @override
+  String name;
+
+  @override
+  @observable
+  String address;
+
+  @override
+  @observable
+  BitcoinBalance balance;
+
+  @override
+  final type = WalletType.bitcoin;
+
+  ObservableList<BitcoinAddressRecord> addresses;
+
+  String get xpub => hd.base58;
+
+  Future<void> init() async {
+    await transactionHistory.init();
+  }
+
+  Future<BitcoinAddressRecord> generateNewAddress({String label}) async {
     _accountIndex += 1;
-    final address = _getAddress(hd: hdwallet, index: _accountIndex);
+    final address = BitcoinAddressRecord(
+        _getAddress(hd: hd, index: _accountIndex),
+        label: label);
+    addresses.add(address);
+
     await save();
 
     return address;
   }
 
-  @override
-  Future close() async {
-    await _addressUpdatesSubscription?.cancel();
-  }
-
-  @override
-  Future connectToNode(
-      {Node node, bool useSSL = false, bool isLightWallet = false}) async {
-    try {
-      // FIXME: Hardcoded server address
-      // final uri = Uri.parse(node.uri);
-      // https://electrum2.hodlister.co:50002
-      await eclient.connect(host: 'electrum2.hodlister.co', port: 50002);
-      _syncStatus.value = ConnectedSyncStatus();
-    } catch (e) {
-      print(e.toString());
-      _syncStatus.value = FailedSyncStatus();
+  Future<void> updateAddress(String address, {String label}) async {
+    for (final addr in addresses) {
+      if (addr.address == address) {
+        addr.label = label;
+        await save();
+        break;
+      }
     }
   }
 
   @override
-  Future<PendingTransaction> createTransaction(
-      TransactionCreationCredentials credentials) async {
-    final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
-    final transactions = history.transactionsAll;
-    history.transactionsAll.sort((q, w) => q.height.compareTo(w.height));
-    final prevTx = transactions.first;
-
-    txb.setVersion(1);
-    txb.addInput(prevTx, 0);
-    txb.addOutput('address', 112);
-    txb.sign(vin: null, keyPair: null);
-    
-    final hex = txb.build().toHex();
-
-    // broadcast transaction to electrum
-    return null;
-  }
+  Future<void> startSync() async {}
 
   @override
-  Future<String> getAddress() async => address;
+  Future<void> connectToNode({@required Node node}) async {}
 
   @override
-  Future<int> getCurrentHeight() async => 0;
+  Future<void> createTransaction(Object credentials) async {}
 
   @override
-  Future<String> getFilename() async => path.split('/').last ?? '';
+  Future<void> save() async =>
+      await write(path: path, password: _password, data: toJSON());
 
-  @override
-  Future<String> getFullBalance() async =>
-      bitcoinAmountToString(amount: _onBalanceChange.value.total);
-
-  @override
-  TransactionHistory getHistory() => history;
-
-  @override
-  Future<Map<String, String>> getKeys() async =>
-      {'publicKey': hdwallet.pubKey, 'privateKey': hdwallet.privKey};
-
-  @override
-  Future<String> getName() async => path.split('/').last ?? '';
-
-  @override
-  Future<int> getNodeHeight() async => 0;
-
-  @override
-  Future<String> getSeed() async => mnemonic;
-
-  @override
-  WalletType getType() => WalletType.bitcoin;
-
-  @override
-  Future<String> getUnlockedBalance() async =>
-      bitcoinAmountToString(amount: _onBalanceChange.value.total);
-
-  @override
-  Future<bool> isConnected() async => eclient.isConnected;
-
-  @override
-  Observable<String> get onAddressChange => _onAddressChange.stream;
-
-  @override
-  Observable<String> get onNameChange => _onNameChange.stream;
-
-  @override
-  Future rescan({int restoreHeight = 0}) {
-    // TODO: implement rescan
-    return null;
-  }
-
-  @override
-  Future startSync() async {
-    _addressUpdatesSubject = eclient.addressUpdate(address: address);
-    _addressUpdatesSubscription =
-        _addressUpdatesSubject.listen((obj) => print('new obj: $obj'));
-    _onBalanceChange.value = await fetchBalance();
-    getHistory().update();
-  }
-
-  @override
-  Future updateInfo() async {
-    _onNameChange.value = await getName();
-    // _addressUpdatesSubject = eclient.addressUpdate(address: address);
-    // _addressUpdatesSubscription =
-    //     _addressUpdatesSubject.listen((obj) => print('new obj: $obj'));
-    _onBalanceChange.value = BitcoinBalance(confirmed: 0, unconfirmed: 0);
-    print(await getKeys());
-  }
-
-  Future<BitcoinBalance> fetchBalance() async {
-    final balance = await _fetchBalances();
-
-    return BitcoinBalance(
-        confirmed: balance['confirmed'], unconfirmed: balance['unconfirmed']);
-  }
-
-  Future<void> save() async => await write(
-      path: path,
-      password: _password,
-      obj: {'mnemonic': mnemonic, 'account_index': _accountIndex.toString()});
+  String toJSON() => json.encode({
+        'mnemonic': mnemonic,
+        'account_index': _accountIndex.toString(),
+        'addresses': addresses.map((addr) => addr.toJSON()).toList(),
+        'balance': balance?.toJSON()
+      });
 
   String _getAddress({bitcoin.HDWallet hd, int index}) => bitcoin
       .P2PKH(
@@ -256,9 +189,8 @@ class BitcoinWallet extends Wallet {
 
   Future<Map<String, int>> _fetchBalances() async {
     final balances = await Future.wait(
-        getAddresses().map((address) => eclient.getBalance(address: address)));
-    final balance =
-        balances.fold(Map<String, int>(), (Map<String, int> acc, val) {
+        addresses.map((record) => eclient.getBalance(address: record.address)));
+    final balance = balances.fold(<String, int>{}, (Map<String, int> acc, val) {
       acc['confirmed'] =
           (val['confirmed'] as int ?? 0) + (acc['confirmed'] ?? 0);
       acc['unconfirmed'] =
