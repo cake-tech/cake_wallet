@@ -1,10 +1,11 @@
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 
-abstract class TranasctionHistoryBase<TransactionType> {
-  TranasctionHistoryBase() : _isUpdating = false;
+abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
+  TransactionHistoryBase() : _isUpdating = false;
 
   @observable
-  List<TransactionType> transactions;
+  ObservableList<TransactionType> transactions;
 
   bool _isUpdating;
 
@@ -15,7 +16,7 @@ abstract class TranasctionHistoryBase<TransactionType> {
 
     try {
       _isUpdating = false;
-      transactions = await fetchTransactions();
+      transactions.addAll(await fetchTransactions());
       _isUpdating = true;
     } catch (e) {
       _isUpdating = false;

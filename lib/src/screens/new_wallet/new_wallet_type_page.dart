@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -8,14 +9,23 @@ import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/routes.dart';
 
 class NewWalletTypePage extends BasePage {
+  NewWalletTypePage({this.onTypeSelected});
+
+  final void Function(BuildContext, WalletType) onTypeSelected;
+
   @override
   String get title => S.current.new_wallet;
 
   @override
-  Widget body(BuildContext context) => WalletTypeForm();
+  Widget body(BuildContext context) =>
+      WalletTypeForm(onTypeSelected: onTypeSelected);
 }
 
 class WalletTypeForm extends StatefulWidget {
+  WalletTypeForm({this.onTypeSelected});
+
+  final void Function(BuildContext, WalletType) onTypeSelected;
+
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
 }
@@ -23,35 +33,19 @@ class WalletTypeForm extends StatefulWidget {
 class WalletTypeFormState extends State<WalletTypeForm> {
   static const aspectRatioImage = 1.22;
 
-  final moneroIcon = Image.asset('assets/images/monero.png', height: 24, width: 24);
-  final bitcoinIcon = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final moneroIcon =
+      Image.asset('assets/images/monero.png', height: 24, width: 24);
+  final bitcoinIcon =
+      Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
 
-  bool isDisabledButton;
-  bool isMoneroSelected;
-  bool isBitcoinSelected;
-
-  Color moneroBackgroundColor = Colors.transparent;
-  Color moneroTextColor = Colors.transparent;
-  Color bitcoinBackgroundColor = Colors.transparent;
-  Color bitcoinTextColor = Colors.transparent;
+  WalletType selected;
+  List<WalletType> types;
 
   @override
   void initState() {
-    isDisabledButton = true;
-    isMoneroSelected = false;
-    isBitcoinSelected = false;
-
+    types = [WalletType.bitcoin, WalletType.monero];
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(afterLayout);
-  }
-
-  void afterLayout(dynamic _) {
-    moneroBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
-    moneroTextColor = Theme.of(context).primaryTextTheme.title.color;
-    bitcoinBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
-    bitcoinTextColor = Theme.of(context).primaryTextTheme.title.color;
-    setState(() {});
   }
 
   @override
@@ -75,71 +69,52 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 S.of(context).choose_wallet_currency,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).primaryTextTheme.title.color
-                ),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).primaryTextTheme.title.color),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 24),
-              child: SelectButton(
-                image: bitcoinIcon,
-                text: 'Bitcoin',
-                color: bitcoinBackgroundColor,
-                textColor: bitcoinTextColor,
-                onTap: () {}),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 20),
-              child: SelectButton(
-                image: moneroIcon,
-                text: 'Monero',
-                color: moneroBackgroundColor,
-                textColor: moneroTextColor,
-                onTap: () => onSelectMoneroButton(context)),
-            )
+            ...types.map((type) => Padding(
+                  padding: EdgeInsets.only(top: 24),
+                  child: SelectButton(
+                      image: _iconFor(type),
+                      text: walletTypeToString(type),
+                      color: _backgroundColorFor(selected == type),
+                      textColor: _textColorFor(selected == type),
+                      onTap: () => setState(() => selected = type)),
+                ))
           ],
         ),
-        bottomSectionPadding: EdgeInsets.only(
-          left: 24,
-          right: 24,
-          bottom: 24
-        ),
+        bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         bottomSection: PrimaryButton(
-          onPressed: () => Navigator.of(context).pushNamed(Routes.newWallet),
+          onPressed: () => widget.onTypeSelected(context, selected),
           text: S.of(context).seed_language_next,
           color: Colors.green,
           textColor: Colors.white,
-          isDisabled: isDisabledButton,
+          isDisabled: selected == null,
         ),
       ),
     );
   }
 
-  void onSelectMoneroButton(BuildContext context) {
-    isMoneroSelected = true;
-    isBitcoinSelected = false;
-    isDisabledButton = false;
+  // FIXME: Move color selection inside ui element; add isSelected to buttons.
 
-    moneroBackgroundColor = Theme.of(context).accentTextTheme.title.decorationColor;
-    moneroTextColor = Theme.of(context).primaryTextTheme.title.backgroundColor;
-    bitcoinBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
-    bitcoinTextColor = Theme.of(context).primaryTextTheme.title.color;
+  Color _backgroundColorFor(bool isSelected) => isSelected
+      ? Theme.of(context).accentTextTheme.title.decorationColor
+      : Theme.of(context).accentTextTheme.title.backgroundColor;
 
-    setState(() {});
-  }
+  Color _textColorFor(bool isSelected) => isSelected
+      ? Theme.of(context).primaryTextTheme.title.backgroundColor
+      : Theme.of(context).primaryTextTheme.title.color;
 
-  void onSelectBitcoinButton(BuildContext context) {
-    isMoneroSelected = false;
-    isBitcoinSelected = true;
-    isDisabledButton = false;
-
-    moneroBackgroundColor = Theme.of(context).accentTextTheme.title.backgroundColor;
-    moneroTextColor = Theme.of(context).primaryTextTheme.title.color;
-    bitcoinBackgroundColor = moneroBackgroundColor = Theme.of(context).accentTextTheme.title.decorationColor;
-    bitcoinTextColor = Theme.of(context).primaryTextTheme.title.backgroundColor;
-
-    setState(() {});
+  Image _iconFor(WalletType type) {
+    switch (type) {
+      case WalletType.monero:
+        return moneroIcon;
+      case WalletType.bitcoin:
+        return bitcoinIcon;
+      default:
+        return null;
+    }
   }
 }

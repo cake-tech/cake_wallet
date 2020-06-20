@@ -14,15 +14,16 @@ Widget createLoginPage(
         @required WalletService walletService,
         @required WalletListService walletListService,
         @required AuthenticationStore authenticationStore}) =>
-    Provider(
-        create: (_) => AuthStore(
-            sharedPreferences: sharedPreferences,
-            userService: userService,
-            walletService: walletService),
-        child: AuthPage(
-            onAuthenticationFinished: (isAuthenticated, state) {
-              if (isAuthenticated) {
-                authenticationStore.loggedIn();
-              }
-            },
-            closable: false));
+    null;
+//    Provider(
+//        create: (_) => AuthStore(
+//            sharedPreferences: sharedPreferences,
+//            userService: userService,
+//            walletService: walletService),
+//        child: AuthPage(
+//            onAuthenticationFinished: (isAuthenticated, state) {
+//              if (isAuthenticated) {
+//                authenticationStore.loggedIn();
+//              }
+//            },
+//            closable: false));

@@ -1,7 +1,13 @@
-import 'package:cake_wallet/core/app_service.dart';
+import 'package:cake_wallet/reactions/bootstrap.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
+import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -27,7 +33,8 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/stores/send_template/send_template_store.dart';
 import 'package:cake_wallet/src/stores/exchange_template/exchange_template_store.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
-import 'package:cake_wallet/src/stores/authentication/authentication_store.dart';
+
+//import 'package:cake_wallet/src/stores/authentication/authentication_store.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/src/domain/services/user_service.dart';
@@ -46,6 +53,8 @@ import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  setup();
 
   final appDir = await getApplicationDocumentsDirectory();
   Hive.init(appDir.path);
@@ -87,13 +96,13 @@ void main() async {
       sharedPreferences: sharedPreferences);
   final userService = UserService(
       sharedPreferences: sharedPreferences, secureStorage: secureStorage);
-  final authenticationStore = AuthenticationStore(userService: userService);
+//  final authenticationStore = AuthenticationStore(userService: userService);
 
   await initialSetup(
       sharedPreferences: sharedPreferences,
       walletListService: walletListService,
       nodes: nodes,
-      authStore: authenticationStore,
+//      authStore: authenticationStore,
       initialMigrationVersion: 2);
 
   final settingsStore = await SettingsStoreBase.load(
@@ -119,8 +128,7 @@ void main() async {
 
   final walletCreationService = WalletCreationService();
   final authService = AuthService();
-  final appStore = AppService(
-      walletCreationService: walletCreationService, authService: authService);
+
 
   setReactions(
       settingsStore: settingsStore,
@@ -128,7 +136,7 @@ void main() async {
       syncStore: syncStore,
       walletStore: walletStore,
       walletService: walletService,
-      authenticationStore: authenticationStore,
+//      authenticationStore: authenticationStore,
       loginStore: loginStore);
 
   runApp(MultiProvider(providers: [
@@ -141,7 +149,7 @@ void main() async {
     Provider(create: (_) => walletStore),
     Provider(create: (_) => syncStore),
     Provider(create: (_) => balanceStore),
-    Provider(create: (_) => authenticationStore),
+//    Provider(create: (_) => authenticationStore),
     Provider(create: (_) => contacts),
     Provider(create: (_) => nodes),
     Provider(create: (_) => transactionDescriptions),
@@ -149,7 +157,7 @@ void main() async {
     Provider(create: (_) => seedLanguageStore),
     Provider(create: (_) => sendTemplateStore),
     Provider(create: (_) => exchangeTemplateStore),
-    Provider(create: (_) => appStore),
+//    Provider(create: (_) => appStore),
     Provider(create: (_) => walletCreationService),
     Provider(create: (_) => authService)
   ], child: CakeWalletApp()));
@@ -159,7 +167,7 @@ Future<void> initialSetup(
     {WalletListService walletListService,
     SharedPreferences sharedPreferences,
     Box<Node> nodes,
-    AuthenticationStore authStore,
+//    AuthenticationStore authStore,
     int initialMigrationVersion = 1,
     WalletType initialWalletType = WalletType.bitcoin}) async {
   await walletListService.changeWalletManger(walletType: initialWalletType);
@@ -167,7 +175,12 @@ Future<void> initialSetup(
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,
       nodes: nodes);
-  await authStore.started();
+//  await authStore.started();
+  await bootstrap();
+//  final authenticationStore = getIt.get<AuthenticationStore>();
+  // FIXME
+//  authenticationStore.state = AuthenticationState.denied;
+
   monero_wallet.onStartup();
 }
 
@@ -241,6 +254,8 @@ class MaterialAppWithTheme extends StatelessWidget {
             nodes: nodes,
             trades: trades,
             transactionDescriptions: transactionDescriptions),
-        home: Root());
+        home: Root(
+          authenticationStore: getIt.get<AuthenticationStore>(),
+        ));
   }
 }

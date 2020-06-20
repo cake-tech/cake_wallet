@@ -1,0 +1,16 @@
+import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/store/authentication_store.dart';
+
+part 'app_store.g.dart';
+
+class AppStore = AppStoreBase with _$AppStore;
+
+abstract class AppStoreBase with Store {
+  AppStoreBase({this.authenticationStore});
+
+  AuthenticationStore authenticationStore;
+
+  @observable
+  WalletBase wallet;
+}

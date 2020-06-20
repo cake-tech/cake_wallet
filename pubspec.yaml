@@ -58,6 +58,7 @@ dependencies:
   password: ^1.0.0
   basic_utils: ^1.0.8
   bitcoin_flutter: ^2.0.0
+  get_it: ^4.0.2
   
 dev_dependencies:
   flutter_test:

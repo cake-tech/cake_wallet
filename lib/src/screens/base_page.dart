@@ -10,11 +10,18 @@ enum AppBarStyle { regular, withShadow }
 
 abstract class BasePage extends StatelessWidget {
   String get title => null;
+
   bool get isModalBackButton => false;
+
   Color get backgroundLightColor => Colors.white;
+
   Color get backgroundDarkColor => PaletteDark.darkNightBlue;
+
   bool get resizeToAvoidBottomPadding => true;
+
   AppBarStyle get appBarStyle => AppBarStyle.regular;
+
+  Widget Function(BuildContext, Widget) get rootWrapper => null;
 
   final _backArrowImage = Image.asset('assets/images/back_arrow.png');
   final _backArrowImageDarkTheme =
@@ -83,9 +90,8 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
-                ? backgroundDarkColor
-                : backgroundLightColor);
+            backgroundColor:
+                _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
 
       case AppBarStyle.withShadow:
         return NavBar.withShadow(
@@ -93,9 +99,8 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
-                ? backgroundDarkColor
-                : backgroundLightColor);
+            backgroundColor:
+                _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
 
       default:
         return NavBar(
@@ -103,9 +108,8 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor: _isDarkTheme
-                ? backgroundDarkColor
-                : backgroundLightColor);
+            backgroundColor:
+                _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
     }
   }
 
@@ -116,13 +120,14 @@ abstract class BasePage extends StatelessWidget {
     final _themeChanger = Provider.of<ThemeChanger>(context);
     final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
 
-    return Scaffold(
-        backgroundColor: _isDarkTheme
-            ? backgroundDarkColor
-            : backgroundLightColor,
+    final root = Scaffold(
+        backgroundColor:
+            _isDarkTheme ? backgroundDarkColor : backgroundLightColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
         appBar: appBar(context),
         body: SafeArea(child: body(context)),
         floatingActionButton: floatingActionButton(context));
+
+    return rootWrapper?.call(context, root) ?? root;
   }
 }

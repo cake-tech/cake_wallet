@@ -1,21 +1,20 @@
-import 'package:cake_wallet/core/monero_wallet.dart';
+import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/core/wallet_credentials.dart';
-import 'package:cake_wallet/core/wallet_list_service.dart';
+import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/src/domain/common/pathForWallet.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cw_monero/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/wallet.dart' as monero_wallet;
 
 class MoneroNewWalletCredentials extends WalletCredentials {
-  const MoneroNewWalletCredentials(
-      {String name, String password, this.language})
+  MoneroNewWalletCredentials({String name, String password, this.language})
       : super(name: name, password: password);
 
   final String language;
 }
 
 class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
-  const MoneroRestoreWalletFromSeedCredentials(
+  MoneroRestoreWalletFromSeedCredentials(
       {String name, String password, this.mnemonic, this.height})
       : super(name: name, password: password);
 
@@ -24,7 +23,7 @@ class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
 }
 
 class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
-  const MoneroRestoreWalletFromKeysCredentials(
+  MoneroRestoreWalletFromKeysCredentials(
       {String name,
       String password,
       this.language,
@@ -41,12 +40,12 @@ class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   final int height;
 }
 
-class MoneroWalletListService extends WalletListService<
+class MoneroWalletService extends WalletService<
     MoneroNewWalletCredentials,
     MoneroRestoreWalletFromSeedCredentials,
     MoneroRestoreWalletFromKeysCredentials> {
   @override
-  Future<void> create(MoneroNewWalletCredentials credentials) async {
+  Future<MoneroWallet> create(MoneroNewWalletCredentials credentials) async {
     try {
       final path =
           await pathForWallet(name: credentials.name, type: WalletType.monero);
@@ -56,7 +55,10 @@ class MoneroWalletListService extends WalletListService<
           password: credentials.password,
           language: credentials.language);
 
-      return MoneroWallet(filename: monero_wallet.getFilename())..init();
+      final wallet = MoneroWallet(filename: monero_wallet.getFilename());
+      await wallet.init();
+
+      return wallet;
     } catch (e) {
       // TODO: Implement Exception fop wallet list service.
       print('MoneroWalletsManager Error: $e');
@@ -77,7 +79,7 @@ class MoneroWalletListService extends WalletListService<
   }
 
   @override
-  Future<void> openWallet(String name, String password) async {
+  Future<MoneroWallet> openWallet(String name, String password) async {
     try {
       final path = await pathForWallet(name: name, type: WalletType.monero);
       monero_wallet_manager.openWallet(path: path, password: password);
@@ -86,7 +88,10 @@ class MoneroWalletListService extends WalletListService<
 //      final walletInfo = walletInfoSource.values
 //          .firstWhere((info) => info.id == id, orElse: () => null);
 
-      return MoneroWallet(filename: monero_wallet.getFilename())..init();
+      final wallet = MoneroWallet(filename: monero_wallet.getFilename());
+      await wallet.init();
+
+      return wallet;
     } catch (e) {
       // TODO: Implement Exception fop wallet list service.
       print('MoneroWalletsManager Error: $e');
@@ -100,7 +105,7 @@ class MoneroWalletListService extends WalletListService<
   }
 
   @override
-  Future<void> restoreFromKeys(
+  Future<MoneroWallet> restoreFromKeys(
       MoneroRestoreWalletFromKeysCredentials credentials) async {
     try {
       final path =
@@ -115,7 +120,10 @@ class MoneroWalletListService extends WalletListService<
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
 
-      return MoneroWallet(filename: monero_wallet.getFilename())..init();
+      final wallet = MoneroWallet(filename: monero_wallet.getFilename());
+      await wallet.init();
+
+      return wallet;
     } catch (e) {
       // TODO: Implement Exception fop wallet list service.
       print('MoneroWalletsManager Error: $e');
@@ -124,7 +132,7 @@ class MoneroWalletListService extends WalletListService<
   }
 
   @override
-  Future<void> restoreFromSeed(
+  Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials) async {
     try {
       final path =
@@ -136,7 +144,10 @@ class MoneroWalletListService extends WalletListService<
           seed: credentials.mnemonic,
           restoreHeight: credentials.height);
 
-      return MoneroWallet(filename: monero_wallet.getFilename())..init();
+      final wallet = MoneroWallet(filename: monero_wallet.getFilename());
+      await wallet.init();
+
+      return wallet;
     } catch (e) {
       // TODO: Implement Exception fop wallet list service.
       print('MoneroWalletsManager Error: $e');

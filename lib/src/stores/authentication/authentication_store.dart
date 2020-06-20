@@ -30,8 +30,8 @@ abstract class AuthenticationStoreBase with Store {
   @observable
   AuthenticationState state;
 
-  @observable
-  String errorMessage;
+//  @observable
+//  String errorMessage;
 
   Future started() async {
     final canAuth = await userService.canAuthenticate();
