@@ -26,26 +26,18 @@ abstract class BitcoinTransactionHistoryBase
         _password = password,
         _height = 0;
 
-  BitcoinWallet wallet;
+  BitcoinWalletBase wallet;
   final ElectrumClient eclient;
   final String path;
   final String _password;
   int _height;
 
   Future<void> init() async {
-    // TODO: throw exeption if wallet is null;
     final info = await _read();
-    _height = (info['height'] as int) ?? _height;
-    // FIXME: remove hardcoded value
-    transactions = ObservableList.of([
-      BitcoinTransactionInfo(
-          id: 'test',
-          height: 12,
-          amount: 12,
-          direction: TransactionDirection.incoming,
-          date: DateTime.now(),
-          isPending: false)
-    ]);
+    _height = info['height'] as int ?? _height;
+    transactions = ObservableList.of(
+        info['transactions'] as List<BitcoinTransactionInfo> ??
+            <BitcoinTransactionInfo>[]);
   }
 
   @override
@@ -119,7 +111,7 @@ abstract class BitcoinTransactionHistoryBase
 
       return {'transactions': transactions, 'height': height};
     } catch (_) {
-      return {'transactions': <TransactionInfo>[], 'height': 0};
+      return {'transactions': <BitcoinTransactionInfo>[], 'height': 0};
     }
   }
 

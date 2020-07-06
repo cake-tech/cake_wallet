@@ -54,8 +54,6 @@ import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  setup();
-
   final appDir = await getApplicationDocumentsDirectory();
   Hive.init(appDir.path);
   Hive.registerAdapter(ContactAdapter());
@@ -87,6 +85,13 @@ void main() async {
   final exchangeTemplates =
       await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
 
+  await initialSetup(
+      sharedPreferences: await SharedPreferences.getInstance(),
+      nodes: nodes,
+      walletInfoSource: walletInfoSource,
+      contactSource: contacts,
+      initialMigrationVersion: 3);
+
   final sharedPreferences = await SharedPreferences.getInstance();
   final walletService = WalletService();
   final walletListService = WalletListService(
@@ -96,15 +101,6 @@ void main() async {
       sharedPreferences: sharedPreferences);
   final userService = UserService(
       sharedPreferences: sharedPreferences, secureStorage: secureStorage);
-//  final authenticationStore = AuthenticationStore(userService: userService);
-
-  await initialSetup(
-      sharedPreferences: sharedPreferences,
-      walletListService: walletListService,
-      nodes: nodes,
-//      authStore: authenticationStore,
-      initialMigrationVersion: 2);
-
   final settingsStore = await SettingsStoreBase.load(
       nodes: nodes,
       sharedPreferences: sharedPreferences,
@@ -128,7 +124,6 @@ void main() async {
 
   final walletCreationService = WalletCreationService();
   final authService = AuthService();
-
 
   setReactions(
       settingsStore: settingsStore,
@@ -164,23 +159,20 @@ void main() async {
 }
 
 Future<void> initialSetup(
-    {WalletListService walletListService,
-    SharedPreferences sharedPreferences,
-    Box<Node> nodes,
-//    AuthenticationStore authStore,
-    int initialMigrationVersion = 1,
-    WalletType initialWalletType = WalletType.bitcoin}) async {
-  await walletListService.changeWalletManger(walletType: initialWalletType);
+    {@required SharedPreferences sharedPreferences,
+    @required Box<Node> nodes,
+    @required Box<WalletInfo> walletInfoSource,
+    @required Box<Contact> contactSource,
+      int initialMigrationVersion = 3}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,
       nodes: nodes);
-//  await authStore.started();
+  await setup(
+      walletInfoSource: walletInfoSource,
+      nodeSource: nodes,
+      contactSource: contactSource);
   await bootstrap();
-//  final authenticationStore = getIt.get<AuthenticationStore>();
-  // FIXME
-//  authenticationStore.state = AuthenticationState.denied;
-
   monero_wallet.onStartup();
 }
 
@@ -216,8 +208,6 @@ class MaterialAppWithTheme extends StatelessWidget {
     final syncStore = Provider.of<SyncStore>(context);
     final balanceStore = Provider.of<BalanceStore>(context);
     final theme = Provider.of<ThemeChanger>(context);
-    final statusBarColor =
-        settingsStore.isDarkTheme ? Colors.black : Colors.white;
     final currentLanguage = Provider.of<Language>(context);
     final contacts = Provider.of<Box<Contact>>(context);
     final nodes = Provider.of<Box<Node>>(context);
@@ -225,8 +215,17 @@ class MaterialAppWithTheme extends StatelessWidget {
     final transactionDescriptions =
         Provider.of<Box<TransactionDescription>>(context);
 
-    SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: statusBarColor));
+    final statusBarColor =
+        settingsStore.isDarkTheme ? Colors.black : Colors.white;
+    final statusBarBrightness =
+        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+    final statusBarIconBrightness =
+        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: statusBarColor,
+        statusBarBrightness: statusBarBrightness,
+        statusBarIconBrightness: statusBarIconBrightness));
 
     return MaterialApp(
         debugShowCheckedModeBanner: false,

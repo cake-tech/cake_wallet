@@ -1,62 +1,43 @@
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/screens/nodes/widgets/node_indicator.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class NodeListRow extends StatelessWidget {
-  NodeListRow({
-    @required this.title,
-    @required this.trailing,
-    @required this.color,
-    @required this.textColor,
-    @required this.onTap,
-    @required this.isDrawTop,
-    @required this.isDrawBottom});
+class NodeListRow extends StandardListRow {
+  NodeListRow(
+      {@required String title,
+      @required void Function(BuildContext context) onTap,
+      @required bool isSelected,
+      @required this.isAlive})
+      : super(title: title, onTap: onTap, isSelected: isSelected);
 
-  final String title;
-  final Widget trailing;
-  final Color color;
-  final Color textColor;
-  final VoidCallback onTap;
-  final bool isDrawTop;
-  final bool isDrawBottom;
+  final Future<bool> isAlive;
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        isDrawTop
-        ? Container(
-          width: double.infinity,
-          height: 1,
-          color: Theme.of(context).dividerColor,
-        )
-        : Offstage(),
-        Container(
-          width: double.infinity,
-          height: 56,
-          color: color,
-          child: ListTile(
-            contentPadding: EdgeInsets.only(
-              left: 24,
-              right: 24,
-            ),
-            title: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: textColor
-                ),
-                textAlign: TextAlign.left),
-            trailing: trailing,
-            onTap: onTap,
-          )
-        ),
-        isDrawBottom
-        ? Container(
-          width: double.infinity,
-          height: 1,
-          color: Theme.of(context).dividerColor,
-        )
-        : Offstage(),
-      ],
-    );
+  Widget buildTrailing(BuildContext context) {
+    return FutureBuilder(
+        future: isAlive,
+        builder: (context, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              return NodeIndicator(isLive: snapshot.data as bool);
+            default:
+              return NodeIndicator();
+          }
+        });
+  }
+}
+
+class NodeHeaderListRow extends StandardListRow {
+  NodeHeaderListRow({@required String title, @required void Function(BuildContext context) onTap})
+      : super(title: title, onTap: onTap, isSelected: false);
+
+  @override
+  Widget buildTrailing(BuildContext context) {
+    return Icon(Icons.add,
+        color: Theme.of(context).primaryTextTheme.title.color, size: 24.0);
   }
 }

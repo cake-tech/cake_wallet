@@ -374,5 +374,8 @@
   "openalias_alert_content" : "당신은에 자금을 보낼 것입니다\n${recipient_name}",
 
   "card_address" : "주소:",
-  "buy" : "구입"
+  "buy" : "구입",
+
+  "placeholder_transactions" : "거래가 여기에 표시됩니다",
+  "placeholder_contacts" : "연락처가 여기에 표시됩니다"
 }

@@ -22,6 +22,12 @@ class Contact extends HiveObject {
 
   CryptoCurrency get type => CryptoCurrency.deserialize(raw: raw);
 
+  @override
+  bool operator ==(Object o) => o is Contact && o.key == key;
+
+  @override
+  int get hashCode => key.hashCode;
+
   void updateCryptoCurrency({@required CryptoCurrency currency}) =>
       raw = currency.raw;
 }

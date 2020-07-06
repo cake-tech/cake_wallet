@@ -12,11 +12,16 @@ abstract class Validator<T> {
 
 class TextValidator extends Validator<String> {
   TextValidator(
-      {this.minLength, this.maxLength, this.pattern, String errorMessage})
+      {this.minLength,
+      this.maxLength,
+      this.pattern,
+      this.length,
+      String errorMessage})
       : super(errorMessage: errorMessage);
 
   final int minLength;
   final int maxLength;
+  final List<int> length;
   String pattern;
 
   @override
@@ -25,8 +30,9 @@ class TextValidator extends Validator<String> {
       return true;
     }
 
-    return value.length > minLength &&
-        (maxLength > 0 ? (value.length <= maxLength) : true) &&
+    return value.length > (minLength ?? 0) &&
+        (length?.contains(value.length) ?? true) &&
+        ((maxLength ?? 0) > 0 ? (value.length <= maxLength) : true) &&
         (pattern != null ? match(value) : true);
   }
 

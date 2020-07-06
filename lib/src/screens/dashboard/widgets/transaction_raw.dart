@@ -24,27 +24,19 @@ class TransactionRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: Theme.of(context).backgroundColor,
-            border: Border.all(
-                width: 1,
-                color: Theme.of(context).backgroundColor
-            ),
-          ),
-          padding: EdgeInsets.only(top: 5, bottom: 5, left: 20, right: 20),
+          height: 41,
+          color: Theme.of(context).backgroundColor,
+          padding: EdgeInsets.only(left: 20, right: 20),
           child: Row(children: <Widget>[
             Container(
               height: 36,
               width: 36,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).primaryTextTheme.display3.color
-              ),
-              child: Image.asset(
-                  direction == TransactionDirection.incoming
-                      ? 'assets/images/down_arrow.png'
-                      : 'assets/images/up_arrow.png'),
+                  shape: BoxShape.circle,
+                  color: Theme.of(context).primaryTextTheme.display3.color),
+              child: Image.asset(direction == TransactionDirection.incoming
+                  ? 'assets/images/down_arrow.png'
+                  : 'assets/images/up_arrow.png'),
             ),
             Expanded(
                 child: Padding(
@@ -62,28 +54,43 @@ class TransactionRow extends StatelessWidget {
                                 (isPending ? S.of(context).pending : ''),
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context).primaryTextTheme.title.color
-                                )),
-                        Text(direction == TransactionDirection.incoming
-                            ? formattedAmount
-                            : '- ' + formattedAmount,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .title
+                                    .color)),
+                        Text(
+                            direction == TransactionDirection.incoming
+                                ? formattedAmount
+                                : '- ' + formattedAmount,
                             style: TextStyle(
                                 fontSize: 16,
-                                color: Theme.of(context).primaryTextTheme.title.color
-                            ))
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .title
+                                    .color))
                       ]),
-                  SizedBox(height: 5,),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(formattedDate,
                             style: TextStyle(
-                                fontSize: 14, color: Theme.of(context).primaryTextTheme.headline.color)),
-                        Text(direction == TransactionDirection.incoming
-                            ? formattedFiatAmount
-                            : '- ' + formattedFiatAmount,
+                                fontSize: 14,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline
+                                    .color)),
+                        Text(
+                            direction == TransactionDirection.incoming
+                                ? formattedFiatAmount
+                                : '- ' + formattedFiatAmount,
                             style: TextStyle(
-                                fontSize: 14, color: Theme.of(context).primaryTextTheme.headline.color))
+                                fontSize: 14,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline
+                                    .color))
                       ]),
                 ],
               ),

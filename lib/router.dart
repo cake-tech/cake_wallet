@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,7 +56,7 @@ import 'package:cake_wallet/src/stores/price/price_store.dart';
 // MARK: Import screens
 
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/nodes/new_node_page.dart';
+import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
@@ -70,10 +71,10 @@ import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/disclaimer/disclaimer_page.dart';
 import 'package:cake_wallet/src/screens/seed_language/seed_language_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
-import 'package:cake_wallet/src/screens/accounts/account_page.dart';
-import 'package:cake_wallet/src/screens/address_book/address_book_page.dart';
-import 'package:cake_wallet/src/screens/address_book/contact_page.dart';
-import 'package:cake_wallet/src/screens/show_keys/show_keys_page.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
+import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/src/screens/contact/contact_page.dart';
+import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/subaddress_list_page.dart';
@@ -86,7 +87,6 @@ import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
 import 'package:cake_wallet/src/screens/auth/create_unlock_page.dart';
 import 'package:cake_wallet/src/screens/auth/create_login_page.dart';
-import 'package:cake_wallet/src/screens/seed/create_seed_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/create_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
@@ -214,10 +214,8 @@ class Router {
 
       case Routes.seed:
         return MaterialPageRoute<void>(
-            builder: (_) => createSeedPage(
-                settingsStore: settingsStore,
-                walletService: walletService,
-                callback: settings.arguments as void Function()));
+            builder: (_) => getIt.get<WalletSeedPage>(
+                param1: settings.arguments as VoidCallback));
 
       case Routes.restoreWalletFromSeed:
         final args = settings.arguments as List<dynamic>;
@@ -228,13 +226,7 @@ class Router {
 
         return CupertinoPageRoute<void>(
             builder: (_) =>
-                ProxyProvider<AuthenticationStore, WalletRestorationStore>(
-                    update: (_, authStore, __) => WalletRestorationStore(
-                        authStore: authStore,
-                        sharedPreferences: sharedPreferences,
-                        walletListService: walletListService),
-                    child: RestoreWalletFromSeedPage(
-                        type: type, language: language)));
+                RestoreWalletFromSeedPage(type: type, language: language));
 
       case Routes.restoreWalletFromKeys:
         final args = settings.arguments as List<dynamic>;
@@ -267,23 +259,7 @@ class Router {
 
       case Routes.send:
         return CupertinoPageRoute<void>(
-            fullscreenDialog: true,
-            builder: (_) => MultiProvider(providers: [
-                  ProxyProvider<SettingsStore, BalanceStore>(
-                    update: (_, settingsStore, __) => BalanceStore(
-                        walletService: walletService,
-                        settingsStore: settingsStore,
-                        priceStore: priceStore),
-                  ),
-                  Provider(
-                    create: (_) => SyncStore(walletService: walletService),
-                  ),
-                  Provider(
-                      create: (_) => SendStore(
-                          walletService: walletService,
-                          priceStore: priceStore,
-                          transactionDescriptions: transactionDescriptions)),
-                ], child: SendPage()));
+            fullscreenDialog: true, builder: (_) => getIt.get<SendPage>());
 
       case Routes.sendTemplate:
         return CupertinoPageRoute<void>(
@@ -330,25 +306,13 @@ class Router {
       case Routes.walletList:
         return MaterialPageRoute<void>(
             fullscreenDialog: true,
-            builder: (_) => Provider(
-                create: (_) => WalletListStore(
-                    walletListService: walletListService,
-                    walletService: walletService),
-                child: WalletListPage()));
+            builder: (_) => getIt.get<WalletListPage>());
 
       case Routes.auth:
-        return null;
-//        return MaterialPageRoute<void>(
-//            fullscreenDialog: true,
-//            builder: (_) => Provider(
-//                  create: (_) => AuthStore(
-//                      sharedPreferences: sharedPreferences,
-//                      userService: userService,
-//                      walletService: walletService),
-//                  child: AuthPage(
-//                      onAuthenticationFinished:
-//                          settings.arguments as OnAuthenticationFinished),
-//                ));
+        return MaterialPageRoute<void>(
+            fullscreenDialog: true,
+            builder: (_) => getIt.get<AuthPage>(
+                param1: settings.arguments as OnAuthenticationFinished));
 
       case Routes.unlock:
         return MaterialPageRoute<void>(
@@ -361,17 +325,12 @@ class Router {
                     settings.arguments as OnAuthenticationFinished));
 
       case Routes.nodeList:
-        return CupertinoPageRoute<void>(builder: (context) {
-          return Provider(
-              create: (_) => NodeListStore(nodesSource: nodes),
-              child: NodeListPage());
-        });
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<NodeListPage>());
 
       case Routes.newNode:
         return CupertinoPageRoute<void>(
-            builder: (_) => Provider<NodeListStore>(
-                create: (_) => NodeListStore(nodesSource: nodes),
-                child: NewNodePage()));
+            builder: (_) => getIt.get<NodeCreateOrEditPage>());
 
       case Routes.login:
         return CupertinoPageRoute<void>(builder: (context) {
@@ -386,59 +345,25 @@ class Router {
         });
 
       case Routes.accountCreation:
-        return CupertinoPageRoute<String>(builder: (context) {
-          return Provider(
-              create: (_) => AccountListStore(walletService: walletService),
-              child: AccountPage(account: settings.arguments as Account));
-        });
+        return CupertinoPageRoute<String>(
+            builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>());
 
       case Routes.addressBook:
-        return MaterialPageRoute<void>(builder: (context) {
-          return MultiProvider(
-            providers: [
-              Provider(
-                  create: (_) =>
-                      AccountListStore(walletService: walletService)),
-              Provider(create: (_) => AddressBookStore(contacts: contacts))
-            ],
-            child: AddressBookPage(),
-          );
-        });
+        return MaterialPageRoute<void>(
+            builder: (_) => getIt.get<ContactListPage>());
 
       case Routes.pickerAddressBook:
-        return MaterialPageRoute<void>(builder: (context) {
-          return MultiProvider(
-            providers: [
-              Provider(
-                  create: (_) =>
-                      AccountListStore(walletService: walletService)),
-              Provider(create: (_) => AddressBookStore(contacts: contacts))
-            ],
-            child: AddressBookPage(isEditable: false),
-          );
-        });
+        return MaterialPageRoute<void>(
+            builder: (_) => getIt.get<ContactListPage>());
 
       case Routes.addressBookAddContact:
-        return CupertinoPageRoute<void>(builder: (context) {
-          return MultiProvider(
-            providers: [
-              Provider(
-                  create: (_) =>
-                      AccountListStore(walletService: walletService)),
-              Provider(create: (_) => AddressBookStore(contacts: contacts))
-            ],
-            child: ContactPage(contact: settings.arguments as Contact),
-          );
-        });
+        return CupertinoPageRoute<void>(
+            builder: (_) =>
+                getIt.get<ContactPage>(param1: settings.arguments as Contact));
 
       case Routes.showKeys:
         return MaterialPageRoute<void>(
-            builder: (context) {
-              return Provider(
-                create: (_) => WalletKeysStore(walletService: walletService),
-                child: ShowKeysPage(),
-              );
-            },
+            builder: (_) => getIt.get<WalletKeysPage>(),
             fullscreenDialog: true);
 
       case Routes.exchangeTrade:
@@ -538,9 +463,7 @@ class Router {
 
       case Routes.settings:
         return MaterialPageRoute<void>(
-            builder: (_) => Provider(
-                create: (_) => NodeListStore(nodesSource: nodes),
-                child: SettingsPage()));
+            builder: (_) => getIt.get<SettingsPage>());
 
       case Routes.rescan:
         return MaterialPageRoute<void>(

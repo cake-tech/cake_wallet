@@ -125,7 +125,7 @@ abstract class BasePage extends StatelessWidget {
             _isDarkTheme ? backgroundDarkColor : backgroundLightColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
         appBar: appBar(context),
-        body: SafeArea(child: body(context)),
+        body: body(context), //SafeArea(child: ),
         floatingActionButton: floatingActionButton(context));
 
     return rootWrapper?.call(context, root) ?? root;

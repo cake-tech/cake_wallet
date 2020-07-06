@@ -1,29 +1,22 @@
-import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:provider/provider.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/stores/subaddress_list/subaddress_list_store.dart';
-import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
-import 'package:cake_wallet/src/screens/accounts/account_list_page.dart';
-import 'package:cake_wallet/src/stores/account_list/account_list_store.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/header_tile.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
-import 'package:cake_wallet/themes.dart';
-import 'package:cake_wallet/theme_changer.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/address_cell.dart';
-import 'package:cake_wallet/view_model/address_list/account_list_header.dart';
-import 'package:cake_wallet/view_model/address_list/address_list_header.dart';
-import 'package:cake_wallet/view_model/address_list/address_list_item.dart';
-import 'package:cake_wallet/view_model/address_list/address_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 
 class ReceivePage extends BasePage {
   ReceivePage({this.addressListViewModel})
@@ -33,7 +26,7 @@ class ReceivePage extends BasePage {
         _formKey.currentState.validate() ? amountController.text : '');
   }
 
-  final AddressListViewModel addressListViewModel;
+  final WalletAddressListViewModel addressListViewModel;
   final TextEditingController amountController;
   final GlobalKey<FormState> _formKey;
 
@@ -81,11 +74,6 @@ class ReceivePage extends BasePage {
             child: shareImage),
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return super.build(context);
   }
 
   @override
@@ -186,7 +174,7 @@ class ReceivePage extends BasePage {
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
                                         fontSize: 18,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w500,
                                         color: Theme.of(context)
                                             .primaryTextTheme
                                             .title
@@ -213,17 +201,11 @@ class ReceivePage extends BasePage {
                     final item = addressListViewModel.items[index];
                     Widget cell = Container();
 
-                    if (item is AccountListHeader) {
+                    if (item is WalletAccountListHeader) {
                       cell = HeaderTile(
-                          onTap: () async {
-                            await showDialog<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-//                                              return AccountListPage(
-//                                                  accountListStore:
-//                                                      accountListStore);
-                                });
-                          },
+                          onTap: () async => await showDialog<void>(
+                              context: context,
+                              builder: (_) => getIt.get<MoneroAccountListPage>()),
                           title: addressListViewModel.accountLabel,
                           icon: Icon(
                             Icons.arrow_forward_ios,
@@ -233,11 +215,11 @@ class ReceivePage extends BasePage {
                           ));
                     }
 
-                    if (item is AddressListHeader) {
+                    if (item is WalletAddressListHeader) {
                       cell = HeaderTile(
                           onTap: () => Navigator.of(context)
                               .pushNamed(Routes.newSubaddress),
-                          title: S.of(context).subaddresses,
+                          title: S.of(context).addresses,
                           icon: Icon(
                             Icons.add,
                             size: 20,
@@ -246,15 +228,15 @@ class ReceivePage extends BasePage {
                           ));
                     }
 
-                    if (item is AddressListItem) {
+                    if (item is WalletAddressListItem) {
                       cell = Observer(
                           builder: (_) => AddressCell.fromItem(item,
                               isCurrent: item.address ==
                                   addressListViewModel.address.address,
-                              onTap: (_) =>
-                                  addressListViewModel.address = item,
-                              onEdit: () => Navigator.of(context)
-                              .pushNamed(Routes.newSubaddress, arguments: item)));
+                              onTap: (_) => addressListViewModel.address = item,
+                              onEdit: () => Navigator.of(context).pushNamed(
+                                  Routes.newSubaddress,
+                                  arguments: item)));
                     }
 
                     return index != 0

@@ -4,3 +4,6 @@ const bitcoinAmountDivider = 100000000;
 
 double bitcoinAmountToDouble({int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: bitcoinAmountDivider);
+
+int doubleToBitcoinAmount(double amount) =>
+    (amount * bitcoinAmountDivider).toInt();

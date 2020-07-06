@@ -1,18 +1,21 @@
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cw_monero/wallet.dart';
+import 'package:cw_monero/wallet.dart' as monero_wallet;
+import 'package:cake_wallet/monero/monero_wallet_keys.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_history.dart';
 import 'package:cake_wallet/monero/monero_subaddress_list.dart';
+import 'package:cake_wallet/monero/monero_account_list.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/transaction_history.dart';
+import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/monero/account.dart';
 import 'package:cake_wallet/src/domain/monero/account_list.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
-import 'package:cw_monero/wallet.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
-import 'package:cw_monero/wallet.dart' as monero_wallet;
 
 part 'monero_wallet.g.dart';
 
@@ -20,14 +23,25 @@ class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
 abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   MoneroWalletBase({String filename, this.isRecovery = false})
-      : transactionHistory = MoneroTransactionHistory() {
+      : transactionHistory = MoneroTransactionHistory(),
+        accountList = MoneroAccountList(),
+        subaddressList = MoneroSubaddressList() {
     _filename = filename;
-    accountList = AccountList();
-    subaddressList = MoneroSubaddressList();
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
         unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
+    currency = CryptoCurrency.xmr;
+    type = WalletType.monero;
+    _rct = reaction(
+        (_) => syncStatus, (SyncStatus status) => print(status.toString()));
+    _onAccountChangeReaction = reaction((_) => account, (Account account) {
+      subaddressList.update(accountIndex: account.id);
+      subaddress = subaddressList.subaddresses.first;
+      address = subaddress.address;
+    });
   }
+
+  ReactionDisposer _rct;
 
   @override
   final MoneroTransactionHistory transactionHistory;
@@ -45,25 +59,32 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   String get name => _filename.split('/').last;
 
   @override
-  final type = WalletType.monero;
-
-  @override
   @observable
   String address;
 
+  @override
+  String get seed => monero_wallet.getSeed();
+
+  @override
+  MoneroWalletKeys get keys => MoneroWalletKeys(
+      privateSpendKey: monero_wallet.getSecretSpendKey(),
+      privateViewKey: monero_wallet.getSecretViewKey(),
+      publicSpendKey: monero_wallet.getPublicSpendKey(),
+      publicViewKey: monero_wallet.getPublicViewKey());
+
+  final MoneroSubaddressList subaddressList;
+
+  final MoneroAccountList accountList;
+
   bool isRecovery;
 
-  MoneroSubaddressList subaddressList;
-
-  AccountList accountList;
-
   String _filename;
-
   SyncListner _listener;
+  ReactionDisposer _onAccountChangeReaction;
 
   Future<void> init() async {
     await accountList.update();
-    account = accountList.getAll().first;
+    account = accountList.accounts.first;
     subaddressList.update(accountIndex: account.id ?? 0);
     subaddress = subaddressList.getAll().first;
     balance = MoneroBalance(
@@ -76,10 +97,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   void close() {
     _listener?.stop();
+    _onAccountChangeReaction?.reaction?.dispose();
   }
 
   @override
   Future<void> connectToNode({@required Node node}) async {
+    final node = Node(uri: 'xmr-node-uk.cakewallet.com:18081');
+
     try {
       syncStatus = ConnectingSyncStatus();
       await monero_wallet.setupNode(
@@ -147,6 +171,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     _listener?.stop();
     _listener = monero_wallet.setListeners(
         _onNewBlock, _onNeedToRefresh, _onNewTransaction);
+    _listener.start();
   }
 
   void _askForUpdateBalance() {

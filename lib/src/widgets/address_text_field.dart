@@ -38,103 +38,115 @@ class AddressTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
-      enabled: isActive,
-      controller: controller,
-      focusNode: focusNode,
-      style: TextStyle(
-        fontSize: 16,
-        color: Theme.of(context).primaryTextTheme.title.color
-      ),
-      decoration: InputDecoration(
-        suffixIcon: SizedBox(
-          width: prefixIconWidth * options.length +
-              (spaceBetweenPrefixIcons * options.length),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(width: 5),
-              if (this.options.contains(AddressTextFieldOption.qrCode)) ...[
-                Container(
-                    width: prefixIconWidth,
-                    height: prefixIconHeight,
-                    padding: EdgeInsets.only(top: 0),
-                    child: InkWell(
-                      onTap: () async => _presentQRScanner(context),
-                      child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(6))),
-                          child: Image.asset('assets/images/qr_code_icon.png')),
-                    ))
-              ],
-              if (this
-                  .options
-                  .contains(AddressTextFieldOption.addressBook)) ...[
-                Container(
-                    width: prefixIconWidth,
-                    height: prefixIconHeight,
-                    padding: EdgeInsets.only(top: 0),
-                    child: InkWell(
-                      onTap: () async => _presetAddressBookPicker(context),
-                      child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(6))),
-                          child: Image.asset(
-                              'assets/images/open_book.png')),
-                    ))
-              ],
-              if (this
-                  .options
-                  .contains(AddressTextFieldOption.subaddressList)) ...[
-                Container(
-                    width: prefixIconWidth,
-                    height: prefixIconHeight,
-                    padding: EdgeInsets.only(top: 0),
-                    child: InkWell(
-                      onTap: () async => _presetSubaddressListPicker(context),
-                      child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                              color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(6))),
-                          child: Image.asset(
-                              'assets/images/receive_icon_raw.png')),
-                    ))
-              ],
-            ],
+    return Stack(
+      children: <Widget>[
+        TextFormField(
+          onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
+          enabled: isActive,
+          controller: controller,
+          focusNode: focusNode,
+          style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).primaryTextTheme.title.color
           ),
-        ),
-        hintStyle: TextStyle(
-          fontSize: 16,
-          color: Theme.of(context).primaryTextTheme.caption.color
-        ),
-        hintText: placeholder ?? S.current.widgets_address,
-        focusedBorder: isBorderExist
-          ? UnderlineInputBorder(
-            borderSide: BorderSide(
-                color: Theme.of(context).dividerColor,
-                width: 1.0))
-          : InputBorder.none,
-        disabledBorder: isBorderExist
-            ? UnderlineInputBorder(
-            borderSide:
-            BorderSide(color: Theme.of(context).dividerColor, width: 1.0))
-            : InputBorder.none,
-        enabledBorder: isBorderExist
-          ? UnderlineInputBorder(
-            borderSide:
+          decoration: InputDecoration(
+            suffixIcon: SizedBox(
+              width: prefixIconWidth * options.length +
+                  (spaceBetweenPrefixIcons * options.length),
+            ),
+            hintStyle: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).primaryTextTheme.caption.color
+            ),
+            hintText: placeholder ?? S.current.widgets_address,
+            focusedBorder: isBorderExist
+                ? UnderlineInputBorder(
+                borderSide: BorderSide(
+                    color: Theme.of(context).dividerColor,
+                    width: 1.0))
+                : InputBorder.none,
+            disabledBorder: isBorderExist
+                ? UnderlineInputBorder(
+                borderSide:
                 BorderSide(color: Theme.of(context).dividerColor, width: 1.0))
-          : InputBorder.none,
-      ),
-      validator: validator,
+                : InputBorder.none,
+            enabledBorder: isBorderExist
+                ? UnderlineInputBorder(
+                borderSide:
+                BorderSide(color: Theme.of(context).dividerColor, width: 1.0))
+                : InputBorder.none,
+          ),
+          validator: validator,
+        ),
+        Positioned(
+          bottom: 10,
+          right: 0,
+          child: SizedBox(
+            width: prefixIconWidth * options.length +
+                (spaceBetweenPrefixIcons * options.length),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(width: 5),
+                if (this.options.contains(AddressTextFieldOption.qrCode)) ...[
+                  Container(
+                      width: prefixIconWidth,
+                      height: prefixIconHeight,
+                      padding: EdgeInsets.only(top: 0),
+                      child: InkWell(
+                        onTap: () async => _presentQRScanner(context),
+                        child: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(6))),
+                            child: Image.asset('assets/images/qr_code_icon.png')),
+                      ))
+                ],
+                if (this
+                    .options
+                    .contains(AddressTextFieldOption.addressBook)) ...[
+                  Container(
+                      width: prefixIconWidth,
+                      height: prefixIconHeight,
+                      padding: EdgeInsets.only(top: 0),
+                      child: InkWell(
+                        onTap: () async => _presetAddressBookPicker(context),
+                        child: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(6))),
+                            child: Image.asset(
+                                'assets/images/open_book.png')),
+                      ))
+                ],
+                if (this
+                    .options
+                    .contains(AddressTextFieldOption.subaddressList)) ...[
+                  Container(
+                      width: prefixIconWidth,
+                      height: prefixIconHeight,
+                      padding: EdgeInsets.only(top: 0),
+                      child: InkWell(
+                        onTap: () async => _presetSubaddressListPicker(context),
+                        child: Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(6))),
+                            child: Image.asset(
+                                'assets/images/receive_icon_raw.png')),
+                      ))
+                ],
+              ],
+            ),
+          )
+        )
+      ],
     );
   }
 

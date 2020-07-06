@@ -16,10 +16,8 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
   final buyImage = Image.asset('assets/images/coins.png');
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-//    final actionListStore = Provider.of<ActionListStore>(context);
-    final historyPanelWidth = MediaQuery.of(context).size.width;
-
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     final _themeChanger = Provider.of<ThemeChanger>(context);
     Image filterButton;
 
@@ -29,74 +27,39 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
       filterButton = Image.asset('assets/images/filter_light_button.png');
     }
 
-    double buttonsOpacity = 1 - shrinkOffset / (maxExtent - minExtent);
-    double buttonsHeight = maxExtent - minExtent - shrinkOffset;
-
-    buttonsOpacity = buttonsOpacity >= 0 ? buttonsOpacity : 0;
-    buttonsHeight = buttonsHeight >= 0 ? buttonsHeight : 0;
-
-    return Stack(
-      fit: StackFit.expand,
-      overflow: Overflow.visible,
-      children: <Widget>[
-        Opacity(
-          opacity: buttonsOpacity,
-          child: Container(
-            height: buttonsHeight,
-            padding: EdgeInsets.only(left: 44, right: 44),
-            child: Row(
-              children: <Widget>[
-                Flexible(
-                    child: actionButton(
-                        context: context,
-                        image: sendImage,
-                        title: S.of(context).send,
-                        route: Routes.send
-                    )
-                ),
-                Flexible(
-                    child: actionButton(
-                        context: context,
-                        image: exchangeImage,
-                        title: S.of(context).exchange,
-                        route: Routes.exchange
-                    )
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-            top: buttonsHeight,
-            left: 0,
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-              child: Container(
-                width: historyPanelWidth,
-                height: 66,
-                padding: EdgeInsets.only(top: 20, left: 20, right: 20, bottom: 10),
-                color: Theme.of(context).backgroundColor,
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: <Widget>[
-                    Text(
-                      S.of(context).transactions,
-                      style: TextStyle(
-                          fontSize: 20,
-                          color: Theme.of(context).primaryTextTheme.title.color
-                      ),
-                    ),
-                    Positioned(
-                      right: 0,
-                      child: PopupMenuButton<int>(
-                        itemBuilder: (context) => [
-                          PopupMenuItem(
-                              enabled: false,
-                              value: -1,
-                              child: Text(S.of(context).transactions,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryTextTheme.caption.color))),
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+      child: Container(
+        color: Colors.red,
+//        height: 75,
+        padding: EdgeInsets.only(top: 26, left: 20, right: 20, bottom: 10),
+//        color: Theme.of(context).backgroundColor,
+        child: Stack(
+          children: <Widget>[
+            Center(
+                child: Text(
+              S.of(context).transactions,
+              style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).primaryTextTheme.title.color),
+            )),
+            Positioned(
+                right: 0,
+                height: 36,
+                child: PopupMenuButton<int>(
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                        enabled: false,
+                        value: -1,
+                        child: Text(S.of(context).transactions,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .caption
+                                    .color))),
 //                          PopupMenuItem(
 //                              value: 0,
 //                              child: Observer(
@@ -135,27 +98,28 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
 //                                                  .toggleOutgoing(),
 //                                        )
 //                                      ]))),
-                          PopupMenuItem(
-                              value: 2,
-                              child:
-                              Text(S.of(context).transactions_by_date)),
-                          PopupMenuDivider(),
-                          PopupMenuItem(
-                              enabled: false,
-                              value: -1,
-                              child: Text(S.of(context).trades,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryTextTheme.caption.color))),
-                          PopupMenuItem(
-                              value: 3,
-                              child: Observer(
-                                  builder: (_) => Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment
-                                          .spaceBetween,
-                                      children: [
-                                        Text('XMR.TO'),
+                    PopupMenuItem(
+                        value: 2,
+                        child: Text(S.of(context).transactions_by_date)),
+                    PopupMenuDivider(),
+                    PopupMenuItem(
+                        enabled: false,
+                        value: -1,
+                        child: Text(S.of(context).trades,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .caption
+                                    .color))),
+                    PopupMenuItem(
+                        value: 3,
+                        child: Observer(
+                            builder: (_) => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('XMR.TO'),
 //                                        Checkbox(
 //                                          value: actionListStore
 //                                              .tradeFilterStore
@@ -167,16 +131,15 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
 //                                                  ExchangeProviderDescription
 //                                                      .xmrto),
 //                                        )
-                                      ]))),
-                          PopupMenuItem(
-                              value: 4,
-                              child: Observer(
-                                  builder: (_) => Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment
-                                          .spaceBetween,
-                                      children: [
-                                        Text('Change.NOW'),
+                                    ]))),
+                    PopupMenuItem(
+                        value: 4,
+                        child: Observer(
+                            builder: (_) => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('Change.NOW'),
 //                                        Checkbox(
 //                                          value: actionListStore
 //                                              .tradeFilterStore
@@ -188,16 +151,15 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
 //                                                  ExchangeProviderDescription
 //                                                      .changeNow),
 //                                        )
-                                      ]))),
-                          PopupMenuItem(
-                              value: 5,
-                              child: Observer(
-                                  builder: (_) => Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment
-                                          .spaceBetween,
-                                      children: [
-                                        Text('MorphToken'),
+                                    ]))),
+                    PopupMenuItem(
+                        value: 5,
+                        child: Observer(
+                            builder: (_) => Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text('MorphToken'),
 //                                        Checkbox(
 //                                          value: actionListStore
 //                                              .tradeFilterStore
@@ -209,42 +171,37 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
 //                                                  ExchangeProviderDescription
 //                                                      .morphToken),
 //                                        )
-                                      ])))
-                        ],
-                        child: filterButton,
-                        onSelected: (item) async {
-                          if (item == 2) {
-                            final List<DateTime> picked =
-                            await date_rage_picker.showDatePicker(
-                                context: context,
-                                initialFirstDate: DateTime.now()
-                                    .subtract(Duration(days: 1)),
-                                initialLastDate: (DateTime.now()),
-                                firstDate: DateTime(2015),
-                                lastDate: DateTime.now()
-                                    .add(Duration(days: 1)));
+                                    ])))
+                  ],
+                  child: filterButton,
+                  onSelected: (item) async {
+                    if (item == 2) {
+                      final List<DateTime> picked =
+                          await date_rage_picker.showDatePicker(
+                              context: context,
+                              initialFirstDate:
+                                  DateTime.now().subtract(Duration(days: 1)),
+                              initialLastDate: (DateTime.now()),
+                              firstDate: DateTime(2015),
+                              lastDate: DateTime.now().add(Duration(days: 1)));
 
-                            if (picked != null && picked.length == 2) {
+                      if (picked != null && picked.length == 2) {
 //                              actionListStore.transactionFilterStore
 //                                  .changeStartDate(picked.first);
 //                              actionListStore.transactionFilterStore
 //                                  .changeEndDate(picked.last);
-                            }
-                          }
-                        },
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )
-        )
-      ],
+                      }
+                    }
+                  },
+                )),
+          ],
+        ),
+      ),
     );
   }
 
   @override
-  double get maxExtent => 174;
+  double get maxExtent => 164;
 
   @override
   double get minExtent => 66;
@@ -252,12 +209,11 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) => true;
 
-  Widget actionButton({
-    BuildContext context,
-    @required Image image,
-    @required String title,
-    @required String route}) {
-
+  Widget actionButton(
+      {BuildContext context,
+      @required Image image,
+      @required String title,
+      @required String route}) {
     return Container(
       width: MediaQuery.of(context).size.width,
       child: Column(
@@ -276,19 +232,20 @@ class ButtonHeader extends SliverPersistentHeaderDelegate {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                   color: Theme.of(context).primaryTextTheme.subhead.color,
-                  shape: BoxShape.circle
-              ),
+                  shape: BoxShape.circle),
               child: image,
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: 12),
             child: Text(
               title,
               style: TextStyle(
                   fontSize: 16,
-                  color: Theme.of(context).primaryTextTheme.caption.color
-              ),
+                  fontWeight: FontWeight.w600,
+                  color: Color.fromRGBO(140, 153, 201,
+                      0.8) // Theme.of(context).primaryTextTheme.caption.color
+                  ),
             ),
           )
         ],

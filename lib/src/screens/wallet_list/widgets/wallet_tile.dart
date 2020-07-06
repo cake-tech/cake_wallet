@@ -20,11 +20,10 @@ class WalletTile extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-
-    double opacity = 1 - shrinkOffset / (max - min);
+    var opacity = 1 - shrinkOffset / (max - min);
     opacity = opacity >= 0 ? opacity : 0;
 
-    double panelWidth = 12 * opacity;
+    var panelWidth = 12 * opacity;
     panelWidth = panelWidth < 12 ? 0 : 12;
 
     final currentColor = isCurrent
