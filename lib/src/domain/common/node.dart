@@ -2,18 +2,22 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/digest_request.dart';
 
 part 'node.g.dart';
 
 @HiveType(typeId: 1)
 class Node extends HiveObject {
-  Node({@required this.uri, this.login, this.password});
+  Node({@required this.uri, @required WalletType type, this.login, this.password}) {
+    this.type = type;
+  }
 
   Node.fromMap(Map map)
       : uri = (map['uri'] ?? '') as String,
         login = map['login'] as String,
-        password = map['password'] as String;
+        password = map['password'] as String,
+        typeRaw = map['typeRaw'] as int;
 
   static const boxName = 'Nodes';
 
@@ -26,7 +30,29 @@ class Node extends HiveObject {
   @HiveField(2)
   String password;
 
-  Future<bool> requestNode(String uri, {String login, String password}) async {
+  @HiveField(3)
+  int typeRaw;
+
+  WalletType get type => deserializeFromInt(typeRaw);
+
+  set type(WalletType type) => typeRaw = serializeToInt(type);
+
+  Future<bool> requestNode() async {
+    try {
+      switch (type) {
+        case WalletType.monero:
+          return requestMoneroNode();
+        case WalletType.bitcoin:
+          return requestBitcoinElectrumServer();
+        default:
+          return false;
+      }
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<bool> requestMoneroNode() async {
     Map<String, dynamic> resBody;
 
     if (login != null && password != null) {
@@ -38,12 +64,17 @@ class Node extends HiveObject {
       final url = Uri.http(uri, '/json_rpc');
       final headers = {'Content-type': 'application/json'};
       final body =
-          json.encode({"jsonrpc": "2.0", "id": "0", "method": "get_info"});
+          json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
       final response =
           await http.post(url.toString(), headers: headers, body: body);
       resBody = json.decode(response.body) as Map<String, dynamic>;
     }
 
-    return !(resBody["result"]["offline"] as bool);
+    return !(resBody['result']['offline'] as bool);
+  }
+
+  Future<bool> requestBitcoinElectrumServer() async {
+    // FIXME: IMPLEMENT ME
+    return true;
   }
 }

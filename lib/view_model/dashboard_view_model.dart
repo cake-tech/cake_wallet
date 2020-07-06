@@ -1,4 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 import 'package:cake_wallet/src/stores/action_list/transaction_list_item.dart';
@@ -22,13 +24,17 @@ class WalletBalace {
 abstract class DashboardViewModelBase with Store {
   DashboardViewModelBase({this.appStore}) {
     name = appStore.wallet?.name;
-    balance = WalletBalace(unlockedBalance: '0.001', totalBalance: '0.005');
-    status = SyncedSyncStatus();
-    type = WalletType.bitcoin;
     wallet ??= appStore.wallet;
-    _reaction = reaction((_) => appStore.wallet, _onWalletChange);
+    type = wallet.type;
     transactions = ObservableList.of(wallet.transactionHistory.transactions
         .map((transaction) => TransactionListItem(transaction: transaction)));
+    _reaction = reaction((_) => appStore.wallet, _onWalletChange);
+
+    final _wallet = wallet;
+
+    if (_wallet is MoneroWallet) {
+      subname = _wallet.account?.label;
+    }
   }
 
   @observable
@@ -40,14 +46,110 @@ abstract class DashboardViewModelBase with Store {
   @computed
   String get address => wallet.address;
 
-  @observable
-  WalletBalace balance;
+  @computed
+  SyncStatus get status => wallet.syncStatus;
 
-  @observable
-  SyncStatus status;
+  @computed
+  WalletBalace get balance {
+    final wallet = this.wallet;
+
+    if (wallet is MoneroWallet) {
+      return WalletBalace(
+          unlockedBalance: wallet.balance.formattedUnlockedBalance,
+          totalBalance: wallet.balance.formattedFullBalance);
+    }
+
+    if (wallet is BitcoinWallet) {
+      return WalletBalace(
+          unlockedBalance: wallet.balance.confirmedFormatted,
+          totalBalance: wallet.balance.unconfirmedFormatted);
+    }
+  }
 
   @observable
   ObservableList<Object> transactions;
+//  ObservableList.of([
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//      id: '',
+//      height: 0,
+//      amount: 0,
+//      direction: TransactionDirection.incoming,
+//      date: DateTime.now(),
+//      isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//    TransactionListItem(transaction: BitcoinTransactionInfo(
+//        id: '',
+//        height: 0,
+//        amount: 0,
+//        direction: TransactionDirection.incoming,
+//        date: DateTime.now(),
+//        isPending: false
+//    )),
+//  ]);
 
   @observable
   String subname;
@@ -63,6 +165,5 @@ abstract class DashboardViewModelBase with Store {
     transactions.clear();
     transactions.addAll(wallet.transactionHistory.transactions
         .map((transaction) => TransactionListItem(transaction: transaction)));
-    balance = WalletBalace(unlockedBalance: '0.001', totalBalance: '0.005');
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
 
 abstract class PinCodeWidget extends StatefulWidget {
   PinCodeWidget({Key key, this.onPinCodeEntered, this.hasLengthSwitcher})
@@ -29,6 +30,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   static const sixPinLength = 6;
   static const fourPinLength = 4;
   final _gridViewKey = GlobalKey();
+  final _key = GlobalKey<ScaffoldState>();
 
   int pinLength = defaultPinLength;
   List<int> pin = List<int>.filled(defaultPinLength, null);
@@ -83,9 +85,12 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(body: body(context));
+  Widget build(BuildContext context) =>
+      Scaffold(key: _key, body: body(context));
 
   Widget body(BuildContext context) {
+    final settingsStore = Provider.of<SettingsStore>(context);
+
     final deleteIconImage = Image.asset(
       'assets/images/delete_icon.png',
       color: Theme.of(context).primaryTextTheme.title.color,
@@ -95,8 +100,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       color: Theme.of(context).primaryTextTheme.title.color,
     );
 
-    return SafeArea(
-        child: Container(
+    return Container(
       color: Theme.of(context).backgroundColor,
       padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 40.0),
       child: Column(children: <Widget>[
@@ -105,8 +109,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
             style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryTextTheme.title.color
-            )),
+                color: Theme.of(context).primaryTextTheme.title.color)),
         Spacer(flex: 3),
         Container(
           width: 180,
@@ -138,7 +141,9 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
               },
               child: Text(
                 _changePinLengthText(),
-                style: TextStyle(fontSize: 14.0, color: Theme.of(context).primaryTextTheme.caption.color),
+                style: TextStyle(
+                    fontSize: 14.0,
+                    color: Theme.of(context).primaryTextTheme.caption.color),
               ))
         ],
         Spacer(flex: 1),
@@ -161,10 +166,38 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                               margin: EdgeInsets.only(
                                   left: marginLeft, right: marginRight),
                               child: FlatButton(
-                                onPressed: () {},
+                                onPressed: (widget.hasLengthSwitcher ||
+                                        !settingsStore
+                                            .allowBiometricalAuthentication)
+                                    ? null
+                                    : () {
+                                        // FIXME
+//                                        if (authStore != null) {
+//                                          WidgetsBinding.instance.addPostFrameCallback((_) {
+//                                            final biometricAuth = BiometricAuth();
+//                                            biometricAuth.isAuthenticated().then(
+//                                                    (isAuth) {
+//                                                  if (isAuth) {
+//                                                    authStore.biometricAuth();
+//                                                    _key.currentState.showSnackBar(
+//                                                      SnackBar(
+//                                                        content: Text(S.of(context).authenticated),
+//                                                        backgroundColor: Colors.green,
+//                                                      ),
+//                                                    );
+//                                                  }
+//                                                }
+//                                            );
+//                                          });
+//                                        }
+                                      },
                                 color: Theme.of(context).backgroundColor,
                                 shape: CircleBorder(),
-                                child: faceImage,
+                                child: (widget.hasLengthSwitcher ||
+                                        !settingsStore
+                                            .allowBiometricalAuthentication)
+                                    ? Offstage()
+                                    : faceImage,
                               ),
                             );
                           } else if (index == 10) {
@@ -195,14 +228,17 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                                   style: TextStyle(
                                       fontSize: 30.0,
                                       fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).primaryTextTheme.title.color)),
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .title
+                                          .color)),
                             ),
                           );
                         }),
                       )
                     : null))
       ]),
-    ));
+    );
   }
 
   void _push(int num) {

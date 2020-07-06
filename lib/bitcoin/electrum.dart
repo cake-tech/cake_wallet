@@ -34,6 +34,7 @@ class ElectrumClient {
   int _id;
   final Map<String, SocketTask> _tasks;
   bool _isConnected;
+  Timer _aliveTimer;
 
   Future<void> connect({@required String host, @required int port}) async {
     if (socket != null) {
@@ -48,8 +49,7 @@ class ElectrumClient {
 
     socket.listen((List<int> event) {
       try {
-        final Map<String, Object> jsoned =
-            json.decode(utf8.decode(event)) as Map<String, Object>;
+        final jsoned = json.decode(utf8.decode(event)) as Map<String, Object>;
         final method = jsoned['method'];
 
         if (method is String) {
@@ -73,6 +73,13 @@ class ElectrumClient {
     });
 
     print('Connected to ${socket.remoteAddress}');
+    keepAlive();
+  }
+
+  void keepAlive() {
+    _aliveTimer?.cancel();
+    // FIXME: Unnamed constant.
+    _aliveTimer = Timer.periodic(Duration(seconds: 30), (_) async => ping());
   }
 
   Future<void> ping() => call(method: 'server.ping');
@@ -114,6 +121,16 @@ class ElectrumClient {
 
   Future<String> getTransactionRaw({@required String hash}) async =>
       call(method: 'blockchain.transaction.get', params: [hash])
+          .then((dynamic result) {
+        if (result is String) {
+          return result;
+        }
+
+        return '';
+      });
+
+  Future<String> broadcastTransaction({@required String transactionRaw}) async =>
+      call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
           .then((dynamic result) {
         if (result is String) {
           return result;

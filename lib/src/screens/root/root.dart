@@ -20,7 +20,6 @@ import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/domain/monero/transaction_description.dart';
 import 'package:cake_wallet/src/screens/auth/create_login_page.dart';
-import 'package:cake_wallet/src/screens/seed/create_seed_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/create_dashboard_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
@@ -104,13 +103,13 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
     return Observer(builder: (_) {
       final state = widget.authenticationStore.state;
-      print(state);
+
       if (state == AuthenticationState.denied) {
         return createWelcomePage();
       }
 
       if (state == AuthenticationState.installed) {
-        return getIt.get<AuthPage>();
+        return getIt.get<AuthPage>(instanceName: 'login');
       }
 
       if (state == AuthenticationState.allowed) {

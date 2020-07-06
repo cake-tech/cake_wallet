@@ -19,7 +19,7 @@ class Routes {
   static const disclaimer = '/disclaimer';
   static const readDisclaimer = '/read_disclaimer';
   static const seedLanguage = '/seed_language';
-  static const walletList = '/wallet_list';
+  static const walletList = '/view_model.wallet_list';
   static const auth = '/auth';
   static const nodeList = '/node_list';
   static const newNode = '/new_node_list';

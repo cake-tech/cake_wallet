@@ -32,7 +32,7 @@ class HeaderTile extends StatelessWidget {
               title,
               style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                   color: Theme.of(context).primaryTextTheme.title.color
               ),
             ),

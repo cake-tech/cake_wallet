@@ -12,7 +12,9 @@ class Palette {
   static const Color blue = Color.fromRGBO(88, 143, 252, 1.0);
   static const Color darkLavender = Color.fromRGBO(225, 238, 250, 1.0);
   static const Color nightBlue = Color.fromRGBO(46, 57, 96, 1.0);
+  // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);
+  static const Color xxx = Color.fromRGBO(72, 89, 109, 1);
 }
 
 class PaletteDark {
@@ -28,4 +30,7 @@ class PaletteDark {
   static const Color headerNightBlue = Color.fromRGBO(41, 52, 84, 1.0); // menuHeader
   static const Color lightNightBlue = Color.fromRGBO(48, 59, 95, 1.0); // menuList
   static const Color moderatePurpleBlue = Color.fromRGBO(57, 74, 95, 1.0); // selectButtonText
+  // FIXME: Rename.
+  static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);
+  static const Color xxx = Color.fromRGBO(72, 89, 109, 1);
 }

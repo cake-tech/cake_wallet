@@ -1,5 +1,11 @@
 import 'dart:typed_data';
 import 'dart:convert';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet_keys.dart';
+import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
+import 'package:cake_wallet/src/domain/common/sync_status.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:flutter/foundation.dart';
@@ -13,12 +19,9 @@ import 'package:cake_wallet/bitcoin/electrum.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_balance.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:rxdart/rxdart.dart';
 
 part 'bitcoin_wallet.g.dart';
-
-/* TODO: Save balance to a wallet file.
-  Load balance from the wallet file in `init` method.
-*/
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
@@ -31,7 +34,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
     final accountIndex =
-        (data['account_index'] == "null" || data['account_index'] == null)
+        (data['account_index'] == 'null' || data['account_index'] == null)
             ? 0
             : int.parse(data['account_index'] as String);
     final _addresses = data['addresses'] as List;
@@ -90,18 +93,15 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       this.transactionHistory,
       this.mnemonic,
       BitcoinBalance initialBalance}) {
+    type = WalletType.bitcoin;
+    currency = CryptoCurrency.btc;
     balance = initialBalance ?? BitcoinBalance(confirmed: 0, unconfirmed: 0);
     hd = bitcoin.HDWallet.fromSeed(bip39.mnemonicToSeed(mnemonic),
         network: bitcoin.bitcoin);
     addresses = initialAddresses != null
         ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
         : ObservableList<BitcoinAddressRecord>();
-
-    if (addresses.isEmpty) {
-      addresses.add(BitcoinAddressRecord(hd.address));
-    }
-
-    address = addresses.first.address;
+    syncStatus = NotConnectedSyncStatus();
 
     _password = password;
     _accountIndex = accountIndex;
@@ -113,8 +113,6 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   bitcoin.HDWallet hd;
   final ElectrumClient eclient;
   final String mnemonic;
-  int _accountIndex;
-  String _password;
 
   @override
   String name;
@@ -128,13 +126,31 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   BitcoinBalance balance;
 
   @override
-  final type = WalletType.bitcoin;
+  @observable
+  SyncStatus syncStatus;
 
   ObservableList<BitcoinAddressRecord> addresses;
 
   String get xpub => hd.base58;
 
+  @override
+  String get seed => mnemonic;
+
+  @override
+  BitcoinWalletKeys get keys => BitcoinWalletKeys(
+      wif: hd.wif, privateKey: hd.privKey, publicKey: hd.pubKey);
+
+  int _accountIndex;
+  String _password;
+  BehaviorSubject<Object> _addressUpdateSubject;
+
   Future<void> init() async {
+    if (addresses.isEmpty) {
+      addresses.add(BitcoinAddressRecord(_getAddress(hd: hd, index: 0)));
+    }
+
+    address = addresses.first.address;
+    transactionHistory.wallet = this;
     await transactionHistory.init();
   }
 
@@ -160,14 +176,55 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     }
   }
 
+  @action
   @override
-  Future<void> startSync() async {}
+  Future<void> startSync() async {
+    try {
+      syncStatus = StartingSyncStatus();
+      await _addressUpdateSubject?.close();
+      _addressUpdateSubject = eclient.addressUpdate(address: address);
+      await transactionHistory.update();
+      await _updateBalance();
+      syncStatus = SyncedSyncStatus();
+    } catch (e) {
+      print(e.toString());
+      syncStatus = FailedSyncStatus();
+    }
+  }
+
+  @action
+  @override
+  Future<void> connectToNode({@required Node node}) async {
+    try {
+      syncStatus = ConnectingSyncStatus();
+      await eclient.connect(host: 'electrum2.hodlister.co', port: 50002);
+      syncStatus = ConnectedSyncStatus();
+    } catch (e) {
+      print(e.toString);
+      syncStatus = FailedSyncStatus();
+    }
+  }
 
   @override
-  Future<void> connectToNode({@required Node node}) async {}
+  Future<void> createTransaction(Object credentials) async {
+    final transactionCredentials = credentials as BitcoinTransactionCredentials;
 
-  @override
-  Future<void> createTransaction(Object credentials) async {}
+    final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
+    final keyPair = bitcoin.ECPair.fromWIF(hd.wif);
+    final transactions = transactionHistory.transactions;
+    transactions.sort((q, w) => q.height.compareTo(w.height));
+    final prevTx = transactions.first;
+
+    txb.setVersion(1);
+    txb.addInput(prevTx, 0);
+    txb.addOutput(transactionCredentials.address,
+        doubleToBitcoinAmount(transactionCredentials.amount));
+    txb.sign(vin: 0, keyPair: keyPair);
+    final encoded = txb.build().toHex();
+
+    print('Enoded transaction $encoded');
+    await eclient.broadcastTransaction(transactionRaw: encoded);
+  }
 
   @override
   Future<void> save() async =>
@@ -181,24 +238,27 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       });
 
   String _getAddress({bitcoin.HDWallet hd, int index}) => bitcoin
-      .P2PKH(
+      .P2WPKH(
           data: PaymentData(
               pubkey: Uint8List.fromList(hd.derive(index).pubKey.codeUnits)))
       .data
       .address;
 
-  Future<Map<String, int>> _fetchBalances() async {
+  Future<BitcoinBalance> _fetchBalances() async {
     final balances = await Future.wait(
         addresses.map((record) => eclient.getBalance(address: record.address)));
-    final balance = balances.fold(<String, int>{}, (Map<String, int> acc, val) {
-      acc['confirmed'] =
-          (val['confirmed'] as int ?? 0) + (acc['confirmed'] ?? 0);
-      acc['unconfirmed'] =
-          (val['unconfirmed'] as int ?? 0) + (acc['unconfirmed'] ?? 0);
-
-      return acc;
-    });
+    final balance = balances.fold(
+        BitcoinBalance(confirmed: 0, unconfirmed: 0),
+        (BitcoinBalance acc, val) => BitcoinBalance(
+            confirmed: (val['confirmed'] as int ?? 0) + (acc.confirmed ?? 0),
+            unconfirmed:
+                (val['unconfirmed'] as int ?? 0) + (acc.unconfirmed ?? 0)));
 
     return balance;
+  }
+
+  Future<void> _updateBalance() async {
+    balance = await _fetchBalances();
+    await save();
   }
 }

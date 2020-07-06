@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/view_model/address_list/address_list_item.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 
 class AddressCell extends StatelessWidget {
-  factory AddressCell.fromItem(AddressListItem item,
+  factory AddressCell.fromItem(WalletAddressListItem item,
           {@required bool isCurrent,
           Function(String) onTap,
           Function() onEdit}) =>
@@ -47,7 +47,7 @@ class AddressCell extends StatelessWidget {
             name ?? address,
             style: TextStyle(
               fontSize: name?.isNotEmpty ?? false ? 18 : 10,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w600,
               color: isCurrent ? currentTextColor : notCurrentTextColor,
             ),
           ),

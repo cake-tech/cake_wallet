@@ -1,19 +1,52 @@
+import 'package:cake_wallet/core/contact_service.dart';
+import 'package:cake_wallet/src/domain/common/contact.dart';
+import 'package:cake_wallet/src/domain/common/node.dart';
+import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
+import 'package:cake_wallet/src/screens/contact/contact_page.dart';
+import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
+import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
+import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
+import 'package:cake_wallet/src/screens/settings/settings.dart';
+import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
+import 'package:cake_wallet/store/contact_list_store.dart';
+import 'package:cake_wallet/store/node_list_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/monero/monero_wallet.dart';
+import 'package:cake_wallet/src/domain/common/wallet_info.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
+import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/receive/receive_page.dart';
+import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
-import 'package:cake_wallet/view_model/address_list/address_edit_or_create_view_model.dart';
+import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/store/wallet_list_store.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
+import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard_view_model.dart';
-import 'package:cake_wallet/view_model/address_list/address_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
+import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
+import 'package:cake_wallet/view_model/send_view_model.dart';
+import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
-import 'package:http/http.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
@@ -22,24 +55,63 @@ import 'package:cake_wallet/store/authentication_store.dart';
 
 final getIt = GetIt.instance;
 
-ReactionDisposer _onCurrentWalletChangeReaction;
+// FIXME: Move me.
 
-void setup() {
-  getIt.registerSingleton(AuthenticationStore());
-  getIt.registerSingleton<AppStore>(
-      AppStore(authenticationStore: getIt.get<AuthenticationStore>()));
-  getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
+Stream<BoxEvent> _onNodesSourceChange;
+NodeListStore _nodeListStore;
+
+NodeListStore setupNodeListStore(Box<Node> nodeSource) {
+  if (_nodeListStore != null) {
+    return _nodeListStore;
+  }
+
+  _nodeListStore = NodeListStore();
+  _nodeListStore.replaceValues(nodeSource.values);
+  _onNodesSourceChange = nodeSource.watch();
+  _onNodesSourceChange
+      .listen((_) => _nodeListStore.replaceValues(nodeSource.values));
+
+  return _nodeListStore;
+}
+
+Future setup(
+    {Box<WalletInfo> walletInfoSource,
+    Box<Node> nodeSource,
+    Box<Contact> contactSource}) async {
   getIt.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
+
+  final settingsStore = await SettingsStoreBase.load(nodeSource: nodeSource);
+
+  getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
+  getIt.registerSingleton(AuthenticationStore());
+  getIt.registerSingleton<WalletListStore>(WalletListStore());
+  getIt.registerSingleton(ContactListStore());
+  getIt.registerSingleton(setupNodeListStore(nodeSource));
+  getIt.registerSingleton<SettingsStore>(settingsStore);
+  getIt.registerSingleton<AppStore>(AppStore(
+      authenticationStore: getIt.get<AuthenticationStore>(),
+      walletList: getIt.get<WalletListStore>(),
+      settingsStore: getIt.get<SettingsStore>(),
+      contactListStore: getIt.get<ContactListStore>(),
+      nodeListStore: getIt.get<NodeListStore>()));
+  getIt.registerSingleton<ContactService>(
+      ContactService(contactSource, getIt.get<AppStore>().contactListStore));
+  getIt.registerFactory<KeyService>(
+      () => KeyService(getIt.get<FlutterSecureStorage>()));
+
   getIt.registerFactoryParam<WalletCreationService, WalletType, void>(
       (type, _) => WalletCreationService(
           initialType: type,
           appStore: getIt.get<AppStore>(),
+          keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>()));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
-      WalletNewVM(getIt.get<WalletCreationService>(param1: type), type: type));
+      WalletNewVM(
+          getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+          type: type));
 
   getIt
       .registerFactoryParam<WalletRestorationFromSeedVM, List, void>((args, _) {
@@ -48,14 +120,12 @@ void setup() {
     final mnemonic = args[2] as String;
 
     return WalletRestorationFromSeedVM(
-        getIt.get<WalletCreationService>(param1: type),
-        type: type,
-        language: language,
-        seed: mnemonic);
+        getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+        type: type, language: language, seed: mnemonic);
   });
 
-  getIt.registerFactory<AddressListViewModel>(
-      () => AddressListViewModel(wallet: getIt.get<AppStore>().wallet));
+  getIt.registerFactory<WalletAddressListViewModel>(
+      () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
 
   getIt.registerFactory(
       () => DashboardViewModel(appStore: getIt.get<AppStore>()));
@@ -68,38 +138,122 @@ void setup() {
       authService: getIt.get<AuthService>(),
       sharedPreferences: getIt.get<SharedPreferences>()));
 
-  getIt.registerFactory<AuthPage>(() => AuthPage(
-      authViewModel: getIt.get<AuthViewModel>(),
-      onAuthenticationFinished: (isAuthenticated, __) {
-        if (isAuthenticated) {
-          getIt.get<AuthenticationStore>().allowed();
-        }
-      },
-      closable: false));
+  getIt.registerFactory<AuthPage>(
+      () => AuthPage(
+          authViewModel: getIt.get<AuthViewModel>(),
+          onAuthenticationFinished: (isAuthenticated, __) {
+            if (isAuthenticated) {
+              getIt.get<AuthenticationStore>().allowed();
+            }
+          },
+          closable: false),
+      instanceName: 'login');
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage(
-        walletViewModel: getIt.get<DashboardViewModel>(),
-      ));
+  getIt
+      .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), void>(
+          (onAuthFinished, _) => AuthPage(
+              authViewModel: getIt.get<AuthViewModel>(),
+              onAuthenticationFinished: onAuthFinished,
+              closable: false));
 
-  getIt.registerFactory<ReceivePage>(() =>
-      ReceivePage(addressListViewModel: getIt.get<AddressListViewModel>()));
+  getIt.registerFactory<DashboardPage>(
+      () => DashboardPage(walletViewModel: getIt.get<DashboardViewModel>()));
 
-  getIt.registerFactoryParam<AddressEditOrCreateViewModel, dynamic, void>(
-      (dynamic item, _) => AddressEditOrCreateViewModel(
+  getIt.registerFactory<ReceivePage>(() => ReceivePage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+
+  getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, dynamic, void>(
+      (dynamic item, _) => WalletAddressEditOrCreateViewModel(
           wallet: getIt.get<AppStore>().wallet, item: item));
 
   getIt.registerFactoryParam<AddressEditOrCreatePage, dynamic, void>(
       (dynamic item, _) => AddressEditOrCreatePage(
           addressEditOrCreateViewModel:
-              getIt.get<AddressEditOrCreateViewModel>(param1: item)));
+              getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
-  final appStore = getIt.get<AppStore>();
+  getIt.registerFactory<SendViewModel>(() => SendViewModel(
+      getIt.get<AppStore>().wallet, getIt.get<AppStore>().settingsStore));
 
-  _onCurrentWalletChangeReaction ??=
-      reaction((_) => appStore.wallet, (WalletBase wallet) async {
-    print('Wallet name ${wallet.name}');
-    await getIt
-        .get<SharedPreferences>()
-        .setString('current_wallet_name', wallet.name);
+  getIt.registerFactory(
+      () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
+
+  getIt.registerFactory(() => WalletListViewModel(
+      walletInfoSource, getIt.get<AppStore>(), getIt.get<KeyService>()));
+
+  getIt.registerFactory(() =>
+      WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
+
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+
+    if (wallet is MoneroWallet) {
+      return MoneroAccountListViewModel(wallet);
+    }
+
+    // FIXME: throw exception.
+    return null;
   });
+
+  getIt.registerFactory(() => MoneroAccountListPage(
+      accountListViewModel: getIt.get<MoneroAccountListViewModel>()));
+
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+
+    if (wallet is MoneroWallet) {
+      return MoneroAccountEditOrCreateViewModel(wallet.accountList);
+    }
+
+    // FIXME: throw exception.
+    return null;
+  });
+
+  getIt.registerFactory(() => MoneroAccountEditOrCreatePage(
+      moneroAccountCreationViewModel:
+          getIt.get<MoneroAccountEditOrCreateViewModel>()));
+
+  getIt.registerFactory(
+      () => SettingsViewModel(getIt.get<AppStore>().settingsStore));
+
+  getIt.registerFactory(() => SettingsPage(getIt.get<SettingsViewModel>()));
+
+  getIt
+      .registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet));
+
+  getIt.registerFactoryParam<WalletSeedPage, VoidCallback, void>(
+      (VoidCallback callback, _) => WalletSeedPage(
+          getIt.get<WalletSeedViewModel>(),
+          onCloseCallback: callback));
+
+  getIt
+      .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>().wallet));
+
+  getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
+
+  getIt.registerFactoryParam<ContactViewModel, Contact, void>(
+      (Contact contact, _) => ContactViewModel(
+          getIt.get<ContactService>(), getIt.get<AppStore>().wallet,
+          contact: contact));
+
+  getIt.registerFactory(() => ContactListViewModel(
+      getIt.get<AppStore>().contactListStore, getIt.get<ContactService>()));
+
+  getIt.registerFactory(
+      () => ContactListPage(getIt.get<ContactListViewModel>()));
+
+  getIt.registerFactoryParam<ContactPage, Contact, void>((Contact contact, _) =>
+      ContactPage(getIt.get<ContactViewModel>(param1: contact)));
+
+  getIt.registerFactory(() => NodeListViewModel(
+      getIt.get<AppStore>().nodeListStore,
+      nodeSource,
+      getIt.get<AppStore>().wallet));
+
+  getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
+
+  getIt.registerFactory(() =>
+      NodeCreateOrEditViewModel(nodeSource, getIt.get<AppStore>().wallet));
+
+  getIt.registerFactory(
+      () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 }

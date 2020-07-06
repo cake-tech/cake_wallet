@@ -1,14 +1,16 @@
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/wallet_list/wallet_list_store.dart';
-import 'package:cake_wallet/src/domain/common/wallet_description.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 
 class WalletMenu {
-  WalletMenu(this.context);
+  WalletMenu(this.context, this.walletListViewModel);
 
+  final WalletListViewModel walletListViewModel;
   final BuildContext context;
 
   final List<String> listItems = [
@@ -65,9 +67,7 @@ class WalletMenu {
     return images;
   }
 
-  void action(int index, WalletDescription wallet, bool isCurrentWallet) {
-    final _walletListStore = Provider.of<WalletListStore>(context);
-
+  void action(int index, WalletListItem wallet, bool isCurrentWallet) {
     switch (index) {
       case 0:
         Navigator.of(context).pushNamed(Routes.auth, arguments:
@@ -79,7 +79,7 @@ class WalletMenu {
           try {
             auth.changeProcessText(
                 S.of(context).wallet_list_loading_wallet(wallet.name));
-            await _walletListStore.loadWallet(wallet);
+            await walletListViewModel.loadWallet(wallet);
             auth.close();
             Navigator.of(context).pop();
           } catch (e) {
@@ -109,7 +109,7 @@ class WalletMenu {
           try {
             auth.changeProcessText(
                 S.of(context).wallet_list_removing_wallet(wallet.name));
-            await _walletListStore.remove(wallet);
+//            await _walletListStore.remove(wallet);
             auth.close();
           } catch (e) {
             auth.changeProcessText(S

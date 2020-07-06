@@ -3,8 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/view_model/address_list/address_edit_or_create_view_model.dart';
-import 'package:cake_wallet/core/AddressLabelValidator.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
+import 'package:cake_wallet/core/address_label_validator.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -21,7 +21,7 @@ class AddressEditOrCreatePage extends BasePage {
     print(addressEditOrCreateViewModel.label);
   }
 
-  final AddressEditOrCreateViewModel addressEditOrCreateViewModel;
+  final WalletAddressEditOrCreateViewModel addressEditOrCreateViewModel;
   final GlobalKey<FormState> _formKey;
   final TextEditingController _labelController;
 

@@ -182,7 +182,7 @@ Future<void> _openWallet(Map<String, String> args) async =>
 bool _isWalletExist(String path) => isWalletExistSync(path: path);
 
 void openWallet({String path, String password, int nettype = 0}) async =>
-    loadWallet(path: path, password: password);
+    loadWallet(path: path, password: password, nettype: nettype);
 
 Future<void> openWalletAsync(Map<String, String> args) async =>
     compute(_openWallet, args);

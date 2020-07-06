@@ -23,7 +23,7 @@ void setReactions(
     @required SyncStore syncStore,
     @required WalletStore walletStore,
     @required WalletService walletService,
-    @required AuthenticationStore authenticationStore,
+//    @required AuthenticationStore authenticationStore,
     @required LoginStore loginStore}) {
   connectToNode(settingsStore: settingsStore, walletStore: walletStore);
   onSyncStatusChange(

@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,7 +16,6 @@ Future defaultSettingsMigration(
   final currentVersion =
       sharedPreferences.getInt('current_default_settings_migration_version') ??
           0;
-
   if (currentVersion >= version) {
     return;
   }
@@ -28,10 +29,11 @@ Future defaultSettingsMigration(
       switch (version) {
         case 1:
           await sharedPreferences.setString(
-              'current_fiat_currency', FiatCurrency.usd.toString());
+              SettingsStoreBase.currentFiatCurrencyKey, FiatCurrency.usd.toString());
           await sharedPreferences.setInt(
-              'current_fee_priority', TransactionPriority.standart.raw);
-          await sharedPreferences.setInt('current_balance_display_mode',
+              SettingsStoreBase.currentTransactionPriorityKey, TransactionPriority.standart.raw);
+          await sharedPreferences.setInt(
+              SettingsStoreBase.currentBalanceDisplayModeKey,
               BalanceDisplayMode.availableBalance.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
           await resetToDefault(nodes);
@@ -44,6 +46,10 @@ Future defaultSettingsMigration(
           await replaceDefaultNode(
               sharedPreferences: sharedPreferences, nodes: nodes);
 
+          break;
+        case 3:
+          await updateNodeTypes(nodes: nodes);
+          await addBitcoinElectrumServerList(nodes: nodes);
           break;
         default:
           break;
@@ -87,9 +93,11 @@ Future<void> changeCurrentNodeToDefault(
   final timeZone = DateTime.now().timeZoneOffset.inHours;
   String nodeUri = '';
 
-  if (timeZone >= 1) { // Eurasia
+  if (timeZone >= 1) {
+    // Eurasia
     nodeUri = 'xmr-node-eu.cakewallet.com:18081';
-  } else if (timeZone <= -4) { // America
+  } else if (timeZone <= -4) {
+    // America
     nodeUri = 'xmr-node-usa-east.cakewallet.com:18081';
   }
 
@@ -120,4 +128,18 @@ Future<void> replaceDefaultNode(
 
   await changeCurrentNodeToDefault(
       sharedPreferences: sharedPreferences, nodes: nodes);
+}
+
+Future<void> updateNodeTypes({@required Box<Node> nodes}) async {
+  nodes.values.forEach((node) async {
+    if (node.type == null) {
+      node.type = WalletType.monero;
+      await node.save();
+    }
+  });
+}
+
+Future<void> addBitcoinElectrumServerList({@required Box<Node> nodes}) async {
+  final serverList = await loadElectrumServerList();
+  await nodes.addAll(serverList);
 }
