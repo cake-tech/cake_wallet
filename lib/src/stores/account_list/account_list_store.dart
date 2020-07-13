@@ -41,16 +41,16 @@ abstract class AcountListStoreBase with Store {
   StreamSubscription<Wallet> _onWalletChangeSubscription;
   StreamSubscription<List<Account>> _onAccountsChangeSubscription;
 
-  @override
-  void dispose() {
-    _onWalletChangeSubscription.cancel();
-
-    if (_onAccountsChangeSubscription != null) {
-      _onAccountsChangeSubscription.cancel();
-    }
-
-    super.dispose();
-  }
+//  @override
+//  void dispose() {
+//    _onWalletChangeSubscription.cancel();
+//
+//    if (_onAccountsChangeSubscription != null) {
+//      _onAccountsChangeSubscription.cancel();
+//    }
+//
+//    super.dispose();
+//  }
 
   void updateAccountList() {
     _accountList.refresh();

@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'wallet_type.g.dart';
 
-@HiveType()
+@HiveType(typeId: 5)
 enum WalletType {
   @HiveField(0)
   monero,

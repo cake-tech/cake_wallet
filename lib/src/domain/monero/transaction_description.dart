@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'transaction_description.g.dart';
 
-@HiveType()
+@HiveType(typeId: 2)
 class TransactionDescription extends HiveObject {
   TransactionDescription({this.id, this.recipientAddress});
 

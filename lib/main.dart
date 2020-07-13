@@ -38,96 +38,102 @@ import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  try {
+//    WidgetsFlutterBinding.ensureInitialized();
 
-  final appDir = await getApplicationDocumentsDirectory();
-  Hive.init(appDir.path);
-  Hive.registerAdapter(ContactAdapter(), 0);
-  Hive.registerAdapter(NodeAdapter(), 1);
-  Hive.registerAdapter(TransactionDescriptionAdapter(), 2);
-  Hive.registerAdapter(TradeAdapter(), 3);
-  Hive.registerAdapter(WalletInfoAdapter(), 4);
-  Hive.registerAdapter(WalletTypeAdapter(), 5);
+    final appDir = await getApplicationDocumentsDirectory();
+    Hive.init(appDir.path);
+    Hive.registerAdapter(ContactAdapter());
+    Hive.registerAdapter(NodeAdapter());
+    Hive.registerAdapter(TransactionDescriptionAdapter());
+    Hive.registerAdapter(TradeAdapter());
+    Hive.registerAdapter(WalletInfoAdapter());
+    Hive.registerAdapter(WalletTypeAdapter());
 
-  final secureStorage = FlutterSecureStorage();
-  final transactionDescriptionsBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage,
-      forKey: 'transactionDescriptionsBoxKey'); // FIXME: Unnamed constant
-  final tradesBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage,
-      forKey: 'tradesBoxKey'); // FIXME: Unnamed constant
 
-  final contacts = await Hive.openBox<Contact>(Contact.boxName);
-  final nodes = await Hive.openBox<Node>(Node.boxName);
-  final transactionDescriptions = await Hive.openBox<TransactionDescription>(
-      TransactionDescription.boxName,
-      encryptionKey: transactionDescriptionsBoxKey);
-  final trades =
-      await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-  final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
+    final secureStorage = FlutterSecureStorage();
+    final transactionDescriptionsBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage,
+        forKey: 'transactionDescriptionsBoxKey'); // FIXME: Unnamed constant
+    final tradesBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage,
+        forKey: 'tradesBoxKey'); // FIXME: Unnamed constant
 
-  final sharedPreferences = await SharedPreferences.getInstance();
-  final walletService = WalletService();
-  final walletListService = WalletListService(
-      secureStorage: secureStorage,
-      walletInfoSource: walletInfoSource,
-      walletService: walletService,
-      sharedPreferences: sharedPreferences);
-  final userService = UserService(
-      sharedPreferences: sharedPreferences, secureStorage: secureStorage);
-  final authenticationStore = AuthenticationStore(userService: userService);
+    final contacts = await Hive.openBox<Contact>(Contact.boxName);
+    final nodes = await Hive.openBox<Node>(Node.boxName);
+    final transactionDescriptions = await Hive.openBox<TransactionDescription>(
+        TransactionDescription.boxName,
+        encryptionKey: transactionDescriptionsBoxKey);
+    final trades =
+    await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+    final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
 
-  await initialSetup(
-      sharedPreferences: sharedPreferences,
-      walletListService: walletListService,
-      nodes: nodes,
-      authStore: authenticationStore,
-      initialMigrationVersion: 2);
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final walletService = WalletService();
+    final walletListService = WalletListService(
+        secureStorage: secureStorage,
+        walletInfoSource: walletInfoSource,
+        walletService: walletService,
+        sharedPreferences: sharedPreferences);
+    final userService = UserService(
+        sharedPreferences: sharedPreferences, secureStorage: secureStorage);
+    final authenticationStore = AuthenticationStore(userService: userService);
 
-  final settingsStore = await SettingsStoreBase.load(
-      nodes: nodes,
-      sharedPreferences: sharedPreferences,
-      initialFiatCurrency: FiatCurrency.usd,
-      initialTransactionPriority: TransactionPriority.slow,
-      initialBalanceDisplayMode: BalanceDisplayMode.availableBalance);
-  final priceStore = PriceStore();
-  final walletStore =
-      WalletStore(walletService: walletService, settingsStore: settingsStore);
-  final syncStore = SyncStore(walletService: walletService);
-  final balanceStore = BalanceStore(
-      walletService: walletService,
-      settingsStore: settingsStore,
-      priceStore: priceStore);
-  final loginStore = LoginStore(
-      sharedPreferences: sharedPreferences, walletsService: walletListService);
-  final seedLanguageStore = SeedLanguageStore();
+    await initialSetup(
+        sharedPreferences: sharedPreferences,
+        walletListService: walletListService,
+        nodes: nodes,
+        authStore: authenticationStore,
+        initialMigrationVersion: 2);
 
-  setReactions(
-      settingsStore: settingsStore,
-      priceStore: priceStore,
-      syncStore: syncStore,
-      walletStore: walletStore,
-      walletService: walletService,
-      authenticationStore: authenticationStore,
-      loginStore: loginStore);
+    final settingsStore = await SettingsStoreBase.load(
+        nodes: nodes,
+        sharedPreferences: sharedPreferences,
+        initialFiatCurrency: FiatCurrency.usd,
+        initialTransactionPriority: TransactionPriority.slow,
+        initialBalanceDisplayMode: BalanceDisplayMode.availableBalance);
+    final priceStore = PriceStore();
+    final walletStore =
+    WalletStore(walletService: walletService, settingsStore: settingsStore);
+    final syncStore = SyncStore(walletService: walletService);
+    final balanceStore = BalanceStore(
+        walletService: walletService,
+        settingsStore: settingsStore,
+        priceStore: priceStore);
+    final loginStore = LoginStore(
+        sharedPreferences: sharedPreferences,
+        walletsService: walletListService);
+    final seedLanguageStore = SeedLanguageStore();
 
-  runApp(MultiProvider(providers: [
-    Provider(create: (_) => sharedPreferences),
-    Provider(create: (_) => walletService),
-    Provider(create: (_) => walletListService),
-    Provider(create: (_) => userService),
-    Provider(create: (_) => settingsStore),
-    Provider(create: (_) => priceStore),
-    Provider(create: (_) => walletStore),
-    Provider(create: (_) => syncStore),
-    Provider(create: (_) => balanceStore),
-    Provider(create: (_) => authenticationStore),
-    Provider(create: (_) => contacts),
-    Provider(create: (_) => nodes),
-    Provider(create: (_) => transactionDescriptions),
-    Provider(create: (_) => trades),
-    Provider(create: (_) => seedLanguageStore)
-  ], child: CakeWalletApp()));
+    setReactions(
+        settingsStore: settingsStore,
+        priceStore: priceStore,
+        syncStore: syncStore,
+        walletStore: walletStore,
+        walletService: walletService,
+        authenticationStore: authenticationStore,
+        loginStore: loginStore);
+
+    runApp(MultiProvider(providers: [
+      Provider(create: (_) => sharedPreferences),
+      Provider(create: (_) => walletService),
+      Provider(create: (_) => walletListService),
+      Provider(create: (_) => userService),
+      Provider(create: (_) => settingsStore),
+      Provider(create: (_) => priceStore),
+      Provider(create: (_) => walletStore),
+      Provider(create: (_) => syncStore),
+      Provider(create: (_) => balanceStore),
+      Provider(create: (_) => authenticationStore),
+      Provider(create: (_) => contacts),
+      Provider(create: (_) => nodes),
+      Provider(create: (_) => transactionDescriptions),
+      Provider(create: (_) => trades),
+      Provider(create: (_) => seedLanguageStore)
+    ], child: CakeWalletApp()));
+  } catch(e) {
+    print(e.toString());
+  }
 }
 
 Future<void> initialSetup(
