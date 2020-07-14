@@ -39,7 +39,7 @@ import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 void main() async {
   try {
-//    WidgetsFlutterBinding.ensureInitialized();
+    WidgetsFlutterBinding.ensureInitialized();
 
     final appDir = await getApplicationDocumentsDirectory();
     Hive.init(appDir.path);
@@ -49,7 +49,6 @@ void main() async {
     Hive.registerAdapter(TradeAdapter());
     Hive.registerAdapter(WalletInfoAdapter());
     Hive.registerAdapter(WalletTypeAdapter());
-
 
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
@@ -65,7 +64,7 @@ void main() async {
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
     final trades =
-    await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+        await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
     final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
 
     final sharedPreferences = await SharedPreferences.getInstance();
@@ -94,7 +93,7 @@ void main() async {
         initialBalanceDisplayMode: BalanceDisplayMode.availableBalance);
     final priceStore = PriceStore();
     final walletStore =
-    WalletStore(walletService: walletService, settingsStore: settingsStore);
+        WalletStore(walletService: walletService, settingsStore: settingsStore);
     final syncStore = SyncStore(walletService: walletService);
     final balanceStore = BalanceStore(
         walletService: walletService,
@@ -131,8 +130,9 @@ void main() async {
       Provider(create: (_) => trades),
       Provider(create: (_) => seedLanguageStore)
     ], child: CakeWalletApp()));
-  } catch(e) {
-    print(e.toString());
+  } catch (e) {
+    runApp(
+        MaterialApp(home: Text(e.toString(), style: TextStyle(fontSize: 12))));
   }
 }
 
