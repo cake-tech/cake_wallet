@@ -61,9 +61,10 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final price = responseJSON['price'] as double;
+    final priceString = responseJSON['price'] as String ?? '0.0';
     final minString = responseJSON['lower_limit'] as String ?? '0.0';
     final maxString = responseJSON['upper_limit'] as String ?? '0.0';
+    final price = double.parse(priceString);
     var max = double.parse(maxString);
     var min = double.parse(minString);
 
@@ -90,8 +91,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     final _request = request as XMRTOTradeRequest;
     final url = await getApiUri() + _orderCreateUriSuffix;
     final body = {
-      'xmr_amount': _request.amount,
-      'amount_currency': CryptoCurrency.btc.toString().toUpperCase(),
+      'amount': _request.amount,
+      'amount_currency': CryptoCurrency.xmr.toString().toUpperCase(),
       'btc_dest_address': _request.address
     };
     final response = await post(url,
@@ -144,13 +145,11 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final address = responseJSON['xmr_receiving_integrated_address'] as String;
-    final paymentId = responseJSON['xmr_required_payment_id_short'] as String;
-    final amount = responseJSON['xmr_amount_total'].toString();
+    final address = responseJSON['receiving_subaddress'] as String;
+    final amount = responseJSON['incoming_amount_total'].toString();
     final stateRaw = responseJSON['state'] as String;
     final expiredAtRaw = responseJSON['expires_at'] as String;
     final expiredAt = DateTime.parse(expiredAtRaw).toLocal();
-    final outputTransaction = responseJSON['btc_transaction_id'] as String;
     final state = TradeState.deserialize(raw: stateRaw);
 
     return Trade(
@@ -159,11 +158,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
         from: CryptoCurrency.xmr,
         to: CryptoCurrency.btc,
         inputAddress: address,
-        extraId: paymentId,
         expiredAt: expiredAt,
         amount: amount,
-        state: state,
-        outputTransaction: outputTransaction);
+        state: state);
   }
 
   @override
@@ -177,7 +174,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       _rate = await _fetchRates();
     }
 
-    final  result = _rate * amount;
+    final result = _rate * amount;
     return double.parse(result.toStringAsFixed(12));
   }
 
@@ -187,7 +184,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       final response =
           await get(url, headers: {'Content-Type': 'application/json'});
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final price = responseJSON['price'] as double;
+      final priceString = responseJSON['price'] as String ?? '0.0';
+      final price = double.parse(priceString);
 
       return price;
     } catch (e) {
