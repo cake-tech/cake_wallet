@@ -137,6 +137,7 @@
   "share_address" : "Share address",
   "receive_amount" : "Amount",
   "subaddresses" : "Subaddresses",
+  "addresses" : "Addresses",
   "rename" : "Rename",
   "choose_account" : "Choose account",
   "create_new_account" : "Create new account",

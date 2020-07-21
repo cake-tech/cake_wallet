@@ -9,6 +9,7 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -35,6 +36,8 @@ abstract class DashboardViewModelBase with Store {
     if (_wallet is MoneroWallet) {
       subname = _wallet.account?.label;
     }
+
+    currentPage = 0;
   }
 
   @observable
@@ -43,11 +46,33 @@ abstract class DashboardViewModelBase with Store {
   @observable
   String name;
 
+  @observable
+  double currentPage;
+
   @computed
   String get address => wallet.address;
 
   @computed
   SyncStatus get status => wallet.syncStatus;
+
+  @computed
+  String get syncStatusText {
+    var statusText = '';
+
+    if (status is SyncingSyncStatus) {
+      statusText = S.current
+          .Blocks_remaining(
+          status.toString());
+    }
+
+    if (status is FailedSyncStatus) {
+      statusText = S
+          .current
+          .please_try_to_connect_to_another_node;
+    }
+
+    return statusText;
+  }
 
   @computed
   WalletBalace get balance {
