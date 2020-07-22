@@ -33,7 +33,9 @@ class PaletteDark {
   // NEW DESIGN
   static const Color backgroundColor = Color.fromRGBO(25, 35, 60, 1.0);
   static const Color nightBlue = Color.fromRGBO(35, 47, 79, 1.0);
+  static const Color wildNightBlue = Color.fromRGBO(39, 53, 96, 1.0);
   static const Color cyanBlue = Color.fromRGBO(99, 113, 150, 1.0);
+  static const Color darkCyanBlue = Color.fromRGBO(91, 112, 146, 1.0);
   static const Color orangeYellow = Color.fromRGBO(243, 166, 50, 1.0);
   static const Color brightGreen = Color.fromRGBO(88, 243, 50, 1.0);
   static const Color oceanBlue = Color.fromRGBO(27, 39, 71, 1.0);

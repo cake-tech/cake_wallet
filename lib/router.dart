@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
@@ -249,13 +250,7 @@ class Router {
 
       case Routes.dashboard:
         return CupertinoPageRoute<void>(
-            builder: (_) => createDashboardPage(
-                walletService: walletService,
-                priceStore: priceStore,
-                settingsStore: settingsStore,
-                trades: trades,
-                transactionDescriptions: transactionDescriptions,
-                walletStore: walletStore));
+            builder: (_) => getIt.get<DashboardPage>());
 
       case Routes.send:
         return CupertinoPageRoute<void>(
