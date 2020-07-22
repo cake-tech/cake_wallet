@@ -39,7 +39,6 @@ class MoneroWallet extends Wallet {
     _onBalanceChange = BehaviorSubject<MoneroBalance>();
     _account = BehaviorSubject<Account>()..add(Account(id: 0));
     _subaddress = BehaviorSubject<Subaddress>();
-    setListeners();
   }
 
   static Future<MoneroWallet> createdWallet(
@@ -135,6 +134,7 @@ class MoneroWallet extends Wallet {
   TransactionHistory _cachedTransactionHistory;
   SubaddressList _cachedSubaddressList;
   AccountList _cachedAccountList;
+  Future<int> _cachedGetNodeHeightOrUpdateRequest;
 
   @override
   Future updateInfo() async {
@@ -148,6 +148,7 @@ class MoneroWallet extends Wallet {
     final subaddresses = subaddressList.getAll();
     _subaddress.value = subaddresses.first;
     _address.value = await getAddress();
+    await setListeners();
   }
 
   @override
@@ -178,7 +179,15 @@ class MoneroWallet extends Wallet {
   Future<int> getCurrentHeight() async => monero_wallet.getCurrentHeight();
 
   @override
-  Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
+  Future<int> getNodeHeight() async {
+    _cachedGetNodeHeightOrUpdateRequest ??=
+        monero_wallet.getNodeHeight().then((value) {
+      _cachedGetNodeHeightOrUpdateRequest = null;
+      return value;
+    });
+
+    return _cachedGetNodeHeightOrUpdateRequest;
+  }
 
   @override
   Future<bool> isConnected() async => monero_wallet.isConnected();
@@ -218,7 +227,6 @@ class MoneroWallet extends Wallet {
 
   @override
   Future close() async {
-    monero_wallet.closeListeners();
     monero_wallet.closeCurrentWallet();
     await _name.close();
     await _address.close();
@@ -353,7 +361,7 @@ class MoneroWallet extends Wallet {
     }
   }
 
-  void setListeners() => monero_wallet.setListeners(
+  Future<void> setListeners() async => await monero_wallet.setListeners(
       _onNewBlock, _onNeedToRefresh, _onNewTransaction);
 
   Future _onNewBlock(int height) async {

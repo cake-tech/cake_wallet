@@ -121,7 +121,6 @@ class MoneroWalletsManager extends WalletsManager {
       monero_wallet_manager.openWallet(path: path, password: password);
       final wallet = await MoneroWallet.load(walletInfoSource, name, type);
       await wallet.updateInfo();
-
       return wallet;
     } catch (e) {
       print('MoneroWalletsManager Error: $e');

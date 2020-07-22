@@ -32,10 +32,7 @@ final loadWalletNative = moneroApi
     .asFunction<LoadWallet>();
 
 void createWalletSync(
-    {String path,
-    String password,
-    String language,
-    int nettype = 0}) {
+    {String path, String password, String language, int nettype = 0}) {
   final pathPointer = Utf8.toUtf8(path);
   final passwordPointer = Utf8.toUtf8(password);
   final languagePointer = Utf8.toUtf8(language);

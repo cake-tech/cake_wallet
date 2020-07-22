@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 add_library( cw_monero
              SHARED
-             ./jni/monero_jni.cpp
-             ../ios/Classes/monero_api.cpp)
+             ./jni/monero_jni.cpp)
 
              find_library( log-lib log )
 
