@@ -4,13 +4,13 @@ import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class TransactionRow extends StatelessWidget {
-  TransactionRow(
-      {this.direction,
-      this.formattedDate,
-      this.formattedAmount,
-      this.formattedFiatAmount,
-      this.isPending,
-      @required this.onTap});
+  TransactionRow({
+    this.direction,
+    this.formattedDate,
+    this.formattedAmount,
+    this.formattedFiatAmount,
+    this.isPending,
+    @required this.onTap});
 
   final VoidCallback onTap;
   final TransactionDirection direction;
@@ -24,78 +24,74 @@ class TransactionRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          height: 41,
-          color: Theme.of(context).backgroundColor,
-          padding: EdgeInsets.only(left: 20, right: 20),
-          child: Row(children: <Widget>[
-            Container(
-              height: 36,
-              width: 36,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Theme.of(context).primaryTextTheme.display3.color),
-              child: Image.asset(direction == TransactionDirection.incoming
-                  ? 'assets/images/down_arrow.png'
-                  : 'assets/images/up_arrow.png'),
-            ),
-            Expanded(
-                child: Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(
-                            (direction == TransactionDirection.incoming
-                                    ? S.of(context).received
-                                    : S.of(context).sent) +
-                                (isPending ? S.of(context).pending : ''),
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color)),
-                        Text(
-                            direction == TransactionDirection.incoming
-                                ? formattedAmount
-                                : '- ' + formattedAmount,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color))
-                      ]),
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Text(formattedDate,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .color)),
-                        Text(
-                            direction == TransactionDirection.incoming
-                                ? formattedFiatAmount
-                                : '- ' + formattedFiatAmount,
-                            style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .color))
-                      ]),
-                ],
-              ),
-            ))
-          ]),
+          height: 52,
+          color: Colors.transparent,
+          padding: EdgeInsets.only(left: 24, right: 24),
+          child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: PaletteDark.wildNightBlue
+                  ),
+                  child: Image.asset(
+                      direction == TransactionDirection.incoming
+                          ? 'assets/images/down_arrow.png'
+                          : 'assets/images/up_arrow.png'),
+                ),
+                Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 12),
+                      child: Container(
+                        height: 42,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(
+                                      (direction == TransactionDirection.incoming
+                                          ? S.of(context).received
+                                          : S.of(context).sent) +
+                                          (isPending ? S.of(context).pending : ''),
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white
+                                      )),
+                                  Text(direction == TransactionDirection.incoming
+                                      ? formattedAmount
+                                      : '- ' + formattedAmount,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white
+                                      ))
+                                ]),
+                            Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(formattedDate,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: PaletteDark.darkCyanBlue)),
+                                  Text(direction == TransactionDirection.incoming
+                                      ? formattedFiatAmount
+                                      : '- ' + formattedFiatAmount,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: PaletteDark.darkCyanBlue))
+                                ]),
+                          ],
+                        ),
+                      ),
+                    ))
+              ]),
         ));
   }
 }

@@ -11,6 +11,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({@required this.walletViewModel});
@@ -22,27 +23,28 @@ class DashboardPage extends BasePage {
   Color get backgroundDarkColor => PaletteDark.backgroundColor;
 
   @override
+  Widget middle(BuildContext context) {
+    return SyncIndicator(dashboardViewModel: walletViewModel);
+  }
+
+  @override
   Widget trailing(BuildContext context) {
     final menuButton = Image.asset('assets/images/menu.png',
         color: Colors.white);
 
     return Container(
       alignment: Alignment.centerRight,
-      child: SizedBox(
-        width: 20,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
-            onPressed: () async {
-              await showDialog<void>(
-                builder: (_) => MenuWidget(
-                  name: walletViewModel.name,
-                  subname: walletViewModel.subname,
-                  type: walletViewModel.type),
-                context: context);
-            },
-            child: menuButton),
+      width: 40,
+      child: InkWell(
+        onTap: () async {
+          await showDialog<void>(
+            builder: (_) => MenuWidget(
+              name: walletViewModel.name,
+              subname: walletViewModel.subname,
+              type: walletViewModel.type),
+            context: context);
+        },
+        child: menuButton
       ),
     );
   }
@@ -66,13 +68,13 @@ class DashboardPage extends BasePage {
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           Expanded(
-              child: PageView.builder(
-                  controller: controller,
-                  itemCount: pages.length,
-                  itemBuilder: (context, index) {
-                    return pages[index];
-                  }
-              )
+            child: PageView.builder(
+              controller: controller,
+              itemCount: pages.length,
+              itemBuilder: (context, index) {
+                return pages[index];
+              }
+            )
           ),
           Padding(
             padding: EdgeInsets.only(
@@ -96,9 +98,9 @@ class DashboardPage extends BasePage {
           Container(
             width: double.infinity,
             padding: EdgeInsets.only(
-                left: 45,
-                right: 45,
-                bottom: 24
+              left: 45,
+              right: 45,
+              bottom: 24
             ),
             child: Row(
               children: <Widget>[

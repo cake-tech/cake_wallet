@@ -69,6 +69,7 @@ class SyncIndicator extends StatelessWidget {
                           statusText,
                           style: TextStyle(
                             fontSize: 12,
+                            fontWeight: FontWeight.w500,
                             color: PaletteDark.wildBlue
                           ),
                         ),
