@@ -14,7 +14,7 @@ public class SwiftCwMoneroPlugin: NSObject, FlutterPlugin {
     private let handlers = [FlutterMethodHandler(name: "cw_monero.setupSyncStatusListener", handler: { (call, result) in
         let listener = MoneroWalletListener()
         listener.onNewBlock = { block in
-            var _block = block
+            var _block = block.bigEndian
             let blockAsData = Data(bytes: &_block, count: MemoryLayout.size(ofValue: _block))
             var message = Data()
             message.append(0)
