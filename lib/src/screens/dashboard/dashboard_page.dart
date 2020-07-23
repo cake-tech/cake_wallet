@@ -2,13 +2,14 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:cake_wallet/view_model/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
@@ -35,8 +36,11 @@ class DashboardPage extends BasePage {
     return Container(
       alignment: Alignment.centerRight,
       width: 40,
-      child: InkWell(
-        onTap: () async {
+      child: FlatButton(
+        highlightColor: Colors.transparent,
+        splashColor: Colors.transparent,
+        padding: EdgeInsets.all(0),
+        onPressed: () async {
           await showDialog<void>(
             builder: (_) => MenuWidget(
               name: walletViewModel.name,
@@ -45,7 +49,7 @@ class DashboardPage extends BasePage {
             context: context);
         },
         child: menuButton
-      ),
+      )
     );
   }
 
@@ -141,14 +145,7 @@ class DashboardPage extends BasePage {
     }
 
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
-    pages.add(Center(
-      child: Text(
-        'SECOND PAGE',
-        style: TextStyle(
-            color: Colors.white
-        ),
-      ),
-    ));
+    pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
     controller.addListener(() {
       walletViewModel.currentPage = controller.page;

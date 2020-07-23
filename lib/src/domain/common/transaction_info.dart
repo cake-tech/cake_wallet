@@ -8,4 +8,5 @@ abstract class TransactionInfo extends Object {
   int height;
   String amountFormatted();
   String fiatAmount();
+  void changeFiatAmount(String amount);
 }
