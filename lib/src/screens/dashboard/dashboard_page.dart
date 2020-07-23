@@ -54,9 +54,12 @@ class DashboardPage extends BasePage {
   }
 
   final DashboardViewModel walletViewModel;
-  final sendImage = Image.asset('assets/images/upload.png');
-  final exchangeImage = Image.asset('assets/images/transfer.png');
-  final receiveImage = Image.asset('assets/images/download.png');
+  final sendImage = Image.asset('assets/images/upload.png',
+      height: 22.24, width: 24, color: Colors.white);
+  final exchangeImage = Image.asset('assets/images/transfer.png',
+      height: 24.27, width: 22.25, color: Colors.white);
+  final receiveImage = Image.asset('assets/images/download.png',
+      height: 22.24, width: 24, color: Colors.white);
   final controller = PageController(initialPage: 0);
 
   var pages = <Widget>[];
