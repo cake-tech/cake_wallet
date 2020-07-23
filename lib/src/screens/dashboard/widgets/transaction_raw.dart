@@ -46,7 +46,7 @@ class TransactionRow extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 12),
                       child: Container(
-                        height: 42,
+                        height: 46,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           mainAxisSize: MainAxisSize.max,

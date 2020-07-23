@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/view_model/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -35,7 +35,7 @@ class BalancePage extends StatelessWidget {
               Observer(
                   builder: (_) {
                     return Text(
-                      dashboardViewModel.balance.totalBalance,
+                      dashboardViewModel.balanceViewModel.cryptoBalance,
                       style: TextStyle(
                           fontSize: 54,
                           fontWeight: FontWeight.bold,
@@ -48,7 +48,7 @@ class BalancePage extends StatelessWidget {
               Observer(
                   builder: (_) {
                     return Text(
-                      '\$ 0.00',
+                      dashboardViewModel.balanceViewModel.fiatBalance,
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
