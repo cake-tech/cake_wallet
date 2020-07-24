@@ -3,10 +3,9 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
 import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/view_model/dashboard/wallet_balance.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/src/stores/price/price_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 
@@ -18,12 +17,12 @@ abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase({
     @required this.wallet,
     @required this.settingsStore,
-    @required this.priceStore
+    @required this.fiatConvertationStore
   });
 
   final WalletBase wallet;
   final SettingsStore settingsStore;
-  final PriceStore priceStore;
+  final FiatConvertationStore fiatConvertationStore;
 
   WalletBalance _getWalletBalance() {
     final _wallet = wallet;
@@ -50,22 +49,7 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  double get price {
-    String symbol;
-    final _wallet = wallet;
-
-    if (_wallet is MoneroWallet) {
-      symbol = PriceStoreBase.generateSymbolForPair(
-          fiat: settingsStore.fiatCurrency, crypto: CryptoCurrency.xmr);
-    }
-
-    if (_wallet is BitcoinWallet) {
-      symbol = PriceStoreBase.generateSymbolForPair(
-          fiat: settingsStore.fiatCurrency, crypto: CryptoCurrency.btc);
-    }
-
-    return priceStore.prices[symbol];
-  }
+  double get price => fiatConvertationStore.price;
 
   @computed
   String get cryptoBalance {

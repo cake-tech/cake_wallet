@@ -12,7 +12,6 @@ import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/store/contact_list_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
@@ -57,6 +56,7 @@ import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 
 final getIt = GetIt.instance;
 
@@ -83,8 +83,7 @@ Future setup(
     {Box<WalletInfo> walletInfoSource,
     Box<Node> nodeSource,
     Box<Contact> contactSource,
-    Box<Trade> tradesSource,
-    PriceStore priceStore}) async {
+    Box<Trade> tradesSource}) async {
   getIt.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
 
@@ -110,6 +109,7 @@ Future setup(
   getIt.registerSingleton<TradeFilterStore>(
       TradeFilterStore(wallet: getIt.get<AppStore>().wallet));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
+  getIt.registerSingleton<FiatConvertationStore>(FiatConvertationStore());
 
   getIt.registerFactory<KeyService>(
       () => KeyService(getIt.get<FlutterSecureStorage>()));
@@ -145,7 +145,7 @@ Future setup(
       () => BalanceViewModel(
             wallet: getIt.get<AppStore>().wallet,
             settingsStore: getIt.get<SettingsStore>(),
-            priceStore: priceStore));
+            fiatConvertationStore: getIt.get<FiatConvertationStore>()));
 
   getIt.registerFactory(
       () => DashboardViewModel(
