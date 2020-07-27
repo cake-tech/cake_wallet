@@ -183,7 +183,9 @@ Future setup(
               closable: false));
 
   getIt.registerFactory<DashboardPage>(
-      () => DashboardPage(walletViewModel: getIt.get<DashboardViewModel>()));
+      () => DashboardPage(
+          walletViewModel: getIt.get<DashboardViewModel>(),
+          addressListViewModel: getIt.get<WalletAddressListViewModel>()));
 
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));

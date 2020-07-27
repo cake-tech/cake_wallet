@@ -54,7 +54,7 @@ abstract class DashboardViewModelBase with Store {
       subname = _wallet.account?.label;
     }
 
-    currentPage = 0;
+    currentPage = 1;
   }
 
   @observable
