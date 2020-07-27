@@ -34,6 +34,7 @@ class PaletteDark {
   static const Color backgroundColor = Color.fromRGBO(25, 35, 60, 1.0);
   static const Color nightBlue = Color.fromRGBO(35, 47, 79, 1.0);
   static const Color wildNightBlue = Color.fromRGBO(39, 53, 96, 1.0);
+  static const Color distantNightBlue = Color.fromRGBO(46, 57, 96, 1.0);
   static const Color cyanBlue = Color.fromRGBO(99, 113, 150, 1.0);
   static const Color darkCyanBlue = Color.fromRGBO(91, 112, 146, 1.0);
   static const Color orangeYellow = Color.fromRGBO(243, 166, 50, 1.0);
@@ -41,6 +42,9 @@ class PaletteDark {
   static const Color oceanBlue = Color.fromRGBO(27, 39, 71, 1.0);
   static const Color lightNightBlue = Color.fromRGBO(39, 52, 89, 1.0);
   static const Color wildBlue = Color.fromRGBO(165, 176, 205, 1.0);
+  static const Color lightBlueGrey = Color.fromRGBO(125, 141, 183, 1.0);
+  static const Color darkGrey = Color.fromRGBO(118, 131, 169, 1.0);
+  static const Color dividerColor = Color.fromRGBO(48, 59, 95, 1.0);
 
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);
