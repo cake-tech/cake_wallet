@@ -4,6 +4,8 @@ String cryptoToString(CryptoCurrency crypto) {
   switch (crypto) {
     case CryptoCurrency.xmr:
       return 'XMR';
+    case CryptoCurrency.btc:
+      return 'BTC';
     default:
       return '';
   }
