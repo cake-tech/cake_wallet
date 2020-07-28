@@ -137,6 +137,8 @@
   "share_address" : "住所を共有する",
   "receive_amount" : "量",
   "subaddresses" : "サブアドレス",
+  "addresses" : "住所",
+  "scan_qr_code" : "QRコードをスキャンして住所を取得します",
   "rename" : "リネーム",
   "choose_account" : "アカウントを選択",
   "create_new_account" : "新しいアカウントを作成する",

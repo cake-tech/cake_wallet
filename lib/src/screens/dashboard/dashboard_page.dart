@@ -29,6 +29,9 @@ class DashboardPage extends BasePage {
   Color get backgroundDarkColor => PaletteDark.backgroundColor;
 
   @override
+  bool get resizeToAvoidBottomPadding => false;
+
+  @override
   Widget middle(BuildContext context) {
     return SyncIndicator(dashboardViewModel: walletViewModel);
   }
@@ -158,7 +161,7 @@ class DashboardPage extends BasePage {
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
     controller.addListener(() {
-      walletViewModel.currentPage = controller.page;
+      walletViewModel.pageViewStore.setCurrentPage(controller.page);
     });
 
     reaction((_) => walletViewModel.currentPage, (double currentPage) {
