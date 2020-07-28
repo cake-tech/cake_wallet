@@ -35,10 +35,10 @@ class QRWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Row(children: <Widget>[
-          Spacer(flex: 2),
+          Spacer(flex: 3),
           Observer(
             builder: (_) => Flexible(
-              flex: 3,
+              flex: 5,
               child: Center(
                 child: AspectRatio(
                   aspectRatio: 1.0,
@@ -47,12 +47,12 @@ class QRWidget extends StatelessWidget {
                     backgroundColor: Colors.transparent,
                     foregroundColor: PaletteDark.lightBlueGrey,
           ))))),
-          Spacer(flex: 2)
+          Spacer(flex: 3)
         ]),
         Padding(
           padding: EdgeInsets.only(top: 20),
           child: Text(
-            'Scan the QR code to get the address',
+            S.of(context).scan_qr_code,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
@@ -62,7 +62,7 @@ class QRWidget extends StatelessWidget {
         ),
         isAmountFieldShow
         ? Padding(
-          padding: EdgeInsets.only(top: 60),
+          padding: EdgeInsets.only(top: 40),
           child: Row(
             children: <Widget>[
               Expanded(
@@ -78,8 +78,11 @@ class QRWidget extends StatelessWidget {
                           ],
                           textAlign: TextAlign.center,
                           hintText: S.of(context).receive_amount,
+                          textColor: Colors.white,
                           borderColor: PaletteDark.darkGrey,
-                          validator: AmountValidator(),
+                          validator: AmountValidator(
+                            type: addressListViewModel.type
+                          ),
                           autovalidate: true,
                           placeholderTextStyle: TextStyle(
                               color: PaletteDark.cyanBlue,

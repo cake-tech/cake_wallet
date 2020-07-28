@@ -137,6 +137,8 @@
   "share_address" : "पता साझा करें",
   "receive_amount" : "रकम",
   "subaddresses" : "उप पते",
+  "addresses" : "पतों",
+  "scan_qr_code" : "पता प्राप्त करने के लिए QR कोड स्कैन करें",
   "rename" : "नाम बदलें",
   "choose_account" : "खाता चुनें",
   "create_new_account" : "नया खाता बनाएँ",

@@ -57,6 +57,7 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
+import 'package:cake_wallet/store/dashboard/page_view_store.dart';
 
 final getIt = GetIt.instance;
 
@@ -110,6 +111,7 @@ Future setup(
       TradeFilterStore(wallet: getIt.get<AppStore>().wallet));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConvertationStore>(FiatConvertationStore());
+  getIt.registerSingleton<PageViewStore>(PageViewStore());
 
   getIt.registerFactory<KeyService>(
       () => KeyService(getIt.get<FlutterSecureStorage>()));
@@ -153,7 +155,8 @@ Future setup(
           appStore: getIt.get<AppStore>(),
           tradesStore: getIt.get<TradesStore>(),
           tradeFilterStore: getIt.get<TradeFilterStore>(),
-          transactionFilterStore: getIt.get<TransactionFilterStore>()
+          transactionFilterStore: getIt.get<TransactionFilterStore>(),
+          pageViewStore: getIt.get<PageViewStore>()
       ));
 
   getIt.registerFactory<AuthService>(() => AuthService(
