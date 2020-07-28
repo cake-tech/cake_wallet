@@ -230,7 +230,7 @@ Future<void> setListeners(
       final type = message.buffer.asByteData(0, 1).getUint8(0);
 
       if (type == newBlockEvent) {
-        final value = message.buffer.asByteData(1).getUint64(0); //Endian.little
+        final value = message.buffer.asByteData(1).getUint64(0);
         await onNewBlock(value);
       }
 
@@ -251,7 +251,7 @@ Future<void> setListeners(
   });
 
    await moneroMethodChannel
-      .invokeMethod<bool>('cw_monero.setupSyncStatusListener');
+      .invokeMethod<bool>('setupSyncStatusListener');
 }
 
 void onStartup() => onStartupNative();

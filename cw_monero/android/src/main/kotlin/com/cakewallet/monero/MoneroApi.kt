@@ -3,11 +3,15 @@ package com.cakewallet.monero
 import com.cakewallet.monero.MoneroWalletSyncStatusListener
 
 class MoneroApi {
+    private var isLoaded = false
 
-    companion object {
-        init {
-            System.loadLibrary("cw_monero")
+    fun load() : Unit {
+        if (isLoaded) {
+            return
         }
+
+        System.loadLibrary("cw_monero")
+        isLoaded = true
     }
 
     fun setupListener(listener: MoneroWalletSyncStatusListener) {

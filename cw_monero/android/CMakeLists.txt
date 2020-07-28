@@ -4,8 +4,6 @@ add_library( cw_monero
              SHARED
              ./jni/monero_jni.cpp)
 
-             find_library( log-lib log )
-
 set(CMAKE_BUILD_TYPE Debug)
 
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../ios/External/android)
@@ -157,7 +155,7 @@ set_target_properties(version PROPERTIES IMPORTED_LOCATION
 add_library(net STATIC IMPORTED)
 set_target_properties(net PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/monero/lib/${ANDROID_ABI}/libnet.a)
-        
+
 add_library(hardforks STATIC IMPORTED)
 set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/monero/lib/${ANDROID_ABI}/libhardforks.a)
@@ -212,6 +210,4 @@ target_link_libraries(  cw_monero
                         ssl
                         crypto
                         
-                        sodium
-
-                       ${log-lib} )
+                        sodium )
