@@ -182,9 +182,9 @@
   "seed_language_spanish" : "Іспанська",
 
 
-  "send_title" : "Відправити Monero",
+  "send_title" : "Відправити",
   "send_your_wallet" : "Ваш гаманець",
-  "send_monero_address" : "Monero адреса",
+  "send_address" : "${cryptoCurrency} адреса",
   "send_payment_id" : "ID платежу (опційно)",
   "all" : "ВСЕ",
   "send_error_minimum_value" : "Мінімальна сума 0.01",
@@ -377,5 +377,9 @@
   "buy" : "Купити",
 
   "placeholder_transactions" : "Тут відображатимуться ваші транзакції",
-  "placeholder_contacts" : "Тут будуть показані ваші контакти"
+  "placeholder_contacts" : "Тут будуть показані ваші контакти",
+
+  "template" : "Шаблон",
+  "confirm_delete_template" : "Ця дія видалить шаблон. Ви хочете продовжити?",
+  "confirm_delete_wallet" : "Ця дія видалить гаманець. Ви хочете продовжити?"
 }

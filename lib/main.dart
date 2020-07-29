@@ -127,6 +127,8 @@ void main() async {
       contactSource: contacts,
       tradesSource: trades,
       fiatConvertationService: fiatConvertationService,
+      templates: templates,
+      exchangeTemplates: exchangeTemplates,
       initialMigrationVersion: 3);
 
   setReactions(
@@ -169,6 +171,8 @@ Future<void> initialSetup(
     @required Box<Contact> contactSource,
     @required  Box<Trade> tradesSource,
     @required FiatConvertationService fiatConvertationService,
+    @required Box<Template> templates,
+    @required Box<ExchangeTemplate> exchangeTemplates,
       int initialMigrationVersion = 3}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
@@ -178,7 +182,9 @@ Future<void> initialSetup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
       contactSource: contactSource,
-      tradesSource: tradesSource);
+      tradesSource: tradesSource,
+      templates: templates,
+      exchangeTemplates: exchangeTemplates);
   await bootstrap(fiatConvertationService: fiatConvertationService);
   monero_wallet.onStartup();
 }

@@ -27,7 +27,7 @@ class TextValidator extends Validator<String> {
   @override
   bool isValid(String value) {
     if (value == null || value.isEmpty) {
-      return true;
+      return false;
     }
 
     return value.length > (minLength ?? 0) &&

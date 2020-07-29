@@ -182,9 +182,9 @@
   "seed_language_spanish" : "스페인의",
 
 
-  "send_title" : "모네로 보내기",
+  "send_title" : "보내다",
   "send_your_wallet" : "지갑",
-  "send_monero_address" : "모네로 주소",
+  "send_address" : "${cryptoCurrency} 주소",
   "send_payment_id" : "지불 ID (optional)",
   "all" : "모든",
   "send_error_minimum_value" : "금액의 최소값은 0.01입니다",
@@ -377,5 +377,9 @@
   "buy" : "구입",
 
   "placeholder_transactions" : "거래가 여기에 표시됩니다",
-  "placeholder_contacts" : "연락처가 여기에 표시됩니다"
+  "placeholder_contacts" : "연락처가 여기에 표시됩니다",
+
+  "template" : "주형",
+  "confirm_delete_template" : "이 작업은이 템플릿을 삭제합니다. 계속 하시겠습니까?",
+  "confirm_delete_wallet" : "이 작업은이 지갑을 삭제합니다. 계속 하시겠습니까?"
 }

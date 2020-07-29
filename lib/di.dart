@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
+import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/store/contact_list_store.dart';
@@ -57,6 +58,10 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
+import 'package:cake_wallet/store/templates/send_template_store.dart';
+import 'package:cake_wallet/store/templates/exchange_template_store.dart';
+import 'package:cake_wallet/src/domain/common/template.dart';
+import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
 
 final getIt = GetIt.instance;
 
@@ -83,7 +88,9 @@ Future setup(
     {Box<WalletInfo> walletInfoSource,
     Box<Node> nodeSource,
     Box<Contact> contactSource,
-    Box<Trade> tradesSource}) async {
+    Box<Trade> tradesSource,
+    Box<Template> templates,
+    Box<ExchangeTemplate> exchangeTemplates}) async {
   getIt.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
 
@@ -110,6 +117,10 @@ Future setup(
       TradeFilterStore(wallet: getIt.get<AppStore>().wallet));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConvertationStore>(FiatConvertationStore());
+  getIt.registerSingleton<SendTemplateStore>(
+      SendTemplateStore(templateSource: templates));
+  getIt.registerSingleton<ExchangeTemplateStore>(
+      ExchangeTemplateStore(templateSource: exchangeTemplates));
 
   getIt.registerFactory<KeyService>(
       () => KeyService(getIt.get<FlutterSecureStorage>()));
@@ -198,10 +209,16 @@ Future setup(
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactory<SendViewModel>(() => SendViewModel(
-      getIt.get<AppStore>().wallet, getIt.get<AppStore>().settingsStore));
+      getIt.get<AppStore>().wallet,
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<FiatConvertationStore>(),
+      getIt.get<SendTemplateStore>()));
 
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
+
+  getIt.registerFactory(
+          () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       walletInfoSource, getIt.get<AppStore>(), getIt.get<KeyService>()));

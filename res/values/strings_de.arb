@@ -182,9 +182,9 @@
   "seed_language_spanish" : "Spanisch",
 
 
-  "send_title" : "Senden Sie Monero",
+  "send_title" : "Senden Sie",
   "send_your_wallet" : "Deine Geldbörse",
-  "send_monero_address" : "Monero-Adresse",
+  "send_address" : "${cryptoCurrency}-Adresse",
   "send_payment_id" : "Zahlungs ID (wahlweise)",
   "all" : "ALLE",
   "send_error_minimum_value" : "Der Mindestbetrag beträgt 0,01",
@@ -377,5 +377,9 @@
   "buy" : "Kaufen",
 
   "placeholder_transactions" : "Ihre Transaktionen werden hier angezeigt",
-  "placeholder_contacts" : "Ihre Kontakte werden hier angezeigt"
+  "placeholder_contacts" : "Ihre Kontakte werden hier angezeigt",
+
+  "template" : "Vorlage",
+  "confirm_delete_template" : "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?",
+  "confirm_delete_wallet" : "Diese Aktion löscht diese Brieftasche. Möchten Sie fortfahren?"
 }

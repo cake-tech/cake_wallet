@@ -23,9 +23,11 @@ abstract class BasePage extends StatelessWidget {
 
   Widget Function(BuildContext, Widget) get rootWrapper => null;
 
-  final _backArrowImage = Image.asset('assets/images/back_arrow.png');
+  final _backArrowImage = Image.asset('assets/images/back_arrow.png',
+  color: Colors.white);
   final _backArrowImageDarkTheme =
-      Image.asset('assets/images/back_arrow_dark_theme.png');
+  Image.asset('assets/images/back_arrow_dark_theme.png',
+  color: Colors.white);
   final _closeButtonImage = Image.asset('assets/images/close_button.png');
   final _closeButtonImageDarkTheme =
       Image.asset('assets/images/close_button_dark_theme.png');
@@ -71,7 +73,7 @@ abstract class BasePage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
-                color: Theme.of(context).primaryTextTheme.title.color),
+                color: Colors.white),
           );
   }
 

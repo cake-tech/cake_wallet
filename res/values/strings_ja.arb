@@ -182,9 +182,9 @@
   "seed_language_spanish" : "スペイン語",
 
 
-  "send_title" : "Moneroを送信",
+  "send_title" : "を送信",
   "send_your_wallet" : "あなたの財布",
-  "send_monero_address" : "Monero 住所",
+  "send_address" : "${cryptoCurrency} 住所",
   "send_payment_id" : "支払いID (オプショナル)",
   "all" : "すべて",
   "send_error_minimum_value" : "金額の最小値は0.01です",
@@ -377,5 +377,9 @@
   "buy" : "購入",
 
   "placeholder_transactions" : "あなたの取引はここに表示されます",
-  "placeholder_contacts" : "連絡先はここに表示されます"
+  "placeholder_contacts" : "連絡先はここに表示されます",
+
+  "template" : "テンプレート",
+  "confirm_delete_template" : "この操作により、このテンプレートが削除されます。 続行しますか？",
+  "confirm_delete_wallet" : "このアクションにより、このウォレットが削除されます。 続行しますか？"
 }
