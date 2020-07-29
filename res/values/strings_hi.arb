@@ -182,9 +182,9 @@
   "seed_language_spanish" : "स्पेनिश",
 
 
-  "send_title" : "संदेश Monero",
+  "send_title" : "संदेश",
   "send_your_wallet" : "आपका बटुआ",
-  "send_monero_address" : "मोनरो पता",
+  "send_address" : "${cryptoCurrency} पता",
   "send_payment_id" : "भुगतान ID (ऐच्छिक)",
   "all" : "सब",
   "send_error_minimum_value" : "राशि का न्यूनतम मूल्य 0.01 है",
@@ -377,5 +377,9 @@
   "buy" : "खरीदें",
 
   "placeholder_transactions" : "आपके लेनदेन यहां प्रदर्शित होंगे",
-  "placeholder_contacts" : "आपके संपर्क यहां प्रदर्शित होंगे"
+  "placeholder_contacts" : "आपके संपर्क यहां प्रदर्शित होंगे",
+
+  "template" : "खाका",
+  "confirm_delete_template" : "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
+  "confirm_delete_wallet" : "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?"
 }

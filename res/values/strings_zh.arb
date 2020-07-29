@@ -182,9 +182,9 @@
   "seed_language_spanish" : "西班牙文",
 
 
-  "send_title" : "发送门罗币",
+  "send_title" : "發送",
   "send_your_wallet" : "你的钱包",
-  "send_monero_address" : "门罗地址",
+  "send_address" : "${cryptoCurrency} 地址",
   "send_payment_id" : "付款编号 (可选的)",
   "all" : "所有",
   "send_error_minimum_value" : "最小金额为0.01",
@@ -377,5 +377,9 @@
   "buy" : "購買",
 
   "placeholder_transactions" : "您的交易將顯示在這裡",
-  "placeholder_contacts" : "您的聯繫人將顯示在這裡"
+  "placeholder_contacts" : "您的聯繫人將顯示在這裡",
+
+  "template" : "模板",
+  "confirm_delete_template" : "此操作將刪除此模板。 你想繼續嗎？",
+  "confirm_delete_wallet" : "此操作將刪除此錢包。 你想繼續嗎？"
 }

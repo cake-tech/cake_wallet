@@ -183,9 +183,9 @@
   "seed_language_spanish" : "Spanish",
 
 
-  "send_title" : "Send Monero",
+  "send_title" : "Send",
   "send_your_wallet" : "Your wallet",
-  "send_monero_address" : "Monero address",
+  "send_address" : "${cryptoCurrency} address",
   "send_payment_id" : "Payment ID (optional)",
   "all" : "ALL",
   "send_error_minimum_value" : "Minimum value of amount is 0.01",
@@ -378,5 +378,9 @@
   "buy" : "Buy",
 
   "placeholder_transactions" : "Your transactions will be displayed here",
-  "placeholder_contacts" : "Your contacts will be displayed here"
+  "placeholder_contacts" : "Your contacts will be displayed here",
+
+  "template" : "Template",
+  "confirm_delete_template" : "This action will delete this template. Do you wish to continue?",
+  "confirm_delete_wallet" : "This action will delete this wallet. Do you wish to continue?"
 }

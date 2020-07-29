@@ -258,12 +258,7 @@ class Router {
 
       case Routes.sendTemplate:
         return CupertinoPageRoute<void>(
-            builder: (_) => Provider(
-                create: (_) => SendStore(
-                    walletService: walletService,
-                    priceStore: priceStore,
-                    transactionDescriptions: transactionDescriptions),
-                child: SendTemplatePage()));
+            fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
       case Routes.receive:
         return CupertinoPageRoute<void>(
