@@ -14,7 +14,7 @@ class MoneroWalletSyncStatusListener(val onNewBlock: (Long) -> Unit,
         onRefreshed()
     }
 
-    fun onUpdated() {
+    fun updated() {
         onUpdated()
     }
 

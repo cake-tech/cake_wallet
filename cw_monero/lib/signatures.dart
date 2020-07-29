@@ -43,7 +43,7 @@ typedef set_refresh_from_block_height = Void Function(Int64);
 
 typedef set_recovering_from_seed = Void Function(Int8);
 
-typedef store_c = Void Function(Pointer<Utf8>);
+typedef store_c = Void Function();
 
 typedef set_listener = Void Function();
 

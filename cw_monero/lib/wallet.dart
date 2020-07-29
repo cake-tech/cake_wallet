@@ -202,9 +202,7 @@ void setRecoveringFromSeed({bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
 void storeSync() {
-  final pathPointer = Utf8.toUtf8('');
-  storeNative(pathPointer);
-  free(pathPointer);
+  storeNative();
 }
 
 void closeCurrentWallet() => closeCurrentWalletNative();
@@ -234,7 +232,7 @@ Future<void> setListeners(
         await onNewBlock(value);
       }
 
-      if (type == refreshedEvent || type == updatedEvent) {
+      if (type == refreshedEvent) {
         await onNeedToRefresh();
       }
 

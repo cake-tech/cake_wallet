@@ -30,7 +30,7 @@ class MoneroWallet extends Wallet {
     _cachedBlockchainHeight = 0;
     _isSaving = false;
     _lastSaveTime = 0;
-    _lastRefreshTime = 0;
+    _lastRefreshedTime = 0;
     _refreshHeight = 0;
     _lastSyncHeight = 0;
     _name = BehaviorSubject<String>();
@@ -127,7 +127,7 @@ class MoneroWallet extends Wallet {
   int _cachedBlockchainHeight;
   bool _isSaving;
   int _lastSaveTime;
-  int _lastRefreshTime;
+  int _lastRefreshedTime;
   int _refreshHeight;
   int _lastSyncHeight;
 
@@ -406,25 +406,24 @@ class MoneroWallet extends Wallet {
 
       await askForUpdateBalance();
 
-      _syncStatus.add(SyncedSyncStatus());
+      final heightDifference = nodeHeight - currentHeight;
+      final isRefreshed = heightDifference < moneroBlockSize;
 
-      if (isRecovery) {
-        await askForUpdateTransactionHistory();
-      }
+      if (isRefreshed) {
+        _syncStatus.add(SyncedSyncStatus());
 
-      if (isRecovery && (nodeHeight - currentHeight < moneroBlockSize)) {
-        await setAsRecovered();
+        if (isRecovery) {
+          await setAsRecovered();
+        }
       }
 
       final now = DateTime.now().millisecondsSinceEpoch;
-      final diff = now - _lastRefreshTime;
+      final lastRefreshedTimeDifference = now - _lastRefreshedTime;
 
-      if (diff >= 0 && diff < 60000) {
-        return;
+      if (lastRefreshedTimeDifference >=  60000) {
+        await askForSave();
+        _lastRefreshedTime = now;
       }
-
-      await store();
-      _lastRefreshTime = now;
     } catch (e) {
       print(e);
     }

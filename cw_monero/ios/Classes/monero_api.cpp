@@ -102,6 +102,7 @@ Monero::TransactionHistory *m_transaction_history;
 Monero::Subaddress *m_subaddress;
 Monero::SubaddressAccount *m_account;
 uint64_t m_last_known_wallet_height;
+std::mutex m_store_mtx;
 
 void change_current_wallet(Monero::Wallet *wallet)
 {
@@ -307,6 +308,7 @@ bool connect_to_node(char *error)
 
 bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
 {
+    nice(19);
     Monero::Wallet *wallet = get_current_wallet();
     
     std::string _login = "";
@@ -328,6 +330,7 @@ bool setup_node(char *address, char *login, char *password, bool use_ssl, bool i
     {
         error = strdup(wallet->errorString().c_str());
     } else if (!wallet->connectToDaemon()) {
+        inited = false;
         error = strdup(wallet->errorString().c_str());
     }
 
@@ -355,9 +358,11 @@ void set_recovering_from_seed(bool is_recovery)
     get_current_wallet()->setRecoveringFromSeed(is_recovery);
 }
 
-void store(char *path)
+void store()
 {
-    get_current_wallet()->store(std::string(path));
+    m_store_mtx.lock();
+    get_current_wallet()->store("");
+    m_store_mtx.unlock();
 }
 
 bool transaction_create(char *address, char *payment_id, char *amount,
