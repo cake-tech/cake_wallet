@@ -137,6 +137,8 @@
   "share_address" : "Поділитися адресою",
   "receive_amount" : "Сума",
   "subaddresses" : "Субадреси",
+  "addresses" : "Адреси",
+  "scan_qr_code" : "Скануйте QR-код для одержання адреси",
   "rename" : "Перейменувати",
   "choose_account" : "Оберіть акаунт",
   "create_new_account" : "Створити новий акаунт",

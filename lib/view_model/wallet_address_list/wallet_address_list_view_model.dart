@@ -7,6 +7,7 @@ import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -61,6 +62,9 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @observable
   String amount;
+
+  @computed
+  WalletType get type => _wallet.type;
 
   @computed
   WalletAddressListItem get address => WalletAddressListItem(address: _wallet.address);
