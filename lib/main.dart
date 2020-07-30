@@ -47,6 +47,7 @@ import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/template.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/domain/services/wallet_service.dart';
+import 'package:cake_wallet/src/domain/services/fiat_convertation_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
@@ -87,6 +88,7 @@ void main() async {
 
   final sharedPreferences = await SharedPreferences.getInstance();
   final walletService = WalletService();
+  final fiatConvertationService = FiatConvertationService();
   final walletListService = WalletListService(
       secureStorage: secureStorage,
       walletInfoSource: walletInfoSource,
@@ -124,7 +126,7 @@ void main() async {
       walletInfoSource: walletInfoSource,
       contactSource: contacts,
       tradesSource: trades,
-      priceStore: priceStore,
+      fiatConvertationService: fiatConvertationService,
       initialMigrationVersion: 3);
 
   setReactions(
@@ -166,7 +168,7 @@ Future<void> initialSetup(
     @required Box<WalletInfo> walletInfoSource,
     @required Box<Contact> contactSource,
     @required  Box<Trade> tradesSource,
-    @required PriceStore priceStore,
+    @required FiatConvertationService fiatConvertationService,
       int initialMigrationVersion = 3}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
@@ -176,9 +178,8 @@ Future<void> initialSetup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
       contactSource: contactSource,
-      tradesSource: tradesSource,
-      priceStore: priceStore);
-  await bootstrap();
+      tradesSource: tradesSource);
+  await bootstrap(fiatConvertationService: fiatConvertationService);
   monero_wallet.onStartup();
 }
 

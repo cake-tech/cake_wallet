@@ -10,10 +10,14 @@ import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/secret_store_key.dart';
 import 'package:cake_wallet/src/domain/common/encrypt.dart';
+import 'package:cake_wallet/src/domain/services/fiat_convertation_service.dart';
+import 'package:cake_wallet/src/domain/common/fiat_currency.dart';
+import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 
 // FIXME: move me
 Future<void> loadCurrentWallet() async {
@@ -44,9 +48,12 @@ Future<void> loadCurrentWallet() async {
 ReactionDisposer _initialAuthReaction;
 ReactionDisposer _onCurrentWalletChangeReaction;
 ReactionDisposer _onWalletSyncStatusChangeReaction;
+ReactionDisposer _onCurrentFiatCurrencyChangeDisposer;
 
-Future<void> bootstrap() async {
+Future<void> bootstrap({FiatConvertationService fiatConvertationService}) async {
   final authenticationStore = getIt.get<AuthenticationStore>();
+  final settingsStore = getIt.get<SettingsStore>();
+  final fiatConvertationStore = getIt.get<FiatConvertationStore>();
 
   if (authenticationStore.state == AuthenticationState.uninitialized) {
     authenticationStore.state =
@@ -81,5 +88,30 @@ Future<void> bootstrap() async {
         .setInt('current_wallet_type', serializeToInt(wallet.type));
 
     await wallet.connectToNode(node: null);
+
+    final cryptoCurrency = wallet.currency;
+    final fiatCurrency = settingsStore.fiatCurrency;
+
+    final price = await fiatConvertationService.getPrice(
+      crypto: cryptoCurrency,
+      fiat: fiatCurrency
+    );
+
+    fiatConvertationStore.setPrice(price);
+  });
+
+  //
+
+  _onCurrentFiatCurrencyChangeDisposer ??=
+  reaction((_) => settingsStore.fiatCurrency,
+          (FiatCurrency fiatCurrency) async {
+    final cryptoCurrency = getIt.get<AppStore>().wallet.currency;
+
+    final price = await fiatConvertationService.getPrice(
+      crypto: cryptoCurrency,
+      fiat: fiatCurrency
+    );
+
+    fiatConvertationStore.setPrice(price);
   });
 }
