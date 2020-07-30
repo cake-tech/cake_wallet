@@ -24,7 +24,6 @@ class S implements WidgetsLocalizations {
   String get account => "Account";
   String get accounts => "Accounts";
   String get accounts_subaddresses => "Accounts and subaddresses";
-  String get addresses => "Addresses";
   String get add => "Add";
   String get add_new_node => "Add new node";
   String get add_new_word => "Add new word";
@@ -32,6 +31,7 @@ class S implements WidgetsLocalizations {
   String get address_book_menu => "Address book";
   String get address_remove_contact => "Remove contact";
   String get address_remove_content => "Are you sure that you want to remove selected contact?";
+  String get addresses => "Addresses";
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
@@ -642,8 +642,6 @@ class $de extends S {
   String get change_language => "Sprache ändern";
   @override
   String get accounts_subaddresses => "Konten und Unteradressen";
-  @override
-  String get addresses => "Addressen";
   @override
   String get wallet_name => "Walletname";
   @override
@@ -1265,8 +1263,6 @@ class $hi extends S {
   @override
   String get accounts_subaddresses => "लेखा और उपदेस";
   @override
-  String get addresses => "पतों";
-  @override
   String get wallet_name => "बटुए का नाम";
   @override
   String get error_text_payment_id => "पेमेंट आईडी केवल हेक्स में 16 से 64 चार्ट तक हो सकती है";
@@ -1886,8 +1882,6 @@ class $ru extends S {
   String get change_language => "Изменить язык";
   @override
   String get accounts_subaddresses => "Аккаунты и субадреса";
-  @override
-  String get addresses => "Адреса";
   @override
   String get wallet_name => "Имя кошелька";
   @override
@@ -2509,8 +2503,6 @@ class $ko extends S {
   @override
   String get accounts_subaddresses => "계정 및 하위 주소";
   @override
-  String get addresses => "구애";
-  @override
   String get wallet_name => "지갑 이름";
   @override
   String get error_text_payment_id => "지불 ID는 16 ~ 64 자의 16 진 문자 만 포함 할 수 있습니다";
@@ -3130,8 +3122,6 @@ class $pt extends S {
   String get change_language => "Mudar idioma";
   @override
   String get accounts_subaddresses => "Contas e sub-endereços";
-  @override
-  String get addresses => "Endereços";
   @override
   String get wallet_name => "Nome da carteira";
   @override
@@ -3753,8 +3743,6 @@ class $uk extends S {
   @override
   String get accounts_subaddresses => "Акаунти та субадреси";
   @override
-  String get addresses => "Адреси";
-  @override
   String get wallet_name => "Ім'я гаманця";
   @override
   String get error_text_payment_id => "Ідентифікатор платежу може містити від 16 до 64 символів в hex";
@@ -4374,8 +4362,6 @@ class $ja extends S {
   String get change_language => "言語を変えてください";
   @override
   String get accounts_subaddresses => "アカウントとサブアドレス";
-  @override
-  String get addresses => "アドレス";
   @override
   String get wallet_name => "ウォレット名";
   @override
@@ -5001,8 +4987,6 @@ class $pl extends S {
   @override
   String get accounts_subaddresses => "Konta i podadresy";
   @override
-  String get addresses => "Adresy";
-  @override
   String get wallet_name => "Nazwa portfela";
   @override
   String get error_text_payment_id => "ID może zawierać od 16 do 64 znaków w formacie szesnastkowym";
@@ -5622,8 +5606,6 @@ class $es extends S {
   String get change_language => "Cambiar idioma";
   @override
   String get accounts_subaddresses => "Cuentas y subdirecciones";
-  @override
-  String get addresses => "Direcciones";
   @override
   String get wallet_name => "Nombre de la billetera";
   @override
@@ -6245,8 +6227,6 @@ class $nl extends S {
   @override
   String get accounts_subaddresses => "Accounts en subadressen";
   @override
-  String get addresses => "Adressen";
-  @override
   String get wallet_name => "Portemonnee naam";
   @override
   String get error_text_payment_id => "Betalings-ID kan alleen 16 tot 64 tekens bevatten in hexadecimale volgorde";
@@ -6866,8 +6846,6 @@ class $zh extends S {
   String get change_language => "改變語言";
   @override
   String get accounts_subaddresses => "帳戶和子地址";
-  @override
-  String get addresses => "地址";
   @override
   String get wallet_name => "钱包名称";
   @override

@@ -20,7 +20,6 @@ class Palette {
 class PaletteDark {
   static const Color distantBlue = Color.fromRGBO(70, 85, 133, 1.0); // mainBackgroundColor
   static const Color lightDistantBlue = Color.fromRGBO(81, 96, 147, 1.0); // borderCardColor
-  static const Color nightBlue = Color.fromRGBO(45, 56, 95, 1.0); // walletCardBottomEndSync
   static const Color gray = Color.fromRGBO(140, 153, 201, 1.0); // walletCardText
   static const Color violetBlue = Color.fromRGBO(51, 63, 104, 1.0); // walletCardAddressField
   static const Color moderateBlue = Color.fromRGBO(63, 77, 122, 1.0); // walletCardSubAddressField
@@ -28,8 +27,21 @@ class PaletteDark {
   static const Color pigeonBlue = Color.fromRGBO(91, 112, 146, 1.0); // historyPanelText
   static const Color moderateNightBlue = Color.fromRGBO(39, 53, 96, 1.0); // historyPanelButton
   static const Color headerNightBlue = Color.fromRGBO(41, 52, 84, 1.0); // menuHeader
-  static const Color lightNightBlue = Color.fromRGBO(48, 59, 95, 1.0); // menuList
+  //static const Color lightNightBlue = Color.fromRGBO(48, 59, 95, 1.0); // menuList
   static const Color moderatePurpleBlue = Color.fromRGBO(57, 74, 95, 1.0); // selectButtonText
+
+  // NEW DESIGN
+  static const Color backgroundColor = Color.fromRGBO(25, 35, 60, 1.0);
+  static const Color nightBlue = Color.fromRGBO(35, 47, 79, 1.0);
+  static const Color wildNightBlue = Color.fromRGBO(39, 53, 96, 1.0);
+  static const Color cyanBlue = Color.fromRGBO(99, 113, 150, 1.0);
+  static const Color darkCyanBlue = Color.fromRGBO(91, 112, 146, 1.0);
+  static const Color orangeYellow = Color.fromRGBO(243, 166, 50, 1.0);
+  static const Color brightGreen = Color.fromRGBO(88, 243, 50, 1.0);
+  static const Color oceanBlue = Color.fromRGBO(27, 39, 71, 1.0);
+  static const Color lightNightBlue = Color.fromRGBO(39, 52, 89, 1.0);
+  static const Color wildBlue = Color.fromRGBO(165, 176, 205, 1.0);
+
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);
   static const Color xxx = Color.fromRGBO(72, 89, 109, 1);

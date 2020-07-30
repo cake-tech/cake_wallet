@@ -85,13 +85,6 @@ void main() async {
   final exchangeTemplates =
       await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
 
-  await initialSetup(
-      sharedPreferences: await SharedPreferences.getInstance(),
-      nodes: nodes,
-      walletInfoSource: walletInfoSource,
-      contactSource: contacts,
-      initialMigrationVersion: 3);
-
   final sharedPreferences = await SharedPreferences.getInstance();
   final walletService = WalletService();
   final walletListService = WalletListService(
@@ -124,6 +117,15 @@ void main() async {
 
   final walletCreationService = WalletCreationService();
   final authService = AuthService();
+
+  await initialSetup(
+      sharedPreferences: await SharedPreferences.getInstance(),
+      nodes: nodes,
+      walletInfoSource: walletInfoSource,
+      contactSource: contacts,
+      tradesSource: trades,
+      priceStore: priceStore,
+      initialMigrationVersion: 3);
 
   setReactions(
       settingsStore: settingsStore,
@@ -163,6 +165,8 @@ Future<void> initialSetup(
     @required Box<Node> nodes,
     @required Box<WalletInfo> walletInfoSource,
     @required Box<Contact> contactSource,
+    @required  Box<Trade> tradesSource,
+    @required PriceStore priceStore,
       int initialMigrationVersion = 3}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
@@ -171,7 +175,9 @@ Future<void> initialSetup(
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
-      contactSource: contactSource);
+      contactSource: contactSource,
+      tradesSource: tradesSource,
+      priceStore: priceStore);
   await bootstrap();
   monero_wallet.onStartup();
 }
