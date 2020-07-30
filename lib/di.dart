@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/contact_service.dart';
 import 'package:cake_wallet/src/domain/common/contact.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
+import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
@@ -11,7 +12,7 @@ import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/store/contact_list_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/src/stores/price/price_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
@@ -31,7 +32,8 @@ import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
-import 'package:cake_wallet/view_model/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
@@ -52,6 +54,9 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
+import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 
 final getIt = GetIt.instance;
 
@@ -77,7 +82,9 @@ NodeListStore setupNodeListStore(Box<Node> nodeSource) {
 Future setup(
     {Box<WalletInfo> walletInfoSource,
     Box<Node> nodeSource,
-    Box<Contact> contactSource}) async {
+    Box<Contact> contactSource,
+    Box<Trade> tradesSource,
+    PriceStore priceStore}) async {
   getIt.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
 
@@ -97,6 +104,13 @@ Future setup(
       nodeListStore: getIt.get<NodeListStore>()));
   getIt.registerSingleton<ContactService>(
       ContactService(contactSource, getIt.get<AppStore>().contactListStore));
+  getIt.registerSingleton<TradesStore>(TradesStore(
+      tradesSource: tradesSource,
+      settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerSingleton<TradeFilterStore>(
+      TradeFilterStore(wallet: getIt.get<AppStore>().wallet));
+  getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
+
   getIt.registerFactory<KeyService>(
       () => KeyService(getIt.get<FlutterSecureStorage>()));
 
@@ -128,7 +142,19 @@ Future setup(
       () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
 
   getIt.registerFactory(
-      () => DashboardViewModel(appStore: getIt.get<AppStore>()));
+      () => BalanceViewModel(
+            wallet: getIt.get<AppStore>().wallet,
+            settingsStore: getIt.get<SettingsStore>(),
+            priceStore: priceStore));
+
+  getIt.registerFactory(
+      () => DashboardViewModel(
+          balanceViewModel: getIt.get<BalanceViewModel>(),
+          appStore: getIt.get<AppStore>(),
+          tradesStore: getIt.get<TradesStore>(),
+          tradeFilterStore: getIt.get<TradeFilterStore>(),
+          transactionFilterStore: getIt.get<TransactionFilterStore>()
+      ));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),

@@ -1,0 +1,35 @@
+import 'dart:async';
+import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+
+part 'trades_store.g.dart';
+
+class TradesStore = TradesStoreBase with _$TradesStore;
+
+abstract class TradesStoreBase with Store {
+  TradesStoreBase({this.tradesSource, this.settingsStore}) {
+    trades = <TradeListItem>[];
+
+    _onTradesChanged =
+        tradesSource.watch().listen((_) async => await updateTradeList());
+
+    updateTradeList();
+  }
+
+  Box<Trade> tradesSource;
+  StreamSubscription<BoxEvent> _onTradesChanged;
+  SettingsStore settingsStore;
+
+  @observable
+  List<TradeListItem> trades;
+
+  @action
+  Future updateTradeList() async => trades =
+      tradesSource.values.map((trade) => TradeListItem(
+          trade: trade,
+          displayMode: settingsStore.balanceDisplayMode)).toList();
+}

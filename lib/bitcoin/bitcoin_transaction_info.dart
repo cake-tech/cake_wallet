@@ -4,6 +4,7 @@ import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
 import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
+import 'package:cake_wallet/src/domain/common/format_amount.dart';
 
 class BitcoinTransactionInfo extends TransactionInfo {
   BitcoinTransactionInfo(
@@ -62,11 +63,16 @@ class BitcoinTransactionInfo extends TransactionInfo {
 
   final String id;
 
-  @override
-  String amountFormatted() => bitcoinAmountToString(amount: amount);
+  String _fiatAmount;
 
   @override
-  String fiatAmount() => '\$ 24.5';
+  String amountFormatted() => '${formatAmount(bitcoinAmountToString(amount: amount))} BTC';
+
+  @override
+  String fiatAmount() => _fiatAmount ?? '';
+
+  @override
+  void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
   Map<String, dynamic> toJson() {
     final m = Map<String, dynamic>();
