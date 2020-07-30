@@ -21,10 +21,6 @@ class TradeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final amountCrypto = provider == ExchangeProviderDescription.xmrto
-        ? to.toString()
-        : from.toString();
-
     return InkWell(
         onTap: onTap,
         child: Container(
@@ -53,7 +49,7 @@ class TradeRow extends StatelessWidget {
                                     .subhead
                                     .color)),
                         formattedAmount != null
-                            ? Text(formattedAmount + ' ' + amountCrypto,
+                            ? Text(formattedAmount + ' ' + from.toString(),
                                 style: const TextStyle(
                                     fontSize: 16, color: Palette.purpleBlue))
                             : Container()

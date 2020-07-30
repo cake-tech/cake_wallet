@@ -42,12 +42,12 @@ void main() async {
 
   final appDir = await getApplicationDocumentsDirectory();
   Hive.init(appDir.path);
-  Hive.registerAdapter(ContactAdapter(), 0);
-  Hive.registerAdapter(NodeAdapter(), 1);
-  Hive.registerAdapter(TransactionDescriptionAdapter(), 2);
-  Hive.registerAdapter(TradeAdapter(), 3);
-  Hive.registerAdapter(WalletInfoAdapter(), 4);
-  Hive.registerAdapter(WalletTypeAdapter(), 5);
+  Hive.registerAdapter(ContactAdapter());
+  Hive.registerAdapter(NodeAdapter());
+  Hive.registerAdapter(TransactionDescriptionAdapter());
+  Hive.registerAdapter(TradeAdapter());
+  Hive.registerAdapter(WalletInfoAdapter());
+  Hive.registerAdapter(WalletTypeAdapter());
 
   final secureStorage = FlutterSecureStorage();
   final transactionDescriptionsBoxKey = await getEncryptionKey(

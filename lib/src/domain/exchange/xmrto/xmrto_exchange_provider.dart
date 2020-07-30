@@ -21,11 +21,11 @@ class XMRTOExchangeProvider extends ExchangeProvider {
         ]);
 
   static const userAgent = 'CakeWallet/XMR iOS';
-  static const originalApiUri = 'https://xmr.to/api/v2/xmr2btc';
-  static const proxyApiUri = 'https://xmrproxy.net/api/v2/xmr2btc';
-  static const _orderParameterUriSufix = '/order_parameter_query';
-  static const _orderStatusUriSufix = '/order_status_query/';
-  static const _orderCreateUriSufix = '/order_create/';
+  static const originalApiUri = 'https://xmr.to/api/v3/xmr2btc';
+  static const proxyApiUri = 'https://xmrproxy.net/api/v3/xmr2btc';
+  static const _orderParameterUriSuffix = '/order_parameter_query';
+  static const _orderStatusUriSuffix = '/order_status_query/';
+  static const _orderCreateUriSuffix = '/order_create/';
   static String _apiUri = '';
 
   static Future<String> getApiUri() async {
@@ -33,7 +33,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       return _apiUri;
     }
 
-    const url = originalApiUri + _orderParameterUriSufix;
+    const url = originalApiUri + _orderParameterUriSuffix;
     final response =
         await get(url, headers: {'Content-Type': 'application/json'});
     _apiUri = response.statusCode == 403 ? proxyApiUri : originalApiUri;
@@ -52,7 +52,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
-    final url = await getApiUri() + _orderParameterUriSufix;
+    final url = await getApiUri() + _orderParameterUriSuffix;
     final response = await get(url);
     final correction = 0.001;
 
@@ -61,15 +61,18 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    double min = responseJSON['lower_limit'] as double;
-    double max = responseJSON['upper_limit'] as double;
-    final price = responseJSON['price'] as double;
+    final priceString = responseJSON['price'] as String ?? '0.0';
+    final minString = responseJSON['lower_limit'] as String ?? '0.0';
+    final maxString = responseJSON['upper_limit'] as String ?? '0.0';
+    final price = double.parse(priceString);
+    var max = double.parse(maxString);
+    var min = double.parse(minString);
 
     if (price > 0) {
       try {
-        min = min/price + correction;
+        min = min / price + correction;
         min = _limitsFormat(min);
-        max = max/price - correction;
+        max = max / price - correction;
         max = _limitsFormat(max);
       } catch (e) {
         min = 0;
@@ -86,9 +89,10 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> createTrade({TradeRequest request}) async {
     final _request = request as XMRTOTradeRequest;
-    final url = await getApiUri() + _orderCreateUriSufix;
+    final url = await getApiUri() + _orderCreateUriSuffix;
     final body = {
-      'xmr_amount': _request.amount,
+      'amount': _request.amount,
+      'amount_currency': CryptoCurrency.xmr.toString().toUpperCase(),
       'btc_dest_address': _request.address
     };
     final response = await post(url,
@@ -106,7 +110,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final uuid = responseJSON["uuid"] as String;
+    final uuid = responseJSON['uuid'] as String;
 
     return Trade(
         id: uuid,
@@ -124,7 +128,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       'Content-Type': 'application/json',
       'User-Agent': userAgent
     };
-    final url = await getApiUri() + _orderStatusUriSufix;
+    final url = await getApiUri() + _orderStatusUriSuffix;
     final body = {'uuid': id};
     final response = await post(url, headers: headers, body: json.encode(body));
 
@@ -141,13 +145,11 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final address = responseJSON['xmr_receiving_integrated_address'] as String;
-    final paymentId = responseJSON['xmr_required_payment_id_short'] as String;
-    final amount = responseJSON['xmr_amount_total'].toString();
+    final address = responseJSON['receiving_subaddress'] as String;
+    final amount = responseJSON['incoming_amount_total'].toString();
     final stateRaw = responseJSON['state'] as String;
     final expiredAtRaw = responseJSON['expires_at'] as String;
     final expiredAt = DateTime.parse(expiredAtRaw).toLocal();
-    final outputTransaction = responseJSON['btc_transaction_id'] as String;
     final state = TradeState.deserialize(raw: stateRaw);
 
     return Trade(
@@ -156,11 +158,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
         from: CryptoCurrency.xmr,
         to: CryptoCurrency.btc,
         inputAddress: address,
-        extraId: paymentId,
         expiredAt: expiredAt,
         amount: amount,
-        state: state,
-        outputTransaction: outputTransaction);
+        state: state);
   }
 
   @override
@@ -174,18 +174,18 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       _rate = await _fetchRates();
     }
 
-    final double result = _rate * amount;
-
+    final result = _rate * amount;
     return double.parse(result.toStringAsFixed(12));
   }
 
   Future<double> _fetchRates() async {
     try {
-      final url = await getApiUri() + _orderParameterUriSufix;
+      final url = await getApiUri() + _orderParameterUriSuffix;
       final response =
           await get(url, headers: {'Content-Type': 'application/json'});
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final price = responseJSON['price'] as double;
+      final priceString = responseJSON['price'] as String ?? '0.0';
+      final price = double.parse(priceString);
 
       return price;
     } catch (e) {

@@ -30,7 +30,7 @@ class MoneroWallet extends Wallet {
     _cachedBlockchainHeight = 0;
     _isSaving = false;
     _lastSaveTime = 0;
-    _lastRefreshTime = 0;
+    _lastRefreshedTime = 0;
     _refreshHeight = 0;
     _lastSyncHeight = 0;
     _name = BehaviorSubject<String>();
@@ -39,7 +39,6 @@ class MoneroWallet extends Wallet {
     _onBalanceChange = BehaviorSubject<MoneroBalance>();
     _account = BehaviorSubject<Account>()..add(Account(id: 0));
     _subaddress = BehaviorSubject<Subaddress>();
-    setListeners();
   }
 
   static Future<MoneroWallet> createdWallet(
@@ -128,13 +127,14 @@ class MoneroWallet extends Wallet {
   int _cachedBlockchainHeight;
   bool _isSaving;
   int _lastSaveTime;
-  int _lastRefreshTime;
+  int _lastRefreshedTime;
   int _refreshHeight;
   int _lastSyncHeight;
 
   TransactionHistory _cachedTransactionHistory;
   SubaddressList _cachedSubaddressList;
   AccountList _cachedAccountList;
+  Future<int> _cachedGetNodeHeightOrUpdateRequest;
 
   @override
   Future updateInfo() async {
@@ -148,6 +148,7 @@ class MoneroWallet extends Wallet {
     final subaddresses = subaddressList.getAll();
     _subaddress.value = subaddresses.first;
     _address.value = await getAddress();
+    await setListeners();
   }
 
   @override
@@ -178,7 +179,15 @@ class MoneroWallet extends Wallet {
   Future<int> getCurrentHeight() async => monero_wallet.getCurrentHeight();
 
   @override
-  Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
+  Future<int> getNodeHeight() async {
+    _cachedGetNodeHeightOrUpdateRequest ??=
+        monero_wallet.getNodeHeight().then((value) {
+      _cachedGetNodeHeightOrUpdateRequest = null;
+      return value;
+    });
+
+    return _cachedGetNodeHeightOrUpdateRequest;
+  }
 
   @override
   Future<bool> isConnected() async => monero_wallet.isConnected();
@@ -218,7 +227,6 @@ class MoneroWallet extends Wallet {
 
   @override
   Future close() async {
-    monero_wallet.closeListeners();
     monero_wallet.closeCurrentWallet();
     await _name.close();
     await _address.close();
@@ -353,7 +361,7 @@ class MoneroWallet extends Wallet {
     }
   }
 
-  void setListeners() => monero_wallet.setListeners(
+  Future<void> setListeners() async => await monero_wallet.setListeners(
       _onNewBlock, _onNeedToRefresh, _onNewTransaction);
 
   Future _onNewBlock(int height) async {
@@ -398,25 +406,24 @@ class MoneroWallet extends Wallet {
 
       await askForUpdateBalance();
 
-      _syncStatus.add(SyncedSyncStatus());
+      final heightDifference = nodeHeight - currentHeight;
+      final isRefreshed = heightDifference < moneroBlockSize;
 
-      if (isRecovery) {
-        await askForUpdateTransactionHistory();
-      }
+      if (isRefreshed) {
+        _syncStatus.add(SyncedSyncStatus());
 
-      if (isRecovery && (nodeHeight - currentHeight < moneroBlockSize)) {
-        await setAsRecovered();
+        if (isRecovery) {
+          await setAsRecovered();
+        }
       }
 
       final now = DateTime.now().millisecondsSinceEpoch;
-      final diff = now - _lastRefreshTime;
+      final lastRefreshedTimeDifference = now - _lastRefreshedTime;
 
-      if (diff >= 0 && diff < 60000) {
-        return;
+      if (lastRefreshedTimeDifference >=  60000) {
+        await askForSave();
+        _lastRefreshedTime = now;
       }
-
-      await store();
-      _lastRefreshTime = now;
     } catch (e) {
       print(e);
     }

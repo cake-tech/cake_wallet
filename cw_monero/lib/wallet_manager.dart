@@ -32,10 +32,7 @@ final loadWalletNative = moneroApi
     .asFunction<LoadWallet>();
 
 void createWalletSync(
-    {String path,
-    String password,
-    String language,
-    int nettype = 0}) {
+    {String path, String password, String language, int nettype = 0}) {
   final pathPointer = Utf8.toUtf8(path);
   final passwordPointer = Utf8.toUtf8(password);
   final languagePointer = Utf8.toUtf8(language);
@@ -208,7 +205,7 @@ Future restoreFromSeed(
         String seed,
         int nettype = 0,
         int restoreHeight = 0}) async =>
-    compute(_restoreFromSeed, {
+    compute<Map<String, Object>, void>(_restoreFromSeed, {
       'path': path,
       'password': password,
       'seed': seed,
@@ -225,7 +222,7 @@ Future restoreFromKeys(
         String spendKey,
         int nettype = 0,
         int restoreHeight = 0}) async =>
-    compute(_restoreFromKeys, {
+    compute<Map<String, Object>, void>(_restoreFromKeys, {
       'path': path,
       'password': password,
       'language': language,

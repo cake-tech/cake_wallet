@@ -150,21 +150,21 @@ abstract class ActionListBase with Store {
   StreamSubscription<BoxEvent> _onTransactionDescriptions;
   StreamSubscription<BoxEvent> _onTradesChanged;
 
-  @override
-  void dispose() {
-    if (_onTransactionsChangeSubscription != null) {
-      _onTransactionsChangeSubscription.cancel();
-    }
-
-    if (_onAccountChangeSubscription != null) {
-      _onAccountChangeSubscription.cancel();
-    }
-
-    _onTransactionDescriptions?.cancel();
-    _onWalletChangeSubscription.cancel();
-    _onTradesChanged?.cancel();
-    super.dispose();
-  }
+//  @override
+//  void dispose() {
+//    if (_onTransactionsChangeSubscription != null) {
+//      _onTransactionsChangeSubscription.cancel();
+//    }
+//
+//    if (_onAccountChangeSubscription != null) {
+//      _onAccountChangeSubscription.cancel();
+//    }
+//
+//    _onTransactionDescriptions?.cancel();
+//    _onWalletChangeSubscription.cancel();
+//    _onTradesChanged?.cancel();
+//    super.dispose();
+//  }
 
   @action
   Future updateTradeList() async => this.trades =

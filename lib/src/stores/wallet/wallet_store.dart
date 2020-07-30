@@ -62,22 +62,22 @@ abstract class WalletStoreBase with Store {
   StreamSubscription<Account> _onAccountChangeSubscription;
   StreamSubscription<Subaddress> _onSubaddressChangeSubscription;
 
-  @override
-  void dispose() {
-    if (_onWalletChangeSubscription != null) {
-      _onWalletChangeSubscription.cancel();
-    }
-
-    if (_onAccountChangeSubscription != null) {
-      _onAccountChangeSubscription.cancel();
-    }
-
-    if (_onSubaddressChangeSubscription != null) {
-      _onSubaddressChangeSubscription.cancel();
-    }
-
-    super.dispose();
-  }
+//  @override
+//  void dispose() {
+//    if (_onWalletChangeSubscription != null) {
+//      _onWalletChangeSubscription.cancel();
+//    }
+//
+//    if (_onAccountChangeSubscription != null) {
+//      _onAccountChangeSubscription.cancel();
+//    }
+//
+//    if (_onSubaddressChangeSubscription != null) {
+//      _onSubaddressChangeSubscription.cancel();
+//    }
+//
+//    super.dispose();
+//  }
 
   @action
   void setAccount(Account account) {

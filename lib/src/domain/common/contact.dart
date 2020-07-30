@@ -4,7 +4,7 @@ import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 
 part 'contact.g.dart';
 
-@HiveType()
+@HiveType(typeId: 0)
 class Contact extends HiveObject {
   Contact({@required this.name, @required this.address, CryptoCurrency type})
       : raw = type?.raw;

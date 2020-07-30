@@ -1,17 +1,30 @@
 import 'dart:async';
 import 'dart:ffi';
+import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:cw_monero/convert_utf8_to_string.dart';
 import 'package:cw_monero/signatures.dart';
 import 'package:cw_monero/types.dart';
 import 'package:cw_monero/monero_api.dart';
 import 'package:cw_monero/exceptions/setup_wallet_exception.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
+
+// Listener event types constants
+
+const newBlockEvent = 0;
+const refreshedEvent = 1;
+const updatedEvent = 2;
+const moneyReceivedEvent = 3;
+const moneySpentEvent = 4;
+const unconfirmedMoneyReceivedEvent = 5;
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
-final moneroAPIChannel = const MethodChannel('cw_monero');
+final statusSyncChannel =
+    BasicMessageChannel<ByteData>('cw_monero.sync_listener', BinaryCodec());
+
+final moneroMethodChannel = MethodChannel('cw_monero');
 
 final getFileNameNative = moneroApi
     .lookup<NativeFunction<get_filename>>('get_filename')
@@ -69,9 +82,8 @@ final setRecoveringFromSeedNative = moneroApi
 final storeNative =
     moneroApi.lookup<NativeFunction<store_c>>('store').asFunction<Store>();
 
-final setListenerNative = moneroApi
-    .lookup<NativeFunction<set_listener>>('set_listener')
-    .asFunction<SetListener>();
+final setListenerNative = moneroApi.lookupFunction<
+    Void Function(Int64 sendPort), void Function(int sendPort)>('set_listener');
 
 final getSyncingHeightNative = moneroApi
     .lookup<NativeFunction<get_syncing_height>>('get_syncing_height')
@@ -190,9 +202,7 @@ void setRecoveringFromSeed({bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
 void storeSync() {
-  final pathPointer = Utf8.toUtf8('');
-  storeNative(pathPointer);
-  free(pathPointer);
+  storeNative();
 }
 
 void closeCurrentWallet() => closeCurrentWalletNative();
@@ -209,41 +219,37 @@ String getSecretSpendKey() =>
 String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
-Timer _updateSyncInfoTimer;
+Future<void> setListeners(
+    Future Function(int) onNewBlock,
+    Future Function() onNeedToRefresh,
+    Future Function() onNewTransaction) async {
+  statusSyncChannel.setMessageHandler((message) async {
+    try {
+      final type = message.buffer.asByteData(0, 1).getUint8(0);
 
-int _lastKnownBlockHeight = 0;
+      if (type == newBlockEvent) {
+        final value = message.buffer.asByteData(1).getUint64(0);
+        await onNewBlock(value);
+      }
 
-void setListeners(Future Function(int) onNewBlock,
-    Future Function() onNeedToRefresh, Future Function() onNewTransaction) {
-  if (_updateSyncInfoTimer != null) {
-    _updateSyncInfoTimer.cancel();
-  }
+      if (type == refreshedEvent) {
+        await onNeedToRefresh();
+      }
 
-  _updateSyncInfoTimer = Timer.periodic(Duration(milliseconds: 200), (_) async {
-    final syncHeight = getSyncingHeight();
-    final needToRefresh = isNeededToRefresh();
-    final newTransactionExist = isNewTransactionExist();
-
-    if (_lastKnownBlockHeight != syncHeight && syncHeight != null) {
-      _lastKnownBlockHeight = syncHeight;
-      await onNewBlock(syncHeight);
+      if (type == moneyReceivedEvent ||
+          type == moneySpentEvent ||
+          type == unconfirmedMoneyReceivedEvent) {
+        await onNewTransaction();
+      }
+    } catch(e) {
+      print(e.toString());
     }
 
-    if (newTransactionExist && onNewTransaction != null) {
-      await onNewTransaction();
-    }
-
-    if (needToRefresh && onNeedToRefresh != null) {
-      await onNeedToRefresh();
-    }
+    return null;
   });
-  setListenerNative();
-}
 
-void closeListeners() {
-  if (_updateSyncInfoTimer != null) {
-    _updateSyncInfoTimer.cancel();
-  }
+   await moneroMethodChannel
+      .invokeMethod<bool>('setupSyncStatusListener');
 }
 
 void onStartup() => onStartupNative();
@@ -277,7 +283,7 @@ Future setupNode(
         String password,
         bool useSSL = false,
         bool isLightWallet = false}) =>
-    compute(_setupNodeSync, {
+    compute<Map<String, Object>, void>(_setupNodeSync, {
       'address': address,
       'login': login,
       'password': password,
@@ -285,7 +291,7 @@ Future setupNode(
       'isLightWallet': isLightWallet
     });
 
-Future store() => compute(_storeSync, 0);
+Future store() => compute<int, void>(_storeSync, 0);
 
 Future<bool> isConnected() => compute(_isConnected, 0);
 

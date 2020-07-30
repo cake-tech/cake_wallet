@@ -1,14 +1,22 @@
 package com.cakewallet.monero
 
-class MoneroApi {
-    external fun setNodeAddressJNI(uri: String, login: String, password: String, use_ssl: Boolean, is_light_wallet: Boolean)
-    external fun connectToNodeJNI()
-    external fun startSyncJNI()
-    external fun loadWalletJNI(path: String, password: String)
+import com.cakewallet.monero.MoneroWalletSyncStatusListener
 
-    companion object {
-        init {
-            System.loadLibrary("cw_monero")
+class MoneroApi {
+    private var isLoaded = false
+
+    fun load() : Unit {
+        if (isLoaded) {
+            return
         }
+
+        System.loadLibrary("cw_monero")
+        isLoaded = true
     }
+
+    fun setupListener(listener: MoneroWalletSyncStatusListener) {
+        setupListenerJNI(listener)
+    }
+
+    external fun setupListenerJNI(listener: MoneroWalletSyncStatusListener)
 }

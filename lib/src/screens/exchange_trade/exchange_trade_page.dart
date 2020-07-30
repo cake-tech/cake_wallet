@@ -34,6 +34,7 @@ class ExchangeTradeForm extends StatefulWidget {
 
 class ExchangeTradeState extends State<ExchangeTradeForm> {
   final fetchingLabel = S.current.fetching;
+
   String get title => S.current.exchange;
 
   bool _effectsInstalled = false;
@@ -169,28 +170,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                     .color),
                           )
                         ],
-                      ),
-                      trade.expiredAt != null
-                          ? Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  S.of(context).offer_expires_in,
-                                  style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .button
-                                          .color),
-                                ),
-                                TimerWidget(trade.expiredAt,
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .subtitle
-                                        .color)
-                              ],
-                            )
-                          : Container(),
+                      )
                     ],
                   ),
                   SizedBox(width: 10),
@@ -204,20 +184,40 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 20.0,
-            ),
             Center(
-              child: Text(
-                S.of(context).trade_is_powered_by(trade.provider != null
-                    ? trade.provider.title
-                    : fetchingLabel),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 14.0,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryTextTheme.headline.color),
-              ),
+              child: Column(children: [
+                if (trade.expiredAt != null)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        S.of(context).offer_expires_in,
+                        style: TextStyle(
+                            fontSize: 14.0,
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .button
+                                .color),
+                      ),
+                      TimerWidget(trade.expiredAt,
+                          color:
+                              Theme.of(context).primaryTextTheme.subtitle.color)
+                    ],
+                  ),
+                SizedBox(height: 20.0),
+                Text(
+                  S.of(context).trade_is_powered_by(trade.provider != null
+                      ? trade.provider.title
+                      : fetchingLabel),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryTextTheme.headline.color),
+                )
+              ]),
             ),
             Container(
               padding: EdgeInsets.only(top: 20, bottom: 20),

@@ -3,7 +3,7 @@ import 'package:hive/hive.dart';
 
 part 'wallet_info.g.dart';
 
-@HiveType()
+@HiveType(typeId: 4)
 class WalletInfo extends HiveObject {
   WalletInfo(
       {this.id, this.name, this.type, this.isRecovery, this.restoreHeight});

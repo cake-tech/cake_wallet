@@ -39,16 +39,16 @@ abstract class SubadrressCreationStoreBase with Store {
   StreamSubscription<Account> _onAccountChangeSubscription;
   Account _account;
 
-  @override
-  void dispose() {
-    _onWalletChangeSubscription.cancel();
-
-    if (_onAccountChangeSubscription != null) {
-      _onAccountChangeSubscription.cancel();
-    }
-
-    super.dispose();
-  }
+//  @override
+//  void dispose() {
+//    _onWalletChangeSubscription.cancel();
+//
+//    if (_onAccountChangeSubscription != null) {
+//      _onAccountChangeSubscription.cancel();
+//    }
+//
+//    super.dispose();
+//  }
 
   Future<void> add({String label}) async {
     try {

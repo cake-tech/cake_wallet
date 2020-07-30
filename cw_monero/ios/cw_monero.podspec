@@ -14,6 +14,7 @@ A new flutter plugin project.
   s.author           = { 'Your Company' => 'email@example.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
+  s.exclude_files = ['Classes/monero_api.cpp', 'Classes/MonerWalletListenerWapper.mm']
   s.public_header_files = 'Classes/**/*.h, Classes/*.h, External/ios/libs/monero/include/src/**/*.h, External/ios/libs/monero/include/contrib/**/*.h, External/ios/libs/monero/include/External/ios/**/*.h'
   s.dependency 'Flutter'
   s.platform = :ios, '9.0'
@@ -47,5 +48,10 @@ A new flutter plugin project.
     sodium.vendored_libraries = 'External/ios/libs/sodium/lib/libsodium.a'
     sodium.libraries = 'sodium'
     sodium.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/External/ios/libs/sodium/include/**" }
+  end
+
+  s.subspec 'lmdb' do |lmdb|
+    lmdb.vendored_libraries = 'External/ios/libs/lmdb/liblmdb.a'
+    lmdb.libraries = 'lmdb'
   end
 end
