@@ -137,6 +137,8 @@
   "share_address" : "Compartir dirección",
   "receive_amount" : "Cantidad",
   "subaddresses" : "Subdirecciones",
+  "addresses" : "Direcciones",
+  "scan_qr_code" : "Escanee el código QR para obtener la dirección",
   "rename" : "Rebautizar",
   "choose_account" : "Elegir cuenta",
   "create_new_account" : "Crear una nueva cuenta",

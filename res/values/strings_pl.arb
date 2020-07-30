@@ -137,6 +137,8 @@
   "share_address" : "Udostępnij adres",
   "receive_amount" : "Ilość",
   "subaddresses" : "Podadresy",
+  "addresses" : "Adresy",
+  "scan_qr_code" : "Zeskanuj kod QR, aby uzyskać adres",
   "rename" : "Przemianować",
   "choose_account" : "Wybierz konto",
   "create_new_account" : "Stwórz nowe konto",

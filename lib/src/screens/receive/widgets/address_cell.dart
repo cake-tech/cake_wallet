@@ -6,12 +6,16 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 class AddressCell extends StatelessWidget {
   factory AddressCell.fromItem(WalletAddressListItem item,
           {@required bool isCurrent,
+          @required Color backgroundColor,
+          @required Color textColor,
           Function(String) onTap,
           Function() onEdit}) =>
       AddressCell(
           address: item.address,
           name: item.name,
           isCurrent: isCurrent,
+          backgroundColor: backgroundColor,
+          textColor: textColor,
           onTap: onTap,
           onEdit: onEdit);
 
@@ -19,12 +23,16 @@ class AddressCell extends StatelessWidget {
       {@required this.address,
       @required this.name,
       @required this.isCurrent,
+      @required this.backgroundColor,
+      @required this.textColor,
       this.onTap,
       this.onEdit});
 
   final String address;
   final String name;
   final bool isCurrent;
+  final Color backgroundColor;
+  final Color textColor;
   final Function(String) onTap;
   final Function() onEdit;
 
@@ -32,23 +40,19 @@ class AddressCell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const currentTextColor = Colors.blue; // FIXME: Why it's defined here ?
-    final currentColor =
-        Theme.of(context).accentTextTheme.subtitle.decorationColor;
-    final notCurrentColor = Theme.of(context).backgroundColor;
-    final notCurrentTextColor =
-        Theme.of(context).primaryTextTheme.caption.color;
     final Widget cell = InkWell(
         onTap: () => onTap(address),
         child: Container(
-          color: isCurrent ? currentColor : notCurrentColor,
+          color: backgroundColor,
           padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: 28),
           child: Text(
             name ?? address,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              fontSize: name?.isNotEmpty ?? false ? 18 : 10,
+              fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: isCurrent ? currentTextColor : notCurrentTextColor,
+              color: textColor,
             ),
           ),
         ));
@@ -62,7 +66,7 @@ class AddressCell extends StatelessWidget {
             secondaryActions: <Widget>[
                 IconSlideAction(
                     caption: S.of(context).edit,
-                    color: Theme.of(context).primaryTextTheme.overline.color,
+                    color: Colors.blue,
                     icon: Icons.edit,
                     onTap: () => onEdit?.call())
               ]);

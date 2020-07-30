@@ -8,6 +8,7 @@ import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_o
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/palette.dart';
 
 class MoneroAccountEditOrCreatePage extends BasePage {
   MoneroAccountEditOrCreatePage({@required this.moneroAccountCreationViewModel})
@@ -23,6 +24,12 @@ class MoneroAccountEditOrCreatePage extends BasePage {
   @override
   String get title => S.current.account;
 
+  @override
+  Color get backgroundLightColor => PaletteDark.backgroundColor;
+
+  @override
+  Color get backgroundDarkColor => PaletteDark.backgroundColor;
+
   final GlobalKey<FormState> _formKey;
   final TextEditingController _textController;
 
@@ -31,7 +38,6 @@ class MoneroAccountEditOrCreatePage extends BasePage {
       Form(
         key: _formKey,
         child: Container(
-          color: Theme.of(context).backgroundColor,
           padding: EdgeInsets.all(24.0),
           child: Column(
             children: <Widget>[
@@ -39,6 +45,7 @@ class MoneroAccountEditOrCreatePage extends BasePage {
                   child: Center(
                       child: BaseTextFormField(
                         controller: _textController,
+                        textColor: Colors.white,
                         hintText: S.of(context).account,
                         validator: MoneroLabelValidator(),
                       ))),

@@ -9,19 +9,27 @@ import 'package:cake_wallet/palette.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 
 class DashboardPage extends BasePage {
-  DashboardPage({@required this.walletViewModel});
+  DashboardPage({
+    @required this.walletViewModel,
+    @required this.addressListViewModel,
+  });
 
   @override
   Color get backgroundLightColor => PaletteDark.backgroundColor;
 
   @override
   Color get backgroundDarkColor => PaletteDark.backgroundColor;
+
+  @override
+  bool get resizeToAvoidBottomPadding => false;
 
   @override
   Widget middle(BuildContext context) {
@@ -54,13 +62,14 @@ class DashboardPage extends BasePage {
   }
 
   final DashboardViewModel walletViewModel;
+  final WalletAddressListViewModel addressListViewModel;
   final sendImage = Image.asset('assets/images/upload.png',
       height: 22.24, width: 24, color: Colors.white);
   final exchangeImage = Image.asset('assets/images/transfer.png',
       height: 24.27, width: 22.25, color: Colors.white);
   final receiveImage = Image.asset('assets/images/download.png',
       height: 22.24, width: 24, color: Colors.white);
-  final controller = PageController(initialPage: 0);
+  final controller = PageController(initialPage: 1);
 
   var pages = <Widget>[];
   bool _isEffectsInstalled = false;
@@ -147,11 +156,12 @@ class DashboardPage extends BasePage {
       return;
     }
 
+    pages.add(AddressPage(addressListViewModel: addressListViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
     controller.addListener(() {
-      walletViewModel.currentPage = controller.page;
+      walletViewModel.pageViewStore.setCurrentPage(controller.page);
     });
 
     reaction((_) => walletViewModel.currentPage, (double currentPage) {
