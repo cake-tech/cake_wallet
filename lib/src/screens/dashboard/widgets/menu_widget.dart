@@ -140,7 +140,7 @@ class MenuWidgetState extends State<MenuWidget> {
                         ),
                         Container(
                           height: 1,
-                          color: PaletteDark.lightOceanBlue,
+                          color: PaletteDark.darkOceanBlue,
                         ),
                         ListView.separated(
                             shrinkWrap: true,
@@ -189,7 +189,7 @@ class MenuWidgetState extends State<MenuWidget> {
                             },
                             separatorBuilder: (_, index) => Container(
                               height: 1,
-                              color: PaletteDark.lightOceanBlue,
+                              color: PaletteDark.darkOceanBlue,
                             ),
                             itemCount: itemCount)
                       ],
