@@ -24,6 +24,12 @@ class DashboardPage extends BasePage {
   Color get backgroundDarkColor => PaletteDark.backgroundColor;
 
   @override
+  Widget get endDrawer => MenuWidget(
+      name: walletViewModel.name,
+      subname: walletViewModel.subname,
+      type: walletViewModel.type);
+
+  @override
   Widget middle(BuildContext context) {
     return SyncIndicator(dashboardViewModel: walletViewModel);
   }
@@ -40,14 +46,7 @@ class DashboardPage extends BasePage {
         highlightColor: Colors.transparent,
         splashColor: Colors.transparent,
         padding: EdgeInsets.all(0),
-        onPressed: () async {
-          await showDialog<void>(
-            builder: (_) => MenuWidget(
-              name: walletViewModel.name,
-              subname: walletViewModel.subname,
-              type: walletViewModel.type),
-            context: context);
-        },
+        onPressed: () => onOpenEndDrawer(),
         child: menuButton
       )
     );

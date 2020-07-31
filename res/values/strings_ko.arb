@@ -61,6 +61,7 @@
 
   "exchange" : "교환",
   "clear" : "명확한",
+  "refund_address" : "환불 주소",
   "change_exchange_provider" : "교환 공급자 변경",
   "you_will_send" : "보내드립니다",
   "you_will_get" : "당신은 얻을 것이다",

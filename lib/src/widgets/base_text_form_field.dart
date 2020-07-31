@@ -72,6 +72,10 @@ class BaseTextFormField extends StatelessWidget {
               borderSide: BorderSide(
                   color: borderColor ?? Theme.of(context).dividerColor,
                   width: 1.0)),
+          disabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).dividerColor,
+                  width: 1.0)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ?? Theme.of(context).dividerColor,

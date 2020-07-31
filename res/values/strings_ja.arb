@@ -61,6 +61,7 @@
 
   "exchange" : "交換する",
   "clear" : "クリア",
+  "refund_address" : "払い戻し住所",
   "change_exchange_provider" : "Exchangeプロバイダーの変更",
   "you_will_send" : "送ります",
   "you_will_get" : "あなたが取得します",

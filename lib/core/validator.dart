@@ -16,18 +16,20 @@ class TextValidator extends Validator<String> {
       this.maxLength,
       this.pattern,
       this.length,
+      this.isAutovalidate = false,
       String errorMessage})
       : super(errorMessage: errorMessage);
 
   final int minLength;
   final int maxLength;
   final List<int> length;
+  final bool isAutovalidate;
   String pattern;
 
   @override
   bool isValid(String value) {
     if (value == null || value.isEmpty) {
-      return false;
+      return isAutovalidate ? true : false;
     }
 
     return value.length > (minLength ?? 0) &&

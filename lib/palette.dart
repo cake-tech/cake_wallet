@@ -23,8 +23,8 @@ class PaletteDark {
   static const Color lightDistantBlue = Color.fromRGBO(81, 96, 147, 1.0); // borderCardColor
   static const Color gray = Color.fromRGBO(140, 153, 201, 1.0); // walletCardText
   static const Color violetBlue = Color.fromRGBO(51, 63, 104, 1.0); // walletCardAddressField
-  static const Color moderateBlue = Color.fromRGBO(63, 77, 122, 1.0); // walletCardSubAddressField
-  static const Color darkNightBlue = Color.fromRGBO(33, 43, 73, 1.0); // historyPanel
+  //static const Color moderateBlue = Color.fromRGBO(63, 77, 122, 1.0); // walletCardSubAddressField
+  //static const Color darkNightBlue = Color.fromRGBO(33, 43, 73, 1.0); // historyPanel
   static const Color pigeonBlue = Color.fromRGBO(91, 112, 146, 1.0); // historyPanelText
   static const Color moderateNightBlue = Color.fromRGBO(39, 53, 96, 1.0); // historyPanelButton
   static const Color headerNightBlue = Color.fromRGBO(41, 52, 84, 1.0); // menuHeader
@@ -46,6 +46,12 @@ class PaletteDark {
   static const Color lightBlueGrey = Color.fromRGBO(125, 141, 183, 1.0);
   static const Color lightVioletBlue = Color.fromRGBO(56, 71, 109, 1.0);
   static const Color darkVioletBlue = Color.fromRGBO(49, 60, 96, 1.0);
+  static const Color wildVioletBlue = Color.fromRGBO(45, 60, 97, 1.0);
+  static const Color darkNightBlue = Color.fromRGBO(33, 45, 76, 1.0);
+  static const Color blueGrey = Color.fromRGBO(87, 98, 138, 1.0);
+  static const Color moderateBlue = Color.fromRGBO(60, 73, 118, 1.0);
+  static const Color deepPurpleBlue = Color.fromRGBO(19, 29, 56, 1.0);
+  static const Color lightOceanBlue = Color.fromRGBO(30, 42, 73, 1.0);
 
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);

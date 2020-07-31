@@ -61,6 +61,7 @@
 
   "exchange" : "Trocar",
   "clear" : "Limpar",
+  "refund_address" : "Endereço de reembolso",
   "change_exchange_provider" : "Alterar o provedor de troca",
   "you_will_send" : "Você enviará",
   "you_will_get" : "Você receberá",
