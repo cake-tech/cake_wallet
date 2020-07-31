@@ -139,6 +139,8 @@
   "receive_amount" : "Bedrag",
   "subaddresses" : "Subadressen",
   "rename" : "Hernoemen",
+  "addresses" : "Adressen",
+  "scan_qr_code" : "Scan de QR-code om het adres te krijgen",
   "choose_account" : "Kies account",
   "create_new_account" : "Creëer een nieuw account",
   "accounts_subaddresses" : "Accounts en subadressen",

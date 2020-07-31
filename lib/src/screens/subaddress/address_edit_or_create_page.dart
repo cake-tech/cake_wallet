@@ -8,6 +8,7 @@ import 'package:cake_wallet/core/address_label_validator.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/palette.dart';
 
 class AddressEditOrCreatePage extends BasePage {
   AddressEditOrCreatePage({@required this.addressEditOrCreateViewModel})
@@ -29,6 +30,12 @@ class AddressEditOrCreatePage extends BasePage {
   String get title => S.current.new_subaddress_title;
 
   @override
+  Color get backgroundLightColor => PaletteDark.backgroundColor;
+
+  @override
+  Color get backgroundDarkColor => PaletteDark.backgroundColor;
+
+  @override
   Widget body(BuildContext context) {
     reaction((_) => addressEditOrCreateViewModel.state,
         (AddressEditOrCreateState state) {
@@ -48,6 +55,7 @@ class AddressEditOrCreatePage extends BasePage {
                   child: Center(
                       child: BaseTextFormField(
                           controller: _labelController,
+                          textColor: Colors.white,
                           hintText: S.of(context).new_subaddress_label_name,
                           validator: AddressLabelValidator()))),
               Observer(

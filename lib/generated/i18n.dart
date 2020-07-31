@@ -165,6 +165,7 @@ class S implements WidgetsLocalizations {
   String get restore_wallet_restore_description => "Wallet restore description";
   String get save => "Save";
   String get saved_the_trade_id => "I've saved the trade ID";
+  String get scan_qr_code => "Scan the QR code to get the address";
   String get seed_choose => "Choose seed language";
   String get seed_language_chinese => "Chinese";
   String get seed_language_choose => "Please choose seed language:";
@@ -629,6 +630,8 @@ class $de extends S {
   @override
   String get xmr_available_balance => "XMR verfügbares Guthaben";
   @override
+  String get scan_qr_code => "Scannen Sie den QR-Code, um die Adresse zu erhalten";
+  @override
   String get trade_state_paid => "Bezahlt";
   @override
   String get node_new => "Neuer Knoten";
@@ -760,6 +763,8 @@ class $de extends S {
   String get show_keys => "Schlüssel anzeigen";
   @override
   String get error_text_fiat => "Der Wert des Betrags darf den verfügbaren Kontostand nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 2 sein";
+  @override
+  String get addresses => "Adressen";
   @override
   String get transactions_by_date => "Transaktionen nach Datum";
   @override
@@ -1257,6 +1262,8 @@ class $hi extends S {
   @override
   String get xmr_available_balance => "XMR उपलब्ध शेष राशि";
   @override
+  String get scan_qr_code => "पता प्राप्त करने के लिए QR कोड स्कैन करें";
+  @override
   String get trade_state_paid => "भुगतान किया है";
   @override
   String get node_new => "नया नोड";
@@ -1388,6 +1395,8 @@ class $hi extends S {
   String get show_keys => "चाबी दिखाओ";
   @override
   String get error_text_fiat => "राशि का मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता.\nअंश अंकों की संख्या कम या 2 के बराबर होनी चाहिए";
+  @override
+  String get addresses => "पतों";
   @override
   String get transactions_by_date => "तारीख से लेन-देन";
   @override
@@ -1885,6 +1894,8 @@ class $ru extends S {
   @override
   String get xmr_available_balance => "Доступный XMR баланс";
   @override
+  String get scan_qr_code => "Отсканируйте QR-код для получения адреса";
+  @override
   String get trade_state_paid => "Оплаченная";
   @override
   String get node_new => "Новая нода";
@@ -2016,6 +2027,8 @@ class $ru extends S {
   String get show_keys => "Показать ключи";
   @override
   String get error_text_fiat => "Значение суммы не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 2";
+  @override
+  String get addresses => "Адреса";
   @override
   String get transactions_by_date => "Сортировать по дате";
   @override
@@ -2513,6 +2526,8 @@ class $ko extends S {
   @override
   String get xmr_available_balance => "XMR 사용 가능한 잔액";
   @override
+  String get scan_qr_code => "QR 코드를 스캔하여 주소를 얻습니다.";
+  @override
   String get trade_state_paid => "유료";
   @override
   String get node_new => "새로운 노드";
@@ -2644,6 +2659,8 @@ class $ko extends S {
   String get show_keys => "키 표시";
   @override
   String get error_text_fiat => "금액은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 2보다 작거나 같아야합니다";
+  @override
+  String get addresses => "구애";
   @override
   String get transactions_by_date => "날짜 별 거래";
   @override
@@ -3141,6 +3158,8 @@ class $pt extends S {
   @override
   String get xmr_available_balance => "Saldo XMR disponível";
   @override
+  String get scan_qr_code => "Digitalize o código QR para obter o endereço";
+  @override
   String get trade_state_paid => "Paga";
   @override
   String get node_new => "Novo nó";
@@ -3272,6 +3291,8 @@ class $pt extends S {
   String get show_keys => "Mostrar chaves";
   @override
   String get error_text_fiat => "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos decimais deve ser menor ou igual a 2";
+  @override
+  String get addresses => "Endereços";
   @override
   String get transactions_by_date => "Transações por data";
   @override
@@ -3769,6 +3790,8 @@ class $uk extends S {
   @override
   String get xmr_available_balance => "Доступний XMR баланс";
   @override
+  String get scan_qr_code => "Скануйте QR-код для одержання адреси";
+  @override
   String get trade_state_paid => "Оплачена";
   @override
   String get node_new => "Новий вузол";
@@ -3900,6 +3923,8 @@ class $uk extends S {
   String get show_keys => "Показати ключі";
   @override
   String get error_text_fiat => "Значення суми не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 2";
+  @override
+  String get addresses => "Адреси";
   @override
   String get transactions_by_date => "Сортувати по даті";
   @override
@@ -4397,6 +4422,8 @@ class $ja extends S {
   @override
   String get xmr_available_balance => "XMR利用可能残高";
   @override
+  String get scan_qr_code => "QRコードをスキャンして住所を取得します";
+  @override
   String get trade_state_paid => "有料";
   @override
   String get node_new => "新しいノード";
@@ -4528,6 +4555,8 @@ class $ja extends S {
   String get show_keys => "キーを表示";
   @override
   String get error_text_fiat => "金額は利用可能な残高を超えることはできません.\n小数桁の数は2以下でなければなりません";
+  @override
+  String get addresses => "住所";
   @override
   String get transactions_by_date => "日付ごとの取引";
   @override
@@ -5029,6 +5058,8 @@ class $pl extends S {
   @override
   String get xmr_available_balance => "XMR Dostępne saldo";
   @override
+  String get scan_qr_code => "Zeskanuj kod QR, aby uzyskać adres";
+  @override
   String get trade_state_paid => "Płatny";
   @override
   String get node_new => "Nowy węzeł";
@@ -5160,6 +5191,8 @@ class $pl extends S {
   String get show_keys => "Pokaż klucze";
   @override
   String get error_text_fiat => "Wartość kwoty nie może przekroczyć dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 2";
+  @override
+  String get addresses => "Adresy";
   @override
   String get transactions_by_date => "Transakcje według daty";
   @override
@@ -5657,6 +5690,8 @@ class $es extends S {
   @override
   String get xmr_available_balance => "XMR Available Balance";
   @override
+  String get scan_qr_code => "Escanee el código QR para obtener la dirección";
+  @override
   String get trade_state_paid => "Pagado";
   @override
   String get node_new => "Nuevo nodo";
@@ -5788,6 +5823,8 @@ class $es extends S {
   String get show_keys => "Mostrar llaves";
   @override
   String get error_text_fiat => "El valor de la cantidad no puede exceder el saldo disponible.\nEl número de dígitos de fracción debe ser menor o igual a 2";
+  @override
+  String get addresses => "Direcciones";
   @override
   String get transactions_by_date => "Transacciones por fecha";
   @override
@@ -6285,6 +6322,8 @@ class $nl extends S {
   @override
   String get xmr_available_balance => "XMR Beschikbaar saldo";
   @override
+  String get scan_qr_code => "Scan de QR-code om het adres te krijgen";
+  @override
   String get trade_state_paid => "Betaald";
   @override
   String get node_new => "Nieuw knooppunt";
@@ -6416,6 +6455,8 @@ class $nl extends S {
   String get show_keys => "Toon sleutels";
   @override
   String get error_text_fiat => "Waarde van bedrag kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 2";
+  @override
+  String get addresses => "Adressen";
   @override
   String get transactions_by_date => "Transacties op datum";
   @override
@@ -6913,6 +6954,8 @@ class $zh extends S {
   @override
   String get xmr_available_balance => "XMR 可用余额 ";
   @override
+  String get scan_qr_code => "掃描二維碼獲取地址";
+  @override
   String get trade_state_paid => "已付费";
   @override
   String get node_new => "新节点";
@@ -7044,6 +7087,8 @@ class $zh extends S {
   String get show_keys => "显示按键";
   @override
   String get error_text_fiat => "金额不能超过可用余额.\n小数位数必须小于或等于2";
+  @override
+  String get addresses => "地址";
   @override
   String get transactions_by_date => "按日期交易";
   @override
