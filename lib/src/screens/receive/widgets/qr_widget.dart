@@ -81,7 +81,8 @@ class QRWidget extends StatelessWidget {
                           textColor: Colors.white,
                           borderColor: PaletteDark.darkGrey,
                           validator: AmountValidator(
-                            type: addressListViewModel.type
+                            type: addressListViewModel.type,
+                            isAutovalidate: true
                           ),
                           autovalidate: true,
                           placeholderTextStyle: TextStyle(
