@@ -40,7 +40,7 @@ class MenuWidgetState extends State<MenuWidget> {
     headerHeight = 125;
     tileHeight = 75;
     fromTopEdge = 50;
-    fromBottomEdge = 21;//30;
+    fromBottomEdge = 21;
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(afterLayout);
