@@ -9,7 +9,15 @@ class MoneroAccountListViewModel = MoneroAccountListViewModelBase
     with _$MoneroAccountListViewModel;
 
 abstract class MoneroAccountListViewModelBase with Store {
-  MoneroAccountListViewModelBase(this._moneroWallet);
+  MoneroAccountListViewModelBase(this._moneroWallet) : scrollOffsetFromTop = 0;
+
+  @observable
+  double scrollOffsetFromTop;
+
+  @action
+  void setScrollOffsetFromTop(double scrollOffsetFromTop) {
+    this.scrollOffsetFromTop = scrollOffsetFromTop;
+  }
 
   @computed
   List<AccountListItem> get accounts => _moneroWallet.accountList.accounts
