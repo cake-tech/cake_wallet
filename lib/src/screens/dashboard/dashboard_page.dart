@@ -20,9 +20,7 @@ class DashboardPage extends BasePage {
   DashboardPage({
     @required this.walletViewModel,
     @required this.addressListViewModel,
-  }) {
-    walletViewModel.pageViewStore.setCurrentPage(1);
-  }
+  });
 
   @override
   Color get backgroundLightColor => PaletteDark.backgroundColor;

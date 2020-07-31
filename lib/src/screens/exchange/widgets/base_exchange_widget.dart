@@ -20,6 +20,8 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/top_panel.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:cake_wallet/core/address_validator.dart';
+import 'package:cake_wallet/core/amount_validator.dart';
 
 class BaseExchangeWidget extends StatefulWidget {
   BaseExchangeWidget({
@@ -112,8 +114,10 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                 imageArrow: arrowBottomPurple,
                                 currencyButtonColor: PaletteDark.wildVioletBlue,
                                 addressButtonsColor: PaletteDark.moderateBlue,
-                                currencyValueValidator: exchangeViewModel.amountValidator,
-                                addressTextFieldValidator: exchangeViewModel.addressValidator,
+                                currencyValueValidator: AmountValidator(
+                                    type: exchangeViewModel.wallet.type),
+                                addressTextFieldValidator: AddressValidator(
+                                    type: exchangeViewModel.depositCurrency),
                               ),
                             )
                         ),
@@ -138,8 +142,10 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                 imageArrow: arrowBottomCakeGreen,
                                 currencyButtonColor: PaletteDark.darkNightBlue,
                                 addressButtonsColor: PaletteDark.moderateBlue,
-                                currencyValueValidator: exchangeViewModel.amountValidator,
-                                addressTextFieldValidator: exchangeViewModel.addressValidator,
+                                currencyValueValidator: AmountValidator(
+                                    type: exchangeViewModel.wallet.type),
+                                addressTextFieldValidator: AddressValidator(
+                                    type: exchangeViewModel.receiveCurrency),
                               )),
                         )
                       ],

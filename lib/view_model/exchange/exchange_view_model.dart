@@ -1,7 +1,3 @@
-import 'package:cake_wallet/core/address_validator.dart';
-import 'package:cake_wallet/core/amount_validator.dart';
-import 'package:cake_wallet/core/template_validator.dart';
-import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
@@ -91,21 +87,9 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isReceiveAddressEnabled;
 
-  @observable
-  bool isValid;
-
-  @observable
-  String errorMessage;
-
   Limits limits;
 
   NumberFormat _cryptoNumberFormat;
-
-  Validator get amountValidator => AmountValidator(type: wallet.type);
-
-  Validator get addressValidator => AddressValidator(type: wallet.currency);
-
-  Validator get templateValidator => TemplateValidator();
 
   @computed
   ObservableList<ExchangeTemplate> get templates =>
