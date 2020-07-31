@@ -22,7 +22,6 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
-import 'package:cake_wallet/store/dashboard/page_view_store.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -34,8 +33,7 @@ abstract class DashboardViewModelBase with Store {
     this.appStore,
     this.tradesStore,
     this.tradeFilterStore,
-    this.transactionFilterStore,
-    this.pageViewStore}) {
+    this.transactionFilterStore}) {
 
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
@@ -68,9 +66,6 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   String subname;
-
-  @computed
-  double get currentPage => pageViewStore.currentPage;
 
   @computed
   String get address => wallet.address;
@@ -129,8 +124,6 @@ abstract class DashboardViewModelBase with Store {
   TradeFilterStore tradeFilterStore;
 
   TransactionFilterStore transactionFilterStore;
-
-  PageViewStore pageViewStore;
 
   ReactionDisposer _reaction;
 

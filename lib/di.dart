@@ -65,7 +65,6 @@ import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/src/domain/common/template.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
-import 'package:cake_wallet/store/dashboard/page_view_store.dart';
 
 final getIt = GetIt.instance;
 
@@ -121,7 +120,6 @@ Future setup(
       TradeFilterStore(wallet: getIt.get<AppStore>().wallet));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConvertationStore>(FiatConvertationStore());
-  getIt.registerSingleton<PageViewStore>(PageViewStore());
   getIt.registerSingleton<SendTemplateStore>(
       SendTemplateStore(templateSource: templates));
   getIt.registerSingleton<ExchangeTemplateStore>(
@@ -169,8 +167,7 @@ Future setup(
           appStore: getIt.get<AppStore>(),
           tradesStore: getIt.get<TradesStore>(),
           tradeFilterStore: getIt.get<TradeFilterStore>(),
-          transactionFilterStore: getIt.get<TransactionFilterStore>(),
-          pageViewStore: getIt.get<PageViewStore>()
+          transactionFilterStore: getIt.get<TransactionFilterStore>()
       ));
 
   getIt.registerFactory<AuthService>(() => AuthService(

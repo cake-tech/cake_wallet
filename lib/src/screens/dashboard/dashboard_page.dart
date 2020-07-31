@@ -6,15 +6,13 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -95,20 +93,18 @@ class DashboardPage extends BasePage {
             padding: EdgeInsets.only(
                 bottom: 24
             ),
-            child: Observer(
-                builder: (_) {
-                  return DotsIndicator(
-                    dotsCount: pages.length,
-                    position: walletViewModel.currentPage,
-                    decorator: DotsDecorator(
-                      color: PaletteDark.cyanBlue,
-                      activeColor: Colors.white,
-                      size: Size(6, 6),
-                      activeSize: Size(6, 6),
-                    ),
-                  );
-                }
-            ),
+            child: SmoothPageIndicator(
+              controller: controller,
+              count:  pages.length,
+              effect: ColorTransitionEffect(
+                  spacing:  6.0,
+                  radius:  6.0,
+                  dotWidth:  6.0,
+                  dotHeight:  6.0,
+                  dotColor:  PaletteDark.cyanBlue,
+                  activeDotColor:  Colors.white
+              ),
+            )
           ),
           Container(
             width: double.infinity,
@@ -158,16 +154,6 @@ class DashboardPage extends BasePage {
     pages.add(AddressPage(addressListViewModel: addressListViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
-
-    controller.addListener(() {
-      walletViewModel.pageViewStore.setCurrentPage(controller.page);
-    });
-
-    reaction((_) => walletViewModel.currentPage, (double currentPage) {
-      if (controller.page != currentPage) {
-        controller.jumpTo(currentPage);
-      }
-    });
 
     _isEffectsInstalled = true;
   }
