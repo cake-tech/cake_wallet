@@ -61,6 +61,7 @@
 
   "exchange" : "अदला बदली",
   "clear" : "स्पष्ट",
+  "refund_address" : "वापसी का पता",
   "change_exchange_provider" : "एक्सचेंज प्रदाता बदलें",
   "you_will_send" : "तुम भेजोगे",
   "you_will_get" : "आपको मिल जायेगा",

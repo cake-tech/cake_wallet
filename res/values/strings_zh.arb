@@ -61,6 +61,7 @@
 
   "exchange" : "交换",
   "clear" : "明确",
+  "refund_address" : "退款地址",
   "change_exchange_provider" : "更改交易所提供商",
   "you_will_send" : "您将发送",
   "you_will_get" : "你会得到",

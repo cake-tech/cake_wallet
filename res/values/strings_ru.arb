@@ -61,6 +61,7 @@
 
   "exchange" : "Обмен",
   "clear" : "Очистить",
+  "refund_address" : "Адрес возврата",
   "change_exchange_provider" : "Изменить провайдера обмена",
   "you_will_send" : "Вы отправите",
   "you_will_get" : "Вы получите",

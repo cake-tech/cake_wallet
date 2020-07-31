@@ -61,6 +61,7 @@
 
   "exchange" : "Wymieniać się",
   "clear" : "Wyczyść",
+  "refund_address" : "Adres zwrotu",
   "change_exchange_provider" : "Zmień dostawcę programu Exchange",
   "you_will_send" : "Wyślesz",
   "you_will_get" : "Dostaniesz",

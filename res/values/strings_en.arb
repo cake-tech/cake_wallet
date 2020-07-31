@@ -61,6 +61,7 @@
 
   "exchange" : "Exchange",
   "clear" : "Clear",
+  "refund_address" : "Refund address",
   "change_exchange_provider" : "Change Exchange Provider",
   "you_will_send" : "You will send",
   "you_will_get" : "You will get",

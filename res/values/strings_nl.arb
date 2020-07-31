@@ -61,6 +61,7 @@
 
   "exchange" : "Uitwisseling",
   "clear" : "Duidelijk",
+  "refund_address" : "Adres voor terugbetaling",
   "change_exchange_provider" : "Wijzig Exchange Provider",
   "you_will_send" : "Je zal versturen",
   "you_will_get" : "Je zult krijgen",

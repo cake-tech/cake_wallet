@@ -61,6 +61,7 @@
 
   "exchange" : "Intercambiar",
   "clear" : "Claro",
+  "refund_address" : "Dirección de reembolso",
   "change_exchange_provider" : "Cambiar proveedor de intercambio",
   "you_will_send" : "Enviarás",
   "you_will_get" : "Conseguirás",

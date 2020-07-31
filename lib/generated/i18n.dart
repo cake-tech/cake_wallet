@@ -135,6 +135,7 @@ class S implements WidgetsLocalizations {
   String get reconnect => "Reconnect";
   String get reconnect_alert_text => "Are you sure to reconnect?";
   String get reconnection => "Reconnection";
+  String get refund_address => "Refund address";
   String get remove => "Remove";
   String get remove_node => "Remove node";
   String get remove_node_message => "Are you sure that you want to remove selected node?";
@@ -371,6 +372,8 @@ class $de extends S {
   String get restore_description_from_seed => "Stellen Sie Ihr Wallet aus den 25 Wörtern wieder her oder 13-Wort-Kombinationscode";
   @override
   String get trade_state_underpaid => "Unterbezahlt";
+  @override
+  String get refund_address => "Rückerstattungsadresse";
   @override
   String get welcome => "Willkommen zu";
   @override
@@ -998,6 +1001,8 @@ class $hi extends S {
   @override
   String get trade_state_underpaid => "के तहत भुगतान किया";
   @override
+  String get refund_address => "वापसी का पता";
+  @override
   String get welcome => "स्वागत हे सेवा मेरे";
   @override
   String get share_address => "पता साझा करें";
@@ -1623,6 +1628,8 @@ class $ru extends S {
   String get restore_description_from_seed => "Вы можете восстановить кошелёк используя 25-ти значную мнемоническую фразу";
   @override
   String get trade_state_underpaid => "Недоплаченная";
+  @override
+  String get refund_address => "Адрес возврата";
   @override
   String get welcome => "Приветствуем в";
   @override
@@ -2250,6 +2257,8 @@ class $ko extends S {
   @override
   String get trade_state_underpaid => "미지급";
   @override
+  String get refund_address => "환불 주소";
+  @override
   String get welcome => "환영 에";
   @override
   String get share_address => "주소 공유";
@@ -2875,6 +2884,8 @@ class $pt extends S {
   String get restore_description_from_seed => "Restaure sua carteira a partir de semente com 25 palavras ou 13 palavras";
   @override
   String get trade_state_underpaid => "Parcialmente paga";
+  @override
+  String get refund_address => "Endereço de reembolso";
   @override
   String get welcome => "Bem-vindo ao";
   @override
@@ -3502,6 +3513,8 @@ class $uk extends S {
   @override
   String get trade_state_underpaid => "Недоплачена";
   @override
+  String get refund_address => "Адреса повернення коштів";
+  @override
   String get welcome => "Вітаємо в";
   @override
   String get share_address => "Поділитися адресою";
@@ -4127,6 +4140,8 @@ class $ja extends S {
   String get restore_description_from_seed => "25ワードからウォレットを復元しますまたは13ワードの組み合わせコード";
   @override
   String get trade_state_underpaid => "支払不足";
+  @override
+  String get refund_address => "払い戻し住所";
   @override
   String get welcome => "ようこそ に";
   @override
@@ -4758,6 +4773,8 @@ class $pl extends S {
   @override
   String get trade_state_underpaid => "Niedopłacone";
   @override
+  String get refund_address => "Adres zwrotu";
+  @override
   String get welcome => "Witamy w";
   @override
   String get share_address => "Udostępnij adres";
@@ -5383,6 +5400,8 @@ class $es extends S {
   String get restore_description_from_seed => "Restaure su billetera desde el código de combinación de 25 palabras i de 13 palabras";
   @override
   String get trade_state_underpaid => "Poco pagado";
+  @override
+  String get refund_address => "Dirección de reembolso";
   @override
   String get welcome => "Bienvenido";
   @override
@@ -6010,6 +6029,8 @@ class $nl extends S {
   @override
   String get trade_state_underpaid => "Slecht betaald";
   @override
+  String get refund_address => "Adres voor terugbetaling";
+  @override
   String get welcome => "Welkom bij";
   @override
   String get share_address => "Deel adres";
@@ -6635,6 +6656,8 @@ class $zh extends S {
   String get restore_description_from_seed => "从25个字中恢复您的钱包或13个字的组合码";
   @override
   String get trade_state_underpaid => "支付不足";
+  @override
+  String get refund_address => "退款地址";
   @override
   String get welcome => "歡迎來到";
   @override

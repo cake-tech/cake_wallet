@@ -10,6 +10,8 @@ import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
+import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/store/contact_list_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -42,6 +44,7 @@ import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -299,4 +302,17 @@ Future setup(
 
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
+
+  getIt.registerFactory(() =>
+      ExchangeViewModel(
+        wallet: getIt.get<AppStore>().wallet,
+        exchangeTemplateStore: getIt.get<ExchangeTemplateStore>(),
+        trades: tradesSource
+      ));
+
+  getIt.registerFactory(() =>
+      ExchangePage(getIt.get<ExchangeViewModel>()));
+
+  getIt.registerFactory(() =>
+      ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
 }

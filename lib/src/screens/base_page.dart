@@ -19,9 +19,13 @@ abstract class BasePage extends StatelessWidget {
 
   bool get resizeToAvoidBottomPadding => true;
 
+  Widget get endDrawer => null;
+
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
   Widget Function(BuildContext, Widget) get rootWrapper => null;
+
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final _backArrowImage = Image.asset('assets/images/back_arrow.png',
   color: Colors.white);
@@ -31,6 +35,8 @@ abstract class BasePage extends StatelessWidget {
   final _closeButtonImage = Image.asset('assets/images/close_button.png');
   final _closeButtonImageDarkTheme =
       Image.asset('assets/images/close_button_dark_theme.png');
+
+  void onOpenEndDrawer() => _scaffoldKey.currentState.openEndDrawer();
 
   void onClose(BuildContext context) => Navigator.of(context).pop();
 
@@ -123,9 +129,11 @@ abstract class BasePage extends StatelessWidget {
     final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
 
     final root = Scaffold(
+        key: _scaffoldKey,
         backgroundColor:
             _isDarkTheme ? backgroundDarkColor : backgroundLightColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
+        endDrawer: endDrawer,
         appBar: appBar(context),
         body: body(context), //SafeArea(child: ),
         floatingActionButton: floatingActionButton(context));

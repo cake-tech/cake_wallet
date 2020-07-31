@@ -125,7 +125,7 @@ class ReceivePage extends BasePage {
                                 .headline5
                                 .color
                                 .withOpacity(0.4),
-                            validator: AmountValidator(),
+                            validator: AmountValidator(isAutovalidate: true),
                             autovalidate: true,
                             placeholderTextStyle: TextStyle(
                                 color: Theme.of(context)

@@ -411,45 +411,12 @@ class Router {
                 walletRestorationFromSeedVM: walletRestorationFromSeedVM));
 
       case Routes.exchange:
-        return MaterialPageRoute<void>(
-            builder: (_) => MultiProvider(providers: [
-                  Provider(create: (_) {
-                    final xmrtoprovider = XMRTOExchangeProvider();
-
-                    return ExchangeStore(
-                        initialProvider: xmrtoprovider,
-                        initialDepositCurrency: CryptoCurrency.xmr,
-                        initialReceiveCurrency: CryptoCurrency.btc,
-                        trades: trades,
-                        providerList: [
-                          xmrtoprovider,
-                          ChangeNowExchangeProvider(),
-                          MorphTokenExchangeProvider(trades: trades)
-                        ],
-                        walletStore: walletStore);
-                  }),
-                ], child: ExchangePage()));
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<ExchangePage>());
 
       case Routes.exchangeTemplate:
-        return MaterialPageRoute<void>(
-            builder: (_) => Provider(
-                  create: (_) {
-                    final xmrtoprovider = XMRTOExchangeProvider();
-
-                    return ExchangeStore(
-                        initialProvider: xmrtoprovider,
-                        initialDepositCurrency: CryptoCurrency.xmr,
-                        initialReceiveCurrency: CryptoCurrency.btc,
-                        trades: trades,
-                        providerList: [
-                          xmrtoprovider,
-                          ChangeNowExchangeProvider(),
-                          MorphTokenExchangeProvider(trades: trades)
-                        ],
-                        walletStore: walletStore);
-                  },
-                  child: ExchangeTemplatePage(),
-                ));
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<ExchangeTemplatePage>());
 
       case Routes.settings:
         return MaterialPageRoute<void>(
