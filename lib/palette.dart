@@ -13,6 +13,23 @@ class Palette {
   static const Color blue = Color.fromRGBO(88, 143, 252, 1.0);
   static const Color darkLavender = Color.fromRGBO(225, 238, 250, 1.0);
   static const Color nightBlue = Color.fromRGBO(46, 57, 96, 1.0);
+
+  // NEW DESIGN
+  static const Color blueCraiola = Color.fromRGBO(69, 110, 255, 1.0);
+  static const Color darkBlueCraiola = Color.fromRGBO(53, 86, 136, 1.0);
+  static const Color pinkFlamingo = Color.fromRGBO(240, 60, 243, 1.0);
+  static const Color redHat = Color.fromRGBO(209, 68, 37, 1.0);
+  static const Color shineOrange = Color.fromRGBO(255, 184, 78, 1.0);
+  static const Color paleBlue = Color.fromRGBO(225, 228, 233, 1.0);
+  static const Color violetBlue = Color.fromRGBO(56, 69, 103, 1.0);
+  static const Color periwinkleCraiola = Color.fromRGBO(229, 232, 242, 1.0);
+  static const Color moderatePurpleBlue = Color.fromRGBO(57, 74, 95, 1.0);
+  static const Color moderateLavender = Color.fromRGBO(233, 242, 252, 1.0);
+  static const Color wildLavender = Color.fromRGBO(224, 230, 246, 1.0);
+  static const Color gray = Color.fromRGBO(112, 147, 186, 1.0);
+  static const Color wildPeriwinkle = Color.fromRGBO(219, 227, 243, 1.0);
+  static const Color darkGray = Color.fromRGBO(122, 147, 186, 1.0);
+
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);
   static const Color xxx = Color.fromRGBO(72, 89, 109, 1);

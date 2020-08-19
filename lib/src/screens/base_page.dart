@@ -15,7 +15,9 @@ abstract class BasePage extends StatelessWidget {
 
   Color get backgroundLightColor => Colors.white;
 
-  Color get backgroundDarkColor => PaletteDark.darkNightBlue;
+  Color get backgroundDarkColor => PaletteDark.backgroundColor;
+
+  Color get titleColor => null;
 
   bool get resizeToAvoidBottomPadding => true;
 
@@ -27,11 +29,6 @@ abstract class BasePage extends StatelessWidget {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final _backArrowImage = Image.asset('assets/images/back_arrow.png',
-  color: Colors.white);
-  final _backArrowImageDarkTheme =
-  Image.asset('assets/images/back_arrow_dark_theme.png',
-  color: Colors.white);
   final _closeButtonImage = Image.asset('assets/images/close_button.png');
   final _closeButtonImageDarkTheme =
       Image.asset('assets/images/close_button_dark_theme.png');
@@ -45,16 +42,13 @@ abstract class BasePage extends StatelessWidget {
       return null;
     }
 
-    final _themeChanger = Provider.of<ThemeChanger>(context);
-    Image _closeButton, _backButton;
+    final _backButton = Image.asset('assets/images/back_arrow.png',
+          color: titleColor ?? Theme.of(context).primaryTextTheme.title.color);
 
-    if (_themeChanger.getTheme() == Themes.darkTheme) {
-      _backButton = _backArrowImageDarkTheme;
-      _closeButton = _closeButtonImageDarkTheme;
-    } else {
-      _backButton = _backArrowImage;
-      _closeButton = _closeButtonImage;
-    }
+    final _themeChanger = Provider.of<ThemeChanger>(context);
+    final _closeButton = _themeChanger.getTheme() == Themes.darkTheme
+    ? _closeButtonImageDarkTheme
+    : _closeButtonImage;
 
     return SizedBox(
       height: 37,
@@ -79,7 +73,8 @@ abstract class BasePage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
-                color: Colors.white),
+                color: titleColor ??
+                       Theme.of(context).primaryTextTheme.title.color),
           );
   }
 

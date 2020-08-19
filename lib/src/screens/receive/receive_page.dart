@@ -14,7 +14,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_h
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
-import 'package:cake_wallet/palette.dart';
 
 class ReceivePage extends BasePage {
   ReceivePage({this.addressListViewModel});
@@ -25,10 +24,26 @@ class ReceivePage extends BasePage {
   String get title => S.current.receive;
 
   @override
-  Color get backgroundLightColor => PaletteDark.backgroundColor;
+  Color get backgroundLightColor => Colors.transparent;
 
   @override
-  Color get backgroundDarkColor => PaletteDark.backgroundColor;
+  Color get backgroundDarkColor => Colors.transparent;
+
+  @override
+  Color get titleColor => Colors.white;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+                Theme.of(context).accentColor,
+                Theme.of(context).scaffoldBackgroundColor,
+                Theme.of(context).primaryColor,
+              ],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft)),
+          child: scaffold);
 
   @override
   Widget trailing(BuildContext context) {
@@ -66,7 +81,9 @@ class ReceivePage extends BasePage {
           Observer(
               builder: (_) => ListView.separated(
                   separatorBuilder: (context, _) =>
-                      Container(height: 1, color: PaletteDark.dividerColor),
+                      Container(
+                          height: 1,
+                          color: Theme.of(context).dividerColor),
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: addressListViewModel.items.length,
@@ -83,7 +100,7 @@ class ReceivePage extends BasePage {
                           icon: Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
-                            color: Colors.white,
+                            color: Theme.of(context).textTheme.display1.color,
                           ));
                     }
 
@@ -95,7 +112,7 @@ class ReceivePage extends BasePage {
                           icon: Icon(
                             Icons.add,
                             size: 20,
-                            color: Colors.white,
+                            color: Theme.of(context).textTheme.display1.color,
                           ));
                     }
 
@@ -105,11 +122,11 @@ class ReceivePage extends BasePage {
                             final isCurrent = item.address ==
                                 addressListViewModel.address.address;
                             final backgroundColor = isCurrent
-                                ? PaletteDark.lightOceanBlue
-                                : PaletteDark.nightBlue;
+                                ? Theme.of(context).textTheme.display3.decorationColor
+                                : Theme.of(context).textTheme.display2.decorationColor;
                             final textColor = isCurrent
-                                ? Colors.blue
-                                : Colors.white;
+                                ? Theme.of(context).textTheme.display3.color
+                                : Theme.of(context).textTheme.display2.color;
 
                             return AddressCell.fromItem(item,
                                 isCurrent: isCurrent,

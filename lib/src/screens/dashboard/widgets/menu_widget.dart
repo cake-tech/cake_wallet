@@ -17,7 +17,7 @@ class MenuWidget extends StatefulWidget {
 
 class MenuWidgetState extends State<MenuWidget> {
   final moneroIcon = Image.asset('assets/images/monero_menu.png');
-  final bitcoinIcon = Image.asset('assets/images/bitcoin.png');
+  final bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png');
   final largeScreen = 731;
 
   double menuWidth;
@@ -81,7 +81,7 @@ class MenuWidgetState extends State<MenuWidget> {
               width: 4,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(2)),
-                color: Theme.of(context).hintColor),
+                color: PaletteDark.gray),
             )),
           SizedBox(width: 12),
           Expanded(
@@ -92,12 +92,13 @@ class MenuWidgetState extends State<MenuWidget> {
                 child: Container(
                   width: menuWidth,
                   height: double.infinity,
-                  color: PaletteDark.deepPurpleBlue,
+                  color: Theme.of(context).textTheme.body2.decorationColor,
                   child: SingleChildScrollView(
                     child: Column(
                       children: <Widget>[
                         Container(
                           height: headerHeight,
+                          color: Theme.of(context).textTheme.body2.color,
                           padding: EdgeInsets.only(
                               left: 24,
                               top: fromTopEdge,
@@ -120,7 +121,8 @@ class MenuWidgetState extends State<MenuWidget> {
                                         Text(
                                           widget.name,
                                           style: TextStyle(
-                                              color: Colors.white,
+                                              color: Theme.of(context).textTheme
+                                                  .display2.color,
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -128,7 +130,9 @@ class MenuWidgetState extends State<MenuWidget> {
                                           Text(
                                             widget.subname,
                                             style: TextStyle(
-                                                color: PaletteDark.darkCyanBlue,
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .caption.color,
                                                 fontWeight: FontWeight.w500,
                                                 fontSize: 12),
                                           )
@@ -140,7 +144,7 @@ class MenuWidgetState extends State<MenuWidget> {
                         ),
                         Container(
                           height: 1,
-                          color: PaletteDark.darkOceanBlue,
+                          color: Theme.of(context).primaryTextTheme.caption.decorationColor,
                         ),
                         ListView.separated(
                             shrinkWrap: true,
@@ -178,7 +182,8 @@ class MenuWidgetState extends State<MenuWidget> {
                                           child: Text(
                                             item,
                                             style: TextStyle(
-                                                color: Colors.white,
+                                                color: Theme.of(context).textTheme
+                                                    .display2.color,
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.bold),
                                           ))
@@ -189,7 +194,7 @@ class MenuWidgetState extends State<MenuWidget> {
                             },
                             separatorBuilder: (_, index) => Container(
                               height: 1,
-                              color: PaletteDark.darkOceanBlue,
+                              color: Theme.of(context).primaryTextTheme.caption.decorationColor,
                             ),
                             itemCount: itemCount)
                       ],

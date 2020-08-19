@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton(
@@ -38,7 +37,7 @@ class PrimaryButton extends StatelessWidget {
                   fontSize: 15.0,
                   fontWeight: FontWeight.w600,
                   color: isDisabled
-                      ? Colors.grey.withOpacity(0.5)
+                      ? textColor.withOpacity(0.5)
                       : textColor)),
         ));
   }
@@ -78,7 +77,7 @@ class LoadingPrimaryButton extends StatelessWidget {
                   fontSize: 15.0,
                   fontWeight: FontWeight.w600,
                   color: isDisabled
-                      ? Colors.grey.withOpacity(0.5)
+                      ? textColor.withOpacity(0.5)
                       : textColor
               )),
         ));

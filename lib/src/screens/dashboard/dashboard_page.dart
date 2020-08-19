@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
@@ -21,10 +20,23 @@ class DashboardPage extends BasePage {
   });
 
   @override
-  Color get backgroundLightColor => PaletteDark.backgroundColor;
+  Color get backgroundLightColor => Colors.transparent;
 
   @override
-  Color get backgroundDarkColor => PaletteDark.backgroundColor;
+  Color get backgroundDarkColor => Colors.transparent;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+          (BuildContext context, Widget scaffold) => Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+                Theme.of(context).accentColor,
+                Theme.of(context).scaffoldBackgroundColor,
+                Theme.of(context).primaryColor,
+              ],
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft)),
+          child: scaffold);
 
   @override
   bool get resizeToAvoidBottomPadding => false;
@@ -101,7 +113,7 @@ class DashboardPage extends BasePage {
                   radius:  6.0,
                   dotWidth:  6.0,
                   dotHeight:  6.0,
-                  dotColor:  PaletteDark.cyanBlue,
+                  dotColor:  Theme.of(context).indicatorColor,
                   activeDotColor:  Colors.white
               ),
             )
