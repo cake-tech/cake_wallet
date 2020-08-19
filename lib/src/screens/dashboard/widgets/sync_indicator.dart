@@ -13,35 +13,36 @@ class SyncIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        final syncIndicatorWidth = 250.0;
+        final syncIndicatorWidth = 237.0;
         final status = dashboardViewModel.status;
-        final statusText = status.title();
-        final progress = status.progress();
+        final statusText = status != null ? status.title() : '';
+        final progress = status != null ? status.progress() : 0.0;
         final indicatorOffset = progress * syncIndicatorWidth;
-        final indicatorWidth =
-        progress <= 1 ? syncIndicatorWidth - indicatorOffset : 0.0;
+        final indicatorWidth = progress < 1
+            ? indicatorOffset > 0 ? indicatorOffset : 0.0
+            : syncIndicatorWidth;
         final indicatorColor = status is SyncedSyncStatus
                                ? PaletteDark.brightGreen
-                               : PaletteDark.orangeYellow;
+                               : Theme.of(context).textTheme.caption.color;
 
         return ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(15)),
           child: Container(
             height: 30,
             width: syncIndicatorWidth,
-            color: PaletteDark.lightNightBlue,
+            color: Theme.of(context).textTheme.title.decorationColor,
             child: Stack(
               alignment: Alignment.center,
               children: <Widget>[
                 progress <= 1
                 ? Positioned(
-                    left: indicatorOffset,
+                    left: 0,
                     top: 0,
                     bottom: 0,
                     child: Container(
                       width: indicatorWidth,
                       height: 30,
-                      color: PaletteDark.oceanBlue,
+                      color: Theme.of(context).textTheme.title.backgroundColor,
                     )
                 )
                 : Offstage(),
@@ -70,7 +71,7 @@ class SyncIndicator extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
-                            color: PaletteDark.wildBlue
+                            color: Theme.of(context).textTheme.title.color
                           ),
                         ),
                       )

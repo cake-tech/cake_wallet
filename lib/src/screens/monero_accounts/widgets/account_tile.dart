@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class AccountTile extends StatelessWidget {
   AccountTile({
@@ -14,8 +13,12 @@ class AccountTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = isCurrent ? PaletteDark.lightOceanBlue : Colors.transparent;
-    final textColor = isCurrent ? Colors.blue : Colors.white;
+    final color = isCurrent
+        ? Theme.of(context).textTheme.subtitle.decorationColor
+        : Theme.of(context).textTheme.display4.decorationColor;
+    final textColor = isCurrent
+        ? Theme.of(context).textTheme.subtitle.color
+        : Theme.of(context).textTheme.display4.color;
 
     return GestureDetector(
       onTap: onTap,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -29,7 +28,11 @@ class AddressPage extends StatelessWidget {
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(25)),
-                color: PaletteDark.nightBlue
+                border: Border.all(
+                  color: Theme.of(context).textTheme.subhead.color,
+                  width: 1
+                ),
+                color: Theme.of(context).buttonColor
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.max,

@@ -64,21 +64,20 @@ class BaseTextFormField extends StatelessWidget {
           suffixIcon: suffixIcon,
           hintStyle: placeholderTextStyle ??
               TextStyle(
-                  color: hintColor ??
-                      Theme.of(context).primaryTextTheme.caption.color,
+                  color: hintColor ?? Theme.of(context).hintColor,
                   fontSize: 16),
           hintText: hintText,
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).dividerColor,
+                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0)),
           disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).dividerColor,
+                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).dividerColor,
+                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0))),
       validator: validator,
     );
