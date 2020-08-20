@@ -29,6 +29,7 @@ class Palette {
   static const Color gray = Color.fromRGBO(112, 147, 186, 1.0);
   static const Color wildPeriwinkle = Color.fromRGBO(219, 227, 243, 1.0);
   static const Color darkGray = Color.fromRGBO(122, 147, 186, 1.0);
+  static const Color shadowWhite = Color.fromRGBO(242, 245, 255, 1.0);
 
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);

@@ -80,25 +80,35 @@ class Themes {
         color: Palette.darkGray, // transaction/trade details titles
         decorationColor: Colors.white.withOpacity(0.5), // placeholder
       ),
-
-
-
-
       subhead: TextStyle(
-          color: Colors.white.withOpacity(0.5) // send, exchange, buy buttons on dashboard page
+        color: Palette.blueCraiola, // first gradient color (send page)
+        decorationColor: Palette.pinkFlamingo // second gradient color (send page)
       ),
       headline: TextStyle(
-          color: Palette.lightBlueGrey // historyPanelText
+        color: Colors.white.withOpacity(0.5), // text field border color (send page)
+        decorationColor: Colors.white.withOpacity(0.5), // text field hint color (send page)
       ),
       display1: TextStyle(
-          color: Colors.white // menuList
+        color: Colors.white.withOpacity(0.2), // text field button color (send page)
+        decorationColor: Colors.white // text field button icon color (send page)
       ),
       display2: TextStyle(
-          color: Palette.lavender // menuHeader
+        color: Colors.white.withOpacity(0.5), // estimated fee (send page)
+        decorationColor: Palette.shadowWhite // template dotted border (send page)
       ),
       display3: TextStyle(
-          color: Palette.lavender // historyPanelButton
+        color: Palette.darkBlueCraiola, // template new text (send page)
+        decorationColor: Palette.shadowWhite // template background color (send page)
       ),
+
+
+
+
+
+
+
+
+
       display4: TextStyle(
           color: Palette.oceanBlue // QR code
       ),
@@ -182,7 +192,7 @@ class Themes {
         decorationColor: PaletteDark.nightBlue // background of tiles (receive page)
       ),
       display3: TextStyle(
-        color: Colors.blue, // text color of current tile (receive page)
+        color: Palette.blueCraiola, // text color of current tile (receive page)
         decorationColor: PaletteDark.lightOceanBlue // background of current tile (receive page)
       ),
       display4: TextStyle(
@@ -215,24 +225,29 @@ class Themes {
         color: PaletteDark.lightBlueGrey, // transaction/trade details titles
         decorationColor: Colors.grey, // placeholder
       ),
-
-
-
       subhead: TextStyle(
-          color: PaletteDark.lightDistantBlue // send, exchange, buy buttons on dashboard page
+        color: PaletteDark.darkNightBlue, // first gradient color (send page)
+        decorationColor: PaletteDark.darkNightBlue // second gradient color (send page)
       ),
       headline: TextStyle(
-          color: PaletteDark.pigeonBlue // historyPanelText
+        color: PaletteDark.lightVioletBlue, // text field border color (send page)
+        decorationColor: PaletteDark.darkCyanBlue, // text field hint color (send page)
       ),
       display1: TextStyle(
-          color: PaletteDark.lightNightBlue // menuList
+        color: PaletteDark.buttonNightBlue, // text field button color (send page)
+        decorationColor: PaletteDark.gray // text field button icon color (send page)
       ),
       display2: TextStyle(
-          color: PaletteDark.headerNightBlue // menuHeader
+        color: Colors.white, // estimated fee (send page)
+        decorationColor: PaletteDark.darkCyanBlue // template dotted border (send page)
       ),
       display3: TextStyle(
-          color: PaletteDark.moderateNightBlue // historyPanelButton
+        color: PaletteDark.darkCyanBlue, // template new text (send page)
+        decorationColor: PaletteDark.darkVioletBlue // template background color (send page)
       ),
+
+
+
       display4: TextStyle(
           color: PaletteDark.gray // QR code
       ),
