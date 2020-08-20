@@ -27,7 +27,9 @@ import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
+import 'package:cake_wallet/store/theme_changer_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
+import 'package:cake_wallet/theme_changer.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
@@ -317,4 +319,9 @@ Future setup(
 
   getIt.registerFactory(() =>
       ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
+}
+
+void setupThemeChangerStore(ThemeChanger themeChanger) {
+  getIt.registerSingleton<ThemeChangerStore>(
+      ThemeChangerStore(themeChanger: themeChanger));
 }

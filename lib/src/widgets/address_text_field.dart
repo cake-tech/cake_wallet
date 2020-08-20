@@ -112,7 +112,9 @@ class AddressTextField extends StatelessWidget {
                                   borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
-                                  'assets/images/duplicate.png')),
+                                  'assets/images/duplicate.png',
+                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                              )),
                         )),
                   ],
                   if (this.options.contains(AddressTextFieldOption.qrCode)) ...[
@@ -128,7 +130,9 @@ class AddressTextField extends StatelessWidget {
                                   color: buttonColor ?? Theme.of(context).accentTextTheme.title.color,
                                   borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
-                              child: Image.asset('assets/images/qr_code_icon.png')),
+                              child: Image.asset('assets/images/qr_code_icon.png',
+                                color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                              )),
                         ))
                   ],
                   if (this
@@ -147,7 +151,9 @@ class AddressTextField extends StatelessWidget {
                                   borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
-                                  'assets/images/open_book.png')),
+                                  'assets/images/open_book.png',
+                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                              )),
                         ))
                   ],
                   if (this
@@ -166,7 +172,9 @@ class AddressTextField extends StatelessWidget {
                                   borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
-                                  'assets/images/receive_icon_raw.png')),
+                                  'assets/images/receive_icon_raw.png',
+                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                              )),
                         )),
                   ],
                 ],

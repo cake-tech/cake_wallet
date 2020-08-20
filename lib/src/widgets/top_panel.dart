@@ -2,25 +2,28 @@ import 'package:flutter/material.dart';
 
 class TopPanel extends StatefulWidget {
   TopPanel({
-    @required this.color,
     @required this.widget,
-    this.edgeInsets = const EdgeInsets.all(24)
+    this.edgeInsets = const EdgeInsets.all(24),
+    this.color,
+    this.gradient
   });
 
   final Color color;
   final Widget widget;
   final EdgeInsets edgeInsets;
+  final Gradient gradient;
 
   @override
-  TopPanelState createState() => TopPanelState(color, widget, edgeInsets);
+  TopPanelState createState() => TopPanelState(widget, edgeInsets, color, gradient);
 }
 
 class TopPanelState extends State<TopPanel> {
-  TopPanelState(this._color, this._widget, this._edgeInsets);
+  TopPanelState(this._widget, this._edgeInsets, this._color, this._gradient);
 
   final Color _color;
   final Widget _widget;
   final EdgeInsets _edgeInsets;
+  final Gradient _gradient;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +35,8 @@ class TopPanelState extends State<TopPanel> {
           bottomLeft: Radius.circular(24),
           bottomRight: Radius.circular(24)
         ),
-        color: _color
+        color: _color,
+        gradient: _gradient
       ),
       child: _widget,
     );
