@@ -100,17 +100,8 @@ class Themes {
         color: Palette.darkBlueCraiola, // template new text (send page)
         decorationColor: Palette.shadowWhite // template background color (send page)
       ),
-
-
-
-
-
-
-
-
-
       display4: TextStyle(
-          color: Palette.oceanBlue // QR code
+        color: Palette.darkBlueCraiola // template title (send page)
       ),
     ),
 
@@ -245,11 +236,8 @@ class Themes {
         color: PaletteDark.darkCyanBlue, // template new text (send page)
         decorationColor: PaletteDark.darkVioletBlue // template background color (send page)
       ),
-
-
-
       display4: TextStyle(
-          color: PaletteDark.gray // QR code
+        color: PaletteDark.cyanBlue // QR code
       ),
     ),
 
