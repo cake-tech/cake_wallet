@@ -5,7 +5,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:cake_wallet/palette.dart';
 
 class PresentProviderPicker extends StatelessWidget {
   PresentProviderPicker({@required this.exchangeViewModel});
@@ -41,7 +40,7 @@ class PresentProviderPicker extends StatelessWidget {
                         style: TextStyle(
                             fontSize: 10.0,
                             fontWeight: FontWeight.w500,
-                            color: PaletteDark.lightBlueGrey)))
+                            color: Theme.of(context).textTheme.headline.color)))
               ],
             ),
             SizedBox(width: 5),

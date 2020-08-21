@@ -26,16 +26,25 @@ import 'package:cake_wallet/core/amount_validator.dart';
 class BaseExchangeWidget extends StatefulWidget {
   BaseExchangeWidget({
     @ required this.exchangeViewModel,
+    this.leading,
+    this.middle,
+    this.trailing,
     this.isTemplate = false,
   });
 
   final ExchangeViewModel exchangeViewModel;
+  final Widget leading;
+  final Widget middle;
+  final Widget trailing;
   final bool isTemplate;
 
   @override
   BaseExchangeWidgetState createState() =>
   BaseExchangeWidgetState(
     exchangeViewModel: exchangeViewModel,
+    leading: leading,
+    middle: middle,
+    trailing: trailing,
     isTemplate: isTemplate
   );
 }
@@ -43,11 +52,18 @@ class BaseExchangeWidget extends StatefulWidget {
 class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
   BaseExchangeWidgetState({
     @ required this.exchangeViewModel,
+    @ required this.leading,
+    @ required this.middle,
+    @ required this.trailing,
     @ required this.isTemplate,
   });
 
   final ExchangeViewModel exchangeViewModel;
+  final Widget leading;
+  final Widget middle;
+  final Widget trailing;
   final bool isTemplate;
+  final double topPanelHeight = 290;
 
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
@@ -79,249 +95,273 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
     WidgetsBinding.instance.addPostFrameCallback(
             (_) => _setReactions(context, exchangeViewModel));
 
-    return Container(
-      color: PaletteDark.backgroundColor,
-      child: Form(
-          key: _formKey,
-          child: ScrollableWithBottomSection(
-            contentPadding: EdgeInsets.only(bottom: 24),
-            content: Column(
-              children: <Widget>[
-                TopPanel(
-                    color: PaletteDark.darkNightBlue,
-                    edgeInsets: EdgeInsets.only(bottom: 32),
-                    widget: Column(
-                      children: <Widget>[
-                        TopPanel(
-                            edgeInsets: EdgeInsets.fromLTRB(24, 29, 24, 32),
-                            color: PaletteDark.wildVioletBlue,
-                            widget: Observer(
-                              builder: (_) => ExchangeCard(
-                                key: depositKey,
-                                title: S.of(context).you_will_send,
-                                initialCurrency: exchangeViewModel.depositCurrency,
-                                initialWalletName: depositWalletName,
-                                initialAddress:
-                                exchangeViewModel.depositCurrency == exchangeViewModel.wallet.currency
-                                    ? exchangeViewModel.wallet.address
-                                    : exchangeViewModel.depositAddress,
-                                initialIsAmountEditable: true,
-                                initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
-                                isAmountEstimated: false,
-                                currencies: CryptoCurrency.all,
-                                onCurrencySelected: (currency) =>
-                                    exchangeViewModel.changeDepositCurrency(currency: currency),
-                                imageArrow: arrowBottomPurple,
-                                currencyButtonColor: PaletteDark.wildVioletBlue,
-                                addressButtonsColor: PaletteDark.moderateBlue,
-                                currencyValueValidator: AmountValidator(
-                                    type: exchangeViewModel.wallet.type),
-                                addressTextFieldValidator: AddressValidator(
-                                    type: exchangeViewModel.depositCurrency),
-                              ),
-                            )
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 29, left: 24, right: 24),
-                          child: Observer(
-                              builder: (_) => ExchangeCard(
-                                key: receiveKey,
-                                title: S.of(context).you_will_get,
-                                initialCurrency: exchangeViewModel.receiveCurrency,
-                                initialWalletName: receiveWalletName,
-                                initialAddress:
-                                exchangeViewModel.receiveCurrency == exchangeViewModel.wallet.currency
-                                    ? exchangeViewModel.wallet.address
-                                    : exchangeViewModel.receiveAddress,
-                                initialIsAmountEditable: false,
-                                initialIsAddressEditable: exchangeViewModel.isReceiveAddressEnabled,
-                                isAmountEstimated: true,
-                                currencies: CryptoCurrency.all,
-                                onCurrencySelected: (currency) => exchangeViewModel
-                                    .changeReceiveCurrency(currency: currency),
-                                imageArrow: arrowBottomCakeGreen,
-                                currencyButtonColor: PaletteDark.darkNightBlue,
-                                addressButtonsColor: PaletteDark.moderateBlue,
-                                currencyValueValidator: AmountValidator(
-                                    type: exchangeViewModel.wallet.type),
-                                addressTextFieldValidator: AddressValidator(
-                                    type: exchangeViewModel.receiveCurrency),
-                              )),
-                        )
-                      ],
-                    )
-                ),
-                isTemplate
-                ? Offstage()
-                : Padding(
-                  padding: EdgeInsets.only(
-                      top: 30,
-                      left: 24,
-                      bottom: 24
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+    return Form(
+        key: _formKey,
+        child: ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.only(bottom: 24),
+          content: Column(
+            children: <Widget>[
+              TopPanel(
+                  gradient: LinearGradient(colors: [
+                    Theme.of(context).primaryTextTheme.body1.color,
+                    Theme.of(context).primaryTextTheme.body1.decorationColor,
+                  ],
+                  stops: [0.35, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight),
+                  edgeInsets: EdgeInsets.only(bottom: 32),
+                  widget: Column(
                     children: <Widget>[
-                      Text(
-                        S.of(context).send_templates,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: PaletteDark.darkCyanBlue
-                        ),
+                      TopPanel(
+                          edgeInsets: EdgeInsets.all(0),
+                          gradient: LinearGradient(colors: [
+                            Theme.of(context).primaryTextTheme.subtitle.color,
+                            Theme.of(context).primaryTextTheme.subtitle.decorationColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
+                          widget: Column(
+                            children: <Widget>[
+                              CupertinoNavigationBar(
+                                leading: leading,
+                                middle: middle,
+                                trailing: trailing,
+                                backgroundColor: Colors.transparent,
+                                border: null,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(24, 29, 24, 32),
+                                child: Observer(
+                                  builder: (_) => ExchangeCard(
+                                    key: depositKey,
+                                    title: S.of(context).you_will_send,
+                                    initialCurrency: exchangeViewModel.depositCurrency,
+                                    initialWalletName: depositWalletName,
+                                    initialAddress:
+                                    exchangeViewModel.depositCurrency == exchangeViewModel.wallet.currency
+                                        ? exchangeViewModel.wallet.address
+                                        : exchangeViewModel.depositAddress,
+                                    initialIsAmountEditable: true,
+                                    initialIsAddressEditable: exchangeViewModel.isDepositAddressEnabled,
+                                    isAmountEstimated: false,
+                                    currencies: CryptoCurrency.all,
+                                    onCurrencySelected: (currency) =>
+                                        exchangeViewModel.changeDepositCurrency(currency: currency),
+                                    imageArrow: arrowBottomPurple,
+                                    currencyButtonColor: Colors.transparent,
+                                    addressButtonsColor: Theme.of(context).focusColor,
+                                    borderColor: Theme.of(context).primaryTextTheme.body2.color,
+                                    currencyValueValidator: AmountValidator(
+                                        type: exchangeViewModel.wallet.type),
+                                    addressTextFieldValidator: AddressValidator(
+                                        type: exchangeViewModel.depositCurrency),
+                                  ),
+                                ),
+                              )
+                            ],
+                          )
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 29, left: 24, right: 24),
+                        child: Observer(
+                            builder: (_) => ExchangeCard(
+                              key: receiveKey,
+                              title: S.of(context).you_will_get,
+                              initialCurrency: exchangeViewModel.receiveCurrency,
+                              initialWalletName: receiveWalletName,
+                              initialAddress:
+                              exchangeViewModel.receiveCurrency == exchangeViewModel.wallet.currency
+                                  ? exchangeViewModel.wallet.address
+                                  : exchangeViewModel.receiveAddress,
+                              initialIsAmountEditable: false,
+                              initialIsAddressEditable: exchangeViewModel.isReceiveAddressEnabled,
+                              isAmountEstimated: true,
+                              currencies: CryptoCurrency.all,
+                              onCurrencySelected: (currency) => exchangeViewModel
+                                  .changeReceiveCurrency(currency: currency),
+                              imageArrow: arrowBottomCakeGreen,
+                              currencyButtonColor: Colors.transparent,
+                              addressButtonsColor: Theme.of(context).focusColor,
+                              borderColor: Theme.of(context).primaryTextTheme.body2.decorationColor,
+                              currencyValueValidator: AmountValidator(
+                                  type: exchangeViewModel.wallet.type),
+                              addressTextFieldValidator: AddressValidator(
+                                  type: exchangeViewModel.receiveCurrency),
+                            )),
                       )
                     ],
-                  ),
+                  )
+              ),
+              isTemplate
+                  ? Offstage()
+                  : Padding(
+                padding: EdgeInsets.only(
+                    top: 30,
+                    left: 24,
+                    bottom: 24
                 ),
-                isTemplate
-                ? Offstage()
-                : Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      S.of(context).send_templates,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).primaryTextTheme.display4.color
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              isTemplate
+                  ? Offstage()
+                  : Container(
                   height: 40,
                   width: double.infinity,
                   padding: EdgeInsets.only(left: 24),
                   child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () => Navigator.of(context)
-                              .pushNamed(Routes.exchangeTemplate),
-                          child: Container(
-                            padding: EdgeInsets.only(left: 1, right: 10),
-                            child: DottedBorder(
-                                borderType: BorderType.RRect,
-                                dashPattern: [6, 4],
-                                color: PaletteDark.darkCyanBlue,
-                                strokeWidth: 2,
-                                radius: Radius.circular(20),
-                                child: Container(
-                                  height: 34,
-                                  width: 75,
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.all(Radius.circular(20)),
-                                    color: Colors.transparent,
-                                  ),
-                                  child: Text(
-                                    S.of(context).send_new,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: PaletteDark.darkCyanBlue
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed(Routes.exchangeTemplate),
+                            child: Container(
+                              padding: EdgeInsets.only(left: 1, right: 10),
+                              child: DottedBorder(
+                                  borderType: BorderType.RRect,
+                                  dashPattern: [6, 4],
+                                  color: Theme.of(context).primaryTextTheme.display2.decorationColor,
+                                  strokeWidth: 2,
+                                  radius: Radius.circular(20),
+                                  child: Container(
+                                    height: 34,
+                                    width: 75,
+                                    padding: EdgeInsets.only(left: 10, right: 10),
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                                      color: Colors.transparent,
                                     ),
-                                  ),
-                                )
+                                    child: Text(
+                                      S.of(context).send_new,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Theme.of(context).primaryTextTheme.display3.color
+                                      ),
+                                    ),
+                                  )
+                              ),
                             ),
                           ),
-                        ),
-                        Observer(
-                            builder: (_) {
-                              final templates = exchangeViewModel.templates;
-                              final itemCount = exchangeViewModel.templates.length;
+                          Observer(
+                              builder: (_) {
+                                final templates = exchangeViewModel.templates;
+                                final itemCount = exchangeViewModel.templates.length;
 
-                              return ListView.builder(
-                                  scrollDirection: Axis.horizontal,
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: itemCount,
-                                  itemBuilder: (context, index) {
-                                    final template = templates[index];
+                                return ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    itemCount: itemCount,
+                                    itemBuilder: (context, index) {
+                                      final template = templates[index];
 
-                                    return TemplateTile(
-                                      key: UniqueKey(),
-                                      amount: template.amount,
-                                      from: template.depositCurrency,
-                                      to: template.receiveCurrency,
-                                      onTap: () {
-                                        applyTemplate(exchangeViewModel, template);
-                                      },
-                                      onRemove: () {
-                                        showDialog<void>(
-                                            context: context,
-                                            builder: (dialogContext) {
-                                              return AlertWithTwoActions(
-                                                  alertTitle: S.of(context).template,
-                                                  alertContent: S.of(context).confirm_delete_template,
-                                                  leftButtonText: S.of(context).delete,
-                                                  rightButtonText: S.of(context).cancel,
-                                                  actionLeftButton: () {
-                                                    Navigator.of(dialogContext).pop();
-                                                    exchangeViewModel.exchangeTemplateStore.remove(template: template);
-                                                    exchangeViewModel.exchangeTemplateStore.update();
-                                                  },
-                                                  actionRightButton: () => Navigator.of(dialogContext).pop()
-                                              );
-                                            }
-                                        );
-                                      },
-                                    );
-                                  }
-                              );
-                            }
-                        ),
-                      ],
-                    )
+                                      return TemplateTile(
+                                        key: UniqueKey(),
+                                        amount: template.amount,
+                                        from: template.depositCurrency,
+                                        to: template.receiveCurrency,
+                                        onTap: () {
+                                          applyTemplate(exchangeViewModel, template);
+                                        },
+                                        onRemove: () {
+                                          showDialog<void>(
+                                              context: context,
+                                              builder: (dialogContext) {
+                                                return AlertWithTwoActions(
+                                                    alertTitle: S.of(context).template,
+                                                    alertContent: S.of(context).confirm_delete_template,
+                                                    leftButtonText: S.of(context).delete,
+                                                    rightButtonText: S.of(context).cancel,
+                                                    actionLeftButton: () {
+                                                      Navigator.of(dialogContext).pop();
+                                                      exchangeViewModel.exchangeTemplateStore.remove(template: template);
+                                                      exchangeViewModel.exchangeTemplateStore.update();
+                                                    },
+                                                    actionRightButton: () => Navigator.of(dialogContext).pop()
+                                                );
+                                              }
+                                          );
+                                        },
+                                      );
+                                    }
+                                );
+                              }
+                          ),
+                        ],
+                      )
                   )
-                )
-              ],
-            ),
-            bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-            bottomSection: Column(children: <Widget>[
-              Padding(
-                padding: EdgeInsets.only(bottom: 15),
-                child: Observer(builder: (_) {
-                  final description =
-                  exchangeViewModel.provider is XMRTOExchangeProvider
-                      ? S.of(context).amount_is_guaranteed
-                      : S.of(context).amount_is_estimate;
-                  return Center(
-                    child: Text(
-                      description,
-                      style: TextStyle(
-                          color: PaletteDark.darkCyanBlue,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 12
-                      ),
+              )
+            ],
+          ),
+          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          bottomSection: Column(children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(bottom: 15),
+              child: Observer(builder: (_) {
+                final description =
+                exchangeViewModel.provider is XMRTOExchangeProvider
+                    ? S.of(context).amount_is_guaranteed
+                    : S.of(context).amount_is_estimate;
+                return Center(
+                  child: Text(
+                    description,
+                    style: TextStyle(
+                        color: Theme.of(context).primaryTextTheme.display4.decorationColor,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12
                     ),
-                  );
-                }),
-              ),
-              isTemplate
-              ? PrimaryButton(
+                  ),
+                );
+              }),
+            ),
+            isTemplate
+                ? PrimaryButton(
+                onPressed: () {
+                  if (_formKey.currentState.validate()) {
+                    exchangeViewModel.exchangeTemplateStore.addTemplate(
+                        amount: exchangeViewModel.depositAmount,
+                        depositCurrency: exchangeViewModel.depositCurrency.toString(),
+                        receiveCurrency: exchangeViewModel.receiveCurrency.toString(),
+                        provider: exchangeViewModel.provider.toString(),
+                        depositAddress: exchangeViewModel.depositAddress,
+                        receiveAddress: exchangeViewModel.receiveAddress
+                    );
+                    exchangeViewModel.exchangeTemplateStore.update();
+                    Navigator.of(context).pop();
+                  }
+                },
+                text: S.of(context).save,
+                color: Colors.green,
+                textColor: Colors.white
+            )
+                : Observer(
+                builder: (_) => LoadingPrimaryButton(
+                  text: S.of(context).exchange,
                   onPressed: () {
                     if (_formKey.currentState.validate()) {
-                      exchangeViewModel.exchangeTemplateStore.addTemplate(
-                          amount: exchangeViewModel.depositAmount,
-                          depositCurrency: exchangeViewModel.depositCurrency.toString(),
-                          receiveCurrency: exchangeViewModel.receiveCurrency.toString(),
-                          provider: exchangeViewModel.provider.toString(),
-                          depositAddress: exchangeViewModel.depositAddress,
-                          receiveAddress: exchangeViewModel.receiveAddress
-                      );
-                      exchangeViewModel.exchangeTemplateStore.update();
-                      Navigator.of(context).pop();
+                      exchangeViewModel.createTrade();
                     }
                   },
-                  text: S.of(context).save,
-                  color: Colors.green,
-                  textColor: Colors.white
-              )
-              : Observer(
-                  builder: (_) => LoadingPrimaryButton(
-                    text: S.of(context).exchange,
-                    onPressed: () {
-                      if (_formKey.currentState.validate()) {
-                        exchangeViewModel.createTrade();
-                      }
-                    },
-                    color: Colors.blue,
-                    textColor: Colors.white,
-                    isLoading: exchangeViewModel.tradeState is TradeIsCreating,
-                  )),
-            ]),
-          )),
-    );
+                  color: Palette.blueCraiola,
+                  textColor: Colors.white,
+                  isLoading: exchangeViewModel.tradeState is TradeIsCreating,
+                )),
+          ]),
+        ));
   }
 
   void applyTemplate(ExchangeViewModel exchangeViewModel,

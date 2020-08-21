@@ -101,13 +101,25 @@ class Themes {
         decorationColor: Palette.shadowWhite // template background color (send page)
       ),
       display4: TextStyle(
-        color: Palette.darkBlueCraiola // template title (send page)
+        color: Palette.darkBlueCraiola, // template title (send page)
+        decorationColor: Palette.niagara // receive amount text (exchange page)
       ),
+      subtitle: TextStyle(
+        color: Palette.blueCraiola, // first gradient color top panel (exchange page)
+        decorationColor: Palette.pinkFlamingo // second gradient color top panel (exchange page)
+      ),
+      body1: TextStyle(
+        color: Palette.blueCraiola.withOpacity(0.7), // first gradient color bottom panel (exchange page)
+        decorationColor: Palette.pinkFlamingo.withOpacity(0.7) // second gradient color bottom panel (exchange page)
+      ),
+      body2: TextStyle(
+        color: Colors.white.withOpacity(0.5), // text field border on top panel (exchange page)
+        decorationColor: Colors.white.withOpacity(0.5), // text field border on bottom panel (exchange page)
+      )
     ),
+    focusColor: Colors.white.withOpacity(0.2), // text field button (exchange page)
 
 
-
-    focusColor: Colors.white, // wallet card border
 
     cardColor: Palette.blueAlice,
     cardTheme: CardTheme(
@@ -237,13 +249,26 @@ class Themes {
         decorationColor: PaletteDark.darkVioletBlue // template background color (send page)
       ),
       display4: TextStyle(
-        color: PaletteDark.cyanBlue // QR code
+        color: PaletteDark.cyanBlue, // template title (send page)
+        decorationColor: PaletteDark.darkCyanBlue // receive amount text (exchange page)
       ),
+      subtitle: TextStyle(
+        color: PaletteDark.wildVioletBlue, // first gradient color top panel (exchange page)
+        decorationColor: PaletteDark.wildVioletBlue // second gradient color top panel (exchange page)
+      ),
+      body1: TextStyle(
+        color: PaletteDark.darkNightBlue, // first gradient color bottom panel (exchange page)
+        decorationColor: PaletteDark.darkNightBlue // second gradient color bottom panel (exchange page)
+      ),
+      body2: TextStyle(
+        color: PaletteDark.blueGrey, // text field border on top panel (exchange page)
+        decorationColor: PaletteDark.moderateVioletBlue, // text field border on bottom panel (exchange page)
+      )
     ),
+    focusColor: PaletteDark.moderateBlue, // text field button (exchange page)
 
 
 
-    focusColor: PaletteDark.lightDistantBlue, // wallet card border
     cardColor: PaletteDark.darkNightBlue,
     cardTheme: CardTheme(
       color: PaletteDark.moderateBlue, // synced card start
