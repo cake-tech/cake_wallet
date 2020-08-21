@@ -291,7 +291,7 @@ class BaseSendWidget extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryTextTheme.title.color
+                      color: Theme.of(context).primaryTextTheme.display4.color
                   ),
                 )
               ],
