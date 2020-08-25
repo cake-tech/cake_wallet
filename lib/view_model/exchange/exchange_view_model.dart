@@ -227,7 +227,7 @@ abstract class ExchangeViewModelBase with Store {
         }
       }
     } else {
-      tradeState = TradeIsCreatedFailure(error: S.current.error_text_limits_loading_failed("${provider.description}"));
+      tradeState = TradeIsCreatedFailure(error: S.current.error_text_limits_loading_failed('${provider.description}'));
     }
 
   }

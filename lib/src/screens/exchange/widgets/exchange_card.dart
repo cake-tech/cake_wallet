@@ -146,6 +146,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   keyboardType: TextInputType.numberWithOptions(
                       signed: false, decimal: true),
                   inputFormatters: [
+                    LengthLimitingTextInputFormatter(15),
                     BlacklistingTextInputFormatter(
                         RegExp('[\\-|\\ |\\,]'))
                   ],

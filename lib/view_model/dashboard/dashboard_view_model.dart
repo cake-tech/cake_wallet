@@ -108,7 +108,8 @@ abstract class DashboardViewModelBase with Store {
 
     _items
         .addAll(transactionFilterStore.filtered(transactions: transactions));
-    _items.addAll(tradeFilterStore.filtered(trades: trades));
+    //_items.addAll(tradeFilterStore.filtered(trades: trades));
+    _items.addAll(trades); // FIXME
 
     return formattedItemsList(_items);
   }
