@@ -71,6 +71,8 @@ class NavBar extends StatelessWidget implements ObstructingPreferredSizeWidget {
           EdgeInsetsDirectional.only(bottom: _paddingBottom, top: paddingTop),
       child: CupertinoNavigationBar(
         leading: leading,
+        automaticallyImplyLeading: false,
+        automaticallyImplyMiddle: false,
         middle: middle,
         trailing: trailing,
         backgroundColor: backgroundColor,

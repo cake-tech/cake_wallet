@@ -61,6 +61,7 @@
 
   "exchange" : "Intercambiar",
   "clear" : "Claro",
+  "refund_address" : "Dirección de reembolso",
   "change_exchange_provider" : "Cambiar proveedor de intercambio",
   "you_will_send" : "Enviarás",
   "you_will_get" : "Conseguirás",
@@ -184,9 +185,9 @@
   "seed_language_spanish" : "Español",
 
 
-  "send_title" : "Enviar Monero",
+  "send_title" : "Enviar",
   "send_your_wallet" : "Tu billetera",
-  "send_monero_address" : "Dirección de Monero",
+  "send_address" : "Dirección de ${cryptoCurrency}",
   "send_payment_id" : "ID de pago (opcional)",
   "all" : "TODOS",
   "send_error_minimum_value" : "El valor mínimo de la cantidad es 0.01",
@@ -379,5 +380,9 @@
   "buy" : "Comprar",
 
   "placeholder_transactions" : "Sus transacciones se mostrarán aquí",
-  "placeholder_contacts" : "Tus contactos se mostrarán aquí"
+  "placeholder_contacts" : "Tus contactos se mostrarán aquí",
+
+  "template" : "Plantilla",
+  "confirm_delete_template" : "Esta acción eliminará esta plantilla. ¿Desea continuar?",
+  "confirm_delete_wallet" : "Esta acción eliminará esta billetera. ¿Desea continuar?"
 }

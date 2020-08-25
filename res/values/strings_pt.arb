@@ -61,6 +61,7 @@
 
   "exchange" : "Trocar",
   "clear" : "Limpar",
+  "refund_address" : "Endereço de reembolso",
   "change_exchange_provider" : "Alterar o provedor de troca",
   "you_will_send" : "Você enviará",
   "you_will_get" : "Você receberá",
@@ -184,9 +185,9 @@
   "seed_language_spanish" : "Espanhola",
 
 
-  "send_title" : "Enviar Monero",
+  "send_title" : "Enviar",
   "send_your_wallet" : "Sua carteira",
-  "send_monero_address" : "Endereço Monero",
+  "send_address" : "Endereço ${cryptoCurrency}",
   "send_payment_id" : "ID de pagamento (opcional)",
   "all" : "TUDO",
   "send_error_minimum_value" : "O valor mínimo da quantia é 0,01",
@@ -379,5 +380,9 @@
   "buy" : "Comprar",
 
   "placeholder_transactions" : "Suas transações serão exibidas aqui",
-  "placeholder_contacts" : "Seus contatos serão exibidos aqui"
+  "placeholder_contacts" : "Seus contatos serão exibidos aqui",
+
+  "template" : "Modelo",
+  "confirm_delete_template" : "Esta ação excluirá este modelo. Você deseja continuar?",
+  "confirm_delete_wallet" : "Esta ação excluirá esta carteira. Você deseja continuar?"
 }

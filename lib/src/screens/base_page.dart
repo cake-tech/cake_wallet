@@ -15,20 +15,25 @@ abstract class BasePage extends StatelessWidget {
 
   Color get backgroundLightColor => Colors.white;
 
-  Color get backgroundDarkColor => PaletteDark.darkNightBlue;
+  Color get backgroundDarkColor => PaletteDark.backgroundColor;
+
+  Color get titleColor => null;
 
   bool get resizeToAvoidBottomPadding => true;
+
+  Widget get endDrawer => null;
 
   AppBarStyle get appBarStyle => AppBarStyle.regular;
 
   Widget Function(BuildContext, Widget) get rootWrapper => null;
 
-  final _backArrowImage = Image.asset('assets/images/back_arrow.png', color: Colors.white);
-  final _backArrowImageDarkTheme =
-      Image.asset('assets/images/back_arrow_dark_theme.png', color: Colors.white);
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   final _closeButtonImage = Image.asset('assets/images/close_button.png');
   final _closeButtonImageDarkTheme =
       Image.asset('assets/images/close_button_dark_theme.png');
+
+  void onOpenEndDrawer() => _scaffoldKey.currentState.openEndDrawer();
 
   void onClose(BuildContext context) => Navigator.of(context).pop();
 
@@ -37,16 +42,13 @@ abstract class BasePage extends StatelessWidget {
       return null;
     }
 
-    final _themeChanger = Provider.of<ThemeChanger>(context);
-    Image _closeButton, _backButton;
+    final _backButton = Image.asset('assets/images/back_arrow.png',
+          color: titleColor ?? Theme.of(context).primaryTextTheme.title.color);
 
-    if (_themeChanger.getTheme() == Themes.darkTheme) {
-      _backButton = _backArrowImageDarkTheme;
-      _closeButton = _closeButtonImageDarkTheme;
-    } else {
-      _backButton = _backArrowImage;
-      _closeButton = _closeButtonImage;
-    }
+    final _themeChanger = Provider.of<ThemeChanger>(context);
+    final _closeButton = _themeChanger.getTheme() == Themes.darkTheme
+    ? _closeButtonImageDarkTheme
+    : _closeButtonImage;
 
     return SizedBox(
       height: 37,
@@ -71,9 +73,8 @@ abstract class BasePage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
-                //color: Theme.of(context).primaryTextTheme.title.color,
-                color: Colors.white,
-            ),
+                color: titleColor ??
+                       Theme.of(context).primaryTextTheme.title.color),
           );
   }
 
@@ -123,9 +124,11 @@ abstract class BasePage extends StatelessWidget {
     final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
 
     final root = Scaffold(
+        key: _scaffoldKey,
         backgroundColor:
             _isDarkTheme ? backgroundDarkColor : backgroundLightColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
+        endDrawer: endDrawer,
         appBar: appBar(context),
         body: body(context), //SafeArea(child: ),
         floatingActionButton: floatingActionButton(context));

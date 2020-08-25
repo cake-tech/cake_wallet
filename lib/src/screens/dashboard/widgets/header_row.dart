@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
@@ -11,11 +10,11 @@ class HeaderRow extends StatelessWidget {
 
   final DashboardViewModel dashboardViewModel;
 
-  final filterIcon = Image.asset('assets/images/filter_icon.png',
-      color: PaletteDark.wildBlue);
-
   @override
   Widget build(BuildContext context) {
+    final filterIcon = Image.asset('assets/images/filter_icon.png',
+        color: Theme.of(context).textTheme.caption.decorationColor);
+
     return Container(
       height: 52,
       color: Colors.transparent,
@@ -40,7 +39,7 @@ class HeaderRow extends StatelessWidget {
                   child: Text(S.of(context).transactions,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryTextTheme.caption.color))),
+                          color: Theme.of(context).primaryTextTheme.title.color))),
               PopupMenuItem(
                   value: 0,
                   child: Observer(
@@ -49,7 +48,11 @@ class HeaderRow extends StatelessWidget {
                           MainAxisAlignment
                               .spaceBetween,
                           children: [
-                            Text(S.of(context).incoming),
+                            Text(S.of(context).incoming,
+                              style: TextStyle(
+                                color: Theme.of(context).primaryTextTheme.title.color
+                              ),
+                            ),
                             Checkbox(
                                 value: dashboardViewModel
                                     .transactionFilterStore
@@ -67,7 +70,11 @@ class HeaderRow extends StatelessWidget {
                           MainAxisAlignment
                               .spaceBetween,
                           children: [
-                            Text(S.of(context).outgoing),
+                            Text(S.of(context).outgoing,
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryTextTheme.title.color
+                                )
+                            ),
                             Checkbox(
                               value: dashboardViewModel
                                   .transactionFilterStore
@@ -80,7 +87,11 @@ class HeaderRow extends StatelessWidget {
               PopupMenuItem(
                   value: 2,
                   child:
-                  Text(S.of(context).transactions_by_date)),
+                  Text(S.of(context).transactions_by_date,
+                      style: TextStyle(
+                          color: Theme.of(context).primaryTextTheme.title.color
+                      )
+                  )),
               PopupMenuDivider(),
               PopupMenuItem(
                   enabled: false,
@@ -88,7 +99,7 @@ class HeaderRow extends StatelessWidget {
                   child: Text(S.of(context).trades,
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryTextTheme.caption.color))),
+                          color: Theme.of(context).primaryTextTheme.title.color))),
               PopupMenuItem(
                   value: 3,
                   child: Observer(
@@ -97,7 +108,11 @@ class HeaderRow extends StatelessWidget {
                           MainAxisAlignment
                               .spaceBetween,
                           children: [
-                            Text('XMR.TO'),
+                            Text('XMR.TO',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryTextTheme.title.color
+                                )
+                            ),
                             Checkbox(
                               value: dashboardViewModel
                                   .tradeFilterStore
@@ -117,7 +132,11 @@ class HeaderRow extends StatelessWidget {
                           MainAxisAlignment
                               .spaceBetween,
                           children: [
-                            Text('Change.NOW'),
+                            Text('Change.NOW',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryTextTheme.title.color
+                                )
+                            ),
                             Checkbox(
                               value: dashboardViewModel
                                   .tradeFilterStore
@@ -137,7 +156,11 @@ class HeaderRow extends StatelessWidget {
                           MainAxisAlignment
                               .spaceBetween,
                           children: [
-                            Text('MorphToken'),
+                            Text('MorphToken',
+                                style: TextStyle(
+                                    color: Theme.of(context).primaryTextTheme.title.color
+                                )
+                            ),
                             Checkbox(
                               value: dashboardViewModel
                                   .tradeFilterStore
@@ -155,7 +178,7 @@ class HeaderRow extends StatelessWidget {
               width: 36,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: PaletteDark.oceanBlue
+                  color: Theme.of(context).textTheme.overline.color
               ),
               child: filterIcon,
             ),
