@@ -75,7 +75,7 @@ class TransactionsPage extends StatelessWidget {
                         }
 
                         return Container(
-                            color: Theme.of(context).backgroundColor,
+                            color: Colors.transparent,
                             height: 1);
                       }
                   )
@@ -84,7 +84,8 @@ class TransactionsPage extends StatelessWidget {
                       S.of(context).placeholder_transactions,
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.grey
+                        color: Theme.of(context).primaryTextTheme
+                            .overline.decorationColor
                       ),
                     ),
                   );

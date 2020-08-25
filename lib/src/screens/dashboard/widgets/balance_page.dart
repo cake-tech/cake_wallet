@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class BalancePage extends StatelessWidget {
@@ -26,7 +25,7 @@ class BalancePage extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 40,
                           fontWeight: FontWeight.bold,
-                          color: PaletteDark.cyanBlue,
+                          color: Theme.of(context).indicatorColor,
                           height: 1
                       ),
                     );
@@ -52,7 +51,7 @@ class BalancePage extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: PaletteDark.cyanBlue,
+                          color: Theme.of(context).indicatorColor,
                           height: 1
                       ),
                     );

@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:cake_wallet/palette.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget({
@@ -27,7 +26,7 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-          color: PaletteDark.lightBlueGrey);
+          color: Theme.of(context).textTheme.subhead.decorationColor);
     final addressTopOffset = isAmountFieldShow ? 60.0 : 40.0;
 
     return Column(
@@ -45,7 +44,7 @@ class QRWidget extends StatelessWidget {
                   child: QrImage(
                     data: addressListViewModel.uri.toString(),
                     backgroundColor: Colors.transparent,
-                    foregroundColor: PaletteDark.lightBlueGrey,
+                    foregroundColor: Theme.of(context).textTheme.headline.color,
           ))))),
           Spacer(flex: 3)
         ]),
@@ -56,7 +55,7 @@ class QRWidget extends StatelessWidget {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: PaletteDark.cyanBlue
+              color: Theme.of(context).indicatorColor
             ),
           ),
         ),
@@ -79,13 +78,14 @@ class QRWidget extends StatelessWidget {
                           textAlign: TextAlign.center,
                           hintText: S.of(context).receive_amount,
                           textColor: Colors.white,
-                          borderColor: PaletteDark.darkGrey,
+                          borderColor: Theme.of(context).textTheme.headline.decorationColor,
                           validator: AmountValidator(
-                            type: addressListViewModel.type
+                            type: addressListViewModel.type,
+                            isAutovalidate: true
                           ),
                           autovalidate: true,
                           placeholderTextStyle: TextStyle(
-                              color: PaletteDark.cyanBlue,
+                              color: Theme.of(context).hoverColor,
                               fontSize: 18,
                               fontWeight: FontWeight.w500))))
             ],

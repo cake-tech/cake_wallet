@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/palette.dart';
 
 class TradeRow extends StatelessWidget {
   TradeRow({
@@ -66,7 +65,8 @@ class TradeRow extends StatelessWidget {
                                   Text(createdAtFormattedDate,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: PaletteDark.darkCyanBlue))
+                                          color: Theme.of(context).textTheme
+                                              .overline.backgroundColor))
                                 ]),
                           ],
                         ),

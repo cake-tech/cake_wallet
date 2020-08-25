@@ -61,6 +61,7 @@
 
   "exchange" : "Обмен",
   "clear" : "Очистить",
+  "refund_address" : "Адрес возврата",
   "change_exchange_provider" : "Изменить провайдера обмена",
   "you_will_send" : "Вы отправите",
   "you_will_get" : "Вы получите",
@@ -184,9 +185,9 @@
   "seed_language_spanish" : "Испанский",
 
 
-  "send_title" : "Отправить Monero",
+  "send_title" : "Отправить",
   "send_your_wallet" : "Ваш кошелёк",
-  "send_monero_address" : "Monero адрес",
+  "send_address" : "${cryptoCurrency} адрес",
   "send_payment_id" : "ID платежа (опционально)",
   "all" : "ВСЕ",
   "send_error_minimum_value" : "Mинимальная сумма 0.01",
@@ -379,5 +380,9 @@
   "buy" : "Купить",
 
   "placeholder_transactions" : "Ваши транзакции будут отображаться здесь",
-  "placeholder_contacts" : "Ваши контакты будут отображаться здесь"
+  "placeholder_contacts" : "Ваши контакты будут отображаться здесь",
+
+  "template" : "Шаблон",
+  "confirm_delete_template" : "Это действие удалит шаблон. Вы хотите продолжить?",
+  "confirm_delete_wallet" : "Это действие удалит кошелек. Вы хотите продолжить?"
 }

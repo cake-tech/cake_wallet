@@ -24,7 +24,6 @@ class TradeDetailsPage extends BasePage {
           formatDefault: "dd.MM.yyyy, HH:mm");
 
     return Container(
-        padding: EdgeInsets.only(top: 20, bottom: 20),
         child: Observer(builder: (_) {
           final trade = exchangeStore.trade;
           final items = [
@@ -59,17 +58,15 @@ class TradeDetailsPage extends BasePage {
               separatorBuilder: (_, __) => Container(
                 height: 1,
                 padding: EdgeInsets.only(left: 24),
-                color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                color: Theme.of(context).backgroundColor,
                 child: Container(
                   height: 1,
-                  color: Theme.of(context).dividerColor,
+                  color: Theme.of(context).primaryTextTheme.title.backgroundColor,
                 ),
               ),
               itemCount: items.length,
               itemBuilder: (BuildContext context, int index) {
                 final item = items[index];
-
-                final isDrawTop = index == 0 ? true : false;
                 final isDrawBottom = index == items.length - 1 ? true : false;
 
                 return GestureDetector(
@@ -87,7 +84,6 @@ class TradeDetailsPage extends BasePage {
                     child: StandartListRow(
                       title: '${item.title}',
                       value: '${item.value}',
-                      isDrawTop: isDrawTop,
                       isDrawBottom: isDrawBottom,
                     ));
               });

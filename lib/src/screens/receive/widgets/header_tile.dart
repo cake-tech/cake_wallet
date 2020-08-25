@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class HeaderTile extends StatelessWidget {
   HeaderTile({
@@ -23,7 +22,7 @@ class HeaderTile extends StatelessWidget {
             top: 24,
             bottom: 24
         ),
-        color: PaletteDark.nightBlue,
+        color: Theme.of(context).textTheme.display2.decorationColor,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -32,8 +31,8 @@ class HeaderTile extends StatelessWidget {
               title,
               style: TextStyle(
                   fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).textTheme.display2.color
               ),
             ),
             Container(
@@ -41,7 +40,7 @@ class HeaderTile extends StatelessWidget {
               width: 32,
               decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: PaletteDark.distantNightBlue
+                  color: Theme.of(context).textTheme.display1.decorationColor
               ),
               child: icon,
             )

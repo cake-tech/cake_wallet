@@ -15,10 +15,12 @@ class BaseTextFormField extends StatelessWidget {
       this.hintColor,
       this.borderColor,
       this.prefix,
+      this.prefixIcon,
       this.suffix,
       this.suffixIcon,
       this.enabled = true,
       this.validator,
+      this.textStyle,
       this.placeholderTextStyle});
 
   final TextEditingController controller;
@@ -33,11 +35,13 @@ class BaseTextFormField extends StatelessWidget {
   final Color hintColor;
   final Color borderColor;
   final Widget prefix;
+  final Widget prefixIcon;
   final Widget suffix;
   final Widget suffixIcon;
   final bool enabled;
   final FormFieldValidator<String> validator;
   final TextStyle placeholderTextStyle;
+  final TextStyle textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -50,26 +54,30 @@ class BaseTextFormField extends StatelessWidget {
       maxLines: maxLines,
       inputFormatters: inputFormatters,
       enabled: enabled,
-      style: TextStyle(
+      style: textStyle ?? TextStyle(
           fontSize: 16.0,
           color: textColor ?? Theme.of(context).primaryTextTheme.title.color),
       decoration: InputDecoration(
           prefix: prefix,
+          prefixIcon: prefixIcon,
           suffix: suffix,
           suffixIcon: suffixIcon,
           hintStyle: placeholderTextStyle ??
               TextStyle(
-                  color: hintColor ??
-                      Theme.of(context).primaryTextTheme.caption.color,
+                  color: hintColor ?? Theme.of(context).hintColor,
                   fontSize: 16),
           hintText: hintText,
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).dividerColor,
+                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
+                  width: 1.0)),
+          disabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).dividerColor,
+                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0))),
       validator: validator,
     );

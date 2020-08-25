@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
@@ -35,7 +34,7 @@ class TransactionRow extends StatelessWidget {
                   width: 36,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: PaletteDark.wildNightBlue
+                    color: Theme.of(context).textTheme.overline.decorationColor
                   ),
                   child: Image.asset(
                       direction == TransactionDirection.incoming
@@ -79,13 +78,15 @@ class TransactionRow extends StatelessWidget {
                                   Text(formattedDate,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: PaletteDark.darkCyanBlue)),
+                                          color: Theme.of(context).textTheme
+                                              .overline.backgroundColor)),
                                   Text(direction == TransactionDirection.incoming
                                       ? formattedFiatAmount
                                       : '- ' + formattedFiatAmount,
                                       style: TextStyle(
                                           fontSize: 14,
-                                          color: PaletteDark.darkCyanBlue))
+                                          color: Theme.of(context).textTheme
+                                              .overline.backgroundColor))
                                 ]),
                           ],
                         ),

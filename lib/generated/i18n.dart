@@ -56,6 +56,8 @@ class S implements WidgetsLocalizations {
   String get choose_wallet_currency => "Please choose wallet currency:";
   String get clear => "Clear";
   String get confirm => "Confirm";
+  String get confirm_delete_template => "This action will delete this template. Do you wish to continue?";
+  String get confirm_delete_wallet => "This action will delete this wallet. Do you wish to continue?";
   String get confirm_sending => "Confirm sending";
   String get contact => "Contact";
   String get contact_name => "Contact Name";
@@ -133,6 +135,7 @@ class S implements WidgetsLocalizations {
   String get reconnect => "Reconnect";
   String get reconnect_alert_text => "Are you sure to reconnect?";
   String get reconnection => "Reconnection";
+  String get refund_address => "Refund address";
   String get remove => "Remove";
   String get remove_node => "Remove node";
   String get remove_node_message => "Are you sure that you want to remove selected node?";
@@ -184,14 +187,13 @@ class S implements WidgetsLocalizations {
   String get send_estimated_fee => "Estimated fee:";
   String get send_fee => "Fee:";
   String get send_got_it => "Got it";
-  String get send_monero_address => "Monero address";
   String get send_name => "Name";
   String get send_new => "New";
   String get send_payment_id => "Payment ID (optional)";
   String get send_sending => "Sending...";
   String get send_success => "Your Monero was successfully sent";
   String get send_templates => "Templates";
-  String get send_title => "Send Monero";
+  String get send_title => "Send";
   String get send_xmr => "Send XMR";
   String get send_your_wallet => "Your wallet";
   String get sending => "Sending";
@@ -235,6 +237,7 @@ class S implements WidgetsLocalizations {
   String get sync_status_starting_sync => "STARTING SYNC";
   String get sync_status_syncronized => "SYNCHRONIZED";
   String get sync_status_syncronizing => "SYNCHRONIZING";
+  String get template => "Template";
   String get today => "Today";
   String get trade_details_created_at => "Created at";
   String get trade_details_fetching => "Fetching";
@@ -317,6 +320,7 @@ class S implements WidgetsLocalizations {
   String openalias_alert_content(String recipient_name) => "You will be sending funds to\n${recipient_name}";
   String powered_by(String title) => "Powered by ${title}";
   String router_no_route(String name) => "No route defined for ${name}";
+  String send_address(String cryptoCurrency) => "${cryptoCurrency} address";
   String send_priority(String transactionPriority) => "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings";
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   String trade_details_copied(String title) => "${title} copied to Clipboard";
@@ -369,6 +373,8 @@ class $de extends S {
   String get restore_description_from_seed => "Stellen Sie Ihr Wallet aus den 25 Wörtern wieder her oder 13-Wort-Kombinationscode";
   @override
   String get trade_state_underpaid => "Unterbezahlt";
+  @override
+  String get refund_address => "Rückerstattungsadresse";
   @override
   String get welcome => "Willkommen zu";
   @override
@@ -680,6 +686,8 @@ class $de extends S {
   @override
   String get sync_status_syncronized => "SYNCHRONISIERT";
   @override
+  String get template => "Vorlage";
+  @override
   String get transaction_priority_medium => "Mittel";
   @override
   String get transaction_details_transaction_id => "Transaktions-ID";
@@ -728,6 +736,8 @@ class $de extends S {
   @override
   String get trade_not_created => "Handel nicht angelegt.";
   @override
+  String get confirm_delete_wallet => "Diese Aktion löscht diese Brieftasche. Möchten Sie fortfahren?";
+  @override
   String get restore_wallet_name => "Walletname";
   @override
   String get widgets_seed => "Seed";
@@ -735,6 +745,8 @@ class $de extends S {
   String get settings_fee_priority => "Gebührenpriorität";
   @override
   String get rename => "Umbenennen";
+  @override
+  String get confirm_delete_template => "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?";
   @override
   String get restore_active_seed => "Aktives Seed";
   @override
@@ -798,7 +810,7 @@ class $de extends S {
   @override
   String get send => "Senden";
   @override
-  String get send_title => "Senden Sie Monero";
+  String get send_title => "Senden Sie";
   @override
   String get error_text_keys => "Walletschlüssel können nur 64 hexadezimale Zeichen enthalten";
   @override
@@ -882,8 +894,6 @@ class $de extends S {
   @override
   String get restore_description_from_backup => "Sie können die gesamte Cake Wallet-App von wiederherstellen Ihre Sicherungsdatei";
   @override
-  String get send_monero_address => "Monero-Adresse";
-  @override
   String get error_text_node_port => "Der Knotenport kann nur Nummern zwischen 0 und 65535 enthalten";
   @override
   String get add_new_word => "Neues Wort hinzufügen";
@@ -929,6 +939,8 @@ class $de extends S {
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Handel für ${provider} wird nicht erstellt. Menge ist mehr als maximal: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency}-Adresse";
   @override
   String min_value(String value, String currency) => "Mindest: ${value} ${currency}";
   @override
@@ -993,6 +1005,8 @@ class $hi extends S {
   String get restore_description_from_seed => "या तो 25 शब्द से अपने वॉलेट को पुनर्स्थापित करें या 13 शब्द संयोजन कोड";
   @override
   String get trade_state_underpaid => "के तहत भुगतान किया";
+  @override
+  String get refund_address => "वापसी का पता";
   @override
   String get welcome => "स्वागत हे सेवा मेरे";
   @override
@@ -1304,6 +1318,8 @@ class $hi extends S {
   @override
   String get sync_status_syncronized => "सिंक्रनाइज़";
   @override
+  String get template => "खाका";
+  @override
   String get transaction_priority_medium => "मध्यम";
   @override
   String get transaction_details_transaction_id => "लेनदेन आईडी";
@@ -1352,6 +1368,8 @@ class $hi extends S {
   @override
   String get trade_not_created => "व्यापार नहीं बनाया गया.";
   @override
+  String get confirm_delete_wallet => "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?";
+  @override
   String get restore_wallet_name => "बटुए का नाम";
   @override
   String get widgets_seed => "बीज";
@@ -1359,6 +1377,8 @@ class $hi extends S {
   String get settings_fee_priority => "शुल्क प्राथमिकता";
   @override
   String get rename => "नाम बदलें";
+  @override
+  String get confirm_delete_template => "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?";
   @override
   String get restore_active_seed => "सक्रिय बीज";
   @override
@@ -1422,7 +1442,7 @@ class $hi extends S {
   @override
   String get send => "संदेश";
   @override
-  String get send_title => "संदेश Monero";
+  String get send_title => "संदेश";
   @override
   String get error_text_keys => "वॉलेट कीज़ में हेक्स में केवल 64 वर्ण हो सकते हैं";
   @override
@@ -1506,8 +1526,6 @@ class $hi extends S {
   @override
   String get restore_description_from_backup => "आप से पूरे केक वॉलेट एप्लिकेशन को पुनर्स्थापित कर सकते हैं आपकी बैक-अप फ़ाइल";
   @override
-  String get send_monero_address => "मोनरो पता";
-  @override
   String get error_text_node_port => "नोड पोर्ट में केवल 0 और 65535 के बीच संख्याएँ हो सकती हैं";
   @override
   String get add_new_word => "नया शब्द जोड़ें";
@@ -1553,6 +1571,8 @@ class $hi extends S {
   String max_value(String value, String currency) => "मैक्स: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि अधिक है तो अधिकतम: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency} पता";
   @override
   String min_value(String value, String currency) => "मिन: ${value} ${currency}";
   @override
@@ -1617,6 +1637,8 @@ class $ru extends S {
   String get restore_description_from_seed => "Вы можете восстановить кошелёк используя 25-ти значную мнемоническую фразу";
   @override
   String get trade_state_underpaid => "Недоплаченная";
+  @override
+  String get refund_address => "Адрес возврата";
   @override
   String get welcome => "Приветствуем в";
   @override
@@ -1928,6 +1950,8 @@ class $ru extends S {
   @override
   String get sync_status_syncronized => "СИНХРОНИЗИРОВАН";
   @override
+  String get template => "Шаблон";
+  @override
   String get transaction_priority_medium => "Средний";
   @override
   String get transaction_details_transaction_id => "ID транзакции";
@@ -1976,6 +2000,8 @@ class $ru extends S {
   @override
   String get trade_not_created => "Сделка не создана.";
   @override
+  String get confirm_delete_wallet => "Это действие удалит кошелек. Вы хотите продолжить?";
+  @override
   String get restore_wallet_name => "Имя кошелька";
   @override
   String get widgets_seed => "Мнемоническая фраза";
@@ -1983,6 +2009,8 @@ class $ru extends S {
   String get settings_fee_priority => "Приоритет транзакции";
   @override
   String get rename => "Переименовать";
+  @override
+  String get confirm_delete_template => "Это действие удалит шаблон. Вы хотите продолжить?";
   @override
   String get restore_active_seed => "Активная мнемоническая фраза";
   @override
@@ -2046,7 +2074,7 @@ class $ru extends S {
   @override
   String get send => "Отправить";
   @override
-  String get send_title => "Отправить Monero";
+  String get send_title => "Отправить";
   @override
   String get error_text_keys => "Ключи кошелька могут содержать только 64 символа в hex";
   @override
@@ -2130,8 +2158,6 @@ class $ru extends S {
   @override
   String get restore_description_from_backup => "Вы можете восстановить Cake Wallet из вашего back-up файла";
   @override
-  String get send_monero_address => "Monero адрес";
-  @override
   String get error_text_node_port => "Порт ноды может содержать только цифры от 0 до 65535";
   @override
   String get add_new_word => "Добавить новое слово";
@@ -2177,6 +2203,8 @@ class $ru extends S {
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Сделка для ${provider} не создана. Сумма больше максимальной: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency} адрес";
   @override
   String min_value(String value, String currency) => "Мин: ${value} ${currency}";
   @override
@@ -2241,6 +2269,8 @@ class $ko extends S {
   String get restore_description_from_seed => "25 단어 또는 13 단어 조합 코드에서 지갑을 복원하십시오.";
   @override
   String get trade_state_underpaid => "미지급";
+  @override
+  String get refund_address => "환불 주소";
   @override
   String get welcome => "환영 에";
   @override
@@ -2552,6 +2582,8 @@ class $ko extends S {
   @override
   String get sync_status_syncronized => "동기화";
   @override
+  String get template => "주형";
+  @override
   String get transaction_priority_medium => "매질";
   @override
   String get transaction_details_transaction_id => "트랜잭션 ID";
@@ -2600,6 +2632,8 @@ class $ko extends S {
   @override
   String get trade_not_created => "거래가 생성되지 않았습니다.";
   @override
+  String get confirm_delete_wallet => "이 작업은이 지갑을 삭제합니다. 계속 하시겠습니까?";
+  @override
   String get restore_wallet_name => "지갑 이름";
   @override
   String get widgets_seed => "씨";
@@ -2607,6 +2641,8 @@ class $ko extends S {
   String get settings_fee_priority => "수수료 우선";
   @override
   String get rename => "이름 바꾸기";
+  @override
+  String get confirm_delete_template => "이 작업은이 템플릿을 삭제합니다. 계속 하시겠습니까?";
   @override
   String get restore_active_seed => "활성 종자";
   @override
@@ -2670,7 +2706,7 @@ class $ko extends S {
   @override
   String get send => "보내다";
   @override
-  String get send_title => "모네로 보내기";
+  String get send_title => "보내다";
   @override
   String get error_text_keys => "지갑 키는 16 진수로 64 자만 포함 할 수 있습니다";
   @override
@@ -2754,8 +2790,6 @@ class $ko extends S {
   @override
   String get restore_description_from_backup => "백업 파일에서 전체 Cake Wallet 앱을 복원 할 수 있습니다.";
   @override
-  String get send_monero_address => "모네로 주소";
-  @override
   String get error_text_node_port => "노드 포트는 0에서 65535 사이의 숫자 만 포함 할 수 있습니다";
   @override
   String get add_new_word => "새로운 단어 추가";
@@ -2801,6 +2835,8 @@ class $ko extends S {
   String max_value(String value, String currency) => "맥스: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "거래 ${provider} 가 생성되지 않습니다. 금액이 최대 값보다 많습니다. ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency} 주소";
   @override
   String min_value(String value, String currency) => "최소: ${value} ${currency}";
   @override
@@ -2865,6 +2901,8 @@ class $pt extends S {
   String get restore_description_from_seed => "Restaure sua carteira a partir de semente com 25 palavras ou 13 palavras";
   @override
   String get trade_state_underpaid => "Parcialmente paga";
+  @override
+  String get refund_address => "Endereço de reembolso";
   @override
   String get welcome => "Bem-vindo ao";
   @override
@@ -3176,6 +3214,8 @@ class $pt extends S {
   @override
   String get sync_status_syncronized => "SINCRONIZADO";
   @override
+  String get template => "Modelo";
+  @override
   String get transaction_priority_medium => "Média";
   @override
   String get transaction_details_transaction_id => "ID da transação";
@@ -3224,6 +3264,8 @@ class $pt extends S {
   @override
   String get trade_not_created => "Troca não criada.";
   @override
+  String get confirm_delete_wallet => "Esta ação excluirá esta carteira. Você deseja continuar?";
+  @override
   String get restore_wallet_name => "Nome da carteira";
   @override
   String get widgets_seed => "Semente";
@@ -3231,6 +3273,8 @@ class $pt extends S {
   String get settings_fee_priority => "Prioridade da taxa";
   @override
   String get rename => "Renomear";
+  @override
+  String get confirm_delete_template => "Esta ação excluirá este modelo. Você deseja continuar?";
   @override
   String get restore_active_seed => "Semente ativa";
   @override
@@ -3294,7 +3338,7 @@ class $pt extends S {
   @override
   String get send => "Enviar";
   @override
-  String get send_title => "Enviar Monero";
+  String get send_title => "Enviar";
   @override
   String get error_text_keys => "As chaves da carteira podem conter apenas 64 caracteres em hexadecimal";
   @override
@@ -3378,8 +3422,6 @@ class $pt extends S {
   @override
   String get restore_description_from_backup => "Você pode restaurar todo o aplicativo Cake Wallet de seu arquivo de backup";
   @override
-  String get send_monero_address => "Endereço Monero";
-  @override
   String get error_text_node_port => "A porta do nó deve conter apenas números entre 0 e 65535";
   @override
   String get add_new_word => "Adicionar nova palavra";
@@ -3425,6 +3467,8 @@ class $pt extends S {
   String max_value(String value, String currency) => "Máx: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "A troca por ${provider} não é criada. O valor é superior ao máximo: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "Endereço ${cryptoCurrency}";
   @override
   String min_value(String value, String currency) => "Mín: ${value} ${currency}";
   @override
@@ -3489,6 +3533,8 @@ class $uk extends S {
   String get restore_description_from_seed => "Ви можете відновити гаманець використовуючи 25-ти слівну мнемонічну фразу";
   @override
   String get trade_state_underpaid => "Недоплачена";
+  @override
+  String get refund_address => "Адреса повернення коштів";
   @override
   String get welcome => "Вітаємо в";
   @override
@@ -3800,6 +3846,8 @@ class $uk extends S {
   @override
   String get sync_status_syncronized => "СИНХРОНІЗОВАНИЙ";
   @override
+  String get template => "Шаблон";
+  @override
   String get transaction_priority_medium => "Середній";
   @override
   String get transaction_details_transaction_id => "ID транзакції";
@@ -3848,6 +3896,8 @@ class $uk extends S {
   @override
   String get trade_not_created => "Операція не створена.";
   @override
+  String get confirm_delete_wallet => "Ця дія видалить гаманець. Ви хочете продовжити?";
+  @override
   String get restore_wallet_name => "Ім'я гаманця";
   @override
   String get widgets_seed => "Мнемонічна фраза";
@@ -3855,6 +3905,8 @@ class $uk extends S {
   String get settings_fee_priority => "Пріоритет транзакції";
   @override
   String get rename => "Перейменувати";
+  @override
+  String get confirm_delete_template => "Ця дія видалить шаблон. Ви хочете продовжити?";
   @override
   String get restore_active_seed => "Активна мнемонічна фраза";
   @override
@@ -3918,7 +3970,7 @@ class $uk extends S {
   @override
   String get send => "Відправити";
   @override
-  String get send_title => "Відправити Monero";
+  String get send_title => "Відправити";
   @override
   String get error_text_keys => "Ключі гаманця можуть містити тільки 64 символів в hex";
   @override
@@ -4002,8 +4054,6 @@ class $uk extends S {
   @override
   String get restore_description_from_backup => "Ви можете відновити Cake Wallet з вашого резервного файлу";
   @override
-  String get send_monero_address => "Monero адреса";
-  @override
   String get error_text_node_port => "Порт вузла може містити тільки цифри від 0 до 65535";
   @override
   String get add_new_word => "Добавити нове слово";
@@ -4049,6 +4099,8 @@ class $uk extends S {
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Операція для ${provider} не створена. Сума більше максимальної: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency} адреса";
   @override
   String min_value(String value, String currency) => "Мін: ${value} ${currency}";
   @override
@@ -4113,6 +4165,8 @@ class $ja extends S {
   String get restore_description_from_seed => "25ワードからウォレットを復元しますまたは13ワードの組み合わせコード";
   @override
   String get trade_state_underpaid => "支払不足";
+  @override
+  String get refund_address => "払い戻し住所";
   @override
   String get welcome => "ようこそ に";
   @override
@@ -4424,6 +4478,8 @@ class $ja extends S {
   @override
   String get sync_status_syncronized => "同期された";
   @override
+  String get template => "テンプレート";
+  @override
   String get transaction_priority_medium => "中";
   @override
   String get transaction_details_transaction_id => "トランザクションID";
@@ -4472,6 +4528,8 @@ class $ja extends S {
   @override
   String get trade_not_created => "作成されていない取引";
   @override
+  String get confirm_delete_wallet => "このアクションにより、このウォレットが削除されます。 続行しますか？";
+  @override
   String get restore_wallet_name => "ウォレット名";
   @override
   String get widgets_seed => "シード";
@@ -4479,6 +4537,8 @@ class $ja extends S {
   String get settings_fee_priority => "料金優先";
   @override
   String get rename => "リネーム";
+  @override
+  String get confirm_delete_template => "この操作により、このテンプレートが削除されます。 続行しますか？";
   @override
   String get restore_active_seed => "アクティブシード";
   @override
@@ -4542,7 +4602,7 @@ class $ja extends S {
   @override
   String get send => "送る";
   @override
-  String get send_title => "Moneroを送信";
+  String get send_title => "を送信";
   @override
   String get error_text_keys => "ウォレットキーには、16進数で64文字しか含めることができません";
   @override
@@ -4626,8 +4686,6 @@ class $ja extends S {
   @override
   String get restore_description_from_backup => "Cake Walletアプリ全体を復元できますバックアップファイル";
   @override
-  String get send_monero_address => "Monero 住所";
-  @override
   String get error_text_node_port => "ノードポートには、0〜65535の数字のみを含めることができます";
   @override
   String get add_new_word => "新しい単語を追加";
@@ -4673,6 +4731,8 @@ class $ja extends S {
   String max_value(String value, String currency) => "マックス: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "${provider} の取引は作成されません。 金額は最大値を超えています： ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency} 住所";
   @override
   String min_value(String value, String currency) => "分: ${value} ${currency}";
   @override
@@ -4741,6 +4801,8 @@ class $pl extends S {
   String get restore_description_from_seed => "Przywróć swój portfel z 25 słów lub 13-słowny kod kombinacji";
   @override
   String get trade_state_underpaid => "Niedopłacone";
+  @override
+  String get refund_address => "Adres zwrotu";
   @override
   String get welcome => "Witamy w";
   @override
@@ -5052,6 +5114,8 @@ class $pl extends S {
   @override
   String get sync_status_syncronized => "SYNCHRONIZOWANY";
   @override
+  String get template => "Szablon";
+  @override
   String get transaction_priority_medium => "Średni";
   @override
   String get transaction_details_transaction_id => "Transakcja ID";
@@ -5100,6 +5164,8 @@ class $pl extends S {
   @override
   String get trade_not_created => "Handel nie utworzony.";
   @override
+  String get confirm_delete_wallet => "Ta czynność usunie ten portfel. Czy chcesz kontynuować?";
+  @override
   String get restore_wallet_name => "Nazwa portfela";
   @override
   String get widgets_seed => "Ziarno";
@@ -5107,6 +5173,8 @@ class $pl extends S {
   String get settings_fee_priority => "Priorytet opłaty";
   @override
   String get rename => "Przemianować";
+  @override
+  String get confirm_delete_template => "Ta czynność usunie ten szablon. Czy chcesz kontynuować?";
   @override
   String get restore_active_seed => "Aktywne nasiona";
   @override
@@ -5170,7 +5238,7 @@ class $pl extends S {
   @override
   String get send => "Wysłać";
   @override
-  String get send_title => "Wyślij Monero";
+  String get send_title => "Wyślij";
   @override
   String get error_text_keys => "Klucze portfela mogą zawierać tylko 64 znaki w systemie szesnastkowym";
   @override
@@ -5254,8 +5322,6 @@ class $pl extends S {
   @override
   String get restore_description_from_backup => "Możesz przywrócić całą aplikację Cake Wallet z plik kopii zapasowej";
   @override
-  String get send_monero_address => "Adres Monero";
-  @override
   String get error_text_node_port => "Port węzła może zawierać tylko liczby od 0 do 65535";
   @override
   String get add_new_word => "Dodaj nowe słowo";
@@ -5301,6 +5367,8 @@ class $pl extends S {
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Wymiana dla ${provider} nie została utworzona. Kwota jest większa niż maksymalna: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "Adres ${cryptoCurrency}";
   @override
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   @override
@@ -5365,6 +5433,8 @@ class $es extends S {
   String get restore_description_from_seed => "Restaure su billetera desde el código de combinación de 25 palabras i de 13 palabras";
   @override
   String get trade_state_underpaid => "Poco pagado";
+  @override
+  String get refund_address => "Dirección de reembolso";
   @override
   String get welcome => "Bienvenido";
   @override
@@ -5676,6 +5746,8 @@ class $es extends S {
   @override
   String get sync_status_syncronized => "SINCRONIZADO";
   @override
+  String get template => "Plantilla";
+  @override
   String get transaction_priority_medium => "Medio";
   @override
   String get transaction_details_transaction_id => "ID de transacción";
@@ -5724,6 +5796,8 @@ class $es extends S {
   @override
   String get trade_not_created => "Comercio no se crea.";
   @override
+  String get confirm_delete_wallet => "Esta acción eliminará esta billetera. ¿Desea continuar?";
+  @override
   String get restore_wallet_name => "Nombre de la billetera";
   @override
   String get widgets_seed => "Semilla";
@@ -5731,6 +5805,8 @@ class $es extends S {
   String get settings_fee_priority => "Prioridad de tasa";
   @override
   String get rename => "Rebautizar";
+  @override
+  String get confirm_delete_template => "Esta acción eliminará esta plantilla. ¿Desea continuar?";
   @override
   String get restore_active_seed => "Semilla activa";
   @override
@@ -5794,7 +5870,7 @@ class $es extends S {
   @override
   String get send => "Enviar";
   @override
-  String get send_title => "Enviar Monero";
+  String get send_title => "Enviar";
   @override
   String get error_text_keys => "Las llaves de billetera solo pueden contener 64 caracteres en hexadecimal";
   @override
@@ -5878,8 +5954,6 @@ class $es extends S {
   @override
   String get restore_description_from_backup => "Puede restaurar toda la aplicación Cake Wallet desde ysu archivo de respaldo";
   @override
-  String get send_monero_address => "Dirección de Monero";
-  @override
   String get error_text_node_port => "El puerto de nodo solo puede contener números entre 0 y 65535";
   @override
   String get add_new_word => "Agregar palabra nueva";
@@ -5925,6 +5999,8 @@ class $es extends S {
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "El comercio por ${provider} no se crea. La cantidad es más que el máximo: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "Dirección de ${cryptoCurrency}";
   @override
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   @override
@@ -5989,6 +6065,8 @@ class $nl extends S {
   String get restore_description_from_seed => "Herstel uw portemonnee van het 25 woord of 13 woord combinatiecode";
   @override
   String get trade_state_underpaid => "Slecht betaald";
+  @override
+  String get refund_address => "Adres voor terugbetaling";
   @override
   String get welcome => "Welkom bij";
   @override
@@ -6300,6 +6378,8 @@ class $nl extends S {
   @override
   String get sync_status_syncronized => "SYNCHRONIZED";
   @override
+  String get template => "Sjabloon";
+  @override
   String get transaction_priority_medium => "Medium";
   @override
   String get transaction_details_transaction_id => "Transactie ID";
@@ -6348,6 +6428,8 @@ class $nl extends S {
   @override
   String get trade_not_created => "Handel niet gecreëerd.";
   @override
+  String get confirm_delete_wallet => "Met deze actie wordt deze portemonnee verwijderd. Wilt u doorgaan?";
+  @override
   String get restore_wallet_name => "Portemonnee naam";
   @override
   String get widgets_seed => "Zaad";
@@ -6355,6 +6437,8 @@ class $nl extends S {
   String get settings_fee_priority => "Tariefprioriteit";
   @override
   String get rename => "Hernoemen";
+  @override
+  String get confirm_delete_template => "Met deze actie wordt deze sjabloon verwijderd. Wilt u doorgaan?";
   @override
   String get restore_active_seed => "Actief zaad";
   @override
@@ -6418,7 +6502,7 @@ class $nl extends S {
   @override
   String get send => "Sturen";
   @override
-  String get send_title => "Stuur Monero";
+  String get send_title => "Stuur";
   @override
   String get error_text_keys => "Portefeuillesleutels kunnen maximaal 64 tekens bevatten in hexadecimale volgorde";
   @override
@@ -6502,8 +6586,6 @@ class $nl extends S {
   @override
   String get restore_description_from_backup => "Je kunt de hele Cake Wallet-app herstellen van uw back-upbestand";
   @override
-  String get send_monero_address => "Monero-adres";
-  @override
   String get error_text_node_port => "Knooppuntpoort kan alleen nummers tussen 0 en 65535 bevatten";
   @override
   String get add_new_word => "Nieuw woord toevoegen";
@@ -6549,6 +6631,8 @@ class $nl extends S {
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Ruil voor ${provider} is niet gemaakt. Bedrag is meer dan maximaal: ${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency}-adres";
   @override
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   @override
@@ -6613,6 +6697,8 @@ class $zh extends S {
   String get restore_description_from_seed => "从25个字中恢复您的钱包或13个字的组合码";
   @override
   String get trade_state_underpaid => "支付不足";
+  @override
+  String get refund_address => "退款地址";
   @override
   String get welcome => "歡迎來到";
   @override
@@ -6924,6 +7010,8 @@ class $zh extends S {
   @override
   String get sync_status_syncronized => "已同步";
   @override
+  String get template => "模板";
+  @override
   String get transaction_priority_medium => "介质";
   @override
   String get transaction_details_transaction_id => "交易编号";
@@ -6972,6 +7060,8 @@ class $zh extends S {
   @override
   String get trade_not_created => "未建立交易.";
   @override
+  String get confirm_delete_wallet => "此操作將刪除此錢包。 你想繼續嗎？";
+  @override
   String get restore_wallet_name => "钱包名称";
   @override
   String get widgets_seed => "种子";
@@ -6979,6 +7069,8 @@ class $zh extends S {
   String get settings_fee_priority => "费用优先";
   @override
   String get rename => "改名";
+  @override
+  String get confirm_delete_template => "此操作將刪除此模板。 你想繼續嗎？";
   @override
   String get restore_active_seed => "活性種子";
   @override
@@ -7042,7 +7134,7 @@ class $zh extends S {
   @override
   String get send => "发送";
   @override
-  String get send_title => "发送门罗币";
+  String get send_title => "發送";
   @override
   String get error_text_keys => "钱包密钥只能包含16个字符的十六进制字符";
   @override
@@ -7126,8 +7218,6 @@ class $zh extends S {
   @override
   String get restore_description_from_backup => "您可以从还原整个Cake Wallet应用您的备份文件";
   @override
-  String get send_monero_address => "门罗地址";
-  @override
   String get error_text_node_port => "节点端口只能包含0到65535之间的数字";
   @override
   String get add_new_word => "添加新词";
@@ -7173,6 +7263,8 @@ class $zh extends S {
   String max_value(String value, String currency) => "最高: ${value} ${currency}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}";
+  @override
+  String send_address(String cryptoCurrency) => "${cryptoCurrency} 地址";
   @override
   String min_value(String value, String currency) => "敏: ${value} ${currency}";
   @override
