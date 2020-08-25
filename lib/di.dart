@@ -36,7 +36,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/send_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
@@ -105,8 +105,7 @@ Future setup(
   getIt.registerSingleton<ContactService>(
       ContactService(contactSource, getIt.get<AppStore>().contactListStore));
   getIt.registerSingleton<TradesStore>(TradesStore(
-      tradesSource: tradesSource,
-      settingsStore: getIt.get<SettingsStore>()));
+      tradesSource: tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(
       TradeFilterStore(wallet: getIt.get<AppStore>().wallet));
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
@@ -143,21 +142,18 @@ Future setup(
   getIt.registerFactory<WalletAddressListViewModel>(
       () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
 
-  getIt.registerFactory(
-      () => BalanceViewModel(
-            wallet: getIt.get<AppStore>().wallet,
-            settingsStore: getIt.get<SettingsStore>(),
-            fiatConvertationStore: getIt.get<FiatConvertationStore>()));
+  getIt.registerFactory(() => BalanceViewModel(
+      wallet: getIt.get<AppStore>().wallet,
+      settingsStore: getIt.get<SettingsStore>(),
+      fiatConvertationStore: getIt.get<FiatConvertationStore>()));
 
-  getIt.registerFactory(
-      () => DashboardViewModel(
-          balanceViewModel: getIt.get<BalanceViewModel>(),
-          appStore: getIt.get<AppStore>(),
-          tradesStore: getIt.get<TradesStore>(),
-          tradeFilterStore: getIt.get<TradeFilterStore>(),
-          transactionFilterStore: getIt.get<TransactionFilterStore>(),
-          pageViewStore: getIt.get<PageViewStore>()
-      ));
+  getIt.registerFactory(() => DashboardViewModel(
+      balanceViewModel: getIt.get<BalanceViewModel>(),
+      appStore: getIt.get<AppStore>(),
+      tradesStore: getIt.get<TradesStore>(),
+      tradeFilterStore: getIt.get<TradeFilterStore>(),
+      transactionFilterStore: getIt.get<TransactionFilterStore>(),
+      pageViewStore: getIt.get<PageViewStore>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -185,10 +181,9 @@ Future setup(
               onAuthenticationFinished: onAuthFinished,
               closable: false));
 
-  getIt.registerFactory<DashboardPage>(
-      () => DashboardPage(
-          walletViewModel: getIt.get<DashboardViewModel>(),
-          addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory<DashboardPage>(() => DashboardPage(
+      walletViewModel: getIt.get<DashboardViewModel>(),
+      addressListViewModel: getIt.get<WalletAddressListViewModel>()));
 
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
@@ -203,7 +198,9 @@ Future setup(
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
   getIt.registerFactory<SendViewModel>(() => SendViewModel(
-      getIt.get<AppStore>().wallet, getIt.get<AppStore>().settingsStore));
+      getIt.get<AppStore>().wallet,
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<FiatConvertationStore>()));
 
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
@@ -243,8 +240,10 @@ Future setup(
       moneroAccountCreationViewModel:
           getIt.get<MoneroAccountEditOrCreateViewModel>()));
 
-  getIt.registerFactory(
-      () => SettingsViewModel(getIt.get<AppStore>().settingsStore));
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return SettingsViewModel(appStore.settingsStore, appStore.wallet);
+  });
 
   getIt.registerFactory(() => SettingsPage(getIt.get<SettingsViewModel>()));
 

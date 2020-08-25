@@ -35,9 +35,11 @@ abstract class BalanceViewModelBase with Store {
 
     if (_wallet is BitcoinWallet) {
       return WalletBalance(
-          unlockedBalance: _wallet.balance.confirmedFormatted,
-          totalBalance: _wallet.balance.unconfirmedFormatted);
+          unlockedBalance: _wallet.balance.totalFormatted,
+          totalBalance: _wallet.balance.totalFormatted);
     }
+
+    return null;
   }
 
   String _getFiatBalance({double price, String cryptoAmount}) {
