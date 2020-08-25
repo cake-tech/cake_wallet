@@ -118,6 +118,34 @@ class Themes {
       )
     ),
     focusColor: Colors.white.withOpacity(0.2), // text field button (exchange page)
+    accentTextTheme: TextTheme(
+      title: TextStyle(
+        color: Colors.white, // picker background
+        backgroundColor: Palette.periwinkleCraiola, // picker divider
+        decorationColor: Colors.white // dialog background
+      ),
+      caption: TextStyle(
+        color: Palette.moderateLavender, // container (confirm exchange)
+        backgroundColor: Palette.moderateLavender, // button background (confirm exchange)
+
+
+
+
+        decorationColor: Palette.lavender, // gradient end, wallet label
+      ),
+
+
+
+        subtitle: TextStyle(
+            color: Palette.lightBlueGrey, // border color,  wallet label
+            backgroundColor: Palette.lavender, // address field, wallet card
+            decorationColor: Palette.darkLavender // selected item
+        ),
+        headline: TextStyle(
+            color: Palette.darkLavender, // faq background
+            backgroundColor: Palette.lavender // faq extension
+        )
+    ),
 
 
 
@@ -127,27 +155,7 @@ class Themes {
     ),
 
 
-    accentTextTheme: TextTheme(
-      title: TextStyle(
-        color: Palette.darkLavender, // top panel
-        backgroundColor: Palette.lavender, // bottom panel
-        decorationColor: PaletteDark.distantBlue // select button background color
-      ),
-      caption: TextStyle(
-        color: Palette.blue, // current wallet label
-        backgroundColor: Colors.white, // gradient start, wallet label
-        decorationColor: Palette.lavender, // gradient end, wallet label
-      ),
-      subtitle: TextStyle(
-        color: Palette.lightBlueGrey, // border color,  wallet label
-        backgroundColor: Palette.lavender, // address field, wallet card
-        decorationColor: Palette.darkLavender // selected item
-      ),
-      headline: TextStyle(
-        color: Palette.darkLavender, // faq background
-        backgroundColor: Palette.lavender // faq extension
-      )
-    ),
+
   );
 
 
@@ -266,6 +274,33 @@ class Themes {
       )
     ),
     focusColor: PaletteDark.moderateBlue, // text field button (exchange page)
+    accentTextTheme: TextTheme(
+      title: TextStyle(
+        color: PaletteDark.nightBlue, // picker background
+        backgroundColor: PaletteDark.dividerColor, // picker divider
+        decorationColor: PaletteDark.darkNightBlue // dialog background
+      ),
+      caption: TextStyle(
+        color: PaletteDark.nightBlue, // container (confirm exchange)
+        backgroundColor: PaletteDark.deepVioletBlue, // button background (confirm exchange)
+
+
+
+        decorationColor: PaletteDark.nightBlue, // gradient end, wallet label
+      ),
+
+
+
+        subtitle: TextStyle(
+            color: PaletteDark.darkNightBlue, // border color,  wallet label
+            backgroundColor: PaletteDark.violetBlue, // address field, wallet card
+            decorationColor: PaletteDark.headerNightBlue // selected item
+        ),
+        headline: TextStyle(
+            color: PaletteDark.lightNightBlue, // faq background
+            backgroundColor: PaletteDark.headerNightBlue // faq extension
+        )
+    ),
 
 
 
@@ -276,27 +311,7 @@ class Themes {
 
 
 
-    accentTextTheme: TextTheme(
-      title: TextStyle(
-        color: PaletteDark.moderateBlue, // top panel
-        backgroundColor: PaletteDark.lightNightBlue, // bottom panel
-        decorationColor: Colors.white // select button background color
-      ),
-      caption: TextStyle(
-        color: Colors.white, // current wallet label
-        backgroundColor: PaletteDark.distantBlue, // gradient start, wallet label
-        decorationColor: PaletteDark.nightBlue, // gradient end, wallet label
-      ),
-      subtitle: TextStyle(
-        color: PaletteDark.darkNightBlue, // border color,  wallet label
-        backgroundColor: PaletteDark.violetBlue, // address field, wallet card
-        decorationColor: PaletteDark.headerNightBlue // selected item
-      ),
-      headline: TextStyle(
-        color: PaletteDark.lightNightBlue, // faq background
-        backgroundColor: PaletteDark.headerNightBlue // faq extension
-      )
-    ),
+
   );
 
 }

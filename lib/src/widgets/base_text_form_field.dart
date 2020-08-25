@@ -21,7 +21,8 @@ class BaseTextFormField extends StatelessWidget {
       this.enabled = true,
       this.validator,
       this.textStyle,
-      this.placeholderTextStyle});
+      this.placeholderTextStyle,
+      this.maxLength});
 
   final TextEditingController controller;
   final TextInputType keyboardType;
@@ -42,6 +43,7 @@ class BaseTextFormField extends StatelessWidget {
   final FormFieldValidator<String> validator;
   final TextStyle placeholderTextStyle;
   final TextStyle textStyle;
+  final int maxLength;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +56,7 @@ class BaseTextFormField extends StatelessWidget {
       maxLines: maxLines,
       inputFormatters: inputFormatters,
       enabled: enabled,
+      maxLength: maxLength,
       style: textStyle ?? TextStyle(
           fontSize: 16.0,
           color: textColor ?? Theme.of(context).primaryTextTheme.title.color),
