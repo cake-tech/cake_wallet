@@ -42,12 +42,6 @@ abstract class SettingsStoreBase with Store {
     languageCode = initialLanguageCode;
     currentLocale = initialCurrentLocale;
     itemHeaders = {};
-
-//    actionlistDisplayMode.observe(
-//        (dynamic _) => _sharedPreferences.setInt(displayActionListModeKey,
-//            serializeActionlistDisplayModes(actionlistDisplayMode)),
-//        fireImmediately: false);
-
     _sharedPreferences = sharedPreferences;
     _nodeSource = nodeSource;
   }
@@ -120,7 +114,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(shouldSaveRecipientAddressKey);
     final allowBiometricalAuthentication =
         sharedPreferences.getBool(allowBiometricalAuthenticationKey) ?? false;
-    final savedDarkTheme = sharedPreferences.getBool(currentDarkTheme) ?? false;
+    final savedDarkTheme = sharedPreferences.getBool(currentDarkTheme) ?? true;
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(displayActionListModeKey) ??

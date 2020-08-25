@@ -1,17 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
 String jsonrpcparams(List<Object> params) {
   final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
-  return "[$_params]";
+  return '[$_params]';
 }
 
 String jsonrpc(
         {String method, List<Object> params, int id, double version = 2.0}) =>
-    '{"jsonrpc": "$version", "method": "$method", "id": "$id",  "params": ${jsonrpcparams(params)}}\n';
+    '{"jsonrpc": "$version", "method": "$method", "id": "$id",  "params": ${json.encode(params)}}\n';
 
 class SocketTask {
   SocketTask({this.completer, this.isSubscription, this.subject});
@@ -50,6 +51,7 @@ class ElectrumClient {
     socket.listen((List<int> event) {
       try {
         final jsoned = json.decode(utf8.decode(event)) as Map<String, Object>;
+//        print(jsoned);
         final method = jsoned['method'];
 
         if (method is String) {
@@ -93,18 +95,18 @@ class ElectrumClient {
         return [];
       });
 
-  Future<Map<String, Object>> getBalance({String address}) =>
-      call(method: 'blockchain.address.get_balance', params: [address])
+  Future<Map<String, Object>> getBalance(String scriptHash) =>
+      call(method: 'blockchain.scripthash.get_balance', params: [scriptHash])
           .then((dynamic result) {
         if (result is Map<String, Object>) {
           return result;
         }
 
-        return Map<String, Object>();
+        return <String, Object>{};
       });
 
-  Future<List<Map<String, dynamic>>> getHistory({String address}) =>
-      call(method: 'blockchain.address.get_history', params: [address])
+  Future<List<Map<String, dynamic>>> getHistory(String scriptHash) =>
+      call(method: 'blockchain.scripthash.get_history', params: [scriptHash])
           .then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
@@ -112,26 +114,94 @@ class ElectrumClient {
               return val;
             }
 
-            return Map<String, Object>();
+            return <String, Object>{};
           }).toList();
         }
 
         return [];
       });
 
-  Future<String> getTransactionRaw({@required String hash}) async =>
-      call(method: 'blockchain.transaction.get', params: [hash])
+  Future<List<Map<String, dynamic>>> getListUnspentWithAddress(
+          String address) =>
+      call(
+          method: 'blockchain.scripthash.listunspent',
+          params: [scriptHash(address)]).then((dynamic result) {
+        if (result is List) {
+          return result.map((dynamic val) {
+            if (val is Map<String, Object>) {
+              val['address'] = address;
+              return val;
+            }
+
+            return <String, Object>{};
+          }).toList();
+        }
+
+        return [];
+      });
+
+  Future<List<Map<String, dynamic>>> getListUnspent(String scriptHash) =>
+      call(method: 'blockchain.scripthash.listunspent', params: [scriptHash])
           .then((dynamic result) {
-        if (result is String) {
+        if (result is List) {
+          return result.map((dynamic val) {
+            if (val is Map<String, Object>) {
+              return val;
+            }
+
+            return <String, Object>{};
+          }).toList();
+        }
+
+        return [];
+      });
+
+  Future<List<Map<String, dynamic>>> getMempool(String scriptHash) =>
+      call(method: 'blockchain.scripthash.get_mempool', params: [scriptHash])
+          .then((dynamic result) {
+        if (result is List) {
+          return result.map((dynamic val) {
+            if (val is Map<String, Object>) {
+              return val;
+            }
+
+            return <String, Object>{};
+          }).toList();
+        }
+
+        return [];
+      });
+
+  Future<Map<String, Object>> getTransactionRaw(
+          {@required String hash}) async =>
+      call(method: 'blockchain.transaction.get', params: [hash, true])
+          .then((dynamic result) {
+        if (result is Map<String, Object>) {
           return result;
         }
 
-        return '';
+        return <String, Object>{};
       });
 
-  Future<String> broadcastTransaction({@required String transactionRaw}) async =>
+  Future<Map<String, Object>> getTransactionExpanded(
+      {@required String hash}) async {
+    final originalTx = await getTransactionRaw(hash: hash);
+    final vins = originalTx['vin'] as List<Object>;
+
+    for (dynamic vin in vins) {
+      if (vin is Map<String, Object>) {
+        vin['tx'] = await getTransactionRaw(hash: vin['txid'] as String);
+      }
+    }
+
+    return originalTx;
+  }
+
+  Future<String> broadcastTransaction(
+          {@required String transactionRaw}) async =>
       call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
           .then((dynamic result) {
+        print('result $result');
         if (result is String) {
           return result;
         }
@@ -163,11 +233,11 @@ class ElectrumClient {
         return 0;
       });
 
-  BehaviorSubject<Object> addressUpdate({@required String address}) =>
+  BehaviorSubject<Object> scripthashUpdate(String scripthash) =>
       subscribe<Object>(
-          id: 'blockchain.address.subscribe:$address',
-          method: 'blockchain.address.subscribe',
-          params: [address]);
+          id: 'blockchain.scripthash.subscribe:$scripthash',
+          method: 'blockchain.scripthash.subscribe',
+          params: [scripthash]);
 
   BehaviorSubject<T> subscribe<T>(
       {@required String id,
@@ -218,15 +288,12 @@ class ElectrumClient {
   void _methodHandler(
       {@required String method, @required Map<String, Object> request}) {
     switch (method) {
-      case 'blockchain.address.subscribe':
+      case 'blockchain.scripthash.subscribe':
         final params = request['params'] as List<dynamic>;
-        final address = params.first as String;
-        final id = 'blockchain.address.subscribe:$address';
+        final scripthash = params.first as String;
+        final id = 'blockchain.scripthash.subscribe:$scripthash';
 
-        if (_tasks[id] != null) {
-          _tasks[id].subject.add(params.last);
-        }
-
+        _tasks[id]?.subject?.add(params.last);
         break;
       default:
         break;

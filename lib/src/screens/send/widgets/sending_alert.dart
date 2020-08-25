@@ -1,6 +1,6 @@
 import 'dart:ui';
-import 'package:cake_wallet/src/stores/send/sending_state.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/src/stores/send/sending_state.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/stores/send/send_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';

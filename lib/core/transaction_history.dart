@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 
@@ -5,7 +6,7 @@ abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
   TransactionHistoryBase() : _isUpdating = false;
 
   @observable
-  ObservableList<TransactionType> transactions;
+  ObservableMap<String, TransactionType> transactions;
 
   bool _isUpdating;
 
@@ -24,5 +25,15 @@ abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
     }
   }
 
-  Future<List<TransactionType>> fetchTransactions();
+  void updateAsync({void Function() onFinished}) {
+    fetchTransactionsAsync(
+        (transaction) => transactions[transaction.id] = transaction,
+        onFinished: onFinished);
+  }
+
+  void fetchTransactionsAsync(
+      void Function(TransactionType transaction) onTransactionLoaded,
+      {void Function() onFinished});
+
+  Future<Map<String, TransactionType>> fetchTransactions();
 }

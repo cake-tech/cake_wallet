@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/routes.dart';
@@ -20,7 +22,8 @@ part 'settings_view_model.g.dart';
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
 abstract class SettingsViewModelBase with Store {
-  SettingsViewModelBase(this._settingsStore) : itemHeaders = {} {
+  SettingsViewModelBase(this._settingsStore, WalletBase wallet)
+      : itemHeaders = {} {
     sections = [
       [
         PickerListItem(
@@ -33,8 +36,10 @@ abstract class SettingsViewModelBase with Store {
             selectedItem: () => fiatCurrency),
         PickerListItem(
             title: S.current.settings_fee_priority,
-            items: TransactionPriority.all,
-            selectedItem: () => transactionPriority),
+            items: _transactionPriorities(wallet.type),
+            selectedItem: () => transactionPriority,
+            onItemSelected: (TransactionPriority priority) =>
+                _settingsStore.transactionPriority = priority),
         SwitcherListItem(
             title: S.current.settings_save_recipient_address,
             value: () => shouldSaveRecipientAddress,
@@ -146,12 +151,9 @@ abstract class SettingsViewModelBase with Store {
       _settingsStore.allowBiometricalAuthentication = value;
 
 //  @observable
-//  bool isDarkTheme;
-//
-//  @observable
-//  int defaultPinLength;
 
 //  @observable
+
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;
@@ -182,4 +184,24 @@ abstract class SettingsViewModelBase with Store {
 
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
+
+//
+//  @observable
+//  int defaultPinLength;
+//  bool isDarkTheme;
+
+  static List<TransactionPriority> _transactionPriorities(WalletType type) {
+    switch (type) {
+      case WalletType.monero:
+        return TransactionPriority.all;
+      case WalletType.bitcoin:
+        return [
+          TransactionPriority.slow,
+          TransactionPriority.regular,
+          TransactionPriority.fast
+        ];
+      default:
+        return [];
+    }
+  }
 }
