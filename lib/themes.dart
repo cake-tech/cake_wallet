@@ -127,11 +127,7 @@ class Themes {
       caption: TextStyle(
         color: Palette.moderateLavender, // container (confirm exchange)
         backgroundColor: Palette.moderateLavender, // button background (confirm exchange)
-
-
-
-
-        decorationColor: Palette.lavender, // gradient end, wallet label
+        decorationColor: Palette.darkBlueCraiola, // text color (information page)
       ),
 
 
@@ -283,10 +279,7 @@ class Themes {
       caption: TextStyle(
         color: PaletteDark.nightBlue, // container (confirm exchange)
         backgroundColor: PaletteDark.deepVioletBlue, // button background (confirm exchange)
-
-
-
-        decorationColor: PaletteDark.nightBlue, // gradient end, wallet label
+        decorationColor: Palette.darkLavender, // text color (information page)
       ),
 
 

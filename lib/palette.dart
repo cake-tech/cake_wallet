@@ -11,7 +11,7 @@ class Palette {
   static const Color lightBlueGrey = Color.fromRGBO(118, 131, 169, 1.0);
   static const Color periwinkle = Color.fromRGBO(197, 208, 230, 1.0);
   static const Color blue = Color.fromRGBO(88, 143, 252, 1.0);
-  static const Color darkLavender = Color.fromRGBO(225, 238, 250, 1.0);
+  static const Color darkLavender = Color.fromRGBO(229, 238, 250, 1.0);
   static const Color nightBlue = Color.fromRGBO(46, 57, 96, 1.0);
 
   // NEW DESIGN

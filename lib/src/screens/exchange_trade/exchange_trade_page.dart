@@ -1,5 +1,9 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -19,15 +23,62 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
+void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
+  final fetchingLabel = S.current.fetching;
+  final trade = exchangeTradeViewModel.trade;
+  final walletName = exchangeTradeViewModel.wallet.name;
+
+  final information = exchangeTradeViewModel.isSendable
+      ? S.current.exchange_result_confirm(
+      trade.amount ?? fetchingLabel,
+      trade.from.toString(),
+      walletName)
+      : S.current.exchange_result_description(
+      trade.amount ?? fetchingLabel, trade.from.toString());
+
+  showDialog<void>(
+    context: context,
+    builder: (_) => InformationPage(information: information)
+  );
+}
+
 class ExchangeTradePage extends BasePage {
+  ExchangeTradePage({@required this.exchangeTradeViewModel});
+
+  final ExchangeTradeViewModel exchangeTradeViewModel;
+
   @override
   String get title => S.current.exchange;
 
   @override
-  Widget body(BuildContext context) => ExchangeTradeForm();
+  Widget trailing(BuildContext context) {
+    final questionImage = Image.asset('assets/images/question_mark.png',
+        color: Theme.of(context).primaryTextTheme.title.color);
+
+    return SizedBox(
+      height: 20.0,
+      width: 20.0,
+      child: ButtonTheme(
+        minWidth: double.minPositive,
+        child: FlatButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            padding: EdgeInsets.all(0),
+            onPressed: () => showInformation(exchangeTradeViewModel, context),
+            child: questionImage),
+      ),
+    );
+  }
+
+  @override
+  Widget body(BuildContext context) => ExchangeTradeForm(exchangeTradeViewModel);
 }
 
 class ExchangeTradeForm extends StatefulWidget {
+  ExchangeTradeForm(this.exchangeTradeViewModel);
+
+  final ExchangeTradeViewModel exchangeTradeViewModel;
+
   @override
   ExchangeTradeState createState() => ExchangeTradeState();
 }
@@ -35,23 +86,49 @@ class ExchangeTradeForm extends StatefulWidget {
 class ExchangeTradeState extends State<ExchangeTradeForm> {
   final fetchingLabel = S.current.fetching;
   String get title => S.current.exchange;
+  List<ExchangeTradeItem> items;
 
   bool _effectsInstalled = false;
 
   @override
-  Widget build(BuildContext context) {
-    final tradeStore = Provider.of<ExchangeTradeStore>(context);
-    final sendStore = Provider.of<SendStore>(context);
-    final walletStore = Provider.of<WalletStore>(context);
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(afterLayout);
 
-    _setEffects(context);
+    items = [
+      ExchangeTradeItem(
+        title: S.current.id,
+        data: '${widget.exchangeTradeViewModel.trade.id ?? fetchingLabel}',
+        isCopied: true),
+      ExchangeTradeItem(
+        title: S.current.amount,
+        data: '${widget.exchangeTradeViewModel.trade.amount ?? fetchingLabel}',
+        isCopied: false),
+      ExchangeTradeItem(
+        title: S.current.status,
+        data: '${widget.exchangeTradeViewModel.trade.state ?? fetchingLabel}',
+        isCopied: false),
+      ExchangeTradeItem(
+        title: S.current.widgets_address,
+        data: widget.exchangeTradeViewModel.trade.inputAddress ?? fetchingLabel,
+        isCopied: true),
+    ];
+  }
+
+  void afterLayout(dynamic _) {
+    showInformation(widget.exchangeTradeViewModel, context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    //_setEffects(context);
 
     return Container(
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(left: 24, right: 24, top: 24),
         content: Observer(builder: (_) {
-          final trade = tradeStore.trade;
-          final walletName = walletStore.name;
+          final trade = widget.exchangeTradeViewModel.trade;
 
           return Column(
             mainAxisAlignment: MainAxisAlignment.start,
@@ -268,10 +345,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                   ],
                 ),
               ),
-              Container(
+              /*Container(
                 padding: EdgeInsets.only(top: 20),
                 child: Text(
-                  tradeStore.isSendable
+                  widget.exchangeTradeViewModel.isSendable
                       ? S.of(context).exchange_result_confirm(
                       trade.amount ?? fetchingLabel,
                       trade.from.toString(),
@@ -283,7 +360,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                       fontSize: 13.0,
                       color: Theme.of(context).primaryTextTheme.title.color),
                 ),
-              ),
+              ),*/
               Text(
                 S.of(context).exchange_result_write_down_ID,
                 textAlign: TextAlign.left,
@@ -295,7 +372,13 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
           );
         }),
         bottomSectionPadding: EdgeInsets.all(24),
-        bottomSection: Observer(
+        bottomSection: PrimaryButton(
+          onPressed: () {},
+          text: S.of(context).confirm,
+          color: Palette.blueCraiola,
+          textColor: Colors.white
+        )
+        /*Observer(
             builder: (_) => tradeStore.trade.from == CryptoCurrency.xmr &&
                 !(sendStore.state is TransactionCommitted)
                 ? LoadingPrimaryButton(
@@ -312,7 +395,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     : S.of(context).send_xmr,
                 color: Colors.blue,
                 textColor: Colors.white)
-                : Offstage()),
+                : Offstage()),*/
       ),
     );
   }
@@ -322,7 +405,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       return;
     }
 
-    final sendStore = Provider.of<SendStore>(context);
+    /*final sendStore = Provider.of<SendStore>(context);
 
     reaction((_) => sendStore.state, (SendingState state) {
       if (state is SendingFailed) {
@@ -376,7 +459,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
               });
         });
       }
-    });
+    });*/
 
     _effectsInstalled = true;
   }

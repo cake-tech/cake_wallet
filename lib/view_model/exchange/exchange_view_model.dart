@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/limits.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/stores/exchange/limits_state.dart';
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -24,7 +25,12 @@ part 'exchange_view_model.g.dart';
 class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
-  ExchangeViewModelBase({this.wallet, this.trades, this.exchangeTemplateStore}) {
+  ExchangeViewModelBase({
+    this.wallet,
+    this.trades,
+    this.exchangeTemplateStore,
+    this.tradesStore}) {
+
     providerList = [
       XMRTOExchangeProvider(),
       ChangeNowExchangeProvider(),
@@ -50,6 +56,7 @@ abstract class ExchangeViewModelBase with Store {
   final WalletBase wallet;
   final Box<Trade> trades;
   final ExchangeTemplateStore exchangeTemplateStore;
+  final TradesStore tradesStore;
 
   @observable
   ExchangeProvider provider;
@@ -220,6 +227,7 @@ abstract class ExchangeViewModelBase with Store {
           tradeState = TradeIsCreating();
           final trade = await provider.createTrade(request: request);
           trade.walletId = wallet.id;
+          tradesStore.setTrade(trade);
           await trades.add(trade);
           tradeState = TradeIsCreatedSuccessfully(trade: trade);
         } catch (e) {
