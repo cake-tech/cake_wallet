@@ -486,7 +486,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
       }
       if (state is TradeIsCreatedSuccessfully) {
         Navigator.of(context)
-            .pushNamed(Routes.exchangeConfirm, arguments: state.trade);
+            .pushNamed(Routes.exchangeConfirm);
       }
     });
 

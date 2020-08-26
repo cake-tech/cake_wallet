@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -9,32 +10,13 @@ import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/palette.dart';
 
 class ExchangeConfirmPage extends BasePage {
-  ExchangeConfirmPage({@required this.trade});
+  ExchangeConfirmPage({@required this.tradesStore}) : trade = tradesStore.trade;
 
+  final TradesStore tradesStore;
   final Trade trade;
 
   @override
   String get title => S.current.copy_id;
-
-  @override
-  Widget trailing(BuildContext context) {
-    final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme.title.color);
-
-    return SizedBox(
-      height: 20.0,
-      width: 20.0,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: FlatButton(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          padding: EdgeInsets.all(0),
-          onPressed: () {},
-          child: questionImage),
-      ),
-    );
-  }
 
   @override
   Widget body(BuildContext context) {
@@ -131,7 +113,7 @@ class ExchangeConfirmPage extends BasePage {
           ),
           PrimaryButton(
               onPressed: () => Navigator.of(context)
-                  .pushReplacementNamed(Routes.exchangeTrade, arguments: trade),
+                  .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
               color: Palette.blueCraiola,
               textColor: Colors.white)

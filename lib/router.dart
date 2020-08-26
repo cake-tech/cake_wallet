@@ -358,7 +358,9 @@ class Router {
 
       case Routes.exchangeTrade:
         return CupertinoPageRoute<void>(
-            builder: (_) => MultiProvider(
+            builder: (_) => getIt.get<ExchangeTradePage>());
+
+                /*MultiProvider(
                   providers: [
                     ProxyProvider<SettingsStore, ExchangeTradeStore>(
                       update: (_, settingsStore, __) => ExchangeTradeStore(
@@ -374,12 +376,13 @@ class Router {
                             priceStore: priceStore)),
                   ],
                   child: ExchangeTradePage(),
-                ));
+                ));*/
 
       case Routes.exchangeConfirm:
         return MaterialPageRoute<void>(
-            builder: (_) =>
-                ExchangeConfirmPage(trade: settings.arguments as Trade));
+            builder: (_) => getIt.get<ExchangeConfirmPage>());
+
+                //ExchangeConfirmPage(trade: settings.arguments as Trade));
 
       case Routes.tradeDetails:
         return MaterialPageRoute<void>(builder: (context) {

@@ -4,6 +4,8 @@ import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
@@ -32,6 +34,7 @@ import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/theme_changer.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
@@ -118,8 +121,7 @@ Future setup(
   getIt.registerSingleton<TradesStore>(TradesStore(
       tradesSource: tradesSource,
       settingsStore: getIt.get<SettingsStore>()));
-  getIt.registerSingleton<TradeFilterStore>(
-      TradeFilterStore(wallet: getIt.get<AppStore>().wallet));
+  getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConvertationStore>(FiatConvertationStore());
   getIt.registerSingleton<SendTemplateStore>(
@@ -311,11 +313,25 @@ Future setup(
       ExchangeViewModel(
         wallet: getIt.get<AppStore>().wallet,
         exchangeTemplateStore: getIt.get<ExchangeTemplateStore>(),
-        trades: tradesSource
+        trades: tradesSource,
+        tradesStore: getIt.get<TradesStore>()
+      ));
+
+  getIt.registerFactory(() =>
+      ExchangeTradeViewModel(
+        wallet: getIt.get<AppStore>().wallet,
+        trades: tradesSource,
+        tradesStore: getIt.get<TradesStore>()
       ));
 
   getIt.registerFactory(() =>
       ExchangePage(getIt.get<ExchangeViewModel>()));
+
+  getIt.registerFactory(() =>
+      ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
+
+  getIt.registerFactory(() =>
+      ExchangeTradePage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
 
   getIt.registerFactory(() =>
       ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
