@@ -7,7 +7,7 @@ class ExchangeTradeItem {
     @required this.isCopied,
   });
 
-  final String title;
-  final String data;
-  final bool isCopied;
+  String title;
+  String data;
+  bool isCopied;
 }

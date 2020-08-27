@@ -9,6 +9,8 @@ import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.da
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'exchange_trade_view_model.g.dart';
 
@@ -33,6 +35,25 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
     }
 
+    items = ObservableList.of([
+      ExchangeTradeItem(
+          title: S.current.id,
+          data: '${trade.id}',
+          isCopied: true),
+      ExchangeTradeItem(
+          title: S.current.amount,
+          data: '${trade.amount}',
+          isCopied: false),
+      ExchangeTradeItem(
+          title: S.current.status,
+          data: '${trade.state}',
+          isCopied: false),
+      ExchangeTradeItem(
+          title: S.current.widgets_address + ':',
+          data: trade.inputAddress,
+          isCopied: true),
+    ]);
+
     _updateTrade();
     _timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
@@ -46,6 +67,9 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   @observable
   bool isSendable;
+
+  @observable
+  ObservableList<ExchangeTradeItem> items;// = ObservableList();
 
   ExchangeProvider _provider;
 
