@@ -127,7 +127,7 @@ void main() async {
       contactSource: contacts,
       tradesSource: trades,
       fiatConvertationService: fiatConvertationService,
-      initialMigrationVersion: 3);
+      initialMigrationVersion: 4);
 
   setReactions(
       settingsStore: settingsStore,
@@ -169,7 +169,7 @@ Future<void> initialSetup(
     @required Box<Contact> contactSource,
     @required  Box<Trade> tradesSource,
     @required FiatConvertationService fiatConvertationService,
-      int initialMigrationVersion = 3}) async {
+      int initialMigrationVersion = 4}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,

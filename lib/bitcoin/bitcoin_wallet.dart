@@ -200,7 +200,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> startSync() async {
     try {
       syncStatus = StartingSyncStatus();
-      transactionHistory.updateAsync(onFinished: () => print('finished!'));
+      transactionHistory.updateAsync(
+          onFinished: () => print('transactionHistory update finished!'));
       _subscribeForUpdates();
       await _updateBalance();
       syncStatus = SyncedSyncStatus();
@@ -215,11 +216,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> connectToNode({@required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();
-      // electrum2.hodlister.co
-      // bitcoin.electrumx.multicoin.co:50002
-      // electrum2.taborsky.cz:5002
-      await eclient.connect(
-          host: 'bitcoin.electrumx.multicoin.co', port: 50002);
+      await eclient.connectToUri(node.uri);
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       print(e.toString());

@@ -50,10 +50,7 @@ class DashboardPage extends BasePage {
         padding: EdgeInsets.all(0),
         onPressed: () async {
           await showDialog<void>(
-            builder: (_) => MenuWidget(
-              name: walletViewModel.name,
-              subname: walletViewModel.subname,
-              type: walletViewModel.type),
+            builder: (_) => MenuWidget(walletViewModel),
             context: context);
         },
         child: menuButton

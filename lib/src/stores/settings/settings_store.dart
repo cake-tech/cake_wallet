@@ -42,7 +42,7 @@ abstract class SettingsStoreBase with Store {
     _sharedPreferences = sharedPreferences;
     _nodes = nodes;
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
-    isDarkTheme = initialDarkTheme;
+    isDarkTheme = true;
     defaultPinLength = initialPinLength;
     languageCode = initialLanguageCode;
     currentLocale = initialCurrentLocale;
@@ -143,7 +143,7 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
-  bool isDarkTheme;
+  bool isDarkTheme = true;
 
   @observable
   int defaultPinLength;
@@ -285,7 +285,7 @@ abstract class SettingsStoreBase with Store {
   }
 
   Future setCurrentNodeToDefault() async {
-    await changeCurrentNodeToDefault(sharedPreferences: _sharedPreferences, nodes: _nodes);
+//    await changeCurrentNodeToDefault(sharedPreferences: _sharedPreferences, nodes: _nodes);
     await loadSettings();
   }
 

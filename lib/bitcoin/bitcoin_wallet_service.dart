@@ -49,10 +49,9 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) {
-    // TODO: implement remove
-    throw UnimplementedError();
-  }
+  Future<void> remove(String wallet) async =>
+      File(await pathForWalletDir(name: wallet, type: WalletType.bitcoin))
+          .delete(recursive: true);
 
   @override
   Future<BitcoinWallet> restoreFromKeys(

@@ -109,7 +109,7 @@ class WalletMenu {
           try {
             auth.changeProcessText(
                 S.of(context).wallet_list_removing_wallet(wallet.name));
-//            await _walletListStore.remove(wallet);
+            await walletListViewModel.remove(wallet);
             auth.close();
           } catch (e) {
             auth.changeProcessText(S
