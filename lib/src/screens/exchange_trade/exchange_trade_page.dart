@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
+import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +87,6 @@ class ExchangeTradeForm extends StatefulWidget {
 class ExchangeTradeState extends State<ExchangeTradeForm> {
   final fetchingLabel = S.current.fetching;
   String get title => S.current.exchange;
-  List<ExchangeTradeItem> items;
 
   bool _effectsInstalled = false;
 
@@ -94,25 +94,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(afterLayout);
-
-    items = [
-      ExchangeTradeItem(
-        title: S.current.id,
-        data: '${widget.exchangeTradeViewModel.trade.id ?? fetchingLabel}',
-        isCopied: true),
-      ExchangeTradeItem(
-        title: S.current.amount,
-        data: '${widget.exchangeTradeViewModel.trade.amount ?? fetchingLabel}',
-        isCopied: false),
-      ExchangeTradeItem(
-        title: S.current.status,
-        data: '${widget.exchangeTradeViewModel.trade.state ?? fetchingLabel}',
-        isCopied: false),
-      ExchangeTradeItem(
-        title: S.current.widgets_address,
-        data: widget.exchangeTradeViewModel.trade.inputAddress ?? fetchingLabel,
-        isCopied: true),
-    ];
   }
 
   void afterLayout(dynamic _) {
@@ -121,257 +102,121 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
   @override
   Widget build(BuildContext context) {
+    final copyImage = Image.asset('assets/images/copy_content.png',
+        height: 16, width: 16,
+        color: Theme.of(context).primaryTextTheme.overline.color);
 
     //_setEffects(context);
 
     return Container(
       child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(left: 24, right: 24, top: 24),
+        contentPadding: EdgeInsets.only(top: 10, bottom: 16),
         content: Observer(builder: (_) {
           final trade = widget.exchangeTradeViewModel.trade;
 
           return Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              S.of(context).id,
-                              style: TextStyle(
-                                  height: 2,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14.0,
-                                  color: Theme.of(context).primaryTextTheme.title.color),
-                            ),
-                            Text(
-                              '${trade.id ?? fetchingLabel}',
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  height: 2,
-                                  color: Theme.of(context).primaryTextTheme.caption.color),
-                            )
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              S.of(context).amount,
-                              style: TextStyle(
-                                  height: 2,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14.0,
-                                  color: Theme.of(context).primaryTextTheme.title.color),
-                            ),
-                            Text(
-                              '${trade.amount ?? fetchingLabel}',
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  height: 2,
-                                  color: Theme.of(context).primaryTextTheme.caption.color),
-                            )
-                          ],
-                        ),
-                        trade.extraId != null
-                            ? Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              S.of(context).payment_id,
-                              style: TextStyle(
-                                  height: 2,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14.0,
-                                  color: Theme.of(context).primaryTextTheme.title.color),
-                            ),
-                            Text(
-                              '${trade.extraId ?? fetchingLabel}',
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  height: 2,
-                                  color: Theme.of(context).primaryTextTheme.caption.color),
-                            )
-                          ],
-                        )
-                            : Container(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              S.of(context).status,
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).primaryTextTheme.title.color,
-                                  height: 2),
-                            ),
-                            Text(
-                              '${trade.state ?? fetchingLabel}',
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  height: 2,
-                                  color: Theme.of(context).primaryTextTheme.caption.color),
-                            )
-                          ],
-                        ),
-                        trade.expiredAt != null
-                            ? Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              S.of(context).offer_expires_in,
-                              style: TextStyle(
-                                  fontSize: 14.0,
-                                  color: Theme.of(context).primaryTextTheme.title.color),
-                            ),
-                            TimerWidget(trade.expiredAt,
-                                color: Theme.of(context).primaryTextTheme.caption.color)
-                          ],
-                        )
-                            : Container(),
-                      ],
-                    ),
-                  ],
-                ),
+              trade.expiredAt != null
+              ? Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                  Text(
+                    S.of(context).offer_expires_in,
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context).primaryTextTheme.overline.color),
+                  ),
+                  TimerWidget(trade.expiredAt,
+                    color: Theme.of(context).primaryTextTheme.title.color)
+                ])
+              : Offstage(),
+              Padding(
+                padding: EdgeInsets.only(top: 32),
+                child: Row(children: <Widget>[
+                  Spacer(flex: 3),
+                  Flexible(
+                      flex: 4,
+                      child: Center(
+                          child: AspectRatio(
+                              aspectRatio: 1.0,
+                              child: QrImage(
+                                data: trade.inputAddress ?? fetchingLabel,
+                                backgroundColor: Colors.transparent,
+                                foregroundColor: Theme.of(context)
+                                    .accentTextTheme.subtitle.color,
+                              )))),
+                  Spacer(flex: 3)
+                ]),
               ),
               Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Row(
-                  children: <Widget>[
-                    Spacer(
-                      flex: 1,
-                    ),
-                    Flexible(
-                        flex: 1,
-                        child: Center(
-                          child: AspectRatio(
-                            aspectRatio: 1.0,
-                            child: QrImage(
-                              data: trade.inputAddress ?? fetchingLabel,
-                              backgroundColor: Colors.transparent,
-                              foregroundColor: Theme.of(context).primaryTextTheme.display4.color,
-                            ),
-                          ),
-                        )),
-                    Spacer(
-                      flex: 1,
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20.0,
-              ),
-              Center(
-                child: Text(
-                  S.of(context).trade_is_powered_by(trade.provider != null
-                      ? trade.provider.title
-                      : fetchingLabel),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 14.0,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryTextTheme.title.color),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.only(top: 20, bottom: 20),
-                child: Center(
-                  child: Text(
-                    trade.inputAddress ?? fetchingLabel,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 14.0,
-                        color: Theme.of(context).primaryTextTheme.caption.color),
+                padding: EdgeInsets.only(top: 16),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: widget.exchangeTradeViewModel.items.length,
+                  separatorBuilder: (context, index) => Container(
+                    height: 1,
+                    color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
                   ),
+                  itemBuilder: (context, index) {
+                    final item = widget.exchangeTradeViewModel.items[index];
+                    String value;
+
+                    final content = Observer(
+                        builder: (_) {
+                          switch (index) {
+                            case 0:
+                              value = '${widget.exchangeTradeViewModel.trade.id ?? fetchingLabel}';
+                              break;
+                            case 1:
+                              value = '${widget.exchangeTradeViewModel.trade.amount ?? fetchingLabel}';
+                              break;
+                            case 2:
+                              value = '${widget.exchangeTradeViewModel.trade.state ?? fetchingLabel}';
+                              break;
+                            case 3:
+                              value = widget.exchangeTradeViewModel.trade.inputAddress ?? fetchingLabel;
+                              break;
+                          }
+
+                          return StandartListRow(
+                            title: item.title,
+                            value: value,
+                            valueFontSize: 14,
+                            image: item.isCopied ? copyImage : null,
+                          );
+                        }
+                    );
+
+                    return item.isCopied
+                        ? Builder(
+                        builder: (context) =>
+                            GestureDetector(
+                              onTap: () {
+                                Clipboard.setData(ClipboardData(text: value));
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                  content: Text(
+                                    S.of(context).copied_to_clipboard,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  backgroundColor: Colors.green,
+                                  duration: Duration(milliseconds: 1500),
+                                ));
+                              },
+                              child: content,
+                            )
+                    )
+                        : content;
+                  },
                 ),
               ),
-              Container(
-                child: Row(
-                  children: <Widget>[
-                    Flexible(
-                        child: Container(
-                          padding: EdgeInsets.only(right: 5.0),
-                          child: Builder(
-                            builder: (context) => PrimaryButton(
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: trade.inputAddress));
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                      S.of(context).copied_to_clipboard,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(milliseconds: 1500),
-                                  ));
-                                },
-                                text: S.of(context).copy_address,
-                                color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                                textColor: Theme.of(context).primaryTextTheme.title.color)
-                          ),
-                        )),
-                    Flexible(
-                        child: Container(
-                          padding: EdgeInsets.only(left: 5.0),
-                          child: Builder(
-                            builder: (context) => PrimaryButton(
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: trade.id));
-                                  Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                      S.of(context).copied_to_clipboard,
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(milliseconds: 1500),
-                                  ));
-                                },
-                                text: S.of(context).copy_id,
-                                color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                                textColor: Theme.of(context).primaryTextTheme.title.color)
-                          ),
-                        ))
-                  ],
-                ),
-              ),
-              /*Container(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(
-                  widget.exchangeTradeViewModel.isSendable
-                      ? S.of(context).exchange_result_confirm(
-                      trade.amount ?? fetchingLabel,
-                      trade.from.toString(),
-                      walletName)
-                      : S.of(context).exchange_result_description(
-                      trade.amount ?? fetchingLabel, trade.from.toString()),
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                      fontSize: 13.0,
-                      color: Theme.of(context).primaryTextTheme.title.color),
-                ),
-              ),*/
-              Text(
-                S.of(context).exchange_result_write_down_ID,
-                textAlign: TextAlign.left,
-                style: TextStyle(
-                    fontSize: 13.0,
-                    color: Theme.of(context).primaryTextTheme.title.color),
-              )
             ],
           );
         }),
-        bottomSectionPadding: EdgeInsets.all(24),
+        bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
         bottomSection: PrimaryButton(
           onPressed: () {},
           text: S.of(context).confirm,

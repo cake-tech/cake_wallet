@@ -129,14 +129,18 @@ class Themes {
         backgroundColor: Palette.moderateLavender, // button background (confirm exchange)
         decorationColor: Palette.darkBlueCraiola, // text color (information page)
       ),
+      subtitle: TextStyle(
+        color: Palette.darkBlueCraiola, // QR code (exchange trade page)
+        backgroundColor: Palette.wildPeriwinkle, // divider (exchange trade page)
 
 
 
-        subtitle: TextStyle(
-            color: Palette.lightBlueGrey, // border color,  wallet label
-            backgroundColor: Palette.lavender, // address field, wallet card
-            decorationColor: Palette.darkLavender // selected item
-        ),
+        decorationColor: Palette.darkLavender // selected item
+      ),
+
+
+
+
         headline: TextStyle(
             color: Palette.darkLavender, // faq background
             backgroundColor: Palette.lavender // faq extension
@@ -281,14 +285,18 @@ class Themes {
         backgroundColor: PaletteDark.deepVioletBlue, // button background (confirm exchange)
         decorationColor: Palette.darkLavender, // text color (information page)
       ),
+      subtitle: TextStyle(
+        color: PaletteDark.lightBlueGrey, // QR code (exchange trade page)
+        backgroundColor: PaletteDark.deepVioletBlue, // divider (exchange trade page)
 
 
 
-        subtitle: TextStyle(
-            color: PaletteDark.darkNightBlue, // border color,  wallet label
-            backgroundColor: PaletteDark.violetBlue, // address field, wallet card
-            decorationColor: PaletteDark.headerNightBlue // selected item
-        ),
+        decorationColor: PaletteDark.headerNightBlue // selected item
+      ),
+
+
+
+
         headline: TextStyle(
             color: PaletteDark.lightNightBlue, // faq background
             backgroundColor: PaletteDark.headerNightBlue // faq extension
