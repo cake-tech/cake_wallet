@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -29,8 +30,9 @@ abstract class SettingsStoreBase with Store {
       @required int initialPinLength,
       @required String initialLanguageCode,
       @required String initialCurrentLocale,
-      @required this.node,
+//      @required this.node,
       @required this.appVersion,
+      @required Map<WalletType, Node> nodes,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
     transactionPriority = initialTransactionPriority;
@@ -44,9 +46,11 @@ abstract class SettingsStoreBase with Store {
     itemHeaders = {};
     _sharedPreferences = sharedPreferences;
     _nodeSource = nodeSource;
+    _nodes = nodes;
   }
 
   static const currentNodeIdKey = 'current_node_id';
+  static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentTransactionPriorityKey = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
@@ -58,8 +62,8 @@ abstract class SettingsStoreBase with Store {
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
 
-  @observable
-  Node node;
+//  @observable
+//  Node node;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -97,6 +101,26 @@ abstract class SettingsStoreBase with Store {
   SharedPreferences _sharedPreferences;
   Box<Node> _nodeSource;
 
+  Map<WalletType, Node> _nodes;
+
+  Node getCurrentNode(WalletType walletType) => _nodes[walletType];
+
+  Future<void> setCurrentNode(Node node, WalletType walletType) async {
+    switch (walletType) {
+      case WalletType.bitcoin:
+        await _sharedPreferences.setInt(
+            currentBitcoinElectrumSererIdKey, node.key as int);
+        break;
+      case WalletType.monero:
+        await _sharedPreferences.setInt(currentNodeIdKey, node.key as int);
+        break;
+      default:
+        break;
+    }
+
+    _nodes[walletType] = node;
+  }
+
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
@@ -126,12 +150,18 @@ abstract class SettingsStoreBase with Store {
             await Language.localeDetection();
     final initialCurrentLocale = await Devicelocale.currentLocale;
     final nodeId = sharedPreferences.getInt(currentNodeIdKey);
-    final node = nodeSource.get(nodeId);
+    final bitcoinElectrumServerId =
+        sharedPreferences.getInt(currentBitcoinElectrumSererIdKey);
+    final moneroNode = nodeSource.get(nodeId);
+    final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final packageInfo = await PackageInfo.fromPlatform();
 
     return SettingsStore(
         sharedPreferences: sharedPreferences,
-        node: node,
+        nodes: {
+          WalletType.monero: moneroNode,
+          WalletType.bitcoin: bitcoinElectrumServer
+        },
         nodeSource: nodeSource,
         appVersion: packageInfo.version,
         initialFiatCurrency: currentFiatCurrency,

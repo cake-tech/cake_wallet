@@ -23,7 +23,8 @@ class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
 abstract class SettingsViewModelBase with Store {
   SettingsViewModelBase(this._settingsStore, WalletBase wallet)
-      : itemHeaders = {} {
+      : itemHeaders = {},
+        _walletType = wallet.type {
     sections = [
       [
         PickerListItem(
@@ -117,7 +118,7 @@ abstract class SettingsViewModelBase with Store {
   }
 
   @computed
-  Node get node => _settingsStore.node;
+  Node get node => _settingsStore.getCurrentNode(_walletType);
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
@@ -150,13 +151,10 @@ abstract class SettingsViewModelBase with Store {
   set allowBiometricalAuthentication(bool value) =>
       _settingsStore.allowBiometricalAuthentication = value;
 
-//  @observable
-
-//  @observable
-
   final Map<String, String> itemHeaders;
-  List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;
+  final WalletType _walletType;
+  List<List<SettingsListItem>> sections;
 
   @action
   void toggleTransactionsDisplay() =>

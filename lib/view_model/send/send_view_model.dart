@@ -27,6 +27,7 @@ abstract class SendViewModelBase with Store {
       this._wallet, this._settingsStore, this._fiatConversationStore)
       : state = InitialSendViewModelState(),
         _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12,
+        // FIXME: need to be based on wallet type.
         all = false;
 
   @observable
@@ -79,7 +80,7 @@ abstract class SendViewModelBase with Store {
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final FiatConvertationStore _fiatConversationStore;
-  NumberFormat _cryptoNumberFormat;
+  final NumberFormat _cryptoNumberFormat;
 
   @action
   void setAll() => all = true;
@@ -129,7 +130,8 @@ abstract class SendViewModelBase with Store {
   void _updateFiatAmount() {
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.price, cryptoAmount: cryptoAmount);
+          price: _fiatConversationStore.price,
+          cryptoAmount: cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
       }
@@ -141,7 +143,8 @@ abstract class SendViewModelBase with Store {
   @action
   void _updateCryptoAmount() {
     try {
-      final crypto = double.parse(fiatAmount) / _fiatConversationStore.price;
+      final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
+          _fiatConversationStore.price;
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
 
       if (cryptoAmount != cryptoAmountTmp) {

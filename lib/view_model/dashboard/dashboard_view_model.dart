@@ -129,6 +129,11 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer _reaction;
 
+  Future<void> reconnect() async {
+    final node = appStore.settingsStore.getCurrentNode(wallet.type);
+    await wallet.connectToNode(node: node);
+  }
+
   void _onWalletChange(WalletBase wallet) {
     name = wallet.name;
     transactions.clear();

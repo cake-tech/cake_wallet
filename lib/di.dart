@@ -25,6 +25,7 @@ import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
+import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
@@ -74,8 +75,20 @@ NodeListStore setupNodeListStore(Box<Node> nodeSource) {
   _nodeListStore = NodeListStore();
   _nodeListStore.replaceValues(nodeSource.values);
   _onNodesSourceChange = nodeSource.watch();
-  _onNodesSourceChange
-      .listen((_) => _nodeListStore.replaceValues(nodeSource.values));
+  _onNodesSourceChange.listen((event) {
+//    print(event);
+
+    if (event.deleted) {
+      _nodeListStore.nodes.removeWhere((n) {
+        return n.key != null ? n.key == event.key : true;
+      });
+    }
+
+    if (event.value is Node) {
+      final val = event.value as Node;
+      _nodeListStore.nodes.add(val);
+    }
+  });
 
   return _nodeListStore;
 }
@@ -274,10 +287,11 @@ Future setup(
   getIt.registerFactoryParam<ContactPage, Contact, void>((Contact contact, _) =>
       ContactPage(getIt.get<ContactViewModel>(param1: contact)));
 
-  getIt.registerFactory(() => NodeListViewModel(
-      getIt.get<AppStore>().nodeListStore,
-      nodeSource,
-      getIt.get<AppStore>().wallet));
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return NodeListViewModel(appStore.nodeListStore, nodeSource,
+        appStore.wallet, appStore.settingsStore);
+  });
 
   getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
 

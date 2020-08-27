@@ -1,14 +1,15 @@
 import 'dart:ui';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 
-class MenuWidget extends StatefulWidget {
-  MenuWidget({this.type, this.name, this.subname});
+// FIXME: terrible design.
 
-  final WalletType type;
-  final String name;
-  final String subname;
+class MenuWidget extends StatefulWidget {
+  MenuWidget(this.dashboardViewModel);
+
+  final DashboardViewModel dashboardViewModel;
 
   @override
   MenuWidgetState createState() => MenuWidgetState();
@@ -65,8 +66,8 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final walletMenu = WalletMenu(context);
-//    final walletStore = Provider.of<WalletStore>(context);
+    final walletMenu =
+        WalletMenu(context, () async => widget.dashboardViewModel.reconnect());
     final itemCount = walletMenu.items.length;
 
     return Row(
@@ -118,19 +119,20 @@ class MenuWidgetState extends State<MenuWidget> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            _iconFor(type: widget.type),
+                            _iconFor(type: widget.dashboardViewModel.type),
                             SizedBox(width: 16),
                             Expanded(
                                 child: Container(
                               height: 40,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: widget.subname != null
-                                    ? MainAxisAlignment.spaceBetween
-                                    : MainAxisAlignment.center,
+                                mainAxisAlignment:
+                                    widget.dashboardViewModel.subname != null
+                                        ? MainAxisAlignment.spaceBetween
+                                        : MainAxisAlignment.center,
                                 children: <Widget>[
                                   Text(
-                                    widget.name,
+                                    widget.dashboardViewModel.name,
                                     style: TextStyle(
                                         color: Theme.of(context)
                                             .primaryTextTheme
@@ -141,9 +143,9 @@ class MenuWidgetState extends State<MenuWidget> {
                                         fontSize: 20,
                                         fontWeight: FontWeight.bold),
                                   ),
-                                  if (widget.subname != null)
+                                  if (widget.dashboardViewModel.subname != null)
                                     Text(
-                                      widget.subname,
+                                      widget.dashboardViewModel.subname,
                                       style: TextStyle(
                                           color: Theme.of(context)
                                               .primaryTextTheme

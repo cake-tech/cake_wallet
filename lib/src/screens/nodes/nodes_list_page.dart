@@ -74,15 +74,41 @@ class NodeListPage extends BasePage {
               }
 
               final node = nodeListViewModel.nodes[index];
-              final isSelected = index == 1; // FIXME: hardcoded value.
               final nodeListRow = NodeListRow(
-                  title: node.uri,
-                  isSelected: isSelected,
-                  isAlive: node.requestNode(),
-                  onTap: (_) {});
+                  title: node.value.uri,
+                  isSelected: node.isSelected,
+                  isAlive: node.value.requestNode(),
+                  onTap: (_) async {
+                    if (node.isSelected) {
+                      return;
+                    }
+
+                    await showDialog<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            content: Text(
+                              S.of(context).change_current_node(node.value.uri),
+                              textAlign: TextAlign.center,
+                            ),
+                            actions: <Widget>[
+                              FlatButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(S.of(context).cancel)),
+                              FlatButton(
+                                  onPressed: () async {
+                                    Navigator.of(context).pop();
+                                    await nodeListViewModel
+                                        .setAsCurrent(node.value);
+                                  },
+                                  child: Text(S.of(context).change)),
+                            ],
+                          );
+                        });
+                  });
 
               final dismissibleRow = Dismissible(
-                  key: Key('${node.key}'),
+                  key: Key('${node.value.key}'),
                   confirmDismiss: (direction) async {
                     return await showDialog(
                         context: context,
@@ -99,7 +125,7 @@ class NodeListPage extends BasePage {
                         });
                   },
                   onDismissed: (direction) async =>
-                      nodeListViewModel.delete(node),
+                      nodeListViewModel.delete(node.value),
                   direction: DismissDirection.endToStart,
                   background: Container(
                       padding: EdgeInsets.only(right: 10.0),
@@ -120,7 +146,7 @@ class NodeListPage extends BasePage {
                       )),
                   child: nodeListRow);
 
-              return isSelected ? nodeListRow : dismissibleRow;
+              return node.isSelected ? nodeListRow : dismissibleRow;
             },
             itemCounter: (int sectionIndex) {
               if (sectionIndex == 0) {

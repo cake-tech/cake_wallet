@@ -37,11 +37,15 @@ class ElectrumClient {
   bool _isConnected;
   Timer _aliveTimer;
 
-  Future<void> connect({@required String host, @required int port}) async {
-    if (socket != null) {
-      await socket.close();
-    }
+  Future<void> connectToUri(String uri) async {
+    final _uri = Uri.parse(uri);
+    final host = _uri.scheme;
+    final port = int.parse(_uri.path);
+    await connect(host: host, port: port);
+  }
 
+  Future<void> connect({@required String host, @required int port}) async {
+    await socket?.close();
     final start = DateTime.now();
 
     socket = await SecureSocket.connect(host, port, timeout: connectionTimeout);
