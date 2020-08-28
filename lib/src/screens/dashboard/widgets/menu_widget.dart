@@ -17,8 +17,8 @@ class MenuWidget extends StatefulWidget {
 }
 
 class MenuWidgetState extends State<MenuWidget> {
-  final moneroIcon = Image.asset('assets/images/monero_menu.png');
-  final bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png');
+  Image moneroIcon;
+  Image bitcoinIcon;
   final largeScreen = 731;
 
   double menuWidth;
@@ -36,10 +36,10 @@ class MenuWidgetState extends State<MenuWidget> {
     screenWidth = 0;
     screenHeight = 0;
 
-    headerHeight = 125;
+    headerHeight = 137;
     tileHeight = 75;
-    fromTopEdge = 30;
-    fromBottomEdge = 21;
+    fromTopEdge = 50;
+    fromBottomEdge = 30;
 
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback(afterLayout);
@@ -67,6 +67,15 @@ class MenuWidgetState extends State<MenuWidget> {
     final walletMenu = WalletMenu(context);
     final itemCount = walletMenu.items.length;
 
+    moneroIcon = Image.asset('assets/images/monero_menu.png',
+      color: Theme.of(context)
+          .accentTextTheme
+          .overline.decorationColor);
+    bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
+      color: Theme.of(context)
+          .accentTextTheme
+          .overline.decorationColor);
+
     return Row(
       mainAxisSize: MainAxisSize.max,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -87,17 +96,22 @@ class MenuWidgetState extends State<MenuWidget> {
                   topLeft: Radius.circular(24),
                   bottomLeft: Radius.circular(24)),
               child: Container(
-                width: menuWidth,
-                height: double.infinity,
-                color: Theme.of(context).textTheme.body2.color,
-                alignment: Alignment.topCenter,
+                color: Theme.of(context).textTheme.body2.decorationColor,
                 child: ListView.separated(
+                    padding: EdgeInsets.only(top: 0),
                     itemBuilder: (_, index) {
 
                       if (index == 0) {
                         return Container(
                           height: headerHeight,
-                          color: Theme.of(context).textTheme.body2.color,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(colors: [
+                              Theme.of(context).accentTextTheme.display1.color,
+                              Theme.of(context).accentTextTheme.display1.decorationColor,
+                            ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight),
+                          ),
                           padding: EdgeInsets.only(
                               left: 24,
                               top: fromTopEdge,
@@ -121,8 +135,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                         Text(
                                           widget.name,
                                           style: TextStyle(
-                                              color: Theme.of(context).textTheme
-                                                  .display2.color,
+                                              color: Colors.white,
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold),
                                         ),
@@ -131,8 +144,8 @@ class MenuWidgetState extends State<MenuWidget> {
                                             widget.subname,
                                             style: TextStyle(
                                                 color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .caption.color,
+                                                    .accentTextTheme
+                                                    .overline.decorationColor,
                                                 fontWeight: FontWeight.w500,
                                                 fontSize: 12),
                                           )
@@ -194,7 +207,7 @@ class MenuWidgetState extends State<MenuWidget> {
                       color: Theme.of(context).primaryTextTheme.caption.decorationColor,
                     ),
                     itemCount: itemCount + 1),
-              ),
+              )
             )
         )
       ],
