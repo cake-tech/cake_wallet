@@ -96,7 +96,7 @@ class S implements WidgetsLocalizations {
   String get expired => "Expired";
   String get faq => "FAQ";
   String get fetching => "Fetching";
-  String get filters => "Filters";
+  String get filters => "Filter";
   String get first_wallet_text => "Awesome wallet for Monero";
   String get full_balance => "Full Balance";
   String get hidden_balance => "Hidden Balance";
@@ -1216,7 +1216,7 @@ class $hi extends S {
   @override
   String get estimated => "अनुमानित";
   @override
-  String get filters => "फिल्टर";
+  String get filters => "फ़िल्टर";
   @override
   String get settings_current_node => "वर्तमान नोड";
   @override
@@ -1848,7 +1848,7 @@ class $ru extends S {
   @override
   String get estimated => "Примерно";
   @override
-  String get filters => "Фильтры";
+  String get filters => "Фильтр";
   @override
   String get settings_current_node => "Текущая нода";
   @override
@@ -3112,7 +3112,7 @@ class $pt extends S {
   @override
   String get estimated => "Estimado";
   @override
-  String get filters => "Filtros";
+  String get filters => "Filtro";
   @override
   String get settings_current_node => "Nó atual";
   @override
@@ -3744,7 +3744,7 @@ class $uk extends S {
   @override
   String get estimated => "Приблизно ";
   @override
-  String get filters => "Фільтри";
+  String get filters => "Фільтр";
   @override
   String get settings_current_node => "Поточний вузол";
   @override
@@ -4376,7 +4376,7 @@ class $ja extends S {
   @override
   String get estimated => "推定";
   @override
-  String get filters => "フィルター";
+  String get filters => "フィルタ";
   @override
   String get settings_current_node => "現在のノード";
   @override
@@ -5012,7 +5012,7 @@ class $pl extends S {
   @override
   String get estimated => "Oszacowano";
   @override
-  String get filters => "Filtry";
+  String get filters => "Filtr";
   @override
   String get settings_current_node => "Bieżący węzeł";
   @override
@@ -5644,7 +5644,7 @@ class $es extends S {
   @override
   String get estimated => "Estimado";
   @override
-  String get filters => "Filtros";
+  String get filters => "Filtrar";
   @override
   String get settings_current_node => "Nodo actual";
   @override
@@ -6276,7 +6276,7 @@ class $nl extends S {
   @override
   String get estimated => "Geschatte";
   @override
-  String get filters => "Filters";
+  String get filters => "Filter";
   @override
   String get settings_current_node => "Huidige knooppunt";
   @override
@@ -6908,7 +6908,7 @@ class $zh extends S {
   @override
   String get estimated => "估计的";
   @override
-  String get filters => "筛选器";
+  String get filters => "過濾";
   @override
   String get settings_current_node => "当前节点";
   @override
