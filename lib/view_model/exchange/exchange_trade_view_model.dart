@@ -35,7 +35,8 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
     }
 
-    items = ObservableList.of([
+    items = ObservableList<ExchangeTradeItem>();
+    items.addAll([
       ExchangeTradeItem(
           title: S.current.id,
           data: '${trade.id}',
@@ -69,7 +70,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   bool isSendable;
 
   @observable
-  ObservableList<ExchangeTradeItem> items;// = ObservableList();
+  ObservableList<ExchangeTradeItem> items;
 
   ExchangeProvider _provider;
 

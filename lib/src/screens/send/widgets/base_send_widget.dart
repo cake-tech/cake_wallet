@@ -247,26 +247,44 @@ class BaseSendWidget extends StatelessWidget {
                       ),
                       isTemplate
                       ? Offstage()
-                      : Padding(
-                        padding: const EdgeInsets.only(top: 24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text(S.of(context).send_estimated_fee,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).primaryTextTheme.display2.color,
-                                )),
-                            Text(
-                                sendViewModel.estimatedFee.toString() + ' '
-                                    + sendViewModel.currency.title,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme.display2.color,
-                                ))
-                          ],
+                      : GestureDetector(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.only(top: 24),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(S.of(context).send_estimated_fee,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w500,
+                                      //color: Theme.of(context).primaryTextTheme.display2.color,
+                                      color: Colors.white
+                                  )),
+                              Container(
+                                child: Row(
+                                  children: <Widget>[
+                                    Text(
+                                        sendViewModel.estimatedFee.toString() + ' '
+                                            + sendViewModel.currency.title,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            //color: Theme.of(context).primaryTextTheme.display2.color,
+                                            color: Colors.white
+                                        )),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 5),
+                                      child: Icon(
+                                        Icons.arrow_forward_ios,
+                                        size: 12,
+                                        color: Colors.white,),
+                                    )
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       )
                     ],

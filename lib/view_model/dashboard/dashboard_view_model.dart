@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
@@ -34,6 +35,44 @@ abstract class DashboardViewModelBase with Store {
     this.tradesStore,
     this.tradeFilterStore,
     this.transactionFilterStore}) {
+
+    filterItems = {S.current.transactions : [
+      FilterItem(
+        value: transactionFilterStore.displayIncoming,
+        caption: S.current.incoming,
+        onChanged: (value) => transactionFilterStore.toggleIncoming()
+      ),
+      FilterItem(
+        value: transactionFilterStore.displayOutgoing,
+        caption: S.current.outgoing,
+        onChanged: (value) => transactionFilterStore.toggleOutgoing()
+      ),
+      FilterItem(
+        value: false,
+        caption: S.current.transactions_by_date,
+        onChanged: null
+      ),
+    ],
+    S.current.trades : [
+      FilterItem(
+        value: tradeFilterStore.displayXMRTO,
+        caption: 'XMR.TO',
+        onChanged: (value) => tradeFilterStore
+            .toggleDisplayExchange(ExchangeProviderDescription.xmrto)
+      ),
+      FilterItem(
+        value: tradeFilterStore.displayChangeNow,
+        caption: 'Change.NOW',
+        onChanged: (value) => tradeFilterStore
+              .toggleDisplayExchange(ExchangeProviderDescription.changeNow)
+      ),
+      FilterItem(
+          value: tradeFilterStore.displayMorphToken,
+          caption: 'MorphToken',
+          onChanged: (value) => tradeFilterStore
+              .toggleDisplayExchange(ExchangeProviderDescription.morphToken)
+      ),
+    ]};
 
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
@@ -124,6 +163,8 @@ abstract class DashboardViewModelBase with Store {
   TradeFilterStore tradeFilterStore;
 
   TransactionFilterStore transactionFilterStore;
+
+  Map<String, List<FilterItem>> filterItems;
 
   ReactionDisposer _reaction;
 

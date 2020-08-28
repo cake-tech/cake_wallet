@@ -43,7 +43,7 @@ abstract class TradeFilterStoreBase with Store {
     final needToFilter = !displayChangeNow || !displayXMRTO || !displayMorphToken;
 
     return needToFilter
-        ? trades
+        ? _trades
         .where((item) =>
     (displayXMRTO &&
         item.trade.provider == ExchangeProviderDescription.xmrto) ||

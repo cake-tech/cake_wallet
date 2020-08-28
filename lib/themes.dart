@@ -132,19 +132,26 @@ class Themes {
       subtitle: TextStyle(
         color: Palette.darkBlueCraiola, // QR code (exchange trade page)
         backgroundColor: Palette.wildPeriwinkle, // divider (exchange trade page)
-
-
-
-        decorationColor: Palette.darkLavender // selected item
+        decorationColor: Palette.blueCraiola // crete new wallet button background (wallet list page)
       ),
-
-
-
-
-        headline: TextStyle(
-            color: Palette.darkLavender, // faq background
-            backgroundColor: Palette.lavender // faq extension
-        )
+      headline: TextStyle(
+        color: Palette.moderateLavender, // first gradient color of wallet action buttons (wallet list page)
+        backgroundColor: Palette.moderateLavender, // second gradient color of wallet action buttons (wallet list page)
+        decorationColor: Colors.white // restore wallet button text color (wallet list page)
+      ),
+      subhead: TextStyle(
+        color: Palette.darkGray, // titles color (filter widget)
+        backgroundColor: Palette.periwinkle, // divider color (filter widget)
+        decorationColor: Colors.white // checkbox background (filter widget)
+      ),
+      overline: TextStyle(
+        color: Palette.wildPeriwinkle, // checkbox bounds (filter widget)
+        decorationColor: Colors.white, // menu subname
+      ),
+      display1: TextStyle(
+        color: Palette.blueCraiola, // first gradient color (menu header)
+        decorationColor: Palette.pinkFlamingo // second gradient color(menu header)
+      ),
     ),
 
 
@@ -288,19 +295,26 @@ class Themes {
       subtitle: TextStyle(
         color: PaletteDark.lightBlueGrey, // QR code (exchange trade page)
         backgroundColor: PaletteDark.deepVioletBlue, // divider (exchange trade page)
-
-
-
-        decorationColor: PaletteDark.headerNightBlue // selected item
+        decorationColor: Colors.white // crete new wallet button background (wallet list page)
       ),
-
-
-
-
-        headline: TextStyle(
-            color: PaletteDark.lightNightBlue, // faq background
-            backgroundColor: PaletteDark.headerNightBlue // faq extension
-        )
+      headline: TextStyle(
+        color: PaletteDark.distantBlue, // first gradient color of wallet action buttons (wallet list page)
+        backgroundColor: PaletteDark.distantNightBlue, // second gradient color of wallet action buttons (wallet list page)
+        decorationColor: Palette.darkBlueCraiola // restore wallet button text color (wallet list page)
+      ),
+      subhead: TextStyle(
+        color: Colors.white, // titles color (filter widget)
+        backgroundColor: PaletteDark.darkOceanBlue, // divider color (filter widget)
+        decorationColor: PaletteDark.wildVioletBlue.withOpacity(0.3) // checkbox background (filter widget)
+      ),
+      overline: TextStyle(
+        color: PaletteDark.wildVioletBlue, // checkbox bounds (filter widget)
+        decorationColor: PaletteDark.darkCyanBlue, // menu subname
+      ),
+      display1: TextStyle(
+        color: PaletteDark.deepPurpleBlue, // first gradient color (menu header)
+        decorationColor: PaletteDark.deepPurpleBlue // second gradient color(menu header)
+      ),
     ),
 
 

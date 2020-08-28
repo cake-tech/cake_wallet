@@ -9,10 +9,19 @@ class Palette {
   static const Color lavender = Color.fromRGBO(237, 245, 252, 1.0);
   static const Color oceanBlue = Color.fromRGBO(30, 52, 78, 1.0);
   static const Color lightBlueGrey = Color.fromRGBO(118, 131, 169, 1.0);
-  static const Color periwinkle = Color.fromRGBO(197, 208, 230, 1.0);
+  static const Color periwinkle = Color.fromRGBO(195, 210, 227, 1.0);
   static const Color blue = Color.fromRGBO(88, 143, 252, 1.0);
   static const Color darkLavender = Color.fromRGBO(229, 238, 250, 1.0);
   static const Color nightBlue = Color.fromRGBO(46, 57, 96, 1.0);
+
+  static const Color moderateOrangeYellow = Color.fromRGBO(245, 134, 82, 1.0);
+  static const Color moderateOrange = Color.fromRGBO(235, 117, 63, 1.0);
+  static const Color shineGreen = Color.fromRGBO(76, 189, 87, 1.0);
+  static const Color moderateGreen = Color.fromRGBO(45, 158, 56, 1.0);
+  static const Color cornflower = Color.fromRGBO(85, 147, 240, 1.0);
+  static const Color royalBlue = Color.fromRGBO(43, 114, 221, 1.0);
+  static const Color lightRed = Color.fromRGBO(227, 87, 87, 1.0);
+  static const Color persianRed = Color.fromRGBO(206, 55, 55, 1.0);
 
   // NEW DESIGN
   static const Color blueCraiola = Color.fromRGBO(69, 110, 255, 1.0);
