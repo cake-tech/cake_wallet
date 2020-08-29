@@ -73,3 +73,11 @@ class ConnectedSyncStatus extends SyncStatus {
   @override
   String title() => S.current.sync_status_connected;
 }
+
+class LostConnectionSyncStatus extends SyncStatus {
+  @override
+  double progress() => 1.0;
+
+  @override
+  String title() => S.current.sync_status_failed_connect;
+}

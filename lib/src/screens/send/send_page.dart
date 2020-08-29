@@ -159,7 +159,8 @@ class SendFormState extends State<SendForm> {
                         decoration: InputDecoration(
                             prefixIcon: Padding(
                               padding: EdgeInsets.only(top: 12),
-                              child: Text('${widget.sendViewModel.currency.toString()}:',
+                              child: Text(
+                                  '${widget.sendViewModel.currency.toString()}:',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -213,7 +214,14 @@ class SendFormState extends State<SendForm> {
                                 borderSide: BorderSide(
                                     color: Theme.of(context).dividerColor,
                                     width: 1.0))),
-                        validator: widget.sendViewModel.amountValidator),
+                        validator: (String value) {
+                          if (widget.sendViewModel.all) {
+                            return null;
+                          }
+
+                          return widget.sendViewModel.amountValidator
+                              .call(value);
+                        }),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 20),

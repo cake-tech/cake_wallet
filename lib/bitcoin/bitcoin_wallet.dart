@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
@@ -31,8 +32,11 @@ import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:hex/hex.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'bitcoin_wallet.g.dart';
+
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
@@ -217,6 +221,11 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     try {
       syncStatus = ConnectingSyncStatus();
       await eclient.connectToUri(node.uri);
+      eclient.onConnectionStatusChange = (bool isConnected) {
+        if (!isConnected) {
+          syncStatus = LostConnectionSyncStatus();
+        }
+      };
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
       print(e.toString());
@@ -331,7 +340,6 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       await _scripthashesUpdateSubject[sh]?.close();
       _scripthashesUpdateSubject[sh] = eclient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh].listen((event) async {
-        print('event $event');
         transactionHistory.updateAsync();
         await _updateBalance();
       });

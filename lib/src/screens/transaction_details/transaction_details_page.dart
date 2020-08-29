@@ -1,3 +1,4 @@
+
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -48,6 +49,9 @@ class TransactionDetailsPage extends BasePage {
         StandartListItem(
             title: S.current.transaction_details_date,
             value: dateFormat.format(tx.date)),
+        StandartListItem(
+            title: 'Confirmations',
+            value: tx.confirmations?.toString()),
         StandartListItem(
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
