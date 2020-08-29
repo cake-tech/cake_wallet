@@ -32,6 +32,7 @@ class ElectrumClient {
 
   bool get isConnected => _isConnected;
   Socket socket;
+  void Function(bool) onConnectionStatusChange;
   int _id;
   final Map<String, SocketTask> _tasks;
   bool _isConnected;
@@ -45,50 +46,49 @@ class ElectrumClient {
   }
 
   Future<void> connect({@required String host, @required int port}) async {
-    await socket?.close();
-    final start = DateTime.now();
+    try {
+      await socket?.close();
+    } catch (_) {}
 
     socket = await SecureSocket.connect(host, port, timeout: connectionTimeout);
-
-    _isConnected = true;
-
+    _setIsConnected(true);
     socket.listen((List<int> event) {
       try {
         final jsoned = json.decode(utf8.decode(event)) as Map<String, Object>;
-//        print(jsoned);
+        print(jsoned);
         final method = jsoned['method'];
+        final id = jsoned['id'] as String;
+        final params = jsoned['result'];
 
         if (method is String) {
           _methodHandler(method: method, request: jsoned);
           return;
         }
 
-        final id = jsoned['id'] as String;
-        final params = jsoned['result'];
-
         _finish(id, params);
       } catch (e) {
         print(e);
       }
-    }, onError: (Object error) {
-      print('ElectrumClient error: ${error.toString()}');
-    }, onDone: () {
-      final end = DateTime.now();
-      final diff = end.millisecondsSinceEpoch - start.millisecondsSinceEpoch;
-      print('On done: $diff');
-    });
-
-    print('Connected to ${socket.remoteAddress}');
+    },
+        onError: (_) => _setIsConnected(false),
+        onDone: () => _setIsConnected(false));
     keepAlive();
   }
 
   void keepAlive() {
     _aliveTimer?.cancel();
     // FIXME: Unnamed constant.
-    _aliveTimer = Timer.periodic(Duration(seconds: 30), (_) async => ping());
+    _aliveTimer = Timer.periodic(Duration(seconds: 2), (_) async => ping());
   }
 
-  Future<void> ping() => call(method: 'server.ping');
+  Future<void> ping() async {
+    try {
+      await callWithTimeout(method: 'server.ping');
+      _setIsConnected(true);
+    } on RequestFailedTimeoutException catch (_) {
+      _setIsConnected(false);
+    }
+  }
 
   Future<List<String>> version() =>
       call(method: 'server.version').then((dynamic result) {
@@ -205,7 +205,6 @@ class ElectrumClient {
           {@required String transactionRaw}) async =>
       call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
           .then((dynamic result) {
-        print('result $result');
         if (result is String) {
           return result;
         }
@@ -264,6 +263,25 @@ class ElectrumClient {
     return completer.future;
   }
 
+  Future<dynamic> callWithTimeout(
+      {String method,
+      List<Object> params = const [],
+      int timeout = 2000}) async {
+    final completer = Completer<dynamic>();
+    _id += 1;
+    final id = _id;
+    _regisryTask(id, completer);
+    socket.write(jsonrpc(method: method, id: _id, params: params));
+
+    Timer(Duration(milliseconds: timeout), () {
+      if (!completer.isCompleted) {
+        completer.completeError(RequestFailedTimeoutException(method, _id));
+      }
+    });
+
+    return completer.future;
+  }
+
   void request({String method, List<Object> params = const []}) {
     _id += 1;
     socket.write(jsonrpc(method: method, id: _id, params: params));
@@ -280,7 +298,9 @@ class ElectrumClient {
       return;
     }
 
-    _tasks[id]?.completer?.complete(data);
+    if (!(_tasks[id]?.completer?.isCompleted ?? false)) {
+      _tasks[id]?.completer?.complete(data);
+    }
 
     if (!(_tasks[id]?.isSubscription ?? false)) {
       _tasks[id] = null;
@@ -303,4 +323,19 @@ class ElectrumClient {
         break;
     }
   }
+
+  void _setIsConnected(bool isConnected) {
+    if (_isConnected != isConnected) {
+      onConnectionStatusChange?.call(isConnected);
+    }
+
+    _isConnected = isConnected;
+  }
+}
+
+class RequestFailedTimeoutException implements Exception {
+  RequestFailedTimeoutException(this.method, this.id);
+
+  final String method;
+  final int id;
 }

@@ -116,6 +116,11 @@ abstract class SendViewModelBase with Store {
 
   @action
   void setCryptoAmount(String amount) {
+    // FIXME: hardcoded value.
+    if (amount.toUpperCase() != 'ALL') {
+      all = false;
+    }
+
     cryptoAmount = amount;
     _updateFiatAmount();
   }

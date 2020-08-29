@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:mobx/mobx.dart';
@@ -49,6 +51,7 @@ ReactionDisposer _initialAuthReaction;
 ReactionDisposer _onCurrentWalletChangeReaction;
 ReactionDisposer _onWalletSyncStatusChangeReaction;
 ReactionDisposer _onCurrentFiatCurrencyChangeDisposer;
+Timer _reconnectionTimer;
 
 Future<void> bootstrap(
     {FiatConvertationService fiatConvertationService}) async {
@@ -74,9 +77,20 @@ Future<void> bootstrap(
   _onCurrentWalletChangeReaction ??=
       reaction((_) => getIt.get<AppStore>().wallet, (WalletBase wallet) async {
     _onWalletSyncStatusChangeReaction?.reaction?.dispose();
+    _reconnectionTimer?.cancel();
     _onWalletSyncStatusChangeReaction = reaction(
         (_) => wallet.syncStatus is ConnectedSyncStatus,
         (_) async => await wallet.startSync());
+
+    _reconnectionTimer = Timer.periodic(Duration(seconds: 5), (_) async {
+      if (wallet.syncStatus is LostConnectionSyncStatus ||
+          wallet.syncStatus is FailedSyncStatus) {
+        try {
+          await wallet.connectToNode(
+              node: settingsStore.getCurrentNode(wallet.type));
+        } catch (_) {}
+      }
+    });
 
     await getIt
         .get<SharedPreferences>()

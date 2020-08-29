@@ -86,7 +86,7 @@ abstract class DashboardViewModelBase with Store {
       statusText = S.current.Blocks_remaining(status.toString());
     }
 
-    if (status is FailedSyncStatus) {
+    if (status is FailedSyncStatus || status is LostConnectionSyncStatus) {
       statusText = S.current.please_try_to_connect_to_another_node;
     }
 

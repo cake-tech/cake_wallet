@@ -16,12 +16,13 @@ class BitcoinTransactionInfo extends TransactionInfo {
       @required TransactionDirection direction,
       @required bool isPending,
       @required DateTime date,
-      @required this.confirmations}) {
+      @required int confirmations}) {
     this.height = height;
     this.amount = amount;
     this.direction = direction;
     this.date = date;
     this.isPending = isPending;
+    this.confirmations = confirmations;
   }
 
   factory BitcoinTransactionInfo.fromElectrumVerbose(Map<String, Object> obj,
@@ -119,7 +120,6 @@ class BitcoinTransactionInfo extends TransactionInfo {
   }
 
   final String id;
-  int confirmations;
 
   String _fiatAmount;
 

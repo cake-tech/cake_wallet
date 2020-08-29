@@ -7,6 +7,7 @@ abstract class TransactionInfo extends Object {
   bool isPending;
   DateTime date;
   int height;
+  int confirmations;
   String amountFormatted();
   String fiatAmount();
   void changeFiatAmount(String amount);
