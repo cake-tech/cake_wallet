@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
@@ -52,9 +53,11 @@ class ElectrumClient {
 
     socket = await SecureSocket.connect(host, port, timeout: connectionTimeout);
     _setIsConnected(true);
-    socket.listen((List<int> event) {
+
+    socket.listen((Uint8List event) {
       try {
-        final jsoned = json.decode(utf8.decode(event)) as Map<String, Object>;
+        final jsoned =
+            json.decode(utf8.decode(event.toList())) as Map<String, Object>;
         print(jsoned);
         final method = jsoned['method'];
         final id = jsoned['id'] as String;
@@ -69,9 +72,10 @@ class ElectrumClient {
       } catch (e) {
         print(e);
       }
-    },
-        onError: (Error _) => _setIsConnected(false),
-        onDone: () => _setIsConnected(false));
+    }, onError: (Object error) {
+      print(error.toString());
+      _setIsConnected(false);
+    }, onDone: () => _setIsConnected(false));
     keepAlive();
   }
 
