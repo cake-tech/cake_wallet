@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter/cupertino.dart';
@@ -152,48 +154,26 @@ class BaseSendWidget extends StatelessWidget {
                                     ),
                                     suffixIcon: isTemplate
                                     ? Offstage()
-                                    : Padding(
-                                      padding: EdgeInsets.only(bottom: 2),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: <Widget>[
-                                          Container(
-                                            width: MediaQuery.of(context).size.width/2,
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                                ' / ' + sendViewModel.balance,
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                    fontSize: 14,
-                                                    color: Theme.of(context).primaryTextTheme.headline.decorationColor
-                                                )
-                                            ),
+                                    : Container(
+                                      height: 32,
+                                      width: 32,
+                                      margin: EdgeInsets.only(left: 14, top: 4, bottom: 10),
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context).primaryTextTheme.display1.color,
+                                          borderRadius: BorderRadius.all(Radius.circular(6))
+                                      ),
+                                      child: InkWell(
+                                        onTap: () => sendViewModel.setSendAll(),
+                                        child: Center(
+                                          child: Text(S.of(context).all,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor
+                                              )
                                           ),
-                                          Container(
-                                            height: 34,
-                                            width: 34,
-                                            margin: EdgeInsets.only(left: 12, bottom: 8),
-                                            decoration: BoxDecoration(
-                                                color: Theme.of(context).primaryTextTheme.display1.color,
-                                                borderRadius: BorderRadius.all(Radius.circular(6))
-                                            ),
-                                            child: InkWell(
-                                              onTap: () => sendViewModel.setSendAll(),
-                                              child: Center(
-                                                child: Text(S.of(context).all,
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight: FontWeight.bold,
-                                                        color: Theme.of(context).primaryTextTheme.display1.decorationColor
-                                                    )
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                        ],
+                                        ),
                                       ),
                                     ),
                                     hintText: '0.0000',
@@ -211,6 +191,37 @@ class BaseSendWidget extends StatelessWidget {
                                 )
                             );
                           }
+                      ),
+                      isTemplate
+                      ? Offstage()
+                      : Observer(
+                        builder: (_) => Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Expanded(
+                                child: Text(
+                                  S.of(context).available_balance + ':',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).primaryTextTheme.headline.decorationColor
+                                  ),
+                                )
+                              ),
+                              Text(
+                                sendViewModel.balance,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).primaryTextTheme.headline.decorationColor
+                                ),
+                              )
+                            ],
+                          ),
+                        )
                       ),
                       Padding(
                           padding: const EdgeInsets.only(top: 20),
@@ -247,45 +258,47 @@ class BaseSendWidget extends StatelessWidget {
                       ),
                       isTemplate
                       ? Offstage()
-                      : GestureDetector(
-                        onTap: () {},
-                        child: Container(
-                          padding: EdgeInsets.only(top: 24),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(S.of(context).send_estimated_fee,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w500,
-                                      //color: Theme.of(context).primaryTextTheme.display2.color,
-                                      color: Colors.white
-                                  )),
-                              Container(
-                                child: Row(
-                                  children: <Widget>[
-                                    Text(
-                                        sendViewModel.estimatedFee.toString() + ' '
-                                            + sendViewModel.currency.title,
-                                        style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            //color: Theme.of(context).primaryTextTheme.display2.color,
-                                            color: Colors.white
-                                        )),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 5),
-                                      child: Icon(
-                                        Icons.arrow_forward_ios,
-                                        size: 12,
-                                        color: Colors.white,),
-                                    )
-                                  ],
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
+                      : Observer(
+                          builder: (_) => GestureDetector(
+                            onTap: () => _setTransactionPriority(context),
+                            child: Container(
+                              padding: EdgeInsets.only(top: 24),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+                                  Text(S.of(context).send_estimated_fee,
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w500,
+                                          //color: Theme.of(context).primaryTextTheme.display2.color,
+                                          color: Colors.white
+                                      )),
+                                  Container(
+                                    child: Row(
+                                      children: <Widget>[
+                                        Text(
+                                            sendViewModel.estimatedFee.toString() + ' '
+                                                + sendViewModel.currency.title,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                color: Colors.white
+                                            )),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 5),
+                                          child: Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 12,
+                                            color: Colors.white,),
+                                        )
+                                      ],
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          )
                       )
                     ],
                   ),
@@ -574,5 +587,22 @@ class BaseSendWidget extends StatelessWidget {
             );
           });
     }
+  }
+
+  Future<void> _setTransactionPriority(BuildContext context) async {
+    final items = TransactionPriority.all;
+    final selectedItem = items.indexOf(sendViewModel.transactionPriority);
+
+    await showDialog<void>(
+        builder: (_) => Picker(
+          items: items,
+          selectedAtIndex: selectedItem,
+          title: S.of(context).please_select,
+          mainAxisAlignment: MainAxisAlignment.center,
+          onItemSelected: (TransactionPriority priority) =>
+          sendViewModel.setTransactionPriority(priority),
+          isAlwaysShowScrollThumb: true,
+        ),
+        context: context);
   }
 }
