@@ -16,7 +16,7 @@ abstract class ContactViewModelBase with Store {
         _contact = contact {
     name = _contact?.name;
     address = _contact?.address;
-    currency = _contact?.type ?? _wallet.currency;
+    currency = _contact?.type; //_wallet.currency;
   }
 
   @observable
@@ -33,7 +33,8 @@ abstract class ContactViewModelBase with Store {
 
   @computed
   bool get isReady =>
-      (name?.isNotEmpty ?? false) && (address?.isNotEmpty ?? false);
+      (name?.isNotEmpty ?? false) && (currency?.toString()?.isNotEmpty ?? false)
+      && (address?.isNotEmpty ?? false);
 
   final List<CryptoCurrency> currencies;
   final ContactService _contactService;
@@ -44,7 +45,8 @@ abstract class ContactViewModelBase with Store {
   void reset() {
     address = '';
     name = '';
-    currency = _wallet.currency;
+    //currency = _wallet.currency;
+    currency = null;
   }
 
   Future save() async {
