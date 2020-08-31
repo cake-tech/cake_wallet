@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';

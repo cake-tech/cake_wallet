@@ -37,7 +37,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 part 'bitcoin_wallet.g.dart';
 
-
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
