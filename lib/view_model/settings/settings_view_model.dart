@@ -44,7 +44,7 @@ abstract class SettingsViewModelBase with Store {
         SwitcherListItem(
             title: S.current.settings_save_recipient_address,
             value: () => shouldSaveRecipientAddress,
-            onValueChange: (bool value) => shouldSaveRecipientAddress = value)
+            onValueChange: (bool value) => setShouldSaveRecipientAddress(value))
       ],
       [
         RegularListItem(
@@ -70,7 +70,7 @@ abstract class SettingsViewModelBase with Store {
             title: S.current.settings_allow_biometrical_authentication,
             value: () => allowBiometricalAuthentication,
             onValueChange: (bool value) =>
-                allowBiometricalAuthentication = value),
+                setAllowBiometricalAuthentication(value)),
         SwitcherListItem(
             title: S.current.settings_dark_mode,
             value: () => _settingsStore.isDarkTheme,
@@ -139,22 +139,22 @@ abstract class SettingsViewModelBase with Store {
   bool get shouldSaveRecipientAddress =>
       _settingsStore.shouldSaveRecipientAddress;
 
-  @action
-  set shouldSaveRecipientAddress(bool value) =>
-      _settingsStore.shouldSaveRecipientAddress = value;
-
   @computed
   bool get allowBiometricalAuthentication =>
       _settingsStore.allowBiometricalAuthentication;
-
-  @action
-  set allowBiometricalAuthentication(bool value) =>
-      _settingsStore.allowBiometricalAuthentication = value;
 
   final Map<String, String> itemHeaders;
   final SettingsStore _settingsStore;
   final WalletType _walletType;
   List<List<SettingsListItem>> sections;
+
+  @action
+  void setShouldSaveRecipientAddress(bool value) =>
+      _settingsStore.shouldSaveRecipientAddress = value;
+
+  @action
+  void setAllowBiometricalAuthentication(bool value) =>
+      _settingsStore.allowBiometricalAuthentication = value;
 
   @action
   void toggleTransactionsDisplay() =>
