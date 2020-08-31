@@ -80,7 +80,7 @@ Future<void> bootstrap(
     _reconnectionTimer?.cancel();
     _onWalletSyncStatusChangeReaction = reaction(
         (_) => wallet.syncStatus is ConnectedSyncStatus,
-        (_) async => await wallet.startSync());
+        (Object _) async => await wallet.startSync());
 
     _reconnectionTimer = Timer.periodic(Duration(seconds: 5), (_) async {
       if (wallet.syncStatus is LostConnectionSyncStatus ||

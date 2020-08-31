@@ -70,7 +70,7 @@ class ElectrumClient {
         print(e);
       }
     },
-        onError: (_) => _setIsConnected(false),
+        onError: (Error _) => _setIsConnected(false),
         onDone: () => _setIsConnected(false));
     keepAlive();
   }
