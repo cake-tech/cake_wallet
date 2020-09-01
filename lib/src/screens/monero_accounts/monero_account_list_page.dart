@@ -27,7 +27,9 @@ class MoneroAccountListPage extends StatelessWidget {
   }
 
   final MoneroAccountListViewModel accountListViewModel;
-  final closeIcon = Image.asset('assets/images/close.png');
+  final closeIcon = Image.asset('assets/images/close.png',
+    color: Palette.darkBlueCraiola,
+  );
 
   ScrollController controller;
   double backgroundHeight;
@@ -64,7 +66,7 @@ class MoneroAccountListPage extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(14)),
                     child: Container(
                       height: 296,
-                      color: PaletteDark.deepPurpleBlue,
+                      color: Theme.of(context).textTheme.display4.decorationColor,
                       child: Column(
                         children: <Widget>[
                           Expanded(
@@ -83,7 +85,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                           separatorBuilder: (context, index) =>
                                           Container(
                                             height: 1,
-                                            color: PaletteDark.dividerColor,
+                                            color: Theme.of(context).dividerColor,
                                           ),
                                           itemCount: accounts.length ?? 0,
                                           itemBuilder: (context, index) {
@@ -121,7 +123,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                 .pushNamed(Routes.accountCreation),
                             child: Container(
                               height: 62,
-                              color: Colors.white,
+                              color: Theme.of(context).textTheme.subtitle.decorationColor,
                               padding: EdgeInsets.only(left: 24, right: 24),
                               child: Center(
                                 child: Row(
@@ -129,7 +131,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                   children: <Widget>[
                                     Icon(
                                       Icons.add,
-                                      color: PaletteDark.darkNightBlue,
+                                      color: Colors.white,
                                     ),
                                     Padding(
                                       padding: EdgeInsets.only(left: 5),
@@ -138,7 +140,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
-                                          color: PaletteDark.darkNightBlue,
+                                          color: Colors.white,
                                           decoration: TextDecoration.none,
                                         ),
                                       ),

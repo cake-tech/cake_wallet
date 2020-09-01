@@ -53,10 +53,16 @@ class TimerWidgetState extends State<TimerWidget> {
   Widget build(BuildContext context) {
     return _isExpired
         ? Text(S.of(context).expired,
-            style: TextStyle(fontSize: 14.0, color: Colors.red))
+            style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w500,
+                color: Colors.red))
         : Text(
             S.of(context).time(_minutes.toString(), _seconds.toString()),
-            style: TextStyle(fontSize: 14.0, color: widget.color),
+            style: TextStyle(
+                fontSize: 14.0,
+                fontWeight: FontWeight.w500,
+                color: widget.color),
           );
   }
 

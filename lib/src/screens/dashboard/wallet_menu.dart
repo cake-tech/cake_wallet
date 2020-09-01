@@ -22,13 +22,13 @@ class WalletMenu {
   ];
 
   final List<Image> images = [
-    Image.asset('assets/images/reconnect.png'),
-    Image.asset('assets/images/wallet.png'),
-    Image.asset('assets/images/nodes.png'),
-    Image.asset('assets/images/eye.png'),
-    Image.asset('assets/images/key.png'),
-    Image.asset('assets/images/open_book.png'),
-    Image.asset('assets/images/settings.png'),
+    Image.asset('assets/images/reconnect_menu.png', height: 16, width: 16),
+    Image.asset('assets/images/wallet_menu.png', height: 16, width: 16),
+    Image.asset('assets/images/nodes_menu.png', height: 16, width: 16),
+    Image.asset('assets/images/eye_menu.png', height: 16, width: 16),
+    Image.asset('assets/images/key_menu.png', height: 16, width: 16),
+    Image.asset('assets/images/open_book_menu.png', height: 16, width: 16),
+    Image.asset('assets/images/settings_menu.png', height: 16, width: 16),
   ];
 
   final BuildContext context;

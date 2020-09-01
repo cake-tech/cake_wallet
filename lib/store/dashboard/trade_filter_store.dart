@@ -11,8 +11,7 @@ abstract class TradeFilterStoreBase with Store {
   TradeFilterStoreBase(
       {this.displayXMRTO = true,
         this.displayChangeNow = true,
-        this.displayMorphToken = true,
-        this.wallet});
+        this.displayMorphToken = true});
 
   @observable
   bool displayXMRTO;
@@ -22,8 +21,6 @@ abstract class TradeFilterStoreBase with Store {
 
   @observable
   bool displayMorphToken;
-
-  WalletBase wallet;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -40,13 +37,13 @@ abstract class TradeFilterStoreBase with Store {
     }
   }
 
-  List<TradeListItem> filtered({List<TradeListItem> trades}) {
+  List<TradeListItem> filtered({List<TradeListItem> trades, WalletBase wallet}) {
     final _trades =
     trades.where((item) => item.trade.walletId == wallet.id).toList();
     final needToFilter = !displayChangeNow || !displayXMRTO || !displayMorphToken;
 
     return needToFilter
-        ? trades
+        ? _trades
         .where((item) =>
     (displayXMRTO &&
         item.trade.provider == ExchangeProviderDescription.xmrto) ||

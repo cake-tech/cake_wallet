@@ -3,10 +3,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 
 class AmountValidator extends TextValidator {
-  AmountValidator({WalletType type})
+  AmountValidator({WalletType type, bool isAutovalidate = false})
       : super(
             errorMessage: S.current.error_text_amount,
             pattern: _pattern(type),
+            isAutovalidate: isAutovalidate,
             minLength: 0,
             maxLength: 0);
 

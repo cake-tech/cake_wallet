@@ -1,5 +1,8 @@
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/theme_changer_store.dart';
+import 'package:cake_wallet/themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/routes.dart';
@@ -75,7 +78,11 @@ abstract class SettingsViewModelBase with Store {
             title: S.current.settings_dark_mode,
             value: () => _settingsStore.isDarkTheme,
             onValueChange: (bool value) {
-              // FIXME: Implement me
+              _settingsStore.isDarkTheme = value;
+              getIt
+                  .get<ThemeChangerStore>()
+                  .themeChanger
+                  .setTheme(value ? Themes.darkTheme : Themes.lightTheme);
             })
       ],
       [

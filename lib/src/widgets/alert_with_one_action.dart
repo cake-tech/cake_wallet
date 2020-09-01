@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
+import 'package:cake_wallet/palette.dart';
 
 class AlertWithOneAction extends BaseAlertDialog {
   AlertWithOneAction({
@@ -31,13 +32,7 @@ class AlertWithOneAction extends BaseAlertDialog {
       width: 300,
       height: 52,
       padding: EdgeInsets.only(left: 12, right: 12),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(24),
-              bottomRight: Radius.circular(24)
-          ),
-          color: Colors.white
-      ),
+      color: Palette.blueCraiola,
       child: ButtonTheme(
         minWidth: double.infinity,
         child: FlatButton(
@@ -50,7 +45,7 @@ class AlertWithOneAction extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                color: Colors.blue,
+                color: Colors.white,
                 decoration: TextDecoration.none,
               ),
             )),
