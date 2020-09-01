@@ -340,11 +340,11 @@ class Router {
 
       case Routes.addressBook:
         return MaterialPageRoute<void>(
-            builder: (_) => getIt.get<ContactListPage>());
+            builder: (_) => getIt.get<ContactListPage>(param1: true));
 
       case Routes.pickerAddressBook:
         return MaterialPageRoute<void>(
-            builder: (_) => getIt.get<ContactListPage>());
+            builder: (_) => getIt.get<ContactListPage>(param1: false));
 
       case Routes.addressBookAddContact:
         return CupertinoPageRoute<void>(
@@ -359,24 +359,6 @@ class Router {
       case Routes.exchangeTrade:
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<ExchangeTradePage>());
-
-                /*MultiProvider(
-                  providers: [
-                    ProxyProvider<SettingsStore, ExchangeTradeStore>(
-                      update: (_, settingsStore, __) => ExchangeTradeStore(
-                          trade: settings.arguments as Trade,
-                          walletStore: walletStore,
-                          trades: trades),
-                    ),
-                    ProxyProvider<SettingsStore, SendStore>(
-                        update: (_, settingsStore, __) => SendStore(
-                            transactionDescriptions: transactionDescriptions,
-                            walletService: walletService,
-                            settingsStore: settingsStore,
-                            priceStore: priceStore)),
-                  ],
-                  child: ExchangeTradePage(),
-                ));*/
 
       case Routes.exchangeConfirm:
         return MaterialPageRoute<void>(

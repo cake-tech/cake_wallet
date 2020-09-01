@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -23,6 +22,7 @@ class AddressTextField extends StatelessWidget {
         this.isBorderExist = true,
         this.buttonColor,
         this.borderColor,
+        this.iconColor,
         this.textStyle,
         this.hintStyle,
         this.validator});
@@ -40,6 +40,7 @@ class AddressTextField extends StatelessWidget {
   final bool isBorderExist;
   final Color buttonColor;
   final Color borderColor;
+  final Color iconColor;
   final TextStyle textStyle;
   final TextStyle hintStyle;
   FocusNode focusNode;
@@ -55,7 +56,7 @@ class AddressTextField extends StatelessWidget {
           focusNode: focusNode,
           style: textStyle ?? TextStyle(
               fontSize: 16,
-              color: Colors.white
+              color: Theme.of(context).primaryTextTheme.title.color
           ),
           decoration: InputDecoration(
             suffixIcon: SizedBox(
@@ -64,7 +65,7 @@ class AddressTextField extends StatelessWidget {
             ),
             hintStyle: hintStyle ?? TextStyle(
                 fontSize: 16,
-                color: PaletteDark.darkCyanBlue
+                color: Theme.of(context).hintColor
             ),
             hintText: placeholder ?? S.current.widgets_address,
             focusedBorder: isBorderExist
@@ -113,7 +114,7 @@ class AddressTextField extends StatelessWidget {
                                   BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
                                   'assets/images/duplicate.png',
-                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                                  color: iconColor ?? Theme.of(context).primaryTextTheme.display1.decorationColor,
                               )),
                         )),
                   ],
@@ -131,7 +132,7 @@ class AddressTextField extends StatelessWidget {
                                   borderRadius:
                                   BorderRadius.all(Radius.circular(6))),
                               child: Image.asset('assets/images/qr_code_icon.png',
-                                color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                                color: iconColor ?? Theme.of(context).primaryTextTheme.display1.decorationColor,
                               )),
                         ))
                   ],
@@ -152,7 +153,7 @@ class AddressTextField extends StatelessWidget {
                                   BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
                                   'assets/images/open_book.png',
-                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                                  color: iconColor ?? Theme.of(context).primaryTextTheme.display1.decorationColor,
                               )),
                         ))
                   ],
@@ -173,7 +174,7 @@ class AddressTextField extends StatelessWidget {
                                   BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
                                   'assets/images/receive_icon_raw.png',
-                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor,
+                                  color: iconColor ?? Theme.of(context).primaryTextTheme.display1.decorationColor,
                               )),
                         )),
                   ],
