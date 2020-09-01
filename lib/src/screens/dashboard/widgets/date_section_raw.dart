@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/src/stores/settings/settings_store.dart';
-import 'package:cake_wallet/palette.dart';
 
 class DateSectionRaw extends StatelessWidget {
   DateSectionRaw({this.date});
@@ -42,7 +41,7 @@ class DateSectionRaw extends StatelessWidget {
       child: Text(title,
         style: TextStyle(
           fontSize: 12,
-          color: PaletteDark.darkCyanBlue
+          color: Theme.of(context).textTheme.overline.backgroundColor
       ))
     );
   }

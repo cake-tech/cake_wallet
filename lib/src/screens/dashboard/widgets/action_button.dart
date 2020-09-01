@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class ActionButton extends StatelessWidget{
   ActionButton({
@@ -36,7 +35,7 @@ class ActionButton extends StatelessWidget{
               width: 60,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: PaletteDark.nightBlue,
+                color: Theme.of(context).buttonColor,
                 shape: BoxShape.circle),
               child: image,
             ),

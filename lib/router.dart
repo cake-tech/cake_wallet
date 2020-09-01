@@ -258,12 +258,7 @@ class Router {
 
       case Routes.sendTemplate:
         return CupertinoPageRoute<void>(
-            builder: (_) => Provider(
-                create: (_) => SendStore(
-                    walletService: walletService,
-                    priceStore: priceStore,
-                    transactionDescriptions: transactionDescriptions),
-                child: SendTemplatePage()));
+            fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
       case Routes.receive:
         return CupertinoPageRoute<void>(
@@ -363,7 +358,9 @@ class Router {
 
       case Routes.exchangeTrade:
         return CupertinoPageRoute<void>(
-            builder: (_) => MultiProvider(
+            builder: (_) => getIt.get<ExchangeTradePage>());
+
+                /*MultiProvider(
                   providers: [
                     ProxyProvider<SettingsStore, ExchangeTradeStore>(
                       update: (_, settingsStore, __) => ExchangeTradeStore(
@@ -379,12 +376,13 @@ class Router {
                             priceStore: priceStore)),
                   ],
                   child: ExchangeTradePage(),
-                ));
+                ));*/
 
       case Routes.exchangeConfirm:
         return MaterialPageRoute<void>(
-            builder: (_) =>
-                ExchangeConfirmPage(trade: settings.arguments as Trade));
+            builder: (_) => getIt.get<ExchangeConfirmPage>());
+
+                //ExchangeConfirmPage(trade: settings.arguments as Trade));
 
       case Routes.tradeDetails:
         return MaterialPageRoute<void>(builder: (context) {
@@ -416,45 +414,12 @@ class Router {
                 walletRestorationFromSeedVM: walletRestorationFromSeedVM));
 
       case Routes.exchange:
-        return MaterialPageRoute<void>(
-            builder: (_) => MultiProvider(providers: [
-                  Provider(create: (_) {
-                    final xmrtoprovider = XMRTOExchangeProvider();
-
-                    return ExchangeStore(
-                        initialProvider: xmrtoprovider,
-                        initialDepositCurrency: CryptoCurrency.xmr,
-                        initialReceiveCurrency: CryptoCurrency.btc,
-                        trades: trades,
-                        providerList: [
-                          xmrtoprovider,
-                          ChangeNowExchangeProvider(),
-                          MorphTokenExchangeProvider(trades: trades)
-                        ],
-                        walletStore: walletStore);
-                  }),
-                ], child: ExchangePage()));
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<ExchangePage>());
 
       case Routes.exchangeTemplate:
-        return MaterialPageRoute<void>(
-            builder: (_) => Provider(
-                  create: (_) {
-                    final xmrtoprovider = XMRTOExchangeProvider();
-
-                    return ExchangeStore(
-                        initialProvider: xmrtoprovider,
-                        initialDepositCurrency: CryptoCurrency.xmr,
-                        initialReceiveCurrency: CryptoCurrency.btc,
-                        trades: trades,
-                        providerList: [
-                          xmrtoprovider,
-                          ChangeNowExchangeProvider(),
-                          MorphTokenExchangeProvider(trades: trades)
-                        ],
-                        walletStore: walletStore);
-                  },
-                  child: ExchangeTemplatePage(),
-                ));
+        return CupertinoPageRoute<void>(
+            builder: (_) => getIt.get<ExchangeTemplatePage>());
 
       case Routes.settings:
         return MaterialPageRoute<void>(

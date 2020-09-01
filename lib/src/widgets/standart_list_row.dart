@@ -1,65 +1,82 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class StandartListRow extends StatelessWidget {
   StandartListRow(
       {this.title,
       this.value,
-      this.isDrawTop = false,
+      this.titleFontSize = 14,
+      this.valueFontSize = 16,
+      this.image,
       this.isDrawBottom = false});
 
   final String title;
   final String value;
-  final bool isDrawTop;
+  final double titleFontSize;
+  final double valueFontSize;
+  final Image image;
   final bool isDrawBottom;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: <Widget>[
-        isDrawTop
-            ? Container(
-                width: double.infinity,
-                height: 1,
-                color: Theme.of(context).dividerColor,
-              )
-            : Offstage(),
         Container(
           width: double.infinity,
-          color: Theme.of(context).accentTextTheme.title.backgroundColor,
+          color: Theme.of(context).backgroundColor,
           child: Padding(
             padding:
-                const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
+              const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   Text(title,
                       style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
+                          fontSize: titleFontSize,
+                          fontWeight: FontWeight.w500,
                           color:
-                              Theme.of(context).primaryTextTheme.caption.color),
+                              Theme.of(context).primaryTextTheme.overline.color),
                       textAlign: TextAlign.left),
                   Padding(
                     padding: const EdgeInsets.only(top: 12),
-                    child: Text(value,
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .title
-                                .color)),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(value,
+                              style: TextStyle(
+                                  fontSize: valueFontSize,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .title
+                                      .color)),
+                        ),
+                        image != null
+                        ? Padding(
+                          padding: EdgeInsets.only(left: 24),
+                          child: image,
+                        )
+                        : Offstage()
+                      ],
+                    ),
                   )
                 ]),
           ),
         ),
         isDrawBottom
-            ? Container(
-                width: double.infinity,
-                height: 1,
-                color: Theme.of(context).dividerColor,
-              )
-            : Offstage(),
+        ? Container(
+          height: 1,
+          padding: EdgeInsets.only(left: 24),
+          color: Theme.of(context).backgroundColor,
+          child: Container(
+            height: 1,
+            color: Theme.of(context).primaryTextTheme.title.backgroundColor,
+          ),
+        )
+        : Offstage(),
       ],
     );
   }

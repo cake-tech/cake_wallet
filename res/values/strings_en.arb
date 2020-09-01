@@ -43,7 +43,7 @@
   "outgoing" : "Outgoing",
   "transactions_by_date" : "Transactions by date",
   "trades" : "Trades",
-  "filters" : "Filters",
+  "filters" : "Filter",
   "today" : "Today",
   "yesterday" : "Yesterday",
   "received" : "Received",
@@ -61,6 +61,7 @@
 
   "exchange" : "Exchange",
   "clear" : "Clear",
+  "refund_address" : "Refund address",
   "change_exchange_provider" : "Change Exchange Provider",
   "you_will_send" : "You will send",
   "you_will_get" : "You will get",
@@ -87,8 +88,8 @@
   "offer_expires_in" : "Offer expires in: ",
   "trade_is_powered_by" : "This trade is powered by ${provider}",
   "copy_address" : "Copy Address",
-  "exchange_result_confirm" : "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown above. Or you can send from your external wallet to the above address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.\n\n",
-  "exchange_result_description" : "Please send ${fetchingLabel} ${from} to the address shown above.\n\n",
+  "exchange_result_confirm" : "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown above. Or you can send from your external wallet to the above address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.",
+  "exchange_result_description" : "Please send ${fetchingLabel} ${from} to the address shown above.",
   "exchange_result_write_down_ID" : "*Please copy or write down your ID shown above.",
   "confirm" : "Confirm",
   "confirm_sending" : "Confirm sending",
@@ -184,9 +185,9 @@
   "seed_language_spanish" : "Spanish",
 
 
-  "send_title" : "Send Monero",
+  "send_title" : "Send",
   "send_your_wallet" : "Your wallet",
-  "send_monero_address" : "Monero address",
+  "send_address" : "${cryptoCurrency} address",
   "send_payment_id" : "Payment ID (optional)",
   "all" : "ALL",
   "send_error_minimum_value" : "Minimum value of amount is 0.01",
@@ -379,5 +380,9 @@
   "buy" : "Buy",
 
   "placeholder_transactions" : "Your transactions will be displayed here",
-  "placeholder_contacts" : "Your contacts will be displayed here"
+  "placeholder_contacts" : "Your contacts will be displayed here",
+
+  "template" : "Template",
+  "confirm_delete_template" : "This action will delete this template. Do you wish to continue?",
+  "confirm_delete_wallet" : "This action will delete this wallet. Do you wish to continue?"
 }

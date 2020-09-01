@@ -17,17 +17,18 @@ class WalletTile extends SliverPersistentHeaderDelegate {
   final String walletName;
   final String walletAddress;
   final bool isCurrent;
+  final double tileHeight = 60;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
     var opacity = 1 - shrinkOffset / (max - min);
     opacity = opacity >= 0 ? opacity : 0;
 
-    var panelWidth = 12 * opacity;
-    panelWidth = panelWidth < 12 ? 0 : 12;
+    var panelWidth = 10 * opacity;
+    panelWidth = panelWidth < 10 ? 0 : 10;
 
     final currentColor = isCurrent
-        ? Theme.of(context).accentTextTheme.caption.color
+        ? Theme.of(context).accentTextTheme.subtitle.decorationColor
         : Theme.of(context).backgroundColor;
 
     return Stack(
@@ -38,7 +39,7 @@ class WalletTile extends SliverPersistentHeaderDelegate {
           top: 0,
           right: max - 4,
           child: Container(
-            height: 108,
+            height: tileHeight,
             width: 4,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topRight: Radius.circular(4), bottomRight: Radius.circular(4)),
@@ -48,13 +49,30 @@ class WalletTile extends SliverPersistentHeaderDelegate {
         ),
         Positioned(
           top: 0,
-          right: 12,
+          right: 10,
           child: Container(
-            height: 108,
-            width: max - 16,
+            height: tileHeight,
+            width: max - 14,
             padding: EdgeInsets.only(left: 20, right: 20),
             color: Theme.of(context).backgroundColor,
-            child: Column(
+            alignment: Alignment.centerLeft,
+            child: Row(
+              //mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                image,
+                SizedBox(width: 10),
+                Text(
+                  walletName,
+                  style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryTextTheme.title.color
+                  ),
+                )
+              ],
+            ),
+            /*Column(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -92,7 +110,7 @@ class WalletTile extends SliverPersistentHeaderDelegate {
                 )
                 : Offstage()
               ],
-            ),
+            ),*/
           ),
         ),
         Positioned(
@@ -101,29 +119,18 @@ class WalletTile extends SliverPersistentHeaderDelegate {
             child: Opacity(
               opacity: opacity,
               child: Container(
-                height: 108,
+                height: tileHeight,
                 width: panelWidth,
-                padding: EdgeInsets.only(
-                  top: 1,
-                  left: 1,
-                  bottom: 1
-                ),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
-                  color: Theme.of(context).accentTextTheme.subtitle.color
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(12), bottomLeft: Radius.circular(12)),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Theme.of(context).accentTextTheme.caption.backgroundColor,
-                        Theme.of(context).accentTextTheme.caption.decorationColor
-                      ]
-                    )
-                  ),
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(10), bottomLeft: Radius.circular(10)),
+                  gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Theme.of(context).accentTextTheme.headline.color,
+                          Theme.of(context).accentTextTheme.headline.backgroundColor
+                        ]
+                  )
                 ),
               ),
             )

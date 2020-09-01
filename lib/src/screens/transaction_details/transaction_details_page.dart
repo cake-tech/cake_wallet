@@ -73,22 +73,19 @@ class TransactionDetailsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(top: 20, bottom: 20),
       child: ListView.separated(
           separatorBuilder: (context, index) => Container(
                 height: 1,
                 padding: EdgeInsets.only(left: 24),
-                color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                color: Theme.of(context).backgroundColor,
                 child: Container(
                   height: 1,
-                  color: Theme.of(context).dividerColor,
+                  color: Theme.of(context).primaryTextTheme.title.backgroundColor,
                 ),
               ),
           itemCount: _items.length,
           itemBuilder: (context, index) {
             final item = _items[index];
-
-            final isDrawTop = index == 0 ? true : false;
             final isDrawBottom = index == _items.length - 1 ? true : false;
 
             return GestureDetector(
@@ -106,7 +103,6 @@ class TransactionDetailsPage extends BasePage {
               child: StandartListRow(
                   title: '${item.title}:',
                   value: item.value,
-                  isDrawTop: isDrawTop,
                   isDrawBottom: isDrawBottom),
             );
           }),

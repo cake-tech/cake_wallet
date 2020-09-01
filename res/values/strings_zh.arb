@@ -43,7 +43,7 @@
   "outgoing" : "外向",
   "transactions_by_date" : "按日期交易",
   "trades" : "交易",
-  "filters" : "筛选器",
+  "filters" : "過濾",
   "today" : "今天",
   "yesterday" : "昨天",
   "received" : "已收到",
@@ -61,6 +61,7 @@
 
   "exchange" : "交换",
   "clear" : "明确",
+  "refund_address" : "退款地址",
   "change_exchange_provider" : "更改交易所提供商",
   "you_will_send" : "您将发送",
   "you_will_get" : "你会得到",
@@ -87,8 +88,8 @@
   "offer_expires_in" : "优惠有效期至 ",
   "trade_is_powered_by" : "该交易由 ${provider}",
   "copy_address" : "复制地址",
-  "exchange_result_confirm" : "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到上面显示的地址. 或者，您也可以从外部钱包发送上述地址/ QR码。\n\n请按确认继续或返回以更改金额\n\n",
-  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到上面显示的地址.\n\n'",
+  "exchange_result_confirm" : "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到上面显示的地址. 或者，您也可以从外部钱包发送上述地址/ QR码。\n\n请按确认继续或返回以更改金额",
+  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到上面显示的地址.",
   "exchange_result_write_down_ID" : "*请复制或写下您上面显示的ID.",
   "confirm" : "确认",
   "confirm_sending" : "确认发送",
@@ -184,9 +185,9 @@
   "seed_language_spanish" : "西班牙文",
 
 
-  "send_title" : "发送门罗币",
+  "send_title" : "發送",
   "send_your_wallet" : "你的钱包",
-  "send_monero_address" : "门罗地址",
+  "send_address" : "${cryptoCurrency} 地址",
   "send_payment_id" : "付款编号 (可选的)",
   "all" : "所有",
   "send_error_minimum_value" : "最小金额为0.01",
@@ -379,5 +380,9 @@
   "buy" : "購買",
 
   "placeholder_transactions" : "您的交易將顯示在這裡",
-  "placeholder_contacts" : "您的聯繫人將顯示在這裡"
+  "placeholder_contacts" : "您的聯繫人將顯示在這裡",
+
+  "template" : "模板",
+  "confirm_delete_template" : "此操作將刪除此模板。 你想繼續嗎？",
+  "confirm_delete_wallet" : "此操作將刪除此錢包。 你想繼續嗎？"
 }

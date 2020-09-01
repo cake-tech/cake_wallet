@@ -43,7 +43,7 @@
   "outgoing" : "Enviadas",
   "transactions_by_date" : "Transações por data",
   "trades" : "Trocas",
-  "filters" : "Filtros",
+  "filters" : "Filtro",
   "today" : "Hoje",
   "yesterday" : "Ontem",
   "received" : "Recebida",
@@ -61,6 +61,7 @@
 
   "exchange" : "Trocar",
   "clear" : "Limpar",
+  "refund_address" : "Endereço de reembolso",
   "change_exchange_provider" : "Alterar o provedor de troca",
   "you_will_send" : "Você enviará",
   "you_will_get" : "Você receberá",
@@ -87,8 +88,8 @@
   "offer_expires_in" : "A oferta expira em: ",
   "trade_is_powered_by" : "Troca realizada por ${provider}",
   "copy_address" : "Copiar endereço",
-  "exchange_result_confirm" : "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço exibido acima. Você também pode enviar com uma carteira externa para o endereço/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.\n\n",
-  "exchange_result_description" : "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado acima.\n\n'",
+  "exchange_result_confirm" : "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço exibido acima. Você também pode enviar com uma carteira externa para o endereço/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.",
+  "exchange_result_description" : "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado acima.",
   "exchange_result_write_down_ID" : "*Copie ou anote seu ID mostrado acima.",
   "confirm" : "Confirmar",
   "confirm_sending" : "Confirmar o envio",
@@ -184,9 +185,9 @@
   "seed_language_spanish" : "Espanhola",
 
 
-  "send_title" : "Enviar Monero",
+  "send_title" : "Enviar",
   "send_your_wallet" : "Sua carteira",
-  "send_monero_address" : "Endereço Monero",
+  "send_address" : "Endereço ${cryptoCurrency}",
   "send_payment_id" : "ID de pagamento (opcional)",
   "all" : "TUDO",
   "send_error_minimum_value" : "O valor mínimo da quantia é 0,01",
@@ -379,5 +380,9 @@
   "buy" : "Comprar",
 
   "placeholder_transactions" : "Suas transações serão exibidas aqui",
-  "placeholder_contacts" : "Seus contatos serão exibidos aqui"
+  "placeholder_contacts" : "Seus contatos serão exibidos aqui",
+
+  "template" : "Modelo",
+  "confirm_delete_template" : "Esta ação excluirá este modelo. Você deseja continuar?",
+  "confirm_delete_wallet" : "Esta ação excluirá esta carteira. Você deseja continuar?"
 }

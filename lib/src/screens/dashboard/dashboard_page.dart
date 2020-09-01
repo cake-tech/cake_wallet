@@ -5,16 +5,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/menu_widget.dart';
-import 'package:cake_wallet/palette.dart';
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/action_button.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -23,13 +20,27 @@ class DashboardPage extends BasePage {
   });
 
   @override
-  Color get backgroundLightColor => PaletteDark.backgroundColor;
+  Color get backgroundLightColor => Colors.transparent;
 
   @override
-  Color get backgroundDarkColor => PaletteDark.backgroundColor;
+  Color get backgroundDarkColor => Colors.transparent;
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+      (BuildContext context, Widget scaffold) => Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+            Theme.of(context).accentColor,
+            Theme.of(context).scaffoldBackgroundColor,
+            Theme.of(context).primaryColor,
+          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
+          child: scaffold);
 
   @override
   bool get resizeToAvoidBottomPadding => false;
+
+  @override
+  Widget get endDrawer => MenuWidget(walletViewModel);
 
   @override
   Widget middle(BuildContext context) {
@@ -38,24 +49,18 @@ class DashboardPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final menuButton = Image.asset('assets/images/menu.png',
-        color: Colors.white);
+    final menuButton =
+        Image.asset('assets/images/menu.png', color: Colors.white);
 
     return Container(
-      alignment: Alignment.centerRight,
-      width: 40,
-      child: FlatButton(
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        padding: EdgeInsets.all(0),
-        onPressed: () async {
-          await showDialog<void>(
-            builder: (_) => MenuWidget(walletViewModel),
-            context: context);
-        },
-        child: menuButton
-      )
-    );
+        alignment: Alignment.centerRight,
+        width: 40,
+        child: FlatButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            padding: EdgeInsets.all(0),
+            onPressed: () => onOpenEndDrawer(),
+            child: menuButton));
   }
 
   final DashboardViewModel walletViewModel;
@@ -73,79 +78,64 @@ class DashboardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
     _setEffects();
 
     return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Expanded(
+        child: Column(
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        Expanded(
             child: PageView.builder(
+                controller: controller,
+                itemCount: pages.length,
+                itemBuilder: (context, index) {
+                  return pages[index];
+                })),
+        Padding(
+            padding: EdgeInsets.only(bottom: 24),
+            child: SmoothPageIndicator(
               controller: controller,
-              itemCount: pages.length,
-              itemBuilder: (context, index) {
-                return pages[index];
-              }
-            )
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-                bottom: 24
-            ),
-            child: Observer(
-                builder: (_) {
-                  return DotsIndicator(
-                    dotsCount: pages.length,
-                    position: walletViewModel.currentPage,
-                    decorator: DotsDecorator(
-                      color: PaletteDark.cyanBlue,
-                      activeColor: Colors.white,
-                      size: Size(6, 6),
-                      activeSize: Size(6, 6),
-                    ),
-                  );
-                }
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.only(
-              left: 45,
-              right: 45,
-              bottom: 24
-            ),
-            child: Row(
-              children: <Widget>[
-                Flexible(
-                  child: ActionButton(
-                    image: sendImage,
-                    title: S.of(context).send,
-                    route: Routes.send,
-                    alignment: Alignment.centerLeft,
-                  ),
+              count: pages.length,
+              effect: ColorTransitionEffect(
+                  spacing: 6.0,
+                  radius: 6.0,
+                  dotWidth: 6.0,
+                  dotHeight: 6.0,
+                  dotColor: Theme.of(context).indicatorColor,
+                  activeDotColor: Colors.white),
+            )),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
+          child: Row(
+            children: <Widget>[
+              Flexible(
+                child: ActionButton(
+                  image: sendImage,
+                  title: S.of(context).send,
+                  route: Routes.send,
+                  alignment: Alignment.centerLeft,
                 ),
-                Flexible(
-                  child: ActionButton(
+              ),
+              Flexible(
+                child: ActionButton(
                     image: exchangeImage,
                     title: S.of(context).exchange,
-                    route: Routes.exchange
-                  ),
+                    route: Routes.exchange),
+              ),
+              Flexible(
+                child: ActionButton(
+                  image: receiveImage,
+                  title: S.of(context).receive,
+                  route: Routes.receive,
+                  alignment: Alignment.centerRight,
                 ),
-                Flexible(
-                  child: ActionButton(
-                    image: receiveImage,
-                    title: S.of(context).receive,
-                    route: Routes.receive,
-                    alignment: Alignment.centerRight,
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
-      )
-    );
+              )
+            ],
+          ),
+        )
+      ],
+    ));
   }
 
   void _setEffects() {
@@ -156,16 +146,6 @@ class DashboardPage extends BasePage {
     pages.add(AddressPage(addressListViewModel: addressListViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
-
-    controller.addListener(() {
-      walletViewModel.pageViewStore.setCurrentPage(controller.page);
-    });
-
-    reaction((_) => walletViewModel.currentPage, (double currentPage) {
-      if (controller.page != currentPage) {
-        controller.jumpTo(currentPage);
-      }
-    });
 
     _isEffectsInstalled = true;
   }

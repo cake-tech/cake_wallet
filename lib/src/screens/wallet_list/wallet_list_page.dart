@@ -37,11 +37,14 @@ class WalletListBodyState extends State<WalletListBody> {
   final bitcoinIcon =
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final scrollController = ScrollController();
+  final double tileHeight = 60;
 
   @override
   Widget build(BuildContext context) {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
-        height: 12, width: 12, color: Palette.oceanBlue);
+        height: 12,
+        width: 12,
+        color: Theme.of(context).accentTextTheme.headline.decorationColor);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
@@ -58,7 +61,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   separatorBuilder: (_, index) => Divider(
-                      color: Theme.of(context).backgroundColor, height: 16),
+                      color: Theme.of(context).backgroundColor, height: 32),
                   itemCount: widget.walletListViewModel.wallets.length,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
@@ -72,7 +75,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         .generateImagesForWalletMenu(wallet.isCurrent);
 
                     return Container(
-                      height: 108,
+                      height: tileHeight,
                       width: double.infinity,
                       child: CustomScrollView(
                         scrollDirection: Axis.horizontal,
@@ -82,7 +85,7 @@ class WalletListBodyState extends State<WalletListBody> {
                             pinned: false,
                             floating: true,
                             delegate: WalletTile(
-                                min: screenWidth - 228,
+                                min: screenWidth - 170,
                                 max: screenWidth,
                                 image: _imageFor(type: wallet.type),
                                 walletName: wallet.name,
@@ -93,10 +96,11 @@ class WalletListBodyState extends State<WalletListBody> {
                               delegate:
                                   SliverChildBuilderDelegate((context, index) {
                             final item = items[index];
-                            final color = colors[index];
                             final image = images[index];
+                            final firstColor = colors[index*2];
+                            final secondColor = colors[index*2 + 1];
 
-                            final radius = index == 0 ? 12.0 : 0.0;
+                            final radius = index == 0 ? 10.0 : 0.0;
 
                             return GestureDetector(
                               onTap: () {
@@ -109,8 +113,8 @@ class WalletListBodyState extends State<WalletListBody> {
                                     wallet.isCurrent);
                               },
                               child: Container(
-                                height: 108,
-                                width: 108,
+                                height: tileHeight,
+                                width: 80,
                                 color: Theme.of(context).backgroundColor,
                                 child: Container(
                                   padding: EdgeInsets.only(left: 5, right: 5),
@@ -118,18 +122,27 @@ class WalletListBodyState extends State<WalletListBody> {
                                       borderRadius: BorderRadius.only(
                                           topLeft: Radius.circular(radius),
                                           bottomLeft: Radius.circular(radius)),
-                                      color: color),
+                                      gradient: LinearGradient(
+                                          begin: Alignment.topCenter,
+                                          end: Alignment.bottomCenter,
+                                          colors: [
+                                            firstColor,
+                                            secondColor
+                                          ]
+                                      )
+                                  ),
                                   child: Center(
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: <Widget>[
                                         image,
-                                        SizedBox(height: 5),
+                                        SizedBox(height: 2),
                                         Text(
                                           item,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 7,
+                                              fontWeight: FontWeight.w500,
                                               color: Colors.white),
                                         )
                                       ],
@@ -151,9 +164,8 @@ class WalletListBodyState extends State<WalletListBody> {
                   Navigator.of(context).pushNamed(Routes.newWalletType),
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Colors.white,
-              textColor: Palette.oceanBlue,
-              borderColor: Palette.oceanBlue,
+              color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
+              textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
@@ -161,7 +173,7 @@ class WalletListBodyState extends State<WalletListBody> {
                     .pushNamed(Routes.restoreWalletType),
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
-                color: Theme.of(context).primaryTextTheme.overline.color,
+                color: Theme.of(context).accentTextTheme.caption.color,
                 textColor: Theme.of(context).primaryTextTheme.title.color)
           ])),
     ));
