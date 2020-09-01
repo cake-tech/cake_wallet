@@ -19,12 +19,12 @@ class RestoreButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        height: 150,
+        height: 160,
         padding: EdgeInsets.all(24),
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(12)),
-            color: Theme.of(context).accentTextTheme.title.backgroundColor,
+            color: Theme.of(context).accentTextTheme.caption.color,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.max,
@@ -44,7 +44,7 @@ class RestoreButton extends StatelessWidget {
                       title,
                       style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           color: Theme.of(context).primaryTextTheme.title.color
                       ),
                     ),
@@ -54,7 +54,8 @@ class RestoreButton extends StatelessWidget {
                         description,
                         style: TextStyle(
                             fontSize: 14,
-                            color: Theme.of(context).primaryTextTheme.caption.color
+                            fontWeight: FontWeight.normal,
+                            color: Theme.of(context).primaryTextTheme.overline.color
                         ),
                       ),
                     )

@@ -290,9 +290,6 @@ Future setup(
   getIt.registerFactory(() => ContactListViewModel(
       getIt.get<AppStore>().contactListStore, getIt.get<ContactService>()));
 
-  /*getIt.registerFactory(
-      () => ContactListPage(getIt.get<ContactListViewModel>()));*/
-
   getIt.registerFactoryParam<ContactListPage, bool, void>((bool isEditable, _) =>
       ContactListPage(getIt.get<ContactListViewModel>(), isEditable: isEditable));
 
