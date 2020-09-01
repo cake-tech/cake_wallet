@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -6,6 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/node_address_validator.dart';
 import 'package:cake_wallet/core/node_port_validator.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
@@ -77,32 +79,11 @@ class NodeCreateOrEditPage extends BasePage {
                   Row(
                     children: <Widget>[
                       Expanded(
-                        child: TextFormField(
-                          style: TextStyle(
-                              fontSize: 16.0,
-                              color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .title
-                                  .color),
-                          decoration: InputDecoration(
-                              hintStyle: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .caption
-                                      .color,
-                                  fontSize: 16),
-                              hintText: S.of(context).node_address,
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1.0)),
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1.0))),
+                        child: BaseTextFormField(
                           controller: _addressController,
+                          hintText: S.of(context).node_address,
                           validator: NodeAddressValidator(),
-                        ),
+                        )
                       )
                     ],
                   ),
@@ -110,34 +91,13 @@ class NodeCreateOrEditPage extends BasePage {
                   Row(
                     children: <Widget>[
                       Expanded(
-                        child: TextFormField(
-                          style: TextStyle(
-                              fontSize: 16.0,
-                              color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .title
-                                  .color),
+                        child: BaseTextFormField(
+                          controller: _portController,
+                          hintText: S.of(context).node_port,
                           keyboardType: TextInputType.numberWithOptions(
                               signed: false, decimal: false),
-                          decoration: InputDecoration(
-                              hintStyle: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .caption
-                                      .color,
-                                  fontSize: 16),
-                              hintText: S.of(context).node_port,
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1.0)),
-                              enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(
-                                      color: Theme.of(context).dividerColor,
-                                      width: 1.0))),
-                          controller: _portController,
                           validator: NodePortValidator(),
-                        ),
+                        )
                       )
                     ],
                   ),
@@ -146,32 +106,10 @@ class NodeCreateOrEditPage extends BasePage {
                     Row(
                       children: <Widget>[
                         Expanded(
-                          child: TextFormField(
-                            style: TextStyle(
-                                fontSize: 16.0,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color),
-                            decoration: InputDecoration(
-                                hintStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .caption
-                                        .color,
-                                    fontSize: 16),
-                                hintText: S.of(context).login,
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1.0)),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1.0))),
+                          child: BaseTextFormField(
                             controller: _loginController,
-                            validator: (value) => null,
-                          ),
+                            hintText: S.of(context).login,
+                          )
                         )
                       ],
                     ),
@@ -179,32 +117,10 @@ class NodeCreateOrEditPage extends BasePage {
                     Row(
                       children: <Widget>[
                         Expanded(
-                          child: TextFormField(
-                            style: TextStyle(
-                                fontSize: 16.0,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .title
-                                    .color),
-                            decoration: InputDecoration(
-                                hintStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .caption
-                                        .color,
-                                    fontSize: 16),
-                                hintText: S.of(context).password,
-                                focusedBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1.0)),
-                                enabledBorder: UnderlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Theme.of(context).dividerColor,
-                                        width: 1.0))),
+                          child: BaseTextFormField(
                             controller: _passwordController,
-                            validator: (value) => null,
-                          ),
+                            hintText: S.of(context).password,
+                          )
                         )
                       ],
                     )
@@ -237,7 +153,7 @@ class NodeCreateOrEditPage extends BasePage {
                             Navigator.of(context).pop();
                           },
                           text: S.of(context).save,
-                          color: Colors.green,
+                          color: Palette.blueCraiola,
                           textColor: Colors.white,
                           isDisabled: !nodeCreateOrEditViewModel.isReady,
                         ),

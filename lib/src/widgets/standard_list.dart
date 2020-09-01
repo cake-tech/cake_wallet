@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -39,7 +40,7 @@ class StandardListRow extends StatelessWidget {
       Text(title,
           style: TextStyle(
               fontSize: 14,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.normal,
               color: _titleColor(context)))
     ]));
   }
@@ -47,21 +48,24 @@ class StandardListRow extends StatelessWidget {
   Widget buildTrailing(BuildContext context) => null;
 
   Color _titleColor(BuildContext context) => isSelected
-      ? Color.fromRGBO(20, 200, 71, 1)
+      ? Palette.blueCraiola
       : Theme.of(context).primaryTextTheme.title.color;
 
   Color _backgroundColor(BuildContext context) {
 //    return Theme.of(context).accentTextTheme.subtitle.decorationColor;
-    return Theme.of(context).accentTextTheme.title.backgroundColor;
+    return Theme.of(context).backgroundColor;
   }
 }
 
 class SectionHeaderListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(children: [
-        StandardListSeparator(),
-        Container(width: double.infinity, height: 40, color: Colors.white),
-        StandardListSeparator()
+        StandardListSeparator(padding: EdgeInsets.only(left: 24)),
+        Container(
+            width: double.infinity,
+            height: 40,
+            color: Theme.of(context).backgroundColor),
+        //StandardListSeparator(padding: EdgeInsets.only(left: 24))
       ]);
 }
 
@@ -75,8 +79,10 @@ class StandardListSeparator extends StatelessWidget {
     return Container(
         height: 1,
         padding: padding,
-        color: Theme.of(context).accentTextTheme.title.backgroundColor,
-        child: Container(height: 1, color: Color.fromRGBO(219, 227, 243, 1)));
+        color: Theme.of(context).backgroundColor,
+        child: Container(
+            height: 1,
+            color: Theme.of(context).primaryTextTheme.title.backgroundColor));
   }
 }
 
@@ -126,9 +132,9 @@ class SectionStandardList extends StatelessWidget {
     final items = <Widget>[];
 
     for (var sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
-      if (sectionIndex == 0) {
+      /*if (sectionIndex == 0) {
         items.add(StandardListSeparator());
-      }
+      }*/
 
       final itemCount = itemCounter(sectionIndex);
 
@@ -140,7 +146,7 @@ class SectionStandardList extends StatelessWidget {
 
       items.add(sectionIndex + 1 != sectionCount
           ? SectionHeaderListRow()
-          : StandardListSeparator());
+          : StandardListSeparator(padding: EdgeInsets.only(left: 24)));
     }
 
     return items;
