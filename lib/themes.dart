@@ -152,6 +152,9 @@ class Themes {
         color: Palette.blueCraiola, // first gradient color (menu header)
         decorationColor: Palette.pinkFlamingo // second gradient color(menu header)
       ),
+      display2: TextStyle(
+        color: Palette.shadowWhite, // action button color (address text field)
+      ),
     ),
 
 
@@ -314,6 +317,9 @@ class Themes {
       display1: TextStyle(
         color: PaletteDark.deepPurpleBlue, // first gradient color (menu header)
         decorationColor: PaletteDark.deepPurpleBlue // second gradient color(menu header)
+      ),
+      display2: TextStyle(
+        color: PaletteDark.nightBlue, // action button color (address text field)
       ),
     ),
 

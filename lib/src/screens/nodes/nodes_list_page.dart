@@ -24,7 +24,7 @@ class NodeListPage extends BasePage {
       height: 32,
       decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(16)),
-          color: Theme.of(context).accentTextTheme.title.backgroundColor),
+          color: Theme.of(context).accentTextTheme.caption.color),
       child: ButtonTheme(
         minWidth: double.minPositive,
         child: FlatButton(
@@ -51,7 +51,7 @@ class NodeListPage extends BasePage {
               style: TextStyle(
                   fontSize: 14.0,
                   fontWeight: FontWeight.w600,
-                  color: Colors.blue),
+                  color: Palette.blueCraiola),
             )),
       ),
     );
