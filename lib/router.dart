@@ -196,7 +196,7 @@ class Router {
                       ? Routes.seedLanguage
                       : Routes.restoreWalletFromKeys;
                   final args = type == WalletType.monero
-                      ? [type, Routes.restoreWalletFromSeed]
+                      ? [type, Routes.restoreWalletFromKeys]
                       : [type];
 
                   Navigator.of(context).pushNamed(route, arguments: args);
