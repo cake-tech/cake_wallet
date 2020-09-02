@@ -154,6 +154,7 @@ class Themes {
       ),
       display2: TextStyle(
         color: Palette.shadowWhite, // action button color (address text field)
+        decorationColor: Palette.darkGray // hint text (seed widget)
       ),
     ),
 
@@ -320,6 +321,7 @@ class Themes {
       ),
       display2: TextStyle(
         color: PaletteDark.nightBlue, // action button color (address text field)
+        decorationColor: PaletteDark.darkCyanBlue // hint text (seed widget)
       ),
     ),
 

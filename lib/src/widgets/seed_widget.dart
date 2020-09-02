@@ -6,6 +6,7 @@ import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/domain/common/mnemonic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter/widgets.dart';
 
 class SeedWidget extends StatefulWidget {
   SeedWidget(
@@ -13,6 +14,8 @@ class SeedWidget extends StatefulWidget {
       this.maxLength,
       this.onMnemonicChange,
       this.onFinish,
+      this.leading,
+      this.middle,
       this.validator})
       : super(key: key);
 
@@ -20,6 +23,8 @@ class SeedWidget extends StatefulWidget {
   final Function(List<MnemonicItem>) onMnemonicChange;
   final Function() onFinish;
   final SeedValidator validator;
+  final Widget leading;
+  final Widget middle;
 
   @override
   SeedWidgetState createState() => SeedWidgetState(maxLength: maxLength);
@@ -199,74 +204,91 @@ class SeedWidgetState extends State<SeedWidget> {
       child: Column(children: [
         Flexible(
           fit: FlexFit.tight,
-          flex: 1,
+          flex: 2,
           child: Container(
             width: double.infinity,
             height: double.infinity,
-            padding: EdgeInsets.all(24),
+            padding: EdgeInsets.all(0),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(24),
                     bottomRight: Radius.circular(24)),
-                color: Theme.of(context).accentTextTheme.title.backgroundColor),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(
-                    S.of(context).restore_active_seed,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color:
-                            Theme.of(context).primaryTextTheme.caption.color),
-                  ),
-                  Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Wrap(
-                        children: items.map((item) {
-                          final isValid = widget.validator.isValid(item);
-                          final isSelected = selectedItem == item;
-
-                          return InkWell(
-                            onTap: () => onMnemonicTap(item),
-                            child: Container(
-                                decoration: BoxDecoration(
-                                    color: isValid
-                                        ? Colors.transparent
-                                        : Palette.red),
-                                margin: EdgeInsets.only(right: 7, bottom: 8),
-                                child: Text(
-                                  item.toString(),
-                                  style: TextStyle(
-                                      color: isValid
-                                          ? Theme.of(context)
-                                              .primaryTextTheme
-                                              .title
-                                              .color
-                                          : Theme.of(context)
-                                              .primaryTextTheme
-                                              .caption
-                                              .color,
-                                      fontSize: 16,
-                                      fontWeight: isSelected
-                                          ? FontWeight.w900
-                                          : FontWeight.w400,
-                                      decoration: isSelected
-                                          ? TextDecoration.underline
-                                          : TextDecoration.none),
-                                )),
-                          );
-                        }).toList(),
-                      ))
+                gradient: LinearGradient(colors: [
+                  Theme.of(context).primaryTextTheme.subhead.color,
+                  Theme.of(context).primaryTextTheme.subhead.decorationColor,
                 ],
-              ),
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight)
             ),
+            child: Column(
+              children: <Widget>[
+                CupertinoNavigationBar(
+                  leading: widget.leading,
+                  middle: widget.middle,
+                  backgroundColor: Colors.transparent,
+                  border: null,
+                ),
+                Expanded(
+                    child: Container(
+                      padding: EdgeInsets.all(24),
+                      alignment: Alignment.topLeft,
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              S.of(context).restore_active_seed,
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                  Theme.of(context).textTheme.overline.backgroundColor),
+                            ),
+                            Padding(
+                                padding: EdgeInsets.only(top: 5),
+                                child: Wrap(
+                                  children: items.map((item) {
+                                    final isValid = widget.validator.isValid(item);
+                                    final isSelected = selectedItem == item;
+
+                                    return InkWell(
+                                      onTap: () => onMnemonicTap(item),
+                                      child: Container(
+                                          decoration: BoxDecoration(
+                                              color: isValid
+                                                  ? Colors.transparent
+                                                  : Palette.red),
+                                          margin: EdgeInsets.only(right: 7, bottom: 8),
+                                          child: Text(
+                                            item.toString(),
+                                            style: TextStyle(
+                                                color: isValid
+                                                    ? Colors.white
+                                                    : Colors.grey,
+                                                fontSize: 16,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.w900
+                                                    : FontWeight.w600,
+                                                decoration: isSelected
+                                                    ? TextDecoration.underline
+                                                    : TextDecoration.none),
+                                          )),
+                                    );
+                                  }).toList(),
+                                ))
+                          ],
+                        ),
+                      ),
+                    )
+                )
+              ],
+            )
           ),
         ),
         Flexible(
             fit: FlexFit.tight,
-            flex: 2,
+            flex: 3,
             child: Padding(
               padding:
                   EdgeInsets.only(left: 24, top: 48, right: 24, bottom: 24),
@@ -277,8 +299,8 @@ class SeedWidgetState extends State<SeedWidget> {
                     Text(
                       S.of(context).restore_new_seed,
                       style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                           color:
                               Theme.of(context).primaryTextTheme.title.color),
                     ),
@@ -291,6 +313,7 @@ class SeedWidgetState extends State<SeedWidget> {
                             : null,
                         style: TextStyle(
                             fontSize: 16.0,
+                            fontWeight: FontWeight.normal,
                             color:
                                 Theme.of(context).primaryTextTheme.title.color),
                         controller: _seedController,
@@ -306,10 +329,11 @@ class SeedWidgetState extends State<SeedWidget> {
                                     Text('${items.length}/$maxLength',
                                         style: TextStyle(
                                             color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .caption
-                                                .color,
-                                            fontSize: 14)),
+                                                .accentTextTheme
+                                                .display2
+                                                .decorationColor,
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: 16)),
                                     SizedBox(width: 10),
                                     InkWell(
                                       onTap: () async =>
@@ -322,17 +346,14 @@ class SeedWidgetState extends State<SeedWidget> {
                                           decoration: BoxDecoration(
                                               color: Theme.of(context)
                                                   .accentTextTheme
-                                                  .title
-                                                  .backgroundColor,
+                                                  .caption
+                                                  .color,
                                               borderRadius:
                                                   BorderRadius.circular(10.0)),
                                           child: Text(
                                             S.of(context).paste,
                                             style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .title
-                                                    .color),
+                                                color: Palette.blueCraiola),
                                           )),
                                     )
                                   ],
@@ -341,20 +362,21 @@ class SeedWidgetState extends State<SeedWidget> {
                             ),
                             hintStyle: TextStyle(
                                 color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .caption
-                                    .color,
+                                    .accentTextTheme
+                                    .display2
+                                    .decorationColor,
+                                fontWeight: FontWeight.normal,
                                 fontSize: 16),
                             hintText:
                                 S.of(context).restore_from_seed_placeholder,
                             errorText: _errorMessage,
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
+                                    color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
                                     width: 1.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
+                                    color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
                                     width: 1.0))),
                         enableInteractiveSelection: false,
                       ),
@@ -386,7 +408,7 @@ class SeedWidgetState extends State<SeedWidget> {
                             onPressed: () => widget.onFinish != null
                                 ? widget.onFinish()
                                 : null,
-                            color: Colors.green,
+                            color: Palette.blueCraiola,
                             textColor: Colors.white)
                         : PrimaryButton(
                             text: selectedItem != null
@@ -397,7 +419,7 @@ class SeedWidgetState extends State<SeedWidget> {
                                 : null,
                             onDisabledPressed: () => showErrorIfExist(),
                             isDisabled: !isCurrentMnemonicValid,
-                            color: Colors.green,
+                            color: Palette.blueCraiola,
                             textColor: Colors.white),
                   ),
                 )
