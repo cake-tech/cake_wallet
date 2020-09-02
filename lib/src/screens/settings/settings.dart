@@ -39,9 +39,11 @@ class SettingsPage extends BasePage {
           if (item is PickerListItem) {
             return Observer(builder: (_) {
               return SettingsPickerCell<dynamic>(
-                  title: item.title,
-                  selectedItem: item.selectedItem(),
-                  items: item.items);
+                title: item.title,
+                selectedItem: item.selectedItem(),
+                items: item.items,
+                onItemSelected: (dynamic value) => item.onItemSelected(value),
+              );
             });
           }
 

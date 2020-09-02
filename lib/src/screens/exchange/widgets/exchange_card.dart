@@ -5,7 +5,6 @@ import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';
-import 'package:cake_wallet/palette.dart';
 
 class ExchangeCard extends StatefulWidget {
   ExchangeCard(
@@ -22,6 +21,7 @@ class ExchangeCard extends StatefulWidget {
       this.imageArrow,
       this.currencyButtonColor = Colors.transparent,
       this.addressButtonsColor = Colors.transparent,
+      this.borderColor = Colors.transparent,
       this.currencyValueValidator,
       this.addressTextFieldValidator})
       : super(key: key);
@@ -38,6 +38,7 @@ class ExchangeCard extends StatefulWidget {
   final Image imageArrow;
   final Color currencyButtonColor;
   final Color addressButtonsColor;
+  final Color borderColor;
   final FormFieldValidator<String> currencyValueValidator;
   final FormFieldValidator<String> addressTextFieldValidator;
 
@@ -57,10 +58,6 @@ class ExchangeCardState extends State<ExchangeCard> {
   bool _isAmountEditable;
   bool _isAddressEditable;
   bool _isAmountEstimated;
-
-  final copyImage = Image.asset('assets/images/copy_content.png',
-      height: 16, width: 16,
-      color: Colors.white);
 
   @override
   void initState() {
@@ -115,6 +112,10 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   @override
   Widget build(BuildContext context) {
+    final copyImage = Image.asset('assets/images/copy_content.png',
+        height: 16, width: 16,
+        color: Theme.of(context).primaryTextTheme.display2.color);
+
     return Container(
       width: double.infinity,
       color: Colors.transparent,
@@ -129,7 +130,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: PaletteDark.lightBlueGrey
+                color: Theme.of(context).textTheme.headline.color
               ),
             )
           ],
@@ -145,11 +146,12 @@ class ExchangeCardState extends State<ExchangeCard> {
                   keyboardType: TextInputType.numberWithOptions(
                       signed: false, decimal: true),
                   inputFormatters: [
+                    LengthLimitingTextInputFormatter(15),
                     BlacklistingTextInputFormatter(
                         RegExp('[\\-|\\ |\\,]'))
                   ],
                   hintText: '0.0000',
-                  borderColor: PaletteDark.blueGrey,
+                  borderColor: widget.borderColor,
                   textStyle: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -158,7 +160,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   placeholderTextStyle: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: PaletteDark.lightBlueGrey
+                    color: Theme.of(context).textTheme.subhead.decorationColor
                   ),
                   validator: _isAmountEditable
                              ? widget.currencyValueValidator
@@ -206,7 +208,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                   style: TextStyle(
                       fontSize: 10,
                       height: 1.2,
-                      color: PaletteDark.lightBlueGrey),
+                      color: Theme.of(context).textTheme.subhead.decorationColor),
                 )
                 : Offstage(),
                 _min != null ? SizedBox(width: 10) : Offstage(),
@@ -217,39 +219,45 @@ class ExchangeCardState extends State<ExchangeCard> {
                     style: TextStyle(
                         fontSize: 10,
                         height: 1.2,
-                        color: PaletteDark.lightBlueGrey))
+                        color: Theme.of(context).textTheme.subhead.decorationColor))
                 : Offstage(),
               ]),
         ),
-        Padding(
+        _isAddressEditable
+        ? Offstage()
+        : Padding(
           padding: EdgeInsets.only(top: 20),
           child: Text(
-            _isAddressEditable
-            ? S.of(context).widgets_address
-            : S.of(context).refund_address,
+            S.of(context).refund_address,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: PaletteDark.lightBlueGrey
+              color: Theme.of(context).textTheme.subhead.decorationColor
             ),
           )
         ),
         _isAddressEditable
-        ? AddressTextField(
+        ? Padding(
+          padding: EdgeInsets.only(top: 20),
+          child: AddressTextField(
             controller: addressController,
             options: [
               AddressTextFieldOption.paste,
               AddressTextFieldOption.qrCode,
               AddressTextFieldOption.addressBook,
             ],
-            placeholder: '',
             isBorderExist: false,
             textStyle: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: Colors.white),
+            hintStyle: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).textTheme.subhead.decorationColor),
             buttonColor: widget.addressButtonsColor,
             validator: widget.addressTextFieldValidator,
+          ),
         )
         : Padding(
           padding: EdgeInsets.only(top: 10),

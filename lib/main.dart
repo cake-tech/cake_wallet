@@ -1,4 +1,5 @@
 import 'package:cake_wallet/reactions/bootstrap.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
@@ -51,6 +52,8 @@ import 'package:cake_wallet/src/domain/services/fiat_convertation_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
+
+bool isThemeChangerRegistered = false;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -129,7 +132,7 @@ void main() async {
       fiatConvertationService: fiatConvertationService,
       templates: templates,
       exchangeTemplates: exchangeTemplates,
-      initialMigrationVersion: 3);
+      initialMigrationVersion: 4);
 
   setReactions(
       settingsStore: settingsStore,
@@ -169,11 +172,11 @@ Future<void> initialSetup(
     @required Box<Node> nodes,
     @required Box<WalletInfo> walletInfoSource,
     @required Box<Contact> contactSource,
-    @required  Box<Trade> tradesSource,
+    @required Box<Trade> tradesSource,
     @required FiatConvertationService fiatConvertationService,
     @required Box<Template> templates,
     @required Box<ExchangeTemplate> exchangeTemplates,
-      int initialMigrationVersion = 3}) async {
+    int initialMigrationVersion = 4}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,
@@ -197,7 +200,8 @@ class CakeWalletApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsStore = Provider.of<SettingsStore>(context);
+    //final settingsStore = Provider.of<SettingsStore>(context);
+    final settingsStore = getIt.get<AppStore>().settingsStore;
 
     return ChangeNotifierProvider<ThemeChanger>(
         create: (_) => ThemeChanger(
@@ -228,12 +232,20 @@ class MaterialAppWithTheme extends StatelessWidget {
     final transactionDescriptions =
         Provider.of<Box<TransactionDescription>>(context);
 
-    final statusBarColor =
-        settingsStore.isDarkTheme ? Colors.black : Colors.white;
+    if (!isThemeChangerRegistered) {
+      setupThemeChangerStore(theme);
+      isThemeChangerRegistered = true;
+    }
+
+    /*final statusBarColor =
+        settingsStore.isDarkTheme ? Colors.black : Colors.white;*/
+    final _settingsStore = getIt.get<AppStore>().settingsStore;
+
+    final statusBarColor = Colors.transparent;
     final statusBarBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+        _settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
     final statusBarIconBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+        _settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
         statusBarColor: statusBarColor,

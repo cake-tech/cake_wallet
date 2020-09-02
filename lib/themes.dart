@@ -80,33 +80,84 @@ class Themes {
         color: Palette.darkGray, // transaction/trade details titles
         decorationColor: Colors.white.withOpacity(0.5), // placeholder
       ),
-
-
-
-
       subhead: TextStyle(
-          color: Colors.white.withOpacity(0.5) // send, exchange, buy buttons on dashboard page
+        color: Palette.blueCraiola, // first gradient color (send page)
+        decorationColor: Palette.pinkFlamingo // second gradient color (send page)
       ),
       headline: TextStyle(
-          color: Palette.lightBlueGrey // historyPanelText
+        color: Colors.white.withOpacity(0.5), // text field border color (send page)
+        decorationColor: Colors.white.withOpacity(0.5), // text field hint color (send page)
       ),
       display1: TextStyle(
-          color: Colors.white // menuList
+        color: Colors.white.withOpacity(0.2), // text field button color (send page)
+        decorationColor: Colors.white // text field button icon color (send page)
       ),
       display2: TextStyle(
-          color: Palette.lavender // menuHeader
+        color: Colors.white.withOpacity(0.5), // estimated fee (send page)
+        decorationColor: Palette.shadowWhite // template dotted border (send page)
       ),
       display3: TextStyle(
-          color: Palette.lavender // historyPanelButton
+        color: Palette.darkBlueCraiola, // template new text (send page)
+        decorationColor: Palette.shadowWhite // template background color (send page)
       ),
       display4: TextStyle(
-          color: Palette.oceanBlue // QR code
+        color: Palette.darkBlueCraiola, // template title (send page)
+        decorationColor: Palette.niagara // receive amount text (exchange page)
+      ),
+      subtitle: TextStyle(
+        color: Palette.blueCraiola, // first gradient color top panel (exchange page)
+        decorationColor: Palette.pinkFlamingo // second gradient color top panel (exchange page)
+      ),
+      body1: TextStyle(
+        color: Palette.blueCraiola.withOpacity(0.7), // first gradient color bottom panel (exchange page)
+        decorationColor: Palette.pinkFlamingo.withOpacity(0.7) // second gradient color bottom panel (exchange page)
+      ),
+      body2: TextStyle(
+        color: Colors.white.withOpacity(0.5), // text field border on top panel (exchange page)
+        decorationColor: Colors.white.withOpacity(0.5), // text field border on bottom panel (exchange page)
+      )
+    ),
+    focusColor: Colors.white.withOpacity(0.2), // text field button (exchange page)
+    accentTextTheme: TextTheme(
+      title: TextStyle(
+        color: Colors.white, // picker background
+        backgroundColor: Palette.periwinkleCraiola, // picker divider
+        decorationColor: Colors.white // dialog background
+      ),
+      caption: TextStyle(
+        color: Palette.moderateLavender, // container (confirm exchange)
+        backgroundColor: Palette.moderateLavender, // button background (confirm exchange)
+        decorationColor: Palette.darkBlueCraiola, // text color (information page)
+      ),
+      subtitle: TextStyle(
+        color: Palette.darkBlueCraiola, // QR code (exchange trade page)
+        backgroundColor: Palette.wildPeriwinkle, // divider (exchange trade page)
+        decorationColor: Palette.blueCraiola // crete new wallet button background (wallet list page)
+      ),
+      headline: TextStyle(
+        color: Palette.moderateLavender, // first gradient color of wallet action buttons (wallet list page)
+        backgroundColor: Palette.moderateLavender, // second gradient color of wallet action buttons (wallet list page)
+        decorationColor: Colors.white // restore wallet button text color (wallet list page)
+      ),
+      subhead: TextStyle(
+        color: Palette.darkGray, // titles color (filter widget)
+        backgroundColor: Palette.periwinkle, // divider color (filter widget)
+        decorationColor: Colors.white // checkbox background (filter widget)
+      ),
+      overline: TextStyle(
+        color: Palette.wildPeriwinkle, // checkbox bounds (filter widget)
+        decorationColor: Colors.white, // menu subname
+      ),
+      display1: TextStyle(
+        color: Palette.blueCraiola, // first gradient color (menu header)
+        decorationColor: Palette.pinkFlamingo // second gradient color(menu header)
+      ),
+      display2: TextStyle(
+        color: Palette.shadowWhite, // action button color (address text field)
       ),
     ),
 
 
-
-    focusColor: Colors.white, // wallet card border
 
     cardColor: Palette.blueAlice,
     cardTheme: CardTheme(
@@ -114,27 +165,7 @@ class Themes {
     ),
 
 
-    accentTextTheme: TextTheme(
-      title: TextStyle(
-        color: Palette.darkLavender, // top panel
-        backgroundColor: Palette.lavender, // bottom panel
-        decorationColor: PaletteDark.distantBlue // select button background color
-      ),
-      caption: TextStyle(
-        color: Palette.blue, // current wallet label
-        backgroundColor: Colors.white, // gradient start, wallet label
-        decorationColor: Palette.lavender, // gradient end, wallet label
-      ),
-      subtitle: TextStyle(
-        color: Palette.lightBlueGrey, // border color,  wallet label
-        backgroundColor: Palette.lavender, // address field, wallet card
-        decorationColor: Palette.darkLavender // selected item
-      ),
-      headline: TextStyle(
-        color: Palette.darkLavender, // faq background
-        backgroundColor: Palette.lavender // faq extension
-      )
-    ),
+
   );
 
 
@@ -182,7 +213,7 @@ class Themes {
         decorationColor: PaletteDark.nightBlue // background of tiles (receive page)
       ),
       display3: TextStyle(
-        color: Colors.blue, // text color of current tile (receive page)
+        color: Palette.blueCraiola, // text color of current tile (receive page)
         decorationColor: PaletteDark.lightOceanBlue // background of current tile (receive page)
       ),
       display4: TextStyle(
@@ -215,32 +246,85 @@ class Themes {
         color: PaletteDark.lightBlueGrey, // transaction/trade details titles
         decorationColor: Colors.grey, // placeholder
       ),
-
-
-
       subhead: TextStyle(
-          color: PaletteDark.lightDistantBlue // send, exchange, buy buttons on dashboard page
+        color: PaletteDark.darkNightBlue, // first gradient color (send page)
+        decorationColor: PaletteDark.darkNightBlue // second gradient color (send page)
       ),
       headline: TextStyle(
-          color: PaletteDark.pigeonBlue // historyPanelText
+        color: PaletteDark.lightVioletBlue, // text field border color (send page)
+        decorationColor: PaletteDark.darkCyanBlue, // text field hint color (send page)
       ),
       display1: TextStyle(
-          color: PaletteDark.lightNightBlue // menuList
+        color: PaletteDark.buttonNightBlue, // text field button color (send page)
+        decorationColor: PaletteDark.gray // text field button icon color (send page)
       ),
       display2: TextStyle(
-          color: PaletteDark.headerNightBlue // menuHeader
+        color: Colors.white, // estimated fee (send page)
+        decorationColor: PaletteDark.darkCyanBlue // template dotted border (send page)
       ),
       display3: TextStyle(
-          color: PaletteDark.moderateNightBlue // historyPanelButton
+        color: PaletteDark.darkCyanBlue, // template new text (send page)
+        decorationColor: PaletteDark.darkVioletBlue // template background color (send page)
       ),
       display4: TextStyle(
-          color: PaletteDark.gray // QR code
+        color: PaletteDark.cyanBlue, // template title (send page)
+        decorationColor: PaletteDark.darkCyanBlue // receive amount text (exchange page)
+      ),
+      subtitle: TextStyle(
+        color: PaletteDark.wildVioletBlue, // first gradient color top panel (exchange page)
+        decorationColor: PaletteDark.wildVioletBlue // second gradient color top panel (exchange page)
+      ),
+      body1: TextStyle(
+        color: PaletteDark.darkNightBlue, // first gradient color bottom panel (exchange page)
+        decorationColor: PaletteDark.darkNightBlue // second gradient color bottom panel (exchange page)
+      ),
+      body2: TextStyle(
+        color: PaletteDark.blueGrey, // text field border on top panel (exchange page)
+        decorationColor: PaletteDark.moderateVioletBlue, // text field border on bottom panel (exchange page)
+      )
+    ),
+    focusColor: PaletteDark.moderateBlue, // text field button (exchange page)
+    accentTextTheme: TextTheme(
+      title: TextStyle(
+        color: PaletteDark.nightBlue, // picker background
+        backgroundColor: PaletteDark.dividerColor, // picker divider
+        decorationColor: PaletteDark.darkNightBlue // dialog background
+      ),
+      caption: TextStyle(
+        color: PaletteDark.nightBlue, // container (confirm exchange)
+        backgroundColor: PaletteDark.deepVioletBlue, // button background (confirm exchange)
+        decorationColor: Palette.darkLavender, // text color (information page)
+      ),
+      subtitle: TextStyle(
+        color: PaletteDark.lightBlueGrey, // QR code (exchange trade page)
+        backgroundColor: PaletteDark.deepVioletBlue, // divider (exchange trade page)
+        decorationColor: Colors.white // crete new wallet button background (wallet list page)
+      ),
+      headline: TextStyle(
+        color: PaletteDark.distantBlue, // first gradient color of wallet action buttons (wallet list page)
+        backgroundColor: PaletteDark.distantNightBlue, // second gradient color of wallet action buttons (wallet list page)
+        decorationColor: Palette.darkBlueCraiola // restore wallet button text color (wallet list page)
+      ),
+      subhead: TextStyle(
+        color: Colors.white, // titles color (filter widget)
+        backgroundColor: PaletteDark.darkOceanBlue, // divider color (filter widget)
+        decorationColor: PaletteDark.wildVioletBlue.withOpacity(0.3) // checkbox background (filter widget)
+      ),
+      overline: TextStyle(
+        color: PaletteDark.wildVioletBlue, // checkbox bounds (filter widget)
+        decorationColor: PaletteDark.darkCyanBlue, // menu subname
+      ),
+      display1: TextStyle(
+        color: PaletteDark.deepPurpleBlue, // first gradient color (menu header)
+        decorationColor: PaletteDark.deepPurpleBlue // second gradient color(menu header)
+      ),
+      display2: TextStyle(
+        color: PaletteDark.nightBlue, // action button color (address text field)
       ),
     ),
 
 
 
-    focusColor: PaletteDark.lightDistantBlue, // wallet card border
     cardColor: PaletteDark.darkNightBlue,
     cardTheme: CardTheme(
       color: PaletteDark.moderateBlue, // synced card start
@@ -248,27 +332,7 @@ class Themes {
 
 
 
-    accentTextTheme: TextTheme(
-      title: TextStyle(
-        color: PaletteDark.moderateBlue, // top panel
-        backgroundColor: PaletteDark.lightNightBlue, // bottom panel
-        decorationColor: Colors.white // select button background color
-      ),
-      caption: TextStyle(
-        color: Colors.white, // current wallet label
-        backgroundColor: PaletteDark.distantBlue, // gradient start, wallet label
-        decorationColor: PaletteDark.nightBlue, // gradient end, wallet label
-      ),
-      subtitle: TextStyle(
-        color: PaletteDark.darkNightBlue, // border color,  wallet label
-        backgroundColor: PaletteDark.violetBlue, // address field, wallet card
-        decorationColor: PaletteDark.headerNightBlue // selected item
-      ),
-      headline: TextStyle(
-        color: PaletteDark.lightNightBlue, // faq background
-        backgroundColor: PaletteDark.headerNightBlue // faq extension
-      )
-    ),
+
   );
 
 }

@@ -47,8 +47,7 @@ class TemplateTileState extends State<TemplateTile> {
 
   @override
   Widget build(BuildContext context) {
-    //final color = isRemovable ? Colors.white : Theme.of(context).primaryTextTheme.title.color;
-    final color = Colors.white;
+    final color = isRemovable ? Colors.white : Theme.of(context).primaryTextTheme.title.color;
     final toIcon = Image.asset('assets/images/to_icon.png', color: color);
 
     final content = Row(
@@ -106,7 +105,7 @@ class TemplateTileState extends State<TemplateTile> {
             child: Container(
               height: 40,
               padding: EdgeInsets.only(left: 24, right: 24),
-              color: PaletteDark.darkVioletBlue,
+              color: Theme.of(context).primaryTextTheme.display3.decorationColor,
               child: content,
             ),
           ),

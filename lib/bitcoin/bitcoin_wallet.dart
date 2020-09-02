@@ -1,10 +1,21 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:convert';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_no_inputs_exception.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_wrong_balance_exception.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_unspent.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_keys.dart';
+import 'package:cake_wallet/bitcoin/pending_bitcoin_transaction.dart';
+import 'package:cake_wallet/bitcoin/script_hash.dart';
+import 'package:cake_wallet/bitcoin/utils.dart';
 import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
+import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
+import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
+import 'package:cw_monero/transaction_history.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:bip39/bip39.dart' as bip39;
@@ -20,12 +31,41 @@ import 'package:cake_wallet/bitcoin/bitcoin_balance.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:hex/hex.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'bitcoin_wallet.g.dart';
 
 class BitcoinWallet = BitcoinWalletBase with _$BitcoinWallet;
 
 abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
+  BitcoinWalletBase._internal(
+      {@required this.eclient,
+      @required this.path,
+      @required String password,
+      @required this.name,
+      List<BitcoinAddressRecord> initialAddresses,
+      int accountIndex = 0,
+      this.transactionHistory,
+      this.mnemonic,
+      BitcoinBalance initialBalance})
+      : balance =
+            initialBalance ?? BitcoinBalance(confirmed: 0, unconfirmed: 0),
+        hd = bitcoin.HDWallet.fromSeed(bip39.mnemonicToSeed(mnemonic),
+            network: bitcoin.bitcoin),
+        addresses = initialAddresses != null
+            ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
+            : ObservableList<BitcoinAddressRecord>(),
+        syncStatus = NotConnectedSyncStatus(),
+        _password = password,
+        _accountIndex = accountIndex,
+        _addressesKeys = {} {
+    type = WalletType.bitcoin;
+    currency = CryptoCurrency.btc;
+    _scripthashesUpdateSubject = {};
+  }
+
   static BitcoinWallet fromJSON(
       {@required String password,
       @required String name,
@@ -37,12 +77,12 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         (data['account_index'] == 'null' || data['account_index'] == null)
             ? 0
             : int.parse(data['account_index'] as String);
-    final _addresses = data['addresses'] as List;
+    final _addresses = data['addresses'] as List ?? <Object>[];
     final addresses = <BitcoinAddressRecord>[];
     final balance = BitcoinBalance.fromJSON(data['balance'] as String) ??
         BitcoinBalance(confirmed: 0, unconfirmed: 0);
 
-    _addresses?.forEach((Object el) {
+    _addresses.forEach((Object el) {
       if (el is String) {
         addresses.add(BitcoinAddressRecord.fromJSON(el));
       }
@@ -83,34 +123,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         transactionHistory: history);
   }
 
-  BitcoinWalletBase._internal(
-      {@required this.eclient,
-      @required this.path,
-      @required String password,
-      @required this.name,
-      List<BitcoinAddressRecord> initialAddresses,
-      int accountIndex = 0,
-      this.transactionHistory,
-      this.mnemonic,
-      BitcoinBalance initialBalance}) {
-    type = WalletType.bitcoin;
-    currency = CryptoCurrency.btc;
-    balance = initialBalance ?? BitcoinBalance(confirmed: 0, unconfirmed: 0);
-    hd = bitcoin.HDWallet.fromSeed(bip39.mnemonicToSeed(mnemonic),
-        network: bitcoin.bitcoin);
-    addresses = initialAddresses != null
-        ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
-        : ObservableList<BitcoinAddressRecord>();
-    syncStatus = NotConnectedSyncStatus();
-
-    _password = password;
-    _accountIndex = accountIndex;
-  }
-
   @override
   final BitcoinTransactionHistory transactionHistory;
   final String path;
-  bitcoin.HDWallet hd;
+  final bitcoin.HDWallet hd;
   final ElectrumClient eclient;
   final String mnemonic;
 
@@ -131,6 +147,11 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   ObservableList<BitcoinAddressRecord> addresses;
 
+  Map<String, bitcoin.ECPair> _addressesKeys;
+
+  List<String> get scriptHashes =>
+      addresses.map((addr) => scriptHash(addr.address)).toList();
+
   String get xpub => hd.base58;
 
   @override
@@ -142,11 +163,13 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   int _accountIndex;
   String _password;
-  BehaviorSubject<Object> _addressUpdateSubject;
+  Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
 
   Future<void> init() async {
     if (addresses.isEmpty) {
-      addresses.add(BitcoinAddressRecord(_getAddress(hd: hd, index: 0)));
+      final index = 0;
+      addresses
+          .add(BitcoinAddressRecord(_getAddress(index: index), index: index));
     }
 
     address = addresses.first.address;
@@ -156,9 +179,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   Future<BitcoinAddressRecord> generateNewAddress({String label}) async {
     _accountIndex += 1;
-    final address = BitcoinAddressRecord(
-        _getAddress(hd: hd, index: _accountIndex),
-        label: label);
+    final address = BitcoinAddressRecord(_getAddress(index: _accountIndex),
+        index: _accountIndex, label: label);
     addresses.add(address);
 
     await save();
@@ -181,9 +203,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> startSync() async {
     try {
       syncStatus = StartingSyncStatus();
-      await _addressUpdateSubject?.close();
-      _addressUpdateSubject = eclient.addressUpdate(address: address);
-      await transactionHistory.update();
+      transactionHistory.updateAsync(
+          onFinished: () => print('transactionHistory update finished!'));
+      _subscribeForUpdates();
       await _updateBalance();
       syncStatus = SyncedSyncStatus();
     } catch (e) {
@@ -197,38 +219,102 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> connectToNode({@required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();
-      await eclient.connect(host: 'electrum2.hodlister.co', port: 50002);
+      await eclient.connectToUri(node.uri);
+      eclient.onConnectionStatusChange = (bool isConnected) {
+        if (!isConnected) {
+          syncStatus = LostConnectionSyncStatus();
+        }
+      };
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
-      print(e.toString);
+      print(e.toString());
       syncStatus = FailedSyncStatus();
     }
   }
 
   @override
-  Future<void> createTransaction(Object credentials) async {
+  Future<PendingBitcoinTransaction> createTransaction(
+      Object credentials) async {
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
-
+    final inputs = <BitcoinUnspent>[];
+    final fee = _feeMultiplier(transactionCredentials.priority);
+    final amount = transactionCredentials.amount != null
+        ? doubleToBitcoinAmount(transactionCredentials.amount)
+        : balance.total - fee;
+    final totalAmount = amount + fee;
     final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
-    final keyPair = bitcoin.ECPair.fromWIF(hd.wif);
-    final transactions = transactionHistory.transactions;
-    transactions.sort((q, w) => q.height.compareTo(w.height));
-    final prevTx = transactions.first;
+    var leftAmount = totalAmount;
+    final changeAddress = address;
+    var totalInputAmount = 0;
+
+    final unspent = addresses.map((address) => eclient
+        .getListUnspentWithAddress(address.address)
+        .then((unspent) => unspent
+            .map((unspent) => BitcoinUnspent.fromJSON(address, unspent))));
+
+    for (final unptsFutures in unspent) {
+      final utxs = await unptsFutures;
+
+      for (final utx in utxs) {
+        final inAmount = utx.value > totalAmount ? totalAmount : utx.value;
+        leftAmount = leftAmount - inAmount;
+        totalInputAmount += inAmount;
+        inputs.add(utx);
+
+        if (leftAmount <= 0) {
+          break;
+        }
+      }
+
+      if (leftAmount <= 0) {
+        break;
+      }
+    }
+
+    if (inputs.isEmpty) {
+      throw BitcoinTransactionNoInputsException();
+    }
+
+    if (amount <= 0 || totalInputAmount < amount) {
+      throw BitcoinTransactionWrongBalanceException();
+    }
+
+    final changeValue = totalInputAmount - amount - fee;
 
     txb.setVersion(1);
-    txb.addInput(prevTx, 0);
-    txb.addOutput(transactionCredentials.address,
-        doubleToBitcoinAmount(transactionCredentials.amount));
-    txb.sign(vin: 0, keyPair: keyPair);
-    final encoded = txb.build().toHex();
 
-    print('Enoded transaction $encoded');
-    await eclient.broadcastTransaction(transactionRaw: encoded);
+    inputs.forEach((input) {
+      if (input.isP2wpkh) {
+        final p2wpkh = bitcoin
+            .P2WPKH(
+                data: generatePaymentData(hd: hd, index: input.address.index),
+                network: bitcoin.bitcoin)
+            .data;
+
+        txb.addInput(input.hash, input.vout, null, p2wpkh.output);
+      } else {
+        txb.addInput(input.hash, input.vout);
+      }
+    });
+
+    txb.addOutput(transactionCredentials.address, amount);
+
+    if (changeValue > 0) {
+      txb.addOutput(changeAddress, changeValue);
+    }
+
+    for (var i = 0; i < inputs.length; i++) {
+      final input = inputs[i];
+      final keyPair = generateKeyPair(hd: hd, index: input.address.index);
+      final witnessValue = input.isP2wpkh ? input.value : null;
+
+      txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
+    }
+
+    return PendingBitcoinTransaction(txb.build(),
+        eclient: eclient, amount: amount, fee: fee)
+      ..addListener((transaction) => transactionHistory.addOne(transaction));
   }
-
-  @override
-  Future<void> save() async =>
-      await write(path: path, password: _password, data: toJSON());
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
@@ -237,16 +323,31 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         'balance': balance?.toJSON()
       });
 
-  String _getAddress({bitcoin.HDWallet hd, int index}) => bitcoin
-      .P2WPKH(
-          data: PaymentData(
-              pubkey: Uint8List.fromList(hd.derive(index).pubKey.codeUnits)))
-      .data
-      .address;
+  @override
+  double calculateEstimatedFee(TransactionPriority priority) =>
+      bitcoinAmountToDouble(amount: _feeMultiplier(priority));
+
+  @override
+  Future<void> save() async =>
+      await write(path: path, password: _password, data: toJSON());
+
+  bitcoin.ECPair keyPairFor({@required int index}) =>
+      generateKeyPair(hd: hd, index: index);
+
+  void _subscribeForUpdates() {
+    scriptHashes.forEach((sh) async {
+      await _scripthashesUpdateSubject[sh]?.close();
+      _scripthashesUpdateSubject[sh] = eclient.scripthashUpdate(sh);
+      _scripthashesUpdateSubject[sh].listen((event) async {
+        transactionHistory.updateAsync();
+        await _updateBalance();
+      });
+    });
+  }
 
   Future<BitcoinBalance> _fetchBalances() async {
     final balances = await Future.wait(
-        addresses.map((record) => eclient.getBalance(address: record.address)));
+        scriptHashes.map((sHash) => eclient.getBalance(sHash)));
     final balance = balances.fold(
         BitcoinBalance(confirmed: 0, unconfirmed: 0),
         (BitcoinBalance acc, val) => BitcoinBalance(
@@ -260,5 +361,21 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> _updateBalance() async {
     balance = await _fetchBalances();
     await save();
+  }
+
+  String _getAddress({@required int index}) =>
+      generateAddress(hd: hd, index: index);
+
+  int _feeMultiplier(TransactionPriority priority) {
+    switch (priority) {
+      case TransactionPriority.slow:
+        return 6000;
+      case TransactionPriority.regular:
+        return 9000;
+      case TransactionPriority.fast:
+        return 15000;
+      default:
+        return 0;
+    }
   }
 }

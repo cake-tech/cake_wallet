@@ -6,6 +6,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/stores/wallet_list/wallet_list_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/palette.dart';
 
 class WalletMenu {
   WalletMenu(this.context, this.walletListViewModel);
@@ -20,18 +21,25 @@ class WalletMenu {
     S.current.rescan
   ];
 
-  final List<Color> listColors = [
-    Colors.blue,
-    Colors.orange,
-    Colors.red,
-    Colors.green
+  final List<Color> firstColors = [
+    Palette.cornflower,
+    Palette.moderateOrangeYellow,
+    Palette.lightRed,
+    Palette.shineGreen
+  ];
+
+  final List<Color> secondColors = [
+    Palette.royalBlue,
+    Palette.moderateOrange,
+    Palette.persianRed,
+    Palette.moderateGreen
   ];
 
   final List<Image> listImages = [
-    Image.asset('assets/images/load.png', height: 32, width: 32, color: Colors.white),
-    Image.asset('assets/images/eye_action.png', height: 32, width: 32, color: Colors.white),
-    Image.asset('assets/images/trash.png', height: 32, width: 32, color: Colors.white),
-    Image.asset('assets/images/scanner.png', height: 32, width: 32, color: Colors.white)
+    Image.asset('assets/images/load.png', height: 24, width: 24, color: Colors.white),
+    Image.asset('assets/images/eye_action.png', height: 24, width: 24, color: Colors.white),
+    Image.asset('assets/images/trash.png', height: 24, width: 24, color: Colors.white),
+    Image.asset('assets/images/scanner.png', height: 24, width: 24, color: Colors.white)
   ];
 
   List<String> generateItemsForWalletMenu(bool isCurrentWallet) {
@@ -46,18 +54,30 @@ class WalletMenu {
   }
 
   List<Color> generateColorsForWalletMenu(bool isCurrentWallet) {
-    final colors = List<Color>();
+    final colors = <Color>[];
 
-    if (!isCurrentWallet) colors.add(listColors[0]);
-    if (isCurrentWallet) colors.add(listColors[1]);
-    if (!isCurrentWallet) colors.add(listColors[2]);
-    if (isCurrentWallet) colors.add(listColors[3]);
+    if (!isCurrentWallet) {
+      colors.add(firstColors[0]);
+      colors.add(secondColors[0]);
+    }
+    if (isCurrentWallet) {
+      colors.add(firstColors[1]);
+      colors.add(secondColors[1]);
+    }
+    if (!isCurrentWallet) {
+      colors.add(firstColors[2]);
+      colors.add(secondColors[2]);
+    }
+    if (isCurrentWallet) {
+      colors.add(firstColors[3]);
+      colors.add(secondColors[3]);
+    }
 
     return colors;
   }
 
   List<Image> generateImagesForWalletMenu(bool isCurrentWallet) {
-    final images = List<Image>();
+    final images = <Image>[];
 
     if (!isCurrentWallet) images.add(listImages[0]);
     if (isCurrentWallet) images.add(listImages[1]);
@@ -109,7 +129,7 @@ class WalletMenu {
           try {
             auth.changeProcessText(
                 S.of(context).wallet_list_removing_wallet(wallet.name));
-//            await _walletListStore.remove(wallet);
+            await walletListViewModel.remove(wallet);
             auth.close();
           } catch (e) {
             auth.changeProcessText(S

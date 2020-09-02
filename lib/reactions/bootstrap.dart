@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:mobx/mobx.dart';
@@ -49,8 +51,10 @@ ReactionDisposer _initialAuthReaction;
 ReactionDisposer _onCurrentWalletChangeReaction;
 ReactionDisposer _onWalletSyncStatusChangeReaction;
 ReactionDisposer _onCurrentFiatCurrencyChangeDisposer;
+Timer _reconnectionTimer;
 
-Future<void> bootstrap({FiatConvertationService fiatConvertationService}) async {
+Future<void> bootstrap(
+    {FiatConvertationService fiatConvertationService}) async {
   final authenticationStore = getIt.get<AuthenticationStore>();
   final settingsStore = getIt.get<SettingsStore>();
   final fiatConvertationStore = getIt.get<FiatConvertationStore>();
@@ -72,12 +76,21 @@ Future<void> bootstrap({FiatConvertationService fiatConvertationService}) async 
 
   _onCurrentWalletChangeReaction ??=
       reaction((_) => getIt.get<AppStore>().wallet, (WalletBase wallet) async {
-    print('Wallet name ${wallet.name}');
-
     _onWalletSyncStatusChangeReaction?.reaction?.dispose();
-    _onWalletSyncStatusChangeReaction = when(
+    _reconnectionTimer?.cancel();
+    _onWalletSyncStatusChangeReaction = reaction(
         (_) => wallet.syncStatus is ConnectedSyncStatus,
-        () async => await wallet.startSync());
+        (Object _) async => await wallet.startSync());
+
+    _reconnectionTimer = Timer.periodic(Duration(seconds: 5), (_) async {
+      if (wallet.syncStatus is LostConnectionSyncStatus ||
+          wallet.syncStatus is FailedSyncStatus) {
+        try {
+          await wallet.connectToNode(
+              node: settingsStore.getCurrentNode(wallet.type));
+        } catch (_) {}
+      }
+    });
 
     await getIt
         .get<SharedPreferences>()
@@ -87,30 +100,24 @@ Future<void> bootstrap({FiatConvertationService fiatConvertationService}) async 
         .get<SharedPreferences>()
         .setInt('current_wallet_type', serializeToInt(wallet.type));
 
-    await wallet.connectToNode(node: null);
-
+    final node = settingsStore.getCurrentNode(wallet.type);
     final cryptoCurrency = wallet.currency;
     final fiatCurrency = settingsStore.fiatCurrency;
 
+    await wallet.connectToNode(node: node);
+
     final price = await fiatConvertationService.getPrice(
-      crypto: cryptoCurrency,
-      fiat: fiatCurrency
-    );
+        crypto: cryptoCurrency, fiat: fiatCurrency);
 
     fiatConvertationStore.setPrice(price);
   });
 
-  //
-
-  _onCurrentFiatCurrencyChangeDisposer ??=
-  reaction((_) => settingsStore.fiatCurrency,
-          (FiatCurrency fiatCurrency) async {
+  _onCurrentFiatCurrencyChangeDisposer ??= reaction(
+      (_) => settingsStore.fiatCurrency, (FiatCurrency fiatCurrency) async {
     final cryptoCurrency = getIt.get<AppStore>().wallet.currency;
 
     final price = await fiatConvertationService.getPrice(
-      crypto: cryptoCurrency,
-      fiat: fiatCurrency
-    );
+        crypto: cryptoCurrency, fiat: fiatCurrency);
 
     fiatConvertationStore.setPrice(price);
   });

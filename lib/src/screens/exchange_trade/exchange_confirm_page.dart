@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -6,10 +7,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/palette.dart';
 
 class ExchangeConfirmPage extends BasePage {
-  ExchangeConfirmPage({@required this.trade});
+  ExchangeConfirmPage({@required this.tradesStore}) : trade = tradesStore.trade;
 
+  final TradesStore tradesStore;
   final Trade trade;
 
   @override
@@ -17,93 +20,102 @@ class ExchangeConfirmPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final copyImage = Image.asset('assets/images/copy_content.png',
-        color: Theme.of(context).primaryTextTheme.title.color);
-
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: EdgeInsets.fromLTRB(24, 0, 24, 24),
       child: Column(
         children: <Widget>[
           Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      S.of(context).exchange_result_write_down_trade_id,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).primaryTextTheme.title.color),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 60),
+              child: Column(
+                children: <Widget>[
+                  Flexible(
+                    child: Center(
                       child: Text(
-                        S.of(context).trade_id,
+                        S.of(context).exchange_result_write_down_trade_id,
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                            fontSize: 16.0,
-                            fontWeight: FontWeight.w600,
-                            color: Theme.of(context).primaryTextTheme.title.color),
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).primaryTextTheme.title.color),
                       ),
+                    )
+                  ),
+                  Container(
+                    height: 178,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      border: Border.all(
+                        width: 1,
+                        color: Theme.of(context).accentTextTheme.caption.color
+                      ),
+                      color: Theme.of(context).accentTextTheme.title.color
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
-                      child: Builder(
-                        builder: (context) => GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(ClipboardData(text: trade.id));
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                S.of(context).copied_to_clipboard,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: Colors.green,
-                              duration: Duration(milliseconds: 1500),
-                            ));
-                          },
-                          child: Container(
-                            height: 60,
-                            padding: EdgeInsets.only(left: 24, right: 24),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.all(Radius.circular(30)),
-                                color: Theme.of(context).accentTextTheme.title.backgroundColor
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.max,
+                    child: Column(
+                      children: <Widget>[
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: <Widget>[
-                                Expanded(
-                                  child: Text(
-                                    trade.id,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
-                                        color: Theme.of(context).primaryTextTheme.title.color
-                                    ),
+                                Text(
+                                  S.of(context).trade_id,
+                                  style: TextStyle(
+                                    fontSize: 12.0,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).primaryTextTheme.overline.color
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 12),
-                                  child: copyImage,
-                                )
+                                Text(
+                                  trade.id,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).primaryTextTheme.title.color
+                                  ),
+                                ),
                               ],
+                            ),
+                          )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                          child: Builder(
+                            builder: (context) => PrimaryButton(
+                                onPressed: () {
+                                  Clipboard.setData(ClipboardData(text: trade.id));
+                                  Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                      S.of(context).copied_to_clipboard,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(milliseconds: 1500),
+                                  ));
+                                },
+                                text: S.of(context).copy_id,
+                                color: Theme.of(context).accentTextTheme.caption.backgroundColor,
+                                textColor: Theme.of(context).primaryTextTheme.title.color
                             ),
                           ),
                         )
-                      ),
-                    )
-                  ],
-                ),
-              )),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: Offstage()
+                  ),
+                ],
+              )
+          ),
           PrimaryButton(
               onPressed: () => Navigator.of(context)
-                  .pushReplacementNamed(Routes.exchangeTrade, arguments: trade),
+                  .pushReplacementNamed(Routes.exchangeTrade),
               text: S.of(context).saved_the_trade_id,
-              color: Colors.green,
+              color: Palette.blueCraiola,
               textColor: Colors.white)
         ],
       ),

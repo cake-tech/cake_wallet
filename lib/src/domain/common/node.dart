@@ -9,12 +9,16 @@ part 'node.g.dart';
 
 @HiveType(typeId: 1)
 class Node extends HiveObject {
-  Node({@required this.uri, @required WalletType type, this.login, this.password}) {
+  Node(
+      {@required this.uri,
+      @required WalletType type,
+      this.login,
+      this.password}) {
     this.type = type;
   }
 
   Node.fromMap(Map map)
-      : uri = (map['uri'] ?? '') as String,
+      : uri = map['uri'] as String ?? '',
         login = map['login'] as String,
         password = map['password'] as String,
         typeRaw = map['typeRaw'] as int;

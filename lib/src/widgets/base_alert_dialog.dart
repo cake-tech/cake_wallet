@@ -17,6 +17,7 @@ class BaseAlertDialog extends StatelessWidget {
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 20,
+        fontFamily: 'Poppins',
         fontWeight: FontWeight.w600,
         color: Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,
@@ -30,7 +31,7 @@ class BaseAlertDialog extends StatelessWidget {
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 16,
-        fontWeight: FontWeight.w600,
+        fontFamily: 'Poppins',
         color: Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,
       ),
@@ -38,55 +39,39 @@ class BaseAlertDialog extends StatelessWidget {
   }
 
   Widget actionButtons(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 52,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24)
-        ),
-        color: Colors.white
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Flexible(
+    return Row(
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        Flexible(
             child: Container(
-              padding: EdgeInsets.only(left: 12, right: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24)),
-              ),
+              height: 52,
+              padding: EdgeInsets.only(left: 6, right: 6),
+              color: Palette.blueCraiola,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
-                  onPressed: actionLeft,
-                  highlightColor: Colors.transparent,
-                  splashColor: Colors.transparent,
-                  child: Text(
-                    leftActionButtonText,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.blue,
-                      decoration: TextDecoration.none,
-                    ),
-                  )),
+                    onPressed: actionLeft,
+                    highlightColor: Colors.transparent,
+                    splashColor: Colors.transparent,
+                    child: Text(
+                      leftActionButtonText,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                        decoration: TextDecoration.none,
+                      ),
+                    )),
               ),
             )
-          ),
-          Container(
-            height: 52,
-            width: 1,
-            color: Colors.grey.withOpacity(0.2),
-          ),
-          Flexible(
+        ),
+        Flexible(
             child: Container(
-              padding: EdgeInsets.only(left: 12, right: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(bottomRight: Radius.circular(24)),
-              ),
+              height: 52,
+              padding: EdgeInsets.only(left: 6, right: 6),
+              color: Palette.alizarinRed,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -98,16 +83,16 @@ class BaseAlertDialog extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
+                        fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
-                        color: Colors.red,
+                        color: Colors.white,
                         decoration: TextDecoration.none,
                       ),
                     )),
               ),
             )
-          )
-        ],
-      ),
+        )
+      ],
     );
   }
 
@@ -126,44 +111,30 @@ class BaseAlertDialog extends StatelessWidget {
             child: Center(
               child: GestureDetector(
                 onTap: () => null,
-                child: Container(
-                  width: 300,
-                  height: 257,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(24)),
-                    color: Theme.of(context).accentTextTheme.title.backgroundColor
-                  ),
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        width: 300,
-                        height: 77,
-                        padding: EdgeInsets.only(left: 24, right: 24),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(24)
+                child: ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  child: Container(
+                    width: 300,
+                    color: Theme.of(context).accentTextTheme.title.decorationColor,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.fromLTRB(24, 32, 24, 32),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              title(context),
+                              Padding(
+                                padding: EdgeInsets.only(top: 8),
+                                child: content(context),
+                              )
+                            ],
                           ),
                         ),
-                        child: Center(
-                          child: title(context),
-                        ),
-                      ),
-                      Container(
-                        width: 300,
-                        height: 1,
-                        color: Theme.of(context).dividerColor,
-                      ),
-                      Container(
-                        width: 300,
-                        height: 127,
-                        padding: EdgeInsets.all(24),
-                        child: Center(
-                          child: content(context),
-                        ),
-                      ),
-                      actionButtons(context)
-                    ],
+                        actionButtons(context)
+                      ],
+                    ),
                   ),
                 ),
               ),

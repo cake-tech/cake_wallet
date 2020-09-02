@@ -27,7 +27,9 @@ class MoneroAccountListPage extends StatelessWidget {
   }
 
   final MoneroAccountListViewModel accountListViewModel;
-  final closeIcon = Image.asset('assets/images/close.png');
+  final closeIcon = Image.asset('assets/images/close.png',
+    color: Palette.darkBlueCraiola,
+  );
 
   ScrollController controller;
   double backgroundHeight;

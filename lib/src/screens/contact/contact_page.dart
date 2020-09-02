@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -30,7 +31,7 @@ class ContactPage extends BasePage {
         .addListener(() => contactViewModel.address = _addressController.text);
 
     autorun((_) =>
-        _currencyTypeController.text = contactViewModel.currency.toString());
+        _currencyTypeController.text = contactViewModel.currency?.toString()??'');
   }
 
   @override
@@ -45,7 +46,7 @@ class ContactPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final downArrow = Image.asset('assets/images/arrow_bottom_purple_icon.png',
-        color: Theme.of(context).dividerColor, height: 8);
+        color: Theme.of(context).primaryTextTheme.overline.color, height: 8);
 
     reaction((_) => contactViewModel.state, (ContactViewModelState state) {
       if (state is ContactCreationFailure) {
@@ -57,79 +58,83 @@ class ContactPage extends BasePage {
       }
     });
 
-    return Container(
-      color: Theme.of(context).backgroundColor,
-      child: ScrollableWithBottomSection(
-          contentPadding: EdgeInsets.all(24),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                BaseTextFormField(
-                    controller: _nameController,
-                    hintText: S.of(context).contact_name,
-                    validator: ContactNameValidator()),
-                Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Container(
-                    child: InkWell(
-                      onTap: () => _presentCurrencyPicker(context),
-                      child: IgnorePointer(
-                          child: BaseTextFormField(
-                        controller: _currencyTypeController,
-                        hintText: S.of(context).settings_currency,
-                        suffixIcon: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[downArrow],
-                        ),
-                      )),
-                    ),
+    return ScrollableWithBottomSection(
+        contentPadding: EdgeInsets.all(24),
+        content: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              BaseTextFormField(
+                controller: _nameController,
+                hintText: S.of(context).contact_name,
+                validator: ContactNameValidator()),
+              Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Container(
+                  child: InkWell(
+                    onTap: () => _presentCurrencyPicker(context),
+                    child: IgnorePointer(
+                        child: BaseTextFormField(
+                          controller: _currencyTypeController,
+                          hintText: S.of(context).settings_currency,
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: <Widget>[downArrow],
+                          ),
+                        )),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 20),
-                  child: Observer(
-                      builder: (_) => AddressTextField(
-                            controller: _addressController,
-                            options: [AddressTextFieldOption.qrCode],
-                            validator: AddressValidator(
-                                type: contactViewModel.currency),
-                          )),
-                )
-              ],
-            ),
-          ),
-          bottomSectionPadding:
-              EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          bottomSection: Row(
-            children: <Widget>[
-              Expanded(
-                child: PrimaryButton(
-                    onPressed: () => contactViewModel.reset(),
-                    text: S.of(context).reset,
-                    color: Colors.red,
-                    textColor: Colors.white),
               ),
-              SizedBox(width: 20),
-              Expanded(
-                  child: Observer(
-                      builder: (_) => PrimaryButton(
-                          onPressed: () async {
-                            if (!_formKey.currentState.validate()) {
-                              return;
-                            }
-
-                            await contactViewModel.save();
-                          },
-                          text: S.of(context).save,
-                          color: Colors.green,
-                          textColor: Colors.white,
-                          isDisabled: !contactViewModel.isReady)))
+              Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Observer(
+                    builder: (_) => AddressTextField(
+                      controller: _addressController,
+                      options: [AddressTextFieldOption.qrCode],
+                      buttonColor: Theme.of(context).accentTextTheme.display2.color,
+                      iconColor: PaletteDark.gray,
+                      borderColor: Theme.of(context).primaryTextTheme.title.backgroundColor,
+                      validator: AddressValidator(
+                          type: contactViewModel.currency),
+                    )),
+              )
             ],
-          )),
-    );
+          ),
+        ),
+        bottomSectionPadding:
+        EdgeInsets.only(left: 24, right: 24, bottom: 24),
+        bottomSection: Row(
+          children: <Widget>[
+            Expanded(
+              child: PrimaryButton(
+                  onPressed: () {
+                    contactViewModel.reset();
+                    _nameController.text = '';
+                    _addressController.text = '';
+                  },
+                  text: S.of(context).reset,
+                  color: Colors.red,
+                  textColor: Colors.white),
+            ),
+            SizedBox(width: 20),
+            Expanded(
+                child: Observer(
+                    builder: (_) => PrimaryButton(
+                        onPressed: () async {
+                          if (!_formKey.currentState.validate()) {
+                            return;
+                          }
+
+                          await contactViewModel.save();
+                        },
+                        text: S.of(context).save,
+                        color: Palette.blueCraiola,
+                        textColor: Colors.white,
+                        isDisabled: !contactViewModel.isReady)))
+          ],
+        ));
   }
 
   void _presentCurrencyPicker(BuildContext context) {
