@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
 import 'package:cake_wallet/src/domain/exchange/limits.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
@@ -25,22 +26,18 @@ part 'exchange_view_model.g.dart';
 class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
-  ExchangeViewModelBase({
-    this.wallet,
-    this.trades,
-    this.exchangeTemplateStore,
-    this.tradesStore}) {
-
+  ExchangeViewModelBase(
+      {this.wallet,
+      this.trades,
+      this.exchangeTemplateStore,
+      this.tradesStore}) {
     providerList = [
       XMRTOExchangeProvider(),
       ChangeNowExchangeProvider(),
       MorphTokenExchangeProvider(trades: trades)
     ];
 
-    provider = providerList[ 0 ];
-
-    depositCurrency = CryptoCurrency.xmr;
-    receiveCurrency = CryptoCurrency.btc;
+    _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     depositAmount = '';
@@ -50,6 +47,7 @@ abstract class ExchangeViewModelBase with Store {
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
+    provider = providersForCurrentPair().first;
     loadLimits();
   }
 
@@ -140,8 +138,11 @@ abstract class ExchangeViewModelBase with Store {
 
     provider
         .calculateAmount(
-        from: depositCurrency, to: receiveCurrency, amount: _amount)
-        .then((amount) => _cryptoNumberFormat.format(amount).toString().replaceAll(RegExp("\\,"), ""))
+            from: depositCurrency, to: receiveCurrency, amount: _amount)
+        .then((amount) => _cryptoNumberFormat
+            .format(amount)
+            .toString()
+            .replaceAll(RegExp('\\,'), ''))
         .then((amount) => depositAmount = amount);
   }
 
@@ -158,8 +159,11 @@ abstract class ExchangeViewModelBase with Store {
     final _amount = double.parse(amount);
     provider
         .calculateAmount(
-        from: depositCurrency, to: receiveCurrency, amount: _amount)
-        .then((amount) => _cryptoNumberFormat.format(amount).toString().replaceAll(RegExp("\\,"), ""))
+            from: depositCurrency, to: receiveCurrency, amount: _amount)
+        .then((amount) => _cryptoNumberFormat
+            .format(amount)
+            .toString()
+            .replaceAll(RegExp('\\,'), ''))
         .then((amount) => receiveAmount = amount);
   }
 
@@ -217,11 +221,13 @@ abstract class ExchangeViewModelBase with Store {
 
     if (limitsState is LimitsLoadedSuccessfully && amount != null) {
       if (double.parse(amount) < limits.min) {
-        tradeState = TradeIsCreatedFailure(error: S.current.error_text_minimal_limit('${provider.description}',
-            '${limits.min}', currency.toString()));
+        tradeState = TradeIsCreatedFailure(
+            error: S.current.error_text_minimal_limit('${provider.description}',
+                '${limits.min}', currency.toString()));
       } else if (limits.max != null && double.parse(amount) > limits.max) {
-        tradeState = TradeIsCreatedFailure(error: S.current.error_text_maximum_limit('${provider.description}',
-            '${limits.max}', currency.toString()));
+        tradeState = TradeIsCreatedFailure(
+            error: S.current.error_text_maximum_limit('${provider.description}',
+                '${limits.max}', currency.toString()));
       } else {
         try {
           tradeState = TradeIsCreating();
@@ -235,9 +241,10 @@ abstract class ExchangeViewModelBase with Store {
         }
       }
     } else {
-      tradeState = TradeIsCreatedFailure(error: S.current.error_text_limits_loading_failed('${provider.description}'));
+      tradeState = TradeIsCreatedFailure(
+          error: S.current
+              .error_text_limits_loading_failed('${provider.description}'));
     }
-
   }
 
   @action
@@ -261,9 +268,9 @@ abstract class ExchangeViewModelBase with Store {
       {CryptoCurrency from, CryptoCurrency to}) {
     final providers = providerList
         .where((provider) => provider.pairList
-        .where((pair) =>
-    pair.from == depositCurrency && pair.to == receiveCurrency)
-        .isNotEmpty)
+            .where((pair) =>
+                pair.from == depositCurrency && pair.to == receiveCurrency)
+            .isNotEmpty)
         .toList();
 
     return providers;
@@ -272,12 +279,12 @@ abstract class ExchangeViewModelBase with Store {
   void _onPairChange() {
     final isPairExist = provider.pairList
         .where((pair) =>
-    pair.from == depositCurrency && pair.to == receiveCurrency)
+            pair.from == depositCurrency && pair.to == receiveCurrency)
         .isNotEmpty;
 
     if (!isPairExist) {
       final provider =
-      _providerForPair(from: depositCurrency, to: receiveCurrency);
+          _providerForPair(from: depositCurrency, to: receiveCurrency);
 
       if (provider != null) {
         changeProvider(provider: provider);
@@ -295,4 +302,18 @@ abstract class ExchangeViewModelBase with Store {
     return providers.isNotEmpty ? providers[0] : null;
   }
 
+  void _initialPairBasedOnWallet() {
+    switch (wallet.type) {
+      case WalletType.monero:
+        depositCurrency = CryptoCurrency.xmr;
+        receiveCurrency = CryptoCurrency.btc;
+        break;
+      case WalletType.bitcoin:
+        depositCurrency = CryptoCurrency.btc;
+        receiveCurrency = CryptoCurrency.xmr;
+        break;
+      default:
+        break;
+    }
+  }
 }

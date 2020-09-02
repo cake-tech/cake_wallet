@@ -1,7 +1,8 @@
-import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart';
-import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/template_validator.dart';
+import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart';
+import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
@@ -28,7 +29,7 @@ abstract class SendViewModelBase with Store {
       : state = InitialSendViewModelState(),
         _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12,
         // FIXME: need to be based on wallet type.
-        all = false;
+        sendAll = false;
 
   @observable
   SendViewModelState state;
@@ -43,7 +44,7 @@ abstract class SendViewModelBase with Store {
   String address;
 
   @observable
-  bool all;
+  bool sendAll;
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
@@ -58,6 +59,8 @@ abstract class SendViewModelBase with Store {
   Validator get amountValidator => AmountValidator(type: _wallet.type);
 
   Validator get addressValidator => AddressValidator(type: _wallet.currency);
+
+  Validator get templateValidator => TemplateValidator();
 
   PendingTransaction pendingTransaction;
 
@@ -83,7 +86,7 @@ abstract class SendViewModelBase with Store {
   final NumberFormat _cryptoNumberFormat;
 
   @action
-  void setAll() => all = true;
+  void setSendAll() => sendAll = true;
 
   @action
   void reset() {
@@ -118,7 +121,7 @@ abstract class SendViewModelBase with Store {
   void setCryptoAmount(String amount) {
     // FIXME: hardcoded value.
     if (amount.toUpperCase() != 'ALL') {
-      all = false;
+      sendAll = false;
     }
 
     cryptoAmount = amount;
@@ -162,7 +165,7 @@ abstract class SendViewModelBase with Store {
 
   Object _credentials() {
     final amount =
-        !all ? double.parse(cryptoAmount.replaceAll(',', '.')) : null;
+        !sendAll ? double.parse(cryptoAmount.replaceAll(',', '.')) : null;
 
     switch (_wallet.type) {
       case WalletType.bitcoin:
