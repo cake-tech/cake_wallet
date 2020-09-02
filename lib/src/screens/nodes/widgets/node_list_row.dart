@@ -23,9 +23,9 @@ class NodeListRow extends StandardListRow {
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              return NodeIndicator(isLive: snapshot.data as bool);
+              return NodeIndicator(isLive: (snapshot.data as bool)??false);
             default:
-              return NodeIndicator();
+              return NodeIndicator(isLive: false);
           }
         });
   }
@@ -38,6 +38,6 @@ class NodeHeaderListRow extends StandardListRow {
   @override
   Widget buildTrailing(BuildContext context) {
     return Icon(Icons.add,
-        color: Theme.of(context).primaryTextTheme.title.color, size: 24.0);
+        color: Theme.of(context).accentTextTheme.subhead.color, size: 24.0);
   }
 }

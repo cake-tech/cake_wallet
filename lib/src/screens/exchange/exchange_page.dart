@@ -18,10 +18,13 @@ class ExchangePage extends BasePage {
   String get title => S.current.exchange;
 
   @override
-  Color get backgroundLightColor => PaletteDark.wildVioletBlue;
+  Color get titleColor => Colors.white;
 
   @override
-  Color get backgroundDarkColor => PaletteDark.wildVioletBlue;
+  Color get backgroundLightColor => Colors.transparent;
+
+  @override
+  Color get backgroundDarkColor => Colors.transparent;
 
   @override
   Widget middle(BuildContext context) =>
@@ -36,5 +39,21 @@ class ExchangePage extends BasePage {
 
   @override
   Widget body(BuildContext context) =>
-      BaseExchangeWidget(exchangeViewModel: exchangeViewModel);
+      BaseExchangeWidget(
+        exchangeViewModel: exchangeViewModel,
+        leading: leading(context),
+        middle: middle(context),
+        trailing: trailing(context),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
+        body: Container(
+            color: Theme.of(context).backgroundColor,
+            child: body(context)
+        )
+    );
+  }
 }

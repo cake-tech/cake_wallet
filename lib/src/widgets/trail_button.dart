@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 
 class TrailButton extends StatelessWidget {
   TrailButton({
@@ -22,7 +21,7 @@ class TrailButton extends StatelessWidget {
         child: Text(
           caption,
           style: TextStyle(
-            color: PaletteDark.lightBlueGrey,
+            color: Theme.of(context).textTheme.subhead.decorationColor,
             fontWeight: FontWeight.w500,
             fontSize: 14),
         ),

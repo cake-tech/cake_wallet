@@ -16,6 +16,9 @@ import 'package:cake_wallet/src/domain/monero/account.dart';
 import 'package:cake_wallet/src/domain/monero/account_list.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
+import 'package:cake_wallet/core/pending_transaction.dart';
+import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
+import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart' as cfa;
 
 part 'monero_wallet.g.dart';
 
@@ -133,7 +136,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   @override
-  Future<void> createTransaction(Object credentials) async {
+  Future<PendingTransaction> createTransaction(Object credentials) async {
 //    final _credentials = credentials as MoneroTransactionCreationCredentials;
 //    final transactionDescription = await transaction_history.createTransaction(
 //        address: _credentials.address,
@@ -144,6 +147,33 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 //
 //    return PendingTransaction.fromTransactionDescription(
 //        transactionDescription);
+  }
+
+  @override
+  double calculateEstimatedFee(TransactionPriority priority) {
+    // FIXME: hardcoded value;
+
+    if (priority == TransactionPriority.slow) {
+      return 0.00002459;
+    }
+
+    if (priority == TransactionPriority.regular) {
+      return 0.00012305;
+    }
+
+    if (priority == TransactionPriority.medium) {
+      return 0.00024503;
+    }
+
+    if (priority == TransactionPriority.fast) {
+      return 0.00061453;
+    }
+
+    if (priority == TransactionPriority.fastest) {
+      return 0.0260216;
+    }
+
+    return 0;
   }
 
   @override

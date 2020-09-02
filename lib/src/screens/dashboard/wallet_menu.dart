@@ -6,8 +6,10 @@ import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
+// FIXME: terrible design
+
 class WalletMenu {
-  WalletMenu(this.context);
+  WalletMenu(this.context, this.reconnect);
 
   final List<String> items = [
     S.current.reconnect,
@@ -30,6 +32,7 @@ class WalletMenu {
   ];
 
   final BuildContext context;
+  final Future<void> Function() reconnect;
 
   void action(int index) {
     switch (index) {
@@ -70,8 +73,6 @@ class WalletMenu {
   }
 
   Future<void> _presentReconnectAlert(BuildContext context) async {
-    final walletStore = Provider.of<WalletStore>(context);
-
     await showDialog<void>(
         context: context,
         builder: (BuildContext context) {
@@ -80,12 +81,11 @@ class WalletMenu {
               alertContent: S.of(context).reconnect_alert_text,
               leftButtonText: S.of(context).ok,
               rightButtonText: S.of(context).cancel,
-              actionLeftButton: () {
-                walletStore.reconnect();
+              actionLeftButton: () async {
+                await reconnect?.call();
                 Navigator.of(context).pop();
               },
-              actionRightButton: () => Navigator.of(context).pop()
-          );
+              actionRightButton: () => Navigator.of(context).pop());
         });
   }
 }

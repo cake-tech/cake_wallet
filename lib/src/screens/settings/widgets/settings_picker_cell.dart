@@ -4,25 +4,30 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SettingsPickerCell<ItemType> extends StandardListRow {
-  SettingsPickerCell({@required String title, this.selectedItem, this.items})
+  SettingsPickerCell(
+      {@required String title,
+      this.selectedItem,
+      this.items,
+      this.onItemSelected})
       : super(
-      title: title,
-      isSelected: false,
-      onTap: (BuildContext context) async {
-        final selectedAtIndex = items.indexOf(selectedItem);
+            title: title,
+            isSelected: false,
+            onTap: (BuildContext context) async {
+              final selectedAtIndex = items.indexOf(selectedItem);
 
-        await showDialog<void>(
-            context: context,
-            builder: (_) => Picker(
-                items: items,
-                selectedAtIndex: selectedAtIndex,
-                title: S.current.please_select,
-                mainAxisAlignment: MainAxisAlignment.center,
-                onItemSelected: (Object _) {}));
-      });
+              await showDialog<void>(
+                  context: context,
+                  builder: (_) => Picker(
+                      items: items,
+                      selectedAtIndex: selectedAtIndex,
+                      title: S.current.please_select,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      onItemSelected: (ItemType item) => onItemSelected?.call(item)));
+            });
 
   final ItemType selectedItem;
   final List<ItemType> items;
+  final void Function(ItemType item) onItemSelected;
 
   @override
   Widget buildTrailing(BuildContext context) {

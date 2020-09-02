@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/transaction_history.dart';
+import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
@@ -30,7 +32,9 @@ abstract class WalletBase<BalaceType> {
 
   Future<void> startSync();
 
-  Future<void> createTransaction(Object credentials);
+  Future<PendingTransaction> createTransaction(Object credentials);
+
+  double calculateEstimatedFee(TransactionPriority priority);
 
   Future<void> save();
 }

@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/domain/common/transaction_info.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
@@ -28,23 +29,57 @@ part 'dashboard_view_model.g.dart';
 class DashboardViewModel = DashboardViewModelBase with _$DashboardViewModel;
 
 abstract class DashboardViewModelBase with Store {
-  DashboardViewModelBase({
-    this.balanceViewModel,
-    this.appStore,
-    this.tradesStore,
-    this.tradeFilterStore,
-    this.transactionFilterStore}) {
+  DashboardViewModelBase(
+      {this.balanceViewModel,
+      this.appStore,
+      this.tradesStore,
+      this.tradeFilterStore,
+      this.transactionFilterStore}) {
+    filterItems = {
+      S.current.transactions: [
+        FilterItem(
+            value: transactionFilterStore.displayIncoming,
+            caption: S.current.incoming,
+            onChanged: (value) => transactionFilterStore.toggleIncoming()),
+        FilterItem(
+            value: transactionFilterStore.displayOutgoing,
+            caption: S.current.outgoing,
+            onChanged: (value) => transactionFilterStore.toggleOutgoing()),
+        FilterItem(
+            value: false,
+            caption: S.current.transactions_by_date,
+            onChanged: null),
+      ],
+      S.current.trades: [
+        FilterItem(
+            value: tradeFilterStore.displayXMRTO,
+            caption: 'XMR.TO',
+            onChanged: (value) => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.xmrto)),
+        FilterItem(
+            value: tradeFilterStore.displayChangeNow,
+            caption: 'Change.NOW',
+            onChanged: (value) => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+        FilterItem(
+            value: tradeFilterStore.displayMorphToken,
+            caption: 'MorphToken',
+            onChanged: (value) => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.morphToken)),
+      ]
+    };
 
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
     type = wallet.type;
 
-    transactions = ObservableList.of(wallet.transactionHistory.transactions
+    transactions = ObservableList.of(wallet
+        .transactionHistory.transactions.values
         .map((transaction) => TransactionListItem(
-        transaction: transaction,
-        price: price,
-        fiatCurrency: appStore.settingsStore.fiatCurrency,
-        displayMode: balanceDisplayMode)));
+            transaction: transaction,
+            price: price,
+            fiatCurrency: appStore.settingsStore.fiatCurrency,
+            displayMode: balanceDisplayMode)));
 
     _reaction = reaction((_) => appStore.wallet, _onWalletChange);
 
@@ -78,15 +113,11 @@ abstract class DashboardViewModelBase with Store {
     var statusText = '';
 
     if (status is SyncingSyncStatus) {
-      statusText = S.current
-          .Blocks_remaining(
-          status.toString());
+      statusText = S.current.Blocks_remaining(status.toString());
     }
 
-    if (status is FailedSyncStatus) {
-      statusText = S
-          .current
-          .please_try_to_connect_to_another_node;
+    if (status is FailedSyncStatus || status is LostConnectionSyncStatus) {
+      statusText = S.current.please_try_to_connect_to_another_node;
     }
 
     return statusText;
@@ -106,9 +137,8 @@ abstract class DashboardViewModelBase with Store {
   List<ActionListItem> get items {
     final _items = <ActionListItem>[];
 
-    _items
-        .addAll(transactionFilterStore.filtered(transactions: transactions));
-    _items.addAll(tradeFilterStore.filtered(trades: trades));
+    _items.addAll(transactionFilterStore.filtered(transactions: transactions));
+    _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
 
     return formattedItemsList(_items);
   }
@@ -125,16 +155,23 @@ abstract class DashboardViewModelBase with Store {
 
   TransactionFilterStore transactionFilterStore;
 
+  Map<String, List<FilterItem>> filterItems;
+
   ReactionDisposer _reaction;
+
+  Future<void> reconnect() async {
+    final node = appStore.settingsStore.getCurrentNode(wallet.type);
+    await wallet.connectToNode(node: node);
+  }
 
   void _onWalletChange(WalletBase wallet) {
     name = wallet.name;
     transactions.clear();
-    transactions.addAll(wallet.transactionHistory.transactions
-        .map((transaction) => TransactionListItem(
-        transaction: transaction,
-        price: price,
-        fiatCurrency: appStore.settingsStore.fiatCurrency,
-        displayMode: balanceDisplayMode)));
+    transactions.addAll(wallet.transactionHistory.transactions.values.map(
+        (transaction) => TransactionListItem(
+            transaction: transaction,
+            price: price,
+            fiatCurrency: appStore.settingsStore.fiatCurrency,
+            displayMode: balanceDisplayMode)));
   }
 }

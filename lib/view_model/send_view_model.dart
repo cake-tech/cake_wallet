@@ -193,6 +193,11 @@ abstract class SendViewModelBase with Store {
     fiatAmount = '';
   }
 
+  @action
+  void setTransactionPriority(TransactionPriority transactionPriority) {
+    _settingsStore.transactionPriority = transactionPriority;
+  }
+
   final WalletBase _wallet;
 
   final SettingsStore _settingsStore;
