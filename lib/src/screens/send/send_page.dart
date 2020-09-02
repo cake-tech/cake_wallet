@@ -95,15 +95,25 @@ class SendPage extends BasePage {
 //    }
   }
 
-  @override
-  Widget body(BuildContext context) {
-    return super.build(context);
-  }
-
   // @override
-  // Widget build(BuildContext context) {
-  //   return BaseSendWidget(sendViewModel: sendViewModel);
+  // Widget body(BuildContext context) {
+  //   return super.build(context);
   // }
+
+  @override
+  Widget body(BuildContext context) => BaseSendWidget(
+        sendViewModel: sendViewModel,
+        leading: leading(context),
+        middle: middle(context),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
+        body: Container(
+            color: Theme.of(context).backgroundColor, child: body(context)));
+  }
 
 //   @override
 //   Widget build(BuildContext context) {

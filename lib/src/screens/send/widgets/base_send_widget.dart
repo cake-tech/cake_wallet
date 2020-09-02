@@ -1,10 +1,12 @@
+import 'dart:ui';
 import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/view_model/send_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -22,12 +24,11 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/routes.dart';
 
 class BaseSendWidget extends StatelessWidget {
-  BaseSendWidget({
-    @required this.sendViewModel,
-    @required this.leading,
-    @required this.middle,
-    this.isTemplate = false
-  });
+  BaseSendWidget(
+      {@required this.sendViewModel,
+      @required this.leading,
+      @required this.middle,
+      this.isTemplate = false});
 
   final SendViewModel sendViewModel;
   final bool isTemplate;
@@ -45,7 +46,6 @@ class BaseSendWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     _setEffects(context);
 
     return ScrollableWithBottomSection(
@@ -57,9 +57,7 @@ class BaseSendWidget extends StatelessWidget {
             gradient: LinearGradient(colors: [
               Theme.of(context).primaryTextTheme.subhead.color,
               Theme.of(context).primaryTextTheme.subhead.decorationColor,
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight),
+            ], begin: Alignment.topLeft, end: Alignment.bottomRight),
             widget: Form(
               key: _formKey,
               child: Column(children: <Widget>[
@@ -74,28 +72,34 @@ class BaseSendWidget extends StatelessWidget {
                   child: Column(
                     children: <Widget>[
                       isTemplate
-                      ? BaseTextFormField(
-                        controller: _nameController,
-                        hintText: S.of(context).send_name,
-                        borderColor: Theme.of(context).primaryTextTheme.headline.color,
-                        textStyle: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white
-                        ),
-                        placeholderTextStyle: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.decorationColor,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14),
-                        validator: sendViewModel.templateValidator,
-                      )
-                      : Offstage(),
+                          ? BaseTextFormField(
+                              controller: _nameController,
+                              hintText: S.of(context).send_name,
+                              borderColor: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline
+                                  .color,
+                              textStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white),
+                              placeholderTextStyle: TextStyle(
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline
+                                      .decorationColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14),
+                              validator: sendViewModel.templateValidator,
+                            )
+                          : Offstage(),
                       Padding(
                         padding: EdgeInsets.only(top: isTemplate ? 20 : 0),
                         child: AddressTextField(
                           controller: _addressController,
-                          placeholder: S.of(context).send_address(
-                              sendViewModel.cryptoCurrencyTitle),
+                          // placeholder: S
+                          //     .of(context)
+                          //     .send_address(sendViewModel.cryptoCurrencyTitle),
                           focusNode: _focusNode,
                           onURIScanned: (uri) {
                             var address = '';
@@ -116,113 +120,127 @@ class BaseSendWidget extends StatelessWidget {
                             AddressTextFieldOption.qrCode,
                             AddressTextFieldOption.addressBook
                           ],
-                          buttonColor: Theme.of(context).primaryTextTheme.display1.color,
-                          borderColor: Theme.of(context).primaryTextTheme.headline.color,
+                          buttonColor:
+                              Theme.of(context).primaryTextTheme.display1.color,
+                          borderColor:
+                              Theme.of(context).primaryTextTheme.headline.color,
                           textStyle: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Colors.white
-                          ),
+                              color: Colors.white),
                           hintStyle: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.headline.decorationColor
-                          ),
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline
+                                  .decorationColor),
                           validator: sendViewModel.addressValidator,
                         ),
                       ),
-                      Observer(
-                          builder: (_) {
-                            return Padding(
-                                padding: const EdgeInsets.only(top: 20),
-                                child: BaseTextFormField(
-                                    controller: _cryptoAmountController,
-                                    keyboardType: TextInputType.numberWithOptions(
-                                        signed: false, decimal: true),
-                                    inputFormatters: [
-                                      BlacklistingTextInputFormatter(
-                                          RegExp('[\\-|\\ |\\,]'))
-                                    ],
-                                    prefixIcon: Padding(
-                                      padding: EdgeInsets.only(top: 9),
-                                      child: Text(sendViewModel.currency.title + ':',
+                      Observer(builder: (_) {
+                        return Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: BaseTextFormField(
+                                controller: _cryptoAmountController,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    signed: false, decimal: true),
+                                inputFormatters: [
+                                  BlacklistingTextInputFormatter(
+                                      RegExp('[\\-|\\ |\\,]'))
+                                ],
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(top: 9),
+                                  child:
+                                      Text(sendViewModel.currency.title + ':',
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
                                             color: Colors.white,
                                           )),
-                                    ),
-                                    suffixIcon: isTemplate
+                                ),
+                                suffixIcon: isTemplate
                                     ? Offstage()
                                     : Container(
-                                      height: 32,
-                                      width: 32,
-                                      margin: EdgeInsets.only(left: 14, top: 4, bottom: 10),
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context).primaryTextTheme.display1.color,
-                                          borderRadius: BorderRadius.all(Radius.circular(6))
-                                      ),
-                                      child: InkWell(
-                                        onTap: () => sendViewModel.setSendAll(),
-                                        child: Center(
-                                          child: Text(S.of(context).all,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Theme.of(context).primaryTextTheme.display1.decorationColor
-                                              )
+                                        height: 32,
+                                        width: 32,
+                                        margin: EdgeInsets.only(
+                                            left: 14, top: 4, bottom: 10),
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display1
+                                                .color,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(6))),
+                                        child: InkWell(
+                                          onTap: () =>
+                                              sendViewModel.setSendAll(),
+                                          child: Center(
+                                            child: Text(S.of(context).all,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Theme.of(context)
+                                                        .primaryTextTheme
+                                                        .display1
+                                                        .decorationColor)),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                    hintText: '0.0000',
-                                    borderColor: Theme.of(context).primaryTextTheme.headline.color,
-                                    textStyle: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white
-                                    ),
-                                    placeholderTextStyle: TextStyle(
-                                        color: Theme.of(context).primaryTextTheme.headline.decorationColor,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14),
-                                    validator: sendViewModel.amountValidator
-                                )
-                            );
-                          }
-                      ),
+                                hintText: '0.0000',
+                                borderColor: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline
+                                    .color,
+                                textStyle: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                                placeholderTextStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .decorationColor,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14),
+                                validator: sendViewModel.amountValidator));
+                      }),
                       isTemplate
-                      ? Offstage()
-                      : Observer(
-                        builder: (_) => Padding(
-                          padding: EdgeInsets.only(top: 10),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  S.of(context).available_balance + ':',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).primaryTextTheme.headline.decorationColor
-                                  ),
-                                )
-                              ),
-                              Text(
-                                sendViewModel.balance,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme.headline.decorationColor
-                                ),
-                              )
-                            ],
-                          ),
-                        )
-                      ),
+                          ? Offstage()
+                          : Observer(
+                              builder: (_) => Padding(
+                                    padding: EdgeInsets.only(top: 10),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: <Widget>[
+                                        Expanded(
+                                            child: Text(
+                                          S.of(context).available_balance + ':',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .headline
+                                                  .decorationColor),
+                                        )),
+                                        Text(
+                                          sendViewModel.balance,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .headline
+                                                  .decorationColor),
+                                        )
+                                      ],
+                                    ),
+                                  )),
                       Padding(
                           padding: const EdgeInsets.only(top: 20),
                           child: BaseTextFormField(
@@ -235,8 +253,7 @@ class BaseSendWidget extends StatelessWidget {
                             ],
                             prefixIcon: Padding(
                               padding: EdgeInsets.only(top: 9),
-                              child: Text(
-                                  sendViewModel.fiat.title + ':',
+                              child: Text(sendViewModel.fiat.title + ':',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -244,62 +261,71 @@ class BaseSendWidget extends StatelessWidget {
                                   )),
                             ),
                             hintText: '0.00',
-                            borderColor: Theme.of(context).primaryTextTheme.headline.color,
+                            borderColor: Theme.of(context)
+                                .primaryTextTheme
+                                .headline
+                                .color,
                             textStyle: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.white
-                            ),
+                                color: Colors.white),
                             placeholderTextStyle: TextStyle(
-                                color: Theme.of(context).primaryTextTheme.headline.decorationColor,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline
+                                    .decorationColor,
                                 fontWeight: FontWeight.w500,
                                 fontSize: 14),
-                          )
-                      ),
+                          )),
                       isTemplate
-                      ? Offstage()
-                      : Observer(
-                          builder: (_) => GestureDetector(
-                            onTap: () => _setTransactionPriority(context),
-                            child: Container(
-                              padding: EdgeInsets.only(top: 24),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(S.of(context).send_estimated_fee,
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w500,
-                                          //color: Theme.of(context).primaryTextTheme.display2.color,
-                                          color: Colors.white
-                                      )),
-                                  Container(
-                                    child: Row(
-                                      children: <Widget>[
-                                        Text(
-                                            sendViewModel.estimatedFee.toString() + ' '
-                                                + sendViewModel.currency.title,
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                //color: Theme.of(context).primaryTextTheme.display2.color,
-                                                color: Colors.white
-                                            )),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: 5),
-                                          child: Icon(
-                                            Icons.arrow_forward_ios,
-                                            size: 12,
-                                            color: Colors.white,),
-                                        )
-                                      ],
+                          ? Offstage()
+                          : Observer(
+                              builder: (_) => GestureDetector(
+                                    onTap: () =>
+                                        _setTransactionPriority(context),
+                                    child: Container(
+                                      padding: EdgeInsets.only(top: 24),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: <Widget>[
+                                          Text(S.of(context).send_estimated_fee,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w500,
+                                                  //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                  color: Colors.white)),
+                                          Container(
+                                            child: Row(
+                                              children: <Widget>[
+                                                Text(
+                                                    sendViewModel.estimatedFee
+                                                            .toString() +
+                                                        ' ' +
+                                                        sendViewModel
+                                                            .currency.title,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                        color: Colors.white)),
+                                                Padding(
+                                                  padding:
+                                                      EdgeInsets.only(left: 5),
+                                                  child: Icon(
+                                                    Icons.arrow_forward_ios,
+                                                    size: 12,
+                                                    color: Colors.white,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
-                                  )
-                                ],
-                              ),
-                            ),
-                          )
-                      )
+                                  ))
                     ],
                   ),
                 )
@@ -307,156 +333,158 @@ class BaseSendWidget extends StatelessWidget {
             ),
           ),
           isTemplate
-          ? Offstage()
-          : Padding(
-            padding: EdgeInsets.only(
-              top: 30,
-              left: 24,
-              bottom: 24
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                Text(
-                  S.of(context).send_templates,
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryTextTheme.display4.color
+              ? Offstage()
+              : Padding(
+                  padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        S.of(context).send_templates,
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .display4
+                                .color),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-          ),
+                ),
           isTemplate
-          ? Offstage()
-          : Container(
-            height: 40,
-            width: double.infinity,
-            padding: EdgeInsets.only(left: 24),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () => Navigator.of(context)
-                        .pushNamed(Routes.sendTemplate),
-                    child: Container(
-                      padding: EdgeInsets.only(left: 1, right: 10),
-                      child: DottedBorder(
-                          borderType: BorderType.RRect,
-                          dashPattern: [6, 4],
-                          color: Theme.of(context).primaryTextTheme.display2.decorationColor,
-                          strokeWidth: 2,
-                          radius: Radius.circular(20),
+              ? Offstage()
+              : Container(
+                  height: 40,
+                  width: double.infinity,
+                  padding: EdgeInsets.only(left: 24),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () => Navigator.of(context)
+                              .pushNamed(Routes.sendTemplate),
                           child: Container(
-                            height: 34,
-                            width: 75,
-                            padding: EdgeInsets.only(left: 10, right: 10),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(20)),
-                              color: Colors.transparent,
-                            ),
-                            child: Text(
-                              S.of(context).send_new,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme.display3.color
-                              ),
-                            ),
-                          )
-                      ),
+                            padding: EdgeInsets.only(left: 1, right: 10),
+                            child: DottedBorder(
+                                borderType: BorderType.RRect,
+                                dashPattern: [6, 4],
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .display2
+                                    .decorationColor,
+                                strokeWidth: 2,
+                                radius: Radius.circular(20),
+                                child: Container(
+                                  height: 34,
+                                  width: 75,
+                                  padding: EdgeInsets.only(left: 10, right: 10),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    color: Colors.transparent,
+                                  ),
+                                  child: Text(
+                                    S.of(context).send_new,
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .display3
+                                            .color),
+                                  ),
+                                )),
+                          ),
+                        ),
+                        // Observer(
+                        //     builder: (_) {
+                        //       final templates = sendViewModel.templates;
+                        //       final itemCount = templates.length;
+
+                        //       return ListView.builder(
+                        //           scrollDirection: Axis.horizontal,
+                        //           shrinkWrap: true,
+                        //           physics: NeverScrollableScrollPhysics(),
+                        //           itemCount: itemCount,
+                        //           itemBuilder: (context, index) {
+                        //             final template = templates[index];
+
+                        //             return TemplateTile(
+                        //               key: UniqueKey(),
+                        //               to: template.name,
+                        //               amount: template.amount,
+                        //               from: template.cryptoCurrency,
+                        //               onTap: () {
+                        //                 _addressController.text = template.address;
+                        //                 _cryptoAmountController.text = template.amount;
+                        //                 getOpenaliasRecord(context);
+                        //               },
+                        //               onRemove: () {
+                        //                 showDialog<void>(
+                        //                     context: context,
+                        //                     builder: (dialogContext) {
+                        //                       return AlertWithTwoActions(
+                        //                           alertTitle: S.of(context).template,
+                        //                           alertContent: S.of(context).confirm_delete_template,
+                        //                           leftButtonText: S.of(context).delete,
+                        //                           rightButtonText: S.of(context).cancel,
+                        //                           actionLeftButton: () {
+                        //                             Navigator.of(dialogContext).pop();
+                        //                             sendViewModel.sendTemplateStore.remove(template: template);
+                        //                             sendViewModel.sendTemplateStore.update();
+                        //                           },
+                        //                           actionRightButton: () => Navigator.of(dialogContext).pop()
+                        //                       );
+                        //                     }
+                        //                 );
+                        //               },
+                        //             );
+                        //           }
+                        //       );
+                        //     }
+                        // )
+                      ],
                     ),
                   ),
-                  Observer(
-                      builder: (_) {
-                        final templates = sendViewModel.templates;
-                        final itemCount = templates.length;
-
-                        return ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: (context, index) {
-                              final template = templates[index];
-
-                              return TemplateTile(
-                                key: UniqueKey(),
-                                to: template.name,
-                                amount: template.amount,
-                                from: template.cryptoCurrency,
-                                onTap: () {
-                                  _addressController.text = template.address;
-                                  _cryptoAmountController.text = template.amount;
-                                  getOpenaliasRecord(context);
-                                },
-                                onRemove: () {
-                                  showDialog<void>(
-                                      context: context,
-                                      builder: (dialogContext) {
-                                        return AlertWithTwoActions(
-                                            alertTitle: S.of(context).template,
-                                            alertContent: S.of(context).confirm_delete_template,
-                                            leftButtonText: S.of(context).delete,
-                                            rightButtonText: S.of(context).cancel,
-                                            actionLeftButton: () {
-                                              Navigator.of(dialogContext).pop();
-                                              sendViewModel.sendTemplateStore.remove(template: template);
-                                              sendViewModel.sendTemplateStore.update();
-                                            },
-                                            actionRightButton: () => Navigator.of(dialogContext).pop()
-                                        );
-                                      }
-                                  );
-                                },
-                              );
-                            }
-                        );
-                      }
-                  )
-                ],
-              ),
-            ),
-          )
+                )
         ],
       ),
       bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
       bottomSection: isTemplate
           ? PrimaryButton(
-          onPressed: () {
-            if (_formKey.currentState.validate()) {
-              sendViewModel.sendTemplateStore.addTemplate(
-                  name: _nameController.text,
-                  address: _addressController.text,
-                  cryptoCurrency: sendViewModel.currency.title,
-                  amount: _cryptoAmountController.text
-              );
-              sendViewModel.sendTemplateStore.update();
-              Navigator.of(context).pop();
-            }
-          },
-          text: S.of(context).save,
-          color: Colors.green,
-          textColor: Colors.white)
+              onPressed: () {
+                if (_formKey.currentState.validate()) {
+                  // sendViewModel.sendTemplateStore.addTemplate(
+                  //     name: _nameController.text,
+                  //     address: _addressController.text,
+                  //     cryptoCurrency: sendViewModel.currency.title,
+                  //     amount: _cryptoAmountController.text);
+                  // sendViewModel.sendTemplateStore.update();
+                  Navigator.of(context).pop();
+                }
+              },
+              text: S.of(context).save,
+              color: Colors.green,
+              textColor: Colors.white)
           : Observer(builder: (_) {
-        return LoadingPrimaryButton(
-            onPressed: () {
-              if (_formKey.currentState.validate()) {
-                print('SENT!!!');
-              }
-            },
-            text: S.of(context).send,
-            color: Palette.blueCraiola,
-            textColor: Colors.white,
-            isLoading: sendViewModel.state is TransactionIsCreating ||
-                sendViewModel.state is TransactionCommitting,
-            isDisabled:
-            false // FIXME !(syncStore.status is SyncedSyncStatus),
-        );
-      }),
+              return LoadingPrimaryButton(
+                  onPressed: () {
+                    if (_formKey.currentState.validate()) {
+                      print('SENT!!!');
+                    }
+                  },
+                  text: S.of(context).send,
+                  color: Palette.blueCraiola,
+                  textColor: Colors.white,
+                  isLoading: sendViewModel.state is TransactionIsCreating ||
+                      sendViewModel.state is TransactionCommitting,
+                  isDisabled:
+                      false // FIXME !(syncStore.status is SyncedSyncStatus),
+                  );
+            }),
     );
   }
 
@@ -465,6 +493,13 @@ class BaseSendWidget extends StatelessWidget {
       return;
     }
 
+    reaction((_) => sendViewModel.sendAll, (bool all) {
+      if (all) {
+        _cryptoAmountController.text = S.current.all;
+        _fiatAmountController.text = null;
+      }
+    });
+
     reaction((_) => sendViewModel.fiatAmount, (String amount) {
       if (amount != _fiatAmountController.text) {
         _fiatAmountController.text = amount;
@@ -472,6 +507,10 @@ class BaseSendWidget extends StatelessWidget {
     });
 
     reaction((_) => sendViewModel.cryptoAmount, (String amount) {
+      if (sendViewModel.sendAll && amount != S.current.all) {
+        sendViewModel.sendAll = false;
+      }
+
       if (amount != _cryptoAmountController.text) {
         _cryptoAmountController.text = amount;
       }
@@ -487,29 +526,7 @@ class BaseSendWidget extends StatelessWidget {
       final address = _addressController.text;
 
       if (sendViewModel.address != address) {
-        sendViewModel.changeAddress(address);
-      }
-    });
-
-    _fiatAmountController.addListener(() {
-      final fiatAmount = _fiatAmountController.text;
-
-      if (sendViewModel.fiatAmount != fiatAmount) {
-        sendViewModel.changeFiatAmount(fiatAmount);
-      }
-    });
-
-    _cryptoAmountController.addListener(() {
-      final cryptoAmount = _cryptoAmountController.text;
-
-      if (sendViewModel.cryptoAmount != cryptoAmount) {
-        sendViewModel.changeCryptoAmount(cryptoAmount);
-      }
-    });
-
-    _focusNode.addListener(() {
-      if (!_focusNode.hasFocus && _addressController.text.isNotEmpty) {
-        getOpenaliasRecord(context);
+        sendViewModel.address = address;
       }
     });
 
@@ -519,44 +536,126 @@ class BaseSendWidget extends StatelessWidget {
           showDialog<void>(
               context: context,
               builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text(S.of(context).error),
-                  content: Text(state.error),
-                  actions: <Widget>[
-                    FlatButton(
-                        child: Text(S.of(context).ok),
-                        onPressed: () => Navigator.of(context).pop())
-                  ],
-                );
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
               });
         });
       }
 
       if (state is TransactionCreatedSuccessfully) {
-//        WidgetsBinding.instance.addPostFrameCallback((_) {
-//          showDialog<void>(
-//              context: context,
-//              builder: (BuildContext context) {
-//                return ConfirmSendingAlert(
-//                    alertTitle: S.of(context).confirm_sending,
-//                    amount: S.of(context).send_amount,
-//                    amountValue: sendStore.pendingTransaction.amount,
-//                    fee: S.of(context).send_fee,
-//                    feeValue: sendStore.pendingTransaction.fee,
-//                    leftButtonText: S.of(context).ok,
-//                    rightButtonText: S.of(context).cancel,
-//                    actionLeftButton: () {
-//                      Navigator.of(context).pop();
-//                      sendStore.commitTransaction();
-//                      showDialog<void>(
-//                          context: context,
-//                          builder: (BuildContext context) {
-//                            return SendingAlert(sendStore: sendStore);
-//                          });
-//                    },
-//                    actionRightButton: () => Navigator.of(context).pop());
-//              });
-//        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return ConfirmSendingAlert(
+                    alertTitle: S.of(context).confirm_sending,
+                    amount: S.of(context).send_amount,
+                    amountValue:
+                        sendViewModel.pendingTransaction.amountFormatted,
+                    fee: S.of(context).send_fee,
+                    feeValue: sendViewModel.pendingTransaction.feeFormatted,
+                    leftButtonText: S.of(context).ok,
+                    rightButtonText: S.of(context).cancel,
+                    actionLeftButton: () {
+                      Navigator.of(context).pop();
+                      sendViewModel.commitTransaction();
+                      showDialog<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Observer(builder: (_) {
+                              final state = sendViewModel.state;
+
+                              if (state is TransactionCommitted) {
+                                return Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      color: Theme.of(context).backgroundColor,
+                                      child: Center(
+                                        child: Image.asset(
+                                            'assets/images/birthday_cake.png'),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: 220, left: 24, right: 24),
+                                        child: Text(
+                                          S.of(context).send_success,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .title
+                                                .color,
+                                            decoration: TextDecoration.none,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                        left: 24,
+                                        right: 24,
+                                        bottom: 24,
+                                        child: PrimaryButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                            text: S.of(context).send_got_it,
+                                            color: Colors.blue,
+                                            textColor: Colors.white))
+                                  ],
+                                );
+                              }
+
+                              return Stack(
+                                children: <Widget>[
+                                  Container(
+                                    color: Theme.of(context).backgroundColor,
+                                    child: Center(
+                                      child: Image.asset(
+                                          'assets/images/birthday_cake.png'),
+                                    ),
+                                  ),
+                                  BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 3.0, sigmaY: 3.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .backgroundColor
+                                              .withOpacity(0.25)),
+                                      child: Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 220),
+                                          child: Text(
+                                            S.of(context).send_sending,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .title
+                                                  .color,
+                                              decoration: TextDecoration.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              );
+                            });
+                          });
+                    },
+                    actionRightButton: () => Navigator.of(context).pop());
+              });
+        });
       }
 
       if (state is TransactionCommitted) {
@@ -571,22 +670,24 @@ class BaseSendWidget extends StatelessWidget {
   }
 
   Future<void> getOpenaliasRecord(BuildContext context) async {
-    final isOpenalias = await sendViewModel.isOpenaliasRecord(_addressController.text);
+    // final isOpenalias =
+    //     await sendViewModel.isOpenaliasRecord(_addressController.text);
 
-    if (isOpenalias) {
-      _addressController.text = sendViewModel.recordAddress;
+    // if (isOpenalias) {
+    //   _addressController.text = sendViewModel.recordAddress;
 
-      await showDialog<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.of(context).openalias_alert_title,
-                alertContent: S.of(context).openalias_alert_content(sendViewModel.recordName),
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop()
-            );
-          });
-    }
+    //   await showDialog<void>(
+    //       context: context,
+    //       builder: (BuildContext context) {
+    //         return AlertWithOneAction(
+    //             alertTitle: S.of(context).openalias_alert_title,
+    //             alertContent: S
+    //                 .of(context)
+    //                 .openalias_alert_content(sendViewModel.recordName),
+    //             buttonText: S.of(context).ok,
+    //             buttonAction: () => Navigator.of(context).pop());
+    //       });
+    // }
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
@@ -595,14 +696,14 @@ class BaseSendWidget extends StatelessWidget {
 
     await showDialog<void>(
         builder: (_) => Picker(
-          items: items,
-          selectedAtIndex: selectedItem,
-          title: S.of(context).please_select,
-          mainAxisAlignment: MainAxisAlignment.center,
-          onItemSelected: (TransactionPriority priority) =>
-          sendViewModel.setTransactionPriority(priority),
-          isAlwaysShowScrollThumb: true,
-        ),
+              items: items,
+              selectedAtIndex: selectedItem,
+              title: S.of(context).please_select,
+              mainAxisAlignment: MainAxisAlignment.center,
+              onItemSelected: (TransactionPriority priority) => null,
+              // sendViewModel.setTransactionPriority(priority),
+              isAlwaysShowScrollThumb: true,
+            ),
         context: context);
   }
 }

@@ -138,7 +138,7 @@ abstract class SettingsStoreBase with Store {
         sharedPreferences.getBool(shouldSaveRecipientAddressKey);
     final allowBiometricalAuthentication =
         sharedPreferences.getBool(allowBiometricalAuthenticationKey) ?? false;
-    final savedDarkTheme = sharedPreferences.getBool(currentDarkTheme) ?? true;
+    final savedDarkTheme = sharedPreferences.getBool(currentDarkTheme) ?? false;
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(displayActionListModeKey) ??
