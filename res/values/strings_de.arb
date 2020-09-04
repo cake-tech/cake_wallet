@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "Beschreibung zur Wiederherstellung der Brieftasche",
   "restore_new_seed" : "Neuer Seed",
   "restore_active_seed" : "Aktives Seed",
+  "restore_bitcoin_description_from_seed" : "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her",
+  "restore_bitcoin_description_from_keys" : "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her",
+  "restore_bitcoin_title_from_keys" : "Aus WIF wiederherstellen",
 
 
   "seed_title" : "Seed",

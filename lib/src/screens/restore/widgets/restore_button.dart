@@ -19,7 +19,7 @@ class RestoreButton extends StatelessWidget {
       onTap: onPressed,
       child: Container(
         width: double.infinity,
-        height: 160,
+        height: 170,
         padding: EdgeInsets.all(24),
         alignment: Alignment.topLeft,
         decoration: BoxDecoration(
