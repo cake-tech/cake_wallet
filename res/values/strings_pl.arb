@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "Opis przywracania portfela",
   "restore_new_seed" : "Nowe nasienie",
   "restore_active_seed" : "Aktywne nasiona",
+  "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 12 słów",
+  "restore_bitcoin_description_from_keys" : "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych",
+  "restore_bitcoin_title_from_keys" : "Przywróć z WIF",
 
 
   "seed_title" : "Ziarno",

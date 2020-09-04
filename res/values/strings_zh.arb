@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "钱包还原说明",
   "restore_new_seed" : "新種子",
   "restore_active_seed" : "活性種子",
+  "restore_bitcoin_description_from_seed" : "從12個單詞的組合碼恢復您的錢包",
+  "restore_bitcoin_description_from_keys" : "從私鑰中生成的WIF字符串還原您的錢包",
+  "restore_bitcoin_title_from_keys" : "從WIF還原",
 
 
   "seed_title" : "种子",
