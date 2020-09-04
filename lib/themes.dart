@@ -156,6 +156,10 @@ class Themes {
         color: Palette.shadowWhite, // action button color (address text field)
         decorationColor: Palette.darkGray // hint text (seed widget)
       ),
+      display3: TextStyle(
+        color: Palette.darkGray, // hint text (new wallet page)
+        decorationColor: Palette.periwinkleCraiola // underline (new wallet page)
+      ),
     ),
 
 
@@ -322,6 +326,10 @@ class Themes {
       display2: TextStyle(
         color: PaletteDark.nightBlue, // action button color (address text field)
         decorationColor: PaletteDark.darkCyanBlue // hint text (seed widget)
+      ),
+      display3: TextStyle(
+        color: PaletteDark.cyanBlue, // hint text (new wallet page)
+        decorationColor: PaletteDark.darkGrey // underline (new wallet page)
       ),
     ),
 
