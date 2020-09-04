@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "Portemonnee-herstelbeschrijving",
   "restore_new_seed" : "Nieuw zaad",
   "restore_active_seed" : "Actief zaad",
+  "restore_bitcoin_description_from_seed" : "Herstel uw portemonnee met een combinatiecode van 12 woorden",
+  "restore_bitcoin_description_from_keys" : "Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels",
+  "restore_bitcoin_title_from_keys" : "Herstel van WIF",
 
 
   "seed_title" : "Zaad",

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/restore/widgets/restore_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 class RestoreWalletOptionsPage extends BasePage {
   RestoreWalletOptionsPage(
@@ -56,7 +53,7 @@ class RestoreWalletOptionsPage extends BasePage {
         return S.of(context).restore_description_from_seed;
       case WalletType.bitcoin:
         // TODO: Add transaction for bitcoin description.
-        return 'Restore your wallet from 12 word combination code';
+        return S.of(context).restore_bitcoin_description_from_seed;
       default:
         return '';
     }
@@ -68,7 +65,7 @@ class RestoreWalletOptionsPage extends BasePage {
         return S.of(context).restore_description_from_keys;
       case WalletType.bitcoin:
         // TODO: Add transaction for bitcoin description.
-        return 'Restore your wallet from generated WIF string from your private keys';
+        return S.of(context).restore_bitcoin_description_from_keys;
       default:
         return '';
     }
@@ -80,7 +77,7 @@ class RestoreWalletOptionsPage extends BasePage {
         return S.of(context).restore_title_from_keys;
       case WalletType.bitcoin:
         // TODO: Add transaction for bitcoin description.
-        return 'Restore from WIF';
+        return S.of(context).restore_bitcoin_title_from_keys;
       default:
         return '';
     }

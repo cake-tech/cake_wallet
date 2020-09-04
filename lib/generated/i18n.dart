@@ -144,6 +144,9 @@ class S implements WidgetsLocalizations {
   String get reset => "Reset";
   String get restore_active_seed => "Active seed";
   String get restore_address => "Address";
+  String get restore_bitcoin_description_from_keys => "Restore your wallet from generated WIF string from your private keys";
+  String get restore_bitcoin_description_from_seed => "Restore your wallet from 12 word combination code";
+  String get restore_bitcoin_title_from_keys => "Restore from WIF";
   String get restore_description_from_backup => "You can restore the whole Cake Wallet app from your back-up file";
   String get restore_description_from_keys => "Restore your wallet from generated keystrokes saved from your private keys";
   String get restore_description_from_seed => "Restore your wallet from either the 25 word or 13 word combination code";
@@ -496,6 +499,8 @@ class $de extends S {
   @override
   String get settings_title => "die Einstellungen";
   @override
+  String get restore_bitcoin_description_from_seed => "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her";
+  @override
   String get address_book_menu => "Adressbuch";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Falsche Samenlänge";
@@ -629,6 +634,10 @@ class $de extends S {
   String get error_text_xmr => "Der XMR-Wert kann das verfügbare Guthaben nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 12 sein";
   @override
   String get xmr_available_balance => "XMR verfügbares Guthaben";
+  @override
+  String get restore_bitcoin_description_from_keys => "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her";
+  @override
+  String get restore_bitcoin_title_from_keys => "Aus WIF wiederherstellen";
   @override
   String get scan_qr_code => "Scannen Sie den QR-Code, um die Adresse zu erhalten";
   @override
@@ -1128,6 +1137,8 @@ class $hi extends S {
   @override
   String get settings_title => "सेटिंग्स";
   @override
+  String get restore_bitcoin_description_from_seed => "12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें";
+  @override
   String get address_book_menu => "पता पुस्तिका";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "गलत बीज की लंबाई";
@@ -1261,6 +1272,10 @@ class $hi extends S {
   String get error_text_xmr => "एक्सएमआर मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता.\nअंश अंकों की संख्या 12 से कम या इसके बराबर होनी चाहिए";
   @override
   String get xmr_available_balance => "XMR उपलब्ध शेष राशि";
+  @override
+  String get restore_bitcoin_description_from_keys => "अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें";
+  @override
+  String get restore_bitcoin_title_from_keys => "WIF से पुनर्स्थापित करें";
   @override
   String get scan_qr_code => "पता प्राप्त करने के लिए QR कोड स्कैन करें";
   @override
@@ -1760,6 +1775,8 @@ class $ru extends S {
   @override
   String get settings_title => "Настройки";
   @override
+  String get restore_bitcoin_description_from_seed => "Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу";
+  @override
   String get address_book_menu => "Адресная книга";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Неверная длина мнемонической фразы";
@@ -1893,6 +1910,10 @@ class $ru extends S {
   String get error_text_xmr => "Значение XMR не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 12";
   @override
   String get xmr_available_balance => "Доступный XMR баланс";
+  @override
+  String get restore_bitcoin_description_from_keys => "Вы можете восстановить кошелёк с помощью WIF";
+  @override
+  String get restore_bitcoin_title_from_keys => "Восстановить с помощью WIF";
   @override
   String get scan_qr_code => "Отсканируйте QR-код для получения адреса";
   @override
@@ -2392,6 +2413,8 @@ class $ko extends S {
   @override
   String get settings_title => "설정";
   @override
+  String get restore_bitcoin_description_from_seed => "12 단어 조합 코드에서 지갑 복원";
+  @override
   String get address_book_menu => "주소록";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "시드 길이가 잘못되었습니다";
@@ -2525,6 +2548,10 @@ class $ko extends S {
   String get error_text_xmr => "XMR 값은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 12 이하 여야합니다";
   @override
   String get xmr_available_balance => "XMR 사용 가능한 잔액";
+  @override
+  String get restore_bitcoin_description_from_keys => "개인 키에서 생성 된 WIF 문자열에서 지갑 복원";
+  @override
+  String get restore_bitcoin_title_from_keys => "WIF에서 복원";
   @override
   String get scan_qr_code => "QR 코드를 스캔하여 주소를 얻습니다.";
   @override
@@ -3024,6 +3051,8 @@ class $pt extends S {
   @override
   String get settings_title => "Configurações";
   @override
+  String get restore_bitcoin_description_from_seed => "Restaure sua carteira a partir de um código de combinação de 12 palavras";
+  @override
   String get address_book_menu => "Livro de endereços";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Comprimento de semente incorreto";
@@ -3157,6 +3186,10 @@ class $pt extends S {
   String get error_text_xmr => "A quantia em XMR não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12";
   @override
   String get xmr_available_balance => "Saldo XMR disponível";
+  @override
+  String get restore_bitcoin_description_from_keys => "Restaure sua carteira a partir da string WIF gerada de suas chaves privadas";
+  @override
+  String get restore_bitcoin_title_from_keys => "Restaurar de WIF";
   @override
   String get scan_qr_code => "Digitalize o código QR para obter o endereço";
   @override
@@ -3656,6 +3689,8 @@ class $uk extends S {
   @override
   String get settings_title => "Налаштування";
   @override
+  String get restore_bitcoin_description_from_seed => "Ви можете відновити гаманець використовуючи 12-ти слівну мнемонічну фразу";
+  @override
   String get address_book_menu => "Адресна книга";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Невірна довжина мнемонічної фрази";
@@ -3789,6 +3824,10 @@ class $uk extends S {
   String get error_text_xmr => "Значення XMR не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12";
   @override
   String get xmr_available_balance => "Доступний XMR баланс";
+  @override
+  String get restore_bitcoin_description_from_keys => "Ви можете відновити гаманець за допомогою WIF";
+  @override
+  String get restore_bitcoin_title_from_keys => "Відновити за допомогою WIF";
   @override
   String get scan_qr_code => "Скануйте QR-код для одержання адреси";
   @override
@@ -4288,6 +4327,8 @@ class $ja extends S {
   @override
   String get settings_title => "設定";
   @override
+  String get restore_bitcoin_description_from_seed => "12ワードの組み合わせコードからウォレットを復元する";
+  @override
   String get address_book_menu => "住所録";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "誤ったシード長s";
@@ -4421,6 +4462,10 @@ class $ja extends S {
   String get error_text_xmr => "XMR値は利用可能な残高を超えることはできません.\n小数桁数は12以下でなければなりません";
   @override
   String get xmr_available_balance => "XMR利用可能残高";
+  @override
+  String get restore_bitcoin_description_from_keys => "秘密鍵から生成されたWIF文字列からウォレットを復元します";
+  @override
+  String get restore_bitcoin_title_from_keys => "WIFから復元";
   @override
   String get scan_qr_code => "QRコードをスキャンして住所を取得します";
   @override
@@ -4924,6 +4969,8 @@ class $pl extends S {
   @override
   String get settings_title => "Ustawienia";
   @override
+  String get restore_bitcoin_description_from_seed => "Przywróć swój portfel z kodu złożonego z 12 słów";
+  @override
   String get address_book_menu => "Książka adresowa";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Nieprawidłowa długość nasion";
@@ -5057,6 +5104,10 @@ class $pl extends S {
   String get error_text_xmr => "Wartość XMR nie może przekraczać dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 12";
   @override
   String get xmr_available_balance => "XMR Dostępne saldo";
+  @override
+  String get restore_bitcoin_description_from_keys => "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych";
+  @override
+  String get restore_bitcoin_title_from_keys => "Przywróć z WIF";
   @override
   String get scan_qr_code => "Zeskanuj kod QR, aby uzyskać adres";
   @override
@@ -5556,6 +5607,8 @@ class $es extends S {
   @override
   String get settings_title => "Configuraciones";
   @override
+  String get restore_bitcoin_description_from_seed => "Restaure su billetera a partir del código de combinación de 12 palabras";
+  @override
   String get address_book_menu => "Libreta de direcciones";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Longitud de semilla incorrecta";
@@ -5689,6 +5742,10 @@ class $es extends S {
   String get error_text_xmr => "El valor XMR no puede exceder el saldo disponible.\nTEl número de dígitos de fracción debe ser menor o igual a 12";
   @override
   String get xmr_available_balance => "XMR Available Balance";
+  @override
+  String get restore_bitcoin_description_from_keys => "Restaure su billetera a partir de una cadena WIF generada a partir de sus claves privadas";
+  @override
+  String get restore_bitcoin_title_from_keys => "Restaurar desde WIF";
   @override
   String get scan_qr_code => "Escanee el código QR para obtener la dirección";
   @override
@@ -6188,6 +6245,8 @@ class $nl extends S {
   @override
   String get settings_title => "Instellingen";
   @override
+  String get restore_bitcoin_description_from_seed => "Herstel uw portemonnee met een combinatiecode van 12 woorden";
+  @override
   String get address_book_menu => "Adresboek";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Onjuiste zaadlengte";
@@ -6321,6 +6380,10 @@ class $nl extends S {
   String get error_text_xmr => "XMR-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12";
   @override
   String get xmr_available_balance => "XMR Beschikbaar saldo";
+  @override
+  String get restore_bitcoin_description_from_keys => "Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels";
+  @override
+  String get restore_bitcoin_title_from_keys => "Herstel van WIF";
   @override
   String get scan_qr_code => "Scan de QR-code om het adres te krijgen";
   @override
@@ -6820,6 +6883,8 @@ class $zh extends S {
   @override
   String get settings_title => "设定值";
   @override
+  String get restore_bitcoin_description_from_seed => "從12個單詞的組合碼恢復您的錢包";
+  @override
   String get address_book_menu => "地址簿";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "种子长度错误";
@@ -6953,6 +7018,10 @@ class $zh extends S {
   String get error_text_xmr => "XMR值不能超过可用余额.\n小数位数必须小于或等于12";
   @override
   String get xmr_available_balance => "XMR 可用余额 ";
+  @override
+  String get restore_bitcoin_description_from_keys => "從私鑰中生成的WIF字符串還原您的錢包";
+  @override
+  String get restore_bitcoin_title_from_keys => "從WIF還原";
   @override
   String get scan_qr_code => "掃描二維碼獲取地址";
   @override

@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "월렛 복원 설명",
   "restore_new_seed" : "새로운 씨앗",
   "restore_active_seed" : "활성 종자",
+  "restore_bitcoin_description_from_seed" : "12 단어 조합 코드에서 지갑 복원",
+  "restore_bitcoin_description_from_keys" : "개인 키에서 생성 된 WIF 문자열에서 지갑 복원",
+  "restore_bitcoin_title_from_keys" : "WIF에서 복원",
 
 
   "seed_title" : "씨",
