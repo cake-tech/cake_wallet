@@ -15,7 +15,7 @@ class RestoreWalletOptionsPage extends BasePage {
   final Function(BuildContext context) onRestoreFromKeys;
 
   @override
-  String get title => S.current.restore_seed_keys_restore;
+  String get title => S.current.restore_restore_wallet;
 
   final imageSeed = Image.asset('assets/images/restore_seed.png');
   final imageKeys = Image.asset('assets/images/restore_keys.png');
