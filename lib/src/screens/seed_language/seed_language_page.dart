@@ -1,5 +1,6 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
-import 'package:provider/provider.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,14 +8,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
-import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 
 class SeedLanguage extends BasePage {
   SeedLanguage({this.onConfirm});
 
   final Function(BuildContext, String) onConfirm;
+
+  @override
+  String get title => S.current.wallet_list_restore_wallet;
 
   @override
   Widget body(BuildContext context) => SeedLanguageForm(onConfirm: onConfirm);
@@ -33,10 +35,14 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
   static const aspectRatioImage = 1.22;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
+  final walletNameLightImage = Image.asset('assets/images/wallet_name_light.png');
   final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
 
   @override
   Widget build(BuildContext context) {
+    final walletImage = getIt.get<SettingsStore>().isDarkTheme
+        ? walletNameImage : walletNameLightImage;
+
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
@@ -47,7 +53,7 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: walletNameImage, fit: BoxFit.fill)),
+                  child: FittedBox(child: walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 40),
@@ -56,7 +62,7 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 16.0,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Theme.of(context).primaryTextTheme.title.color),
               ),
             ),

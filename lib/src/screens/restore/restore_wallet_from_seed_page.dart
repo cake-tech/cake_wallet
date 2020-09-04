@@ -20,20 +20,40 @@ class RestoreWalletFromSeedPage extends BasePage {
   String get title => S.current.restore_title_from_seed;
 
   @override
-  Color get backgroundLightColor => Palette.lavender;
+  Color get titleColor => Colors.white;
 
   @override
-  Color get backgroundDarkColor => PaletteDark.lightNightBlue;
+  Color get backgroundLightColor => Colors.transparent;
+
+  @override
+  Color get backgroundDarkColor => Colors.transparent;
+
+  @override
+  bool get resizeToAvoidBottomPadding => false;
 
   @override
   Widget body(BuildContext context) =>
-      RestoreFromSeedForm(key: formKey, type: type, language: language);
+      RestoreFromSeedForm(key: formKey, type: type, language: language,
+          leading: leading(context), middle: middle(context));
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
+        body: Container(
+            color: Theme.of(context).backgroundColor,
+            child: body(context)
+        )
+    );
+  }
 }
 
 class RestoreFromSeedForm extends StatefulWidget {
-  RestoreFromSeedForm({Key key, this.type, this.language}) : super(key: key);
+  RestoreFromSeedForm({Key key, this.type, this.language, this.leading, this.middle}) : super(key: key);
   final WalletType type;
   final String language;
+  final Widget leading;
+  final Widget middle;
 
   @override
   _RestoreFromSeedFormState createState() => _RestoreFromSeedFormState();
@@ -49,18 +69,17 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
     return GestureDetector(
       onTap: () =>
           SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
-      child: Container(
-        color: Theme.of(context).backgroundColor,
-        child: SeedWidget(
-          key: _seedKey,
-          maxLength: mnemonicLength(widget.type),
-          onMnemonicChange: (seed) => null,
-          onFinish: () => Navigator.of(context).pushNamed(
-              Routes.restoreWalletFromSeedDetails,
-              arguments: [widget.type, widget.language, mnemonic()]),
-          validator:
-              SeedValidator(type: widget.type, language: widget.language),
-        ),
+      child: SeedWidget(
+        key: _seedKey,
+        maxLength: mnemonicLength(widget.type),
+        onMnemonicChange: (seed) => null,
+        onFinish: () => Navigator.of(context).pushNamed(
+            Routes.restoreWalletFromSeedDetails,
+            arguments: [widget.type, widget.language, mnemonic()]),
+        leading: widget.leading,
+        middle: widget.middle,
+        validator:
+        SeedValidator(type: widget.type, language: widget.language),
       ),
     );
   }
