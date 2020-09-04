@@ -1,12 +1,10 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:provider/provider.dart';
-import 'package:cake_wallet/themes.dart';
-import 'package:cake_wallet/theme_changer.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
@@ -23,14 +21,13 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final _themeChanger = Provider.of<ThemeChanger>(context);
-    final welcomeImage = _themeChanger.getTheme() == Themes.darkTheme
-    ? welcomeImageDark : welcomeImageLight;
+    final welcomeImage = getIt.get<SettingsStore>().isDarkTheme
+        ? welcomeImageDark : welcomeImageLight;
 
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Palette.oceanBlue);
+        color: Theme.of(context).accentTextTheme.headline.decorationColor);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
@@ -60,13 +57,14 @@ class WelcomePage extends BasePage {
                         S.of(context).welcome,
                         style: TextStyle(
                           fontSize: 18,
-                          color: Theme.of(context).primaryTextTheme.caption.color,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).accentTextTheme.display3.color,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 10),
+                      padding: EdgeInsets.only(top: 5),
                       child: Text(
                         S.of(context).cake_wallet,
                         style: TextStyle(
@@ -78,13 +76,13 @@ class WelcomePage extends BasePage {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 14),
+                      padding: EdgeInsets.only(top: 5),
                       child: Text(
                         S.of(context).first_wallet_text,
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).primaryTextTheme.caption.color,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).accentTextTheme.display3.color,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -97,7 +95,8 @@ class WelcomePage extends BasePage {
                       S.of(context).please_make_selection,
                       style: TextStyle(
                         fontSize: 12,
-                        color: Theme.of(context).primaryTextTheme.caption.color,
+                        fontWeight: FontWeight.normal,
+                        color: Theme.of(context).accentTextTheme.display3.color,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -107,18 +106,17 @@ class WelcomePage extends BasePage {
                         onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
                         image: newWalletImage,
                         text: S.of(context).create_new,
-                        color: Colors.white,
-                        textColor: Palette.oceanBlue,
-                        borderColor: Palette.oceanBlue,
+                        color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
+                        textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
                       ),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: PrimaryImageButton(
-                          onPressed: () => Navigator.pushNamed(context, Routes.restoreOptions),
+                          onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletOptionsFromWelcome),
                           image: restoreWalletImage,
                           text: S.of(context).restore_wallet,
-                          color: Theme.of(context).primaryTextTheme.overline.color,
+                          color: Theme.of(context).accentTextTheme.caption.color,
                           textColor: Theme.of(context).primaryTextTheme.title.color),
                     )
                   ],
