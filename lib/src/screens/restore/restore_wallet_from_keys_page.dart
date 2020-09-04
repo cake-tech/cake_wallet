@@ -1,40 +1,36 @@
-import 'package:mobx/mobx.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/domain/services/wallet_list_service.dart';
-import 'package:cake_wallet/src/domain/services/wallet_service.dart';
-import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_store.dart';
-import 'package:cake_wallet/src/stores/wallet_restoration/wallet_restoration_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class RestoreWalletFromKeysPage extends BasePage {
   RestoreWalletFromKeysPage(
-      {@required this.walletsService,
-      @required this.sharedPreferences,
-      @required this.walletService});
+      {@required this.walletRestorationFromKeysVM});
 
-  final WalletListService walletsService;
-  final WalletService walletService;
-  final SharedPreferences sharedPreferences;
+  final WalletRestorationFromKeysVM walletRestorationFromKeysVM;
 
   @override
   String get title => S.current.restore_title_from_keys;
 
   @override
-  Widget body(BuildContext context) => RestoreFromKeysFrom();
+  Widget body(BuildContext context) => RestoreFromKeysFrom(walletRestorationFromKeysVM);
 }
 
 class RestoreFromKeysFrom extends StatefulWidget {
+  RestoreFromKeysFrom(this.walletRestorationFromKeysVM);
+
+  final WalletRestorationFromKeysVM walletRestorationFromKeysVM;
+
   @override
   _RestoreFromKeysFromState createState() => _RestoreFromKeysFromState();
 }
@@ -46,6 +42,23 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
   final _addressController = TextEditingController();
   final _viewKeyController = TextEditingController();
   final _spendKeyController = TextEditingController();
+  final _wifController = TextEditingController();
+
+  @override
+  void initState() {
+    _nameController.addListener(() =>
+    widget.walletRestorationFromKeysVM.name = _nameController.text);
+    _addressController.addListener(() =>
+    widget.walletRestorationFromKeysVM.address = _addressController.text);
+    _viewKeyController.addListener(() =>
+    widget.walletRestorationFromKeysVM.viewKey = _viewKeyController.text);
+    _spendKeyController.addListener(() =>
+    widget.walletRestorationFromKeysVM.spendKey = _spendKeyController.text);
+    _wifController.addListener(() =>
+    widget.walletRestorationFromKeysVM.wif = _wifController.text);
+
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -53,31 +66,14 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
     _addressController.dispose();
     _viewKeyController.dispose();
     _spendKeyController.dispose();
+    _wifController.dispose();
     super.dispose();
-  }
-
-  void onHandleControllers(WalletRestorationStore walletRestorationStore) {
-    if (_nameController.text.isNotEmpty &&
-    _addressController.text.isNotEmpty &&
-    _viewKeyController.text.isNotEmpty &&
-    _spendKeyController.text.isNotEmpty) {
-      walletRestorationStore.setDisabledState(false);
-    } else {
-      walletRestorationStore.setDisabledState(true);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final walletRestorationStore = Provider.of<WalletRestorationStore>(context);
-    final seedLanguageStore = Provider.of<SeedLanguageStore>(context);
 
-    _nameController.addListener(() {onHandleControllers(walletRestorationStore);});
-    _addressController.addListener(() {onHandleControllers(walletRestorationStore);});
-    _viewKeyController.addListener(() {onHandleControllers(walletRestorationStore);});
-    _spendKeyController.addListener(() {onHandleControllers(walletRestorationStore);});
-
-    reaction((_) => walletRestorationStore.state, (WalletRestorationState state) {
+    /*reaction((_) => walletRestorationStore.state, (WalletRestorationState state) {
       if (state is WalletRestoredSuccessfully) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
@@ -96,7 +92,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
               });
         });
       }
-    });
+    });*/
 
     return Container(
       padding: EdgeInsets.only(left: 24, right: 24),
@@ -110,66 +106,39 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                 Flexible(
                     child: Container(
                       padding: EdgeInsets.only(top: 20.0),
-                      child: TextFormField(
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: Theme.of(context).primaryTextTheme.title.color
-                        ),
+                      child: BaseTextFormField(
                         controller: _nameController,
-                        decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).primaryTextTheme.caption.color,
-                                fontSize: 16
-                            ),
-                            hintText: S.of(context).restore_wallet_name,
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0)),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0))),
-                        validator: (value) {
-                          walletRestorationStore.validateWalletName(value);
-                          return walletRestorationStore.errorMessage;
-                        },
-                      ),
+                        hintText: S.of(context).restore_wallet_name,
+                        validator: WalletNameValidator(),
+                      )
                     ))
               ],
             ),
+            if (!widget.walletRestorationFromKeysVM.hasRestorationHeight)
+            Row(
+              children: <Widget>[
+                Flexible(
+                  child: Container(
+                    padding: EdgeInsets.only(top: 20.0),
+                    child: BaseTextFormField(
+                      controller: _wifController,
+                      hintText: 'WIF',
+                    )
+                ))
+              ],
+            ),
+            if (widget.walletRestorationFromKeysVM.hasRestorationHeight) ... [
             Row(
               children: <Widget>[
                 Flexible(
                     child: Container(
                       padding: EdgeInsets.only(top: 20.0),
-                      child: TextFormField(
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: Theme.of(context).primaryTextTheme.title.color
-                        ),
+                      child: BaseTextFormField(
                         controller: _addressController,
                         keyboardType: TextInputType.multiline,
                         maxLines: null,
-                        decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).primaryTextTheme.caption.color,
-                                fontSize: 16
-                            ),
-                            hintText: S.of(context).restore_address,
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0)),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0))),
-                        validator: (value) {
-                          walletRestorationStore.validateAddress(value);
-                          return walletRestorationStore.errorMessage;
-                        },
-                      ),
+                        hintText: S.of(context).restore_address,
+                      )
                     ))
               ],
             ),
@@ -178,31 +147,10 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                 Flexible(
                     child: Container(
                       padding: EdgeInsets.only(top: 20.0),
-                      child: TextFormField(
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: Theme.of(context).primaryTextTheme.title.color
-                        ),
+                      child: BaseTextFormField(
                         controller: _viewKeyController,
-                        decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).primaryTextTheme.caption.color,
-                                fontSize: 16
-                            ),
-                            hintText: S.of(context).restore_view_key_private,
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0)),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0))),
-                        validator: (value) {
-                          walletRestorationStore.validateKeys(value);
-                          return walletRestorationStore.errorMessage;
-                        },
-                      ),
+                        hintText: S.of(context).restore_view_key_private,
+                      )
                     ))
               ],
             ),
@@ -211,35 +159,19 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                 Flexible(
                     child: Container(
                       padding: EdgeInsets.only(top: 20.0),
-                      child: TextFormField(
-                        style: TextStyle(
-                            fontSize: 16.0,
-                            color: Theme.of(context).primaryTextTheme.title.color
-                        ),
+                      child: BaseTextFormField(
                         controller: _spendKeyController,
-                        decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                                color: Theme.of(context).primaryTextTheme.caption.color,
-                                fontSize: 16
-                            ),
-                            hintText: S.of(context).restore_spend_key_private,
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0)),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Theme.of(context).dividerColor,
-                                    width: 1.0))),
-                        validator: (value) {
-                          walletRestorationStore.validateKeys(value);
-                          return walletRestorationStore.errorMessage;
-                        },
-                      ),
+                        hintText: S.of(context).restore_spend_key_private,
+                      )
                     ))
               ],
             ),
-            BlockchainHeightWidget(key: _blockchainHeightKey),
+            BlockchainHeightWidget(
+              key: _blockchainHeightKey,
+              onHeightChange: (height) {
+                widget.walletRestorationFromKeysVM.height = height;
+                print(height);
+            })],
           ]),
         ),
         bottomSectionPadding: EdgeInsets.only(bottom: 24),
@@ -247,19 +179,19 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
           return LoadingPrimaryButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                walletRestorationStore.restoreFromKeys(
+                /*walletRestorationStore.restoreFromKeys(
                     name: _nameController.text,
                     language: seedLanguageStore.selectedSeedLanguage,
                     address: _addressController.text,
                     viewKey: _viewKeyController.text,
                     spendKey: _spendKeyController.text,
-                    restoreHeight: _blockchainHeightKey.currentState.height);
+                    restoreHeight: _blockchainHeightKey.currentState.height);*/
               }
             },
             text: S.of(context).restore_recover,
-            color: Colors.green,
+            color: Palette.blueCraiola,
             textColor: Colors.white,
-            isDisabled: walletRestorationStore.disabledState,
+            //isDisabled: walletRestorationStore.disabledState,
           );
         }),
       ),

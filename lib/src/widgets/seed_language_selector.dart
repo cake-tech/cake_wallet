@@ -34,14 +34,14 @@ class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
     return SelectButton(
         image: null,
         text: seedLocales[seedLanguages.indexOf(selected)],
-        color: Theme.of(context).accentTextTheme.title.backgroundColor,
-        textColor: Theme.of(context).primaryTextTheme.title.color,
         onTap: () async {
           final selected = await showDialog<String>(
               context: context,
               builder: (BuildContext context) =>
                   SeedLanguagePicker(key: _pickerKey, selected: this.selected));
-          setState(() => this.selected = selected);
+          if (selected != null) {
+            setState(() => this.selected = selected);
+          }
         });
   }
 }

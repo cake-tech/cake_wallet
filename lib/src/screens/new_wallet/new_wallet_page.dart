@@ -1,3 +1,5 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -40,6 +42,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
   static const aspectRatioImage = 1.22;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
+  final walletNameLightImage = Image.asset('assets/images/wallet_name_light.png');
   final _formKey = GlobalKey<FormState>();
   final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
   ReactionDisposer _stateReaction;
@@ -72,6 +75,9 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   @override
   Widget build(BuildContext context) {
+    final walletImage = getIt.get<SettingsStore>().isDarkTheme
+        ? walletNameImage : walletNameLightImage;
+
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
@@ -82,7 +88,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: walletNameImage, fit: BoxFit.fill)),
+                  child: FittedBox(child: walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 24),
@@ -98,19 +104,26 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               Theme.of(context).primaryTextTheme.title.color),
                       decoration: InputDecoration(
                           hintStyle: TextStyle(
-                              fontSize: 16.0,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500,
                               color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .caption
+                                  .accentTextTheme
+                                  .display3
                                   .color),
                           hintText: S.of(context).wallet_name,
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: Theme.of(context).dividerColor,
+                                  color: Theme.of(context)
+                                      .accentTextTheme
+                                      .display3
+                                      .decorationColor,
                                   width: 1.0)),
                           enabledBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                                  color: Theme.of(context).dividerColor,
+                                  color: Theme.of(context)
+                                      .accentTextTheme
+                                      .display3
+                                      .decorationColor,
                                   width: 1.0))),
                       validator: WalletNameValidator())),
             ),
@@ -122,7 +135,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                       fontSize: 16.0,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: Theme.of(context).primaryTextTheme.title.color),
                 ),
               ),
