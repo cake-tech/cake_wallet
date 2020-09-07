@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "ウォレットの復元",
   "restore_new_seed" : "新しい種",
   "restore_active_seed" : "アクティブシード",
+  "restore_bitcoin_description_from_seed" : "12ワードの組み合わせコードからウォレットを復元する",
+  "restore_bitcoin_description_from_keys" : "秘密鍵から生成されたWIF文字列からウォレットを復元します",
+  "restore_bitcoin_title_from_keys" : "WIFから復元",
 
 
   "seed_title" : "シード",

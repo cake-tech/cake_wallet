@@ -58,6 +58,7 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
+import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
@@ -166,6 +167,16 @@ Future setup(
     return WalletRestorationFromSeedVM(
         getIt.get<WalletCreationService>(param1: type), walletInfoSource,
         type: type, language: language, seed: mnemonic);
+  });
+
+  getIt
+      .registerFactoryParam<WalletRestorationFromKeysVM, List, void>((args, _) {
+    final type = args.first as WalletType;
+    final language = args[1] as String;
+
+    return WalletRestorationFromKeysVM(
+        getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+        type: type, language: language);
   });
 
   getIt.registerFactory<WalletAddressListViewModel>(
@@ -302,8 +313,8 @@ Future setup(
       getIt.get<ContactService>(),
       contactSource));
 
-  getIt.registerFactory(
-      () => ContactListPage(getIt.get<ContactListViewModel>()));
+  getIt.registerFactoryParam<ContactListPage, bool, void>((bool isEditable, _) =>
+      ContactListPage(getIt.get<ContactListViewModel>(), isEditable: isEditable));
 
   getIt.registerFactoryParam<ContactPage, Contact, void>((Contact contact, _) =>
       ContactPage(getIt.get<ContactViewModel>(param1: contact)));
