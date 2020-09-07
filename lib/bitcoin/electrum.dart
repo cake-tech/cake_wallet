@@ -87,7 +87,7 @@ class ElectrumClient {
 
   Future<void> ping() async {
     try {
-      await callWithTimeout(method: 'server.ping');
+      // await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
       _setIsConnected(false);

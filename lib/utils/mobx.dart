@@ -1,46 +1,90 @@
+import 'dart:async';
+
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
-void connectDifferent<T, Y>(
+mixin Keyable {
+  dynamic keyIndex;
+}
+
+void connectDifferent<T extends Keyable, Y extends Keyable>(
     ObservableList<T> source, ObservableList<Y> dest, Y Function(T) transform,
     {bool Function(T) filter}) {
   source.observe((ListChange<T> change) {
-//     switch (change.type) {
-//       case OperationType.add:
-//         final _values = change.added;
-//         Iterable<T> values;
+    change.elementChanges.forEach((change) {
+      switch (change.type) {
+        case OperationType.add:
+          if (filter?.call(change.newValue as T) ?? true) {
+            dest.add(transform(change.newValue as T));
+          }
+          break;
+        case OperationType.remove:
+          // Hive could has equal index and key
+          dest.removeWhere(
+              (elem) => elem.keyIndex == (change.oldValue.key ?? change.index));
+          break;
+        case OperationType.update:
+          for (var i = 0; i < dest.length; i++) {
+            final item = dest[i];
 
-//         if (filter != null) {
-//           values = _values.where(filter);
-//         }
-
-//         dest.addAll(values.map((e) => transform(e)));
-//         break;
-//       case OperationType.remove:
-//         change.removed.forEach((element) {
-//           dest.remove(element);
-//         });
-
-// //        dest.removeAt(change.index);
-//         break;
-//       case OperationType.update:
-// //        change.index
-//         break;
-//     }
+            if (item.keyIndex == change.newValue.key) {
+              dest[i] = transform(change.newValue as T);
+            }
+          }
+          break;
+      }
+    });
   });
 }
 
-void connect<T>(ObservableList<T> source, ObservableList<T> dest) {
+void connect<T extends Keyable>(
+    ObservableList<T> source, ObservableList<T> dest) {
   source.observe((ListChange<T> change) {
-//     switch (change.type) {
-//       case OperationType.add:
-//         dest.addAll(change.added);
-//         break;
-//       case OperationType.remove:
-//         dest.removeAt(change.index);
-//         break;
-//       case OperationType.update:
-// //        change.index
-//         break;
-//     }
+    source.observe((ListChange<T> change) {
+      change.elementChanges.forEach((change) {
+        switch (change.type) {
+          case OperationType.add:
+            // if (filter?.call(change.newValue as T) ?? true) {
+            dest.add(change.newValue as T);
+            // }
+            break;
+          case OperationType.remove:
+            // Hive could has equal index and key
+            dest.removeWhere((elem) =>
+                elem.keyIndex == (change.oldValue.key ?? change.index));
+            break;
+          case OperationType.update:
+            for (var i = 0; i < dest.length; i++) {
+              final item = dest[i];
+
+              if (item.keyIndex == change.newValue.key) {
+                dest[i] = change.newValue as T;
+              }
+            }
+            break;
+        }
+      });
+    });
+  });
+}
+
+StreamSubscription<BoxEvent> bindBox<T extends Keyable>(
+    Box<T> source, ObservableList<T> dest) {
+  return source.watch().listen((event) {
+    if (event.deleted) {
+      dest.removeWhere((el) => el.keyIndex == event.key);
+    }
+
+    final dynamic value = event.value;
+
+    if (value is T) {
+      final elIndex = dest.indexWhere((el) => el.keyIndex == value.keyIndex);
+
+      if (elIndex > -1) {
+        dest[elIndex] = value;
+      } else {
+        dest.add(value);
+      }
+    }
   });
 }

@@ -1,3 +1,4 @@
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/contact_service.dart';
@@ -10,7 +11,7 @@ part 'contact_view_model.g.dart';
 class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._contactService, this._wallet, {Contact contact})
+  ContactViewModelBase(this._contacts, this._wallet, {Contact contact})
       : state = InitialContactViewModelState(),
         currencies = CryptoCurrency.all,
         _contact = contact {
@@ -33,12 +34,14 @@ abstract class ContactViewModelBase with Store {
 
   @computed
   bool get isReady =>
-      (name?.isNotEmpty ?? false) && (currency?.toString()?.isNotEmpty ?? false)
-      && (address?.isNotEmpty ?? false);
+      (name?.isNotEmpty ?? false) &&
+      (currency?.toString()?.isNotEmpty ?? false) &&
+      (address?.isNotEmpty ?? false);
 
   final List<CryptoCurrency> currencies;
-  final ContactService _contactService;
+  // final ContactService _contactService;
   final WalletBase _wallet;
+  final Box<Contact> _contacts;
   final Contact _contact;
 
   @action
@@ -57,10 +60,13 @@ abstract class ContactViewModelBase with Store {
         _contact.name = name;
         _contact.address = address;
         _contact.updateCryptoCurrency(currency: currency);
-        await _contactService.update(_contact);
+        await _contacts.put(_contact.key, _contact);
+        // await _contactService.update(_contact);
       } else {
-        await _contactService
+        await _contacts
             .add(Contact(name: name, address: address, type: currency));
+        // await _contactService
+        //     .add(Contact(name: name, address: address, type: currency));
       }
 
       state = ContactSavingSuccessfully();

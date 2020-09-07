@@ -44,9 +44,9 @@ abstract class SettingsStoreBase with Store {
     languageCode = initialLanguageCode;
     currentLocale = initialCurrentLocale;
     itemHeaders = {};
+    this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
     _nodeSource = nodeSource;
-    _nodes = nodes;
   }
 
   static const currentNodeIdKey = 'current_node_id';
@@ -101,9 +101,9 @@ abstract class SettingsStoreBase with Store {
   SharedPreferences _sharedPreferences;
   Box<Node> _nodeSource;
 
-  Map<WalletType, Node> _nodes;
+  ObservableMap<WalletType, Node> nodes;
 
-  Node getCurrentNode(WalletType walletType) => _nodes[walletType];
+  Node getCurrentNode(WalletType walletType) => nodes[walletType];
 
   Future<void> setCurrentNode(Node node, WalletType walletType) async {
     switch (walletType) {
@@ -118,7 +118,7 @@ abstract class SettingsStoreBase with Store {
         break;
     }
 
-    _nodes[walletType] = node;
+    nodes[walletType] = node;
   }
 
   static Future<SettingsStore> load(
