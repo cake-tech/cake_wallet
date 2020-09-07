@@ -53,7 +53,7 @@ class _SetupPinCodeFormState<WidgetType extends SetupPinCodeForm>
       state.clear();
     } else {
       if (listEquals<int>(state.pin, _originalPin)) {
-        final String pin = state.pin.fold("", (ac, val) => ac + '$val');
+        final String pin = state.pin.fold('', (ac, val) => ac + '$val');
         _userStore.set(password: pin);
         _settingsStore.setDefaultPinLength(pinLength: state.pinLength);
 

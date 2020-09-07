@@ -30,7 +30,7 @@ class Language with ChangeNotifier {
   }
 
   static Future<String> localeDetection() async {
-    String locale = await Devicelocale.currentLocale;
+    var locale = await Devicelocale.currentLocale;
     locale = Intl.shortLocale(locale);
 
     return languages.keys.contains(locale) ? locale : 'en';

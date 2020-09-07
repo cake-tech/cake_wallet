@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -27,93 +29,85 @@ class FaqFormState extends State<FaqForm> {
   @override
   Widget build(BuildContext context) {
     final addIcon = Icon(Icons.add, color: Theme.of(context).primaryTextTheme.title.color);
-    final removeIcon = Icon(Icons.remove, color: Colors.green);
+    final removeIcon = Icon(Icons.remove, color: Palette.blueCraiola);
 
     return Container(
-      padding: EdgeInsets.only(top: 12),
-      child: Container(
-        color: Theme.of(context).accentTextTheme.headline.color,
-        child: FutureBuilder(
-          builder: (context, snapshot) {
-            final faqItems = jsonDecode(snapshot.data.toString()) as List;
+      padding: EdgeInsets.only(top: 12, left: 24),
+      child: FutureBuilder(
+        builder: (context, snapshot) {
+          final faqItems = jsonDecode(snapshot.data.toString()) as List;
 
-            if (snapshot.hasData) {
-              setIconsAndColors(context, faqItems.length, addIcon);
-            }
+          if (snapshot.hasData) {
+            setIconsAndColors(context, faqItems.length, addIcon);
+          }
 
-            return SingleChildScrollView(
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                itemBuilder: (BuildContext context, int index) {
-                  final itemTitle = faqItems[index]["question"].toString();
-                  final itemChild = faqItems[index]["answer"].toString();
+          return SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                StandardListSeparator(),
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    final itemTitle = faqItems[index]["question"].toString();
+                    final itemChild = faqItems[index]["answer"].toString();
 
-                  return ExpansionTile(
-                    title: Padding(
-                      padding: EdgeInsets.only(left: 8, top: 12, bottom: 12),
-                      child: Text(
-                        itemTitle,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: colors[index]
+                    return ListTileTheme(
+                      contentPadding: EdgeInsets.fromLTRB(0, 6, 24, 6),
+                      child: ExpansionTile(
+                        title: Text(
+                          itemTitle,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: colors[index]
+                          ),
                         ),
-                      ),
-                    ),
-                    trailing: Padding(
-                      padding: EdgeInsets.only(right: 24),
-                      child: Container(
-                        width: double.minPositive,
-                        child: Center(
-                            child: icons[index]
-                        ),
-                      ),
-                    ),
-                    backgroundColor: Theme.of(context).accentTextTheme.headline.backgroundColor,
-                    onExpansionChanged: (value) {
-                      setState(() {
-                        if (value) {
-                          icons[index] = removeIcon;
-                          colors[index] = Colors.green;
-                        } else {
-                          icons[index] = addIcon;
-                          colors[index] = Theme.of(context).primaryTextTheme.title.color;
-                        }
-                      });
-                    },
-                    children: <Widget>[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        trailing: icons[index],
+                        onExpansionChanged: (value) {
+                          setState(() {
+                            if (value) {
+                              icons[index] = removeIcon;
+                              colors[index] = Palette.blueCraiola;
+                            } else {
+                              icons[index] = addIcon;
+                              colors[index] = Theme.of(context).primaryTextTheme.title.color;
+                            }
+                          });
+                        },
                         children: <Widget>[
-                          Expanded(
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    left: 24.0,
-                                    right: 24.0,
-                                    bottom: 8
-                                ),
-                                child: Text(
-                                  itemChild,
-                                  style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(context).primaryTextTheme.title.color
-                                  ),
-                                ),
-                              ))
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              Expanded(
+                                  child: Container(
+                                    padding: EdgeInsets.only(
+                                        right: 24.0,
+                                    ),
+                                    child: Text(
+                                      itemChild,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.normal,
+                                          color: Theme.of(context).primaryTextTheme.title.color
+                                      ),
+                                    ),
+                                  ))
+                            ],
+                          )
                         ],
-                      )
-                    ],
-                  );
-                },
-                separatorBuilder: (_, __) =>
-                    Container(color: Theme.of(context).dividerColor, height: 1.0),
-                itemCount: faqItems == null ? 0 : faqItems.length,
-              ),
-            );
-          },
-          future: rootBundle.loadString(getFaqPath(context)),
-        ),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (_, __) =>
+                      StandardListSeparator(),
+                  itemCount: faqItems == null ? 0 : faqItems.length,
+                )
+              ],
+            ),
+          );
+        },
+        future: rootBundle.loadString(getFaqPath(context)),
       ),
     );
   }
