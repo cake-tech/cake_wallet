@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/item_cell.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -14,13 +15,6 @@ part 'node_list_view_model.g.dart';
 
 class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 
-class ItemCell<Item> {
-  ItemCell(this.value, {@required this.isSelected});
-
-  final Item value;
-  final bool isSelected;
-}
-
 abstract class NodeListViewModelBase with Store {
   NodeListViewModelBase(
       this._nodeListStore, this._nodeSource, this._wallet, this._settingsStore)
@@ -29,16 +23,16 @@ abstract class NodeListViewModelBase with Store {
     final values = _nodeListStore.nodes;
     nodes.clear();
     nodes.addAll(values.where((Node node) => node.type == _wallet.type).map(
-        (Node val) =>
-            ItemCell<Node>(val, isSelected: val.key == currentNode.key)));
+        (Node val) => ItemCell<Node>(val,
+            isSelected: val.key == currentNode.key, key: val.key)));
     connectDifferent(
         _nodeListStore.nodes,
         nodes,
-        (Node val) =>
-            ItemCell<Node>(val, isSelected: val.key == currentNode.key),
-        filter: (Node val) {
-          return val.type == _wallet.type;
-        });
+        (Node val) => ItemCell<Node>(val,
+            isSelected: val.key == currentNode.key, key: val.key),
+        filter: (Node val) => val.type == _wallet.type);
+    reaction((_) => _settingsStore.nodes[_wallet.type],
+        (Node _) => _updateCurrentNode());
   }
 
   ObservableList<ItemCell<Node>> nodes;
@@ -66,17 +60,18 @@ abstract class NodeListViewModelBase with Store {
         break;
     }
 
-    await _wallet.connectToNode(node: node);
+    await setAsCurrent(node);
   }
 
   Future<void> delete(Node node) async => _nodeSource.delete(node.key);
 
   Future<void> setAsCurrent(Node node) async {
-    await _wallet.connectToNode(node: node);
     await _settingsStore.setCurrentNode(node, _wallet.type);
     _updateCurrentNode();
+    await _wallet.connectToNode(node: node);
   }
 
+  @action
   void _updateCurrentNode() {
     final currentNode = _settingsStore.getCurrentNode(_wallet.type);
 
@@ -85,7 +80,8 @@ abstract class NodeListViewModelBase with Store {
       final isSelected = item.value.key == currentNode.key;
 
       if (item.isSelected != isSelected) {
-        nodes[i] = ItemCell<Node>(item.value, isSelected: isSelected);
+        nodes[i] = ItemCell<Node>(item.value,
+            isSelected: isSelected, key: item.keyIndex);
       }
     }
   }

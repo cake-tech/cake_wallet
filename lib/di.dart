@@ -294,11 +294,13 @@ Future setup(
 
   getIt.registerFactoryParam<ContactViewModel, Contact, void>(
       (Contact contact, _) => ContactViewModel(
-          getIt.get<ContactService>(), getIt.get<AppStore>().wallet,
+          contactSource, getIt.get<AppStore>().wallet,
           contact: contact));
 
   getIt.registerFactory(() => ContactListViewModel(
-      getIt.get<AppStore>().contactListStore, getIt.get<ContactService>()));
+      getIt.get<AppStore>().contactListStore,
+      getIt.get<ContactService>(),
+      contactSource));
 
   getIt.registerFactory(
       () => ContactListPage(getIt.get<ContactListViewModel>()));
