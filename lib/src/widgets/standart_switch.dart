@@ -26,7 +26,7 @@ class StandartSwitchState extends State<StandartSwitch> {
         decoration: BoxDecoration(
             color: widget.value
                 ? Colors.green
-                : PaletteDark.distantBlue,
+                : Theme.of(context).accentTextTheme.display4.color,
             borderRadius: BorderRadius.all(Radius.circular(14.0))),
         child: Container(
           width: 24.0,

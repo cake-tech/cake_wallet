@@ -5,9 +5,13 @@ class PickerListItem<ItemType> extends SettingsListItem {
   PickerListItem(
       {@required String title,
         @required this.selectedItem,
-        @required this.items})
+        @required this.setItem,
+        @required this.items,
+        this.isAlwaysShowScrollThumb = false})
       : super(title);
 
   final ItemType Function() selectedItem;
+  final Function(ItemType value) setItem;
   final List<ItemType> items;
+  final bool isAlwaysShowScrollThumb;
 }
