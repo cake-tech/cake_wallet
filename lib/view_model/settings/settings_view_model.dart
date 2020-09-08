@@ -1,6 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/theme_changer_store.dart';
 import 'package:cake_wallet/themes.dart';
+import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/routes.dart';
@@ -17,6 +18,7 @@ import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
+import 'package:package_info/package_info.dart';
 
 part 'settings_view_model.g.dart';
 
@@ -24,19 +26,27 @@ class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
 abstract class SettingsViewModelBase with Store {
   SettingsViewModelBase(this._settingsStore) : itemHeaders = {} {
+    currentVersion = '';
+    PackageInfo.fromPlatform().then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
+
     sections = [
       [
         PickerListItem(
             title: S.current.settings_display_balance_as,
             items: BalanceDisplayMode.all,
+            setItem: (dynamic value) => balanceDisplayMode = value as BalanceDisplayMode,
             selectedItem: () => balanceDisplayMode),
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
+            setItem: (dynamic value) => fiatCurrency = value as FiatCurrency,
+            isAlwaysShowScrollThumb: true,
             selectedItem: () => fiatCurrency),
         PickerListItem(
             title: S.current.settings_fee_priority,
             items: TransactionPriority.all,
+            setItem: (dynamic value) => transactionPriority = value as TransactionPriority,
+            isAlwaysShowScrollThumb: true,
             selectedItem: () => transactionPriority),
         SwitcherListItem(
             title: S.current.settings_save_recipient_address,
@@ -111,10 +121,21 @@ abstract class SettingsViewModelBase with Store {
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>
               Navigator.of(context).pushNamed(Routes.disclaimer),
+        ),
+        RegularListItem(
+          title: S.current.faq,
+          handler: (BuildContext context) =>
+              Navigator.pushNamed(context, Routes.faq),
         )
+      ],
+      [
+        VersionListItem(title: currentVersion)
       ]
     ];
   }
+
+  @observable
+  String currentVersion;
 
   @computed
   Node get node => _settingsStore.node;
@@ -149,6 +170,18 @@ abstract class SettingsViewModelBase with Store {
   @action
   set allowBiometricalAuthentication(bool value) =>
       _settingsStore.allowBiometricalAuthentication = value;
+
+  @action
+  set balanceDisplayMode(BalanceDisplayMode value) =>
+      _settingsStore.balanceDisplayMode = value;
+
+  @action
+  set fiatCurrency(FiatCurrency value) =>
+      _settingsStore.fiatCurrency = value;
+
+  @action
+  set transactionPriority(TransactionPriority value) =>
+      _settingsStore.transactionPriority = value;
 
 //  @observable
 //  bool isDarkTheme;
