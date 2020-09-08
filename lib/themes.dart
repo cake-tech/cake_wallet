@@ -160,6 +160,13 @@ class Themes {
         color: Palette.darkGray, // hint text (new wallet page)
         decorationColor: Palette.periwinkleCraiola // underline (new wallet page)
       ),
+      display4: TextStyle(
+        color: Palette.darkGray, // switch background (settings page)
+      ),
+      body1: TextStyle(
+        color: Palette.darkGray, // indicators (PIN code)
+        decorationColor: Palette.darkGray // switch (PIN code)
+      )
     ),
 
 
@@ -331,6 +338,13 @@ class Themes {
         color: PaletteDark.cyanBlue, // hint text (new wallet page)
         decorationColor: PaletteDark.darkGrey // underline (new wallet page)
       ),
+      display4: TextStyle(
+        color: PaletteDark.deepVioletBlue, // switch background (settings page)
+      ),
+      body1: TextStyle(
+        color: PaletteDark.indicatorVioletBlue, // indicators (PIN code)
+        decorationColor: PaletteDark.lightPurpleBlue // switch (PIN code)
+      )
     ),
 
 
