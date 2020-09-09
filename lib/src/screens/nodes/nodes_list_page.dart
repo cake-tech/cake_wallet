@@ -36,13 +36,13 @@ class NodeListPage extends BasePage {
                         alertTitle: S.of(context).node_reset_settings_title,
                         alertContent:
                             S.of(context).nodes_list_reset_to_default_message,
-                        leftButtonText: S.of(context).reset,
-                        rightButtonText: S.of(context).cancel,
-                        actionLeftButton: () async {
+                        rightButtonText: S.of(context).reset,
+                        leftButtonText: S.of(context).cancel,
+                        actionRightButton: () async {
                           Navigator.of(context).pop();
                           await nodeListViewModel.reset();
                         },
-                        actionRightButton: () => Navigator.of(context).pop());
+                        actionLeftButton: () => Navigator.of(context).pop());
                   });
             },
             child: Text(
@@ -90,11 +90,11 @@ class NodeListPage extends BasePage {
                           return AlertWithTwoActions(
                               alertTitle: S.of(context).remove_node,
                               alertContent: S.of(context).remove_node_message,
-                              leftButtonText: S.of(context).remove,
-                              rightButtonText: S.of(context).cancel,
-                              actionLeftButton: () =>
-                                  Navigator.pop(context, true),
+                              rightButtonText: S.of(context).remove,
+                              leftButtonText: S.of(context).cancel,
                               actionRightButton: () =>
+                                  Navigator.pop(context, true),
+                              actionLeftButton: () =>
                                   Navigator.pop(context, false));
                         });
                   },

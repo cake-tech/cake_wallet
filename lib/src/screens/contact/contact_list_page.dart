@@ -252,10 +252,10 @@ class ContactListPage extends BasePage {
           return AlertWithTwoActions(
               alertTitle: S.of(context).address_remove_contact,
               alertContent: S.of(context).address_remove_content,
-              leftButtonText: S.of(context).remove,
-              rightButtonText: S.of(context).cancel,
-              actionLeftButton: () => Navigator.of(context).pop(true),
-              actionRightButton: () => Navigator.of(context).pop(false));
+              rightButtonText: S.of(context).remove,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.of(context).pop(true),
+              actionLeftButton: () => Navigator.of(context).pop(false));
         });
   }
 
@@ -267,10 +267,10 @@ class ContactListPage extends BasePage {
           return AlertWithTwoActions(
               alertTitle: name,
               alertContent: address,
-              leftButtonText: S.of(context).copy,
-              rightButtonText: S.of(context).cancel,
-              actionLeftButton: () => Navigator.of(context).pop(true),
-              actionRightButton: () => Navigator.of(context).pop(false));
+              rightButtonText: S.of(context).copy,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () => Navigator.of(context).pop(true),
+              actionLeftButton: () => Navigator.of(context).pop(false));
         });
   }
 }

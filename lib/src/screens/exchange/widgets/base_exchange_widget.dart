@@ -284,14 +284,14 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                                 return AlertWithTwoActions(
                                                     alertTitle: S.of(context).template,
                                                     alertContent: S.of(context).confirm_delete_template,
-                                                    leftButtonText: S.of(context).delete,
-                                                    rightButtonText: S.of(context).cancel,
-                                                    actionLeftButton: () {
+                                                    rightButtonText: S.of(context).delete,
+                                                    leftButtonText: S.of(context).cancel,
+                                                    actionRightButton: () {
                                                       Navigator.of(dialogContext).pop();
                                                       exchangeViewModel.exchangeTemplateStore.remove(template: template);
                                                       exchangeViewModel.exchangeTemplateStore.update();
                                                     },
-                                                    actionRightButton: () => Navigator.of(dialogContext).pop()
+                                                    actionLeftButton: () => Navigator.of(dialogContext).pop()
                                                 );
                                               }
                                           );

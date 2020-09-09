@@ -168,16 +168,6 @@ class Themes {
         decorationColor: Palette.darkGray // switch (PIN code)
       )
     ),
-
-
-
-    cardColor: Palette.blueAlice,
-    cardTheme: CardTheme(
-      color: Colors.white, // synced card start
-    ),
-
-
-
   );
 
 
@@ -346,17 +336,5 @@ class Themes {
         decorationColor: PaletteDark.lightPurpleBlue // switch (PIN code)
       )
     ),
-
-
-
-    cardColor: PaletteDark.darkNightBlue,
-    cardTheme: CardTheme(
-      color: PaletteDark.moderateBlue, // synced card start
-    ),
-
-
-
-
   );
-
 }
