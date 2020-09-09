@@ -88,9 +88,7 @@ class DashboardPage extends BasePage {
             child: PageView.builder(
                 controller: controller,
                 itemCount: pages.length,
-                itemBuilder: (context, index) {
-                  return pages[index];
-                })),
+                itemBuilder: (context, index) => pages[index])),
         Padding(
             padding: EdgeInsets.only(bottom: 24),
             child: SmoothPageIndicator(
@@ -106,8 +104,9 @@ class DashboardPage extends BasePage {
             )),
         Container(
           width: double.infinity,
-          padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
+          padding: EdgeInsets.only(left: 44, right: 0, bottom: 24),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Flexible(
                 child: ActionButton(
@@ -122,14 +121,6 @@ class DashboardPage extends BasePage {
                     image: exchangeImage,
                     title: S.of(context).exchange,
                     route: Routes.exchange),
-              ),
-              Flexible(
-                child: ActionButton(
-                  image: receiveImage,
-                  title: S.of(context).receive,
-                  route: Routes.receive,
-                  alignment: Alignment.centerRight,
-                ),
               )
             ],
           ),

@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ActionButton extends StatelessWidget{
-  ActionButton({
-    @required this.image,
-    @required this.title,
-    @required this.route,
-    this.alignment = Alignment.center
-  });
+class ActionButton extends StatelessWidget {
+  ActionButton(
+      {@required this.image,
+      @required this.title,
+      @required this.route,
+      this.alignment = Alignment.center});
 
   final Image image;
   final String title;
@@ -35,17 +34,13 @@ class ActionButton extends StatelessWidget{
               width: 60,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Theme.of(context).buttonColor,
-                shape: BoxShape.circle),
+                  color: Theme.of(context).buttonColor, shape: BoxShape.circle),
               child: image,
             ),
           ),
           Text(
             title,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.white),
           )
         ],
       ),
