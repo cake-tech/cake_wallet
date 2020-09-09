@@ -47,7 +47,7 @@ class BaseAlertDialog extends StatelessWidget {
             child: Container(
               height: 52,
               padding: EdgeInsets.only(left: 6, right: 6),
-              color: Palette.blueCraiola,
+              color: Palette.alizarinRed,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -72,7 +72,7 @@ class BaseAlertDialog extends StatelessWidget {
             child: Container(
               height: 52,
               padding: EdgeInsets.only(left: 6, right: 6),
-              color: Palette.alizarinRed,
+              color: Palette.blueCraiola,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -92,7 +92,7 @@ class BaseAlertDialog extends StatelessWidget {
                     )),
               ),
             )
-        )
+        ),
       ],
     );
   }
