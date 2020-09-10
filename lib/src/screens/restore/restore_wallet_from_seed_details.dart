@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -121,7 +120,7 @@ class _RestoreFromSeedDetailsFormState
             isLoading:
                 widget.walletRestorationFromSeedVM.state is WalletCreating,
             text: S.of(context).restore_recover,
-            color: Palette.blueCraiola,
+            color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
             isDisabled: _nameController.text.isNotEmpty,
           );
