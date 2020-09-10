@@ -154,7 +154,19 @@ class Themes {
       ),
       display2: TextStyle(
         color: Palette.shadowWhite, // action button color (address text field)
+        decorationColor: Palette.darkGray // hint text (seed widget)
       ),
+      display3: TextStyle(
+        color: Palette.darkGray, // hint text (new wallet page)
+        decorationColor: Palette.periwinkleCraiola // underline (new wallet page)
+      ),
+      display4: TextStyle(
+        color: Palette.darkGray, // switch background (settings page)
+      ),
+      body1: TextStyle(
+        color: Palette.darkGray, // indicators (PIN code)
+        decorationColor: Palette.darkGray // switch (PIN code)
+      )
     ),
 
 
@@ -320,7 +332,19 @@ class Themes {
       ),
       display2: TextStyle(
         color: PaletteDark.nightBlue, // action button color (address text field)
+        decorationColor: PaletteDark.darkCyanBlue // hint text (seed widget)
       ),
+      display3: TextStyle(
+        color: PaletteDark.cyanBlue, // hint text (new wallet page)
+        decorationColor: PaletteDark.darkGrey // underline (new wallet page)
+      ),
+      display4: TextStyle(
+        color: PaletteDark.deepVioletBlue, // switch background (settings page)
+      ),
+      body1: TextStyle(
+        color: PaletteDark.indicatorVioletBlue, // indicators (PIN code)
+        decorationColor: PaletteDark.lightPurpleBlue // switch (PIN code)
+      )
     ),
 
 

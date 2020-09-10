@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/monero/monero_transaction_creation_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/wallet.dart';
@@ -18,7 +19,8 @@ import 'package:cake_wallet/src/domain/monero/subaddress.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
-import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart' as cfa;
+import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart'
+    as cfa;
 
 part 'monero_wallet.g.dart';
 
@@ -137,16 +139,16 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
-//    final _credentials = credentials as MoneroTransactionCreationCredentials;
-//    final transactionDescription = await transaction_history.createTransaction(
-//        address: _credentials.address,
-//        paymentId: _credentials.paymentId,
-//        amount: _credentials.amount,
-//        priorityRaw: _credentials.priority.serialize(),
-//        accountIndex: _account.value.id);
-//
-//    return PendingTransaction.fromTransactionDescription(
-//        transactionDescription);
+    final _credentials = credentials as MoneroTransactionCreationCredentials;
+    //  final transactionDescription = await transaction_history.createTransaction(
+    //      address: _credentials.address,
+    //      paymentId: _credentials.paymentId,
+    //      amount: _credentials.amount,
+    //      priorityRaw: _credentials.priority.serialize(),
+    //      accountIndex: _account.value.id);
+
+    //  return PendingTransaction.fromTransactionDescription(
+    //      transactionDescription);
   }
 
   @override

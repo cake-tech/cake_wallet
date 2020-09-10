@@ -41,18 +41,17 @@ class StandardListRow extends StatelessWidget {
           style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.normal,
-              color: _titleColor(context)))
+              color: titleColor(context)))
     ]));
   }
 
   Widget buildTrailing(BuildContext context) => null;
 
-  Color _titleColor(BuildContext context) => isSelected
+  Color titleColor(BuildContext context) => isSelected
       ? Palette.blueCraiola
       : Theme.of(context).primaryTextTheme.title.color;
 
   Color _backgroundColor(BuildContext context) {
-//    return Theme.of(context).accentTextTheme.subtitle.decorationColor;
     return Theme.of(context).backgroundColor;
   }
 }
@@ -114,16 +113,20 @@ class SectionStandardList extends StatelessWidget {
       {@required this.itemCounter,
       @required this.itemBuilder,
       @required this.sectionCount,
+      this.hasTopSeparator = false,
       BuildContext context})
-      : totalRows = transform(context, sectionCount, itemCounter, itemBuilder);
+      : totalRows = transform(hasTopSeparator, context, sectionCount,
+      itemCounter, itemBuilder);
 
   final int sectionCount;
+  final bool hasTopSeparator;
   final int Function(int sectionIndex) itemCounter;
   final Widget Function(BuildContext context, int sectionIndex, int itemIndex)
       itemBuilder;
   final List<Widget> totalRows;
 
   static List<Widget> transform(
+      bool hasTopSeparator,
       BuildContext context,
       int sectionCount,
       int Function(int sectionIndex) itemCounter,
@@ -132,9 +135,9 @@ class SectionStandardList extends StatelessWidget {
     final items = <Widget>[];
 
     for (var sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
-      /*if (sectionIndex == 0) {
-        items.add(StandardListSeparator());
-      }*/
+      if ((sectionIndex == 0)&&(hasTopSeparator)) {
+        items.add(StandardListSeparator(padding: EdgeInsets.only(left: 24)));
+      }
 
       final itemCount = itemCounter(sectionIndex);
 

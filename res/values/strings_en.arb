@@ -1,7 +1,7 @@
 {
   "welcome" : "Welcome to",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Awesome wallet for Monero",
+  "first_wallet_text" : "Awesome wallet for Monero and Bitcoin",
   "please_make_selection" : "Please make selection below to create or recover your wallet.",
   "create_new" : "Create New Wallet",
   "restore_wallet" : "Restore Wallet",
@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "Wallet restore description",
   "restore_new_seed" : "New seed",
   "restore_active_seed" : "Active seed",
+  "restore_bitcoin_description_from_seed" : "Restore your wallet from 12 word combination code",
+  "restore_bitcoin_description_from_keys" : "Restore your wallet from generated WIF string from your private keys",
+  "restore_bitcoin_title_from_keys" : "Restore from WIF",
 
 
   "seed_title" : "Seed",

@@ -67,7 +67,8 @@ abstract class WalletAddressListViewModelBase with Store {
   WalletType get type => _wallet.type;
 
   @computed
-  WalletAddressListItem get address => WalletAddressListItem(address: _wallet.address);
+  WalletAddressListItem get address =>
+      WalletAddressListItem(address: _wallet.address);
 
   @computed
   PaymentURI get uri {
@@ -100,15 +101,16 @@ abstract class WalletAddressListViewModelBase with Store {
     }
 
     if (wallet is BitcoinWallet) {
-      final bitcoinAddresses = wallet.addresses.map(
-          (addr) => WalletAddressListItem(name: addr.label, address: addr.address));
+      final bitcoinAddresses = wallet.addresses.map((addr) =>
+          WalletAddressListItem(name: addr.label, address: addr.address));
       addressList.addAll(bitcoinAddresses);
     }
 
     return addressList;
   }
 
-  set address(WalletAddressListItem address) => _wallet.address = address.address;
+  set address(WalletAddressListItem address) =>
+      _wallet.address = address.address;
 
   bool hasAccounts;
 

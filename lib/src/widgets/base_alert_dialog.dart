@@ -31,6 +31,7 @@ class BaseAlertDialog extends StatelessWidget {
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 16,
+        fontWeight: FontWeight.normal,
         fontFamily: 'Poppins',
         color: Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,

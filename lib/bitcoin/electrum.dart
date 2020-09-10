@@ -6,6 +6,16 @@ import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
+class UriParseException implements Exception {
+  UriParseException(this.uri);
+
+  final String uri;
+
+  @override
+  String toString() =>
+      'Cannot parse host and port from uri. Invalid uri format. Uri: $uri';
+}
+
 String jsonrpcparams(List<Object> params) {
   final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
   return '[$_params]';
@@ -40,9 +50,14 @@ class ElectrumClient {
   Timer _aliveTimer;
 
   Future<void> connectToUri(String uri) async {
-    final _uri = Uri.parse(uri);
-    final host = _uri.scheme;
-    final port = int.parse(_uri.path);
+    final splittedUri = uri.split(':');
+
+    if (splittedUri.length != 2) {
+      throw UriParseException(uri);
+    }
+
+    final host = splittedUri.first;
+    final port = int.parse(splittedUri.last);
     await connect(host: host, port: port);
   }
 
@@ -51,7 +66,8 @@ class ElectrumClient {
       await socket?.close();
     } catch (_) {}
 
-    socket = await SecureSocket.connect(host, port, timeout: connectionTimeout);
+    socket = await SecureSocket.connect(host, port,
+        timeout: connectionTimeout, onBadCertificate: (_) => true);
     _setIsConnected(true);
 
     socket.listen((Uint8List event) {
@@ -87,7 +103,7 @@ class ElectrumClient {
 
   Future<void> ping() async {
     try {
-      await callWithTimeout(method: 'server.ping');
+      // await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
       _setIsConnected(false);

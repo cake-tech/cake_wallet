@@ -44,9 +44,14 @@ abstract class SettingsStoreBase with Store {
     languageCode = initialLanguageCode;
     currentLocale = initialCurrentLocale;
     itemHeaders = {};
+    this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
     _nodeSource = nodeSource;
-    _nodes = nodes;
+
+    reaction(
+        (_) => allowBiometricalAuthentication,
+        (bool biometricalAuthentication) => sharedPreferences.setBool(
+            allowBiometricalAuthenticationKey, biometricalAuthentication));
   }
 
   static const currentNodeIdKey = 'current_node_id';
@@ -61,9 +66,6 @@ abstract class SettingsStoreBase with Store {
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
-
-//  @observable
-//  Node node;
 
   @observable
   FiatCurrency fiatCurrency;
@@ -101,9 +103,9 @@ abstract class SettingsStoreBase with Store {
   SharedPreferences _sharedPreferences;
   Box<Node> _nodeSource;
 
-  Map<WalletType, Node> _nodes;
+  ObservableMap<WalletType, Node> nodes;
 
-  Node getCurrentNode(WalletType walletType) => _nodes[walletType];
+  Node getCurrentNode(WalletType walletType) => nodes[walletType];
 
   Future<void> setCurrentNode(Node node, WalletType walletType) async {
     switch (walletType) {
@@ -118,7 +120,7 @@ abstract class SettingsStoreBase with Store {
         break;
     }
 
-    _nodes[walletType] = node;
+    nodes[walletType] = node;
   }
 
   static Future<SettingsStore> load(

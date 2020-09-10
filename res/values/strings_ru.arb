@@ -165,6 +165,9 @@
   "restore_wallet_restore_description" : "Описание восстановления кошелька",
   "restore_new_seed" : "Новая мнемоническая фраза",
   "restore_active_seed" : "Активная мнемоническая фраза",
+  "restore_bitcoin_description_from_seed" : "Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу",
+  "restore_bitcoin_description_from_keys" : "Вы можете восстановить кошелёк с помощью WIF",
+  "restore_bitcoin_title_from_keys" : "Восстановить с помощью WIF",
 
 
   "seed_title" : "Мнемоническая фраза",

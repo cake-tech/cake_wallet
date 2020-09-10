@@ -107,7 +107,7 @@ Future<void> changeMoneroCurrentNodeToDefault(
 }
 
 Node getBitcoinDefaultElectrumServer({@required Box<Node> nodes}) {
-  final uri = 'bitcoin.electrumx.multicoin.co:50002';
+  final uri = 'electrumx.cakewallet.com:50002';
 
   return nodes.values
           .firstWhere((Node node) => node.uri == uri, orElse: () => null) ??

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -9,6 +10,7 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 
 class RestoreWalletFromSeedDetailsPage extends BasePage {
@@ -91,27 +93,9 @@ class _RestoreFromSeedDetailsFormState
                 Flexible(
                     child: Container(
                   padding: EdgeInsets.only(top: 20.0),
-                  child: TextFormField(
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        color: Theme.of(context).primaryTextTheme.title.color),
+                  child: BaseTextFormField(
                     controller: _nameController,
-                    decoration: InputDecoration(
-                        hintStyle: TextStyle(
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .caption
-                                .color,
-                            fontSize: 16),
-                        hintText: S.of(context).restore_wallet_name,
-                        focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0)),
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0))),
+                    hintText: S.of(context).restore_wallet_name,
                     validator: WalletNameValidator(),
                   ),
                 ))
@@ -137,7 +121,7 @@ class _RestoreFromSeedDetailsFormState
             isLoading:
                 widget.walletRestorationFromSeedVM.state is WalletCreating,
             text: S.of(context).restore_recover,
-            color: Colors.green,
+            color: Palette.blueCraiola,
             textColor: Colors.white,
             isDisabled: _nameController.text.isNotEmpty,
           );

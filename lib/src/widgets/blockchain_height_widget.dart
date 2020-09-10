@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/monero/get_height_by_date.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({GlobalKey key, this.onHeightChange})
@@ -46,26 +47,12 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
             Flexible(
                 child: Container(
               padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
-              child: TextFormField(
-                style: TextStyle(
-                    fontSize: 16.0,
-                    color: Theme.of(context).primaryTextTheme.title.color),
+              child: BaseTextFormField(
                 controller: restoreHeightController,
                 keyboardType: TextInputType.numberWithOptions(
                     signed: false, decimal: false),
-                decoration: InputDecoration(
-                    hintStyle: TextStyle(
-                        color: Theme.of(context).primaryTextTheme.caption.color,
-                        fontSize: 16),
-                    hintText: S.of(context).widgets_restore_from_blockheight,
-                    focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Theme.of(context).dividerColor, width: 1.0)),
-                    enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Theme.of(context).dividerColor,
-                            width: 1.0))),
-              ),
+                hintText: S.of(context).widgets_restore_from_blockheight,
+              )
             ))
           ],
         ),
@@ -75,7 +62,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
             S.of(context).widgets_or,
             style: TextStyle(
                 fontSize: 16.0,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).primaryTextTheme.title.color),
           ),
         ),
@@ -86,31 +73,10 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               child: InkWell(
                 onTap: () => _selectDate(context),
                 child: IgnorePointer(
-                  child: TextFormField(
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        color: Theme.of(context).primaryTextTheme.title.color),
-                    decoration: InputDecoration(
-                        hintStyle: TextStyle(
-                            color: Theme.of(context)
-                                .primaryTextTheme
-                                .caption
-                                .color,
-                            fontSize: 16),
-                        hintText: S.of(context).widgets_restore_from_date,
-                        focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0)),
-                        enabledBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Theme.of(context).dividerColor,
-                                width: 1.0))),
+                  child: BaseTextFormField(
                     controller: dateController,
-                    validator: (value) {
-                      return null;
-                    },
-                  ),
+                    hintText: S.of(context).widgets_restore_from_date,
+                  )
                 ),
               ),
             ))

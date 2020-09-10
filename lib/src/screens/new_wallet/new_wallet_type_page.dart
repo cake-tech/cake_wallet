@@ -1,4 +1,6 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -6,15 +8,17 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/routes.dart';
 
 class NewWalletTypePage extends BasePage {
-  NewWalletTypePage({this.onTypeSelected});
+  NewWalletTypePage({this.onTypeSelected, this.isNewWallet = true});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
+  final bool isNewWallet;
 
   @override
-  String get title => S.current.new_wallet;
+  String get title => isNewWallet
+                      ? S.current.new_wallet
+                      : S.current.wallet_list_restore_wallet;
 
   @override
   Widget body(BuildContext context) =>
@@ -38,6 +42,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   final bitcoinIcon =
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
+  final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
 
   WalletType selected;
   List<WalletType> types;
@@ -50,6 +55,9 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   @override
   Widget build(BuildContext context) {
+    final walletImage = getIt.get<SettingsStore>().isDarkTheme
+    ? walletTypeImage : walletTypeLightImage;
+
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
@@ -61,7 +69,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: walletTypeImage, fit: BoxFit.fill)),
+                  child: FittedBox(child: walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 48),
@@ -70,7 +78,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w500,
                     color: Theme.of(context).primaryTextTheme.title.color),
               ),
             ),
@@ -79,8 +87,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   child: SelectButton(
                       image: _iconFor(type),
                       text: walletTypeToString(type),
-                      color: _backgroundColorFor(selected == type),
-                      textColor: _textColorFor(selected == type),
+                      isSelected: selected == type,
                       onTap: () => setState(() => selected = type)),
                 ))
           ],
@@ -96,16 +103,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       ),
     );
   }
-
-  // FIXME: Move color selection inside ui element; add isSelected to buttons.
-
-  Color _backgroundColorFor(bool isSelected) => isSelected
-      ? Theme.of(context).accentTextTheme.title.decorationColor
-      : Theme.of(context).accentTextTheme.title.backgroundColor;
-
-  Color _textColorFor(bool isSelected) => isSelected
-      ? Theme.of(context).primaryTextTheme.title.backgroundColor
-      : Theme.of(context).primaryTextTheme.title.color;
 
   Image _iconFor(WalletType type) {
     switch (type) {

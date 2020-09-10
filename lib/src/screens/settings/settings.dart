@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
+import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -41,6 +43,7 @@ class SettingsPage extends BasePage {
               return SettingsPickerCell<dynamic>(
                 title: item.title,
                 selectedItem: item.selectedItem(),
+                isAlwaysShowScrollThumb: item.isAlwaysShowScrollThumb,
                 items: item.items,
                 onItemSelected: (dynamic value) => item.onItemSelected(value),
               );
@@ -57,7 +60,8 @@ class SettingsPage extends BasePage {
           }
 
           if (item is RegularListItem) {
-            return SettingsCellWithArrow(title: item.title);
+            return SettingsCellWithArrow(
+                title: item.title, handler: item.handler);
           }
 
           if (item is LinkListItem) {
@@ -66,6 +70,14 @@ class SettingsPage extends BasePage {
                 icon: item.icon,
                 link: item.link,
                 linkTitle: item.linkTitle);
+          }
+
+          if (item is VersionListItem) {
+            return Observer(builder: (_) {
+              return SettingsVersionCell(
+                  title:
+                      S.of(context).version(settingsViewModel.currentVersion));
+            });
           }
 
           return Container();

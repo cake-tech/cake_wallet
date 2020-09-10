@@ -6,13 +6,15 @@ class PickerListItem<ItemType> extends SettingsListItem {
       {@required String title,
       @required this.selectedItem,
       @required this.items,
-      void Function(ItemType item) onItemSelected})
+      void Function(ItemType item) onItemSelected,
+      this.isAlwaysShowScrollThumb = false})
       : _onItemSelected = onItemSelected,
         super(title);
 
   final ItemType Function() selectedItem;
   final List<ItemType> items;
   final void Function(ItemType item) _onItemSelected;
+  final bool isAlwaysShowScrollThumb;
 
   void onItemSelected(dynamic item) {
     if (item is ItemType) {
