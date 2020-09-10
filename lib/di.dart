@@ -204,6 +204,10 @@ Future setup(
 
   getIt.registerFactory<AuthPage>(
       () => AuthPage(
+          allowBiometricalAuthentication: getIt
+              .get<AppStore>()
+              .settingsStore
+              .allowBiometricalAuthentication,
           authViewModel: getIt.get<AuthViewModel>(),
           onAuthenticationFinished: (isAuthenticated, __) {
             if (isAuthenticated) {
@@ -215,10 +219,18 @@ Future setup(
 
   getIt
       .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), void>(
-          (onAuthFinished, _) => AuthPage(
-              authViewModel: getIt.get<AuthViewModel>(),
-              onAuthenticationFinished: onAuthFinished,
-              closable: false));
+          (onAuthFinished, _) {
+    final allowBiometricalAuthentication =
+        getIt.get<AppStore>().settingsStore.allowBiometricalAuthentication;
+
+    print('allowBiometricalAuthentication $allowBiometricalAuthentication');
+
+    return AuthPage(
+        allowBiometricalAuthentication: allowBiometricalAuthentication,
+        authViewModel: getIt.get<AuthViewModel>(),
+        onAuthenticationFinished: onAuthFinished,
+        closable: false);
+  });
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
       walletViewModel: getIt.get<DashboardViewModel>(),
@@ -313,8 +325,9 @@ Future setup(
       getIt.get<ContactService>(),
       contactSource));
 
-  getIt.registerFactoryParam<ContactListPage, bool, void>((bool isEditable, _) =>
-      ContactListPage(getIt.get<ContactListViewModel>(), isEditable: isEditable));
+  getIt.registerFactoryParam<ContactListPage, bool, void>(
+      (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
+          isEditable: isEditable));
 
   getIt.registerFactoryParam<ContactPage, Contact, void>((Contact contact, _) =>
       ContactPage(getIt.get<ContactViewModel>(param1: contact)));

@@ -123,9 +123,7 @@ class PickerState<Item> extends State<Picker> {
                                         mainAxisAlignment: widget.mainAxisAlignment,
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: <Widget>[
-                                          image != null
-                                              ? image
-                                              : Offstage(),
+                                          image ?? Offstage(),
                                           Padding(
                                             padding: EdgeInsets.only(
                                                 left: image != null ? 12 : 0

@@ -24,7 +24,8 @@ import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 // FIXME: move me
 Future<void> loadCurrentWallet() async {
   final appStore = getIt.get<AppStore>();
-  final name = getIt.get<SharedPreferences>().getString('current_wallet_name');
+  final name = 'test';
+  getIt.get<SharedPreferences>().getString('current_wallet_name');
   final typeRaw =
       getIt.get<SharedPreferences>().getInt('current_wallet_type') ?? 0;
   final type = deserializeFromInt(typeRaw);

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -132,6 +133,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                   _fileText,
                                   style: TextStyle(
                                       fontSize: 12.0,
+                                      fontWeight: FontWeight.normal,
                                       color: Theme.of(context).primaryTextTheme.title.color
                                   ),
                                 ))
@@ -169,7 +171,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     xmrtoUrl,
                                     textAlign: TextAlign.left,
                                     style: TextStyle(
-                                        color: Colors.blue,
+                                        color: Palette.blueCraiola,
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.normal,
                                         decoration: TextDecoration.underline),
@@ -190,7 +192,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     changenowUrl,
                                     textAlign: TextAlign.left,
                                     style: TextStyle(
-                                        color: Colors.blue,
+                                        color: Palette.blueCraiola,
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.normal,
                                         decoration: TextDecoration.underline),
@@ -211,7 +213,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                     morphUrl,
                                     textAlign: TextAlign.left,
                                     style: TextStyle(
-                                        color: Colors.blue,
+                                        color: Palette.blueCraiola,
                                         fontSize: 14.0,
                                         fontWeight: FontWeight.normal,
                                         decoration: TextDecoration.underline),

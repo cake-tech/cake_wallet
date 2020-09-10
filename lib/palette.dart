@@ -90,6 +90,8 @@ class PaletteDark {
   static const Color distantBlue = Color.fromRGBO(72, 85, 131, 1.0);
   static const Color moderateVioletBlue = Color.fromRGBO(62, 73, 113, 1.0);
   static const Color deepVioletBlue = Color.fromRGBO(52, 66, 104, 1.0);
+  static const Color lightPurpleBlue = Color.fromRGBO(120, 133, 170, 1.0);
+  static const Color indicatorVioletBlue = Color.fromRGBO(59, 72, 119, 1.0);
 
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);

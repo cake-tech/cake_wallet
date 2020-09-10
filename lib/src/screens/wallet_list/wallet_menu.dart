@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -36,10 +37,14 @@ class WalletMenu {
   ];
 
   final List<Image> listImages = [
-    Image.asset('assets/images/load.png', height: 24, width: 24, color: Colors.white),
-    Image.asset('assets/images/eye_action.png', height: 24, width: 24, color: Colors.white),
-    Image.asset('assets/images/trash.png', height: 24, width: 24, color: Colors.white),
-    Image.asset('assets/images/scanner.png', height: 24, width: 24, color: Colors.white)
+    Image.asset('assets/images/load.png',
+        height: 24, width: 24, color: Colors.white),
+    Image.asset('assets/images/eye_action.png',
+        height: 24, width: 24, color: Colors.white),
+    Image.asset('assets/images/trash.png',
+        height: 24, width: 24, color: Colors.white),
+    Image.asset('assets/images/scanner.png',
+        height: 24, width: 24, color: Colors.white)
   ];
 
   List<String> generateItemsForWalletMenu(bool isCurrentWallet) {
@@ -87,10 +92,11 @@ class WalletMenu {
     return images;
   }
 
-  void action(int index, WalletListItem wallet, bool isCurrentWallet) {
+  Future<void> action(
+      int index, WalletListItem wallet, bool isCurrentWallet) async {
     switch (index) {
       case 0:
-        Navigator.of(context).pushNamed(Routes.auth, arguments:
+        await Navigator.of(context).pushNamed(Routes.auth, arguments:
             (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
           if (!isAuthenticatedSuccessfully) {
             return;
@@ -110,7 +116,7 @@ class WalletMenu {
         });
         break;
       case 1:
-        Navigator.of(context).pushNamed(Routes.auth, arguments:
+        await Navigator.of(context).pushNamed(Routes.auth, arguments:
             (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
           if (!isAuthenticatedSuccessfully) {
             return;
@@ -120,7 +126,23 @@ class WalletMenu {
         });
         break;
       case 2:
-        Navigator.of(context).pushNamed(Routes.auth, arguments:
+        final isComfirmed = await showDialog<bool>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithTwoActions(
+                  alertTitle: 'Remove wallet',
+                  alertContent: S.of(context).confirm_delete_wallet,
+                  leftButtonText: S.of(context).cancel,
+                  rightButtonText: S.of(context).remove,
+                  actionLeftButton: () => Navigator.of(context).pop(false),
+                  actionRightButton: () => Navigator.of(context).pop(true));
+            });
+
+        if (isComfirmed == null || !isComfirmed) {
+          return;
+        }
+
+        await Navigator.of(context).pushNamed(Routes.auth, arguments:
             (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
           if (!isAuthenticatedSuccessfully) {
             return;
@@ -139,7 +161,7 @@ class WalletMenu {
         });
         break;
       case 3:
-        Navigator.of(context).pushNamed(Routes.rescan);
+        await Navigator.of(context).pushNamed(Routes.rescan);
         break;
       default:
         break;
