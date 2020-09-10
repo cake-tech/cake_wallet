@@ -56,9 +56,8 @@ class Themes {
         decorationColor: Colors.white // background of tiles (account list)
       ),
       subtitle: TextStyle(
-        color: Colors.white, // text color of current tile (account list)
-        //decorationColor: Palette.blueCraiola // background of current tile (account list)
-        decorationColor: Palette.moderateSlateBlue // background of current tile (account list)
+        color: Palette.moderateSlateBlue, // text color of current tile (account list)
+        decorationColor: Colors.white // background of current tile (account list)
       ),
       body1: TextStyle(
         color: Palette.moderatePurpleBlue, // scrollbar thumb
