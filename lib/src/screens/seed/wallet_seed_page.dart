@@ -141,7 +141,7 @@ class WalletSeedPage extends BasePage {
                                     );
                                   },
                                   text: S.of(context).copy,
-                                  color: Colors.blue,
+                                  color: Theme.of(context).accentTextTheme.body2.color,
                                   textColor: Colors.white)),
                         ))
                       ],
