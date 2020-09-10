@@ -174,6 +174,7 @@ class Themes {
         decorationColor: Palette.brightOrange // alert left button
       ),
     ),
+    cardColor: Palette.moderateSlateBlue // bottom button (action list)
   );
 
 
@@ -346,5 +347,6 @@ class Themes {
         decorationColor: Palette.alizarinRed // alert left button
       ),
     ),
+    cardColor: PaletteDark.darkNightBlue // bottom button (action list)
   );
 }
