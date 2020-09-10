@@ -47,6 +47,11 @@ abstract class SettingsStoreBase with Store {
     this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
     _nodeSource = nodeSource;
+
+    reaction(
+        (_) => allowBiometricalAuthentication,
+        (bool biometricalAuthentication) => sharedPreferences.setBool(
+            allowBiometricalAuthenticationKey, biometricalAuthentication));
   }
 
   static const currentNodeIdKey = 'current_node_id';
@@ -61,9 +66,6 @@ abstract class SettingsStoreBase with Store {
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
-
-//  @observable
-//  Node node;
 
   @observable
   FiatCurrency fiatCurrency;
