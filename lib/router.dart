@@ -2,6 +2,7 @@ import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
+import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -165,6 +166,7 @@ class Router {
             builder: (_) => NewWalletTypePage(
                   onTypeSelected: (context, type) => Navigator.of(context)
                       .pushNamed(Routes.restoreWalletOptions, arguments: type),
+                  isNewWallet: false,
                 ));
 
       case Routes.restoreOptions:
@@ -196,7 +198,7 @@ class Router {
                       ? Routes.seedLanguage
                       : Routes.restoreWalletFromKeys;
                   final args = type == WalletType.monero
-                      ? [type, Routes.restoreWalletFromSeed]
+                      ? [type, Routes.restoreWalletFromKeys]
                       : [type];
 
                   Navigator.of(context).pushNamed(route, arguments: args);
@@ -236,17 +238,12 @@ class Router {
             ? args[1] as String
             : 'English'; // FIXME: Unnamed constant; English default and only one language for bitcoin.
 
+        final walletRestorationFromKeysVM =
+        getIt.get<WalletRestorationFromKeysVM>(param1: [type, language]);
+
         return CupertinoPageRoute<void>(
-            builder: (_) =>
-                ProxyProvider<AuthenticationStore, WalletRestorationStore>(
-                    update: (_, authStore, __) => WalletRestorationStore(
-                        authStore: authStore,
-                        sharedPreferences: sharedPreferences,
-                        walletListService: walletListService),
-                    child: RestoreWalletFromKeysPage(
-                        walletsService: walletListService,
-                        walletService: walletService,
-                        sharedPreferences: sharedPreferences)));
+            builder: (_) => RestoreWalletFromKeysPage(
+                walletRestorationFromKeysVM: walletRestorationFromKeysVM));
 
       case Routes.dashboard:
         return CupertinoPageRoute<void>(
@@ -340,11 +337,11 @@ class Router {
 
       case Routes.addressBook:
         return MaterialPageRoute<void>(
-            builder: (_) => getIt.get<ContactListPage>());
+            builder: (_) => getIt.get<ContactListPage>(param1: true));
 
       case Routes.pickerAddressBook:
         return MaterialPageRoute<void>(
-            builder: (_) => getIt.get<ContactListPage>());
+            builder: (_) => getIt.get<ContactListPage>(param1: false));
 
       case Routes.addressBookAddContact:
         return CupertinoPageRoute<void>(
@@ -359,24 +356,6 @@ class Router {
       case Routes.exchangeTrade:
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<ExchangeTradePage>());
-
-                /*MultiProvider(
-                  providers: [
-                    ProxyProvider<SettingsStore, ExchangeTradeStore>(
-                      update: (_, settingsStore, __) => ExchangeTradeStore(
-                          trade: settings.arguments as Trade,
-                          walletStore: walletStore,
-                          trades: trades),
-                    ),
-                    ProxyProvider<SettingsStore, SendStore>(
-                        update: (_, settingsStore, __) => SendStore(
-                            transactionDescriptions: transactionDescriptions,
-                            walletService: walletService,
-                            settingsStore: settingsStore,
-                            priceStore: priceStore)),
-                  ],
-                  child: ExchangeTradePage(),
-                ));*/
 
       case Routes.exchangeConfirm:
         return MaterialPageRoute<void>(

@@ -58,6 +58,7 @@ import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
+import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
@@ -168,6 +169,16 @@ Future setup(
         type: type, language: language, seed: mnemonic);
   });
 
+  getIt
+      .registerFactoryParam<WalletRestorationFromKeysVM, List, void>((args, _) {
+    final type = args.first as WalletType;
+    final language = args[1] as String;
+
+    return WalletRestorationFromKeysVM(
+        getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+        type: type, language: language);
+  });
+
   getIt.registerFactory<WalletAddressListViewModel>(
       () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
 
@@ -193,6 +204,10 @@ Future setup(
 
   getIt.registerFactory<AuthPage>(
       () => AuthPage(
+          allowBiometricalAuthentication: getIt
+              .get<AppStore>()
+              .settingsStore
+              .allowBiometricalAuthentication,
           authViewModel: getIt.get<AuthViewModel>(),
           onAuthenticationFinished: (isAuthenticated, __) {
             if (isAuthenticated) {
@@ -204,10 +219,18 @@ Future setup(
 
   getIt
       .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), void>(
-          (onAuthFinished, _) => AuthPage(
-              authViewModel: getIt.get<AuthViewModel>(),
-              onAuthenticationFinished: onAuthFinished,
-              closable: false));
+          (onAuthFinished, _) {
+    final allowBiometricalAuthentication =
+        getIt.get<AppStore>().settingsStore.allowBiometricalAuthentication;
+
+    print('allowBiometricalAuthentication $allowBiometricalAuthentication');
+
+    return AuthPage(
+        allowBiometricalAuthentication: allowBiometricalAuthentication,
+        authViewModel: getIt.get<AuthViewModel>(),
+        onAuthenticationFinished: onAuthFinished,
+        closable: false);
+  });
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
       walletViewModel: getIt.get<DashboardViewModel>(),
@@ -294,14 +317,17 @@ Future setup(
 
   getIt.registerFactoryParam<ContactViewModel, Contact, void>(
       (Contact contact, _) => ContactViewModel(
-          getIt.get<ContactService>(), getIt.get<AppStore>().wallet,
+          contactSource, getIt.get<AppStore>().wallet,
           contact: contact));
 
   getIt.registerFactory(() => ContactListViewModel(
-      getIt.get<AppStore>().contactListStore, getIt.get<ContactService>()));
+      getIt.get<AppStore>().contactListStore,
+      getIt.get<ContactService>(),
+      contactSource));
 
-  getIt.registerFactory(
-      () => ContactListPage(getIt.get<ContactListViewModel>()));
+  getIt.registerFactoryParam<ContactListPage, bool, void>(
+      (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
+          isEditable: isEditable));
 
   getIt.registerFactoryParam<ContactPage, Contact, void>((Contact contact, _) =>
       ContactPage(getIt.get<ContactViewModel>(param1: contact)));

@@ -108,7 +108,7 @@ class NodeListPage extends BasePage {
                   });
 
               final dismissibleRow = Dismissible(
-                  key: Key('${node.value.key}'),
+                  key: Key('${node.keyIndex}'),
                   confirmDismiss: (direction) async {
                     return await showDialog(
                         context: context,

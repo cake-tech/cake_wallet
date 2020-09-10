@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/core/wallet_credentials.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
@@ -60,7 +62,7 @@ class MoneroWalletService extends WalletService<
 
       return wallet;
     } catch (e) {
-      // TODO: Implement Exception fop wallet list service.
+      // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');
       rethrow;
     }
@@ -72,7 +74,7 @@ class MoneroWalletService extends WalletService<
       final path = await pathForWallet(name: name, type: WalletType.monero);
       return monero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
-      // TODO: Implement Exception fop wallet list service.
+      // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');
       rethrow;
     }
@@ -83,26 +85,21 @@ class MoneroWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: name, type: WalletType.monero);
       monero_wallet_manager.openWallet(path: path, password: password);
-
-//      final id = walletTypeToString(WalletType.monero).toLowerCase() + '_' + name;
-//      final walletInfo = walletInfoSource.values
-//          .firstWhere((info) => info.id == id, orElse: () => null);
-
       final wallet = MoneroWallet(filename: monero_wallet.getFilename());
       await wallet.init();
 
       return wallet;
     } catch (e) {
-      // TODO: Implement Exception fop wallet list service.
+      // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');
       rethrow;
     }
   }
 
-  Future<void> remove(String wallet) async {
-    // TODO: implement remove
-    throw UnimplementedError();
-  }
+  @override
+  Future<void> remove(String wallet) async =>
+      File(await pathForWalletDir(name: wallet, type: WalletType.bitcoin))
+          .delete(recursive: true);
 
   @override
   Future<MoneroWallet> restoreFromKeys(
@@ -125,7 +122,7 @@ class MoneroWalletService extends WalletService<
 
       return wallet;
     } catch (e) {
-      // TODO: Implement Exception fop wallet list service.
+      // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');
       rethrow;
     }
@@ -149,7 +146,7 @@ class MoneroWalletService extends WalletService<
 
       return wallet;
     } catch (e) {
-      // TODO: Implement Exception fop wallet list service.
+      // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');
       rethrow;
     }

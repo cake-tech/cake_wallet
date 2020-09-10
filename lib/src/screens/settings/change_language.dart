@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/screens/settings/widgets/language_row.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
@@ -16,29 +18,13 @@ class ChangeLanguage extends BasePage {
     final settingsStore = Provider.of<SettingsStore>(context);
     final currentLanguage = Provider.of<Language>(context);
 
-    final currentColor = Colors.green;
-    final notCurrentColor = Theme.of(context).primaryTextTheme.title.color;
-
-    final shortDivider = Container(
-      height: 1,
-      padding: EdgeInsets.only(left: 24),
-      color: Theme.of(context).accentTextTheme.title.backgroundColor,
-      child: Container(
-        height: 1,
-        color: Theme.of(context).dividerColor,
-      ),
-    );
-
-    final longDivider = Container(
-      height: 1,
-      color: Theme.of(context).dividerColor,
-    );
-
     return Container(
         padding: EdgeInsets.only(top: 10.0),
-        child: ListView.builder(
-          itemCount: languages.values.length,
-          itemBuilder: (BuildContext context, int index) {
+        child: SectionStandardList(
+          sectionCount: 1,
+          context: context,
+          itemCounter: (int sectionIndex) => languages.values.length,
+          itemBuilder: (_, sectionIndex, index) {
             final item = languages.values.elementAt(index);
             final code = languages.keys.elementAt(index);
 
@@ -46,52 +32,30 @@ class ChangeLanguage extends BasePage {
                 ? false
                 : code == settingsStore.languageCode;
 
-            return Column(
-              children: <Widget>[
-                index == 0 ? longDivider : Offstage(),
-                Container(
-                  padding: EdgeInsets.only(top: 4, bottom: 4),
-                  color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                  child: ListTile(
-                    contentPadding: EdgeInsets.only(left: 24, right: 24),
-                    title: Text(
-                      item,
-                      style: TextStyle(
-                          fontSize: 14.0,
-                          fontWeight: FontWeight.w600,
-                          color: isCurrent ? currentColor : notCurrentColor
-                      ),
-                    ),
-                    trailing: isCurrent
-                        ? Icon(Icons.done, color: currentColor)
-                        : Offstage(),
-                    onTap: () async {
-                      if (!isCurrent) {
-                        await showDialog<void>(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertWithTwoActions(
-                                  alertTitle: S.of(context).change_language,
-                                  alertContent: S.of(context).change_language_to(item),
-                                  leftButtonText: S.of(context).change,
-                                  rightButtonText: S.of(context).cancel,
-                                  actionLeftButton: () {
-                                    settingsStore.saveLanguageCode(
-                                        languageCode: code);
-                                    currentLanguage.setCurrentLanguage(code);
-                                    Navigator.of(context).pop();
-                                  },
-                                  actionRightButton: () => Navigator.of(context).pop()
-                              );
-                            });
-                      }
-                    },
-                  ),
-                ),
-                item == languages.values.last
-                    ? longDivider
-                    : shortDivider
-              ],
+            return LanguageRow(
+              title: item,
+              isSelected: isCurrent,
+              handler: (context) async {
+                if (!isCurrent) {
+                  await showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertWithTwoActions(
+                            alertTitle: S.of(context).change_language,
+                            alertContent: S.of(context).change_language_to(item),
+                            leftButtonText: S.of(context).change,
+                            rightButtonText: S.of(context).cancel,
+                            actionLeftButton: () {
+                              settingsStore.saveLanguageCode(
+                                  languageCode: code);
+                              currentLanguage.setCurrentLanguage(code);
+                              Navigator.of(context).pop();
+                            },
+                            actionRightButton: () => Navigator.of(context).pop()
+                        );
+                      });
+                }
+              },
             );
           },
         )

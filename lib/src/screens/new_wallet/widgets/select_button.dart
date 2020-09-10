@@ -4,21 +4,30 @@ class SelectButton extends StatelessWidget {
   SelectButton({
     @required this.image,
     @required this.text,
-    @required this.color,
-    @required this.textColor,
     @required this.onTap,
+    this.isSelected = false,
   });
 
   final Image image;
   final String text;
-  final Color color;
-  final Color textColor;
+  final bool isSelected;
   final VoidCallback onTap;
-
-  final selectArrowImage = Image.asset('assets/images/select_arrow.png');
 
   @override
   Widget build(BuildContext context) {
+    final color = isSelected
+          ? Theme.of(context).accentTextTheme.subtitle.decorationColor
+          : Theme.of(context).accentTextTheme.caption.color;
+    final textColor = isSelected
+          ? Theme.of(context).accentTextTheme.headline.decorationColor
+          : Theme.of(context).primaryTextTheme.title.color;
+    final arrowColor = isSelected
+        ? Theme.of(context).accentTextTheme.headline.decorationColor
+        : Theme.of(context).accentTextTheme.subhead.color;
+
+    final selectArrowImage = Image.asset('assets/images/select_arrow.png',
+          color: arrowColor);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -39,9 +48,7 @@ class SelectButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                image != null
-                ? image
-                : Offstage(),
+                image ?? Offstage(),
                 Padding(
                   padding: image != null
                     ? EdgeInsets.only(left: 15)
@@ -50,7 +57,7 @@ class SelectButton extends StatelessWidget {
                     text,
                     style: TextStyle(
                       fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w500,
                       color: textColor
                     ),
                   ),

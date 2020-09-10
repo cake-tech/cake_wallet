@@ -12,7 +12,7 @@ class ContactService {
 
   Future add(Contact contact) async {
     await contactSource.add(contact);
-    contactListStore.contacts.add(contact);
+    // contactListStore.contacts.add(contact);
   }
 
   Future update(Contact contact) async {

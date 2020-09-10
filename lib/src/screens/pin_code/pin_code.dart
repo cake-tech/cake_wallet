@@ -108,7 +108,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
         Text(title,
             style: TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: Theme.of(context).primaryTextTheme.title.color)),
         Spacer(flex: 3),
         Container(
@@ -126,7 +126,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                     shape: BoxShape.circle,
                     color: isFilled
                         ? Theme.of(context).primaryTextTheme.title.color
-                        : Theme.of(context).primaryTextTheme.caption.color,
+                        : Theme.of(context)
+                            .accentTextTheme
+                            .body1
+                            .color
+                            .withOpacity(0.25),
                   ));
             }),
           ),
@@ -143,7 +147,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 _changePinLengthText(),
                 style: TextStyle(
                     fontSize: 14.0,
-                    color: Theme.of(context).primaryTextTheme.caption.color),
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context)
+                        .accentTextTheme
+                        .body1
+                        .decorationColor),
               ))
         ],
         Spacer(flex: 1),
@@ -227,7 +235,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                               child: Text('$index',
                                   style: TextStyle(
                                       fontSize: 30.0,
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w600,
                                       color: Theme.of(context)
                                           .primaryTextTheme
                                           .title
