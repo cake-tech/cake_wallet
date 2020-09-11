@@ -101,13 +101,26 @@ class _RestoreFromSeedDetailsFormState
                 ))
               ],
             ),
-            if (widget.walletRestorationFromSeedVM.hasRestorationHeight)
+            if (widget.walletRestorationFromSeedVM.hasRestorationHeight) ... [
               BlockchainHeightWidget(
                   key: _blockchainHeightKey,
                   onHeightChange: (height) {
                     widget.walletRestorationFromSeedVM.height = height;
                     print(height);
                   }),
+              Padding(
+                padding: EdgeInsets.only(left: 40, right: 40, top: 24),
+                child: Text(
+                  S.of(context).restore_from_date_or_blockheight,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).hintColor
+                  ),
+                ),
+              )
+            ]
           ]),
         ),
         bottomSectionPadding: EdgeInsets.only(bottom: 24),

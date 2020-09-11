@@ -151,6 +151,7 @@ class S implements WidgetsLocalizations {
   String get restore_description_from_keys => "Restore your wallet from generated keystrokes saved from your private keys";
   String get restore_description_from_seed => "Restore your wallet from either the 25 word or 13 word combination code";
   String get restore_description_from_seed_keys => "Get back your wallet from seed/keys that you've saved to secure place";
+  String get restore_from_date_or_blockheight => "Please enter the date you created this wallet. Or if you know the blockheight, please enter it instead";
   String get restore_from_seed_placeholder => "Please enter or paste your seed here";
   String get restore_new_seed => "New seed";
   String get restore_next => "Next";
@@ -180,6 +181,7 @@ class S implements WidgetsLocalizations {
   String get seed_language_portuguese => "Portuguese";
   String get seed_language_russian => "Russian";
   String get seed_language_spanish => "Spanish";
+  String get seed_reminder => "Please write these down in case you lose or wipe your phone";
   String get seed_share => "Share seed";
   String get seed_title => "Seed";
   String get send => "Send";
@@ -789,6 +791,8 @@ class $de extends S {
   @override
   String get choose_account => "Konto auswählen";
   @override
+  String get restore_from_date_or_blockheight => "Bitte geben Sie das Datum ein, an dem Sie diese Brieftasche erstellt haben. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein";
+  @override
   String get settings_only_trades => "Nur Trades";
   @override
   String get trade_state_to_be_created => "Geschaffen werden";
@@ -868,6 +872,8 @@ class $de extends S {
   String get today => "Heute";
   @override
   String get settings_support => "Unterstützung";
+  @override
+  String get seed_reminder => "Bitte notieren Sie diese, falls Sie Ihr Telefon verlieren oder abwischen";
   @override
   String get restore_wallet => "Wallet wiederherstellen";
   @override
@@ -1427,6 +1433,8 @@ class $hi extends S {
   @override
   String get choose_account => "खाता चुनें";
   @override
+  String get restore_from_date_or_blockheight => "कृपया इस वॉलेट को बनाने की तिथि दर्ज करें। या यदि आप ब्लॉकचाइट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें";
+  @override
   String get settings_only_trades => "केवल ट्रेड करता है";
   @override
   String get trade_state_to_be_created => "बनाए जाने के लिए";
@@ -1506,6 +1514,8 @@ class $hi extends S {
   String get today => "आज";
   @override
   String get settings_support => "समर्थन";
+  @override
+  String get seed_reminder => "यदि आप अपना फोन खो देते हैं या मिटा देते हैं तो कृपया इन्हें लिख लें";
   @override
   String get restore_wallet => "वॉलेट को पुनर्स्थापित करें";
   @override
@@ -2065,6 +2075,8 @@ class $ru extends S {
   @override
   String get choose_account => "Выберите аккаунт";
   @override
+  String get restore_from_date_or_blockheight => "Пожалуйста, введите дату создания кошелька. Или, если вы знаете высоту блока, введите ее значение";
+  @override
   String get settings_only_trades => "Сделки";
   @override
   String get trade_state_to_be_created => "Будет создана";
@@ -2144,6 +2156,8 @@ class $ru extends S {
   String get today => "Сегодня";
   @override
   String get settings_support => "Поддержка";
+  @override
+  String get seed_reminder => "Пожалуйста, запишите мнемоническую фразу на случай потери или очистки телефона";
   @override
   String get restore_wallet => "Восстановить кошелёк";
   @override
@@ -2703,6 +2717,8 @@ class $ko extends S {
   @override
   String get choose_account => "계정을 선택하십시오";
   @override
+  String get restore_from_date_or_blockheight => "이 지갑을 만든 날짜를 입력하세요. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.";
+  @override
   String get settings_only_trades => "거래 만";
   @override
   String get trade_state_to_be_created => "만들려면";
@@ -2782,6 +2798,8 @@ class $ko extends S {
   String get today => "오늘";
   @override
   String get settings_support => "지원하다";
+  @override
+  String get seed_reminder => "휴대 전화를 분실하거나 닦을 경우를 대비해 적어 두세요.";
   @override
   String get restore_wallet => "월렛 복원";
   @override
@@ -3341,6 +3359,8 @@ class $pt extends S {
   @override
   String get choose_account => "Escolha uma conta";
   @override
+  String get restore_from_date_or_blockheight => "Por favor, insira a data em que você criou esta carteira. Ou se você souber a altura do bloco, insira-o";
+  @override
   String get settings_only_trades => "Somente trocas";
   @override
   String get trade_state_to_be_created => "A ser criada";
@@ -3420,6 +3440,8 @@ class $pt extends S {
   String get today => "Hoje";
   @override
   String get settings_support => "Suporte";
+  @override
+  String get seed_reminder => "Anote-os para o caso de perder ou limpar seu telefone";
   @override
   String get restore_wallet => "Restaurar carteira";
   @override
@@ -3979,6 +4001,8 @@ class $uk extends S {
   @override
   String get choose_account => "Оберіть акаунт";
   @override
+  String get restore_from_date_or_blockheight => "Будь ласка, введіть дату створення гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення";
+  @override
   String get settings_only_trades => "Операції";
   @override
   String get trade_state_to_be_created => "Буде створена";
@@ -4058,6 +4082,8 @@ class $uk extends S {
   String get today => "Сьогодні";
   @override
   String get settings_support => "Підтримка";
+  @override
+  String get seed_reminder => "Будь ласка, запишіть мнемонічну фразу на випадок втрати або очищення телефону";
   @override
   String get restore_wallet => "Відновити гаманець";
   @override
@@ -4617,6 +4643,8 @@ class $ja extends S {
   @override
   String get choose_account => "アカウントを選択";
   @override
+  String get restore_from_date_or_blockheight => "このウォレットを作成した日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください";
+  @override
   String get settings_only_trades => "取引のみ";
   @override
   String get trade_state_to_be_created => "作成される";
@@ -4696,6 +4724,8 @@ class $ja extends S {
   String get today => "今日";
   @override
   String get settings_support => "サポート";
+  @override
+  String get seed_reminder => "スマートフォンを紛失したりワイプした場合に備えて、これらを書き留めてください";
   @override
   String get restore_wallet => "ウォレットを復元";
   @override
@@ -5259,6 +5289,8 @@ class $pl extends S {
   @override
   String get choose_account => "Wybierz konto";
   @override
+  String get restore_from_date_or_blockheight => "Wprowadź datę utworzenia tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego";
+  @override
   String get settings_only_trades => "Tylko transakcje";
   @override
   String get trade_state_to_be_created => "Zostać stworzonym";
@@ -5338,6 +5370,8 @@ class $pl extends S {
   String get today => "Dzisiaj";
   @override
   String get settings_support => "Wsparcie";
+  @override
+  String get seed_reminder => "Zapisz je na wypadek zgubienia lub wyczyszczenia telefonu";
   @override
   String get restore_wallet => "Przywróć portfel";
   @override
@@ -5897,6 +5931,8 @@ class $es extends S {
   @override
   String get choose_account => "Elegir cuenta";
   @override
+  String get restore_from_date_or_blockheight => "Ingrese la fecha en que creó esta billetera. O si conoce la altura del bloque, ingréselo en su lugar";
+  @override
   String get settings_only_trades => "Solo comercia";
   @override
   String get trade_state_to_be_created => "Ser creado";
@@ -5976,6 +6012,8 @@ class $es extends S {
   String get today => "Hoy";
   @override
   String get settings_support => "Apoyo";
+  @override
+  String get seed_reminder => "Anótelos en caso de que pierda o borre su teléfono";
   @override
   String get restore_wallet => "Restaurar billetera";
   @override
@@ -6535,6 +6573,8 @@ class $nl extends S {
   @override
   String get choose_account => "Kies account";
   @override
+  String get restore_from_date_or_blockheight => "Voer de datum in waarop u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voer deze dan in";
+  @override
   String get settings_only_trades => "Alleen handel";
   @override
   String get trade_state_to_be_created => "Om gecreëerd te worden";
@@ -6614,6 +6654,8 @@ class $nl extends S {
   String get today => "Vandaag";
   @override
   String get settings_support => "Ondersteuning";
+  @override
+  String get seed_reminder => "Schrijf deze op voor het geval u uw telefoon kwijtraakt of veegt";
   @override
   String get restore_wallet => "Portemonnee herstellen";
   @override
@@ -7173,6 +7215,8 @@ class $zh extends S {
   @override
   String get choose_account => "選擇帳號";
   @override
+  String get restore_from_date_or_blockheight => "請輸入創建此錢包的日期。 或者，如果您知道塊高，請改為輸入";
+  @override
   String get settings_only_trades => "只交易";
   @override
   String get trade_state_to_be_created => "待创建";
@@ -7252,6 +7296,8 @@ class $zh extends S {
   String get today => "今天";
   @override
   String get settings_support => "支持";
+  @override
+  String get seed_reminder => "請寫下這些，以防丟失或擦拭手機";
   @override
   String get restore_wallet => "恢复钱包";
   @override
