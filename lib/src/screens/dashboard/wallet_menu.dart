@@ -46,7 +46,7 @@ class WalletMenu {
         Navigator.of(context).pushNamed(Routes.auth,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
                 isAuthenticatedSuccessfully
-                    ? Navigator.of(auth.context).popAndPushNamed(Routes.seed)
+                    ? Navigator.of(auth.context).popAndPushNamed(Routes.seed, arguments: false)
                     : null);
 
         break;
