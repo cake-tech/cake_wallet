@@ -123,7 +123,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                 .pushNamed(Routes.accountCreation),
                             child: Container(
                               height: 62,
-                              color: Theme.of(context).textTheme.subtitle.decorationColor,
+                              color: Theme.of(context).cardColor,
                               padding: EdgeInsets.only(left: 24, right: 24),
                               child: Center(
                                 child: Row(

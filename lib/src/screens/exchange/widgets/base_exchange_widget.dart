@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
@@ -356,7 +355,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                       exchangeViewModel.createTrade();
                     }
                   },
-                  color: Palette.blueCraiola,
+                  color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white,
                   isLoading: exchangeViewModel.tradeState is TradeIsCreating,
                 )),

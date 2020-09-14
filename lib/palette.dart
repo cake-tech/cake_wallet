@@ -41,6 +41,8 @@ class Palette {
   static const Color shadowWhite = Color.fromRGBO(242, 245, 255, 1.0);
   static const Color niagara = Color.fromRGBO(152, 172, 201, 1.0);
   static const Color alizarinRed = Color.fromRGBO(233, 45, 45, 1.0);
+  static const Color moderateSlateBlue = Color.fromRGBO(129, 93, 251, 1.0);
+  static const Color brightOrange = Color.fromRGBO(255, 102, 0, 1.0);
 
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);

@@ -201,7 +201,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
               }
             },
             text: S.of(context).restore_recover,
-            color: Palette.blueCraiola,
+            color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
             //isDisabled: walletRestorationStore.disabledState,
           );
