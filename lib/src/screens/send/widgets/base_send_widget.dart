@@ -6,7 +6,6 @@ import 'package:cake_wallet/view_model/send_view_model.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/top_panel.dart';
@@ -436,7 +435,7 @@ class BaseSendWidget extends StatelessWidget {
               }
             },
             text: S.of(context).send,
-            color: Palette.blueCraiola,
+            color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
             isLoading: sendViewModel.state is TransactionIsCreating ||
                 sendViewModel.state is TransactionCommitting,

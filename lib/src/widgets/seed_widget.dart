@@ -393,7 +393,7 @@ class SeedWidgetState extends State<SeedWidget> {
                   child: PrimaryButton(
                     onPressed: clear,
                     text: S.of(context).clear,
-                    color: Colors.red,
+                    color: Colors.orange,
                     textColor: Colors.white,
                     isDisabled: items.isEmpty,
                   ),
@@ -408,7 +408,7 @@ class SeedWidgetState extends State<SeedWidget> {
                             onPressed: () => widget.onFinish != null
                                 ? widget.onFinish()
                                 : null,
-                            color: Palette.blueCraiola,
+                            color: Theme.of(context).accentTextTheme.body2.color,
                             textColor: Colors.white)
                         : PrimaryButton(
                             text: selectedItem != null
@@ -419,7 +419,7 @@ class SeedWidgetState extends State<SeedWidget> {
                                 : null,
                             onDisabledPressed: () => showErrorIfExist(),
                             isDisabled: !isCurrentMnemonicValid,
-                            color: Palette.blueCraiola,
+                            color: Theme.of(context).accentTextTheme.body2.color,
                             textColor: Colors.white),
                   ),
                 )

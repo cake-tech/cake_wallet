@@ -102,7 +102,7 @@ class WalletSeedPage extends BasePage {
                                     fontWeight: FontWeight.normal,
                                     color: Theme.of(context)
                                         .primaryTextTheme
-                                        .overline
+                                        .caption
                                         .color),
                               ),
                             )
@@ -162,7 +162,7 @@ class WalletSeedPage extends BasePage {
                                             );
                                           },
                                           text: S.of(context).copy,
-                                          color: Palette.blueCraiola,
+                                          color: Theme.of(context).accentTextTheme.body2.color,
                                           textColor: Colors.white)),
                                 ))
                           ],

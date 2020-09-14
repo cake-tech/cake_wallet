@@ -48,15 +48,16 @@ class Themes {
       ),
       display3: TextStyle(
         color: Colors.white, // text color of current tile (receive page),
-        decorationColor: Palette.blueCraiola // background of current tile (receive page)
+        //decorationColor: Palette.blueCraiola // background of current tile (receive page)
+        decorationColor: Palette.moderateSlateBlue // background of current tile (receive page)
       ),
       display4: TextStyle(
         color: Palette.violetBlue, // text color of tiles (account list)
         decorationColor: Colors.white // background of tiles (account list)
       ),
       subtitle: TextStyle(
-        color: Colors.white, // text color of current tile (account list)
-        decorationColor: Palette.blueCraiola // background of current tile (account list)
+        color: Palette.moderateSlateBlue, // text color of current tile (account list)
+        decorationColor: Colors.white // background of current tile (account list)
       ),
       body1: TextStyle(
         color: Palette.moderatePurpleBlue, // scrollbar thumb
@@ -132,7 +133,8 @@ class Themes {
       subtitle: TextStyle(
         color: Palette.darkBlueCraiola, // QR code (exchange trade page)
         backgroundColor: Palette.wildPeriwinkle, // divider (exchange trade page)
-        decorationColor: Palette.blueCraiola // crete new wallet button background (wallet list page)
+        //decorationColor: Palette.blueCraiola // crete new wallet button background (wallet list page)
+        decorationColor: Palette.moderateSlateBlue // crete new wallet button background (wallet list page)
       ),
       headline: TextStyle(
         color: Palette.moderateLavender, // first gradient color of wallet action buttons (wallet list page)
@@ -166,8 +168,13 @@ class Themes {
       body1: TextStyle(
         color: Palette.darkGray, // indicators (PIN code)
         decorationColor: Palette.darkGray // switch (PIN code)
-      )
+      ),
+      body2: TextStyle(
+        color: Palette.moderateSlateBlue, // primary buttons, alert right buttons
+        decorationColor: Palette.brightOrange // alert left button
+      ),
     ),
+    cardColor: Palette.moderateSlateBlue // bottom button (action list)
   );
 
 
@@ -334,7 +341,12 @@ class Themes {
       body1: TextStyle(
         color: PaletteDark.indicatorVioletBlue, // indicators (PIN code)
         decorationColor: PaletteDark.lightPurpleBlue // switch (PIN code)
-      )
+      ),
+      body2: TextStyle(
+        color: Palette.blueCraiola, // primary buttons, alert right buttons
+        decorationColor: Palette.alizarinRed // alert left button
+      ),
     ),
+    cardColor: PaletteDark.darkNightBlue // bottom button (action list)
   );
 }

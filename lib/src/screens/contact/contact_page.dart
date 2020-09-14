@@ -115,7 +115,7 @@ class ContactPage extends BasePage {
                     _addressController.text = '';
                   },
                   text: S.of(context).reset,
-                  color: Colors.red,
+                  color: Colors.orange,
                   textColor: Colors.white),
             ),
             SizedBox(width: 20),
@@ -130,7 +130,7 @@ class ContactPage extends BasePage {
                           await contactViewModel.save();
                         },
                         text: S.of(context).save,
-                        color: Palette.blueCraiola,
+                        color: Theme.of(context).accentTextTheme.body2.color,
                         textColor: Colors.white,
                         isDisabled: !contactViewModel.isReady)))
           ],

@@ -197,7 +197,7 @@ class ContactListPage extends BasePage {
     Image image;
     switch (currency) {
       case CryptoCurrency.xmr:
-        image = Image.asset('assets/images/monero.png', height: 24, width: 24);
+        image = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
         break;
       case CryptoCurrency.ada:
         image = Image.asset('assets/images/ada.png', height: 24, width: 24);
