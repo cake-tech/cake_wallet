@@ -1,7 +1,13 @@
 import 'dart:async';
 
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/router.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -24,8 +30,7 @@ import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 // FIXME: move me
 Future<void> loadCurrentWallet() async {
   final appStore = getIt.get<AppStore>();
-  final name = 'test';
-  getIt.get<SharedPreferences>().getString('current_wallet_name');
+  final name = getIt.get<SharedPreferences>().getString('current_wallet_name');
   final typeRaw =
       getIt.get<SharedPreferences>().getInt('current_wallet_type') ?? 0;
   final type = deserializeFromInt(typeRaw);
@@ -55,7 +60,8 @@ ReactionDisposer _onCurrentFiatCurrencyChangeDisposer;
 Timer _reconnectionTimer;
 
 Future<void> bootstrap(
-    {FiatConvertationService fiatConvertationService}) async {
+    {FiatConvertationService fiatConvertationService,
+    GlobalKey<NavigatorState> navigatorKey}) async {
   final authenticationStore = getIt.get<AuthenticationStore>();
   final settingsStore = getIt.get<SettingsStore>();
   final fiatConvertationStore = getIt.get<FiatConvertationStore>();
@@ -69,9 +75,25 @@ Future<void> bootstrap(
 
   _initialAuthReaction ??= autorun((_) async {
     final state = authenticationStore.state;
+    print(state);
 
     if (state == AuthenticationState.installed) {
       await loadCurrentWallet();
+    }
+
+    if (state == AuthenticationState.installed) {
+      await navigatorKey.currentState
+          .pushAndRemoveUntil(createLoginRoute(), (_) => false);
+    }
+
+    if (state == AuthenticationState.allowed) {
+      await navigatorKey.currentState
+          .pushAndRemoveUntil(createDashboardRoute(), (_) => false);
+    }
+
+    if (state == AuthenticationState.denied) {
+      await navigatorKey.currentState
+          .pushAndRemoveUntil(createWelcomeRoute(), (_) => false);
     }
   });
 

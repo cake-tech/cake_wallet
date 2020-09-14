@@ -1,4 +1,5 @@
 import 'package:cake_wallet/reactions/bootstrap.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -54,6 +55,8 @@ import 'package:cake_wallet/src/domain/common/language.dart';
 import 'package:cake_wallet/src/stores/seed_language/seed_language_store.dart';
 
 bool isThemeChangerRegistered = false;
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -188,7 +191,9 @@ Future<void> initialSetup(
       tradesSource: tradesSource,
       templates: templates,
       exchangeTemplates: exchangeTemplates);
-  await bootstrap(fiatConvertationService: fiatConvertationService);
+  await bootstrap(
+      fiatConvertationService: fiatConvertationService,
+      navigatorKey: navigatorKey);
   monero_wallet.onStartup();
 }
 
@@ -252,34 +257,37 @@ class MaterialAppWithTheme extends StatelessWidget {
         statusBarBrightness: statusBarBrightness,
         statusBarIconBrightness: statusBarIconBrightness));
 
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: theme.getTheme(),
-        localizationsDelegates: [
-          S.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: S.delegate.supportedLocales,
-        locale: Locale(currentLanguage.getCurrentLanguage()),
-        onGenerateRoute: (settings) => Router.generateRoute(
-            sharedPreferences: sharedPreferences,
-            walletListService: walletListService,
-            walletService: walletService,
-            userService: userService,
-            settings: settings,
-            priceStore: priceStore,
-            walletStore: walletStore,
-            syncStore: syncStore,
-            balanceStore: balanceStore,
-            settingsStore: settingsStore,
-            contacts: contacts,
-            nodes: nodes,
-            trades: trades,
-            transactionDescriptions: transactionDescriptions),
-        home: Root(
-          authenticationStore: getIt.get<AuthenticationStore>(),
+    return Root(
+        authenticationStore: getIt.get<AuthenticationStore>(),
+        child: MaterialApp(
+          navigatorKey: navigatorKey,
+          debugShowCheckedModeBanner: false,
+          theme: theme.getTheme(),
+          localizationsDelegates: [
+            S.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          locale: Locale(currentLanguage.getCurrentLanguage()),
+          onGenerateRoute: (settings) => Router.generateRoute(
+              sharedPreferences: sharedPreferences,
+              walletListService: walletListService,
+              walletService: walletService,
+              userService: userService,
+              settings: settings,
+              priceStore: priceStore,
+              walletStore: walletStore,
+              syncStore: syncStore,
+              balanceStore: balanceStore,
+              settingsStore: settingsStore,
+              contacts: contacts,
+              nodes: nodes,
+              trades: trades,
+              transactionDescriptions: transactionDescriptions),
+          initialRoute: Routes.login, // FIXME: get initial route!
+          // home: Container(color: Colors.blue),
         ));
   }
 }
