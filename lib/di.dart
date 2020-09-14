@@ -31,6 +31,7 @@ import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.d
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/theme_changer_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
+import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/theme_changer.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
@@ -44,7 +45,7 @@ import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_view_model.dart';
-import 'package:cake_wallet/view_model/send_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
@@ -87,8 +88,20 @@ NodeListStore setupNodeListStore(Box<Node> nodeSource) {
   _nodeListStore = NodeListStore();
   _nodeListStore.replaceValues(nodeSource.values);
   _onNodesSourceChange = nodeSource.watch();
-  _onNodesSourceChange
-      .listen((_) => _nodeListStore.replaceValues(nodeSource.values));
+  _onNodesSourceChange.listen((event) {
+//    print(event);
+
+    if (event.deleted) {
+      _nodeListStore.nodes.removeWhere((n) {
+        return n.key != null ? n.key == event.key : true;
+      });
+    }
+
+    if (event.value is Node) {
+      final val = event.value as Node;
+      _nodeListStore.nodes.add(val);
+    }
+  });
 
   return _nodeListStore;
 }
@@ -120,8 +133,7 @@ Future setup(
   getIt.registerSingleton<ContactService>(
       ContactService(contactSource, getIt.get<AppStore>().contactListStore));
   getIt.registerSingleton<TradesStore>(TradesStore(
-      tradesSource: tradesSource,
-      settingsStore: getIt.get<SettingsStore>()));
+      tradesSource: tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConvertationStore>(FiatConvertationStore());
@@ -170,20 +182,17 @@ Future setup(
   getIt.registerFactory<WalletAddressListViewModel>(
       () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
 
-  getIt.registerFactory(
-      () => BalanceViewModel(
-            wallet: getIt.get<AppStore>().wallet,
-            settingsStore: getIt.get<SettingsStore>(),
-            fiatConvertationStore: getIt.get<FiatConvertationStore>()));
+  getIt.registerFactory(() => BalanceViewModel(
+      wallet: getIt.get<AppStore>().wallet,
+      settingsStore: getIt.get<SettingsStore>(),
+      fiatConvertationStore: getIt.get<FiatConvertationStore>()));
 
-  getIt.registerFactory(
-      () => DashboardViewModel(
-          balanceViewModel: getIt.get<BalanceViewModel>(),
-          appStore: getIt.get<AppStore>(),
-          tradesStore: getIt.get<TradesStore>(),
-          tradeFilterStore: getIt.get<TradeFilterStore>(),
-          transactionFilterStore: getIt.get<TransactionFilterStore>()
-      ));
+  getIt.registerFactory(() => DashboardViewModel(
+      balanceViewModel: getIt.get<BalanceViewModel>(),
+      appStore: getIt.get<AppStore>(),
+      tradesStore: getIt.get<TradesStore>(),
+      tradeFilterStore: getIt.get<TradeFilterStore>(),
+      transactionFilterStore: getIt.get<TransactionFilterStore>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -195,6 +204,10 @@ Future setup(
 
   getIt.registerFactory<AuthPage>(
       () => AuthPage(
+          allowBiometricalAuthentication: getIt
+              .get<AppStore>()
+              .settingsStore
+              .allowBiometricalAuthentication,
           authViewModel: getIt.get<AuthViewModel>(),
           onAuthenticationFinished: (isAuthenticated, __) {
             if (isAuthenticated) {
@@ -206,15 +219,22 @@ Future setup(
 
   getIt
       .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), void>(
-          (onAuthFinished, _) => AuthPage(
-              authViewModel: getIt.get<AuthViewModel>(),
-              onAuthenticationFinished: onAuthFinished,
-              closable: false));
+          (onAuthFinished, _) {
+    final allowBiometricalAuthentication =
+        getIt.get<AppStore>().settingsStore.allowBiometricalAuthentication;
 
-  getIt.registerFactory<DashboardPage>(
-      () => DashboardPage(
-          walletViewModel: getIt.get<DashboardViewModel>(),
-          addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+    print('allowBiometricalAuthentication $allowBiometricalAuthentication');
+
+    return AuthPage(
+        allowBiometricalAuthentication: allowBiometricalAuthentication,
+        authViewModel: getIt.get<AuthViewModel>(),
+        onAuthenticationFinished: onAuthFinished,
+        closable: false);
+  });
+
+  getIt.registerFactory<DashboardPage>(() => DashboardPage(
+      walletViewModel: getIt.get<DashboardViewModel>(),
+      addressListViewModel: getIt.get<WalletAddressListViewModel>()));
 
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
@@ -228,17 +248,17 @@ Future setup(
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
+  // getIt.get<SendTemplateStore>()
   getIt.registerFactory<SendViewModel>(() => SendViewModel(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
-      getIt.get<FiatConvertationStore>(),
-      getIt.get<SendTemplateStore>()));
+      getIt.get<FiatConvertationStore>()));
 
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(
-          () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
+  // getIt.registerFactory(
+  //         () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       walletInfoSource, getIt.get<AppStore>(), getIt.get<KeyService>()));
@@ -275,8 +295,10 @@ Future setup(
       moneroAccountCreationViewModel:
           getIt.get<MoneroAccountEditOrCreateViewModel>()));
 
-  getIt.registerFactory(
-      () => SettingsViewModel(getIt.get<AppStore>().settingsStore));
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return SettingsViewModel(appStore.settingsStore, appStore.wallet);
+  });
 
   getIt.registerFactory(() => SettingsPage(getIt.get<SettingsViewModel>()));
 
@@ -295,22 +317,26 @@ Future setup(
 
   getIt.registerFactoryParam<ContactViewModel, Contact, void>(
       (Contact contact, _) => ContactViewModel(
-          getIt.get<ContactService>(), getIt.get<AppStore>().wallet,
+          contactSource, getIt.get<AppStore>().wallet,
           contact: contact));
 
   getIt.registerFactory(() => ContactListViewModel(
-      getIt.get<AppStore>().contactListStore, getIt.get<ContactService>()));
+      getIt.get<AppStore>().contactListStore,
+      getIt.get<ContactService>(),
+      contactSource));
 
-  getIt.registerFactoryParam<ContactListPage, bool, void>((bool isEditable, _) =>
-      ContactListPage(getIt.get<ContactListViewModel>(), isEditable: isEditable));
+  getIt.registerFactoryParam<ContactListPage, bool, void>(
+      (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
+          isEditable: isEditable));
 
   getIt.registerFactoryParam<ContactPage, Contact, void>((Contact contact, _) =>
       ContactPage(getIt.get<ContactViewModel>(param1: contact)));
 
-  getIt.registerFactory(() => NodeListViewModel(
-      getIt.get<AppStore>().nodeListStore,
-      nodeSource,
-      getIt.get<AppStore>().wallet));
+  getIt.registerFactory(() {
+    final appStore = getIt.get<AppStore>();
+    return NodeListViewModel(appStore.nodeListStore, nodeSource,
+        appStore.wallet, appStore.settingsStore);
+  });
 
   getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
 
@@ -320,32 +346,27 @@ Future setup(
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 
-  getIt.registerFactory(() =>
-      ExchangeViewModel(
-        wallet: getIt.get<AppStore>().wallet,
-        exchangeTemplateStore: getIt.get<ExchangeTemplateStore>(),
-        trades: tradesSource,
-        tradesStore: getIt.get<TradesStore>()
-      ));
+  getIt.registerFactory(() => ExchangeViewModel(
+      wallet: getIt.get<AppStore>().wallet,
+      exchangeTemplateStore: getIt.get<ExchangeTemplateStore>(),
+      trades: tradesSource,
+      tradesStore: getIt.get<TradesStore>()));
 
-  getIt.registerFactory(() =>
-      ExchangeTradeViewModel(
-        wallet: getIt.get<AppStore>().wallet,
-        trades: tradesSource,
-        tradesStore: getIt.get<TradesStore>()
-      ));
+  getIt.registerFactory(() => ExchangeTradeViewModel(
+      wallet: getIt.get<AppStore>().wallet,
+      trades: tradesSource,
+      tradesStore: getIt.get<TradesStore>()));
 
-  getIt.registerFactory(() =>
-      ExchangePage(getIt.get<ExchangeViewModel>()));
+  getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>()));
 
-  getIt.registerFactory(() =>
-      ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
+  getIt.registerFactory(
+      () => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
 
-  getIt.registerFactory(() =>
-      ExchangeTradePage(exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
+  getIt.registerFactory(() => ExchangeTradePage(
+      exchangeTradeViewModel: getIt.get<ExchangeTradeViewModel>()));
 
-  getIt.registerFactory(() =>
-      ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
+  getIt.registerFactory(
+      () => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
 }
 
 void setupThemeChangerStore(ThemeChanger themeChanger) {

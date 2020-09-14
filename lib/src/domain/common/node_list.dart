@@ -10,7 +10,10 @@ Future<List<Node>> loadDefaultNodes() async {
 
   return nodes.map((dynamic raw) {
     if (raw is Map) {
-      return Node.fromMap(raw);
+      final node = Node.fromMap(raw);
+      node?.type = WalletType.monero;
+
+      return node;
     }
 
     return null;
@@ -38,13 +41,7 @@ Future resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadElectrumServerList();
   final nodes = moneroNodes + bitcoinElectrumServerList;
-  final entities = <int, Node>{};
 
   await nodeSource.clear();
-
-  for (var i = 0; i < nodes.length; i++) {
-    entities[i] = nodes[i];
-  }
-
-  await nodeSource.putAll(entities);
+  await nodeSource.addAll(nodes);
 }

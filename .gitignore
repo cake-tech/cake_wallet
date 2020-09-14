@@ -90,3 +90,5 @@ android/key.properties
 **/lib/.secrets.g.dart
 
 vendor/
+
+android/app/.cxx/**

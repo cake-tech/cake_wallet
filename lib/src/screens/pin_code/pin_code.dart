@@ -126,7 +126,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                     shape: BoxShape.circle,
                     color: isFilled
                         ? Theme.of(context).primaryTextTheme.title.color
-                        : Theme.of(context).accentTextTheme.body1.color,
+                        : Theme.of(context)
+                            .accentTextTheme
+                            .body1
+                            .color
+                            .withOpacity(0.25),
                   ));
             }),
           ),
@@ -144,7 +148,10 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
                 style: TextStyle(
                     fontSize: 14.0,
                     fontWeight: FontWeight.normal,
-                    color: Theme.of(context).accentTextTheme.body1.decorationColor),
+                    color: Theme.of(context)
+                        .accentTextTheme
+                        .body1
+                        .decorationColor),
               ))
         ],
         Spacer(flex: 1),

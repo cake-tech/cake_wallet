@@ -66,14 +66,6 @@ class WalletListBodyState extends State<WalletListBody> {
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
                     final screenWidth = MediaQuery.of(context).size.width;
-//                    String shortAddress = '';
-
-//                    if (wallet.isCurrent) {
-//                      shortAddress = wallet.address;
-//                      shortAddress = shortAddress.replaceRange(
-//                          4, shortAddress.length - 4, '...');
-//                    }
-
                     final walletMenu = WalletMenu(context, widget.walletListViewModel);
                     final items =
                         walletMenu.generateItemsForWalletMenu(wallet.isCurrent);

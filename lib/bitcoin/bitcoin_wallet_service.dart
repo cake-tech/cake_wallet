@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:bip39/bip39.dart' as bip39;
 import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
@@ -49,10 +48,9 @@ class BitcoinWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) {
-    // TODO: implement remove
-    throw UnimplementedError();
-  }
+  Future<void> remove(String wallet) async =>
+      File(await pathForWalletDir(name: wallet, type: WalletType.bitcoin))
+          .delete(recursive: true);
 
   @override
   Future<BitcoinWallet> restoreFromKeys(

@@ -4,28 +4,33 @@ import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class SettingsPickerCell<ItemType> extends StandardListRow {
-  SettingsPickerCell({@required String title, this.selectedItem, this.items,
-    this.setItem, this.isAlwaysShowScrollThumb})
+  SettingsPickerCell(
+      {@required String title,
+      this.selectedItem,
+      this.items,
+      this.onItemSelected,
+      this.isAlwaysShowScrollThumb})
       : super(
-      title: title,
-      isSelected: false,
-      onTap: (BuildContext context) async {
-        final selectedAtIndex = items.indexOf(selectedItem);
+            title: title,
+            isSelected: false,
+            onTap: (BuildContext context) async {
+              final selectedAtIndex = items.indexOf(selectedItem);
 
-        await showDialog<void>(
-            context: context,
-            builder: (_) => Picker(
-                items: items,
-                selectedAtIndex: selectedAtIndex,
-                title: S.current.please_select,
-                mainAxisAlignment: MainAxisAlignment.center,
-                isAlwaysShowScrollThumb: isAlwaysShowScrollThumb,
-                onItemSelected: (ItemType value) => setItem(value)));
-      });
+              await showDialog<void>(
+                  context: context,
+                  builder: (_) => Picker(
+                      items: items,
+                      selectedAtIndex: selectedAtIndex,
+                      title: S.current.please_select,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      isAlwaysShowScrollThumb: isAlwaysShowScrollThumb,
+                      onItemSelected: (ItemType item) =>
+                          onItemSelected?.call(item)));
+            });
 
   final ItemType selectedItem;
   final List<ItemType> items;
-  final Function(ItemType) setItem;
+  final void Function(ItemType item) onItemSelected;
   final bool isAlwaysShowScrollThumb;
 
   @override

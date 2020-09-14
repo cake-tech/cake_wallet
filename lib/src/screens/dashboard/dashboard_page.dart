@@ -27,25 +27,20 @@ class DashboardPage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => Container(
+      (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-                Theme.of(context).accentColor,
-                Theme.of(context).scaffoldBackgroundColor,
-                Theme.of(context).primaryColor,
-              ],
-              begin: Alignment.topRight,
-              end: Alignment.bottomLeft)),
+            Theme.of(context).accentColor,
+            Theme.of(context).scaffoldBackgroundColor,
+            Theme.of(context).primaryColor,
+          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
           child: scaffold);
 
   @override
   bool get resizeToAvoidBottomPadding => false;
 
   @override
-  Widget get endDrawer => MenuWidget(
-      name: walletViewModel.name,
-      subname: walletViewModel.subname,
-      type: walletViewModel.type);
+  Widget get endDrawer => MenuWidget(walletViewModel);
 
   @override
   Widget middle(BuildContext context) {
@@ -54,20 +49,18 @@ class DashboardPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final menuButton = Image.asset('assets/images/menu.png',
-        color: Colors.white);
+    final menuButton =
+        Image.asset('assets/images/menu.png', color: Colors.white);
 
     return Container(
-      alignment: Alignment.centerRight,
-      width: 40,
-      child: FlatButton(
-        highlightColor: Colors.transparent,
-        splashColor: Colors.transparent,
-        padding: EdgeInsets.all(0),
-        onPressed: () => onOpenEndDrawer(),
-        child: menuButton
-      )
-    );
+        alignment: Alignment.centerRight,
+        width: 40,
+        child: FlatButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            padding: EdgeInsets.all(0),
+            onPressed: () => onOpenEndDrawer(),
+            child: menuButton));
   }
 
   final DashboardViewModel walletViewModel;
@@ -85,77 +78,55 @@ class DashboardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-
     _setEffects();
 
     return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          Expanded(
+        child: Column(
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        Expanded(
             child: PageView.builder(
-              controller: controller,
-              itemCount: pages.length,
-              itemBuilder: (context, index) {
-                return pages[index];
-              }
-            )
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-                bottom: 24
-            ),
+                controller: controller,
+                itemCount: pages.length,
+                itemBuilder: (context, index) => pages[index])),
+        Padding(
+            padding: EdgeInsets.only(bottom: 24),
             child: SmoothPageIndicator(
               controller: controller,
-              count:  pages.length,
+              count: pages.length,
               effect: ColorTransitionEffect(
-                  spacing:  6.0,
-                  radius:  6.0,
-                  dotWidth:  6.0,
-                  dotHeight:  6.0,
-                  dotColor:  Theme.of(context).indicatorColor,
-                  activeDotColor:  Colors.white
-              ),
-            )
-          ),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.only(
-              left: 45,
-              right: 45,
-              bottom: 24
-            ),
-            child: Row(
-              children: <Widget>[
-                Flexible(
-                  child: ActionButton(
-                    image: sendImage,
-                    title: S.of(context).send,
-                    route: Routes.send,
-                    alignment: Alignment.centerLeft,
-                  ),
+                  spacing: 6.0,
+                  radius: 6.0,
+                  dotWidth: 6.0,
+                  dotHeight: 6.0,
+                  dotColor: Theme.of(context).indicatorColor,
+                  activeDotColor: Colors.white),
+            )),
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.only(left: 44, right: 0, bottom: 24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Flexible(
+                child: ActionButton(
+                  image: sendImage,
+                  title: S.of(context).send,
+                  route: Routes.send,
+                  alignment: Alignment.centerLeft,
                 ),
-                Flexible(
-                  child: ActionButton(
+              ),
+              Flexible(
+                child: ActionButton(
                     image: exchangeImage,
                     title: S.of(context).exchange,
-                    route: Routes.exchange
-                  ),
-                ),
-                Flexible(
-                  child: ActionButton(
-                    image: receiveImage,
-                    title: S.of(context).receive,
-                    route: Routes.receive,
-                    alignment: Alignment.centerRight,
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
-      )
-    );
+                    route: Routes.exchange),
+              )
+            ],
+          ),
+        )
+      ],
+    ));
   }
 
   void _setEffects() {

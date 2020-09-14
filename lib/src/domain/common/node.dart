@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -8,13 +9,17 @@ import 'package:cake_wallet/src/domain/common/digest_request.dart';
 part 'node.g.dart';
 
 @HiveType(typeId: 1)
-class Node extends HiveObject {
-  Node({@required this.uri, @required WalletType type, this.login, this.password}) {
+class Node extends HiveObject with Keyable {
+  Node(
+      {@required this.uri,
+      @required WalletType type,
+      this.login,
+      this.password}) {
     this.type = type;
   }
 
   Node.fromMap(Map map)
-      : uri = (map['uri'] ?? '') as String,
+      : uri = map['uri'] as String ?? '',
         login = map['login'] as String,
         password = map['password'] as String,
         typeRaw = map['typeRaw'] as int;

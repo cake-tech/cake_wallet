@@ -27,7 +27,7 @@ abstract class WalletCreationVMBase with Store {
 
   final bool isRecovery;
 
-  Box<WalletInfo> _walletInfoSource;
+  final Box<WalletInfo> _walletInfoSource;
 
   Future<void> create({dynamic options}) async {
     try {

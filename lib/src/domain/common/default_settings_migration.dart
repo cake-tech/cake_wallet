@@ -29,15 +29,19 @@ Future defaultSettingsMigration(
       switch (version) {
         case 1:
           await sharedPreferences.setString(
-              SettingsStoreBase.currentFiatCurrencyKey, FiatCurrency.usd.toString());
+              SettingsStoreBase.currentFiatCurrencyKey,
+              FiatCurrency.usd.toString());
           await sharedPreferences.setInt(
-              SettingsStoreBase.currentTransactionPriorityKey, TransactionPriority.standart.raw);
+              SettingsStoreBase.currentTransactionPriorityKey,
+              TransactionPriority.standart.raw);
           await sharedPreferences.setInt(
               SettingsStoreBase.currentBalanceDisplayModeKey,
               BalanceDisplayMode.availableBalance.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
           await resetToDefault(nodes);
-          await changeCurrentNodeToDefault(
+          await changeMoneroCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          await changeBitcoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
 
           break;
@@ -50,6 +54,11 @@ Future defaultSettingsMigration(
         case 3:
           await updateNodeTypes(nodes: nodes);
           await addBitcoinElectrumServerList(nodes: nodes);
+
+          break;
+        case 4:
+          await changeBitcoinCurrentElectrumServerToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
           break;
         default:
           break;
@@ -69,10 +78,11 @@ Future defaultSettingsMigration(
 Future<void> replaceNodesMigration({@required Box<Node> nodes}) async {
   final replaceNodes = <String, Node>{
     'eu-node.cakewallet.io:18081':
-        Node(uri: 'xmr-node-eu.cakewallet.com:18081'),
-    'node.cakewallet.io:18081':
-        Node(uri: 'xmr-node-usa-east.cakewallet.com:18081'),
-    'node.xmr.ru:13666': Node(uri: 'node.monero.net:18081')
+        Node(uri: 'xmr-node-eu.cakewallet.com:18081', type: WalletType.monero),
+    'node.cakewallet.io:18081': Node(
+        uri: 'xmr-node-usa-east.cakewallet.com:18081', type: WalletType.monero),
+    'node.xmr.ru:13666':
+        Node(uri: 'node.monero.net:18081', type: WalletType.monero)
   };
 
   nodes.values.forEach((Node node) async {
@@ -87,11 +97,27 @@ Future<void> replaceNodesMigration({@required Box<Node> nodes}) async {
   });
 }
 
-Future<void> changeCurrentNodeToDefault(
+Future<void> changeMoneroCurrentNodeToDefault(
     {@required SharedPreferences sharedPreferences,
     @required Box<Node> nodes}) async {
+  final node = getMoneroDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int ?? 0; // 0 - England
+
+  await sharedPreferences.setInt('current_node_id', nodeId);
+}
+
+Node getBitcoinDefaultElectrumServer({@required Box<Node> nodes}) {
+  final uri = 'electrumx.cakewallet.com:50002';
+
+  return nodes.values
+          .firstWhere((Node node) => node.uri == uri, orElse: () => null) ??
+      nodes.values.firstWhere((node) => node.type == WalletType.bitcoin,
+          orElse: () => null);
+}
+
+Node getMoneroDefaultNode({@required Box<Node> nodes}) {
   final timeZone = DateTime.now().timeZoneOffset.inHours;
-  String nodeUri = '';
+  var nodeUri = '';
 
   if (timeZone >= 1) {
     // Eurasia
@@ -101,11 +127,18 @@ Future<void> changeCurrentNodeToDefault(
     nodeUri = 'xmr-node-usa-east.cakewallet.com:18081';
   }
 
-  final node = nodes.values.firstWhere((Node node) => node.uri == nodeUri) ??
+  return nodes.values
+          .firstWhere((Node node) => node.uri == nodeUri, orElse: () => null) ??
       nodes.values.first;
-  final nodeId = node != null ? node.key as int : 0; // 0 - England
+}
 
-  await sharedPreferences.setInt('current_node_id', nodeId);
+Future<void> changeBitcoinCurrentElectrumServerToDefault(
+    {@required SharedPreferences sharedPreferences,
+    @required Box<Node> nodes}) async {
+  final server = getBitcoinDefaultElectrumServer(nodes: nodes);
+  final serverId = server?.key as int ?? 0;
+
+  await sharedPreferences.setInt('current_node_id_btc', serverId);
 }
 
 Future<void> replaceDefaultNode(
@@ -126,7 +159,7 @@ Future<void> replaceDefaultNode(
     return;
   }
 
-  await changeCurrentNodeToDefault(
+  await changeMoneroCurrentNodeToDefault(
       sharedPreferences: sharedPreferences, nodes: nodes);
 }
 
