@@ -95,6 +95,15 @@ import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 
+CupertinoPageRoute<void> createDashboardRoute() =>
+    CupertinoPageRoute<void>(builder: (_) => getIt.get<DashboardPage>());
+
+CupertinoPageRoute<void> createLoginRoute() => CupertinoPageRoute<void>(
+    builder: (context) => getIt.get<AuthPage>(instanceName: 'login'));
+
+MaterialPageRoute<void> createWelcomeRoute() =>
+    MaterialPageRoute<void>(builder: (_) => createWelcomePage());
+
 class Router {
   static Route<dynamic> generateRoute(
       {SharedPreferences sharedPreferences,
@@ -239,7 +248,7 @@ class Router {
             : 'English'; // FIXME: Unnamed constant; English default and only one language for bitcoin.
 
         final walletRestorationFromKeysVM =
-        getIt.get<WalletRestorationFromKeysVM>(param1: [type, language]);
+            getIt.get<WalletRestorationFromKeysVM>(param1: [type, language]);
 
         return CupertinoPageRoute<void>(
             builder: (_) => RestoreWalletFromKeysPage(
@@ -255,7 +264,8 @@ class Router {
 
       case Routes.sendTemplate:
         return CupertinoPageRoute<void>(
-            fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
+            fullscreenDialog: true,
+            builder: (_) => getIt.get<SendTemplatePage>());
 
       case Routes.receive:
         return CupertinoPageRoute<void>(
@@ -320,16 +330,8 @@ class Router {
             builder: (_) => getIt.get<NodeCreateOrEditPage>());
 
       case Routes.login:
-        return CupertinoPageRoute<void>(builder: (context) {
-          final authenticationStore = Provider.of<AuthenticationStore>(context);
-
-          return createLoginPage(
-              sharedPreferences: sharedPreferences,
-              userService: userService,
-              walletService: walletService,
-              walletListService: walletListService,
-              authenticationStore: authenticationStore);
-        });
+        return CupertinoPageRoute<void>(
+            builder: (context) => getIt.get<AuthPage>(instanceName: 'login'));
 
       case Routes.accountCreation:
         return CupertinoPageRoute<String>(
@@ -361,7 +363,7 @@ class Router {
         return MaterialPageRoute<void>(
             builder: (_) => getIt.get<ExchangeConfirmPage>());
 
-                //ExchangeConfirmPage(trade: settings.arguments as Trade));
+      //ExchangeConfirmPage(trade: settings.arguments as Trade));
 
       case Routes.tradeDetails:
         return MaterialPageRoute<void>(builder: (context) {

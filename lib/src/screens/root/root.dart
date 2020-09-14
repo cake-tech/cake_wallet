@@ -25,10 +25,12 @@ import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/welcome/create_welcome_page.dart';
 
 class Root extends StatefulWidget {
-  Root({Key key, this.authenticationStore, this.appStore}) : super(key: key);
+  Root({Key key, this.authenticationStore, this.appStore, this.child})
+      : super(key: key);
 
   final AuthenticationStore authenticationStore;
   final AppStore appStore;
+  final Widget child;
 
   @override
   RootState createState() => RootState();
@@ -37,12 +39,18 @@ class Root extends StatefulWidget {
 class RootState extends State<Root> with WidgetsBindingObserver {
   bool _isInactive;
   bool _postFrameCallback;
+  // GlobalKey<NavigatorState> _navKey;
 
   @override
   void initState() {
     _isInactive = false;
     _postFrameCallback = false;
     WidgetsBinding.instance.addObserver(this);
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _navKey.currentState.pushNamed(Routes.login);
+    // });
+
     super.initState();
   }
 
@@ -69,6 +77,8 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    return widget.child;
+
 //    _authenticationStore = Provider.of<AuthenticationStore>(context);
 //    final sharedPreferences = Provider.of<SharedPreferences>(context);
 //    final walletListService = Provider.of<WalletListService>(context);
@@ -82,39 +92,59 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 //    final walletStore = Provider.of<WalletStore>(context);
 //    final settingsStore = Provider.of<SettingsStore>(context);
 
-    if (_isInactive && !_postFrameCallback) {
-      _postFrameCallback = true;
+    // if (_isInactive && !_postFrameCallback) {
+    //   _postFrameCallback = true;
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(context).pushNamed(Routes.unlock,
-            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-          if (!isAuthenticatedSuccessfully) {
-            return;
-          }
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     Navigator.of(context).pushNamed(Routes.unlock,
+    //         arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+    //       if (!isAuthenticatedSuccessfully) {
+    //         return;
+    //       }
 
-          setState(() {
-            _postFrameCallback = false;
-            _isInactive = false;
-          });
-          auth.close();
-        });
-      });
-    }
+    //       setState(() {
+    //         _postFrameCallback = false;
+    //         _isInactive = false;
+    //       });
+    //       auth.close();
+    //     });
+    //   });
+    // }
 
-    return Observer(builder: (_) {
-      final state = widget.authenticationStore.state;
+    // return Navigator(
+    //   key: _navKey,
+    //   initialRoute: Routes.welcome,
+    //   onGenerateRoute: Router.generateRoute(
+    //         sharedPreferences: sharedPreferences,
+    //         walletListService: walletListService,
+    //         walletService: walletService,
+    //         userService: userService,
+    //         settings: settings,
+    //         priceStore: priceStore,
+    //         walletStore: walletStore,
+    //         syncStore: syncStore,
+    //         balanceStore: balanceStore,
+    //         settingsStore: settingsStore,
+    //         contacts: contacts,
+    //         nodes: nodes,
+    //         trades: trades,
+    //         transactionDescriptions: transactionDescriptions),
+    // );
 
-      if (state == AuthenticationState.denied) {
-        return createWelcomePage();
-      }
+    // return Observer(builder: (_) {
+    //   final state = widget.authenticationStore.state;
 
-      if (state == AuthenticationState.installed) {
-        return getIt.get<AuthPage>(instanceName: 'login');
-      }
+    //   if (state == AuthenticationState.denied) {
+    //     return createWelcomePage();
+    //   }
 
-      if (state == AuthenticationState.allowed) {
-        return getIt.get<DashboardPage>();
-      }
+    //   if (state == AuthenticationState.installed) {
+    //     return getIt.get<AuthPage>(instanceName: 'login');
+    //   }
+
+    //   if (state == AuthenticationState.allowed) {
+    //     return getIt.get<DashboardPage>();
+    //   }
 
 //      if (state == AuthenticationState.denied) {
 //        return createWelcomePage();
@@ -148,7 +178,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 //                _authenticationStore.state = AuthenticationState.authenticated);
 //      }
 
-      return Container(color: Colors.white);
-    });
+    // return Container(color: Colors.white);
+    // });
   }
 }
