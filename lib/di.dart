@@ -257,8 +257,8 @@ Future setup(
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
-  // getIt.registerFactory(
-  //         () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
+  getIt.registerFactory(
+           () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       walletInfoSource, getIt.get<AppStore>(), getIt.get<KeyService>()));
