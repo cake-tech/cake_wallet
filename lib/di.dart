@@ -283,10 +283,10 @@ Future setup(
   getIt
       .registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet));
 
-  getIt.registerFactoryParam<WalletSeedPage, VoidCallback, void>(
-      (VoidCallback callback, _) => WalletSeedPage(
+  getIt.registerFactoryParam<WalletSeedPage, bool, void>(
+      (bool isWalletCreated, _) => WalletSeedPage(
           getIt.get<WalletSeedViewModel>(),
-          onCloseCallback: callback));
+          isNewWalletCreated: isWalletCreated));
 
   getIt
       .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>().wallet));
