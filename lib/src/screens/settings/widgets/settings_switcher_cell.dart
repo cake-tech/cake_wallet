@@ -8,9 +8,9 @@ class SettingsSwitcherCell extends StandardListRow {
       : super(title: title, isSelected: false);
 
   final bool value;
-  final void Function(bool value) onValueChange;
+  final void Function(BuildContext context, bool value) onValueChange;
 
   @override
-  Widget buildTrailing(BuildContext context) =>
-      StandartSwitch(value: value, onTaped: () => onValueChange(!value));
+  Widget buildTrailing(BuildContext context) => StandartSwitch(
+      value: value, onTaped: () => onValueChange(context, !value));
 }

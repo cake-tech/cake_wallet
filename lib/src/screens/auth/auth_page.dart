@@ -5,19 +5,20 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
-import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
 class AuthPage extends StatefulWidget {
   AuthPage(
-      {this.onAuthenticationFinished,
+      {@required this.allowBiometricalAuthentication,
+      this.onAuthenticationFinished,
       this.authViewModel,
       this.closable = true});
 
   final AuthViewModel authViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;
+  final bool allowBiometricalAuthentication;
   final bool closable;
 
   @override
@@ -95,6 +96,27 @@ class AuthPageState extends State<AuthPage> {
         });
       }
     });
+
+    if (widget.allowBiometricalAuthentication) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        print('post');
+        await Future<void>.delayed(Duration(milliseconds: 100));
+        print('after timeout');
+        final biometricAuth = BiometricAuth();
+        final isAuth = await biometricAuth.isAuthenticated();
+
+        if (isAuth) {
+          widget.authViewModel.biometricAuth();
+          _key.currentState.showSnackBar(
+            SnackBar(
+              content: Text(S.of(context).authenticated),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      });
+    }
+
     super.initState();
   }
 
@@ -111,27 +133,7 @@ class AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-//    final authStore = Provider.of<AuthStore>(context);
-//    final settingsStore = Provider.of<SettingsStore>(context);
-
-//    if (settingsStore.allowBiometricalAuthentication) {
-//      WidgetsBinding.instance.addPostFrameCallback((_) {
-//        final biometricAuth = BiometricAuth();
-//        biometricAuth.isAuthenticated().then(
-//                (isAuth) {
-//              if (isAuth) {
-//                authStore.biometricAuth();
-//                _key.currentState.showSnackBar(
-//                  SnackBar(
-//                    content: Text(S.of(context).authenticated),
-//                    backgroundColor: Colors.green,
-//                  ),
-//                );
-//              }
-//            }
-//        );
-//      });
-//    }
+    print('start');
 
     return Scaffold(
         key: _key,

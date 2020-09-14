@@ -20,12 +20,29 @@ class MoneroTransactionHistory = MoneroTransactionHistoryBase
 abstract class MoneroTransactionHistoryBase
     extends TransactionHistoryBase<MoneroTransactionInfo> with Store {
   MoneroTransactionHistoryBase() {
-    transactions = ObservableList<MoneroTransactionInfo>();
+    transactions = ObservableMap<String, MoneroTransactionInfo>();
   }
 
   @override
-  Future<List<MoneroTransactionInfo>> fetchTransactions() async {
+  Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     monero_transaction_history.refreshTransactions();
-    return _getAllTransactions(null);
+    return _getAllTransactions(null).fold<Map<String, MoneroTransactionInfo>>(
+        <String, MoneroTransactionInfo>{},
+        (Map<String, MoneroTransactionInfo> acc, MoneroTransactionInfo tx) {
+      acc[tx.id] = tx;
+      return acc;
+    });
   }
+
+  @override
+  void updateAsync({void Function() onFinished}) {
+    fetchTransactionsAsync(
+        (transaction) => transactions[transaction.id] = transaction,
+        onFinished: onFinished);
+  }
+
+  @override
+  void fetchTransactionsAsync(
+      void Function(MoneroTransactionInfo transaction) onTransactionLoaded,
+      {void Function() onFinished}) {}
 }

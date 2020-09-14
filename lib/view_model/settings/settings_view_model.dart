@@ -1,3 +1,6 @@
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
+import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/theme_changer_store.dart';
 import 'package:cake_wallet/themes.dart';
@@ -25,33 +28,38 @@ part 'settings_view_model.g.dart';
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
 abstract class SettingsViewModelBase with Store {
-  SettingsViewModelBase(this._settingsStore) : itemHeaders = {} {
+  SettingsViewModelBase(this._settingsStore, WalletBase wallet)
+      : itemHeaders = {},
+        _walletType = wallet.type,
+        _biometricAuth = BiometricAuth() {
     currentVersion = '';
-    PackageInfo.fromPlatform().then((PackageInfo packageInfo) => currentVersion = packageInfo.version);
-
+    PackageInfo.fromPlatform().then(
+        (PackageInfo packageInfo) => currentVersion = packageInfo.version);
     sections = [
       [
         PickerListItem(
             title: S.current.settings_display_balance_as,
             items: BalanceDisplayMode.all,
-            setItem: (dynamic value) => balanceDisplayMode = value as BalanceDisplayMode,
             selectedItem: () => balanceDisplayMode),
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
-            setItem: (dynamic value) => fiatCurrency = value as FiatCurrency,
             isAlwaysShowScrollThumb: true,
-            selectedItem: () => fiatCurrency),
+            selectedItem: () => fiatCurrency,
+            onItemSelected: (FiatCurrency currency) =>
+                setFiatCurrency(currency)),
         PickerListItem(
             title: S.current.settings_fee_priority,
-            items: TransactionPriority.all,
-            setItem: (dynamic value) => transactionPriority = value as TransactionPriority,
+            items: _transactionPriorities(wallet.type),
+            selectedItem: () => transactionPriority,
             isAlwaysShowScrollThumb: true,
-            selectedItem: () => transactionPriority),
+            onItemSelected: (TransactionPriority priority) =>
+                _settingsStore.transactionPriority = priority),
         SwitcherListItem(
             title: S.current.settings_save_recipient_address,
             value: () => shouldSaveRecipientAddress,
-            onValueChange: (bool value) => shouldSaveRecipientAddress = value)
+            onValueChange: (_, bool value) =>
+                setShouldSaveRecipientAddress(value))
       ],
       [
         RegularListItem(
@@ -76,15 +84,37 @@ abstract class SettingsViewModelBase with Store {
         SwitcherListItem(
             title: S.current.settings_allow_biometrical_authentication,
             value: () => allowBiometricalAuthentication,
-            onValueChange: (bool value) =>
-                allowBiometricalAuthentication = value),
+            onValueChange: (BuildContext context, bool value) {
+              if (value) {
+                Navigator.of(context).pushNamed(Routes.auth, arguments:
+                    (bool isAuthenticatedSuccessfully,
+                        AuthPageState auth) async {
+                  if (isAuthenticatedSuccessfully) {
+                    if (await _biometricAuth.canCheckBiometrics() &&
+                        await _biometricAuth.isAuthenticated()) {
+                      setAllowBiometricalAuthentication(
+                          isAuthenticatedSuccessfully);
+                    }
+                  } else {
+                    setAllowBiometricalAuthentication(
+                        isAuthenticatedSuccessfully);
+                  }
+
+                  Navigator.of(context).pop();
+                });
+              } else {
+                setAllowBiometricalAuthentication(value);
+              }
+            }),
         SwitcherListItem(
             title: S.current.settings_dark_mode,
             value: () => _settingsStore.isDarkTheme,
-            onValueChange: (bool value) {
+            onValueChange: (_, bool value) {
               _settingsStore.isDarkTheme = value;
-              getIt.get<ThemeChangerStore>().themeChanger.setTheme(
-                  value ? Themes.darkTheme : Themes.lightTheme);
+              getIt
+                  .get<ThemeChangerStore>()
+                  .themeChanger
+                  .setTheme(value ? Themes.darkTheme : Themes.lightTheme);
             })
       ],
       [
@@ -128,9 +158,7 @@ abstract class SettingsViewModelBase with Store {
               Navigator.pushNamed(context, Routes.faq),
         )
       ],
-      [
-        VersionListItem(title: currentVersion)
-      ]
+      [VersionListItem(title: currentVersion)]
     ];
   }
 
@@ -138,7 +166,7 @@ abstract class SettingsViewModelBase with Store {
   String currentVersion;
 
   @computed
-  Node get node => _settingsStore.node;
+  Node get node => _settingsStore.getCurrentNode(_walletType);
 
   @computed
   FiatCurrency get fiatCurrency => _settingsStore.fiatCurrency;
@@ -159,40 +187,30 @@ abstract class SettingsViewModelBase with Store {
   bool get shouldSaveRecipientAddress =>
       _settingsStore.shouldSaveRecipientAddress;
 
-  @action
-  set shouldSaveRecipientAddress(bool value) =>
-      _settingsStore.shouldSaveRecipientAddress = value;
-
   @computed
   bool get allowBiometricalAuthentication =>
       _settingsStore.allowBiometricalAuthentication;
 
-  @action
-  set allowBiometricalAuthentication(bool value) =>
-      _settingsStore.allowBiometricalAuthentication = value;
-
-  @action
-  set balanceDisplayMode(BalanceDisplayMode value) =>
-      _settingsStore.balanceDisplayMode = value;
-
-  @action
-  set fiatCurrency(FiatCurrency value) =>
-      _settingsStore.fiatCurrency = value;
-
-  @action
-  set transactionPriority(TransactionPriority value) =>
-      _settingsStore.transactionPriority = value;
-
-//  @observable
-//  bool isDarkTheme;
-//
-//  @observable
-//  int defaultPinLength;
-
-//  @observable
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;
+  final WalletType _walletType;
+  final BiometricAuth _biometricAuth;
+
+  @action
+  void setBalanceDisplayMode(BalanceDisplayMode value) =>
+      _settingsStore.balanceDisplayMode = value;
+
+  @action
+  void setFiatCurrency(FiatCurrency value) =>
+      _settingsStore.fiatCurrency = value;
+  @action
+  void setShouldSaveRecipientAddress(bool value) =>
+      _settingsStore.shouldSaveRecipientAddress = value;
+
+  @action
+  void setAllowBiometricalAuthentication(bool value) =>
+      _settingsStore.allowBiometricalAuthentication = value;
 
   @action
   void toggleTransactionsDisplay() =>
@@ -220,4 +238,19 @@ abstract class SettingsViewModelBase with Store {
 
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
+
+  static List<TransactionPriority> _transactionPriorities(WalletType type) {
+    switch (type) {
+      case WalletType.monero:
+        return TransactionPriority.all;
+      case WalletType.bitcoin:
+        return [
+          TransactionPriority.slow,
+          TransactionPriority.regular,
+          TransactionPriority.fast
+        ];
+      default:
+        return [];
+    }
+  }
 }

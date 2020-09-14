@@ -17,11 +17,7 @@ abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(
       this._walletInfoSource, this._appStore, this._keyService) {
     wallets = ObservableList<WalletListItem>();
-    wallets.addAll(_walletInfoSource.values.map((info) => WalletListItem(
-        name: info.name,
-        type: info.type,
-        isCurrent: info.name == _appStore.wallet.name &&
-            info.type == _appStore.wallet.type)));
+    _updateList();
   }
 
   @observable
@@ -40,7 +36,12 @@ abstract class WalletListViewModelBase with Store {
   }
 
   @action
-  Future<void> remove(WalletListItem wallet) async {}
+  Future<void> remove(WalletListItem wallet) async {
+    final walletService = _getWalletService(wallet.type);
+    await walletService.remove(wallet.name);
+    await _walletInfoSource.delete(wallet.key);
+    _updateList();
+  }
 
   WalletService _getWalletService(WalletType type) {
     switch (type) {
@@ -51,5 +52,15 @@ abstract class WalletListViewModelBase with Store {
       default:
         return null;
     }
+  }
+
+  void _updateList() {
+    wallets.clear();
+    wallets.addAll(_walletInfoSource.values.map((info) => WalletListItem(
+        name: info.name,
+        type: info.type,
+        key: info.key,
+        isCurrent: info.name == _appStore.wallet.name &&
+            info.type == _appStore.wallet.type)));
   }
 }

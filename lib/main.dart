@@ -132,7 +132,7 @@ void main() async {
       fiatConvertationService: fiatConvertationService,
       templates: templates,
       exchangeTemplates: exchangeTemplates,
-      initialMigrationVersion: 3);
+      initialMigrationVersion: 4);
 
   setReactions(
       settingsStore: settingsStore,
@@ -172,11 +172,11 @@ Future<void> initialSetup(
     @required Box<Node> nodes,
     @required Box<WalletInfo> walletInfoSource,
     @required Box<Contact> contactSource,
-    @required  Box<Trade> tradesSource,
+    @required Box<Trade> tradesSource,
     @required FiatConvertationService fiatConvertationService,
     @required Box<Template> templates,
     @required Box<ExchangeTemplate> exchangeTemplates,
-      int initialMigrationVersion = 3}) async {
+    int initialMigrationVersion = 4}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,

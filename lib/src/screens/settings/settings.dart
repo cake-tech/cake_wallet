@@ -41,11 +41,12 @@ class SettingsPage extends BasePage {
           if (item is PickerListItem) {
             return Observer(builder: (_) {
               return SettingsPickerCell<dynamic>(
-                  title: item.title,
-                  selectedItem: item.selectedItem(),
-                  setItem: (dynamic value) => item.setItem(value),
-                  isAlwaysShowScrollThumb: item.isAlwaysShowScrollThumb,
-                  items: item.items);
+                title: item.title,
+                selectedItem: item.selectedItem(),
+                isAlwaysShowScrollThumb: item.isAlwaysShowScrollThumb,
+                items: item.items,
+                onItemSelected: (dynamic value) => item.onItemSelected(value),
+              );
             });
           }
 
@@ -59,7 +60,8 @@ class SettingsPage extends BasePage {
           }
 
           if (item is RegularListItem) {
-            return SettingsCellWithArrow(title: item.title, handler: item.handler);
+            return SettingsCellWithArrow(
+                title: item.title, handler: item.handler);
           }
 
           if (item is LinkListItem) {
@@ -73,7 +75,8 @@ class SettingsPage extends BasePage {
           if (item is VersionListItem) {
             return Observer(builder: (_) {
               return SettingsVersionCell(
-                  title: S.of(context).version(settingsViewModel.currentVersion));
+                  title:
+                      S.of(context).version(settingsViewModel.currentVersion));
             });
           }
 

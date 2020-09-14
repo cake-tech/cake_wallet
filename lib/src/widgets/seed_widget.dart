@@ -206,85 +206,84 @@ class SeedWidgetState extends State<SeedWidget> {
           fit: FlexFit.tight,
           flex: 2,
           child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            padding: EdgeInsets.all(0),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24)),
-                gradient: LinearGradient(colors: [
-                  Theme.of(context).primaryTextTheme.subhead.color,
-                  Theme.of(context).primaryTextTheme.subhead.decorationColor,
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight)
-            ),
-            child: Column(
-              children: <Widget>[
-                CupertinoNavigationBar(
-                  leading: widget.leading,
-                  middle: widget.middle,
-                  backgroundColor: Colors.transparent,
-                  border: null,
-                ),
-                Expanded(
-                    child: Container(
-                      padding: EdgeInsets.all(24),
-                      alignment: Alignment.topLeft,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              S.of(context).restore_active_seed,
-                              style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color:
-                                  Theme.of(context).textTheme.overline.backgroundColor),
-                            ),
-                            Padding(
-                                padding: EdgeInsets.only(top: 5),
-                                child: Wrap(
-                                  children: items.map((item) {
-                                    final isValid = widget.validator.isValid(item);
-                                    final isSelected = selectedItem == item;
+              width: double.infinity,
+              height: double.infinity,
+              padding: EdgeInsets.all(0),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24)),
+                  gradient: LinearGradient(colors: [
+                    Theme.of(context).primaryTextTheme.subhead.color,
+                    Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                  ], begin: Alignment.topLeft, end: Alignment.bottomRight)),
+              child: Column(
+                children: <Widget>[
+                  CupertinoNavigationBar(
+                    leading: widget.leading,
+                    middle: widget.middle,
+                    backgroundColor: Colors.transparent,
+                    border: null,
+                  ),
+                  Expanded(
+                      child: Container(
+                    padding: EdgeInsets.all(24),
+                    alignment: Alignment.topLeft,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            S.of(context).restore_active_seed,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context)
+                                    .textTheme
+                                    .overline
+                                    .backgroundColor),
+                          ),
+                          Padding(
+                              padding: EdgeInsets.only(top: 5),
+                              child: Wrap(
+                                children: items.map((item) {
+                                  final isValid =
+                                      widget.validator.isValid(item);
+                                  final isSelected = selectedItem == item;
 
-                                    return InkWell(
-                                      onTap: () => onMnemonicTap(item),
-                                      child: Container(
-                                          decoration: BoxDecoration(
+                                  return InkWell(
+                                    onTap: () => onMnemonicTap(item),
+                                    child: Container(
+                                        decoration: BoxDecoration(
+                                            color: isValid
+                                                ? Colors.transparent
+                                                : Palette.red),
+                                        margin: EdgeInsets.only(
+                                            right: 7, bottom: 8),
+                                        child: Text(
+                                          item.toString(),
+                                          style: TextStyle(
                                               color: isValid
-                                                  ? Colors.transparent
-                                                  : Palette.red),
-                                          margin: EdgeInsets.only(right: 7, bottom: 8),
-                                          child: Text(
-                                            item.toString(),
-                                            style: TextStyle(
-                                                color: isValid
-                                                    ? Colors.white
-                                                    : Colors.grey,
-                                                fontSize: 16,
-                                                fontWeight: isSelected
-                                                    ? FontWeight.w900
-                                                    : FontWeight.w600,
-                                                decoration: isSelected
-                                                    ? TextDecoration.underline
-                                                    : TextDecoration.none),
-                                          )),
-                                    );
-                                  }).toList(),
-                                ))
-                          ],
-                        ),
+                                                  ? Colors.white
+                                                  : Colors.grey,
+                                              fontSize: 16,
+                                              fontWeight: isSelected
+                                                  ? FontWeight.w900
+                                                  : FontWeight.w600,
+                                              decoration: isSelected
+                                                  ? TextDecoration.underline
+                                                  : TextDecoration.none),
+                                        )),
+                                  );
+                                }).toList(),
+                              ))
+                        ],
                       ),
-                    )
-                )
-              ],
-            )
-          ),
+                    ),
+                  ))
+                ],
+              )),
         ),
         Flexible(
             fit: FlexFit.tight,
@@ -372,11 +371,17 @@ class SeedWidgetState extends State<SeedWidget> {
                             errorText: _errorMessage,
                             focusedBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
+                                    color: Theme.of(context)
+                                        .accentTextTheme
+                                        .subtitle
+                                        .backgroundColor,
                                     width: 1.0)),
                             enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                    color: Theme.of(context).accentTextTheme.subtitle.backgroundColor,
+                                    color: Theme.of(context)
+                                        .accentTextTheme
+                                        .subtitle
+                                        .backgroundColor,
                                     width: 1.0))),
                         enableInteractiveSelection: false,
                       ),
