@@ -168,8 +168,10 @@
   "restore_bitcoin_description_from_seed" : "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her",
   "restore_bitcoin_description_from_keys" : "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her",
   "restore_bitcoin_title_from_keys" : "Aus WIF wiederherstellen",
+  "restore_from_date_or_blockheight" : "Bitte geben Sie das Datum ein, an dem Sie diese Brieftasche erstellt haben. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein",
 
 
+  "seed_reminder" : "Bitte notieren Sie diese, falls Sie Ihr Telefon verlieren oder abwischen",
   "seed_title" : "Seed",
   "seed_share" : "Teilen Sie Seed",
   "copy" : "Kopieren",
