@@ -168,8 +168,10 @@
   "restore_bitcoin_description_from_seed" : "Herstel uw portemonnee met een combinatiecode van 12 woorden",
   "restore_bitcoin_description_from_keys" : "Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels",
   "restore_bitcoin_title_from_keys" : "Herstel van WIF",
+  "restore_from_date_or_blockheight" : "Voer de datum in waarop u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voer deze dan in",
 
 
+  "seed_reminder" : "Schrijf deze op voor het geval u uw telefoon kwijtraakt of veegt",
   "seed_title" : "Zaad",
   "seed_share" : "Deel zaad",
   "copy" : "Kopiëren",

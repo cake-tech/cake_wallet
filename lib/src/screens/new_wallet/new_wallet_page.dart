@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -53,7 +54,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
     _stateReaction ??=
         reaction((_) => _walletNewVM.state, (WalletCreationState state) {
       if (state is WalletCreatedSuccessfully) {
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true);
       }
 
       if (state is WalletCreationFailure) {
