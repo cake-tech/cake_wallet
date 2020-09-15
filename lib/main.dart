@@ -251,6 +251,17 @@ class MaterialAppWithTheme extends StatelessWidget {
         _settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
     final statusBarIconBrightness =
         _settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+    final authenticationStore = getIt.get<AuthenticationStore>();
+    String initialRoute;
+
+    switch (authenticationStore.state) {
+      case AuthenticationState.denied:
+        initialRoute = Routes.welcome;
+        break;
+      default:
+        initialRoute = Routes.login;
+        break;
+    }
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
         statusBarColor: statusBarColor,
@@ -258,7 +269,7 @@ class MaterialAppWithTheme extends StatelessWidget {
         statusBarIconBrightness: statusBarIconBrightness));
 
     return Root(
-        authenticationStore: getIt.get<AuthenticationStore>(),
+        authenticationStore: authenticationStore,
         child: MaterialApp(
           navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
@@ -286,8 +297,7 @@ class MaterialAppWithTheme extends StatelessWidget {
               nodes: nodes,
               trades: trades,
               transactionDescriptions: transactionDescriptions),
-          initialRoute: Routes.login, // FIXME: get initial route!
-          // home: Container(color: Colors.blue),
+          initialRoute: initialRoute,
         ));
   }
 }

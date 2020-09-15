@@ -1,28 +1,20 @@
 import 'dart:async';
-
-import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/router.dart';
-import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/domain/common/sync_status.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/monero/monero_wallet_service.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/router.dart';
+import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/src/domain/common/secret_store_key.dart';
-import 'package:cake_wallet/src/domain/common/encrypt.dart';
 import 'package:cake_wallet/src/domain/services/fiat_convertation_service.dart';
 import 'package:cake_wallet/src/domain/common/fiat_currency.dart';
 import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
@@ -36,19 +28,7 @@ Future<void> loadCurrentWallet() async {
   final type = deserializeFromInt(typeRaw);
   final password =
       await getIt.get<KeyService>().getWalletPassword(walletName: name);
-
-  WalletService _service;
-  switch (type) {
-    case WalletType.monero:
-      _service = MoneroWalletService();
-      break;
-    case WalletType.bitcoin:
-      _service = BitcoinWalletService();
-      break;
-    default:
-      break;
-  }
-
+  final _service = getIt.get<WalletService>(param1: type);
   final wallet = await _service.openWallet(name, password);
   appStore.wallet = wallet;
 }
@@ -79,9 +59,6 @@ Future<void> bootstrap(
 
     if (state == AuthenticationState.installed) {
       await loadCurrentWallet();
-    }
-
-    if (state == AuthenticationState.installed) {
       await navigatorKey.currentState
           .pushAndRemoveUntil(createLoginRoute(), (_) => false);
     }
@@ -101,16 +78,31 @@ Future<void> bootstrap(
       reaction((_) => getIt.get<AppStore>().wallet, (WalletBase wallet) async {
     _onWalletSyncStatusChangeReaction?.reaction?.dispose();
     _reconnectionTimer?.cancel();
-    _onWalletSyncStatusChangeReaction = reaction(
-        (_) => wallet.syncStatus is ConnectedSyncStatus,
-        (Object _) async => await wallet.startSync());
+    _onWalletSyncStatusChangeReaction =
+        reaction((_) => wallet.syncStatus, (SyncStatus status) async {
+      if (status is ConnectedSyncStatus) {
+        await wallet.startSync();
+      }
+    });
 
     _reconnectionTimer = Timer.periodic(Duration(seconds: 5), (_) async {
+      final connectivityResult = await (Connectivity().checkConnectivity());
+
+      if (connectivityResult == ConnectivityResult.none) {
+        wallet.syncStatus = FailedSyncStatus();
+        return;
+      }
+
       if (wallet.syncStatus is LostConnectionSyncStatus ||
           wallet.syncStatus is FailedSyncStatus) {
         try {
-          await wallet.connectToNode(
-              node: settingsStore.getCurrentNode(wallet.type));
+          final alive =
+              await settingsStore.getCurrentNode(wallet.type).requestNode();
+
+          if (alive) {
+            await wallet.connectToNode(
+                node: settingsStore.getCurrentNode(wallet.type));
+          }
         } catch (_) {}
       }
     });

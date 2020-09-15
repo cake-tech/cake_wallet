@@ -180,7 +180,7 @@ extern "C"
     void change_current_wallet(Monero::Wallet *wallet)
     {
         m_wallet = wallet;
-        // m_listener = nullptr;
+        m_listener = nullptr;
         
 
         if (wallet != nullptr)
@@ -553,7 +553,7 @@ extern "C"
 
         if (m_listener != nullptr)
         {
-            free(m_listener);
+            // free(m_listener);
         }
 
         m_listener = new MoneroWalletListener();

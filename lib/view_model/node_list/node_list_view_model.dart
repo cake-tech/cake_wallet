@@ -1,5 +1,3 @@
-import 'package:cake_wallet/utils/item_cell.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
@@ -10,6 +8,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/domain/common/default_settings_migration.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cake_wallet/utils/item_cell.dart';
 
 part 'node_list_view_model.g.dart';
 

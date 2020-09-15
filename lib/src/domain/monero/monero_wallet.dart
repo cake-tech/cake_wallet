@@ -47,18 +47,19 @@ class MoneroWallet extends Wallet {
       String name,
       bool isRecovery = false,
       int restoreHeight = 0}) async {
-    const type = WalletType.monero;
-    final id = walletTypeToString(type).toLowerCase() + '_' + name;
-    final walletInfo = WalletInfo(
-        id: id,
-        name: name,
-        type: type,
-        isRecovery: isRecovery,
-        restoreHeight: restoreHeight);
-    await walletInfoSource.add(walletInfo);
+    // const type = WalletType.monero;
+    // final id = walletTypeToString(type).toLowerCase() + '_' + name;
+    // final walletInfo = WalletInfo(
+    //     id: id,
+    //     name: name,
+    //     type: type,
+    //     isRecovery: isRecovery,
+    //     restoreHeight: restoreHeight);
+    // await walletInfoSource.add(walletInfo);
 
-    return await configured(
-        walletInfo: walletInfo, walletInfoSource: walletInfoSource);
+    // return await configured(
+    //     walletInfo: walletInfo, walletInfoSource: walletInfoSource);
+    return null;
   }
 
   static Future<MoneroWallet> load(

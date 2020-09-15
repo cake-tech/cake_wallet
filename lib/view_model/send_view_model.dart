@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/template_validator.dart';
@@ -5,7 +8,6 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
-import 'package:cake_wallet/src/domain/common/balance.dart';
 import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
 import 'package:cake_wallet/src/domain/common/calculate_estimated_fee.dart';
 import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
@@ -14,15 +16,6 @@ import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
-import 'package:flutter/foundation.dart';
-import 'package:intl/intl.dart';
-import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/monero/monero_wallet_service.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cake_wallet/core/wallet_credentials.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/domain/common/openalias_record.dart';
 import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
@@ -51,12 +44,8 @@ class SendingFailed extends SendViewModelState {
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
-  SendViewModelBase(
-      this._wallet,
-      this._settingsStore,
-      this._fiatConvertationStore,
-      this.sendTemplateStore) {
-
+  SendViewModelBase(this._wallet, this._settingsStore,
+      this._fiatConvertationStore, this.sendTemplateStore) {
     state = InitialSendViewModelState();
 
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
@@ -116,9 +105,10 @@ abstract class SendViewModelBase with Store {
   double get price => _fiatConvertationStore.price;
 
   @computed
-  ObservableList<Template> get templates => ObservableList.of(
-      sendTemplateStore.templates.where((item)
-      => item.cryptoCurrency == _wallet.currency.title).toList());
+  ObservableList<Template> get templates =>
+      ObservableList.of(sendTemplateStore.templates
+          .where((item) => item.cryptoCurrency == _wallet.currency.title)
+          .toList());
 
   @computed
   String get balance {
@@ -211,8 +201,8 @@ abstract class SendViewModelBase with Store {
   String recordAddress;
 
   Future<bool> isOpenaliasRecord(String name) async {
-    final _openaliasRecord = await OpenaliasRecord
-        .fetchAddressAndName(OpenaliasRecord.formatDomainName(name));
+    final _openaliasRecord = await OpenaliasRecord.fetchAddressAndName(
+        OpenaliasRecord.formatDomainName(name));
 
     recordAddress = _openaliasRecord.address;
     recordName = _openaliasRecord.name;

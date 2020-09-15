@@ -1,3 +1,4 @@
+import 'package:cake_wallet/di.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,17 +33,7 @@ class WalletCreationService {
 
   void changeWalletType({@required WalletType type}) {
     this.type = type;
-
-    switch (type) {
-      case WalletType.monero:
-        _service = MoneroWalletService();
-        break;
-      case WalletType.bitcoin:
-        _service = BitcoinWalletService();
-        break;
-      default:
-        break;
-    }
+    _service = getIt.get<WalletService>(param1: type);
   }
 
   Future<void> create(WalletCredentials credentials) async {

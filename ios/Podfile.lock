@@ -3,6 +3,13 @@ PODS:
     - Flutter
     - MTBBarcodeScanner
     - SwiftProtobuf
+  - connectivity (0.0.1):
+    - Flutter
+    - Reachability
+  - connectivity_for_web (0.1.0):
+    - Flutter
+  - connectivity_macos (0.0.1):
+    - Flutter
   - cw_monero (0.0.2):
     - cw_monero/Boost (= 0.0.2)
     - cw_monero/lmdb (= 0.0.2)
@@ -40,6 +47,7 @@ PODS:
     - Flutter
   - path_provider_macos (0.0.1):
     - Flutter
+  - Reachability (3.2)
   - share (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
@@ -62,6 +70,9 @@ PODS:
 
 DEPENDENCIES:
   - barcode_scan (from `.symlinks/plugins/barcode_scan/ios`)
+  - connectivity (from `.symlinks/plugins/connectivity/ios`)
+  - connectivity_for_web (from `.symlinks/plugins/connectivity_for_web/ios`)
+  - connectivity_macos (from `.symlinks/plugins/connectivity_macos/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - esys_flutter_share (from `.symlinks/plugins/esys_flutter_share/ios`)
@@ -86,11 +97,18 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - MTBBarcodeScanner
+    - Reachability
     - SwiftProtobuf
 
 EXTERNAL SOURCES:
   barcode_scan:
     :path: ".symlinks/plugins/barcode_scan/ios"
+  connectivity:
+    :path: ".symlinks/plugins/connectivity/ios"
+  connectivity_for_web:
+    :path: ".symlinks/plugins/connectivity_for_web/ios"
+  connectivity_macos:
+    :path: ".symlinks/plugins/connectivity_macos/ios"
   cw_monero:
     :path: ".symlinks/plugins/cw_monero/ios"
   devicelocale:
@@ -134,6 +152,9 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   barcode_scan: a5c27959edfafaa0c771905bad0b29d6d39e4479
+  connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
+  connectivity_for_web: 2b8584556930d4bd490d82b836bcf45067ce345b
+  connectivity_macos: e2e9731b6b22dda39eb1b128f6969d574460e191
   cw_monero: 2e1f79929880cc2293b5bc1b25e28152e4d84649
   devicelocale: feebbe5e7a30adb8c4f83185de1b50ff19b44f00
   esys_flutter_share: 403498dab005b36ce1f8d7aff377e81f0621b0b4
@@ -146,6 +167,7 @@ SPEC CHECKSUMS:
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   path_provider_linux: 4d630dc393e1f20364f3e3b4a2ff41d9674a84e4
   path_provider_macos: f760a3c5b04357c380e2fddb6f9db6f3015897e0
+  Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   shared_preferences_linux: afefbfe8d921e207f01ede8b60373d9e3b566b78

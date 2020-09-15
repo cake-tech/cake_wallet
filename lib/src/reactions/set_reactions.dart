@@ -65,18 +65,18 @@ void onSyncStatusChange(
     {SyncStore syncStore,
     WalletStore walletStore,
     SettingsStore settingsStore}) {
-  _onSyncStatusChangeDisposer?.call();
+  // _onSyncStatusChangeDisposer?.call();
 
-  reaction((_) => syncStore.status, (SyncStatus status) async {
-    if (status is ConnectedSyncStatus) {
-      await walletStore.startSync();
-    }
+  // reaction((_) => syncStore.status, (SyncStatus status) async {
+  //   if (status is ConnectedSyncStatus) {
+  //     await walletStore.startSync();
+  //   }
 
-    // Reconnect to the node if the app is not started sync after 30 seconds
-    if (status is StartingSyncStatus) {
-      startReconnectionObserver(syncStore: syncStore, walletStore: walletStore);
-    }
-  });
+  //   // Reconnect to the node if the app is not started sync after 30 seconds
+  //   if (status is StartingSyncStatus) {
+  //     startReconnectionObserver(syncStore: syncStore, walletStore: walletStore);
+  //   }
+  // });
 }
 
 void startReconnectionObserver({SyncStore syncStore, WalletStore walletStore}) {
