@@ -168,8 +168,10 @@
   "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 12 słów",
   "restore_bitcoin_description_from_keys" : "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych",
   "restore_bitcoin_title_from_keys" : "Przywróć z WIF",
+  "restore_from_date_or_blockheight" : "Wprowadź datę utworzenia tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego",
 
 
+  "seed_reminder" : "Zapisz je na wypadek zgubienia lub wyczyszczenia telefonu",
   "seed_title" : "Ziarno",
   "seed_share" : "Udostępnij ziarno",
   "copy" : "Kopiuj",

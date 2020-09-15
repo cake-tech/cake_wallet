@@ -53,6 +53,7 @@ class MoneroAccountListPage extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
+                      fontFamily: 'Poppins',
                       decoration: TextDecoration.none,
                       color: Colors.white
                   ),
@@ -123,7 +124,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                 .pushNamed(Routes.accountCreation),
                             child: Container(
                               height: 62,
-                              color: Theme.of(context).textTheme.subtitle.decorationColor,
+                              color: Theme.of(context).cardColor,
                               padding: EdgeInsets.only(left: 24, right: 24),
                               child: Center(
                                 child: Row(
@@ -140,6 +141,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
+                                          fontFamily: 'Poppins',
                                           color: Colors.white,
                                           decoration: TextDecoration.none,
                                         ),

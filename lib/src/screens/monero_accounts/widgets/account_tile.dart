@@ -32,6 +32,7 @@ class AccountTile extends StatelessWidget {
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
+            fontFamily: 'Poppins',
             color: textColor,
             decoration: TextDecoration.none,
           ),

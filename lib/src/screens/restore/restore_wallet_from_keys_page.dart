@@ -171,7 +171,19 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
               onHeightChange: (height) {
                 widget.walletRestorationFromKeysVM.height = height;
                 print(height);
-            })],
+            }),
+            Padding(
+              padding: EdgeInsets.only(left: 40, right: 40, top: 24),
+              child: Text(
+                S.of(context).restore_from_date_or_blockheight,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).hintColor
+                ),
+              ),
+            )],
           ]),
         ),
         bottomSectionPadding: EdgeInsets.only(bottom: 24),
@@ -189,7 +201,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
               }
             },
             text: S.of(context).restore_recover,
-            color: Palette.blueCraiola,
+            color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
             //isDisabled: walletRestorationStore.disabledState,
           );

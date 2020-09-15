@@ -43,15 +43,15 @@ class ChangeLanguage extends BasePage {
                         return AlertWithTwoActions(
                             alertTitle: S.of(context).change_language,
                             alertContent: S.of(context).change_language_to(item),
-                            leftButtonText: S.of(context).change,
-                            rightButtonText: S.of(context).cancel,
-                            actionLeftButton: () {
+                            rightButtonText: S.of(context).change,
+                            leftButtonText: S.of(context).cancel,
+                            actionRightButton: () {
                               settingsStore.saveLanguageCode(
                                   languageCode: code);
                               currentLanguage.setCurrentLanguage(code);
                               Navigator.of(context).pop();
                             },
-                            actionRightButton: () => Navigator.of(context).pop()
+                            actionLeftButton: () => Navigator.of(context).pop()
                         );
                       });
                 }
