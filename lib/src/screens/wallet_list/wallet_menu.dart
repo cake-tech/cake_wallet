@@ -122,7 +122,7 @@ class WalletMenu {
             return;
           }
           auth.close();
-          await Navigator.of(context).pushNamed(Routes.seed);
+          await Navigator.of(context).pushNamed(Routes.seed, arguments: false);
         });
         break;
       case 2:

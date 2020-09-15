@@ -220,7 +220,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSection: PrimaryButton(
           onPressed: () {},
           text: S.of(context).confirm,
-          color: Palette.blueCraiola,
+          color: Theme.of(context).accentTextTheme.body2.color,
           textColor: Colors.white
         )
         /*Observer(

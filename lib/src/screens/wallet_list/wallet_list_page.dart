@@ -33,7 +33,7 @@ class WalletListBody extends StatefulWidget {
 
 class WalletListBodyState extends State<WalletListBody> {
   final moneroIcon =
-      Image.asset('assets/images/monero.png', height: 24, width: 24);
+      Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon =
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final scrollController = ScrollController();
