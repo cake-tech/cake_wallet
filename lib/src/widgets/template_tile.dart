@@ -128,7 +128,7 @@ class TemplateTileState extends State<TemplateTile> {
                   child: Container(
                     height: 40,
                     padding: EdgeInsets.only(left: 24, right: 10),
-                    color: Colors.red,
+                    color: Colors.orange,
                     child: content,
                   ),
                 ),

@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
@@ -39,12 +38,14 @@ class BaseExchangeWidget extends StatefulWidget {
   final bool isTemplate;
 
   @override
-  BaseExchangeWidgetState createState() => BaseExchangeWidgetState(
-      exchangeViewModel: exchangeViewModel,
-      leading: leading,
-      middle: middle,
-      trailing: trailing,
-      isTemplate: isTemplate);
+  BaseExchangeWidgetState createState() =>
+  BaseExchangeWidgetState(
+    exchangeViewModel: exchangeViewModel,
+    leading: leading,
+    middle: middle,
+    trailing: trailing,
+    isTemplate: isTemplate
+  );
 }
 
 class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
@@ -82,16 +83,16 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
     );
 
     final depositWalletName =
-        exchangeViewModel.depositCurrency == CryptoCurrency.xmr
-            ? exchangeViewModel.wallet.name
-            : null;
+    exchangeViewModel.depositCurrency == CryptoCurrency.xmr
+        ? exchangeViewModel.wallet.name
+        : null;
     final receiveWalletName =
-        exchangeViewModel.receiveCurrency == CryptoCurrency.xmr
-            ? exchangeViewModel.wallet.name
-            : null;
+    exchangeViewModel.receiveCurrency == CryptoCurrency.xmr
+        ? exchangeViewModel.wallet.name
+        : null;
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
+    WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _setReactions(context, exchangeViewModel));
 
     return Form(
         key: _formKey,
@@ -103,28 +104,21 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                   gradient: LinearGradient(colors: [
                     Theme.of(context).primaryTextTheme.body1.color,
                     Theme.of(context).primaryTextTheme.body1.decorationColor,
-                  ], stops: [
-                    0.35,
-                    1.0
-                  ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  ],
+                  stops: [0.35, 1.0],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight),
                   edgeInsets: EdgeInsets.only(bottom: 32),
                   widget: Column(
                     children: <Widget>[
                       TopPanel(
                           edgeInsets: EdgeInsets.all(0),
-                          gradient: LinearGradient(
-                              colors: [
-                                Theme.of(context)
-                                    .primaryTextTheme
-                                    .subtitle
-                                    .color,
-                                Theme.of(context)
-                                    .primaryTextTheme
-                                    .subtitle
-                                    .decorationColor,
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight),
+                          gradient: LinearGradient(colors: [
+                            Theme.of(context).primaryTextTheme.subtitle.color,
+                            Theme.of(context).primaryTextTheme.subtitle.decorationColor,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight),
                           widget: Column(
                             children: <Widget>[
                               CupertinoNavigationBar(
@@ -307,33 +301,19 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                                               context: context,
                                               builder: (dialogContext) {
                                                 return AlertWithTwoActions(
-                                                    alertTitle:
-                                                        S.of(context).template,
-                                                    alertContent: S
-                                                        .of(context)
-                                                        .confirm_delete_template,
-                                                    leftButtonText:
-                                                        S.of(context).delete,
-                                                    rightButtonText:
-                                                        S.of(context).cancel,
-                                                    actionLeftButton: () {
-                                                      Navigator.of(
-                                                              dialogContext)
-                                                          .pop();
-                                                      exchangeViewModel
-                                                          .exchangeTemplateStore
-                                                          .remove(
-                                                              template:
-                                                                  template);
-                                                      exchangeViewModel
-                                                          .exchangeTemplateStore
-                                                          .update();
+                                                    alertTitle: S.of(context).template,
+                                                    alertContent: S.of(context).confirm_delete_template,
+                                                    rightButtonText: S.of(context).delete,
+                                                    leftButtonText: S.of(context).cancel,
+                                                    actionRightButton: () {
+                                                      Navigator.of(dialogContext).pop();
+                                                      exchangeViewModel.exchangeTemplateStore.remove(template: template);
+                                                      exchangeViewModel.exchangeTemplateStore.update();
                                                     },
-                                                    actionRightButton: () =>
-                                                        Navigator.of(
-                                                                dialogContext)
-                                                            .pop());
-                                              });
+                                                    actionLeftButton: () => Navigator.of(dialogContext).pop()
+                                                );
+                                              }
+                                          );
                                         },
                                       );
                                     });
@@ -387,24 +367,23 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                     color: Colors.green,
                     textColor: Colors.white)
                 : Observer(
-                    builder: (_) => LoadingPrimaryButton(
-                          text: S.of(context).exchange,
-                          onPressed: () {
-                            if (_formKey.currentState.validate()) {
-                              exchangeViewModel.createTrade();
-                            }
-                          },
-                          color: Palette.blueCraiola,
-                          textColor: Colors.white,
-                          isLoading:
-                              exchangeViewModel.tradeState is TradeIsCreating,
-                        )),
+                builder: (_) => LoadingPrimaryButton(
+                  text: S.of(context).exchange,
+                  onPressed: () {
+                    if (_formKey.currentState.validate()) {
+                      exchangeViewModel.createTrade();
+                    }
+                  },
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white,
+                  isLoading: exchangeViewModel.tradeState is TradeIsCreating,
+                )),
           ]),
         ));
   }
 
-  void applyTemplate(
-      ExchangeViewModel exchangeViewModel, ExchangeTemplate template) {
+  void applyTemplate(ExchangeViewModel exchangeViewModel,
+      ExchangeTemplate template) {
     exchangeViewModel.changeDepositCurrency(
         currency: CryptoCurrency.fromString(template.depositCurrency));
     exchangeViewModel.changeReceiveCurrency(

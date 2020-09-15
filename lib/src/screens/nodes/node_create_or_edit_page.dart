@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -137,7 +136,7 @@ class NodeCreateOrEditPage extends BasePage {
                         child: PrimaryButton(
                             onPressed: () => nodeCreateOrEditViewModel.reset(),
                             text: S.of(context).reset,
-                            color: Colors.red,
+                            color: Colors.orange,
                             textColor: Colors.white),
                       )),
                       Flexible(
@@ -153,7 +152,7 @@ class NodeCreateOrEditPage extends BasePage {
                             Navigator.of(context).pop();
                           },
                           text: S.of(context).save,
-                          color: Palette.blueCraiola,
+                          color: Theme.of(context).accentTextTheme.body2.color,
                           textColor: Colors.white,
                           isDisabled: !nodeCreateOrEditViewModel.isReady,
                         ),

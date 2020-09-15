@@ -218,7 +218,7 @@ class Router {
       case Routes.seed:
         return MaterialPageRoute<void>(
             builder: (_) => getIt.get<WalletSeedPage>(
-                param1: settings.arguments as VoidCallback));
+                param1: settings.arguments as bool));
 
       case Routes.restoreWalletFromSeed:
         final args = settings.arguments as List<dynamic>;

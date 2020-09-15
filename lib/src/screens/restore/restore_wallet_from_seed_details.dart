@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -101,13 +100,26 @@ class _RestoreFromSeedDetailsFormState
                 ))
               ],
             ),
-            if (widget.walletRestorationFromSeedVM.hasRestorationHeight)
+            if (widget.walletRestorationFromSeedVM.hasRestorationHeight) ... [
               BlockchainHeightWidget(
                   key: _blockchainHeightKey,
                   onHeightChange: (height) {
                     widget.walletRestorationFromSeedVM.height = height;
                     print(height);
                   }),
+              Padding(
+                padding: EdgeInsets.only(left: 40, right: 40, top: 24),
+                child: Text(
+                  S.of(context).restore_from_date_or_blockheight,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).hintColor
+                  ),
+                ),
+              )
+            ]
           ]),
         ),
         bottomSectionPadding: EdgeInsets.only(bottom: 24),
@@ -121,7 +133,7 @@ class _RestoreFromSeedDetailsFormState
             isLoading:
                 widget.walletRestorationFromSeedVM.state is WalletCreating,
             text: S.of(context).restore_recover,
-            color: Palette.blueCraiola,
+            color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
             isDisabled: _nameController.text.isNotEmpty,
           );

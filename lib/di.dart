@@ -257,8 +257,8 @@ Future setup(
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
-  // getIt.registerFactory(
-  //         () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
+  getIt.registerFactory(
+           () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       walletInfoSource, getIt.get<AppStore>(), getIt.get<KeyService>()));
@@ -305,10 +305,10 @@ Future setup(
   getIt
       .registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet));
 
-  getIt.registerFactoryParam<WalletSeedPage, VoidCallback, void>(
-      (VoidCallback callback, _) => WalletSeedPage(
+  getIt.registerFactoryParam<WalletSeedPage, bool, void>(
+      (bool isWalletCreated, _) => WalletSeedPage(
           getIt.get<WalletSeedViewModel>(),
-          onCloseCallback: callback));
+          isNewWalletCreated: isWalletCreated));
 
   getIt
       .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>().wallet));
