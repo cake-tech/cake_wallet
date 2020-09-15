@@ -12,8 +12,6 @@ import 'package:cake_wallet/src/domain/common/wallet.dart';
 import 'package:cake_wallet/src/domain/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/domain/common/wallet_description.dart';
 
-
-
 class MoneroWalletsManager extends WalletsManager {
   MoneroWalletsManager({@required this.walletInfoSource});
 
@@ -27,7 +25,8 @@ class MoneroWalletsManager extends WalletsManager {
       const isRecovery = false;
       final path = await pathForWallet(name: name, type: WalletType.monero);
 
-      await monero_wallet_manager.createWallet(path: path, password: password, language: language);
+      await monero_wallet_manager.createWallet(
+          path: path, password: password, language: language);
 
       final wallet = await MoneroWallet.createdWallet(
           walletInfoSource: walletInfoSource,

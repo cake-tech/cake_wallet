@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -32,14 +33,16 @@ abstract class WalletCreationVMBase with Store {
   Future<void> create({dynamic options}) async {
     try {
       state = WalletCreating();
-      await process(getCredentials(options));
-      final id = walletTypeToString(type).toLowerCase() + '_' + name;
-      final walletInfo = WalletInfo(
-          id: id,
+      final credentials = getCredentials(options);
+      final walletInfo = WalletInfo.external(
+          id: WalletBase.idFor(name, type),
           name: name,
           type: type,
           isRecovery: isRecovery,
-          restoreHeight: 0);
+          restoreHeight: credentials.height ?? 0,
+          date: DateTime.now());
+      credentials.walletInfo = walletInfo;
+      await process(credentials);
       await _walletInfoSource.add(walletInfo);
       state = WalletCreatedSuccessfully();
     } catch (e) {

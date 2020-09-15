@@ -82,28 +82,28 @@ Future<void> migrate_wallets({Directory appDocDir}) async {
 Future<void> migrate_ios_wallet_info(
     {@required Directory appDocDir,
     @required Box<WalletInfo> walletsInfo}) async {
-  final walletsDir = Directory('${appDocDir.path}/wallets');
-  final moneroWalletsDir = Directory('${walletsDir.path}/monero');
+  // final walletsDir = Directory('${appDocDir.path}/wallets');
+  // final moneroWalletsDir = Directory('${walletsDir.path}/monero');
 
-  moneroWalletsDir.listSync().forEach((item) async {
-    try {
-      if (item is Directory) {
-        final name = item.path.split('/').last;
-        final configFile = File('${item.path}/$name.json');
-        final config =
-            json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
-        final isRecovery = config["isRecovery"] as bool ?? false;
-        final id =
-            walletTypeToString(WalletType.monero).toLowerCase() + '_' + name;
-        final walletInfo =
-            WalletInfo(id: id, name: name, isRecovery: isRecovery);
+  // moneroWalletsDir.listSync().forEach((item) async {
+  //   try {
+  //     if (item is Directory) {
+  //       final name = item.path.split('/').last;
+  //       final configFile = File('${item.path}/$name.json');
+  //       final config =
+  //           json.decode(configFile.readAsStringSync()) as Map<String, dynamic>;
+  //       final isRecovery = config["isRecovery"] as bool ?? false;
+  //       final id =
+  //           walletTypeToString(WalletType.monero).toLowerCase() + '_' + name;
+  //       final walletInfo =
+  //           WalletInfo(id: id, name: name, isRecovery: isRecovery);
 
-        await walletsInfo.add(walletInfo);
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  });
+  //       await walletsInfo.add(walletInfo);
+  //     }
+  //   } catch (e) {
+  //     print(e.toString());
+  //   }
+  // });
 }
 
 Future<void> migrate_ios_trades_list(

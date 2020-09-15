@@ -14,7 +14,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 part 'exchange_trade_view_model.g.dart';
 
-class ExchangeTradeViewModel = ExchangeTradeViewModelBase with _$ExchangeTradeViewModel;
+class ExchangeTradeViewModel = ExchangeTradeViewModelBase
+    with _$ExchangeTradeViewModel;
 
 abstract class ExchangeTradeViewModelBase with Store {
   ExchangeTradeViewModelBase({this.wallet, this.trades, this.tradesStore}) {
@@ -38,17 +39,11 @@ abstract class ExchangeTradeViewModelBase with Store {
     items = ObservableList<ExchangeTradeItem>();
     items.addAll([
       ExchangeTradeItem(
-          title: S.current.id,
-          data: '${trade.id}',
-          isCopied: true),
+          title: S.current.id, data: '${trade.id}', isCopied: true),
       ExchangeTradeItem(
-          title: S.current.amount,
-          data: '${trade.amount}',
-          isCopied: false),
+          title: S.current.amount, data: '${trade.amount}', isCopied: false),
       ExchangeTradeItem(
-          title: S.current.status,
-          data: '${trade.state}',
-          isCopied: false),
+          title: S.current.status, data: '${trade.state}', isCopied: false),
       ExchangeTradeItem(
           title: S.current.widgets_address + ':',
           data: trade.inputAddress,

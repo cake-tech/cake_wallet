@@ -1,7 +1,11 @@
+import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/core/contact_service.dart';
+import 'package:cake_wallet/core/wallet_service.dart';
+import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/src/domain/common/contact.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
+// import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
@@ -367,6 +371,22 @@ Future setup(
 
   getIt.registerFactory(
       () => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
+
+  getIt.registerFactory(() => MoneroWalletService(walletInfoSource));
+
+  getIt.registerFactory(() => BitcoinWalletService());
+
+  getIt.registerFactoryParam<WalletService, WalletType, void>(
+      (WalletType param1, __) {
+    switch (param1) {
+      case WalletType.monero:
+        return getIt.get<MoneroWalletService>();
+      case WalletType.bitcoin:
+        return getIt.get<BitcoinWalletService>();
+      default:
+        return null;
+    }
+  });
 }
 
 void setupThemeChangerStore(ThemeChanger themeChanger) {

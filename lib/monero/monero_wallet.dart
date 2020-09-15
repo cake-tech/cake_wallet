@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:cake_wallet/src/domain/monero/monero_transaction_creation_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -9,44 +10,35 @@ import 'package:cake_wallet/monero/monero_transaction_history.dart';
 import 'package:cake_wallet/monero/monero_subaddress_list.dart';
 import 'package:cake_wallet/monero/monero_account_list.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/common/sync_status.dart';
 import 'package:cake_wallet/src/domain/monero/account.dart';
-import 'package:cake_wallet/src/domain/monero/account_list.dart';
 import 'package:cake_wallet/src/domain/monero/subaddress.dart';
 import 'package:cake_wallet/src/domain/common/node.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
-import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart'
-    as cfa;
 
 part 'monero_wallet.g.dart';
+
+const moneroBlockSize = 1000;
 
 class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 
 abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
-  MoneroWalletBase({String filename, this.isRecovery = false})
+  MoneroWalletBase({String filename, WalletInfo walletInfo})
       : transactionHistory = MoneroTransactionHistory(),
         accountList = MoneroAccountList(),
-        subaddressList = MoneroSubaddressList() {
+        subaddressList = MoneroSubaddressList(),
+        super(walletInfo) {
     _filename = filename;
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
         unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
-    currency = CryptoCurrency.xmr;
-    type = WalletType.monero;
-    _rct = reaction(
-        (_) => syncStatus, (SyncStatus status) => print(status.toString()));
     _onAccountChangeReaction = reaction((_) => account, (Account account) {
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
     });
   }
-
-  ReactionDisposer _rct;
 
   @override
   final MoneroTransactionHistory transactionHistory;
@@ -57,15 +49,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   @observable
   Subaddress subaddress;
 
+  @override
   @observable
   SyncStatus syncStatus;
 
   @override
-  String get name => _filename.split('/').last;
+  @observable
+  String address;
 
   @override
   @observable
-  String address;
+  MoneroBalance balance;
 
   @override
   String get seed => monero_wallet.getSeed();
@@ -80,8 +74,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   final MoneroSubaddressList subaddressList;
 
   final MoneroAccountList accountList;
-
-  bool isRecovery;
 
   String _filename;
   SyncListner _listener;
@@ -107,8 +99,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<void> connectToNode({@required Node node}) async {
-    final node = Node(uri: 'xmr-node-uk.cakewallet.com:18081');
-
     try {
       syncStatus = ConnectingSyncStatus();
       await monero_wallet.setupNode(
@@ -127,6 +117,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<void> startSync() async {
+    try {
+      _setInitialHeight();
+    } catch (_) {}
+
     try {
       syncStatus = StartingSyncStatus();
       monero_wallet.startRefresh();
@@ -180,30 +174,58 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<void> save() async {
-//    if (_isSaving) {
-//      return;
-//    }
-
-    try {
-//      _isSaving = true;
-      await monero_wallet.store();
-//      _isSaving = false;
-    } catch (e) {
-      print(e);
-//      _isSaving = false;
-      rethrow;
-    }
+    await monero_wallet.store();
   }
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
 
   Future<bool> isConnected() async => monero_wallet.isConnected();
 
+  Future<void> setAsRecovered() async {
+    walletInfo.isRecovery = false;
+    await walletInfo.save();
+  }
+
   void _setListeners() {
     _listener?.stop();
     _listener = monero_wallet.setListeners(
         _onNewBlock, _onNeedToRefresh, _onNewTransaction);
     _listener.start();
+  }
+
+  void _setInitialHeight() {
+    if (walletInfo.isRecovery) {
+      return;
+    }
+
+    final currentHeight = getCurrentHeight();
+    print('currentHeight $currentHeight');
+
+    if (currentHeight <= 1) {
+      final height = _getHeightByDate(walletInfo.date);
+      monero_wallet.setRecoveringFromSeed(isRecovery: true);
+      monero_wallet.setRefreshFromBlockHeight(height: height);
+    }
+  }
+
+  int _getHeightDistance(DateTime date) {
+    final distance =
+        DateTime.now().millisecondsSinceEpoch - date.millisecondsSinceEpoch;
+    final daysTmp = (distance / 86400).round();
+    final days = daysTmp < 1 ? 1 : daysTmp;
+
+    return days * 1000;
+  }
+
+  int _getHeightByDate(DateTime date) {
+    final nodeHeight = monero_wallet.getNodeHeightSync();
+    final heightDistance = _getHeightDistance(date);
+
+    if (nodeHeight <= 0) {
+      return 0;
+    }
+
+    return nodeHeight - heightDistance;
   }
 
   void _askForUpdateBalance() {
@@ -236,13 +258,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
     syncStatus = SyncedSyncStatus();
 
-    if (isRecovery) {
+    if (walletInfo.isRecovery) {
       _askForUpdateTransactionHistory();
     }
 
-//      if (isRecovery && (nodeHeight - currentHeight < moneroBlockSize)) {
-//        await setAsRecovered();
-//      }
+    final currentHeight = getCurrentHeight();
+    final nodeHeight = monero_wallet.getNodeHeightSync();
+
+    if (walletInfo.isRecovery &&
+        (nodeHeight - currentHeight < moneroBlockSize)) {
+      await setAsRecovered();
+    }
 
     await save();
   }

@@ -9,8 +9,6 @@ import 'package:cake_wallet/bitcoin/electrum.dart';
 
 part 'bitcoin_transaction_history.g.dart';
 
-// TODO: Think about another transaction store for bitcoin transaction history..
-
 const _transactionsHistoryFileName = 'transactions.json';
 
 class BitcoinTransactionHistory = BitcoinTransactionHistoryBase
