@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/domain/monero/get_height_by_date.dart';
+import 'package:cake_wallet/monero/get_height_by_date.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {

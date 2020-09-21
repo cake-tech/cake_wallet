@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:dotted_border/dotted_border.dart';
@@ -9,10 +9,10 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
-import 'package:cake_wallet/src/stores/exchange/exchange_trade_state.dart';
-import 'package:cake_wallet/src/stores/exchange/limits_state.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
+// import 'package:cake_wallet/exchange/exchange_trade_state.dart';
+// import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -376,7 +376,7 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
                   },
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white,
-                  isLoading: exchangeViewModel.tradeState is TradeIsCreating,
+                  isLoading: false, // FIXME: FIXME exchangeViewModel.tradeState is TradeIsCreating,
                 )),
           ]),
         ));
@@ -419,18 +419,21 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
     final depositAmountController = depositKey.currentState.amountController;
     final receiveAddressController = receiveKey.currentState.addressController;
     final receiveAmountController = receiveKey.currentState.amountController;
-    final limitsState = exchangeViewModel.limitsState;
 
-    if (limitsState is LimitsLoadedSuccessfully) {
-      final min = limitsState.limits.min != null
-          ? limitsState.limits.min.toString()
-          : null;
-      final max = limitsState.limits.max != null
-          ? limitsState.limits.max.toString()
-          : null;
-      final key = depositKey;
-      key.currentState.changeLimits(min: min, max: max);
-    }
+    // FIXME: FIXME
+
+    // final limitsState = exchangeViewModel.limitsState;
+    //
+    // if (limitsState is LimitsLoadedSuccessfully) {
+    //   final min = limitsState.limits.min != null
+    //       ? limitsState.limits.min.toString()
+    //       : null;
+    //   final max = limitsState.limits.max != null
+    //       ? limitsState.limits.max.toString()
+    //       : null;
+    //   final key = depositKey;
+    //   key.currentState.changeLimits(min: min, max: max);
+    // }
 
     _onCurrencyChange(
         exchangeViewModel.receiveCurrency, exchangeViewModel, receiveKey);
@@ -491,47 +494,51 @@ class BaseExchangeWidgetState extends State<BaseExchangeWidget> {
       receiveKey.currentState.isAddressEditable(isEditable: isEnabled);
     });
 
-    reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
-      if (state is TradeIsCreatedFailure) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
-        });
-      }
-      if (state is TradeIsCreatedSuccessfully) {
-        Navigator.of(context).pushNamed(Routes.exchangeConfirm);
-      }
-    });
+    // FIXME: FIXME
 
-    reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {
-      String min;
-      String max;
+    // reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
+    //   if (state is TradeIsCreatedFailure) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       showDialog<void>(
+    //           context: context,
+    //           builder: (BuildContext context) {
+    //             return AlertWithOneAction(
+    //                 alertTitle: S.of(context).error,
+    //                 alertContent: state.error,
+    //                 buttonText: S.of(context).ok,
+    //                 buttonAction: () => Navigator.of(context).pop());
+    //           });
+    //     });
+    //   }
+    //   if (state is TradeIsCreatedSuccessfully) {
+    //     Navigator.of(context).pushNamed(Routes.exchangeConfirm);
+    //   }
+    // });
 
-      if (state is LimitsLoadedSuccessfully) {
-        min = state.limits.min != null ? state.limits.min.toString() : null;
-        max = state.limits.max != null ? state.limits.max.toString() : null;
-      }
+    // FIXME: FIXME
 
-      if (state is LimitsLoadedFailure) {
-        min = '0';
-        max = '0';
-      }
-
-      if (state is LimitsIsLoading) {
-        min = '...';
-        max = '...';
-      }
-
-      depositKey.currentState.changeLimits(min: min, max: max);
-      receiveKey.currentState.changeLimits(min: null, max: null);
-    });
+    // reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {
+    //   String min;
+    //   String max;
+    //
+    //   if (state is LimitsLoadedSuccessfully) {
+    //     min = state.limits.min != null ? state.limits.min.toString() : null;
+    //     max = state.limits.max != null ? state.limits.max.toString() : null;
+    //   }
+    //
+    //   if (state is LimitsLoadedFailure) {
+    //     min = '0';
+    //     max = '0';
+    //   }
+    //
+    //   if (state is LimitsIsLoading) {
+    //     min = '...';
+    //     max = '...';
+    //   }
+    //
+    //   depositKey.currentState.changeLimits(min: min, max: max);
+    //   receiveKey.currentState.changeLimits(min: null, max: null);
+    // });
 
     depositAddressController.addListener(
         () => exchangeViewModel.depositAddress = depositAddressController.text);

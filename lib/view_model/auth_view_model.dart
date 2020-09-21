@@ -1,38 +1,47 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 
 part 'auth_view_model.g.dart';
 
 class AuthViewModel = AuthViewModelBase with _$AuthViewModel;
 
 abstract class AuthViewModelBase with Store {
-  AuthViewModelBase(
-      {@required this.authService, @required this.sharedPreferences}) {
-    state = AuthenticationStateInitial();
+  AuthViewModelBase(this._authService, this._sharedPreferences,
+      this._settingsStore, this._biometricAuth) {
+    state = InitialExecutionState();
     _failureCounter = 0;
   }
 
   static const maxFailedLogins = 3;
-  static const banTimeout = 180; // 3 mins
+  static const banTimeout = 180; // 3 minutes
   final banTimeoutKey = S.current.auth_store_ban_timeout;
 
-  final AuthService authService;
-  final SharedPreferences sharedPreferences;
-
   @observable
-  AuthState state;
+  ExecutionState state;
+
+  int get pinLength => _settingsStore.pinCodeLength;
+
+  bool get isBiometricalAuthenticationAllowed =>
+      _settingsStore.allowBiometricalAuthentication;
 
   @observable
   int _failureCounter;
 
+  final AuthService _authService;
+  final BiometricAuth _biometricAuth;
+  final SharedPreferences _sharedPreferences;
+  final SettingsStore _settingsStore;
+
   @action
   Future<void> auth({String password}) async {
-    state = AuthenticationStateInitial();
+    state = InitialExecutionState();
     final _banDuration = banDuration();
 
     if (_banDuration != null) {
@@ -43,11 +52,11 @@ abstract class AuthViewModelBase with Store {
       return;
     }
 
-    state = AuthenticationInProgress();
-    final isAuth = await authService.authenticate(password);
+    state = IsExecutingState();
+    final isSuccessfulAuthenticated = await _authService.authenticate(password);
 
-    if (isAuth) {
-      state = AuthenticatedSuccessfully();
+    if (isSuccessfulAuthenticated) {
+      state = ExecutedSuccessfullyState();
       _failureCounter = 0;
     } else {
       _failureCounter += 1;
@@ -61,13 +70,12 @@ abstract class AuthViewModelBase with Store {
         return;
       }
 
-      state =
-          AuthenticationFailure(error: S.current.auth_store_incorrect_password);
+      state = FailureState(S.current.auth_store_incorrect_password);
     }
   }
 
   Duration banDuration() {
-    final unbanTimestamp = sharedPreferences.getInt(banTimeoutKey);
+    final unbanTimestamp = _sharedPreferences.getInt(banTimeoutKey);
 
     if (unbanTimestamp == null) {
       return null;
@@ -87,11 +95,25 @@ abstract class AuthViewModelBase with Store {
     final multiplier = _failureCounter - maxFailedLogins + 1;
     final timeout = (multiplier * banTimeout) * 1000;
     final unbanTimestamp = DateTime.now().millisecondsSinceEpoch + timeout;
-    await sharedPreferences.setInt(banTimeoutKey, unbanTimestamp);
+    await _sharedPreferences.setInt(banTimeoutKey, unbanTimestamp);
 
     return Duration(milliseconds: timeout);
   }
 
   @action
-  void biometricAuth() => state = AuthenticatedSuccessfully();
+  Future<void> biometricAuth() async {
+    try {
+      final canBiometricAuth = await _biometricAuth.canCheckBiometrics();
+
+      if (canBiometricAuth) {
+        final isAuthenticated = await _biometricAuth.isAuthenticated();
+
+        if (isAuthenticated) {
+          state = ExecutedSuccessfullyState();
+        }
+      }
+    } catch(e) {
+      state = FailureState(e.toString());
+    }
+  }
 }

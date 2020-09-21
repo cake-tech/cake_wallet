@@ -4,8 +4,8 @@ import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/src/domain/common/pathForWallet.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/pathForWallet.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,

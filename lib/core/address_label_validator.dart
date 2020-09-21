@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 class AddressLabelValidator extends TextValidator {
   AddressLabelValidator({WalletType type})

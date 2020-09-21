@@ -1,23 +1,26 @@
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/template_validator.dart';
-import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart';
-import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
-import 'package:cake_wallet/src/domain/common/sync_status.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/domain/common/fiat_currency.dart';
-import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
+import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
+import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 part 'send_view_model.g.dart';
 
@@ -26,13 +29,14 @@ class SendViewModel = SendViewModelBase with _$SendViewModel;
 abstract class SendViewModelBase with Store {
   SendViewModelBase(
       this._wallet, this._settingsStore, this._fiatConversationStore)
-      : state = InitialSendViewModelState(),
-        _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12,
-        // FIXME: need to be based on wallet type.
-        sendAll = false;
+      : state = InitialExecutionState(),
+        _cryptoNumberFormat = NumberFormat(),
+        sendAll = false {
+    _setCryptoNumMaximumFractionDigits();
+  }
 
   @observable
-  SendViewModelState state;
+  ExecutionState state;
 
   @observable
   String fiatAmount;
@@ -82,7 +86,7 @@ abstract class SendViewModelBase with Store {
 
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
-  final FiatConvertationStore _fiatConversationStore;
+  final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
 
   @action
@@ -98,11 +102,11 @@ abstract class SendViewModelBase with Store {
   @action
   Future<void> createTransaction() async {
     try {
-      state = TransactionIsCreating();
+      state = IsExecutingState();
       pendingTransaction = await _wallet.createTransaction(_credentials());
-      state = TransactionCreatedSuccessfully();
+      state = ExecutedSuccessfullyState();
     } catch (e) {
-      state = SendingFailed(error: e.toString());
+      state = FailureState(e.toString());
     }
   }
 
@@ -113,14 +117,13 @@ abstract class SendViewModelBase with Store {
       await pendingTransaction.commit();
       state = TransactionCommitted();
     } catch (e) {
-      state = SendingFailed(error: e.toString());
+      state = FailureState(e.toString());
     }
   }
 
   @action
   void setCryptoAmount(String amount) {
-    // FIXME: hardcoded value.
-    if (amount.toUpperCase() != 'ALL') {
+    if (amount.toUpperCase() != S.current.all) {
       sendAll = false;
     }
 
@@ -164,19 +167,41 @@ abstract class SendViewModelBase with Store {
   }
 
   Object _credentials() {
-    final amount =
-        !sendAll ? double.parse(cryptoAmount.replaceAll(',', '.')) : null;
+    final _amount = cryptoAmount.replaceAll(',', '.');
 
     switch (_wallet.type) {
       case WalletType.bitcoin:
+        final amount = !sendAll ? double.parse(_amount) : null;
+
         return BitcoinTransactionCredentials(
             address, amount, _settingsStore.transactionPriority);
       case WalletType.monero:
-        // FIXME: Wrong credentials
-        return BitcoinTransactionCredentials(
-            address, amount, _settingsStore.transactionPriority);
+        final amount = !sendAll ? _amount : null;
+
+        return MoneroTransactionCreationCredentials(
+            address: address,
+            paymentId: '',
+            priority: _settingsStore.transactionPriority,
+            amount: amount);
       default:
         return null;
     }
+  }
+
+  void _setCryptoNumMaximumFractionDigits() {
+    var maximumFractionDigits = 0;
+
+    switch (_wallet.type) {
+      case WalletType.monero:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.bitcoin:
+        maximumFractionDigits = 8;
+        break;
+      default:
+        break;
+    }
+
+    _cryptoNumberFormat.maximumFractionDigits = maximumFractionDigits;
   }
 }

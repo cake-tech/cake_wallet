@@ -16,7 +16,6 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/top_panel.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 

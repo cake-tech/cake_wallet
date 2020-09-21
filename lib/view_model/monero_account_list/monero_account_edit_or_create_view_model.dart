@@ -1,7 +1,7 @@
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/monero/monero_account_list.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_state.dart';
 
 part 'monero_account_edit_or_create_view_model.g.dart';
 
@@ -11,14 +11,14 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList,
       {AccountListItem accountListItem})
-      : state = InitialAccountCreationState(),
+      : state = InitialExecutionState(),
         isEdit = accountListItem != null,
         _accountListItem = accountListItem;
 
   final bool isEdit;
 
   @observable
-  MoneroAccountEditOrCreateState state;
+  ExecutionState state;
 
   @observable
   String label;
@@ -28,7 +28,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
   Future<void> save() async {
     try {
-      state = AccountIsCreating();
+      state = IsExecutingState();
 
       if (_accountListItem != null) {
         await _moneroAccountList.setLabelAccount(
@@ -37,9 +37,9 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
         await _moneroAccountList.addAccount(label: label);
       }
 
-      state = AccountCreatedSuccessfully();
+      state = ExecutedSuccessfullyState();
     } catch (e) {
-      state = AccountCreationFailure(error: e.toString());
+      state = FailureState(e.toString());
     }
   }
 }

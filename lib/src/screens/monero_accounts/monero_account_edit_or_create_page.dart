@@ -1,9 +1,9 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/monero_account_label_validator.dart';
-import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_state.dart';
 import 'package:cake_wallet/view_model/monero_account_list/monero_account_edit_or_create_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -59,7 +59,7 @@ class MoneroAccountEditOrCreatePage extends BasePage {
                         color: Colors.green,
                         textColor: Colors.white,
                         isLoading: moneroAccountCreationViewModel.state
-                        is AccountIsCreating,
+                        is IsExecutingState,
                         isDisabled:
                         moneroAccountCreationViewModel.label?.isEmpty ?? true,
                       ))

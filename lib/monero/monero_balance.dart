@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
+import 'package:cake_wallet/monero/monero_amount_format.dart';
 
 class MoneroBalance {
   MoneroBalance({@required this.fullBalance, @required this.unlockedBalance})

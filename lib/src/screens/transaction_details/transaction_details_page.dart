@@ -1,21 +1,17 @@
-
-import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
-import 'package:cake_wallet/src/domain/monero/monero_transaction_info.dart';
-import 'package:cake_wallet/src/domain/common/transaction_info.dart';
+import 'package:cake_wallet/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/utils/date_formatter.dart';
 
 class TransactionDetailsPage extends BasePage {
-  TransactionDetailsPage({this.transactionInfo}) : _items = [] {
-    // FIXME
-//    final _dateFormat = widget.settingsStore.getCurrentDateFormat(
-//        formatUSA: "yyyy.MM.dd, HH:mm", formatDefault: "dd.MM.yyyy, HH:mm");
-    final dateFormat = DateFormat('dd.MM.yyyy, HH:mm');
+  TransactionDetailsPage(this.transactionInfo) : _items = [] {
+    final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
     if (tx is MoneroTransactionInfo) {
@@ -50,8 +46,7 @@ class TransactionDetailsPage extends BasePage {
             title: S.current.transaction_details_date,
             value: dateFormat.format(tx.date)),
         StandartListItem(
-            title: 'Confirmations',
-            value: tx.confirmations?.toString()),
+            title: 'Confirmations', value: tx.confirmations?.toString()),
         StandartListItem(
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
@@ -80,7 +75,8 @@ class TransactionDetailsPage extends BasePage {
                 color: Theme.of(context).backgroundColor,
                 child: Container(
                   height: 1,
-                  color: Theme.of(context).primaryTextTheme.title.backgroundColor,
+                  color:
+                      Theme.of(context).primaryTextTheme.title.backgroundColor,
                 ),
               ),
           itemCount: _items.length,

@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:flutter/rendering.dart';
 

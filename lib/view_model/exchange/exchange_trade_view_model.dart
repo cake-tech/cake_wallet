@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/src/domain/exchange/changenow/changenow_exchange_provider.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_provider.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/src/domain/exchange/morphtoken/morphtoken_exchange_provider.dart';
-import 'package:cake_wallet/src/domain/exchange/trade.dart';
-import 'package:cake_wallet/src/domain/exchange/xmrto/xmrto_exchange_provider.dart';
+import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
+import 'package:cake_wallet/exchange/exchange_provider.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';

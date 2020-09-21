@@ -5,20 +5,18 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/auth_state.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code.dart';
-import 'package:cake_wallet/src/domain/common/biometric_auth.dart';
+import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
+import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 
 typedef OnAuthenticationFinished = void Function(bool, AuthPageState);
 
 class AuthPage extends StatefulWidget {
-  AuthPage(
-      {@required this.allowBiometricalAuthentication,
-      this.onAuthenticationFinished,
-      this.authViewModel,
-      this.closable = true});
+  AuthPage(this.authViewModel,
+      {this.onAuthenticationFinished, this.closable = true});
 
   final AuthViewModel authViewModel;
   final OnAuthenticationFinished onAuthenticationFinished;
-  final bool allowBiometricalAuthentication;
   final bool closable;
 
   @override
@@ -35,8 +33,8 @@ class AuthPageState extends State<AuthPage> {
   @override
   void initState() {
     _reaction ??=
-        reaction((_) => widget.authViewModel.state, (AuthState state) {
-      if (state is AuthenticatedSuccessfully) {
+        reaction((_) => widget.authViewModel.state, (ExecutionState state) {
+      if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (widget.onAuthenticationFinished != null) {
             widget.onAuthenticationFinished(true, this);
@@ -51,7 +49,7 @@ class AuthPageState extends State<AuthPage> {
         });
       }
 
-      if (state is AuthenticationInProgress) {
+      if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _key.currentState.showSnackBar(
             SnackBar(
@@ -62,7 +60,7 @@ class AuthPageState extends State<AuthPage> {
         });
       }
 
-      if (state is AuthenticationFailure) {
+      if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _pinCodeKey.currentState.clear();
           _key.currentState.hideCurrentSnackBar();
@@ -97,23 +95,10 @@ class AuthPageState extends State<AuthPage> {
       }
     });
 
-    if (widget.allowBiometricalAuthentication) {
+    if (widget.authViewModel.isBiometricalAuthenticationAllowed) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        print('post');
         await Future<void>.delayed(Duration(milliseconds: 100));
-        print('after timeout');
-        final biometricAuth = BiometricAuth();
-        final isAuth = await biometricAuth.isAuthenticated();
-
-        if (isAuth) {
-          widget.authViewModel.biometricAuth();
-          _key.currentState.showSnackBar(
-            SnackBar(
-              content: Text(S.of(context).authenticated),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
+        await widget.authViewModel.biometricAuth();
       });
     }
 
@@ -133,34 +118,28 @@ class AuthPageState extends State<AuthPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('start');
-
     return Scaffold(
         key: _key,
         appBar: CupertinoNavigationBar(
-          leading: widget.closable
-              ? SizedBox(
-                  height: 37,
-                  width: 20,
-                  child: ButtonTheme(
-                    minWidth: double.minPositive,
-                    child: FlatButton(
-                        highlightColor: Colors.transparent,
-                        splashColor: Colors.transparent,
-                        padding: EdgeInsets.all(0),
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: _backArrowImageDarkTheme),
-                  ),
-                )
-              : Container(),
-          backgroundColor: Theme.of(context).backgroundColor,
-          border: null,
-        ),
+            leading: widget.closable
+                ? SizedBox(
+                    height: 37,
+                    width: 20,
+                    child: ButtonTheme(
+                      minWidth: double.minPositive,
+                      child: FlatButton(
+                          highlightColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          padding: EdgeInsets.all(0),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: _backArrowImageDarkTheme),
+                    ),
+                  )
+                : Container(),
+            backgroundColor: Theme.of(context).backgroundColor,
+            border: null),
         resizeToAvoidBottomPadding: false,
-        body: PinCode(
-            (pin, _) => widget.authViewModel
-                .auth(password: pin.fold('', (ac, val) => ac + '$val')),
-            false,
-            _pinCodeKey));
+        body: PinCode((pin, _) => widget.authViewModel.auth(password: pin),
+            (_) => null, widget.authViewModel.pinLength, false, _pinCodeKey));
   }
 }

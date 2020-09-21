@@ -1,6 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
-import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
+import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/core/pending_transaction.dart';

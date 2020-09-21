@@ -1,12 +1,12 @@
-import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
-import 'package:cake_wallet/src/domain/common/fiat_currency.dart';
-import 'package:cake_wallet/src/domain/common/transaction_info.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
-import 'package:cake_wallet/src/domain/monero/monero_transaction_info.dart';
-import 'package:cake_wallet/src/domain/monero/monero_amount_format.dart';
+import 'package:cake_wallet/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/src/domain/common/calculate_fiat_amount_raw.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 
 class TransactionListItem extends ActionListItem {
   TransactionListItem({

@@ -3,8 +3,8 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_monero/transaction_history.dart'
     as monero_transaction_history;
 import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/src/domain/common/transaction_info.dart';
-import 'package:cake_wallet/src/domain/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cake_wallet/monero/monero_transaction_info.dart';
 
 part 'monero_transaction_history.g.dart';
 

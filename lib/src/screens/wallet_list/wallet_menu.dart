@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/stores/wallet_list/wallet_list_store.dart';
+// import 'package:cake_wallet/src/stores/wallet_list/wallet_list_store.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/palette.dart';

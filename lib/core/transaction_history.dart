@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/domain/common/transaction_info.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 
 abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
   TransactionHistoryBase() : _isUpdating = false;

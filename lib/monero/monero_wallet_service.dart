@@ -6,9 +6,9 @@ import 'package:cw_monero/wallet.dart' as monero_wallet;
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/core/wallet_credentials.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
-import 'package:cake_wallet/src/domain/common/pathForWallet.dart';
-import 'package:cake_wallet/src/domain/common/wallet_info.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/pathForWallet.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 class MoneroNewWalletCredentials extends WalletCredentials {
   MoneroNewWalletCredentials({String name, String password, this.language})

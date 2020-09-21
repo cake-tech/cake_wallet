@@ -14,15 +14,15 @@ import 'package:cake_wallet/bitcoin/electrum.dart';
 import 'package:cake_wallet/bitcoin/pending_bitcoin_transaction.dart';
 import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:cake_wallet/bitcoin/utils.dart';
-import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/src/domain/common/sync_status.dart';
-import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
-import 'package:cake_wallet/src/domain/common/wallet_info.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_history.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
 import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_balance.dart';
-import 'package:cake_wallet/src/domain/common/node.dart';
+import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 
 part 'bitcoin_wallet.g.dart';
@@ -315,6 +315,11 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   bitcoin.ECPair keyPairFor({@required int index}) =>
       generateKeyPair(hd: hd, index: index);
+
+  @override
+  Future<void> rescan({int height}) async {
+    // FIXME: Unimplemented
+  }
 
   void _subscribeForUpdates() {
     scriptHashes.forEach((sh) async {

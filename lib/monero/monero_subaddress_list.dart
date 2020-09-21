@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/subaddress_list.dart' as subaddress_list;
-import 'package:cake_wallet/src/domain/monero/subaddress.dart';
+import 'package:cake_wallet/monero/subaddress.dart';
 
 part 'monero_subaddress_list.g.dart';
 

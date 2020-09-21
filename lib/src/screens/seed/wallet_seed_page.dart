@@ -24,10 +24,9 @@ class WalletSeedPage extends BasePage {
   final WalletSeedViewModel walletSeedViewModel;
 
   @override
-  void onClose(BuildContext context) =>
-      isNewWalletCreated
-          ? Navigator.of(context).popUntil((route) => route.isFirst)
-          : Navigator.of(context).pop();
+  void onClose(BuildContext context) => isNewWalletCreated
+      ? Navigator.of(context).popUntil((route) => route.isFirst)
+      : Navigator.of(context).pop();
 
   @override
   Widget leading(BuildContext context) =>
@@ -60,7 +59,8 @@ class WalletSeedPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final image = getIt.get<SettingsStore>().isDarkTheme ? imageDark : imageLight;
+    final image =
+        getIt.get<SettingsStore>().isDarkTheme ? imageDark : imageLight;
 
     return Container(
         padding: EdgeInsets.all(24),
@@ -93,7 +93,8 @@ class WalletSeedPage extends BasePage {
                                       .color),
                             ),
                             Padding(
-                              padding: EdgeInsets.only(top: 20, left: 16, right: 16),
+                              padding:
+                                  EdgeInsets.only(top: 20, left: 16, right: 16),
                               child: Text(
                                 walletSeedViewModel.seed,
                                 textAlign: TextAlign.center,
@@ -113,58 +114,63 @@ class WalletSeedPage extends BasePage {
                     Column(
                       children: <Widget>[
                         isNewWalletCreated
-                        ? Padding(
-                          padding: EdgeInsets.only(bottom: 52, left: 43, right: 43),
-                          child: Text(
-                            S.of(context).seed_reminder,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.normal,
-                              color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .overline
-                                  .color
-                            ),
-                          ),
-                        )
-                        : Offstage(),
+                            ? Padding(
+                                padding: EdgeInsets.only(
+                                    bottom: 52, left: 43, right: 43),
+                                child: Text(
+                                  S.of(context).seed_reminder,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.normal,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .overline
+                                          .color),
+                                ),
+                              )
+                            : Offstage(),
                         Row(
                           mainAxisSize: MainAxisSize.max,
                           children: <Widget>[
                             Flexible(
                                 child: Container(
-                                  padding: EdgeInsets.only(right: 8.0),
-                                  child: PrimaryButton(
-                                      onPressed: () => Share.text(
-                                          S.of(context).seed_share,
-                                          walletSeedViewModel.seed,
-                                          'text/plain'),
-                                      text: S.of(context).save,
-                                      color: Colors.green,
-                                      textColor: Colors.white),
-                                )),
+                              padding: EdgeInsets.only(right: 8.0),
+                              child: PrimaryButton(
+                                  onPressed: () => Share.text(
+                                      S.of(context).seed_share,
+                                      walletSeedViewModel.seed,
+                                      'text/plain'),
+                                  text: S.of(context).save,
+                                  color: Colors.green,
+                                  textColor: Colors.white),
+                            )),
                             Flexible(
                                 child: Container(
-                                  padding: EdgeInsets.only(left: 8.0),
-                                  child: Builder(
-                                      builder: (context) => PrimaryButton(
-                                          onPressed: () {
-                                            Clipboard.setData(ClipboardData(
-                                                text: walletSeedViewModel.seed));
-                                            Scaffold.of(context).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    S.of(context).copied_to_clipboard),
-                                                backgroundColor: Colors.green,
-                                                duration: Duration(milliseconds: 1500),
-                                              ),
-                                            );
-                                          },
-                                          text: S.of(context).copy,
-                                          color: Theme.of(context).accentTextTheme.body2.color,
-                                          textColor: Colors.white)),
-                                ))
+                              padding: EdgeInsets.only(left: 8.0),
+                              child: Builder(
+                                  builder: (context) => PrimaryButton(
+                                      onPressed: () {
+                                        Clipboard.setData(ClipboardData(
+                                            text: walletSeedViewModel.seed));
+                                        Scaffold.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text(S
+                                                .of(context)
+                                                .copied_to_clipboard),
+                                            backgroundColor: Colors.green,
+                                            duration:
+                                                Duration(milliseconds: 1500),
+                                          ),
+                                        );
+                                      },
+                                      text: S.of(context).copy,
+                                      color: Theme.of(context)
+                                          .accentTextTheme
+                                          .body2
+                                          .color,
+                                      textColor: Colors.white)),
+                            ))
                           ],
                         )
                       ],

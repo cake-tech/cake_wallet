@@ -4,7 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/core/mnemonic_length.dart';
 

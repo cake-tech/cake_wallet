@@ -94,8 +94,8 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor:
-                _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
+            backgroundColor: Colors.transparent);
+                // _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
 
       case AppBarStyle.withShadow:
         return NavBar.withShadow(
@@ -131,7 +131,7 @@ abstract class BasePage extends StatelessWidget {
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
         endDrawer: endDrawer,
         appBar: appBar(context),
-        body: body(context), //SafeArea(child: ),
+        body: body(context),
         floatingActionButton: floatingActionButton(context));
 
     return rootWrapper?.call(context, root) ?? root;
