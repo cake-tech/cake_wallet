@@ -1,9 +1,9 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/src/domain/common/node.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model_state.dart';
+import 'package:cake_wallet/entities/node.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 part 'node_create_or_edit_view_model.g.dart';
 
@@ -12,10 +12,10 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
 
 abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(this._nodeSource, this._wallet)
-      : state = InitialNodeCreateOrEditViewModelState();
+      : state = InitialExecutionState();
 
   @observable
-  NodeCreateOrEditViewModelState state;
+  ExecutionState state;
 
   @observable
   String address;
@@ -59,13 +59,13 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   Future<void> save() async {
     try {
-      state = NodeIsCreating();
+      state = IsExecutingState();
       final node =
           Node(uri: uri, type: _wallet.type, login: login, password: password);
       await _nodeSource.add(node);
-      state = NodeCreatedSuccessfully();
+      state = ExecutedSuccessfullyState();
     } catch (e) {
-      state = NodeCreateOrEditViewModelFailure(e.toString());
+      state = FailureState(e.toString());
     }
   }
 }

@@ -1,18 +1,6 @@
-abstract class AuthState {}
+import 'package:cake_wallet/core/execution_state.dart';
 
-class AuthenticationStateInitial extends AuthState {}
-
-class AuthenticationInProgress extends AuthState {}
-
-class AuthenticatedSuccessfully extends AuthState {}
-
-class AuthenticationFailure extends AuthState {
-  AuthenticationFailure({this.error});
-
-  final String error;
-}
-
-class AuthenticationBanned extends AuthState {
+class AuthenticationBanned extends ExecutionState {
   AuthenticationBanned({this.error});
 
   final String error;

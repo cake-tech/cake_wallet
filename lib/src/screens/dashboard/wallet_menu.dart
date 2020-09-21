@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 

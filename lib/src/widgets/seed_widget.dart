@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
-import 'package:cake_wallet/src/domain/common/mnemonic_item.dart';
+import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/widgets.dart';
 

@@ -1,15 +1,16 @@
 import 'package:bip39/src/wordlists/english.dart' as bitcoin_english;
 import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/src/domain/common/mnemonic_item.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/chinese_simplified.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/dutch.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/english.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/german.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/japanese.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/portuguese.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/russian.dart';
-import 'package:cake_wallet/src/domain/monero/mnemonics/spanish.dart';
+import 'package:cake_wallet/entities/mnemonic_item.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/monero/mnemonics/chinese_simplified.dart';
+import 'package:cake_wallet/monero/mnemonics/dutch.dart';
+import 'package:cake_wallet/monero/mnemonics/english.dart';
+import 'package:cake_wallet/monero/mnemonics/german.dart';
+import 'package:cake_wallet/monero/mnemonics/japanese.dart';
+import 'package:cake_wallet/monero/mnemonics/portuguese.dart';
+import 'package:cake_wallet/monero/mnemonics/russian.dart';
+import 'package:cake_wallet/monero/mnemonics/spanish.dart';
+import 'package:cake_wallet/utils/language_list.dart';
 
 class SeedValidator extends Validator<MnemonicItem> {
   SeedValidator({this.type, this.language})
@@ -31,31 +32,29 @@ class SeedValidator extends Validator<MnemonicItem> {
   }
 
   static List<String> getMoneroWordList(String language) {
-    // FIXME: Unnamed constants; Need to be sure that string are in same case;
-
     switch (language) {
-      case 'English':
+      case LanguageList.english:
         return EnglishMnemonics.words;
         break;
-      case 'Chinese (simplified)':
+      case LanguageList.chineseSimplified:
         return ChineseSimplifiedMnemonics.words;
         break;
-      case 'Dutch':
+      case LanguageList.dutch:
         return DutchMnemonics.words;
         break;
-      case 'German':
+      case LanguageList.german:
         return GermanMnemonics.words;
         break;
-      case 'Japanese':
+      case LanguageList.japanese:
         return JapaneseMnemonics.words;
         break;
-      case 'Portuguese':
+      case LanguageList.portuguese:
         return PortugueseMnemonics.words;
         break;
-      case 'Russian':
+      case LanguageList.russian:
         return RussianMnemonics.words;
         break;
-      case 'Spanish':
+      case LanguageList.spanish:
         return SpanishMnemonics.words;
         break;
       default:
@@ -64,7 +63,7 @@ class SeedValidator extends Validator<MnemonicItem> {
   }
 
   static List<String> getBitcoinWordList(String language) {
-    assert(language.toLowerCase() == 'english');
+    assert(language.toLowerCase() == LanguageList.english.toLowerCase());
     return bitcoin_english.WORDLIST;
   }
 

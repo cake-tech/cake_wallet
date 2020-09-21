@@ -3,18 +3,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/wallet_credentials.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
-import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 class WalletCreationService {
   WalletCreationService(
       {WalletType initialType,
-      this.appStore,
       this.secureStorage,
       this.keyService,
       this.sharedPreferences})
@@ -25,7 +22,6 @@ class WalletCreationService {
   }
 
   WalletType type;
-  final AppStore appStore;
   final FlutterSecureStorage secureStorage;
   final SharedPreferences sharedPreferences;
   final KeyService keyService;
@@ -36,33 +32,27 @@ class WalletCreationService {
     _service = getIt.get<WalletService>(param1: type);
   }
 
-  Future<void> create(WalletCredentials credentials) async {
+  Future<WalletBase> create(WalletCredentials credentials) async {
     final password = generateWalletPassword(type);
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    final wallet = await _service.create(credentials);
-    appStore.wallet = wallet;
-    appStore.authenticationStore.allowed();
+    return await _service.create(credentials);
   }
 
-  Future<void> restoreFromKeys(WalletCredentials credentials) async {
+  Future<WalletBase> restoreFromKeys(WalletCredentials credentials) async {
     final password = generateWalletPassword(type);
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    final wallet = await _service.restoreFromKeys(credentials);
-    appStore.wallet = wallet;
-    appStore.authenticationStore.allowed();
+    return await _service.restoreFromKeys(credentials);
   }
 
-  Future<void> restoreFromSeed(WalletCredentials credentials) async {
+  Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
     final password = generateWalletPassword(type);
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    final wallet = await _service.restoreFromSeed(credentials);
-    appStore.wallet = wallet;
-    appStore.authenticationStore.allowed();
+    return await _service.restoreFromSeed(credentials);
   }
 }

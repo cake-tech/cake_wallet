@@ -1,6 +1,6 @@
-import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 
 class TradeListItem extends ActionListItem {
   TradeListItem({this.trade, this.displayMode});

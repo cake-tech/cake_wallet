@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
+import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class TransactionRow extends StatelessWidget {

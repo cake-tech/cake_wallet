@@ -1,5 +1,6 @@
 import 'dart:ui';
-import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
+// import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -18,7 +19,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/src/screens/send/widgets/sending_alert.dart';
+// import 'package:cake_wallet/src/screens/send/widgets/sending_alert.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/routes.dart';
@@ -473,13 +474,13 @@ class BaseSendWidget extends StatelessWidget {
         return LoadingPrimaryButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                print('SENT!!!');
+
               }
             },
             text: S.of(context).send,
             color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
-            isLoading: sendViewModel.state is TransactionIsCreating ||
+            isLoading: sendViewModel.state is IsExecutingState ||
                 sendViewModel.state is TransactionCommitting,
             isDisabled:
             false // FIXME !(syncStore.status is SyncedSyncStatus),
@@ -530,8 +531,8 @@ class BaseSendWidget extends StatelessWidget {
       }
     });
 
-    reaction((_) => sendViewModel.state, (SendViewModelState state) {
-      if (state is SendingFailed) {
+    reaction((_) => sendViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
               context: context,
@@ -545,7 +546,7 @@ class BaseSendWidget extends StatelessWidget {
         });
       }
 
-      if (state is TransactionCreatedSuccessfully) {
+      if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
               context: context,
@@ -691,19 +692,19 @@ class BaseSendWidget extends StatelessWidget {
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
-    final items = TransactionPriority.all;
-    final selectedItem = items.indexOf(sendViewModel.transactionPriority);
-
-    await showDialog<void>(
-        builder: (_) => Picker(
-          items: items,
-          selectedAtIndex: selectedItem,
-          title: S.of(context).please_select,
-          mainAxisAlignment: MainAxisAlignment.center,
-          onItemSelected: (TransactionPriority priority) => null,
-          // sendViewModel.setTransactionPriority(priority),
-          isAlwaysShowScrollThumb: true,
-        ),
-        context: context);
+    // final items = TransactionPriority.all;
+    // final selectedItem = items.indexOf(sendViewModel.transactionPriority);
+    //
+    // await showDialog<void>(
+    //     builder: (_) => Picker(
+    //       items: items,
+    //       selectedAtIndex: selectedItem,
+    //       title: S.of(context).please_select,
+    //       mainAxisAlignment: MainAxisAlignment.center,
+    //       onItemSelected: (TransactionPriority priority) => null,
+    //       // sendViewModel.setTransactionPriority(priority),
+    //       isAlwaysShowScrollThumb: true,
+    //     ),
+    //     context: context);
   }
 }

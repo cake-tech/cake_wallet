@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';

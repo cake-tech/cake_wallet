@@ -58,16 +58,7 @@ abstract class BitcoinTransactionHistoryBase
     final histories =
         wallet.scriptHashes.map((scriptHash) => eclient.getHistory(scriptHash));
     final _historiesWithDetails = await Future.wait(histories)
-        .then((histories) => histories
-//            .map((h) => h.where((tx) {
-//                  final height = tx['height'] as int ?? 0;
-//                  // FIXME: Filter only needed transactions
-//                  final _tx = get(tx['tx_hash'] as String);
-//
-//                  return height == 0 || height > _height;
-//                }))
-            .expand((i) => i)
-            .toList())
+        .then((histories) => histories.expand((i) => i).toList())
         .then((histories) => histories.map((tx) => fetchTransactionInfo(
             hash: tx['tx_hash'] as String, height: tx['height'] as int)));
     final historiesWithDetails = await Future.wait(_historiesWithDetails);

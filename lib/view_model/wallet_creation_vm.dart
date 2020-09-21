@@ -1,20 +1,22 @@
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_credentials.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/view_model/wallet_creation_state.dart';
+import 'package:cake_wallet/entities/pathForWallet.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/store/app_store.dart';
 
 part 'wallet_creation_vm.g.dart';
 
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._walletInfoSource,
+  WalletCreationVMBase(this._appStore, this._walletInfoSource,
       {@required this.type, @required this.isRecovery}) {
-    state = InitialWalletCreationState();
+    state = InitialExecutionState();
     name = '';
   }
 
@@ -22,17 +24,18 @@ abstract class WalletCreationVMBase with Store {
   String name;
 
   @observable
-  WalletCreationState state;
+  ExecutionState state;
 
   final WalletType type;
-
   final bool isRecovery;
-
   final Box<WalletInfo> _walletInfoSource;
+  final AppStore _appStore;
 
   Future<void> create({dynamic options}) async {
     try {
-      state = WalletCreating();
+      state = IsExecutingState();
+      final dirPath = await pathForWalletDir(name: name, type: type);
+      final path = await pathForWallet(name: name, type: type);
       final credentials = getCredentials(options);
       final walletInfo = WalletInfo.external(
           id: WalletBase.idFor(name, type),
@@ -40,19 +43,23 @@ abstract class WalletCreationVMBase with Store {
           type: type,
           isRecovery: isRecovery,
           restoreHeight: credentials.height ?? 0,
-          date: DateTime.now());
+          date: DateTime.now(),
+          path: path,
+          dirPath: dirPath);
       credentials.walletInfo = walletInfo;
-      await process(credentials);
+      final wallet = await process(credentials);
       await _walletInfoSource.add(walletInfo);
-      state = WalletCreatedSuccessfully();
+      _appStore.wallet = wallet;
+      _appStore.authenticationStore.allowed();
+      state = ExecutedSuccessfullyState();
     } catch (e) {
-      state = WalletCreationFailure(error: e.toString());
+      state = FailureState(e.toString());
     }
   }
 
   WalletCredentials getCredentials(dynamic options) =>
       throw UnimplementedError();
 
-  Future<void> process(WalletCredentials credentials) =>
+  Future<WalletBase> process(WalletCredentials credentials) =>
       throw UnimplementedError();
 }

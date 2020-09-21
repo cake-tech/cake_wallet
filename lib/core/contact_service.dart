@@ -1,6 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/store/contact_list_store.dart';
-import 'package:cake_wallet/src/domain/common/contact.dart';
+import 'package:cake_wallet/entities/contact.dart';
 
 class ContactService {
   ContactService(this.contactSource, this.contactListStore) {

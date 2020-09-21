@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/src/domain/common/balance.dart';
+import 'package:cake_wallet/entities/balance.dart';
 
 class BitcoinBalance extends Balance {
   const BitcoinBalance({@required this.confirmed, @required this.unconfirmed}) : super();

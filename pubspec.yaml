@@ -75,7 +75,6 @@ dev_dependencies:
 # Fix for hive  https://github.com/hivedb/hive/issues/247#issuecomment-606838497
 dependency_overrides:
   dartx: ^0.5.0
-  analyzer: 0.39.14
 
 flutter_icons:
   image_path: "assets/images/app_logo.png"

@@ -13,7 +13,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/view_model/wallet_creation_state.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 
 class NewWalletPage extends BasePage {
@@ -43,7 +43,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
   static const aspectRatioImage = 1.22;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
-  final walletNameLightImage = Image.asset('assets/images/wallet_name_light.png');
+  final walletNameLightImage =
+      Image.asset('assets/images/wallet_name_light.png');
   final _formKey = GlobalKey<FormState>();
   final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
   ReactionDisposer _stateReaction;
@@ -52,12 +53,12 @@ class _WalletNameFormState extends State<WalletNameForm> {
   @override
   void initState() {
     _stateReaction ??=
-        reaction((_) => _walletNewVM.state, (WalletCreationState state) {
-      if (state is WalletCreatedSuccessfully) {
-        Navigator.of(context).popAndPushNamed(Routes.seed, arguments: true);
+        reaction((_) => _walletNewVM.state, (ExecutionState state) {
+      if (state is ExecutedSuccessfullyState) {
+        Navigator.of(context).pushNamed(Routes.seed, arguments: true);
       }
 
-      if (state is WalletCreationFailure) {
+      if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
               context: context,
@@ -77,7 +78,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
   @override
   Widget build(BuildContext context) {
     final walletImage = getIt.get<SettingsStore>().isDarkTheme
-        ? walletNameImage : walletNameLightImage;
+        ? walletNameImage
+        : walletNameLightImage;
 
     return Container(
       padding: EdgeInsets.only(top: 24),
@@ -158,7 +160,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                 text: S.of(context).seed_language_next,
                 color: Colors.green,
                 textColor: Colors.white,
-                isLoading: _walletNewVM.state is WalletCreatedSuccessfully,
+                isLoading: _walletNewVM.state is IsExecutingState,
                 isDisabled: _walletNewVM.name.isEmpty,
               );
             },

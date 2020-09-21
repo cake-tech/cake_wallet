@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/domain/common/contact.dart';
+import 'package:cake_wallet/entities/contact.dart';
 
 part 'contact_list_store.g.dart';
 

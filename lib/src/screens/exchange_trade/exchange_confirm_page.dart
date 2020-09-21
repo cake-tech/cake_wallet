@@ -6,7 +6,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 
 class ExchangeConfirmPage extends BasePage {
   ExchangeConfirmPage({@required this.tradesStore}) : trade = tradesStore.trade;

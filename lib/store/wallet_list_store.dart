@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/domain/common/wallet_description.dart';
+import 'package:cake_wallet/entities/wallet_description.dart';
 
 part 'wallet_list_store.g.dart';
 

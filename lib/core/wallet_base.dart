@@ -1,24 +1,13 @@
 import 'package:flutter/foundation.dart';
-import 'package:cake_wallet/src/domain/common/wallet_info.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/domain/common/sync_status.dart';
-import 'package:cake_wallet/src/domain/common/node.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-
-// FIXME: Move me.
-CryptoCurrency currencyForWalletType(WalletType type) {
-  switch (type) {
-    case WalletType.bitcoin:
-      return CryptoCurrency.btc;
-    case WalletType.monero:
-      return CryptoCurrency.xmr;
-    default:
-      return null;
-  }
-}
+import 'package:cake_wallet/entities/currency_for_wallet_type.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cake_wallet/entities/node.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 abstract class WalletBase<BalaceType> {
   WalletBase(this.walletInfo);
@@ -61,4 +50,6 @@ abstract class WalletBase<BalaceType> {
   double calculateEstimatedFee(TransactionPriority priority);
 
   Future<void> save();
+
+  Future<void> rescan({int height});
 }

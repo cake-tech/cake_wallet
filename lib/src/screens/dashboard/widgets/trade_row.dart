@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 
 class TradeRow extends StatelessWidget {
   TradeRow({

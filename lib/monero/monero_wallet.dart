@@ -1,5 +1,5 @@
-import 'package:cake_wallet/src/domain/common/wallet_info.dart';
-import 'package:cake_wallet/src/domain/monero/monero_transaction_creation_credentials.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/wallet.dart';
@@ -10,12 +10,12 @@ import 'package:cake_wallet/monero/monero_transaction_history.dart';
 import 'package:cake_wallet/monero/monero_subaddress_list.dart';
 import 'package:cake_wallet/monero/monero_account_list.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/src/domain/common/sync_status.dart';
-import 'package:cake_wallet/src/domain/monero/account.dart';
-import 'package:cake_wallet/src/domain/monero/subaddress.dart';
-import 'package:cake_wallet/src/domain/common/node.dart';
+import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cake_wallet/monero/account.dart';
+import 'package:cake_wallet/monero/subaddress.dart';
+import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
-import 'package:cake_wallet/src/domain/common/transaction_priority.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -186,6 +186,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     await walletInfo.save();
   }
 
+  @override
+  Future<void> rescan({int height}) async {
+    // FIXME: Unimplemented
+  }
+
   void _setListeners() {
     _listener?.stop();
     _listener = monero_wallet.setListeners(
@@ -199,7 +204,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     }
 
     final currentHeight = getCurrentHeight();
-    print('currentHeight $currentHeight');
 
     if (currentHeight <= 1) {
       final height = _getHeightByDate(walletInfo.date);
