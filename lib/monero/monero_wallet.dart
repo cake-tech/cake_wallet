@@ -1,20 +1,22 @@
-import 'package:cake_wallet/entities/wallet_info.dart';
-import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/wallet.dart';
 import 'package:cw_monero/wallet.dart' as monero_wallet;
+import 'package:cw_monero/transaction_history.dart' as transaction_history;
+import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
+import 'package:cake_wallet/monero/pending_monero_transaction.dart';
 import 'package:cake_wallet/monero/monero_wallet_keys.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_history.dart';
 import 'package:cake_wallet/monero/monero_subaddress_list.dart';
 import 'package:cake_wallet/monero/monero_account_list.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/subaddress.dart';
-import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 
 part 'monero_wallet.g.dart';
@@ -134,15 +136,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
-    //  final transactionDescription = await transaction_history.createTransaction(
-    //      address: _credentials.address,
-    //      paymentId: _credentials.paymentId,
-    //      amount: _credentials.amount,
-    //      priorityRaw: _credentials.priority.serialize(),
-    //      accountIndex: _account.value.id);
+    final pendingTransactionDescription =
+        await transaction_history.createTransaction(
+            address: _credentials.address,
+            paymentId: _credentials.paymentId,
+            amount: _credentials.amount,
+            priorityRaw: _credentials.priority.serialize(),
+            accountIndex: account.id);
 
-    //  return PendingTransaction.fromTransactionDescription(
-    //      transactionDescription);
+    return PendingMoneroTransaction(pendingTransactionDescription);
   }
 
   @override
@@ -243,8 +245,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     }
   }
 
-  void _askForUpdateTransactionHistory() =>
-      null; // await getHistory().update();
+  void _askForUpdateTransactionHistory() => transactionHistory.updateAsync();
 
   int _getFullBalance() =>
       monero_wallet.getFullBalance(accountIndex: account.id);
