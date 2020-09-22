@@ -6,7 +6,7 @@ import 'package:cake_wallet/themes.dart';
 import 'package:cake_wallet/theme_changer.dart';
 import 'package:cake_wallet/palette.dart';
 
-enum AppBarStyle { regular, withShadow }
+enum AppBarStyle { regular, withShadow, transparent }
 
 abstract class BasePage extends StatelessWidget {
   String get title => null;
@@ -20,6 +20,8 @@ abstract class BasePage extends StatelessWidget {
   Color get titleColor => null;
 
   bool get resizeToAvoidBottomPadding => true;
+
+  bool get extendBodyBehindAppBar => false;
 
   Widget get endDrawer => null;
 
@@ -85,6 +87,8 @@ abstract class BasePage extends StatelessWidget {
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final _themeChanger = Provider.of<ThemeChanger>(context);
     final _isDarkTheme = _themeChanger.getTheme() == Themes.darkTheme;
+    final appBarColor = _isDarkTheme
+                        ? backgroundDarkColor : backgroundLightColor;
 
     switch (appBarStyle) {
       case AppBarStyle.regular:
@@ -93,8 +97,7 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor:
-                _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
+            backgroundColor: appBarColor);
 
       case AppBarStyle.withShadow:
         return NavBar.withShadow(
@@ -102,8 +105,16 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor:
-                _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
+            backgroundColor: appBarColor);
+
+      case AppBarStyle.transparent:
+        return CupertinoNavigationBar(
+          leading: leading(context),
+          middle: middle(context),
+          trailing: trailing(context),
+          backgroundColor: Colors.transparent,
+          border: null,
+        );
 
       default:
         return NavBar(
@@ -111,8 +122,7 @@ abstract class BasePage extends StatelessWidget {
             leading: leading(context),
             middle: middle(context),
             trailing: trailing(context),
-            backgroundColor:
-                _isDarkTheme ? backgroundDarkColor : backgroundLightColor);
+            backgroundColor: appBarColor);
     }
   }
 
@@ -128,6 +138,7 @@ abstract class BasePage extends StatelessWidget {
         backgroundColor:
             _isDarkTheme ? backgroundDarkColor : backgroundLightColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
+        extendBodyBehindAppBar: extendBodyBehindAppBar,
         endDrawer: endDrawer,
         appBar: appBar(context),
         body: body(context), //SafeArea(child: ),
