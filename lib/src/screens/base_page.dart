@@ -75,6 +75,7 @@ abstract class BasePage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
+                fontFamily: 'Poppins',
                 color: titleColor ??
                        Theme.of(context).primaryTextTheme.title.color),
           );
