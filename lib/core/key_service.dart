@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:cake_wallet/src/domain/common/secret_store_key.dart';
-import 'package:cake_wallet/src/domain/common/encrypt.dart';
+import 'package:cake_wallet/entities/secret_store_key.dart';
+import 'package:cake_wallet/entities/encrypt.dart';
 
 class KeyService {
   KeyService(this._secureStorage);

@@ -7,7 +7,7 @@ import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -109,8 +109,8 @@ abstract class WalletAddressListViewModelBase with Store {
     return addressList;
   }
 
-  set address(WalletAddressListItem address) =>
-      _wallet.address = address.address;
+  set address(WalletAddressListItem address) => null;
+  // _wallet.address = address.address;
 
   bool hasAccounts;
 

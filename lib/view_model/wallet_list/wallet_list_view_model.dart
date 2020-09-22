@@ -1,13 +1,11 @@
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
-import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
-import 'package:cake_wallet/src/domain/common/wallet_info.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -31,27 +29,16 @@ abstract class WalletListViewModelBase with Store {
   Future<void> loadWallet(WalletListItem wallet) async {
     final password =
         await _keyService.getWalletPassword(walletName: wallet.name);
-    final walletService = _getWalletService(wallet.type);
+    final walletService = getIt.get<WalletService>();
     _appStore.wallet = await walletService.openWallet(wallet.name, password);
   }
 
   @action
   Future<void> remove(WalletListItem wallet) async {
-    final walletService = _getWalletService(wallet.type);
+    final walletService = getIt.get<WalletService>();
     await walletService.remove(wallet.name);
     await _walletInfoSource.delete(wallet.key);
     _updateList();
-  }
-
-  WalletService _getWalletService(WalletType type) {
-    switch (type) {
-      case WalletType.monero:
-        return MoneroWalletService();
-      case WalletType.bitcoin:
-        return BitcoinWalletService();
-      default:
-        return null;
-    }
   }
 
   void _updateList() {

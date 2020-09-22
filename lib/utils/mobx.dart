@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
@@ -7,7 +6,7 @@ mixin Keyable {
   dynamic keyIndex;
 }
 
-void connectDifferent<T extends Keyable, Y extends Keyable>(
+void connectWithTransform<T extends Keyable, Y extends Keyable>(
     ObservableList<T> source, ObservableList<Y> dest, Y Function(T) transform,
     {bool Function(T) filter}) {
   source.observe((ListChange<T> change) {
@@ -34,6 +33,36 @@ void connectDifferent<T extends Keyable, Y extends Keyable>(
           break;
       }
     });
+  });
+}
+
+void connectMapToListWithTransform<T extends Keyable, Y extends Keyable>(
+    ObservableMap<dynamic, T> source,
+    ObservableList<Y> dest,
+    Y Function(T) transform,
+    {bool Function(T) filter}) {
+  source.observe((MapChange<dynamic, T> change) {
+    switch (change.type) {
+      case OperationType.add:
+        if (filter?.call(change.newValue) ?? true) {
+          dest.add(transform(change.newValue));
+        }
+        break;
+      case OperationType.remove:
+        // Hive could has equal index and key
+        dest.removeWhere(
+            (elem) => elem.keyIndex == (change.key ?? change.newValue.keyIndex));
+        break;
+      case OperationType.update:
+        for (var i = 0; i < dest.length; i++) {
+          final item = dest[i];
+
+          if (item.keyIndex == change.key) {
+            dest[i] = transform(change.newValue);
+          }
+        }
+        break;
+    }
   });
 }
 

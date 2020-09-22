@@ -3,8 +3,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cw_monero/transaction_history.dart'
     as monero_transaction_history;
 import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/src/domain/common/transaction_info.dart';
-import 'package:cake_wallet/src/domain/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/monero/monero_transaction_info.dart';
 
 part 'monero_transaction_history.g.dart';
 
@@ -35,6 +34,7 @@ abstract class MoneroTransactionHistoryBase
   }
 
   @override
+  @action
   void updateAsync({void Function() onFinished}) {
     fetchTransactionsAsync(
         (transaction) => transactions[transaction.id] = transaction,
@@ -44,5 +44,9 @@ abstract class MoneroTransactionHistoryBase
   @override
   void fetchTransactionsAsync(
       void Function(MoneroTransactionInfo transaction) onTransactionLoaded,
-      {void Function() onFinished}) {}
+      {void Function() onFinished}) async {
+    final transactions = await fetchTransactions();
+    transactions.values.forEach((tx) => onTransactionLoaded(tx));
+    onFinished?.call();
+  }
 }

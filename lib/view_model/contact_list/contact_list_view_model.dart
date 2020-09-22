@@ -1,10 +1,9 @@
 import 'dart:async';
-
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/contact_service.dart';
 import 'package:cake_wallet/store/contact_list_store.dart';
-import 'package:cake_wallet/src/domain/common/contact.dart';
+import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 
 part 'contact_list_view_model.g.dart';

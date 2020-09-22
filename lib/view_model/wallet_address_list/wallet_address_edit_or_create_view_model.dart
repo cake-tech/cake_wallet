@@ -24,14 +24,13 @@ class AddressEditOrCreateStateFailure extends AddressEditOrCreateState {
 }
 
 abstract class WalletAddressEditOrCreateViewModelBase with Store {
-  WalletAddressEditOrCreateViewModelBase({@required WalletBase wallet, dynamic item})
+  WalletAddressEditOrCreateViewModelBase(
+      {@required WalletBase wallet, dynamic item})
       : isEdit = item != null,
         state = AddressEditOrCreateStateInitial(),
         label = item?.name as String,
         _item = item,
         _wallet = wallet;
-
-  dynamic _item;
 
   @observable
   AddressEditOrCreateState state;
@@ -41,11 +40,10 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
 
   bool isEdit;
 
+  final dynamic _item;
   final WalletBase _wallet;
 
   Future<void> save() async {
-    final wallet = _wallet;
-
     try {
       state = AddressIsSaving();
 

@@ -168,8 +168,10 @@
   "restore_bitcoin_description_from_seed" : "12ワードの組み合わせコードからウォレットを復元する",
   "restore_bitcoin_description_from_keys" : "秘密鍵から生成されたWIF文字列からウォレットを復元します",
   "restore_bitcoin_title_from_keys" : "WIFから復元",
+  "restore_from_date_or_blockheight" : "このウォレットを作成した日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください",
 
 
+  "seed_reminder" : "スマートフォンを紛失したりワイプした場合に備えて、これらを書き留めてください",
   "seed_title" : "シード",
   "seed_share" : "シードを共有する",
   "copy" : "コピー",

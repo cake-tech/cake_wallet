@@ -168,8 +168,10 @@
   "restore_bitcoin_description_from_seed" : "12 단어 조합 코드에서 지갑 복원",
   "restore_bitcoin_description_from_keys" : "개인 키에서 생성 된 WIF 문자열에서 지갑 복원",
   "restore_bitcoin_title_from_keys" : "WIF에서 복원",
+  "restore_from_date_or_blockheight" : "이 지갑을 만든 날짜를 입력하세요. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.",
 
 
+  "seed_reminder" : "휴대 전화를 분실하거나 닦을 경우를 대비해 적어 두세요.",
   "seed_title" : "씨",
   "seed_share" : "시드 공유",
   "copy" : "부",

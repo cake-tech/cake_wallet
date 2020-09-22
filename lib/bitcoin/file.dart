@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:cake_wallet/bitcoin/key.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:flutter/foundation.dart';
@@ -28,14 +27,13 @@ Future<void> writeData(
   f.writeAsStringSync(encrypted);
 }
 
-Future<String> read(
-    {@required String path, @required String password}) async {
+Future<String> read({@required String path, @required String password}) async {
   final file = File(path);
 
   if (!file.existsSync()) {
     file.createSync();
   }
-  
+
   final encrypted = file.readAsStringSync();
 
   return decode(password: password, data: encrypted);

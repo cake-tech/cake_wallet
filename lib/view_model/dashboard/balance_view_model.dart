@@ -1,11 +1,11 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
-import 'package:cake_wallet/src/domain/common/balance_display_mode.dart';
-import 'package:cake_wallet/src/domain/common/calculate_fiat_amount.dart';
+import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/view_model/dashboard/wallet_balance.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 
@@ -22,7 +22,7 @@ abstract class BalanceViewModelBase with Store {
 
   final WalletBase wallet;
   final SettingsStore settingsStore;
-  final FiatConvertationStore fiatConvertationStore;
+  final FiatConversionStore fiatConvertationStore;
 
   WalletBalance _getWalletBalance() {
     final _wallet = wallet;

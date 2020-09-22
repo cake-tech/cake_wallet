@@ -1,16 +1,24 @@
+import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/core/contact_service.dart';
-import 'package:cake_wallet/src/domain/common/contact.dart';
-import 'package:cake_wallet/src/domain/common/node.dart';
-import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:cake_wallet/core/wallet_service.dart';
+import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/monero/monero_wallet_service.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/node.dart';
+import 'package:cake_wallet/exchange/trade.dart';
+
+// import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
+import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
+import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -20,7 +28,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
-import 'package:cake_wallet/src/domain/common/wallet_info.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -38,6 +46,8 @@ import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/rescan_view_model.dart';
+import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -52,6 +62,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -61,50 +72,19 @@ import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
-import 'package:cake_wallet/store/dashboard/fiat_convertation_store.dart';
+import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
-import 'package:cake_wallet/src/domain/common/template.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
 
 final getIt = GetIt.instance;
-
-// FIXME: Move me.
-
-Stream<BoxEvent> _onNodesSourceChange;
-NodeListStore _nodeListStore;
-
-NodeListStore setupNodeListStore(Box<Node> nodeSource) {
-  if (_nodeListStore != null) {
-    return _nodeListStore;
-  }
-
-  _nodeListStore = NodeListStore();
-  _nodeListStore.replaceValues(nodeSource.values);
-  _onNodesSourceChange = nodeSource.watch();
-  _onNodesSourceChange.listen((event) {
-//    print(event);
-
-    if (event.deleted) {
-      _nodeListStore.nodes.removeWhere((n) {
-        return n.key != null ? n.key == event.key : true;
-      });
-    }
-
-    if (event.value is Node) {
-      final val = event.value as Node;
-      _nodeListStore.nodes.add(val);
-    }
-  });
-
-  return _nodeListStore;
-}
 
 Future setup(
     {Box<WalletInfo> walletInfoSource,
@@ -118,11 +98,13 @@ Future setup(
 
   final settingsStore = await SettingsStoreBase.load(nodeSource: nodeSource);
 
+  getIt.registerSingleton<Box<Node>>(nodeSource);
+
   getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
   getIt.registerSingleton(ContactListStore());
-  getIt.registerSingleton(setupNodeListStore(nodeSource));
+  getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
   getIt.registerSingleton<AppStore>(AppStore(
       authenticationStore: getIt.get<AuthenticationStore>(),
@@ -136,7 +118,7 @@ Future setup(
       tradesSource: tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
-  getIt.registerSingleton<FiatConvertationStore>(FiatConvertationStore());
+  getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
   getIt.registerSingleton<SendTemplateStore>(
       SendTemplateStore(templateSource: templates));
   getIt.registerSingleton<ExchangeTemplateStore>(
@@ -148,13 +130,12 @@ Future setup(
   getIt.registerFactoryParam<WalletCreationService, WalletType, void>(
       (type, _) => WalletCreationService(
           initialType: type,
-          appStore: getIt.get<AppStore>(),
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>()));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
-      WalletNewVM(
+      WalletNewVM(getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: type), walletInfoSource,
           type: type));
 
@@ -164,7 +145,7 @@ Future setup(
     final language = args[1] as String;
     final mnemonic = args[2] as String;
 
-    return WalletRestorationFromSeedVM(
+    return WalletRestorationFromSeedVM(getIt.get<AppStore>(),
         getIt.get<WalletCreationService>(param1: type), walletInfoSource,
         type: type, language: language, seed: mnemonic);
   });
@@ -174,7 +155,7 @@ Future setup(
     final type = args.first as WalletType;
     final language = args[1] as String;
 
-    return WalletRestorationFromKeysVM(
+    return WalletRestorationFromKeysVM(getIt.get<AppStore>(),
         getIt.get<WalletCreationService>(param1: type), walletInfoSource,
         type: type, language: language);
   });
@@ -185,7 +166,7 @@ Future setup(
   getIt.registerFactory(() => BalanceViewModel(
       wallet: getIt.get<AppStore>().wallet,
       settingsStore: getIt.get<SettingsStore>(),
-      fiatConvertationStore: getIt.get<FiatConvertationStore>()));
+      fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
       balanceViewModel: getIt.get<BalanceViewModel>(),
@@ -199,38 +180,24 @@ Future setup(
       sharedPreferences: getIt.get<SharedPreferences>()));
 
   getIt.registerFactory<AuthViewModel>(() => AuthViewModel(
-      authService: getIt.get<AuthService>(),
-      sharedPreferences: getIt.get<SharedPreferences>()));
+      getIt.get<AuthService>(),
+      getIt.get<SharedPreferences>(),
+      getIt.get<SettingsStore>(),
+      BiometricAuth()));
 
   getIt.registerFactory<AuthPage>(
-      () => AuthPage(
-          allowBiometricalAuthentication: getIt
-              .get<AppStore>()
-              .settingsStore
-              .allowBiometricalAuthentication,
-          authViewModel: getIt.get<AuthViewModel>(),
-          onAuthenticationFinished: (isAuthenticated, __) {
+      () => AuthPage(getIt.get<AuthViewModel>(),
+              onAuthenticationFinished: (isAuthenticated, __) {
             if (isAuthenticated) {
               getIt.get<AuthenticationStore>().allowed();
             }
-          },
-          closable: false),
+          }, closable: false),
       instanceName: 'login');
 
   getIt
       .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), void>(
-          (onAuthFinished, _) {
-    final allowBiometricalAuthentication =
-        getIt.get<AppStore>().settingsStore.allowBiometricalAuthentication;
-
-    print('allowBiometricalAuthentication $allowBiometricalAuthentication');
-
-    return AuthPage(
-        allowBiometricalAuthentication: allowBiometricalAuthentication,
-        authViewModel: getIt.get<AuthViewModel>(),
-        onAuthenticationFinished: onAuthFinished,
-        closable: false);
-  });
+          (onAuthFinished, _) => AuthPage(getIt.get<AuthViewModel>(),
+              onAuthenticationFinished: onAuthFinished, closable: false));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
       walletViewModel: getIt.get<DashboardViewModel>(),
@@ -252,13 +219,13 @@ Future setup(
   getIt.registerFactory<SendViewModel>(() => SendViewModel(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
-      getIt.get<FiatConvertationStore>()));
+      getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(
-           () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
+      () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       walletInfoSource, getIt.get<AppStore>(), getIt.get<KeyService>()));
@@ -305,10 +272,10 @@ Future setup(
   getIt
       .registerFactory(() => WalletSeedViewModel(getIt.get<AppStore>().wallet));
 
-  getIt.registerFactoryParam<WalletSeedPage, VoidCallback, void>(
-      (VoidCallback callback, _) => WalletSeedPage(
+  getIt.registerFactoryParam<WalletSeedPage, bool, void>(
+      (bool isWalletCreated, _) => WalletSeedPage(
           getIt.get<WalletSeedViewModel>(),
-          onCloseCallback: callback));
+          isNewWalletCreated: isWalletCreated));
 
   getIt
       .registerFactory(() => WalletKeysViewModel(getIt.get<AppStore>().wallet));
@@ -367,6 +334,35 @@ Future setup(
 
   getIt.registerFactory(
       () => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
+
+  getIt.registerFactory(() => MoneroWalletService(walletInfoSource));
+
+  getIt.registerFactory(() => BitcoinWalletService());
+
+  getIt.registerFactoryParam<WalletService, WalletType, void>(
+      (WalletType param1, __) {
+    switch (param1) {
+      case WalletType.monero:
+        return getIt.get<MoneroWalletService>();
+      case WalletType.bitcoin:
+        return getIt.get<BitcoinWalletService>();
+      default:
+        return null;
+    }
+  });
+
+  getIt.registerFactory<SetupPinCodeViewModel>(() => SetupPinCodeViewModel(
+      getIt.get<AuthService>(), getIt.get<SettingsStore>()));
+
+  getIt.registerFactoryParam<SetupPinCodePage,
+          void Function(BuildContext, String), void>(
+      (onSuccessfulPinSetup, _) => SetupPinCodePage(
+          getIt.get<SetupPinCodeViewModel>(),
+          onSuccessfulPinSetup: onSuccessfulPinSetup));
+
+  getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet));
+
+  getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
 }
 
 void setupThemeChangerStore(ThemeChanger themeChanger) {

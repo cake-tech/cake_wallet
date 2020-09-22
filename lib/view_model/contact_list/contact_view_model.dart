@@ -1,10 +1,10 @@
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/contact_service.dart';
-import 'package:cake_wallet/src/domain/common/contact.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/view_model/contact_list/contact_view_model_state.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
 
 part 'contact_view_model.g.dart';
 
@@ -12,7 +12,7 @@ class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
   ContactViewModelBase(this._contacts, this._wallet, {Contact contact})
-      : state = InitialContactViewModelState(),
+      : state = InitialExecutionState(),
         currencies = CryptoCurrency.all,
         _contact = contact {
     name = _contact?.name;
@@ -21,7 +21,7 @@ abstract class ContactViewModelBase with Store {
   }
 
   @observable
-  ContactViewModelState state;
+  ExecutionState state;
 
   @observable
   String name;
@@ -39,7 +39,6 @@ abstract class ContactViewModelBase with Store {
       (address?.isNotEmpty ?? false);
 
   final List<CryptoCurrency> currencies;
-  // final ContactService _contactService;
   final WalletBase _wallet;
   final Box<Contact> _contacts;
   final Contact _contact;
@@ -48,30 +47,26 @@ abstract class ContactViewModelBase with Store {
   void reset() {
     address = '';
     name = '';
-    //currency = _wallet.currency;
     currency = null;
   }
 
   Future save() async {
     try {
-      state = ContactIsCreating();
+      state = IsExecutingState();
 
       if (_contact != null) {
         _contact.name = name;
         _contact.address = address;
         _contact.updateCryptoCurrency(currency: currency);
         await _contacts.put(_contact.key, _contact);
-        // await _contactService.update(_contact);
       } else {
         await _contacts
             .add(Contact(name: name, address: address, type: currency));
-        // await _contactService
-        //     .add(Contact(name: name, address: address, type: currency));
       }
 
-      state = ContactSavingSuccessfully();
+      state = ExecutedSuccessfullyState();
     } catch (e) {
-      state = ContactCreationFailure(e.toString());
+      state = FailureState(e.toString());
     }
   }
 }

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:mobx/mobx.dart';
 import 'package:hive/hive.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_template.dart';
+import 'package:cake_wallet/exchange/exchange_template.dart';
 
 part 'exchange_template_store.g.dart';
 

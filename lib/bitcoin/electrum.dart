@@ -40,6 +40,7 @@ class ElectrumClient {
         _tasks = {};
 
   static const connectionTimeout = Duration(seconds: 5);
+  static const aliveTimerDuration = Duration(seconds: 2);
 
   bool get isConnected => _isConnected;
   Socket socket;
@@ -97,8 +98,7 @@ class ElectrumClient {
 
   void keepAlive() {
     _aliveTimer?.cancel();
-    // FIXME: Unnamed constant.
-    _aliveTimer = Timer.periodic(Duration(seconds: 2), (_) async => ping());
+    _aliveTimer = Timer.periodic(aliveTimerDuration, (_) async => ping());
   }
 
   Future<void> ping() async {

@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/domain/monero/account.dart';
+import 'package:cake_wallet/monero/account.dart';
 import 'package:cw_monero/account_list.dart' as account_list;
 
 part 'monero_account_list.g.dart';
