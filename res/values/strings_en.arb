@@ -168,8 +168,10 @@
   "restore_bitcoin_description_from_seed" : "Restore your wallet from 12 word combination code",
   "restore_bitcoin_description_from_keys" : "Restore your wallet from generated WIF string from your private keys",
   "restore_bitcoin_title_from_keys" : "Restore from WIF",
+  "restore_from_date_or_blockheight" : "Please enter the date you created this wallet. Or if you know the blockheight, please enter it instead",
 
 
+  "seed_reminder" : "Please write these down in case you lose or wipe your phone",
   "seed_title" : "Seed",
   "seed_share" : "Share seed",
   "copy" : "Copy",

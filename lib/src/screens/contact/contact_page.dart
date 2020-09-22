@@ -6,9 +6,9 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/contact_name_validator.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
-import 'package:cake_wallet/view_model/contact_list/contact_view_model_state.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -48,12 +48,12 @@ class ContactPage extends BasePage {
     final downArrow = Image.asset('assets/images/arrow_bottom_purple_icon.png',
         color: Theme.of(context).primaryTextTheme.overline.color, height: 8);
 
-    reaction((_) => contactViewModel.state, (ContactViewModelState state) {
-      if (state is ContactCreationFailure) {
+    reaction((_) => contactViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
         _onContactSavingFailure(context, state.error);
       }
 
-      if (state is ContactSavingSuccessfully) {
+      if (state is ExecutedSuccessfullyState) {
         _onContactSavedSuccessfully(context);
       }
     });
@@ -115,7 +115,7 @@ class ContactPage extends BasePage {
                     _addressController.text = '';
                   },
                   text: S.of(context).reset,
-                  color: Colors.red,
+                  color: Colors.orange,
                   textColor: Colors.white),
             ),
             SizedBox(width: 20),
@@ -130,7 +130,7 @@ class ContactPage extends BasePage {
                           await contactViewModel.save();
                         },
                         text: S.of(context).save,
-                        color: Palette.blueCraiola,
+                        color: Theme.of(context).accentTextTheme.body2.color,
                         textColor: Colors.white,
                         isDisabled: !contactViewModel.isReady)))
           ],

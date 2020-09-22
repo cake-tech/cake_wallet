@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
@@ -49,7 +48,7 @@ class WalletMenu {
         Navigator.of(context).pushNamed(Routes.auth,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
                 isAuthenticatedSuccessfully
-                    ? Navigator.of(auth.context).popAndPushNamed(Routes.seed)
+                    ? Navigator.of(auth.context).popAndPushNamed(Routes.seed, arguments: false)
                     : null);
 
         break;
@@ -79,13 +78,13 @@ class WalletMenu {
           return AlertWithTwoActions(
               alertTitle: S.of(context).reconnection,
               alertContent: S.of(context).reconnect_alert_text,
-              leftButtonText: S.of(context).ok,
-              rightButtonText: S.of(context).cancel,
-              actionLeftButton: () async {
+              rightButtonText: S.of(context).ok,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () async {
                 await reconnect?.call();
                 Navigator.of(context).pop();
               },
-              actionRightButton: () => Navigator.of(context).pop());
+              actionLeftButton: () => Navigator.of(context).pop());
         });
   }
 }

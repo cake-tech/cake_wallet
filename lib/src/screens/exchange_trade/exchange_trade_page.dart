@@ -1,6 +1,6 @@
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
-import 'package:cake_wallet/src/domain/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
@@ -12,10 +12,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/stores/exchange_trade/exchange_trade_store.dart';
-import 'package:cake_wallet/src/stores/send/send_store.dart';
-import 'package:cake_wallet/src/stores/send/sending_state.dart';
-import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
+// import 'package:cake_wallet/src/stores/exchange_trade/exchange_trade_store.dart';
+// import 'package:cake_wallet/src/stores/send/send_store.dart';
+// import 'package:cake_wallet/src/stores/send/sending_state.dart';
+// import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart';
@@ -220,7 +220,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         bottomSection: PrimaryButton(
           onPressed: () {},
           text: S.of(context).confirm,
-          color: Palette.blueCraiola,
+          color: Theme.of(context).accentTextTheme.body2.color,
           textColor: Colors.white
         )
         /*Observer(

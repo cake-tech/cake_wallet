@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/domain/common/transaction_info.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 
 abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
   TransactionHistoryBase() : _isUpdating = false;
@@ -10,15 +10,17 @@ abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
 
   bool _isUpdating;
 
+  @action
   Future<void> update() async {
     if (_isUpdating) {
       return;
     }
 
     try {
-      _isUpdating = false;
-      transactions.addAll(await fetchTransactions());
       _isUpdating = true;
+      final _transactions = await fetchTransactions();
+      _transactions.forEach((key, value) => transactions[key] = value);
+      _isUpdating = false;
     } catch (e) {
       _isUpdating = false;
       rethrow;

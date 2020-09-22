@@ -1,10 +1,9 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/view_model/wallet_creation_state.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -47,12 +46,12 @@ class _RestoreFromSeedDetailsFormState
   @override
   void initState() {
     _stateReaction = reaction((_) => widget.walletRestorationFromSeedVM.state,
-        (WalletCreationState state) {
-      if (state is WalletCreatedSuccessfully) {
+        (ExecutionState state) {
+      if (state is ExecutedSuccessfullyState) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
 
-      if (state is WalletCreationFailure) {
+      if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
               context: context,
@@ -101,13 +100,26 @@ class _RestoreFromSeedDetailsFormState
                 ))
               ],
             ),
-            if (widget.walletRestorationFromSeedVM.hasRestorationHeight)
+            if (widget.walletRestorationFromSeedVM.hasRestorationHeight) ... [
               BlockchainHeightWidget(
                   key: _blockchainHeightKey,
                   onHeightChange: (height) {
                     widget.walletRestorationFromSeedVM.height = height;
                     print(height);
                   }),
+              Padding(
+                padding: EdgeInsets.only(left: 40, right: 40, top: 24),
+                child: Text(
+                  S.of(context).restore_from_date_or_blockheight,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).hintColor
+                  ),
+                ),
+              )
+            ]
           ]),
         ),
         bottomSectionPadding: EdgeInsets.only(bottom: 24),
@@ -119,9 +131,9 @@ class _RestoreFromSeedDetailsFormState
               }
             },
             isLoading:
-                widget.walletRestorationFromSeedVM.state is WalletCreating,
+                widget.walletRestorationFromSeedVM.state is IsExecutingState,
             text: S.of(context).restore_recover,
-            color: Palette.blueCraiola,
+            color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
             isDisabled: _nameController.text.isNotEmpty,
           );

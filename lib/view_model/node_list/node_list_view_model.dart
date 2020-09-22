@@ -1,15 +1,14 @@
-import 'package:cake_wallet/utils/item_cell.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/src/domain/common/node.dart';
-import 'package:cake_wallet/src/domain/common/node_list.dart';
+import 'package:cake_wallet/entities/node.dart';
+import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/src/domain/common/default_settings_migration.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cake_wallet/utils/item_cell.dart';
 
 part 'node_list_view_model.g.dart';
 
@@ -25,7 +24,7 @@ abstract class NodeListViewModelBase with Store {
     nodes.addAll(values.where((Node node) => node.type == _wallet.type).map(
         (Node val) => ItemCell<Node>(val,
             isSelected: val.key == currentNode.key, key: val.key)));
-    connectDifferent(
+    connectWithTransform(
         _nodeListStore.nodes,
         nodes,
         (Node val) => ItemCell<Node>(val,

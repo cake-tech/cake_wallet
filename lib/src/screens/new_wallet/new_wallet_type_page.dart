@@ -1,5 +1,5 @@
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/src/domain/common/wallet_type.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,7 +38,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   static const aspectRatioImage = 1.22;
 
   final moneroIcon =
-      Image.asset('assets/images/monero.png', height: 24, width: 24);
+      Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon =
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');

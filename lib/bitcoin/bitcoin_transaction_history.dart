@@ -9,8 +9,6 @@ import 'package:cake_wallet/bitcoin/electrum.dart';
 
 part 'bitcoin_transaction_history.g.dart';
 
-// TODO: Think about another transaction store for bitcoin transaction history..
-
 const _transactionsHistoryFileName = 'transactions.json';
 
 class BitcoinTransactionHistory = BitcoinTransactionHistoryBase
@@ -60,16 +58,7 @@ abstract class BitcoinTransactionHistoryBase
     final histories =
         wallet.scriptHashes.map((scriptHash) => eclient.getHistory(scriptHash));
     final _historiesWithDetails = await Future.wait(histories)
-        .then((histories) => histories
-//            .map((h) => h.where((tx) {
-//                  final height = tx['height'] as int ?? 0;
-//                  // FIXME: Filter only needed transactions
-//                  final _tx = get(tx['tx_hash'] as String);
-//
-//                  return height == 0 || height > _height;
-//                }))
-            .expand((i) => i)
-            .toList())
+        .then((histories) => histories.expand((i) => i).toList())
         .then((histories) => histories.map((tx) => fetchTransactionInfo(
             hash: tx['tx_hash'] as String, height: tx['height'] as int)));
     final historiesWithDetails = await Future.wait(_historiesWithDetails);

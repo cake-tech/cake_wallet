@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/src/domain/common/sync_status.dart';
+import 'package:cake_wallet/entities/sync_status.dart';
 
 class SyncIndicator extends StatelessWidget {
   SyncIndicator({@required this.dashboardViewModel});

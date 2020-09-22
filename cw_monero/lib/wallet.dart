@@ -254,12 +254,12 @@ class SyncListner {
         onNewBlock(syncHeight, left, ptc);
       }
 
-      if (newTransactionExist && onNewTransaction != null) {
-        onNewTransaction();
+      if (newTransactionExist) {
+        onNewTransaction?.call();
       }
 
-      if (needToRefresh && onNeedToRefresh != null) {
-        onNeedToRefresh();
+      if (needToRefresh) {
+        onNeedToRefresh?.call();
       }
     });
   }

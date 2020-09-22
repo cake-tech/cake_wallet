@@ -1,22 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
+import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/src/domain/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/src/domain/common/transaction_direction.dart';
-import 'package:cake_wallet/src/domain/common/transaction_info.dart';
-import 'package:cake_wallet/src/domain/common/format_amount.dart';
+import 'package:cake_wallet/entities/transaction_direction.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cake_wallet/entities/format_amount.dart';
 
 class BitcoinTransactionInfo extends TransactionInfo {
   BitcoinTransactionInfo(
-      {@required this.id,
+      {@required String id,
       @required int height,
       @required int amount,
       @required TransactionDirection direction,
       @required bool isPending,
       @required DateTime date,
       @required int confirmations}) {
+    this.id = id;
     this.height = height;
     this.amount = amount;
     this.direction = direction;
@@ -97,7 +97,6 @@ class BitcoinTransactionInfo extends TransactionInfo {
         ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
         : DateTime.now();
 
-    // FIXME: Get transaction is pending
     return BitcoinTransactionInfo(
         id: tx.getId(),
         height: height,
@@ -118,8 +117,6 @@ class BitcoinTransactionInfo extends TransactionInfo {
         isPending: data['isPending'] as bool,
         confirmations: data['confirmations'] as int);
   }
-
-  final String id;
 
   String _fiatAmount;
 
