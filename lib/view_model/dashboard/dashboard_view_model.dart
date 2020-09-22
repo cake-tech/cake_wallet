@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
@@ -82,6 +83,15 @@ abstract class DashboardViewModelBase with Store {
             displayMode: balanceDisplayMode)));
 
     _reaction = reaction((_) => appStore.wallet, _onWalletChange);
+    // FIXME: fixme
+    connectMapToListWithTransform(
+        appStore.wallet.transactionHistory.transactions,
+        transactions,
+        (TransactionInfo val) => TransactionListItem(
+            transaction: val,
+            price: price,
+            fiatCurrency: appStore.settingsStore.fiatCurrency,
+            displayMode: balanceDisplayMode));
 
     final _wallet = wallet;
 

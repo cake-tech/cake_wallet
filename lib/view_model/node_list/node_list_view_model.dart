@@ -24,7 +24,7 @@ abstract class NodeListViewModelBase with Store {
     nodes.addAll(values.where((Node node) => node.type == _wallet.type).map(
         (Node val) => ItemCell<Node>(val,
             isSelected: val.key == currentNode.key, key: val.key)));
-    connectDifferent(
+    connectWithTransform(
         _nodeListStore.nodes,
         nodes,
         (Node val) => ItemCell<Node>(val,
