@@ -126,14 +126,6 @@ class DashboardPage extends BasePage {
                     route: Routes.exchange
                 ),
               ),
-              Flexible(
-                child: ActionButton(
-                  image: receiveImage,
-                  title: S.of(context).receive,
-                  route: Routes.receive,
-                  alignment: Alignment.centerRight,
-                ),
-              )
             ],
           ),
         )
