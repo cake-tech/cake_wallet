@@ -5,6 +5,8 @@ import 'package:cake_wallet/src/domain/common/crypto_currency.dart';
 import 'package:cake_wallet/src/domain/common/wallet_info.dart';
 import 'package:cake_wallet/src/domain/common/wallet_type.dart';
 import 'package:cake_wallet/src/domain/exchange/trade.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
@@ -20,6 +22,48 @@ Future<void> migrate_android_v1() async {
 
 Future<void> migrate_ios_v1() async {
   final appDocDir = await getApplicationDocumentsDirectory();
+  //get the new shared preferences instance
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  //translate the node uri
+  String nodeURI = prefs.getString('node_uri');
+  await prefs.setString('current_node_id', nodeURI);
+
+  //should we provide default btc node key?
+  int activeCurrency = prefs.getInt('currency');
+  await prefs.setInt('current_fiat_currency', activeCurrency);
+
+  //translate fee priority
+  int activeFeeTier = prefs.getInt('saved_fee_priority');
+  await prefs.setInt('current_fee_priority', activeFeeTier);
+
+  //translate current balance mode
+  int currentBalanceMode = prefs.getInt('display_balance_mode');
+  await prefs.setInt('current_balance_display_mode', currentBalanceMode);
+
+  //translate should save recipient address
+  bool shouldSave = prefs.getBool('should_save_recipient_address');
+  await prefs.setBool('save_recipient_address', shouldSave);
+
+  //translate biometric
+  bool biometricOn = prefs.getBool('biometric_authentication_on');
+  await prefs.setBool('allow_biometrical_authentication', biometricOn);
+
+  //read the current theme as integer, write it back as a bool
+  int currentTheme = prefs.getInt('current-theme');
+  bool isDark = false;
+  if (currentTheme == 1) {
+    isDark = true;
+  }
+  await prefs.setBool('dark_theme', isDark);
+
+  //assign the pin lenght
+  int pinLength = prefs.getInt('pin-length');
+  await prefs.setInt('pin-length', pinLength);
+
+  //default value for display list key?
+  String walletName = prefs.getString('current_wallet_name');
+  await prefs.setString('current_wallet_name', walletName);
 }
 
 Future<void> migrate_hives({Directory appDocDir}) async {
