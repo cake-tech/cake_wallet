@@ -34,6 +34,7 @@ abstract class MoneroTransactionHistoryBase
   }
 
   @override
+  @action
   void updateAsync({void Function() onFinished}) {
     fetchTransactionsAsync(
         (transaction) => transactions[transaction.id] = transaction,

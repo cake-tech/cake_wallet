@@ -92,6 +92,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
             monero_wallet.getFullBalance(accountIndex: account.id));
     address = subaddress.address;
     _setListeners();
+    await transactionHistory.update();
   }
 
   void close() {
@@ -245,7 +246,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     }
   }
 
-  void _askForUpdateTransactionHistory() => transactionHistory.updateAsync();
+  Future<void> _askForUpdateTransactionHistory() async {
+    print('start');
+    await transactionHistory.update();
+    print('end');
+  }
 
   int _getFullBalance() =>
       monero_wallet.getFullBalance(accountIndex: account.id);
