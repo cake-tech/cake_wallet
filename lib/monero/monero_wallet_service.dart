@@ -90,12 +90,9 @@ class MoneroWalletService extends WalletService<
       final path = await pathForWallet(name: name, type: WalletType.monero);
       final file = File(path);
       final stat = await file.stat();
-      print(stat.changed);
-      print(stat.modified);
-      print(stat.accessed);
       monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = walletInfoSource.values.firstWhere(
-          (info) => info.id == WalletBase.idFor(name, WalletType.monero));
+          (info) => info.id == WalletBase.idFor(name, WalletType.monero), orElse: () => null);
       final wallet = MoneroWallet(
           filename: monero_wallet.getFilename(), walletInfo: walletInfo);
       await wallet.init();

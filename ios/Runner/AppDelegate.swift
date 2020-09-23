@@ -14,26 +14,41 @@ import Flutter
             (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             
             switch call.method {
-            case "read_trade_list":
+            case "decrypt":
                 guard let args = call.arguments as? Dictionary<String, Any>,
+                      let data = args["bytes"] as? FlutterStandardTypedData,
                       let key = args["key"] as? String,
                       let salt = args["salt"] as? String else {
-                    return
-                }
-                let normalizedKey = key.replacingOccurrences(of: "-", with: "")
-                result(readTradesList(key: normalizedKey, salt: salt))
-            case "read_encrypted_file":
-                guard let args = call.arguments as? Dictionary<String, Any>,
-                      let path = args["path"] as? String,
-                      let key = args["key"] as? String,
-                      let salt = args["salt"] as? String else {
+                    result(nil)
                     return
                 }
                 
-                let content = EncryptedFile(url: URL(fileURLWithPath: path), key: key, salt: salt).decryptedContent()
+                let content = decrypt(data: data.data, key: key, salt: salt)
                 result(content)
+            case "read_user_defaults":
+                guard let args = call.arguments as? Dictionary<String, Any>,
+                      let key = args["key"] as? String,
+                      let type = args["type"] as? String else {
+                    result(nil)
+                    return
+                }
+                
+                var value: Any?
+                
+                switch (type) {
+                case "string":
+                    value = UserDefaults.standard.string(forKey: key)
+                case "int":
+                    value = UserDefaults.standard.integer(forKey: key)
+                case "bool":
+                    value = UserDefaults.standard.bool(forKey: key)
+                default:
+                    break
+                }
+                
+                result(value)
             default:
-                break
+                result(FlutterMethodNotImplemented)
             }
         })
         

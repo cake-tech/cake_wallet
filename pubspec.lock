@@ -399,10 +399,12 @@ packages:
   flutter_secure_storage:
     dependency: "direct main"
     description:
-      name: flutter_secure_storage
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "3.3.4"
+      path: "."
+      ref: cake
+      resolved-ref: a734c2ea3239f9153dba6f5bec740e1df54ee754
+      url: "https://github.com/cake-tech/flutter_secure_storage.git"
+    source: git
+    version: "3.3.55"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -643,7 +645,7 @@ packages:
       name: path_provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.16"
+    version: "1.6.17"
   path_provider_linux:
     dependency: transitive
     description:
@@ -671,7 +673,7 @@ packages:
       name: path_provider_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4+1"
   pedantic:
     dependency: "direct dev"
     description:
@@ -790,7 +792,7 @@ packages:
       name: shared_preferences
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.10"
+    version: "0.5.11"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -819,6 +821,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.2+7"
+  shared_preferences_windows:
+    dependency: transitive
+    description:
+      name: shared_preferences_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.1+1"
   shelf:
     dependency: transitive
     description:
@@ -851,7 +860,7 @@ packages:
       name: source_gen
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.6"
+    version: "0.9.7+1"
   source_span:
     dependency: transitive
     description:
@@ -928,7 +937,7 @@ packages:
       name: url_launcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.6.0"
+    version: "5.7.0"
   url_launcher_linux:
     dependency: transitive
     description:
@@ -1022,4 +1031,4 @@ packages:
     version: "2.2.1"
 sdks:
   dart: ">=2.9.0-14.0.dev <3.0.0"
-  flutter: ">=1.20.0 <2.0.0"
+  flutter: ">=1.12.13+hotfix.5 <2.0.0"

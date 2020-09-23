@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
@@ -94,7 +95,7 @@ void main() async {
   final exchangeTemplates =
       await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
 
-  final sharedPreferences = await SharedPreferences.getInstance();
+  // final sharedPreferences = await SharedPreferences.getInstance();
   // final walletService = WalletService();
   // final fiatConvertationService = FiatConvertationService();
   // final walletListService = WalletListService(
@@ -138,7 +139,6 @@ void main() async {
       templates: templates,
       exchangeTemplates: exchangeTemplates,
       initialMigrationVersion: 4);
-
 //   setReactions(
 //       settingsStore: settingsStore,
 //       priceStore: priceStore,
@@ -147,8 +147,8 @@ void main() async {
 //       walletService: walletService,
 // //      authenticationStore: authenticationStore,
 //       loginStore: loginStore);
-
-  runApp(CakeWalletApp());
+  final initialLanguage = await Language.localeDetection();
+  runApp(CakeWalletApp(initialLanguage));
 }
 
 Future<void> initialSetup(
@@ -160,10 +160,13 @@ Future<void> initialSetup(
     // @required FiatConvertationService fiatConvertationService,
     @required Box<Template> templates,
     @required Box<ExchangeTemplate> exchangeTemplates,
-    int initialMigrationVersion = 4}) async {
+    int initialMigrationVersion = 5}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,
+      walletInfoSource: walletInfoSource,
+      contactSource: contactSource,
+      tradeSource: tradesSource,
       nodes: nodes);
   await setup(
       walletInfoSource: walletInfoSource,
@@ -177,10 +180,12 @@ Future<void> initialSetup(
 }
 
 class CakeWalletApp extends StatelessWidget {
-  CakeWalletApp() {
+  CakeWalletApp(this.initialLanguage) {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
+
+  final String initialLanguage;
 
   @override
   Widget build(BuildContext context) {
@@ -192,11 +197,14 @@ class CakeWalletApp extends StatelessWidget {
             settingsStore.isDarkTheme ? Themes.darkTheme : Themes.lightTheme),
         child: ChangeNotifierProvider<Language>(
             create: (_) => Language(settingsStore.languageCode),
-            child: MaterialAppWithTheme()));
+            child: MaterialAppWithTheme(initialLanguage)));
   }
 }
 
 class MaterialAppWithTheme extends StatelessWidget {
+  MaterialAppWithTheme(this.initialLanguage);
+  final String initialLanguage;
+
   @override
   Widget build(BuildContext context) {
     // final sharedPreferences = Provider.of<SharedPreferences>(context);
@@ -209,7 +217,7 @@ class MaterialAppWithTheme extends StatelessWidget {
     // final syncStore = Provider.of<SyncStore>(context);
     // final balanceStore = Provider.of<BalanceStore>(context);
     final theme = Provider.of<ThemeChanger>(context);
-    // final currentLanguage = Provider.of<Language>(context);
+    final currentLanguage = Provider.of<Language>(context);
     // final contacts = Provider.of<Box<Contact>>(context);
     // final nodes = Provider.of<Box<Node>>(context);
     // final trades = Provider.of<Box<Trade>>(context);
@@ -253,7 +261,7 @@ class MaterialAppWithTheme extends StatelessWidget {
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: S.delegate.supportedLocales,
-          // locale: Locale(currentLanguage.getCurrentLanguage()),
+          locale: Locale(currentLanguage.getCurrentLanguage()),
           onGenerateRoute: (settings) => Router.generateRoute(settings),
           initialRoute: initialRoute,
         ));

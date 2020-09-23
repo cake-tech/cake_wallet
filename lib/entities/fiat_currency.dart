@@ -3,44 +3,7 @@ import 'package:cake_wallet/entities/enumerable_item.dart';
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   const FiatCurrency({String symbol}) : super(title: symbol, raw: symbol);
 
-  @override
-  bool operator ==(Object other) => other is FiatCurrency && other.raw == raw;
-
-  static const all = [
-    FiatCurrency.aud,
-    FiatCurrency.bgn,
-    FiatCurrency.brl,
-    FiatCurrency.cad,
-    FiatCurrency.chf,
-    FiatCurrency.cny,
-    FiatCurrency.czk,
-    FiatCurrency.eur,
-    FiatCurrency.dkk,
-    FiatCurrency.gbp,
-    FiatCurrency.hkd,
-    FiatCurrency.hrk,
-    FiatCurrency.huf,
-    FiatCurrency.idr,
-    FiatCurrency.ils,
-    FiatCurrency.inr,
-    FiatCurrency.isk,
-    FiatCurrency.jpy,
-    FiatCurrency.krw,
-    FiatCurrency.mxn,
-    FiatCurrency.myr,
-    FiatCurrency.nok,
-    FiatCurrency.nzd,
-    FiatCurrency.php,
-    FiatCurrency.pln,
-    FiatCurrency.ron,
-    FiatCurrency.rub,
-    FiatCurrency.sek,
-    FiatCurrency.sgd,
-    FiatCurrency.thb,
-    FiatCurrency.usd,
-    FiatCurrency.zar,
-    FiatCurrency.vef
-  ];
+  static List<FiatCurrency> get all => _all.values.toList();
 
   static const aud = FiatCurrency(symbol: 'AUD');
   static const bgn = FiatCurrency(symbol: 'BGN');
@@ -75,6 +38,47 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static const usd = FiatCurrency(symbol: 'USD');
   static const zar = FiatCurrency(symbol: 'ZAR');
   static const vef = FiatCurrency(symbol: 'VEF');
+
+  static final _all = {
+    FiatCurrency.aud.raw: FiatCurrency.aud,
+    FiatCurrency.bgn.raw: FiatCurrency.bgn,
+    FiatCurrency.brl.raw: FiatCurrency.brl,
+    FiatCurrency.cad.raw: FiatCurrency.cad,
+    FiatCurrency.chf.raw: FiatCurrency.chf,
+    FiatCurrency.cny.raw: FiatCurrency.cny,
+    FiatCurrency.czk.raw: FiatCurrency.czk,
+    FiatCurrency.eur.raw: FiatCurrency.eur,
+    FiatCurrency.dkk.raw: FiatCurrency.dkk,
+    FiatCurrency.gbp.raw: FiatCurrency.gbp,
+    FiatCurrency.hkd.raw: FiatCurrency.hkd,
+    FiatCurrency.hrk.raw: FiatCurrency.hrk,
+    FiatCurrency.huf.raw: FiatCurrency.huf,
+    FiatCurrency.idr.raw: FiatCurrency.idr,
+    FiatCurrency.ils.raw: FiatCurrency.ils,
+    FiatCurrency.inr.raw: FiatCurrency.inr,
+    FiatCurrency.isk.raw: FiatCurrency.isk,
+    FiatCurrency.jpy.raw: FiatCurrency.jpy,
+    FiatCurrency.krw.raw: FiatCurrency.krw,
+    FiatCurrency.mxn.raw: FiatCurrency.mxn,
+    FiatCurrency.myr.raw: FiatCurrency.myr,
+    FiatCurrency.nok.raw: FiatCurrency.nok,
+    FiatCurrency.nzd.raw: FiatCurrency.nzd,
+    FiatCurrency.php.raw: FiatCurrency.php,
+    FiatCurrency.pln.raw: FiatCurrency.pln,
+    FiatCurrency.ron.raw: FiatCurrency.ron,
+    FiatCurrency.rub.raw: FiatCurrency.rub,
+    FiatCurrency.sek.raw: FiatCurrency.sek,
+    FiatCurrency.sgd.raw: FiatCurrency.sgd,
+    FiatCurrency.thb.raw: FiatCurrency.thb,
+    FiatCurrency.usd.raw: FiatCurrency.usd,
+    FiatCurrency.zar.raw: FiatCurrency.zar,
+    FiatCurrency.vef.raw: FiatCurrency.vef
+  };
+
+  static FiatCurrency deserialize({String raw}) => _all[raw];
+
+  @override
+  bool operator ==(Object other) => other is FiatCurrency && other.raw == raw;
 
   @override
   int get hashCode => raw.hashCode ^ title.hashCode;

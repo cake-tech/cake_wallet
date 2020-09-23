@@ -27,7 +27,10 @@ dependencies:
   qr: ^1.2.0
   uuid: 2.0.1
   shared_preferences: ^0.5.3+4
-  flutter_secure_storage: ^3.2.1+1
+  flutter_secure_storage:
+    git:
+      url: https://github.com/cake-tech/flutter_secure_storage.git
+      ref: cake
   provider: ^3.1.0
   rxdart: ^0.22.2
   yaml: ^2.1.16
