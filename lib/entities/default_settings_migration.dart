@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -8,11 +9,22 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node_list.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/fs_migration.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cake_wallet/exchange/trade.dart';
 
 Future defaultSettingsMigration(
     {@required int version,
     @required SharedPreferences sharedPreferences,
-    @required Box<Node> nodes}) async {
+    @required Box<Node> nodes,
+    @required Box<WalletInfo> walletInfoSource,
+    @required Box<Trade> tradeSource,
+    @required Box<Contact> contactSource}) async {
+  if (Platform.isIOS) {
+    await ios_migrate_v1(walletInfoSource, tradeSource, contactSource);
+  }
+
   final currentVersion =
       sharedPreferences.getInt('current_default_settings_migration_version') ??
           0;
@@ -60,6 +72,7 @@ Future defaultSettingsMigration(
           await changeBitcoinCurrentElectrumServerToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
+
         default:
           break;
       }

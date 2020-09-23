@@ -64,7 +64,7 @@ DEPENDENCIES:
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
     - CryptoSwift
     - MTBBarcodeScanner
     - Reachability
@@ -117,6 +117,6 @@ SPEC CHECKSUMS:
   SwiftProtobuf: 4ef85479c18ca85b5482b343df9c319c62bda699
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
-PODFILE CHECKSUM: ade2ba43f8c2af4060c025bfd25a553d068ab914
+PODFILE CHECKSUM: ba3d2157523e2f4dc333b987efdac6635da8125d
 
-COCOAPODS: 1.8.4
+COCOAPODS: 1.9.3

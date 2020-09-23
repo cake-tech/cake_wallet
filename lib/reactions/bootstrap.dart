@@ -19,10 +19,10 @@ Future<void> bootstrap(GlobalKey<NavigatorState> navigatorKey) async {
   final fiatConversionStore = getIt.get<FiatConversionStore>();
 
   if (authenticationStore.state == AuthenticationState.uninitialized) {
-    authenticationStore.state = getIt
-                .get<SharedPreferences>()
-                .getString(PreferencesKey.currentWalletName) ==
-            null
+    final currentWalletName = getIt
+        .get<SharedPreferences>()
+        .getString(PreferencesKey.currentWalletName);
+    authenticationStore.state = currentWalletName == null
         ? AuthenticationState.denied
         : AuthenticationState.installed;
   }
