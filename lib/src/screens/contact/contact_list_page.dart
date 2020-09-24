@@ -211,6 +211,9 @@ class ContactListPage extends BasePage {
       case CryptoCurrency.btc:
         image = Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
         break;
+      case CryptoCurrency.dai:
+        image = Image.asset('assets/images/dai.png', height: 24, width: 24);
+        break;
       case CryptoCurrency.dash:
         image = Image.asset('assets/images/dash.png', height: 24, width: 24);
         break;

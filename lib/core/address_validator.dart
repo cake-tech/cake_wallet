@@ -22,6 +22,8 @@ class AddressValidator extends TextValidator {
         return '[0-9a-zA-Z]';
       case CryptoCurrency.btc:
         return '[0-9a-zA-Z]';
+      case CryptoCurrency.dai:
+        return '[0-9a-zA-Z]';
       case CryptoCurrency.dash:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.eos:
@@ -57,6 +59,8 @@ class AddressValidator extends TextValidator {
         return [42];
       case CryptoCurrency.btc:
         return [34, 42];
+      case CryptoCurrency.dai:
+        return [42];
       case CryptoCurrency.dash:
         return [34];
       case CryptoCurrency.eos:
