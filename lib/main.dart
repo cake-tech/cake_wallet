@@ -126,8 +126,8 @@ void main() async {
   // final exchangeTemplateStore =
   //     ExchangeTemplateStore(templateSource: exchangeTemplates);
 
-  final walletCreationService = WalletCreationService();
-  final authService = AuthService();
+  // final walletCreationService = WalletCreationService();
+  // final authService = AuthService();
 
   await initialSetup(
       sharedPreferences: await SharedPreferences.getInstance(),
@@ -147,8 +147,7 @@ void main() async {
 //       walletService: walletService,
 // //      authenticationStore: authenticationStore,
 //       loginStore: loginStore);
-  final initialLanguage = await Language.localeDetection();
-  runApp(CakeWalletApp(initialLanguage));
+  runApp(CakeWalletApp());
 }
 
 Future<void> initialSetup(
@@ -180,12 +179,11 @@ Future<void> initialSetup(
 }
 
 class CakeWalletApp extends StatelessWidget {
-  CakeWalletApp(this.initialLanguage) {
+  CakeWalletApp() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
 
-  final String initialLanguage;
 
   @override
   Widget build(BuildContext context) {
@@ -197,13 +195,12 @@ class CakeWalletApp extends StatelessWidget {
             settingsStore.isDarkTheme ? Themes.darkTheme : Themes.lightTheme),
         child: ChangeNotifierProvider<Language>(
             create: (_) => Language(settingsStore.languageCode),
-            child: MaterialAppWithTheme(initialLanguage)));
+            child: MaterialAppWithTheme()));
   }
 }
 
 class MaterialAppWithTheme extends StatelessWidget {
-  MaterialAppWithTheme(this.initialLanguage);
-  final String initialLanguage;
+  MaterialAppWithTheme();
 
   @override
   Widget build(BuildContext context) {

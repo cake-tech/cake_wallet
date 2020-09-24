@@ -88,8 +88,6 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> openWallet(String name, String password) async {
     try {
       final path = await pathForWallet(name: name, type: WalletType.monero);
-      final file = File(path);
-      final stat = await file.stat();
       monero_wallet_manager.openWallet(path: path, password: password);
       final walletInfo = walletInfoSource.values.firstWhere(
           (info) => info.id == WalletBase.idFor(name, WalletType.monero), orElse: () => null);

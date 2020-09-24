@@ -164,7 +164,7 @@ Future setup(
       () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
 
   getIt.registerFactory(() => BalanceViewModel(
-      wallet: getIt.get<AppStore>().wallet,
+      appStore: getIt.get<AppStore>(),
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 

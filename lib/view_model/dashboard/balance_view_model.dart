@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/dashboard/wallet_balance.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -15,47 +16,21 @@ class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
 
 abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase({
-    @required this.wallet,
+    @required this.appStore,
     @required this.settingsStore,
     @required this.fiatConvertationStore
   });
 
-  final WalletBase wallet;
+  final AppStore appStore;
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConvertationStore;
-
-  WalletBalance _getWalletBalance() {
-    final _wallet = wallet;
-
-    if (_wallet is MoneroWallet) {
-      return  WalletBalance(
-          unlockedBalance: _wallet.balance.formattedUnlockedBalance,
-          totalBalance: _wallet.balance.formattedFullBalance);
-    }
-
-    if (_wallet is BitcoinWallet) {
-      return WalletBalance(
-          unlockedBalance: _wallet.balance.totalFormatted,
-          totalBalance: _wallet.balance.totalFormatted);
-    }
-
-    return null;
-  }
-
-  String _getFiatBalance({double price, String cryptoAmount}) {
-    if (cryptoAmount == null) {
-      return '0.00';
-    }
-
-    return calculateFiatAmount(price: price, cryptoAmount: cryptoAmount);
-  }
 
   @computed
   double get price => fiatConvertationStore.price;
 
   @computed
   String get cryptoBalance {
-    final walletBalance = _getWalletBalance();
+    final walletBalance = _walletBalance;
     final displayMode = settingsStore.balanceDisplayMode;
     var balance = '---';
 
@@ -72,7 +47,7 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   String get fiatBalance {
-    final walletBalance = _getWalletBalance();
+    final walletBalance = _walletBalance;
     final displayMode = settingsStore.balanceDisplayMode;
     final fiatCurrency = settingsStore.fiatCurrency;
     var balance = '---';
@@ -98,4 +73,30 @@ abstract class BalanceViewModelBase with Store {
     return balance;
   }
 
+  @computed
+  WalletBalance get _walletBalance {
+    final _wallet = appStore.wallet;
+
+    if (_wallet is MoneroWallet) {
+      return  WalletBalance(
+          unlockedBalance: _wallet.balance.formattedUnlockedBalance,
+          totalBalance: _wallet.balance.formattedFullBalance);
+    }
+
+    if (_wallet is BitcoinWallet) {
+      return WalletBalance(
+          unlockedBalance: _wallet.balance.totalFormatted,
+          totalBalance: _wallet.balance.totalFormatted);
+    }
+
+    return null;
+  }
+
+  String _getFiatBalance({double price, String cryptoAmount}) {
+    if (cryptoAmount == null) {
+      return '0.00';
+    }
+
+    return calculateFiatAmount(price: price, cryptoAmount: cryptoAmount);
+  }
 }
