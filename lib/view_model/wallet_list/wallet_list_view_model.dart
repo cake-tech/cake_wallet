@@ -29,7 +29,7 @@ abstract class WalletListViewModelBase with Store {
   Future<void> loadWallet(WalletListItem wallet) async {
     final password =
         await _keyService.getWalletPassword(walletName: wallet.name);
-    final walletService = getIt.get<WalletService>();
+    final walletService = getIt.get<WalletService>(param1: wallet.type);
     _appStore.wallet = await walletService.openWallet(wallet.name, password);
   }
 
