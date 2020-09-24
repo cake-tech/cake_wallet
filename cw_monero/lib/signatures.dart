@@ -76,7 +76,9 @@ typedef account_add_new = Void Function(Pointer<Utf8> label);
 typedef account_set_label = Void Function(
     Int32 accountIndex, Pointer<Utf8> label);
 
-    typedef transactions_refresh = Void Function();
+typedef transactions_refresh = Void Function();
+
+typedef get_tx_key = Pointer<Utf8> Function(Pointer<Utf8> txId);
 
 typedef transactions_count = Int64 Function();
 
