@@ -121,23 +121,6 @@ class WalletListBodyState extends State<WalletListBody> {
                                   ),
                                 ),
                             ),
-                            Container(
-                              height: tileHeight,
-                              width: 10,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(10),
-                                      bottomLeft: Radius.circular(10)),
-                                  gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        Theme.of(context).accentTextTheme.headline.color,
-                                        Theme.of(context).accentTextTheme.headline.backgroundColor
-                                      ]
-                                  )
-                              ),
-                            ),
                           ],
                         ),
                       )

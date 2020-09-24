@@ -57,18 +57,18 @@ class WalletMenuAlert extends StatelessWidget {
                             wallet);
                       },
                       child: Container(
-                        padding: EdgeInsets.only(top: 12, bottom: 12),
+                        height: 60,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Container(
-                              height: 56,
-                              width: 56,
+                              height: 32,
+                              width: 32,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.all(
-                                      Radius.circular(12)),
+                                      Radius.circular(4)),
                                   gradient: LinearGradient(
                                       begin: Alignment.topCenter,
                                       end: Alignment.bottomCenter,
