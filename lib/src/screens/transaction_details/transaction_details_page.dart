@@ -35,6 +35,11 @@ class TransactionDetailsPage extends BasePage {
 //            value: tx.recipientAddress));
 //      }
 
+      if (tx.key?.isNotEmpty) {
+        // FIXME: add translation
+        items.add(StandartListItem(title: 'Transaction Key', value: tx.key));
+      }
+
       _items.addAll(items);
     }
 

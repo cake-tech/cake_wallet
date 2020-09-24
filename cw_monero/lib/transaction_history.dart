@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'package:cw_monero/convert_utf8_to_string.dart';
 import 'package:cw_monero/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -28,6 +29,23 @@ final transactionCreateNative = moneroApi
 final transactionCommitNative = moneroApi
     .lookup<NativeFunction<transaction_commit>>('transaction_commit')
     .asFunction<TransactionCommit>();
+
+final getTxKeyNative = moneroApi
+    .lookup<NativeFunction<get_tx_key>>('get_tx_key')
+    .asFunction<GetTxKey>();
+
+String getTxKey(String txId) {
+  final txIdPointer = Utf8.toUtf8(txId);
+  final keyPointer = getTxKeyNative(txIdPointer);
+
+  free(txIdPointer);
+
+  if (keyPointer != null) {
+    return convertUTF8ToString(pointer: keyPointer);
+  }
+
+  return null;
+}
 
 void refreshTransactions() => transactionsRefreshNative();
 

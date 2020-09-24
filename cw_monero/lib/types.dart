@@ -76,6 +76,8 @@ typedef AccountSetLabel = void Function(int accountIndex, Pointer<Utf8> label);
 
 typedef TransactionsRefresh = void Function();
 
+typedef GetTxKey = Pointer<Utf8> Function(Pointer<Utf8> txId);
+
 typedef TransactionsCount = int Function();
 
 typedef TransactionsGetAll = Pointer<Int64> Function();

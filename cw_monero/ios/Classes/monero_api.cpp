@@ -5,8 +5,8 @@
 #include <iostream>
 #include <unistd.h>
 #include "thread"
-#include "../External/android/monero/include/wallet2_api.h"
 #include "CwWalletListener.h"
+#include "../External/android/monero/include/wallet2_api.h"
 
 using namespace std::chrono_literals;
 
@@ -682,6 +682,11 @@ extern "C"
     void rescan_blockchain()
     {
         m_wallet->rescanBlockchainAsync();
+    }
+
+    char * get_tx_key(char * txId)
+    {
+        return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
     }
 
 #ifdef __cplusplus

@@ -4,6 +4,7 @@ import 'package:cw_monero/structs/transaction_info_row.dart';
 import 'package:cake_wallet/entities/parseBoolFromString.dart';
 import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/format_amount.dart';
+import 'package:cw_monero/transaction_history.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
@@ -19,7 +20,8 @@ class MoneroTransactionInfo extends TransactionInfo {
             (int.parse(map['timestamp'] as String) ?? 0) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
-        accountIndex = int.parse(map['accountIndex'] as String);
+        accountIndex = int.parse(map['accountIndex'] as String),
+        key = getTxKey((map['hash'] ?? '') as String);
 
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
@@ -29,7 +31,8 @@ class MoneroTransactionInfo extends TransactionInfo {
         date = DateTime.fromMillisecondsSinceEpoch(row.getDatetime() * 1000),
         isPending = row.isPending != 0,
         amount = row.getAmount(),
-        accountIndex = row.subaddrAccount;
+        accountIndex = row.subaddrAccount,
+        key = getTxKey(row.getHash());
 
   final String id;
   final int height;
@@ -39,11 +42,14 @@ class MoneroTransactionInfo extends TransactionInfo {
   final bool isPending;
   final int amount;
   String recipientAddress;
+  String key;
 
   String _fiatAmount;
 
+  @override
   String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} XMR';
 
+  @override
   String fiatAmount() => _fiatAmount ?? '';
 
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
