@@ -62,13 +62,7 @@ class CurrencyPicker extends StatelessWidget {
                             physics: const NeverScrollableScrollPhysics(),
                             crossAxisSpacing: 1,
                             mainAxisSpacing: 1,
-                            children: List.generate(15, (index) {
-
-                              if (index == 14) {
-                                return Container(
-                                  color: Theme.of(context).accentTextTheme.title.color,
-                                );
-                              }
+                            children: List.generate(items.length, (index) {
 
                               final item = items[index];
                               final isItemSelected = index == selectedAtIndex;
