@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -246,7 +247,7 @@ class ContactListPage extends BasePage {
   }
 
   Future<bool> showAlertDialog(BuildContext context) async {
-    return await showDialog(
+    return await showPopUp(
         context: context,
         builder: (BuildContext context) {
           return AlertWithTwoActions(
@@ -261,7 +262,7 @@ class ContactListPage extends BasePage {
 
   Future<bool> showNameAndAddressDialog(
       BuildContext context, String name, String address) async {
-    return await showDialog(
+    return await showPopUp(
         context: context,
         builder: (BuildContext context) {
           return AlertWithTwoActions(

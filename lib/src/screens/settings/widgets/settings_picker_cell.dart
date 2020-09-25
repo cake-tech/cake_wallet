@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
@@ -16,7 +17,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
             onTap: (BuildContext context) async {
               final selectedAtIndex = items.indexOf(selectedItem);
 
-              await showDialog<void>(
+              await showPopUp<void>(
                   context: context,
                   builder: (_) => Picker(
                       items: items,

@@ -2,6 +2,7 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,12 +28,12 @@ class WalletSeedPage extends BasePage {
   @override
   void onClose(BuildContext context) async {
     if (isNewWalletCreated) {
-      final confirmed = await showDialog<bool>(context: context, builder: (BuildContext context) {
+      final confirmed = await showPopUp<bool>(context: context, builder: (BuildContext context) {
         // FIXME: add translations
         return AlertWithTwoActions(
             alertTitle: 'Attention',
-            alertContent: 'Have you written it down? The seed is the only way to recover your wallet.',
-            leftButtonText: 'Not yet',
+            alertContent: 'The seed is the only way to recover your wallet. Have you written it down?',
+            leftButtonText: 'Go back',
             rightButtonText: 'Yes, I have',
             actionLeftButton: () => Navigator.of(context).pop(false),
             actionRightButton: () => Navigator.of(context).pop(true));

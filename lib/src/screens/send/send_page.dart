@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -397,7 +398,7 @@ class SendPage extends BasePage {
                       //                 getOpenaliasRecord(context);
                       //               },
                       //               onRemove: () {
-                      //                 showDialog<void>(
+                      //                 showPopUp<void>(
                       //                     context: context,
                       //                     builder: (dialogContext) {
                       //                       return AlertWithTwoActions(
@@ -492,7 +493,7 @@ class SendPage extends BasePage {
     reaction((_) => sendViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
+          showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
@@ -506,7 +507,7 @@ class SendPage extends BasePage {
 
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
+          showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return ConfirmSendingAlert(
@@ -521,7 +522,7 @@ class SendPage extends BasePage {
                     actionLeftButton: () {
                       Navigator.of(context).pop();
                       sendViewModel.commitTransaction();
-                      showDialog<void>(
+                      showPopUp<void>(
                           context: context,
                           builder: (BuildContext context) {
                             return Observer(builder: (_) {
@@ -635,7 +636,7 @@ class SendPage extends BasePage {
     // if (isOpenalias) {
     //   _addressController.text = sendViewModel.recordAddress;
 
-    //   await showDialog<void>(
+    //   await showPopUp<void>(
     //       context: context,
     //       builder: (BuildContext context) {
     //         return AlertWithOneAction(
@@ -653,7 +654,7 @@ class SendPage extends BasePage {
     // final items = TransactionPriority.all;
     // final selectedItem = items.indexOf(sendViewModel.transactionPriority);
     //
-    // await showDialog<void>(
+    // await showPopUp<void>(
     //     builder: (_) => Picker(
     //       items: items,
     //       selectedAtIndex: selectedItem,
