@@ -15,8 +15,6 @@ class ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      height: 93,
       alignment: alignment,
       child: Column(
         mainAxisSize: MainAxisSize.max,
