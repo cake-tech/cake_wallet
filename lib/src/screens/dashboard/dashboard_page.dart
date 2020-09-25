@@ -114,9 +114,9 @@ class DashboardPage extends BasePage {
                 alignment: Alignment.centerLeft,
               ),
               ActionButton(
-                image: sendImage,
-                title: S.of(context).send,
-                route: Routes.send,
+                image: exchangeImage,
+                title: S.of(context).exchange,
+                route: Routes.exchange,
                 alignment: Alignment.centerLeft,
               ),
             ],
