@@ -27,7 +27,7 @@ class AuthPageState extends State<AuthPage> {
   final _key = GlobalKey<ScaffoldState>();
   final _pinCodeKey = GlobalKey<PinCodeState>();
   final _backArrowImageDarkTheme =
-      Image.asset('assets/images/back_arrow_dark_theme.png');
+      Image.asset('assets/images/close_button.png');
   ReactionDisposer _reaction;
 
   @override
@@ -122,9 +122,11 @@ class AuthPageState extends State<AuthPage> {
         key: _key,
         appBar: CupertinoNavigationBar(
             leading: widget.closable
-                ? SizedBox(
+                ? Container(
+              padding: EdgeInsets.only(top: 10),
+                child: SizedBox(
                     height: 37,
-                    width: 20,
+                    width: 37,
                     child: ButtonTheme(
                       minWidth: double.minPositive,
                       child: FlatButton(
@@ -134,7 +136,7 @@ class AuthPageState extends State<AuthPage> {
                           onPressed: () => Navigator.of(context).pop(),
                           child: _backArrowImageDarkTheme),
                     ),
-                  )
+                  ))
                 : Container(),
             backgroundColor: Theme.of(context).backgroundColor,
             border: null),

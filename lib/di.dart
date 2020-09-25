@@ -195,9 +195,9 @@ Future setup(
       instanceName: 'login');
 
   getIt
-      .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), void>(
-          (onAuthFinished, _) => AuthPage(getIt.get<AuthViewModel>(),
-              onAuthenticationFinished: onAuthFinished, closable: false));
+      .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
+          (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
+              onAuthenticationFinished: onAuthFinished, closable: closable ?? false));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
       walletViewModel: getIt.get<DashboardViewModel>(),
