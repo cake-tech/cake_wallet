@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -126,7 +127,7 @@ class WalletMenu {
         });
         break;
       case 2:
-        final isComfirmed = await showDialog<bool>(
+        final isComfirmed = await showPopUp<bool>(
             context: context,
             builder: (BuildContext context) {
               return AlertWithTwoActions(

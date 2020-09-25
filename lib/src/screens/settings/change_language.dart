@@ -39,7 +39,7 @@ class ChangeLanguage extends BasePage {
     //           isSelected: isCurrent,
     //           handler: (context) async {
     //             if (!isCurrent) {
-    //               await showDialog<void>(
+    //               await showPopUp<void>(
     //                   context: context,
     //                   builder: (BuildContext context) {
     //                     return AlertWithTwoActions(

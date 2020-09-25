@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -29,7 +30,7 @@ class NodeListPage extends BasePage {
         minWidth: double.minPositive,
         child: FlatButton(
             onPressed: () async {
-              await showDialog<void>(
+              await showPopUp<void>(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertWithTwoActions(
@@ -83,7 +84,7 @@ class NodeListPage extends BasePage {
                       return;
                     }
 
-                    await showDialog<void>(
+                    await showPopUp<void>(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
@@ -110,7 +111,7 @@ class NodeListPage extends BasePage {
               final dismissibleRow = Dismissible(
                   key: Key('${node.keyIndex}'),
                   confirmDismiss: (direction) async {
-                    return await showDialog(
+                    return await showPopUp(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertWithTwoActions(

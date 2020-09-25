@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -51,7 +52,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
   }
 
   Future<void> _showAlertDialog(BuildContext context) async {
-    await showDialog<void>(
+    await showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertWithOneAction(
