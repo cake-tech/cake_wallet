@@ -215,13 +215,15 @@ class Router {
         return MaterialPageRoute<void>(
             fullscreenDialog: true,
             builder: (_) => getIt.get<AuthPage>(
-                param1: settings.arguments as OnAuthenticationFinished));
+                param1: settings.arguments as OnAuthenticationFinished,
+                param2: true));
 
       case Routes.unlock:
         return MaterialPageRoute<void>(
             fullscreenDialog: true,
             builder: (_) => getIt.get<AuthPage>(
-                param1: settings.arguments as OnAuthenticationFinished));
+                param1: settings.arguments as OnAuthenticationFinished,
+                param2: false));
 
       case Routes.nodeList:
         return CupertinoPageRoute<void>(
