@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -181,7 +182,7 @@ class ExchangePage extends BasePage {
                                   exchangeViewModel.wallet.currency
                                   ? exchangeViewModel.wallet.address
                                   : exchangeViewModel.receiveAddress,
-                              initialIsAmountEditable: false,
+                              initialIsAmountEditable: exchangeViewModel.provider is XMRTOExchangeProvider ? true : false,
                               initialIsAddressEditable:
                               exchangeViewModel.isReceiveAddressEnabled,
                               isAmountEstimated: true,
@@ -487,6 +488,12 @@ class ExchangePage extends BasePage {
           receiveKey.currentState.isAddressEditable(isEditable: isEnabled);
         });
 
+    reaction((_) => exchangeViewModel.provider, (ExchangeProvider provider) {
+      provider is XMRTOExchangeProvider
+        ? receiveKey.currentState.isAmountEditable(isEditable: true)
+        : receiveKey.currentState.isAmountEditable(isEditable: false);
+    });
+
     // FIXME: FIXME
 
     // reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
@@ -540,6 +547,7 @@ class ExchangePage extends BasePage {
       if (depositAmountController.text != exchangeViewModel.depositAmount) {
         exchangeViewModel.changeDepositAmount(
             amount: depositAmountController.text);
+        exchangeViewModel.isReceiveAmountEntered = false;
       }
     });
 
@@ -550,6 +558,7 @@ class ExchangePage extends BasePage {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
         exchangeViewModel.changeReceiveAmount(
             amount: receiveAmountController.text);
+        exchangeViewModel.isReceiveAmountEntered = true;
       }
     });
 
