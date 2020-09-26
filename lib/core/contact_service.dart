@@ -22,7 +22,7 @@ class ContactService {
     if (index >= 0) {
       _forceUpdateContactListStore();
     } else {
-      contactListStore.contacts.add(contact);
+      // contactListStore.contacts.add(contact);
     }
   }
 
@@ -33,6 +33,6 @@ class ContactService {
 
   void _forceUpdateContactListStore() {
     contactListStore.contacts.clear();
-    contactListStore.contacts.addAll(contactSource.values);
+    // contactListStore.contacts.addAll(contactSource.values);
   }
 }

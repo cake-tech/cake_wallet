@@ -21,7 +21,6 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {@required SharedPreferences sharedPreferences,
-      @required Box<Node> nodeSource,
       @required FiatCurrency initialFiatCurrency,
       @required TransactionPriority initialTransactionPriority,
       @required BalanceDisplayMode initialBalanceDisplayMode,
@@ -43,10 +42,9 @@ abstract class SettingsStoreBase with Store {
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
     currentLocale = initialCurrentLocale;
-    itemHeaders = {};
+    currentNode = nodes[WalletType.monero];
     this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
-    _nodeSource = nodeSource;
 
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -58,6 +56,9 @@ abstract class SettingsStoreBase with Store {
         (_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(
             PreferencesKey.currentPinLength, pinLength));
+
+    reaction((_) => currentNode,
+        (Node node) => _saveCurrentNode(node, WalletType.monero));
   }
 
   static const defaultPinLength = 4;
@@ -88,7 +89,7 @@ abstract class SettingsStoreBase with Store {
   int pinCodeLength;
 
   @observable
-  Map<String, String> itemHeaders;
+  Node currentNode;
 
   String languageCode;
 
@@ -97,7 +98,6 @@ abstract class SettingsStoreBase with Store {
   String appVersion;
 
   SharedPreferences _sharedPreferences;
-  Box<Node> _nodeSource;
 
   ObservableMap<WalletType, Node> nodes;
 
@@ -150,7 +150,6 @@ abstract class SettingsStoreBase with Store {
           WalletType.monero: moneroNode,
           WalletType.bitcoin: bitcoinElectrumServer
         },
-        nodeSource: nodeSource,
         appVersion: packageInfo.version,
         initialFiatCurrency: currentFiatCurrency,
         initialTransactionPriority: currentTransactionPriority,
@@ -164,7 +163,7 @@ abstract class SettingsStoreBase with Store {
         initialCurrentLocale: initialCurrentLocale);
   }
 
-  Future<void> setCurrentNode(Node node, WalletType walletType) async {
+  Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
     switch (walletType) {
       case WalletType.bitcoin:
         await _sharedPreferences.setInt(

@@ -2,6 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/core/contact_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -197,7 +198,8 @@ Future setup(
   getIt
       .registerFactoryParam<AuthPage, void Function(bool, AuthPageState), bool>(
           (onAuthFinished, closable) => AuthPage(getIt.get<AuthViewModel>(),
-              onAuthenticationFinished: onAuthFinished, closable: closable ?? false));
+              onAuthenticationFinished: onAuthFinished,
+              closable: closable ?? false));
 
   getIt.registerFactory<DashboardPage>(() => DashboardPage(
       walletViewModel: getIt.get<DashboardViewModel>(),
@@ -282,8 +284,8 @@ Future setup(
 
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
 
-  getIt.registerFactoryParam<ContactViewModel, Contact, void>(
-      (Contact contact, _) => ContactViewModel(
+  getIt.registerFactoryParam<ContactViewModel, ContactRecord, void>(
+      (ContactRecord contact, _) => ContactViewModel(
           contactSource, getIt.get<AppStore>().wallet,
           contact: contact));
 
@@ -296,13 +298,14 @@ Future setup(
       (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
           isEditable: isEditable));
 
-  getIt.registerFactoryParam<ContactPage, Contact, void>((Contact contact, _) =>
-      ContactPage(getIt.get<ContactViewModel>(param1: contact)));
+  getIt.registerFactoryParam<ContactPage, ContactRecord, void>(
+      (ContactRecord contact, _) =>
+          ContactPage(getIt.get<ContactViewModel>(param1: contact)));
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return NodeListViewModel(appStore.nodeListStore, nodeSource,
-        appStore.wallet, appStore.settingsStore);
+    return NodeListViewModel(
+        nodeSource, appStore.wallet, appStore.settingsStore);
   });
 
   getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));

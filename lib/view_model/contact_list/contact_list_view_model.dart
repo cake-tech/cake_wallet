@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/contact_service.dart';
@@ -14,19 +15,21 @@ class ContactListViewModel = ContactListViewModelBase
 abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(
       this.addressBookStore, this.contactService, this.contactSource) {
-    _subscription = bindBox(contactSource, addressBookStore.contacts);
+    _subscription = contactSource.bindToListWithTransform(addressBookStore.contacts,
+        (Contact contact) => ContactRecord(contactSource, contact),
+        initialFire: true);
   }
 
   final ContactListStore addressBookStore;
   final ContactService contactService;
   final Box<Contact> contactSource;
 
-  ObservableList<Contact> get contacts => addressBookStore.contacts;
+  ObservableList<ContactRecord>  get contacts => addressBookStore.contacts;
 
   StreamSubscription<BoxEvent> _subscription;
 
   void dispose() {
-    _subscription.cancel();
+    // _subscription.cancel();
   }
 
   Future<void> delete(Contact contact) async => contactService.delete(contact);

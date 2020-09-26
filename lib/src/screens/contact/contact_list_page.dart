@@ -164,17 +164,17 @@ class ContactListPage extends BasePage {
                                final isDelete =
                                    await showAlertDialog(context) ?? false;
 
-                               if (isDelete) {
-                                 await contactListViewModel
-                                     .delete(contact);
-                               }
+                               // if (isDelete) {
+                               //   await contactListViewModel
+                               //       .delete(contact);
+                               // }
                              },
                            ),
                          ],
                          dismissal: SlidableDismissal(
                            child: SlidableDrawerDismissal(),
-                           onDismissed: (actionType) async =>
-                           await contactListViewModel.delete(contact),
+                           onDismissed: (actionType) async => null,
+                           // await contactListViewModel.delete(contact),
                            onWillDismiss: (actionType) async =>
                                showAlertDialog(context),
                          ),
