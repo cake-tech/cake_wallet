@@ -3,13 +3,13 @@ import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class TransactionRow extends StatelessWidget {
-  TransactionRow({
-    this.direction,
-    this.formattedDate,
-    this.formattedAmount,
-    this.formattedFiatAmount,
-    this.isPending,
-    @required this.onTap});
+  TransactionRow(
+      {this.direction,
+      this.formattedDate,
+      this.formattedAmount,
+      this.formattedFiatAmount,
+      this.isPending,
+      @required this.onTap});
 
   final VoidCallback onTap;
   final TransactionDirection direction;
@@ -23,75 +23,73 @@ class TransactionRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          height: 52,
+          height: 62,
           color: Colors.transparent,
           padding: EdgeInsets.only(left: 24, right: 24),
           child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Container(
-                  height: 36,
-                  width: 36,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Theme.of(context).textTheme.overline.decorationColor
-                  ),
-                  child: Image.asset(
-                      direction == TransactionDirection.incoming
-                          ? 'assets/images/down_arrow.png'
-                          : 'assets/images/up_arrow.png'),
-                ),
                 Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: Container(
-                        height: 46,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.max,
-                          children: <Widget>[
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(
-                                      (direction == TransactionDirection.incoming
+                  child: Container(
+                    height: 56,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisSize: MainAxisSize.max,
+                      children: <Widget>[
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                  (direction == TransactionDirection.incoming
                                           ? S.of(context).received
                                           : S.of(context).sent) +
-                                          (isPending ? S.of(context).pending : ''),
+                                      (isPending ? S.of(context).pending : ''),
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white)),
+                              Container(
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      color: (direction ==
+                                              TransactionDirection.incoming
+                                          ? Colors.green.withOpacity(0.8)
+                                          : Theme.of(context)
+                                              .accentTextTheme
+                                              .body2
+                                              .decorationColor
+                                              .withOpacity(0.8))),
+                                  padding: EdgeInsets.only(
+                                      top: 3, bottom: 3, left: 10, right: 10),
+                                  child: Text(formattedAmount,
                                       style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.white
-                                      )),
-                                  Text(direction == TransactionDirection.incoming
-                                      ? formattedAmount
-                                      : '- ' + formattedAmount,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white
-                                      ))
-                                ]),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(formattedDate,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme
-                                              .overline.backgroundColor)),
-                                  Text(direction == TransactionDirection.incoming
-                                      ? formattedFiatAmount
-                                      : '- ' + formattedFiatAmount,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme
-                                              .overline.backgroundColor))
-                                ]),
-                          ],
-                        ),
-                      ),
-                    ))
+                                          color: Colors.white)))
+                            ]),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(formattedDate,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .overline
+                                          .backgroundColor)),
+                              Text(formattedFiatAmount,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .overline
+                                          .backgroundColor))
+                            ]),
+                      ],
+                    ),
+                  ),
+                )
               ]),
         ));
   }

@@ -36,6 +36,7 @@ class ActionButton extends StatelessWidget {
               child: image,
             ),
           ),
+          SizedBox(height: 15),
           Text(
             title,
             style: TextStyle(fontSize: 14, color: Colors.white),
