@@ -40,7 +40,9 @@ abstract class SettingsViewModelBase with Store {
         PickerListItem(
             title: S.current.settings_display_balance_as,
             items: BalanceDisplayMode.all,
-            selectedItem: () => balanceDisplayMode),
+            selectedItem: () => balanceDisplayMode,
+            onItemSelected: (BalanceDisplayMode mode) =>
+                _settingsStore.balanceDisplayMode = mode),
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
@@ -204,6 +206,7 @@ abstract class SettingsViewModelBase with Store {
   @action
   void setFiatCurrency(FiatCurrency value) =>
       _settingsStore.fiatCurrency = value;
+
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;

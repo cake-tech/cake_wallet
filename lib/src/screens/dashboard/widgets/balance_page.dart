@@ -18,45 +18,34 @@ class BalancePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              Observer(
-                  builder: (_) {
-                    return Text(
-                      dashboardViewModel.wallet.currency.toString(),
-                      style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).indicatorColor,
-                          height: 1
-                      ),
-                    );
-                  }
-              ),
-              Observer(
-                  builder: (_) {
-                    return Text(
-                      dashboardViewModel.balanceViewModel.cryptoBalance,
-                      style: TextStyle(
-                          fontSize: 54,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          height: 1
-                      ),
-                    );
-                  }
-              ),
-              Observer(
-                  builder: (_) {
-                    return Text(
-                      dashboardViewModel.balanceViewModel.fiatBalance,
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).indicatorColor,
-                          height: 1
-                      ),
-                    );
-                  }
-              ),
+              Observer(builder: (_) {
+                return Text(
+                  dashboardViewModel.wallet.currency.toString(),
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).indicatorColor,
+                      height: 1),
+                );
+              }),
+              Observer(builder: (_) {
+                return Text(dashboardViewModel.balanceViewModel.cryptoBalance,
+                    style: TextStyle(
+                        fontSize: 54,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        height: 1),
+                    textAlign: TextAlign.center);
+              }),
+              Observer(builder: (_) {
+                return Text(dashboardViewModel.balanceViewModel.fiatBalance,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).indicatorColor,
+                        height: 1),
+                    textAlign: TextAlign.center);
+              }),
             ],
           ),
         ),
@@ -64,4 +53,3 @@ class BalancePage extends StatelessWidget {
     );
   }
 }
-
