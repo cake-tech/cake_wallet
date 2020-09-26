@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -11,7 +12,7 @@ part 'contact_view_model.g.dart';
 class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._contacts, this._wallet, {Contact contact})
+  ContactViewModelBase(this._contacts, this._wallet, {ContactRecord contact})
       : state = InitialExecutionState(),
         currencies = CryptoCurrency.all,
         _contact = contact {
@@ -41,7 +42,7 @@ abstract class ContactViewModelBase with Store {
   final List<CryptoCurrency> currencies;
   final WalletBase _wallet;
   final Box<Contact> _contacts;
-  final Contact _contact;
+  final ContactRecord _contact;
 
   @action
   void reset() {
@@ -57,9 +58,12 @@ abstract class ContactViewModelBase with Store {
       if (_contact != null) {
         _contact.name = name;
         _contact.address = address;
-        _contact.updateCryptoCurrency(currency: currency);
-        await _contacts.put(_contact.key, _contact);
+        _contact.type = currency;
+        await _contact.save();
+        // await _contacts.put(_contact.key, _contact);
       } else {
+        // final contact = ContactRecordBase.create(_contacts, name, address, currency);
+        // await contact.save();
         await _contacts
             .add(Contact(name: name, address: address, type: currency));
       }

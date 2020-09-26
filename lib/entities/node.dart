@@ -38,6 +38,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(3)
   int typeRaw;
 
+  @override
+  dynamic get keyIndex => key;
+
   WalletType get type => deserializeFromInt(typeRaw);
 
   set type(WalletType type) => typeRaw = serializeToInt(type);

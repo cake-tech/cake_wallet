@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -252,7 +253,7 @@ class Router {
       case Routes.addressBookAddContact:
         return CupertinoPageRoute<void>(
             builder: (_) =>
-                getIt.get<ContactPage>(param1: settings.arguments as Contact));
+                getIt.get<ContactPage>(param1: settings.arguments as ContactRecord));
 
       case Routes.showKeys:
         return MaterialPageRoute<void>(
