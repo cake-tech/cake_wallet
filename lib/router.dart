@@ -67,7 +67,7 @@ class Router {
                     .pushNamed(Routes.newWallet, arguments: type)));
 
       case Routes.newWallet:
-        final type = settings.arguments as WalletType;
+        final type = WalletType.monero; // settings.arguments as WalletType;
         final walletNewVM = getIt.get<WalletNewVM>(param1: type);
 
         return CupertinoPageRoute<void>(
@@ -97,7 +97,7 @@ class Router {
             builder: (_) => RestoreOptionsPage(type: type));
 
       case Routes.restoreWalletOptions:
-        final type = settings.arguments as WalletType;
+        final type = WalletType.monero; //settings.arguments as WalletType;
 
         return CupertinoPageRoute<void>(
             builder: (_) => RestoreWalletOptionsPage(

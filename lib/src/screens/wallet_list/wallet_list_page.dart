@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_menu_alert.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -73,7 +74,7 @@ class WalletListBodyState extends State<WalletListBody> {
 
                     return GestureDetector(
                       onTap: () {
-                        showDialog<void>(
+                        showPopUp<void>(
                             context: context,
                             builder: (dialogContext) {
                               return WalletMenuAlert(

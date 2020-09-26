@@ -108,17 +108,13 @@ class DashboardPage extends BasePage {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               ActionButton(
-                image: sendImage,
-                title: S.of(context).send,
-                route: Routes.send,
-                alignment: Alignment.centerLeft,
-              ),
+                  image: sendImage,
+                  title: S.of(context).send,
+                  route: Routes.send),
               ActionButton(
-                image: sendImage,
-                title: S.of(context).send,
-                route: Routes.send,
-                alignment: Alignment.centerLeft,
-              ),
+                  image: exchangeImage,
+                  title: S.of(context).exchange,
+                  route: Routes.exchange),
             ],
           ),
         )
