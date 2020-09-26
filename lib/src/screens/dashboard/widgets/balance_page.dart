@@ -20,7 +20,7 @@ class BalancePage extends StatelessWidget {
             children: <Widget>[
               Observer(builder: (_) {
                 return Text(
-                  dashboardViewModel.wallet.currency.toString(),
+                  dashboardViewModel.balanceViewModel.currency.toString(),
                   style: TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
