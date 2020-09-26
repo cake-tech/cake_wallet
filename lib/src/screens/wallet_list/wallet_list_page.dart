@@ -1,8 +1,8 @@
+import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_menu_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
@@ -10,7 +10,6 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_menu.dart';
-import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_tile.dart';
 
 class WalletListPage extends BasePage {
   WalletListPage({this.walletListViewModel});
@@ -65,95 +64,66 @@ class WalletListBodyState extends State<WalletListBody> {
                   itemCount: widget.walletListViewModel.wallets.length,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
-                    final screenWidth = MediaQuery.of(context).size.width;
                     final walletMenu = WalletMenu(context, widget.walletListViewModel);
                     final items =
                         walletMenu.generateItemsForWalletMenu(wallet.isCurrent);
-                    final colors = walletMenu
-                        .generateColorsForWalletMenu(wallet.isCurrent);
-                    final images = walletMenu
-                        .generateImagesForWalletMenu(wallet.isCurrent);
+                    final currentColor = wallet.isCurrent
+                        ? Theme.of(context).accentTextTheme.subtitle.decorationColor
+                        : Theme.of(context).backgroundColor;
 
-                    return Container(
-                      height: tileHeight,
-                      width: double.infinity,
-                      child: CustomScrollView(
-                        scrollDirection: Axis.horizontal,
-                        controller: scrollController,
-                        slivers: <Widget>[
-                          SliverPersistentHeader(
-                            pinned: false,
-                            floating: true,
-                            delegate: WalletTile(
-                                min: screenWidth - 170,
-                                max: screenWidth,
-                                image: _imageFor(type: wallet.type),
-                                walletName: wallet.name,
-                                walletAddress: '', //shortAddress,
-                                isCurrent: wallet.isCurrent),
-                          ),
-                          SliverList(
-                              delegate:
-                                  SliverChildBuilderDelegate((context, index) {
-                            final item = items[index];
-                            final image = images[index];
-                            final firstColor = colors[index*2];
-                            final secondColor = colors[index*2 + 1];
-
-                            final radius = index == 0 ? 10.0 : 0.0;
-
-                            return GestureDetector(
-                              onTap: () {
-                                scrollController.animateTo(0.0,
-                                    duration: Duration(milliseconds: 500),
-                                    curve: Curves.fastOutSlowIn);
-                                walletMenu.action(
-                                    walletMenu.listItems.indexOf(item),
-                                    wallet,
-                                    wallet.isCurrent);
-                              },
-                              child: Container(
-                                height: tileHeight,
-                                width: 80,
-                                color: Theme.of(context).backgroundColor,
+                    return GestureDetector(
+                      onTap: () {
+                        showDialog<void>(
+                            context: context,
+                            builder: (dialogContext) {
+                              return WalletMenuAlert(
+                                  wallet: wallet,
+                                  walletMenu: walletMenu,
+                                  items: items);
+                            }
+                        );
+                      },
+                      child: Container(
+                        height: tileHeight,
+                        width: double.infinity,
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              height: tileHeight,
+                              width: 4,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(4),
+                                      bottomRight: Radius.circular(4)),
+                                  color: currentColor
+                              ),
+                            ),
+                            Expanded(
                                 child: Container(
-                                  padding: EdgeInsets.only(left: 5, right: 5),
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(radius),
-                                          bottomLeft: Radius.circular(radius)),
-                                      gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            firstColor,
-                                            secondColor
-                                          ]
+                                  height: tileHeight,
+                                  padding: EdgeInsets.only(left: 20, right: 20),
+                                  color: Theme.of(context).backgroundColor,
+                                  alignment: Alignment.centerLeft,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: <Widget>[
+                                      _imageFor(type: wallet.type),
+                                      SizedBox(width: 10),
+                                      Text(
+                                        wallet.name,
+                                        style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context).primaryTextTheme.title.color
+                                        ),
                                       )
-                                  ),
-                                  child: Center(
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        image,
-                                        SizedBox(height: 2),
-                                        Text(
-                                          item,
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 7,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white),
-                                        )
-                                      ],
-                                    ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            );
-                          }, childCount: items.length))
-                        ],
-                      ),
+                            ),
+                          ],
+                        ),
+                      )
                     );
                   }),
             ),
