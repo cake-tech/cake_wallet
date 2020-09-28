@@ -13,8 +13,8 @@ Future<T> showPopUp<T>({
       context: context,
       builder: builder,
       barrierDismissible: barrierDismissible,
-      barrierColor: barrierColor,
-      useSafeArea: useSafeArea,
+      //barrierColor: barrierColor,
+      //useSafeArea: useSafeArea,
       useRootNavigator: useRootNavigator,
       routeSettings: routeSettings);
 }
