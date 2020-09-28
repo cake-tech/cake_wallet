@@ -4,7 +4,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 
 class DateFormatter {
   static String get currentLocalFormat {
-    final isUSA = getIt.get<SettingsStore>().currentLocale == 'en_US';
+    final isUSA = getIt.get<SettingsStore>().languageCode.toLowerCase() == 'en';
     final format = isUSA ? 'yyyy.MM.dd, HH:mm' : 'dd.MM.yyyy, HH:mm';
 
     return format;

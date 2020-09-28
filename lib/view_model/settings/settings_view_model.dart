@@ -1,27 +1,24 @@
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/biometric_auth.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/store/theme_changer_store.dart';
-import 'package:cake_wallet/themes.dart';
-import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
+import 'package:package_info/package_info.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/entities/biometric_auth.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
-import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
-import 'package:package_info/package_info.dart';
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 
 part 'settings_view_model.g.dart';
 
@@ -111,13 +108,8 @@ abstract class SettingsViewModelBase with Store {
         SwitcherListItem(
             title: S.current.settings_dark_mode,
             value: () => _settingsStore.isDarkTheme,
-            onValueChange: (_, bool value) {
-              _settingsStore.isDarkTheme = value;
-              getIt
-                  .get<ThemeChangerStore>()
-                  .themeChanger
-                  .setTheme(value ? Themes.darkTheme : Themes.lightTheme);
-            })
+            onValueChange: (_, bool value) =>
+                _settingsStore.isDarkTheme = value)
       ],
       [
         LinkListItem(

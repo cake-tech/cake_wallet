@@ -84,7 +84,8 @@ extension MobxBindable<T extends Keyable> on Box<T> {
         return;
       }
 
-      dest.acceptBoxChange(event, transformed: transform(event.value as T));
+      dest.acceptBoxChange(event,
+          transformed: event.deleted ? null : transform(event.value as T));
     });
   }
 }
@@ -111,7 +112,8 @@ extension HiveBindable<T extends Keyable> on ObservableList<T> {
         }
 
         final value = change.newValue as T;
-        controller.add(EntityChange(value, type));
+        controller.add(EntityChange(value, type,
+            key: type == ChangeType.delete ? change.index : value.keyIndex));
       });
     });
 

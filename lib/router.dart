@@ -252,8 +252,8 @@ class Router {
 
       case Routes.addressBookAddContact:
         return CupertinoPageRoute<void>(
-            builder: (_) =>
-                getIt.get<ContactPage>(param1: settings.arguments as ContactRecord));
+            builder: (_) => getIt.get<ContactPage>(
+                param1: settings.arguments as ContactRecord));
 
       case Routes.showKeys:
         return MaterialPageRoute<void>(
@@ -297,10 +297,11 @@ class Router {
         return MaterialPageRoute<void>(builder: (_) => getIt.get<RescanPage>());
 
       case Routes.faq:
-        return MaterialPageRoute<void>(builder: (_) => FaqPage());
+        return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
       case Routes.changeLanguage:
-        return MaterialPageRoute<void>(builder: (_) => ChangeLanguage());
+        return MaterialPageRoute<void>(
+            builder: (_) => getIt.get<LanguageListPage>());
 
       default:
         return MaterialPageRoute<void>(
