@@ -1,5 +1,7 @@
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/themes.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -7,7 +9,7 @@ import 'package:devicelocale/devicelocale.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:cake_wallet/entities/language.dart';
+import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -21,7 +23,6 @@ class SettingsStore = SettingsStoreBase with _$SettingsStore;
 abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {@required SharedPreferences sharedPreferences,
-      @required Box<Node> nodeSource,
       @required FiatCurrency initialFiatCurrency,
       @required TransactionPriority initialTransactionPriority,
       @required BalanceDisplayMode initialBalanceDisplayMode,
@@ -30,7 +31,7 @@ abstract class SettingsStoreBase with Store {
       @required bool initialDarkTheme,
       @required int initialPinLength,
       @required String initialLanguageCode,
-      @required String initialCurrentLocale,
+      // @required String initialCurrentLocale,
       @required this.appVersion,
       @required Map<WalletType, Node> nodes,
       this.actionlistDisplayMode}) {
@@ -42,11 +43,9 @@ abstract class SettingsStoreBase with Store {
     isDarkTheme = initialDarkTheme;
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
-    currentLocale = initialCurrentLocale;
-    itemHeaders = {};
+    currentNode = nodes[WalletType.monero];
     this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
-    _nodeSource = nodeSource;
 
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -58,6 +57,13 @@ abstract class SettingsStoreBase with Store {
         (_) => pinCodeLength,
         (int pinLength) => sharedPreferences.setInt(
             PreferencesKey.currentPinLength, pinLength));
+
+    reaction((_) => currentNode,
+        (Node node) => _saveCurrentNode(node, WalletType.monero));
+
+    reaction((_) => languageCode,
+            (String languageCode) => sharedPreferences.setString(
+                PreferencesKey.currentLanguageCode, languageCode));
   }
 
   static const defaultPinLength = 4;
@@ -88,16 +94,17 @@ abstract class SettingsStoreBase with Store {
   int pinCodeLength;
 
   @observable
-  Map<String, String> itemHeaders;
+  Node currentNode;
 
+  @computed
+  ThemeData get theme => isDarkTheme ? Themes.darkTheme : Themes.lightTheme;
+
+  @observable
   String languageCode;
-
-  String currentLocale;
 
   String appVersion;
 
   SharedPreferences _sharedPreferences;
-  Box<Node> _nodeSource;
 
   ObservableMap<WalletType, Node> nodes;
 
@@ -135,8 +142,7 @@ abstract class SettingsStoreBase with Store {
             defaultPinLength;
     final savedLanguageCode =
         sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
-            await Language.localeDetection();
-    final initialCurrentLocale = await Devicelocale.currentLocale;
+            await LanguageService.localeDetection();
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId = sharedPreferences
         .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
@@ -150,7 +156,6 @@ abstract class SettingsStoreBase with Store {
           WalletType.monero: moneroNode,
           WalletType.bitcoin: bitcoinElectrumServer
         },
-        nodeSource: nodeSource,
         appVersion: packageInfo.version,
         initialFiatCurrency: currentFiatCurrency,
         initialTransactionPriority: currentTransactionPriority,
@@ -160,11 +165,11 @@ abstract class SettingsStoreBase with Store {
         initialDarkTheme: savedDarkTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
-        initialLanguageCode: savedLanguageCode,
-        initialCurrentLocale: initialCurrentLocale);
+        initialLanguageCode: savedLanguageCode
+    );
   }
 
-  Future<void> setCurrentNode(Node node, WalletType walletType) async {
+  Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
     switch (walletType) {
       case WalletType.bitcoin:
         await _sharedPreferences.setInt(

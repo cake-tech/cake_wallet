@@ -191,7 +191,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<void> rescan({int height}) async {
-    // FIXME: Unimplemented
+    monero_wallet.rescanBlockchainAsync();
   }
 
   void _setListeners() {

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:provider/provider.dart';
@@ -72,7 +73,7 @@ class WalletMenu {
   }
 
   Future<void> _presentReconnectAlert(BuildContext context) async {
-    await showDialog<void>(
+    await showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertWithTwoActions(

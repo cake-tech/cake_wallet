@@ -38,6 +38,9 @@ class Node extends HiveObject with Keyable {
   @HiveField(3)
   int typeRaw;
 
+  @override
+  dynamic get keyIndex => key;
+
   WalletType get type => deserializeFromInt(typeRaw);
 
   set type(WalletType type) => typeRaw = serializeToInt(type);
@@ -58,24 +61,28 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-    Map<String, dynamic> resBody;
+    try {
+      Map<String, dynamic> resBody;
 
-    if (login != null && password != null) {
-      final digestRequest = DigestRequest();
-      final response = await digestRequest.request(
-          uri: uri, login: login, password: password);
-      resBody = response.data as Map<String, dynamic>;
-    } else {
-      final url = Uri.http(uri, '/json_rpc');
-      final headers = {'Content-type': 'application/json'};
-      final body =
-          json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
-      final response =
-          await http.post(url.toString(), headers: headers, body: body);
-      resBody = json.decode(response.body) as Map<String, dynamic>;
+      if (login != null && password != null) {
+        final digestRequest = DigestRequest();
+        final response = await digestRequest.request(
+            uri: uri, login: login, password: password);
+        resBody = response.data as Map<String, dynamic>;
+      } else {
+        final url = Uri.http(uri, '/json_rpc');
+        final headers = {'Content-type': 'application/json'};
+        final body =
+            json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
+        final response =
+            await http.post(url.toString(), headers: headers, body: body);
+        resBody = json.decode(response.body) as Map<String, dynamic>;
+      }
+
+      return !(resBody['result']['offline'] as bool);
+    } catch (_) {
+      return false;
     }
-
-    return !(resBody['result']['offline'] as bool);
   }
 
   Future<bool> requestBitcoinElectrumServer() async {

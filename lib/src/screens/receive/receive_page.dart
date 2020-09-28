@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -34,21 +35,19 @@ class ReceivePage extends BasePage {
 
   @override
   Widget Function(BuildContext, Widget) get rootWrapper =>
-          (BuildContext context, Widget scaffold) => Container(
+      (BuildContext context, Widget scaffold) => Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-                Theme.of(context).accentColor,
-                Theme.of(context).scaffoldBackgroundColor,
-                Theme.of(context).primaryColor,
-              ],
-                  begin: Alignment.topRight,
-                  end: Alignment.bottomLeft)),
+            Theme.of(context).accentColor,
+            Theme.of(context).scaffoldBackgroundColor,
+            Theme.of(context).primaryColor,
+          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
           child: scaffold);
 
   @override
   Widget trailing(BuildContext context) {
-    final shareImage = Image.asset('assets/images/share.png',
-        color: Colors.white);
+    final shareImage =
+        Image.asset('assets/images/share.png', color: Colors.white);
 
     return SizedBox(
       height: 20.0,
@@ -56,12 +55,12 @@ class ReceivePage extends BasePage {
       child: ButtonTheme(
         minWidth: double.minPositive,
         child: FlatButton(
-          highlightColor: Colors.transparent,
-          splashColor: Colors.transparent,
-          padding: EdgeInsets.all(0),
-          onPressed: () => Share.text(S.current.share_address,
-            addressListViewModel.address.address, 'text/plain'),
-          child: shareImage),
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            padding: EdgeInsets.all(0),
+            onPressed: () => Share.text(S.current.share_address,
+                addressListViewModel.address.address, 'text/plain'),
+            child: shareImage),
       ),
     );
   }
@@ -80,10 +79,9 @@ class ReceivePage extends BasePage {
           ),
           Observer(
               builder: (_) => ListView.separated(
-                  separatorBuilder: (context, _) =>
-                      Container(
-                          height: 1,
-                          color: Theme.of(context).dividerColor),
+                  padding: EdgeInsets.all(0),
+                  separatorBuilder: (context, _) => Container(
+                      height: 1, color: Theme.of(context).dividerColor),
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: addressListViewModel.items.length,
@@ -93,9 +91,10 @@ class ReceivePage extends BasePage {
 
                     if (item is WalletAccountListHeader) {
                       cell = HeaderTile(
-                          onTap: () async => await showDialog<void>(
+                          onTap: () async => await showPopUp<void>(
                               context: context,
-                              builder: (_) => getIt.get<MoneroAccountListPage>()),
+                              builder: (_) =>
+                                  getIt.get<MoneroAccountListPage>()),
                           title: addressListViewModel.accountLabel,
                           icon: Icon(
                             Icons.arrow_forward_ios,
@@ -117,27 +116,31 @@ class ReceivePage extends BasePage {
                     }
 
                     if (item is WalletAddressListItem) {
-                      cell = Observer(
-                          builder: (_) {
-                            final isCurrent = item.address ==
-                                addressListViewModel.address.address;
-                            final backgroundColor = isCurrent
-                                ? Theme.of(context).textTheme.display3.decorationColor
-                                : Theme.of(context).textTheme.display2.decorationColor;
-                            final textColor = isCurrent
-                                ? Theme.of(context).textTheme.display3.color
-                                : Theme.of(context).textTheme.display2.color;
+                      cell = Observer(builder: (_) {
+                        final isCurrent = item.address ==
+                            addressListViewModel.address.address;
+                        final backgroundColor = isCurrent
+                            ? Theme.of(context)
+                                .textTheme
+                                .display3
+                                .decorationColor
+                            : Theme.of(context)
+                                .textTheme
+                                .display2
+                                .decorationColor;
+                        final textColor = isCurrent
+                            ? Theme.of(context).textTheme.display3.color
+                            : Theme.of(context).textTheme.display2.color;
 
-                            return AddressCell.fromItem(item,
-                                isCurrent: isCurrent,
-                                backgroundColor: backgroundColor,
-                                textColor: textColor,
-                                onTap: (_) => addressListViewModel.address = item,
-                                onEdit: () => Navigator.of(context).pushNamed(
-                                    Routes.newSubaddress,
-                                    arguments: item));
-                          }
-                      );
+                        return AddressCell.fromItem(item,
+                            isCurrent: isCurrent,
+                            backgroundColor: backgroundColor,
+                            textColor: textColor,
+                            onTap: (_) => addressListViewModel.address = item,
+                            onEdit: () => Navigator.of(context).pushNamed(
+                                Routes.newSubaddress,
+                                arguments: item));
+                      });
                     }
 
                     return index != 0
