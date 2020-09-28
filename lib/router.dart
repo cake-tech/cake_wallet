@@ -236,7 +236,8 @@ class Router {
 
       case Routes.login:
         return CupertinoPageRoute<void>(
-            builder: (context) => getIt.get<AuthPage>(instanceName: 'login'));
+            builder: (context) => getIt.get<AuthPage>(instanceName: 'login'),
+            fullscreenDialog: true);
 
       case Routes.accountCreation:
         return CupertinoPageRoute<String>(
