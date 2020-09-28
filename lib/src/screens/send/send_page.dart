@@ -425,8 +425,10 @@ class SendPage extends BasePage {
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Observer(builder: (_) {
             return LoadingPrimaryButton(
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {}
+                onPressed: () async {
+                  if (_formKey.currentState.validate()) {
+                    await sendViewModel.createTransaction();
+                  }
                 },
                 text: S.of(context).send,
                 color: Theme.of(context).accentTextTheme.body2.color,
@@ -444,6 +446,18 @@ class SendPage extends BasePage {
     if (_effectsInstalled) {
       return;
     }
+
+    _cryptoAmountController.addListener(() {
+      final amount = _cryptoAmountController.text;
+
+      if (sendViewModel.sendAll && amount != S.current.all) {
+        sendViewModel.sendAll = false;
+      }
+
+      if (amount != sendViewModel.cryptoAmount) {
+        sendViewModel.setCryptoAmount(amount);
+      }
+    });
 
     reaction((_) => sendViewModel.sendAll, (bool all) {
       if (all) {

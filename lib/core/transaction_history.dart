@@ -19,6 +19,10 @@ abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
     try {
       _isUpdating = true;
       final _transactions = await fetchTransactions();
+      transactions.keys
+          .toSet()
+          .difference(_transactions.keys.toSet())
+          .forEach((k) => transactions.remove(k));
       _transactions.forEach((key, value) => transactions[key] = value);
       _isUpdating = false;
     } catch (e) {

@@ -65,7 +65,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
       });
     }
 
-    return widget.child;
+    return WillPopScope(onWillPop: () async => false, child: widget.child);
   }
 
   void _reset() {
