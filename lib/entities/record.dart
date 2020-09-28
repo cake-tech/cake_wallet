@@ -5,6 +5,7 @@ import 'package:hive/hive.dart';
 
 abstract class Record<T extends HiveObject> with Keyable {
   Record(this._source, this.original) {
+    key = original.key;
     _listener?.cancel();
     _listener = _source.watch(key: original.key).listen((event) {
       if (!event.deleted) {
@@ -16,7 +17,7 @@ abstract class Record<T extends HiveObject> with Keyable {
     toBind(original);
   }
 
-  dynamic get key => original.key;
+  dynamic key;
 
   @override
   dynamic get keyIndex => key;

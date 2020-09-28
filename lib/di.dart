@@ -1,5 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
-import 'package:cake_wallet/core/contact_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -8,22 +7,22 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 
-// import 'package:cake_wallet/src/domain/services/wallet_service.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
+import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
+import 'package:cake_wallet/src/screens/settings/change_language.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
-import 'package:cake_wallet/store/contact_list_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -38,10 +37,7 @@ import 'package:cake_wallet/src/screens/receive/receive_page.dart';
 import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
-import 'package:cake_wallet/store/theme_changer_store.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
-import 'package:cake_wallet/utils/mobx.dart';
-import 'package:cake_wallet/theme_changer.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
@@ -62,11 +58,9 @@ import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
-import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
@@ -104,17 +98,13 @@ Future setup(
   getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
   getIt.registerSingleton(AuthenticationStore());
   getIt.registerSingleton<WalletListStore>(WalletListStore());
-  getIt.registerSingleton(ContactListStore());
   getIt.registerSingleton(NodeListStoreBase.instance);
   getIt.registerSingleton<SettingsStore>(settingsStore);
   getIt.registerSingleton<AppStore>(AppStore(
       authenticationStore: getIt.get<AuthenticationStore>(),
       walletList: getIt.get<WalletListStore>(),
       settingsStore: getIt.get<SettingsStore>(),
-      contactListStore: getIt.get<ContactListStore>(),
       nodeListStore: getIt.get<NodeListStore>()));
-  getIt.registerSingleton<ContactService>(
-      ContactService(contactSource, getIt.get<AppStore>().contactListStore));
   getIt.registerSingleton<TradesStore>(TradesStore(
       tradesSource: tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
@@ -285,14 +275,10 @@ Future setup(
   getIt.registerFactory(() => WalletKeysPage(getIt.get<WalletKeysViewModel>()));
 
   getIt.registerFactoryParam<ContactViewModel, ContactRecord, void>(
-      (ContactRecord contact, _) => ContactViewModel(
-          contactSource, getIt.get<AppStore>().wallet,
-          contact: contact));
+      (ContactRecord contact, _) =>
+          ContactViewModel(contactSource, contact: contact));
 
-  getIt.registerFactory(() => ContactListViewModel(
-      getIt.get<AppStore>().contactListStore,
-      getIt.get<ContactService>(),
-      contactSource));
+  getIt.registerFactory(() => ContactListViewModel(contactSource));
 
   getIt.registerFactoryParam<ContactListPage, bool, void>(
       (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
@@ -366,9 +352,8 @@ Future setup(
   getIt.registerFactory(() => RescanViewModel(getIt.get<AppStore>().wallet));
 
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
-}
 
-void setupThemeChangerStore(ThemeChanger themeChanger) {
-  getIt.registerSingleton<ThemeChangerStore>(
-      ThemeChangerStore(themeChanger: themeChanger));
+  getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
+
+  getIt.registerFactory(() => LanguageListPage(getIt.get<SettingsStore>()));
 }

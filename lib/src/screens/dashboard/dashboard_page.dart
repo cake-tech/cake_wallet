@@ -105,7 +105,7 @@ class DashboardPage extends BasePage {
         Container(
           padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               ActionButton(
                   image: sendImage,

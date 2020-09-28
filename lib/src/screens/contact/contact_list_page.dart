@@ -164,10 +164,10 @@ class ContactListPage extends BasePage {
                                final isDelete =
                                    await showAlertDialog(context) ?? false;
 
-                               // if (isDelete) {
-                               //   await contactListViewModel
-                               //       .delete(contact);
-                               // }
+                               if (isDelete) {
+                                 await contactListViewModel
+                                     .delete(contact);
+                               }
                              },
                            ),
                          ],
