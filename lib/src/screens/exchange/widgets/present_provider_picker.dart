@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
@@ -72,7 +73,7 @@ class PresentProviderPicker extends StatelessWidget {
       }
     }
 
-    showDialog<void>(
+    showPopUp<void>(
         builder: (_) => Picker(
             items: items,
             images: images,

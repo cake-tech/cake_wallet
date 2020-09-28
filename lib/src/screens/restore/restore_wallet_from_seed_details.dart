@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -53,7 +54,7 @@ class _RestoreFromSeedDetailsFormState
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
+          showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(

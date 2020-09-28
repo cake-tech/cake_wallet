@@ -35,7 +35,7 @@ abstract class WalletListViewModelBase with Store {
 
   @action
   Future<void> remove(WalletListItem wallet) async {
-    final walletService = getIt.get<WalletService>();
+    final walletService = getIt.get<WalletService>(param1: wallet.type);
     await walletService.remove(wallet.name);
     await _walletInfoSource.delete(wallet.key);
     _updateList();

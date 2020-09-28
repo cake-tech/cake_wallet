@@ -103,29 +103,18 @@ class DashboardPage extends BasePage {
                   activeDotColor: Colors.white),
             )),
         Container(
-          width: double.infinity,
-          padding: EdgeInsets.only(
-              left: 45,
-              right: 45,
-              bottom: 24
-          ),
+          padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              Flexible(
-                child: ActionButton(
+              ActionButton(
                   image: sendImage,
                   title: S.of(context).send,
-                  route: Routes.send,
-                  alignment: Alignment.centerLeft,
-                ),
-              ),
-              Flexible(
-                child: ActionButton(
-                    image: exchangeImage,
-                    title: S.of(context).exchange,
-                    route: Routes.exchange
-                ),
-              ),
+                  route: Routes.send),
+              ActionButton(
+                  image: exchangeImage,
+                  title: S.of(context).exchange,
+                  route: Routes.exchange),
             ],
           ),
         )

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -138,7 +139,7 @@ class ContactPage extends BasePage {
   }
 
   void _presentCurrencyPicker(BuildContext context) {
-    showDialog<void>(
+    showPopUp<void>(
         builder: (_) => CurrencyPicker(
             selectedAtIndex:
                 contactViewModel.currencies.indexOf(contactViewModel.currency),
@@ -150,7 +151,7 @@ class ContactPage extends BasePage {
   }
 
   void _onContactSavingFailure(BuildContext context, String error) {
-    showDialog<void>(
+    showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
           return AlertWithOneAction(
