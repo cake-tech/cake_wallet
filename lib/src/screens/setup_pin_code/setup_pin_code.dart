@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -26,7 +27,7 @@ class SetupPinCodePage extends BasePage {
         }
 
         if (!pinCodeViewModel.isPinCodeCorrect) {
-          await showDialog<void>(
+          await showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
@@ -43,7 +44,7 @@ class SetupPinCodePage extends BasePage {
         try {
           await pinCodeViewModel.setupPinCode();
 
-          await showDialog<void>(
+          await showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
@@ -60,7 +61,7 @@ class SetupPinCodePage extends BasePage {
               });
         } catch (e) {
           // FIXME: Add translation for alert content text.
-          await showDialog<void>(
+          await showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(

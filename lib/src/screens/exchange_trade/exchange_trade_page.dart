@@ -4,6 +4,7 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:provider/provider.dart';
@@ -37,7 +38,7 @@ void showInformation(ExchangeTradeViewModel exchangeTradeViewModel, BuildContext
       : S.current.exchange_result_description(
       trade.amount ?? fetchingLabel, trade.from.toString());
 
-  showDialog<void>(
+  showPopUp<void>(
     context: context,
     builder: (_) => InformationPage(information: information)
   );
@@ -255,7 +256,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
     reaction((_) => sendStore.state, (SendingState state) {
       if (state is SendingFailed) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
+          showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
@@ -270,7 +271,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCreatedSuccessfully) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
+          showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithTwoActions(
@@ -292,7 +293,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
+          showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(

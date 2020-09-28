@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -29,7 +30,7 @@ class NodeListPage extends BasePage {
         minWidth: double.minPositive,
         child: FlatButton(
             onPressed: () async {
-              await showDialog<void>(
+              await showPopUp<void>(
                   context: context,
                   builder: (BuildContext context) {
                     return AlertWithTwoActions(
@@ -66,87 +67,86 @@ class NodeListPage extends BasePage {
             sectionCount: 2,
             context: context,
             itemBuilder: (_, sectionIndex, index) {
-              if (sectionIndex == 0) {
-                return NodeHeaderListRow(
-                    title: S.of(context).add_new_node,
-                    onTap: (_) async =>
-                        await Navigator.of(context).pushNamed(Routes.newNode));
-              }
+              return Observer(builder: (_) {
+                if (sectionIndex == 0) {
+                  return NodeHeaderListRow(
+                      title: S.of(context).add_new_node,
+                      onTap: (_) async => await Navigator.of(context)
+                          .pushNamed(Routes.newNode));
+                }
 
-              final node = nodeListViewModel.nodes[index];
-              final nodeListRow = NodeListRow(
-                  title: node.value.uri,
-                  isSelected: node.isSelected,
-                  isAlive: node.value.requestNode(),
-                  onTap: (_) async {
-                    if (node.isSelected) {
-                      return;
-                    }
+                final node = nodeListViewModel.nodes[index];
+                final isSelected = node.keyIndex ==
+                    nodeListViewModel.settingsStore.currentNode.keyIndex;
+                final nodeListRow = NodeListRow(
+                    title: node.uri,
+                    isSelected: isSelected,
+                    isAlive: node.requestNode(),
+                    onTap: (_) async {
+                      if (isSelected) {
+                        return;
+                      }
 
-                    await showDialog<void>(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            content: Text(
-                              S.of(context).change_current_node(node.value.uri),
-                              textAlign: TextAlign.center,
+                      await showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            // FIXME: Add translation.
+                            return AlertWithTwoActions(
+                                alertTitle: 'Change current node',
+                                alertContent:
+                                    S.of(context).change_current_node(node.uri),
+                                leftButtonText: S.of(context).cancel,
+                                rightButtonText: S.of(context).change,
+                                actionLeftButton: () =>
+                                    Navigator.of(context).pop(),
+                                actionRightButton: () async {
+                                  await nodeListViewModel.setAsCurrent(node);
+                                  Navigator.of(context).pop();
+                                });
+                          });
+                    });
+
+                final dismissibleRow = Dismissible(
+                    key: Key('${node.keyIndex}'),
+                    confirmDismiss: (direction) async {
+                      return await showPopUp(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertWithTwoActions(
+                                alertTitle: S.of(context).remove_node,
+                                alertContent: S.of(context).remove_node_message,
+                                rightButtonText: S.of(context).remove,
+                                leftButtonText: S.of(context).cancel,
+                                actionRightButton: () =>
+                                    Navigator.pop(context, true),
+                                actionLeftButton: () =>
+                                    Navigator.pop(context, false));
+                          });
+                    },
+                    onDismissed: (direction) async =>
+                        nodeListViewModel.delete(node),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                        padding: EdgeInsets.only(right: 10.0),
+                        alignment: AlignmentDirectional.centerEnd,
+                        color: Palette.red,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            const Icon(
+                              CupertinoIcons.delete,
+                              color: Colors.white,
                             ),
-                            actions: <Widget>[
-                              FlatButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: Text(S.of(context).cancel)),
-                              FlatButton(
-                                  onPressed: () async {
-                                    Navigator.of(context).pop();
-                                    await nodeListViewModel
-                                        .setAsCurrent(node.value);
-                                  },
-                                  child: Text(S.of(context).change)),
-                            ],
-                          );
-                        });
-                  });
+                            Text(
+                              S.of(context).delete,
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        )),
+                    child: nodeListRow);
 
-              final dismissibleRow = Dismissible(
-                  key: Key('${node.keyIndex}'),
-                  confirmDismiss: (direction) async {
-                    return await showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertWithTwoActions(
-                              alertTitle: S.of(context).remove_node,
-                              alertContent: S.of(context).remove_node_message,
-                              rightButtonText: S.of(context).remove,
-                              leftButtonText: S.of(context).cancel,
-                              actionRightButton: () =>
-                                  Navigator.pop(context, true),
-                              actionLeftButton: () =>
-                                  Navigator.pop(context, false));
-                        });
-                  },
-                  onDismissed: (direction) async =>
-                      nodeListViewModel.delete(node.value),
-                  direction: DismissDirection.endToStart,
-                  background: Container(
-                      padding: EdgeInsets.only(right: 10.0),
-                      alignment: AlignmentDirectional.centerEnd,
-                      color: Palette.red,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          const Icon(
-                            CupertinoIcons.delete,
-                            color: Colors.white,
-                          ),
-                          Text(
-                            S.of(context).delete,
-                            style: TextStyle(color: Colors.white),
-                          )
-                        ],
-                      )),
-                  child: nodeListRow);
-
-              return node.isSelected ? nodeListRow : dismissibleRow;
+                return isSelected ? nodeListRow : dismissibleRow;
+              });
             },
             itemCounter: (int sectionIndex) {
               if (sectionIndex == 0) {

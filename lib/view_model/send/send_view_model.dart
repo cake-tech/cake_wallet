@@ -70,15 +70,17 @@ abstract class SendViewModelBase with Store {
 
   @computed
   String get balance {
+    String balance = '0.0';
+
     if (_wallet is MoneroWallet) {
-      _wallet.balance.formattedUnlockedBalance;
+      balance = _wallet.balance.formattedUnlockedBalance as String ?? '';
     }
 
     if (_wallet is BitcoinWallet) {
-      _wallet.balance.confirmedFormatted;
+      balance = _wallet.balance.confirmedFormatted as String ?? '';
     }
 
-    return '0.0';
+    return balance;
   }
 
   @computed

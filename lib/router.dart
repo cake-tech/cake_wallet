@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -67,7 +68,7 @@ class Router {
                     .pushNamed(Routes.newWallet, arguments: type)));
 
       case Routes.newWallet:
-        final type = settings.arguments as WalletType;
+        final type = WalletType.monero; // settings.arguments as WalletType;
         final walletNewVM = getIt.get<WalletNewVM>(param1: type);
 
         return CupertinoPageRoute<void>(
@@ -97,7 +98,7 @@ class Router {
             builder: (_) => RestoreOptionsPage(type: type));
 
       case Routes.restoreWalletOptions:
-        final type = settings.arguments as WalletType;
+        final type = WalletType.monero; //settings.arguments as WalletType;
 
         return CupertinoPageRoute<void>(
             builder: (_) => RestoreWalletOptionsPage(
@@ -251,8 +252,8 @@ class Router {
 
       case Routes.addressBookAddContact:
         return CupertinoPageRoute<void>(
-            builder: (_) =>
-                getIt.get<ContactPage>(param1: settings.arguments as Contact));
+            builder: (_) => getIt.get<ContactPage>(
+                param1: settings.arguments as ContactRecord));
 
       case Routes.showKeys:
         return MaterialPageRoute<void>(
@@ -296,10 +297,11 @@ class Router {
         return MaterialPageRoute<void>(builder: (_) => getIt.get<RescanPage>());
 
       case Routes.faq:
-        return MaterialPageRoute<void>(builder: (_) => FaqPage());
+        return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
       case Routes.changeLanguage:
-        return MaterialPageRoute<void>(builder: (_) => ChangeLanguage());
+        return MaterialPageRoute<void>(
+            builder: (_) => getIt.get<LanguageListPage>());
 
       default:
         return MaterialPageRoute<void>(

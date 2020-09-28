@@ -1,6 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +61,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
+          showPopUp<void>(
               context: context,
               builder: (_) {
                 return AlertWithOneAction(

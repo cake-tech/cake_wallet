@@ -14,6 +14,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.bch,
     CryptoCurrency.bnb,
     CryptoCurrency.btc,
+    CryptoCurrency.dai,
     CryptoCurrency.dash,
     CryptoCurrency.eos,
     CryptoCurrency.eth,
@@ -29,15 +30,16 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const bch = CryptoCurrency(title: 'BCH', raw: 2);
   static const bnb = CryptoCurrency(title: 'BNB', raw: 3);
   static const btc = CryptoCurrency(title: 'BTC', raw: 4);
-  static const dash = CryptoCurrency(title: 'DASH', raw: 5);
-  static const eos = CryptoCurrency(title: 'EOS', raw: 6);
-  static const eth = CryptoCurrency(title: 'ETH', raw: 7);
-  static const ltc = CryptoCurrency(title: 'LTC', raw: 8);
-  static const nano = CryptoCurrency(title: 'NANO', raw: 9);
-  static const trx = CryptoCurrency(title: 'TRX', raw: 10);
-  static const usdt = CryptoCurrency(title: 'USDT', raw: 11);
-  static const xlm = CryptoCurrency(title: 'XLM', raw: 12);
-  static const xrp = CryptoCurrency(title: 'XRP', raw: 13);
+  static const dai = CryptoCurrency(title: 'DAI', raw: 5);
+  static const dash = CryptoCurrency(title: 'DASH', raw: 6);
+  static const eos = CryptoCurrency(title: 'EOS', raw: 7);
+  static const eth = CryptoCurrency(title: 'ETH', raw: 8);
+  static const ltc = CryptoCurrency(title: 'LTC', raw: 9);
+  static const nano = CryptoCurrency(title: 'NANO', raw: 10);
+  static const trx = CryptoCurrency(title: 'TRX', raw: 11);
+  static const usdt = CryptoCurrency(title: 'USDT', raw: 12);
+  static const xlm = CryptoCurrency(title: 'XLM', raw: 13);
+  static const xrp = CryptoCurrency(title: 'XRP', raw: 14);
 
   static CryptoCurrency deserialize({int raw}) {
     switch (raw) {
@@ -52,22 +54,24 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
       case 4:
         return CryptoCurrency.btc;
       case 5:
-        return CryptoCurrency.dash;
+        return CryptoCurrency.dai;
       case 6:
-        return CryptoCurrency.eos;
+        return CryptoCurrency.dash;
       case 7:
-        return CryptoCurrency.eth;
+        return CryptoCurrency.eos;
       case 8:
-        return CryptoCurrency.ltc;
+        return CryptoCurrency.eth;
       case 9:
-        return CryptoCurrency.nano;
+        return CryptoCurrency.ltc;
       case 10:
-        return CryptoCurrency.trx;
+        return CryptoCurrency.nano;
       case 11:
-        return CryptoCurrency.usdt;
+        return CryptoCurrency.trx;
       case 12:
-        return CryptoCurrency.xlm;
+        return CryptoCurrency.usdt;
       case 13:
+        return CryptoCurrency.xlm;
+      case 14:
         return CryptoCurrency.xrp;
       default:
         return null;
@@ -86,6 +90,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.bnb;
       case 'btc':
         return CryptoCurrency.btc;
+      case 'dai':
+        return CryptoCurrency.dai;
       case 'dash':
         return CryptoCurrency.dash;
       case 'eos':
