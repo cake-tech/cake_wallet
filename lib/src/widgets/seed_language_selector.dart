@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
@@ -35,7 +36,7 @@ class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
         image: null,
         text: seedLocales[seedLanguages.indexOf(selected)],
         onTap: () async {
-          final selected = await showDialog<String>(
+          final selected = await showPopUp<String>(
               context: context,
               builder: (BuildContext context) =>
                   SeedLanguagePicker(key: _pickerKey, selected: this.selected));

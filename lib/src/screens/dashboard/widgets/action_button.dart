@@ -15,8 +15,6 @@ class ActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      height: 93,
       alignment: alignment,
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -38,6 +36,7 @@ class ActionButton extends StatelessWidget {
               child: image,
             ),
           ),
+          SizedBox(height: 15),
           Text(
             title,
             style: TextStyle(fontSize: 14, color: Colors.white),

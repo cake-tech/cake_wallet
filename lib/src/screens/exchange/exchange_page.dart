@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -293,7 +294,7 @@ class ExchangePage extends BasePage {
                                             exchangeViewModel, template);
                                       },
                                       onRemove: () {
-                                        showDialog<void>(
+                                        showPopUp<void>(
                                             context: context,
                                             builder: (dialogContext) {
                                               return AlertWithTwoActions(
@@ -492,7 +493,7 @@ class ExchangePage extends BasePage {
     // reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
     //   if (state is TradeIsCreatedFailure) {
     //     WidgetsBinding.instance.addPostFrameCallback((_) {
-    //       showDialog<void>(
+    //       showPopUp<void>(
     //           context: context,
     //           builder: (BuildContext context) {
     //             return AlertWithOneAction(

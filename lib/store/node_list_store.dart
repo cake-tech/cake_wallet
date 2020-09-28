@@ -22,17 +22,13 @@ abstract class NodeListStoreBase with Store {
 
     final nodeSource = getIt.get<Box<Node>>();
     _instance = NodeListStore();
-    _instance.replaceValues(nodeSource.values);
+    _instance.nodes.clear();
+    _instance.nodes.addAll(nodeSource.values);
     _onNodesSourceChange?.cancel();
-    _onNodesSourceChange = bindBox(nodeSource, _instance.nodes);
+    _onNodesSourceChange = nodeSource.bindToList(_instance.nodes);
 
     return _instance;
   }
 
   final ObservableList<Node> nodes;
-
-  void replaceValues(Iterable<Node> newNodes) {
-    nodes.clear();
-    nodes.addAll(newNodes);
-  }
 }

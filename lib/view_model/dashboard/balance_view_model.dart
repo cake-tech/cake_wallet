@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -91,6 +92,9 @@ abstract class BalanceViewModelBase with Store {
 
     return null;
   }
+
+  @computed
+  CryptoCurrency get currency => appStore.wallet.currency;
 
   String _getFiatBalance({double price, String cryptoAmount}) {
     if (cryptoAmount == null) {

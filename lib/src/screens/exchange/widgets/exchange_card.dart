@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -145,11 +146,11 @@ class ExchangeCardState extends State<ExchangeCard> {
                   textAlign: TextAlign.left,
                   keyboardType: TextInputType.numberWithOptions(
                       signed: false, decimal: true),
-                  inputFormatters: [
-                    LengthLimitingTextInputFormatter(15),
-                    BlacklistingTextInputFormatter(
-                        RegExp('[\\-|\\ |\\,]'))
-                  ],
+                  // inputFormatters: [
+                  //   LengthLimitingTextInputFormatter(15),
+                  //   BlacklistingTextInputFormatter(
+                  //       RegExp('[\\-|\\ |\\,]'))
+                  // ],
                   hintText: '0.0000',
                   borderColor: widget.borderColor,
                   textStyle: TextStyle(
@@ -303,7 +304,7 @@ class ExchangeCardState extends State<ExchangeCard> {
   }
 
   void _presentPicker(BuildContext context) {
-    showDialog<void>(
+    showPopUp<void>(
         builder: (_) => CurrencyPicker(
             selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
             items: widget.currencies,

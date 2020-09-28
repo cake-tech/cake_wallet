@@ -266,7 +266,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       return;
     }
 
-    pin.substring(0, pin.length - 1);
+    setState(() => pin = pin.substring(0, pin.length - 1));
   }
 
   String _changePinLengthText() {
