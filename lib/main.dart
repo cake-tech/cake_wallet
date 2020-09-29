@@ -131,6 +131,7 @@ class App extends StatelessWidget {
     return Observer(builder: (BuildContext context) {
       return Root(
           authenticationStore: authenticationStore,
+          navigatorKey: navigatorKey,
           child: MaterialApp(
             navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,

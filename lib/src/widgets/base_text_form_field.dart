@@ -22,7 +22,8 @@ class BaseTextFormField extends StatelessWidget {
       this.validator,
       this.textStyle,
       this.placeholderTextStyle,
-      this.maxLength});
+      this.maxLength,
+      this.focusNode});
 
   final TextEditingController controller;
   final TextInputType keyboardType;
@@ -44,10 +45,12 @@ class BaseTextFormField extends StatelessWidget {
   final TextStyle placeholderTextStyle;
   final TextStyle textStyle;
   final int maxLength;
+  final FocusNode focusNode;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      focusNode: focusNode,
       controller: controller,
       keyboardType: keyboardType,
       textInputAction: textInputAction,
