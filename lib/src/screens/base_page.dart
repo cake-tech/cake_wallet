@@ -37,7 +37,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget Function(BuildContext, Widget) get rootWrapper => null;
 
-  bool get _isDarkTheme => getIt.get<SettingsStore>().isDarkTheme;
+  bool get isDarkTheme => getIt.get<SettingsStore>().isDarkTheme;
 
   void onOpenEndDrawer() => _scaffoldKey.currentState.openEndDrawer();
 
@@ -51,7 +51,7 @@ abstract class BasePage extends StatelessWidget {
     final _backButton = Image.asset('assets/images/back_arrow.png',
         color: titleColor ?? Theme.of(context).primaryTextTheme.title.color);
     final _closeButton =
-        _isDarkTheme ? _closeButtonImageDarkTheme : _closeButtonImage;
+        isDarkTheme ? _closeButtonImageDarkTheme : _closeButtonImage;
 
     return SizedBox(
       height: 37,
@@ -88,7 +88,7 @@ abstract class BasePage extends StatelessWidget {
 
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
     final appBarColor =
-        _isDarkTheme ? backgroundDarkColor : backgroundLightColor;
+        isDarkTheme ? backgroundDarkColor : backgroundLightColor;
 
     switch (appBarStyle) {
       case AppBarStyle.regular:
@@ -133,7 +133,7 @@ abstract class BasePage extends StatelessWidget {
     final root = Scaffold(
         key: _scaffoldKey,
         backgroundColor:
-            _isDarkTheme ? backgroundDarkColor : backgroundLightColor,
+            isDarkTheme ? backgroundDarkColor : backgroundLightColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
         extendBodyBehindAppBar: extendBodyBehindAppBar,
         endDrawer: endDrawer,

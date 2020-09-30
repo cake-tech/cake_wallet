@@ -48,6 +48,28 @@ abstract class SettingsStoreBase with Store {
     _sharedPreferences = sharedPreferences;
 
     reaction(
+        (_) => fiatCurrency,
+        (FiatCurrency fiatCurrency) => sharedPreferences.setString(
+            PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
+
+    reaction(
+        (_) => transactionPriority,
+        (TransactionPriority priority) => sharedPreferences.setInt(
+            PreferencesKey.currentTransactionPriorityKey,
+            priority.serialize()));
+
+    reaction(
+        (_) => shouldSaveRecipientAddress,
+        (bool shouldSaveRecipientAddress) => sharedPreferences.setBool(
+            PreferencesKey.shouldSaveRecipientAddressKey,
+            shouldSaveRecipientAddress));
+
+    reaction(
+        (_) => isDarkTheme,
+        (bool isDarkTheme) => sharedPreferences.setBool(
+            PreferencesKey.currentDarkTheme, isDarkTheme));
+
+    reaction(
         (_) => allowBiometricalAuthentication,
         (bool biometricalAuthentication) => sharedPreferences.setBool(
             PreferencesKey.allowBiometricalAuthenticationKey,
@@ -61,9 +83,10 @@ abstract class SettingsStoreBase with Store {
     reaction((_) => currentNode,
         (Node node) => _saveCurrentNode(node, WalletType.monero));
 
-    reaction((_) => languageCode,
-            (String languageCode) => sharedPreferences.setString(
-                PreferencesKey.currentLanguageCode, languageCode));
+    reaction(
+        (_) => languageCode,
+        (String languageCode) => sharedPreferences.setString(
+            PreferencesKey.currentLanguageCode, languageCode));
   }
 
   static const defaultPinLength = 4;
@@ -165,8 +188,7 @@ abstract class SettingsStoreBase with Store {
         initialDarkTheme: savedDarkTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
-        initialLanguageCode: savedLanguageCode
-    );
+        initialLanguageCode: savedLanguageCode);
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {
