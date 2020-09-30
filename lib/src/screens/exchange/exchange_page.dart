@@ -208,7 +208,9 @@ class ExchangePage extends BasePage {
                                               exchangeViewModel.wallet.currency
                                           ? exchangeViewModel.wallet.address
                                           : exchangeViewModel.receiveAddress,
-                                      initialIsAmountEditable: false,
+                                      initialIsAmountEditable:
+                                          exchangeViewModel.provider is
+                                          XMRTOExchangeProvider ? true : false,
                                       initialIsAddressEditable:
                                           exchangeViewModel
                                               .isReceiveAddressEnabled,
