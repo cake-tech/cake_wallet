@@ -191,7 +191,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<void> rescan({int height}) async {
+    monero_wallet.setRefreshFromBlockHeight(height: height);
     monero_wallet.rescanBlockchainAsync();
+    await startSync();
+    _askForUpdateBalance();
+    await _askForUpdateTransactionHistory();
+    await save();
   }
 
   void _setListeners() {
@@ -247,9 +252,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   Future<void> _askForUpdateTransactionHistory() async {
-    print('start');
     await transactionHistory.update();
-    print('end');
   }
 
   int _getFullBalance() =>
@@ -270,6 +273,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
     if (walletInfo.isRecovery) {
       _askForUpdateTransactionHistory();
+      _askForUpdateBalance();
     }
 
     final currentHeight = getCurrentHeight();
