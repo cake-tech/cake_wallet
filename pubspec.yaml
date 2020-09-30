@@ -65,6 +65,7 @@ dependencies:
   get_it: ^4.0.2
   connectivity: ^0.4.9+2
   keyboard_actions: ^3.3.0
+  flushbar: ^1.10.4
 
 dev_dependencies:
   flutter_test:

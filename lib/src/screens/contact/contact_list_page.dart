@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -56,16 +57,6 @@ class ContactListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final shortDivider = Container(
-      height: 1,
-      padding: EdgeInsets.only(left: 24),
-      color: Theme.of(context).backgroundColor,
-      child: Container(
-        height: 1,
-        color: Theme.of(context).primaryTextTheme.title.backgroundColor,
-      ),
-    );
-
     return Container(
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
@@ -92,16 +83,8 @@ class ContactListPage extends BasePage {
                           if (isCopied != null && isCopied) {
                             await Clipboard.setData(
                                 ClipboardData(text: contact.address));
-                            Scaffold.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  S.of(context).copied_to_clipboard,
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                backgroundColor: Colors.green,
-                                duration: Duration(milliseconds: 1500),
-                              ),
-                            );
+                            await showBar<void>(context,
+                                S.of(context).copied_to_clipboard);
                           }
                         },
                         child: Column(

@@ -95,7 +95,7 @@ class ReceivePage extends BasePage {
                               context: context,
                               builder: (_) =>
                                   getIt.get<MoneroAccountListPage>()),
-                          title: addressListViewModel.accountLabel,
+                          title: S.of(context).accounts,
                           icon: Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
@@ -136,7 +136,7 @@ class ReceivePage extends BasePage {
                             isCurrent: isCurrent,
                             backgroundColor: backgroundColor,
                             textColor: textColor,
-                            onTap: (_) => addressListViewModel.address = item,
+                            onTap: (_) => addressListViewModel.setAddress(item),
                             onEdit: () => Navigator.of(context).pushNamed(
                                 Routes.newSubaddress,
                                 arguments: item));

@@ -124,9 +124,15 @@ extension HiveBindable<T extends Keyable> on ObservableList<T> {
       listen().listen((event) => dest.acceptEntityChange(event));
 
   void acceptBoxChange(BoxEvent event, {T transformed}) {
+    print('---------------------');
+    print('event.key: ${event.key}; event.deleted: ${event.deleted};');
     if (event.deleted) {
-      removeWhere((el) => el.keyIndex == event.key);
+      removeWhere((el) {
+        print('el.keyIndex ${el.keyIndex}');
+        return el.keyIndex == event.key; });
     }
+
+    print('---------------------');
 
     final dynamic value = transformed ?? event.value;
 

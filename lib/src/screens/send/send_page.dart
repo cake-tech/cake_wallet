@@ -1,5 +1,7 @@
 import 'dart:ui';
+import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -691,19 +693,19 @@ class SendPage extends BasePage {
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
-    // final items = TransactionPriority.all;
-    // final selectedItem = items.indexOf(sendViewModel.transactionPriority);
-    //
-    // await showPopUp<void>(
-    //     builder: (_) => Picker(
-    //       items: items,
-    //       selectedAtIndex: selectedItem,
-    //       title: S.of(context).please_select,
-    //       mainAxisAlignment: MainAxisAlignment.center,
-    //       onItemSelected: (TransactionPriority priority) => null,
-    //       // sendViewModel.setTransactionPriority(priority),
-    //       isAlwaysShowScrollThumb: true,
-    //     ),
-    //     context: context);
+    final items = TransactionPriority.all;
+    final selectedItem = items.indexOf(sendViewModel.transactionPriority);
+
+    await showPopUp<void>(
+        builder: (_) => Picker(
+              items: items,
+              selectedAtIndex: selectedItem,
+              title: S.of(context).please_select,
+              mainAxisAlignment: MainAxisAlignment.center,
+              onItemSelected: (TransactionPriority priority) =>
+                  sendViewModel.setTransactionPriority(priority),
+              isAlwaysShowScrollThumb: true,
+            ),
+        context: context);
   }
 }

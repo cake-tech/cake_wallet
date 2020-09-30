@@ -39,11 +39,16 @@ class Node extends HiveObject with Keyable {
   int typeRaw;
 
   @override
-  dynamic get keyIndex => key;
+  dynamic get keyIndex {
+    _keyIndex ??= key;
+    return _keyIndex;
+  }
 
   WalletType get type => deserializeFromInt(typeRaw);
 
   set type(WalletType type) => typeRaw = serializeToInt(type);
+
+  dynamic _keyIndex;
 
   Future<bool> requestNode() async {
     try {

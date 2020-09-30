@@ -2,7 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/contact.dart';
+import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/qr_scanner.dart';
 
 enum AddressTextFieldOption { paste, qrCode, addressBook }
@@ -212,7 +212,7 @@ class AddressTextField extends StatelessWidget {
     final contact = await Navigator.of(context, rootNavigator: true)
         .pushNamed(Routes.pickerAddressBook);
 
-    if (contact is Contact && contact.address != null) {
+    if (contact is ContactRecord && contact.address != null) {
       controller.text = contact.address;
     }
   }

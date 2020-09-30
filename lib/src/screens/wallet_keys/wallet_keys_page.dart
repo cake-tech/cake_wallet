@@ -1,3 +1,5 @@
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -41,15 +43,8 @@ class WalletKeysPage extends BasePage {
                   return GestureDetector(
                     onTap: () {
                       Clipboard.setData(ClipboardData(text: item.value));
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text(
-                          S.of(context).copied_key_to_clipboard(item.title),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        backgroundColor: Colors.green,
-                        duration: Duration(seconds: 1),
-                      ));
+                      showBar<void>(context,
+                          S.of(context).copied_key_to_clipboard(item.title));
                     },
                     child: StandartListRow(
                       title: item.title + ':',

@@ -1,3 +1,5 @@
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,6 +31,8 @@ class AuthPageState extends State<AuthPage> {
   final _backArrowImageDarkTheme =
       Image.asset('assets/images/close_button.png');
   ReactionDisposer _reaction;
+  Flushbar<void> _authBar;
+  Flushbar<void> _progressBar;
 
   @override
   void initState() {
@@ -39,37 +43,26 @@ class AuthPageState extends State<AuthPage> {
           if (widget.onAuthenticationFinished != null) {
             widget.onAuthenticationFinished(true, this);
           } else {
-            _key.currentState.showSnackBar(
-              SnackBar(
-                content: Text(S.of(context).authenticated),
-                backgroundColor: Colors.green,
-              ),
-            );
+            _authBar?.dismiss();
+            showBar<void>(context, S.of(context).authenticated);
           }
         });
       }
 
       if (state is IsExecutingState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _key.currentState.showSnackBar(
-            SnackBar(
-              content: Text(S.of(context).authentication),
-              backgroundColor: Colors.green,
-            ),
-          );
+          _authBar =
+              createBar<void>(S.of(context).authentication, duration: null)
+                ..show(context);
         });
       }
 
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _pinCodeKey.currentState.clear();
-          _key.currentState.hideCurrentSnackBar();
-          _key.currentState.showSnackBar(
-            SnackBar(
-              content: Text(S.of(context).failed_authentication(state.error)),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _authBar?.dismiss();
+          showBar<void>(
+              context, S.of(context).failed_authentication(state.error));
 
           if (widget.onAuthenticationFinished != null) {
             widget.onAuthenticationFinished(false, this);
@@ -80,13 +73,9 @@ class AuthPageState extends State<AuthPage> {
       if (state is AuthenticationBanned) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _pinCodeKey.currentState.clear();
-          _key.currentState.hideCurrentSnackBar();
-          _key.currentState.showSnackBar(
-            SnackBar(
-              content: Text(S.of(context).failed_authentication(state.error)),
-              backgroundColor: Colors.red,
-            ),
-          );
+          _authBar?.dismiss();
+          showBar<void>(
+              context, S.of(context).failed_authentication(state.error));
 
           if (widget.onAuthenticationFinished != null) {
             widget.onAuthenticationFinished(false, this);
@@ -111,10 +100,22 @@ class AuthPageState extends State<AuthPage> {
     super.dispose();
   }
 
-  void changeProcessText(String text) => _key.currentState.showSnackBar(
-      SnackBar(content: Text(text), backgroundColor: Colors.green));
+  void changeProcessText(String text) {
+    _authBar?.dismiss();
+    _progressBar = createBar<void>(text, duration: null)
+      ..show(_key.currentContext);
+  }
 
-  void close() => Navigator.of(_key.currentContext).pop();
+  void hideProgressText() {
+    _progressBar?.dismiss();
+    _progressBar = null;
+  }
+
+  void close() {
+    _authBar?.dismiss();
+    _progressBar?.dismiss();
+    Navigator.of(_key.currentContext).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,20 +124,20 @@ class AuthPageState extends State<AuthPage> {
         appBar: CupertinoNavigationBar(
             leading: widget.closable
                 ? Container(
-              padding: EdgeInsets.only(top: 10),
-                child: SizedBox(
-                    height: 37,
-                    width: 37,
-                    child: ButtonTheme(
-                      minWidth: double.minPositive,
-                      child: FlatButton(
-                          highlightColor: Colors.transparent,
-                          splashColor: Colors.transparent,
-                          padding: EdgeInsets.all(0),
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: _backArrowImageDarkTheme),
-                    ),
-                  ))
+                    padding: EdgeInsets.only(top: 10),
+                    child: SizedBox(
+                      height: 37,
+                      width: 37,
+                      child: ButtonTheme(
+                        minWidth: double.minPositive,
+                        child: FlatButton(
+                            highlightColor: Colors.transparent,
+                            splashColor: Colors.transparent,
+                            padding: EdgeInsets.all(0),
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: _backArrowImageDarkTheme),
+                      ),
+                    ))
                 : Container(),
             backgroundColor: Theme.of(context).backgroundColor,
             border: null),

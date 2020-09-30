@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -68,14 +69,7 @@ class TradeDetailsPage extends BasePage {
             return GestureDetector(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: '${item.value}'));
-                  Scaffold.of(context).showSnackBar(
-                    SnackBar(
-                      content:
-                          Text(S.of(context).trade_details_copied(item.title)),
-                      backgroundColor: Colors.green,
-                      duration: Duration(milliseconds: 1500),
-                    ),
-                  );
+                  showBar<void>(context, S.of(context).copied_to_clipboard);
                 },
                 child: StandartListRow(
                   title: '${item.title}',

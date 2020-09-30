@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -9,13 +10,12 @@ import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 
 class QRWidget extends StatelessWidget {
-  QRWidget({
-    @required this.addressListViewModel,
-    this.isAmountFieldShow = false
-  }) : amountController = TextEditingController(),
-    _formKey = GlobalKey<FormState>() {
+  QRWidget(
+      {@required this.addressListViewModel, this.isAmountFieldShow = false})
+      : amountController = TextEditingController(),
+        _formKey = GlobalKey<FormState>() {
     amountController.addListener(() => addressListViewModel.amount =
-    _formKey.currentState.validate() ? amountController.text : '');
+        _formKey.currentState.validate() ? amountController.text : '');
   }
 
   final WalletAddressListViewModel addressListViewModel;
@@ -26,7 +26,7 @@ class QRWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
-          color: Theme.of(context).textTheme.subhead.decorationColor);
+        color: Theme.of(context).textTheme.subhead.decorationColor);
     final addressTopOffset = isAmountFieldShow ? 60.0 : 40.0;
 
     return Column(
@@ -36,16 +36,17 @@ class QRWidget extends StatelessWidget {
         Row(children: <Widget>[
           Spacer(flex: 3),
           Observer(
-            builder: (_) => Flexible(
-              flex: 5,
-              child: Center(
-                child: AspectRatio(
-                  aspectRatio: 1.0,
-                  child: QrImage(
-                    data: addressListViewModel.uri.toString(),
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Theme.of(context).textTheme.headline.color,
-          ))))),
+              builder: (_) => Flexible(
+                  flex: 5,
+                  child: Center(
+                      child: AspectRatio(
+                          aspectRatio: 1.0,
+                          child: QrImage(
+                            data: addressListViewModel.uri.toString(),
+                            backgroundColor: Colors.transparent,
+                            foregroundColor:
+                                Theme.of(context).textTheme.headline.color,
+                          ))))),
           Spacer(flex: 3)
         ]),
         Padding(
@@ -53,83 +54,78 @@ class QRWidget extends StatelessWidget {
           child: Text(
             S.of(context).scan_qr_code,
             style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).indicatorColor
-            ),
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).indicatorColor),
           ),
         ),
         isAmountFieldShow
-        ? Padding(
-          padding: EdgeInsets.only(top: 40),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                  child: Form(
-                      key: _formKey,
-                      child: BaseTextFormField(
-                          controller: amountController,
-                          keyboardType:
-                          TextInputType.numberWithOptions(decimal: true),
-                          inputFormatters: [
-                            BlacklistingTextInputFormatter(
-                                RegExp('[\\-|\\ |\\,]'))
-                          ],
-                          textAlign: TextAlign.center,
-                          hintText: S.of(context).receive_amount,
-                          textColor: Colors.white,
-                          borderColor: Theme.of(context).textTheme.headline.decorationColor,
-                          validator: AmountValidator(
-                            type: addressListViewModel.type,
-                            isAutovalidate: true
-                          ),
-                          autovalidate: true,
-                          placeholderTextStyle: TextStyle(
-                              color: Theme.of(context).hoverColor,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w500))))
-            ],
-          ),
-        )
-        : Offstage(),
+            ? Padding(
+                padding: EdgeInsets.only(top: 40),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: Form(
+                            key: _formKey,
+                            child: BaseTextFormField(
+                                controller: amountController,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    decimal: true),
+                                inputFormatters: [
+                                  BlacklistingTextInputFormatter(
+                                      RegExp('[\\-|\\ |\\,]'))
+                                ],
+                                textAlign: TextAlign.center,
+                                hintText: S.of(context).receive_amount,
+                                textColor: Colors.white,
+                                borderColor: Theme.of(context)
+                                    .textTheme
+                                    .headline
+                                    .decorationColor,
+                                validator: AmountValidator(
+                                    type: addressListViewModel.type,
+                                    isAutovalidate: true),
+                                autovalidate: true,
+                                placeholderTextStyle: TextStyle(
+                                    color: Theme.of(context).hoverColor,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w500))))
+                  ],
+                ),
+              )
+            : Offstage(),
         Padding(
           padding: EdgeInsets.only(top: addressTopOffset),
           child: Builder(
               builder: (context) => Observer(
                   builder: (context) => GestureDetector(
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(
-                          text: addressListViewModel.address.address));
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text(
-                          S.of(context).copied_to_clipboard,
-                          style: TextStyle(color: Colors.white),
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(
+                              text: addressListViewModel.address.address));
+                          showBar<void>(
+                              context, S.of(context).copied_to_clipboard);
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: <Widget>[
+                            Expanded(
+                              child: Text(
+                                addressListViewModel.address.address,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 12),
+                              child: copyImage,
+                            )
+                          ],
                         ),
-                        backgroundColor: Colors.green,
-                        duration: Duration(milliseconds: 500),
-                      ));
-                    },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: <Widget>[
-                        Expanded(
-                          child: Text(
-                            addressListViewModel.address.address,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 12),
-                          child: copyImage,
-                        )
-                      ],
-                    ),
-                  ))),
+                      ))),
         )
       ],
     );
