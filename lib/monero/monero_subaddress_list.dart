@@ -39,8 +39,22 @@ abstract class MoneroSubaddressListBase with Store {
   }
 
   List<Subaddress> getAll() {
-    return subaddress_list
-        .getAllSubaddresses()
+    final subaddresses = subaddress_list.getAllSubaddresses();
+    if (subaddresses.length > 1) {
+      // final primary = subaddresses.first;
+      // final last = subaddresses.last;
+      // subaddresses[subaddresses.length - 1] = primary;
+      // subaddresses[0] = last;
+
+      // for (var i = subaddresses.length - 1; i >= 0; i--) {
+      //   final pre = subaddresses[i];
+      //   final post = subaddresses[subaddresses.length - i];
+      //   subaddresses[subaddresses.length - i] = pre;
+      //   subaddresses[i] = post;
+      // }
+    }
+
+    return subaddresses
         .map((subaddressRow) => Subaddress.fromRow(subaddressRow))
         .toList();
   }

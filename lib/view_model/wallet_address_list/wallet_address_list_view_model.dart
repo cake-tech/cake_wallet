@@ -109,9 +109,6 @@ abstract class WalletAddressListViewModelBase with Store {
     return addressList;
   }
 
-  set address(WalletAddressListItem address) => null;
-  // _wallet.address = address.address;
-
   bool hasAccounts;
 
   WalletBase _wallet;
@@ -128,6 +125,10 @@ abstract class WalletAddressListViewModelBase with Store {
 
     return null;
   }
+
+  @action
+  void setAddress(WalletAddressListItem address) =>
+      _wallet.address = address.address;
 
   void _init() {
     _baseItems = [];

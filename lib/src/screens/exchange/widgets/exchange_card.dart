@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -270,14 +271,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                           onTap: () {
                             Clipboard.setData(
                                 ClipboardData(text: addressController.text));
-                            Scaffold.of(context).showSnackBar(SnackBar(
-                              content: Text(
-                                S.of(context).copied_to_clipboard,
-                                style: TextStyle(color: Colors.white),
-                              ),
-                              backgroundColor: Colors.green,
-                              duration: Duration(milliseconds: 500),
-                            ));
+                            showBar<void>(context,
+                                S.of(context).copied_to_clipboard);
                           },
                           child: Row(
                             mainAxisSize: MainAxisSize.max,

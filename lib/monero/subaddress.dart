@@ -11,7 +11,10 @@ class Subaddress {
   Subaddress.fromRow(SubaddressRow row)
       : this.id = row.getId(),
         this.address = row.getAddress(),
-        this.label = row.getLabel();
+        this.label = row.getId() == 0 &&
+                row.getLabel().toLowerCase() == 'Primary account'.toLowerCase()
+            ? 'Primary address'
+            : row.getLabel();
 
   final int id;
   final String address;

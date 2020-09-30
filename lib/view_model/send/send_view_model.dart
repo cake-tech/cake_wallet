@@ -50,13 +50,14 @@ abstract class SendViewModelBase with Store {
   @observable
   bool sendAll;
 
+  @computed
+  double get estimatedFee =>
+      _wallet.calculateEstimatedFee(_settingsStore.transactionPriority);
+
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
   TransactionPriority get transactionPriority =>
       _settingsStore.transactionPriority;
-
-  double get estimatedFee =>
-      _wallet.calculateEstimatedFee(_settingsStore.transactionPriority);
 
   CryptoCurrency get currency => _wallet.currency;
 
@@ -138,6 +139,10 @@ abstract class SendViewModelBase with Store {
     fiatAmount = amount;
     _updateCryptoAmount();
   }
+
+  @action
+  void setTransactionPriority(TransactionPriority priority) =>
+      _settingsStore.transactionPriority = priority;
 
   @action
   void _updateFiatAmount() {

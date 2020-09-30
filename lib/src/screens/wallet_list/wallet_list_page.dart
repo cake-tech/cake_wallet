@@ -1,5 +1,8 @@
+import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_menu_alert.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -11,6 +14,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_menu.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class WalletListPage extends BasePage {
   WalletListPage({this.walletListViewModel});
@@ -65,48 +69,61 @@ class WalletListBodyState extends State<WalletListBody> {
                   itemCount: widget.walletListViewModel.wallets.length,
                   itemBuilder: (__, index) {
                     final wallet = widget.walletListViewModel.wallets[index];
-                    final walletMenu = WalletMenu(context, widget.walletListViewModel);
-                    final items =
-                        walletMenu.generateItemsForWalletMenu(wallet.isCurrent);
                     final currentColor = wallet.isCurrent
-                        ? Theme.of(context).accentTextTheme.subtitle.decorationColor
+                        ? Theme.of(context)
+                            .accentTextTheme
+                            .subtitle
+                            .decorationColor
                         : Theme.of(context).backgroundColor;
+                    final row = GestureDetector(
+                        onTap: () async {
+                          if (wallet.isCurrent) {
+                            return;
+                          }
 
-                    return GestureDetector(
-                      onTap: () {
-                        showPopUp<void>(
-                            context: context,
-                            builder: (dialogContext) {
-                              return WalletMenuAlert(
-                                  wallet: wallet,
-                                  walletMenu: walletMenu,
-                                  items: items);
-                            }
-                        );
-                      },
-                      child: Container(
-                        height: tileHeight,
-                        width: double.infinity,
-                        child: Row(
-                          children: <Widget>[
-                            Container(
-                              height: tileHeight,
-                              width: 4,
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(4),
-                                      bottomRight: Radius.circular(4)),
-                                  color: currentColor
+                          final confirmed = await showPopUp<bool>(
+                              context: context,
+                              builder: (dialogContext) {
+                                // FIXME:
+                                return AlertWithTwoActions(
+                                    alertTitle: 'Change current wallet',
+                                    alertContent:
+                                        'Do you want to change current wallet to ${wallet.name} ?',
+                                    leftButtonText: S.of(context).cancel,
+                                    rightButtonText: S.of(context).change,
+                                    actionLeftButton: () =>
+                                        Navigator.of(context).pop(false),
+                                    actionRightButton: () =>
+                                        Navigator.of(context).pop(true));
+                              }) ?? false;
+
+                          if (confirmed) {
+                            await _loadWallet(wallet);
+                          }
+                        },
+                        child: Container(
+                          height: tileHeight,
+                          width: double.infinity,
+                          child: Row(
+                            children: <Widget>[
+                              Container(
+                                height: tileHeight,
+                                width: 4,
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(4),
+                                        bottomRight: Radius.circular(4)),
+                                    color: currentColor),
                               ),
-                            ),
-                            Expanded(
+                              Expanded(
                                 child: Container(
                                   height: tileHeight,
                                   padding: EdgeInsets.only(left: 20, right: 20),
                                   color: Theme.of(context).backgroundColor,
                                   alignment: Alignment.centerLeft,
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: <Widget>[
                                       _imageFor(type: wallet.type),
                                       SizedBox(width: 10),
@@ -115,17 +132,33 @@ class WalletListBodyState extends State<WalletListBody> {
                                         style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w600,
-                                            color: Theme.of(context).primaryTextTheme.title.color
-                                        ),
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .title
+                                                .color),
                                       )
                                     ],
                                   ),
                                 ),
-                            ),
-                          ],
-                        ),
-                      )
-                    );
+                              ),
+                            ],
+                          ),
+                        ));
+
+                    return wallet.isCurrent
+                        ? row
+                        : Slidable(
+                            key: Key('${wallet.key}'),
+                            actionPane: SlidableDrawerActionPane(),
+                            child: row,
+                            secondaryActions: <Widget>[
+                                IconSlideAction(
+                                  caption: S.of(context).delete,
+                                  color: Colors.red,
+                                  icon: CupertinoIcons.delete,
+                                  onTap: () async => _removeWallet(wallet),
+                                )
+                              ]);
                   }),
             ),
           ),
@@ -136,12 +169,13 @@ class WalletListBodyState extends State<WalletListBody> {
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
-              textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
+              textColor:
+                  Theme.of(context).accentTextTheme.headline.decorationColor,
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
-                onPressed: () => Navigator.of(context)
-                    .pushNamed(Routes.restoreWalletType),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(Routes.restoreWalletType),
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).accentTextTheme.caption.color,
@@ -159,5 +193,48 @@ class WalletListBodyState extends State<WalletListBody> {
       default:
         return null;
     }
+  }
+
+  Future<void> _loadWallet(WalletListItem wallet) async {
+    await Navigator.of(context).pushNamed(Routes.auth, arguments:
+        (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+      if (!isAuthenticatedSuccessfully) {
+        return;
+      }
+
+      try {
+        auth.changeProcessText(
+            S.of(context).wallet_list_loading_wallet(wallet.name));
+        await widget.walletListViewModel.loadWallet(wallet);
+        auth.hideProgressText();
+        auth.close();
+        Navigator.of(context).pop();
+      } catch (e) {
+        auth.changeProcessText(S
+            .of(context)
+            .wallet_list_failed_to_load(wallet.name, e.toString()));
+      }
+    });
+  }
+
+  Future<void> _removeWallet(WalletListItem wallet) async {
+    await Navigator.of(context).pushNamed(Routes.auth, arguments:
+        (bool isAuthenticatedSuccessfully, AuthPageState auth) async {
+      if (!isAuthenticatedSuccessfully) {
+        return;
+      }
+
+      try {
+        auth.changeProcessText(
+            S.of(context).wallet_list_removing_wallet(wallet.name));
+        await widget.walletListViewModel.remove(wallet);
+      } catch (e) {
+        auth.changeProcessText(S
+            .of(context)
+            .wallet_list_failed_to_remove(wallet.name, e.toString()));
+      }
+
+      auth.close();
+    });
   }
 }

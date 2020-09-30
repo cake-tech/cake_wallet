@@ -13,6 +13,7 @@ class WalletMenu {
 
   final List<String> items = [
     S.current.reconnect,
+    S.current.rescan,
     S.current.wallets,
     S.current.nodes,
     S.current.show_seed,
@@ -23,6 +24,7 @@ class WalletMenu {
 
   final List<Image> images = [
     Image.asset('assets/images/reconnect_menu.png', height: 16, width: 16),
+    Image.asset('assets/images/filter_icon.png', height: 16, width: 16),
     Image.asset('assets/images/wallet_menu.png', height: 16, width: 16),
     Image.asset('assets/images/nodes_menu.png', height: 16, width: 16),
     Image.asset('assets/images/eye_menu.png', height: 16, width: 16),
@@ -40,12 +42,15 @@ class WalletMenu {
         _presentReconnectAlert(context);
         break;
       case 1:
-        Navigator.of(context).pushNamed(Routes.walletList);
+        Navigator.of(context).pushNamed(Routes.rescan);
         break;
       case 2:
-        Navigator.of(context).pushNamed(Routes.nodeList);
+        Navigator.of(context).pushNamed(Routes.walletList);
         break;
       case 3:
+        Navigator.of(context).pushNamed(Routes.nodeList);
+        break;
+      case 4:
         Navigator.of(context).pushNamed(Routes.auth,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
                 isAuthenticatedSuccessfully
@@ -53,7 +58,7 @@ class WalletMenu {
                     : null);
 
         break;
-      case 4:
+      case 5:
         Navigator.of(context).pushNamed(Routes.auth,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
                 isAuthenticatedSuccessfully
@@ -61,10 +66,10 @@ class WalletMenu {
                         .popAndPushNamed(Routes.showKeys)
                     : null);
         break;
-      case 5:
+      case 6:
         Navigator.of(context).pushNamed(Routes.addressBook);
         break;
-      case 6:
+      case 7:
         Navigator.of(context).pushNamed(Routes.settings);
         break;
       default:
