@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -88,7 +89,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
   Future _selectDate(BuildContext context) async {
     final now = DateTime.now();
-    final date = await showDatePicker(
+    final date = await getDate(
         context: context,
         initialDate: now.subtract(Duration(days: 1)),
         firstDate: DateTime(2014, DateTime.april),
