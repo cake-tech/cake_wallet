@@ -87,8 +87,8 @@ class WalletMenu {
               rightButtonText: S.of(context).ok,
               leftButtonText: S.of(context).cancel,
               actionRightButton: () async {
-                await reconnect?.call();
                 Navigator.of(context).pop();
+                await reconnect?.call();
               },
               actionLeftButton: () => Navigator.of(context).pop());
         });
