@@ -1,5 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
@@ -20,11 +19,24 @@ abstract class BalanceViewModelBase with Store {
     @required this.appStore,
     @required this.settingsStore,
     @required this.fiatConvertationStore
-  });
+  }) : isReversing = false;
 
   final AppStore appStore;
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConvertationStore;
+
+  @observable
+  bool isReversing;
+
+  @computed
+  BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
+
+  @computed
+  BalanceDisplayMode get displayMode => isReversing
+  ? (savedDisplayMode == BalanceDisplayMode.availableBalance
+    ? BalanceDisplayMode.fullBalance
+    : BalanceDisplayMode.availableBalance)
+  : savedDisplayMode;
 
   @computed
   double get price => fiatConvertationStore.price;
@@ -32,7 +44,6 @@ abstract class BalanceViewModelBase with Store {
   @computed
   String get cryptoBalance {
     final walletBalance = _walletBalance;
-    final displayMode = settingsStore.balanceDisplayMode;
     var balance = '---';
 
     if (displayMode == BalanceDisplayMode.availableBalance) {
@@ -49,7 +60,6 @@ abstract class BalanceViewModelBase with Store {
   @computed
   String get fiatBalance {
     final walletBalance = _walletBalance;
-    final displayMode = settingsStore.balanceDisplayMode;
     final fiatCurrency = settingsStore.fiatCurrency;
     var balance = '---';
 
