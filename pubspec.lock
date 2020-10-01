@@ -589,7 +589,7 @@ packages:
       name: mobx_codegen
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0+1"
+    version: "1.1.0+2"
   node_interop:
     dependency: transitive
     description:
@@ -708,7 +708,7 @@ packages:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
+    version: "1.0.3"
   pointycastle:
     dependency: transitive
     description:
@@ -1030,5 +1030,5 @@ packages:
     source: hosted
     version: "2.2.1"
 sdks:
-  dart: ">=2.7.0 <3.0.0"
+  dart: ">=2.7.2 <3.0.0"
   flutter: ">=1.12.13+hotfix.5 <2.0.0"
