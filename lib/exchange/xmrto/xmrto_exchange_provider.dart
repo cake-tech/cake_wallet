@@ -21,8 +21,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
         ]);
 
   static const userAgent = 'CakeWallet/XMR iOS';
-  static const originalApiUri = 'https://xmr.to/api/v2/xmr2btc';
-  static const proxyApiUri = 'https://xmrproxy.net/api/v2/xmr2btc';
+  static const originalApiUri = 'https://xmr.to/api/v3/xmr2btc';
+  static const proxyApiUri = 'https://xmrproxy.net/api/v3/xmr2btc';
   static const _orderParameterUriSufix = '/order_parameter_query';
   static const _orderStatusUriSufix = '/order_status_query/';
   static const _orderCreateUriSufix = '/order_create/';
@@ -61,9 +61,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    double min = responseJSON['lower_limit'] as double;
-    double max = responseJSON['upper_limit'] as double;
-    final price = responseJSON['price'] as double;
+    double min = double.parse(responseJSON['lower_limit'] as String);
+    double max = double.parse(responseJSON['upper_limit'] as String);
+    final price = double.parse(responseJSON['price'] as String);
 
     if (price > 0) {
       try {
@@ -88,7 +88,12 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     final _request = request as XMRTOTradeRequest;
     final url = await getApiUri() + _orderCreateUriSufix;
     final body = {
-      'xmr_amount': _request.amount,
+      'amount': _request.isBTCRequest
+          ? _request.receiveAmount
+          : _request.amount,
+      'amount_currency': _request.isBTCRequest
+          ? _request.to.toString()
+          : _request.from.toString(),
       'btc_dest_address': _request.address
     };
     final response = await post(url,
@@ -165,7 +170,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount}) async {
+      {CryptoCurrency from, CryptoCurrency to, double amount,
+        bool isReceiveAmount}) async {
     if (from != CryptoCurrency.xmr && to != CryptoCurrency.btc) {
       return 0;
     }
@@ -174,7 +180,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       _rate = await _fetchRates();
     }
 
-    final double result = _rate * amount;
+    final double result = isReceiveAmount
+        ? _rate == 0 ? 0 : amount / _rate
+        : _rate * amount;
 
     return double.parse(result.toStringAsFixed(12));
   }
@@ -185,7 +193,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       final response =
           await get(url, headers: {'Content-Type': 'application/json'});
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final price = responseJSON['price'] as double;
+      final price = double.parse(responseJSON['price'] as String);
 
       return price;
     } catch (e) {

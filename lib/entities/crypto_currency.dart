@@ -22,6 +22,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.nano,
     CryptoCurrency.trx,
     CryptoCurrency.usdt,
+    CryptoCurrency.usdterc20,
     CryptoCurrency.xlm,
     CryptoCurrency.xrp
   ];
@@ -38,8 +39,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const nano = CryptoCurrency(title: 'NANO', raw: 10);
   static const trx = CryptoCurrency(title: 'TRX', raw: 11);
   static const usdt = CryptoCurrency(title: 'USDT', raw: 12);
-  static const xlm = CryptoCurrency(title: 'XLM', raw: 13);
-  static const xrp = CryptoCurrency(title: 'XRP', raw: 14);
+  static const usdterc20 = CryptoCurrency(title: 'USDTERC20', raw: 13);
+  static const xlm = CryptoCurrency(title: 'XLM', raw: 14);
+  static const xrp = CryptoCurrency(title: 'XRP', raw: 15);
 
   static CryptoCurrency deserialize({int raw}) {
     switch (raw) {
@@ -70,8 +72,10 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
       case 12:
         return CryptoCurrency.usdt;
       case 13:
-        return CryptoCurrency.xlm;
+        return CryptoCurrency.usdterc20;
       case 14:
+        return CryptoCurrency.xlm;
+      case 15:
         return CryptoCurrency.xrp;
       default:
         return null;
@@ -106,6 +110,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.trx;
       case 'usdt':
         return CryptoCurrency.usdt;
+      case 'usdterc20':
+        return CryptoCurrency.usdterc20;
       case 'xlm':
         return CryptoCurrency.xlm;
       case 'xrp':
