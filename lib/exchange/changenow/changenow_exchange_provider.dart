@@ -146,7 +146,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount}) async {
+      {CryptoCurrency from, CryptoCurrency to, double amount,
+        bool isReceiveAmount}) async {
     final url = apiUri +
         _exchangeAmountUriSufix +
         amount.toString() +
