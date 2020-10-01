@@ -48,6 +48,7 @@ abstract class ExchangeViewModelBase with Store {
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     provider = providersForCurrentPair().first;
+    isReceiveAmountEntered = false;
     loadLimits();
   }
 
@@ -91,6 +92,8 @@ abstract class ExchangeViewModelBase with Store {
 
   @observable
   bool isReceiveAddressEnabled;
+
+  bool isReceiveAmountEntered;
 
   Limits limits;
 
@@ -138,7 +141,8 @@ abstract class ExchangeViewModelBase with Store {
 
     provider
         .calculateAmount(
-            from: depositCurrency, to: receiveCurrency, amount: _amount)
+            from: depositCurrency, to: receiveCurrency, amount: _amount,
+            isReceiveAmount: true)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
             .toString()
@@ -159,7 +163,8 @@ abstract class ExchangeViewModelBase with Store {
     final _amount = double.parse(amount);
     provider
         .calculateAmount(
-            from: depositCurrency, to: receiveCurrency, amount: _amount)
+            from: depositCurrency, to: receiveCurrency, amount: _amount,
+            isReceiveAmount: false)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
             .toString()
@@ -191,8 +196,10 @@ abstract class ExchangeViewModelBase with Store {
           from: depositCurrency,
           to: receiveCurrency,
           amount: depositAmount,
+          receiveAmount: receiveAmount,
           address: receiveAddress,
-          refundAddress: depositAddress);
+          refundAddress: depositAddress,
+          isBTCRequest: isReceiveAmountEntered);
       amount = depositAmount;
       currency = depositCurrency;
     }

@@ -20,5 +20,5 @@ abstract class ExchangeProvider {
   Future<Trade> createTrade({TradeRequest request});
   Future<Trade> findTradeById({@required String id});
   Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount});
+    {CryptoCurrency from, CryptoCurrency to, double amount, bool isReceiveAmount});
 }
