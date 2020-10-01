@@ -556,9 +556,9 @@ class SendPage extends BasePage {
                         sendViewModel.pendingTransaction.amountFormatted,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
-                    leftButtonText: S.of(context).ok,
-                    rightButtonText: S.of(context).cancel,
-                    actionLeftButton: () {
+                    rightButtonText: S.of(context).ok,
+                    leftButtonText: S.of(context).cancel,
+                    actionRightButton: () {
                       Navigator.of(context).pop();
                       sendViewModel.commitTransaction();
                       showPopUp<void>(
@@ -655,7 +655,7 @@ class SendPage extends BasePage {
                             });
                           });
                     },
-                    actionRightButton: () => Navigator.of(context).pop());
+                    actionLeftButton: () => Navigator.of(context).pop());
               });
         });
       }
