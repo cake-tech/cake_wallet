@@ -1,3 +1,4 @@
+import 'package:cw_monero/structs/subaddress_row.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/subaddress_list.dart' as subaddress_list;
@@ -39,19 +40,12 @@ abstract class MoneroSubaddressListBase with Store {
   }
 
   List<Subaddress> getAll() {
-    final subaddresses = subaddress_list.getAllSubaddresses();
-    if (subaddresses.length > 1) {
-      // final primary = subaddresses.first;
-      // final last = subaddresses.last;
-      // subaddresses[subaddresses.length - 1] = primary;
-      // subaddresses[0] = last;
+    var subaddresses = subaddress_list.getAllSubaddresses();
 
-      // for (var i = subaddresses.length - 1; i >= 0; i--) {
-      //   final pre = subaddresses[i];
-      //   final post = subaddresses[subaddresses.length - i];
-      //   subaddresses[subaddresses.length - i] = pre;
-      //   subaddresses[i] = post;
-      // }
+    if (subaddresses.length > 2) {
+      final primary = subaddresses.first;
+      final rest = subaddresses.sublist(1).reversed;
+      subaddresses = [primary] + rest.toList();
     }
 
     return subaddresses
