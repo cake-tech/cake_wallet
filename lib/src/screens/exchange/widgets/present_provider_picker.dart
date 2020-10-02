@@ -64,7 +64,7 @@ class PresentProviderPicker extends StatelessWidget {
       switch (provider.description) {
         case ExchangeProviderDescription.xmrto:
           images.add(Image.asset('assets/images/xmr_btc.png'));
-          description = 'To choose ChangeNOW  or MorphToken, please change your trading pair first';
+          description = S.of(context).picker_description;
           break;
         case ExchangeProviderDescription.changeNow:
           images.add(Image.asset('assets/images/change_now.png'));

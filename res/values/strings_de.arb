@@ -389,5 +389,7 @@
 
   "template" : "Vorlage",
   "confirm_delete_template" : "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?",
-  "confirm_delete_wallet" : "Diese Aktion löscht diese Brieftasche. Möchten Sie fortfahren?"
+  "confirm_delete_wallet" : "Diese Aktion löscht diese Brieftasche. Möchten Sie fortfahren?",
+
+  "picker_description" : "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar"
 }
