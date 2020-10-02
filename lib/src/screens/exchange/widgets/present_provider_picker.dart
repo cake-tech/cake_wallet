@@ -58,11 +58,13 @@ class PresentProviderPicker extends StatelessWidget {
     final items = exchangeViewModel.providersForCurrentPair();
     final selectedItem = items.indexOf(exchangeViewModel.provider);
     final images = <Image>[];
+    String description;
 
     for (var provider in items) {
       switch (provider.description) {
         case ExchangeProviderDescription.xmrto:
           images.add(Image.asset('assets/images/xmr_btc.png'));
+          description = 'To choose ChangeNOW  or MorphToken, please change your trading pair first';
           break;
         case ExchangeProviderDescription.changeNow:
           images.add(Image.asset('assets/images/change_now.png'));
@@ -79,6 +81,7 @@ class PresentProviderPicker extends StatelessWidget {
             images: images,
             selectedAtIndex: selectedItem,
             title: S.of(context).change_exchange_provider,
+            description: description,
             onItemSelected: (ExchangeProvider provider) =>
                 exchangeViewModel.changeProvider(provider: provider)),
         context: context);
