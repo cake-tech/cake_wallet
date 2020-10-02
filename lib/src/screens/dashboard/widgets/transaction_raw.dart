@@ -29,8 +29,21 @@ class TransactionRow extends StatelessWidget {
           child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
+                Container(
+                  height: 36,
+                  width: 36,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Theme.of(context).textTheme.overline.decorationColor
+                  ),
+                  child: Image.asset(
+                      direction == TransactionDirection.incoming
+                          ? 'assets/images/down_arrow.png'
+                          : 'assets/images/up_arrow.png'),
+                ),
                 Expanded(
                   child: Container(
+                    padding: const EdgeInsets.only(left: 12),
                     height: 56,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -48,25 +61,11 @@ class TransactionRow extends StatelessWidget {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
                                       color: Colors.white)),
-                              Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(10)),
-                                      color: (direction ==
-                                              TransactionDirection.incoming
-                                          ? Colors.green.withOpacity(0.8)
-                                          : Theme.of(context)
-                                              .accentTextTheme
-                                              .body2
-                                              .decorationColor
-                                              .withOpacity(0.8))),
-                                  padding: EdgeInsets.only(
-                                      top: 3, bottom: 3, left: 10, right: 10),
-                                  child: Text(formattedAmount,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white)))
+                              Text(formattedAmount,
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white))
                             ]),
                         Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

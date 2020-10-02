@@ -131,7 +131,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         wallet.name,
                                         style: TextStyle(
                                             fontSize: 22,
-                                            fontWeight: FontWeight.w600,
+                                            fontWeight: FontWeight.w500,
                                             color: Theme.of(context)
                                                 .primaryTextTheme
                                                 .title

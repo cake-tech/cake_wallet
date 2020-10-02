@@ -180,9 +180,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<void> save() async {
-    print('SAVE CALLED');
     await monero_wallet.store();
-    print('SAVE FINISHED');
   }
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
