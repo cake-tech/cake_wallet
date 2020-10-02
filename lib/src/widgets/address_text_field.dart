@@ -114,7 +114,7 @@ class AddressTextField extends StatelessWidget {
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(6))),
                               child: Image.asset(
-                                'assets/images/duplicate.png',
+                                'assets/images/paste_ios.png',
                                 color: iconColor ??
                                     Theme.of(context)
                                         .primaryTextTheme
