@@ -63,14 +63,14 @@ class ContactListPage extends BasePage {
           builder: (_) {
             return contactListViewModel.contacts.isNotEmpty
                 ? SectionStandardList(
-                sectionCount: 1,
-                context: context,
-                itemCounter: (int sectionIndex) => contactListViewModel.contacts.length,
-                itemBuilder: (_, sectionIndex, index) {
-                  final contact = contactListViewModel.contacts[index];
-                  final image = _getCurrencyImage(contact.type);
-                  final content = Builder(
-                      builder: (context) => GestureDetector(
+                    sectionCount: 1,
+                    context: context,
+                    itemCounter: (int sectionIndex) =>
+                        contactListViewModel.contacts.length,
+                    itemBuilder: (_, sectionIndex, index) {
+                      final contact = contactListViewModel.contacts[index];
+                      final image = _getCurrencyImage(contact.type);
+                      final content = GestureDetector(
                         onTap: () async {
                           if (!isEditable) {
                             Navigator.of(context).pop(contact);
@@ -83,94 +83,79 @@ class ContactListPage extends BasePage {
                           if (isCopied != null && isCopied) {
                             await Clipboard.setData(
                                 ClipboardData(text: contact.address));
-                            await showBar<void>(context,
-                                S.of(context).copied_to_clipboard);
+                            await showBar<void>(
+                                context, S.of(context).copied_to_clipboard);
                           }
                         },
-                        child: Column(
-                          children: <Widget>[
-                            Container(
-                              width: double.infinity,
-                              child: Padding(
-                                  padding: const EdgeInsets.only(
-                                      left: 24, top: 16, bottom: 16, right: 24),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      image ?? Offstage(),
-                                      Padding(
-                                        padding: image != null
-                                            ? EdgeInsets.only(left: 12)
-                                            : EdgeInsets.only(left: 0),
-                                        child: Text(
-                                          contact.name,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.normal,
-                                              color: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .title
-                                                  .color),
-                                        ),
-                                      )
-                                    ],
-                                  )),
-                            ),
-                          ],
+                        child: Container(
+                          color: Colors.transparent,
+                          padding: const EdgeInsets.only(
+                              left: 24, top: 16, bottom: 16, right: 24),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              image ?? Offstage(),
+                              Padding(
+                                padding: image != null
+                                    ? EdgeInsets.only(left: 12)
+                                    : EdgeInsets.only(left: 0),
+                                child: Text(
+                                  contact.name,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.normal,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .title
+                                          .color),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      )
-                  );
+                      );
 
-                  return !isEditable
-                      ? content
-                      : Slidable(
-                         key: Key('${contact.key}'),
-                         actionPane: SlidableDrawerActionPane(),
-                         child: content,
-                         secondaryActions: <Widget>[
-                           IconSlideAction(
-                             caption: S.of(context).edit,
-                             color: Colors.blue,
-                             icon: Icons.edit,
-                             onTap: () async => await Navigator.of(context)
-                                 .pushNamed(Routes.addressBookAddContact,
-                                 arguments: contact),
-                           ),
-                           IconSlideAction(
-                             caption: S.of(context).delete,
-                             color: Colors.red,
-                             icon: CupertinoIcons.delete,
-                             onTap: () async {
-                               final isDelete =
-                                   await showAlertDialog(context) ?? false;
+                      return !isEditable
+                          ? content
+                          : Slidable(
+                              key: Key('${contact.key}'),
+                              actionPane: SlidableDrawerActionPane(),
+                              child: content,
+                              secondaryActions: <Widget>[
+                                  IconSlideAction(
+                                    caption: S.of(context).edit,
+                                    color: Colors.blue,
+                                    icon: Icons.edit,
+                                    onTap: () async =>
+                                        await Navigator.of(context).pushNamed(
+                                            Routes.addressBookAddContact,
+                                            arguments: contact),
+                                  ),
+                                  IconSlideAction(
+                                    caption: S.of(context).delete,
+                                    color: Colors.red,
+                                    icon: CupertinoIcons.delete,
+                                    onTap: () async {
+                                      final isDelete =
+                                          await showAlertDialog(context) ??
+                                              false;
 
-                               if (isDelete) {
-                                 await contactListViewModel
-                                     .delete(contact);
-                               }
-                             },
-                           ),
-                         ],
-                         dismissal: SlidableDismissal(
-                           child: SlidableDrawerDismissal(),
-                           onDismissed: (actionType) async => null,
-                           // await contactListViewModel.delete(contact),
-                           onWillDismiss: (actionType) async =>
-                               showAlertDialog(context),
-                         ),
-                       );
-                     },
-                )
+                                      if (isDelete) {
+                                        await contactListViewModel
+                                            .delete(contact);
+                                      }
+                                    },
+                                  ),
+                                ]);
+                    },
+                  )
                 : Center(
                     child: Text(
                       S.of(context).placeholder_contacts,
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 14),
+                      style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                   );
           },
@@ -181,7 +166,8 @@ class ContactListPage extends BasePage {
     Image image;
     switch (currency) {
       case CryptoCurrency.xmr:
-        image = Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
+        image =
+            Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
         break;
       case CryptoCurrency.ada:
         image = Image.asset('assets/images/ada.png', height: 24, width: 24);
