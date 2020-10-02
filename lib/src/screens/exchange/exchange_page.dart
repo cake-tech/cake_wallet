@@ -173,6 +173,7 @@ class ExchangePage extends BasePage {
                                 initialIsAddressEditable:
                                     exchangeViewModel.isDepositAddressEnabled,
                                 isAmountEstimated: false,
+                                hasRefundAddress: true,
                                 currencies: CryptoCurrency.all,
                                 onCurrencySelected: (currency) =>
                                     exchangeViewModel.changeDepositCurrency(
