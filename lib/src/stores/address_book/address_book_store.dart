@@ -65,7 +65,7 @@ abstract class AddressBookStoreBase with Store {
           isValid = (value.length == 42);
           break;
         case CryptoCurrency.btc:
-          isValid = (value.length == 34)||(value.length == 42);
+          isValid = (value.length == 34)||(value.length == 42)||(value.length == 62);
           break;
         case CryptoCurrency.dash:
           isValid = (value.length == 34);
