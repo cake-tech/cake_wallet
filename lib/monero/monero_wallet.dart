@@ -19,6 +19,7 @@ import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 
+
 part 'monero_wallet.g.dart';
 
 const moneroBlockSize = 1000;
@@ -40,6 +41,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
     });
+    _cachedRefreshHeight = 0;
   }
 
   @override
@@ -80,6 +82,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   String _filename;
   SyncListner _listener;
   ReactionDisposer _onAccountChangeReaction;
+  int _cachedRefreshHeight;
 
   Future<void> init() async {
     await accountList.update();
@@ -191,12 +194,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   @override
   Future<void> rescan({int height}) async {
+    walletInfo.restoreHeight = height;
+    walletInfo.isRecovery = true;
     monero_wallet.setRefreshFromBlockHeight(height: height);
     monero_wallet.rescanBlockchainAsync();
     await startSync();
     _askForUpdateBalance();
     await _askForUpdateTransactionHistory();
     await save();
+    await walletInfo.save();
   }
 
   void _setListeners() {
@@ -284,7 +290,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       await setAsRecovered();
     }
 
-    await save();
+    if (currentHeight - _cachedRefreshHeight > moneroBlockSize) {
+      _cachedRefreshHeight = currentHeight;
+      await save();
+    }
   }
 
   void _onNewTransaction() {

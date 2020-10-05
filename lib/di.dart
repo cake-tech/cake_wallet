@@ -61,6 +61,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
+import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
@@ -177,11 +178,25 @@ Future setup(
       BiometricAuth()));
 
   getIt.registerFactory<AuthPage>(
-      () => AuthPage(getIt.get<AuthViewModel>(),
-              onAuthenticationFinished: (isAuthenticated, __) {
-            if (isAuthenticated) {
-              getIt.get<AuthenticationStore>().allowed();
+      () => AuthPage(getIt.get<AuthViewModel>(), onAuthenticationFinished:
+              (isAuthenticated, AuthPageState authPageState) {
+            if (!isAuthenticated) {
+              return;
             }
+            final authStore = getIt.get<AuthenticationStore>();
+            final appStore = getIt.get<AppStore>();
+
+            if (appStore.wallet != null) {
+              authStore.allowed();
+              return;
+            }
+
+            authPageState.changeProcessText('Loading the wallet');
+            ReactionDisposer _reaction;
+            _reaction = reaction((_) => appStore.wallet, (Object _) {
+              _reaction?.reaction?.dispose();
+              authStore.allowed();
+            });
           }, closable: false),
       instanceName: 'login');
 

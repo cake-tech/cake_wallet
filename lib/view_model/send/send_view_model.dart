@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/template_validator.dart';
@@ -143,6 +144,13 @@ abstract class SendViewModelBase with Store {
   @action
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.transactionPriority = priority;
+
+  Future<OpenaliasRecord> decodeOpenaliasRecord(String name) async {
+    final record = await OpenaliasRecord
+        .fetchAddressAndName(OpenaliasRecord.formatDomainName(name));
+
+    return record.name != name ? record : null;
+  }
 
   @action
   void _updateFiatAmount() {

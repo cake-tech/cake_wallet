@@ -16,7 +16,7 @@ abstract class NodeListViewModelBase with Store {
   NodeListViewModelBase(this._nodeSource, this._wallet, this.settingsStore)
       : nodes = ObservableList<Node>() {
     _nodeSource.bindToList(nodes,
-        filter: (Node val) => val.type == _wallet.type, initialFire: true);
+        filter: (Node val) => val?.type == _wallet.type, initialFire: true);
   }
 
   final ObservableList<Node> nodes;
@@ -46,7 +46,8 @@ abstract class NodeListViewModelBase with Store {
     await setAsCurrent(node);
   }
 
-  Future<void> delete(Node node) async => _nodeSource.delete(node.key);
+  @action
+  Future<void> delete(Node node) async => node.delete();
 
   Future<void> setAsCurrent(Node node) async =>
       settingsStore.currentNode = node;

@@ -61,7 +61,7 @@ extension MobxBindable<T extends Keyable> on Box<T> {
     }
 
     return watch().listen((event) {
-      if (filter != null && !filter(event.value as T)) {
+      if (filter != null && event.value != null && !filter(event.value as T)) {
         return;
       }
 
@@ -80,7 +80,7 @@ extension MobxBindable<T extends Keyable> on Box<T> {
     }
 
     return watch().listen((event) {
-      if (filter != null && !filter(event.value as T)) {
+      if (filter != null && event.value != null && !filter(event.value as T)) {
         return;
       }
 
@@ -124,15 +124,13 @@ extension HiveBindable<T extends Keyable> on ObservableList<T> {
       listen().listen((event) => dest.acceptEntityChange(event));
 
   void acceptBoxChange(BoxEvent event, {T transformed}) {
-    print('---------------------');
-    print('event.key: ${event.key}; event.deleted: ${event.deleted};');
     if (event.deleted) {
       removeWhere((el) {
-        print('el.keyIndex ${el.keyIndex}');
-        return el.keyIndex == event.key; });
-    }
+        return el.keyIndex == event.key;
+      });
 
-    print('---------------------');
+      return;
+    }
 
     final dynamic value = transformed ?? event.value;
 
@@ -150,6 +148,7 @@ extension HiveBindable<T extends Keyable> on ObservableList<T> {
   void acceptEntityChange(EntityChange<T> event) {
     if (event.type == ChangeType.delete) {
       removeWhere((el) => el.keyIndex == event.key);
+      return;
     }
 
     final dynamic value = event.value;
