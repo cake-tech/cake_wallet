@@ -81,8 +81,8 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      Scaffold(key: _key, body: body(context));
+  Widget build(BuildContext context) => Scaffold(
+      key: _key, body: body(context), resizeToAvoidBottomPadding: false);
 
   Widget body(BuildContext context) {
     final deleteIconImage = Image.asset(

@@ -14,8 +14,6 @@ void startAuthenticationStateChange(AuthenticationStore authenticationStore,
 
     if (state == AuthenticationState.installed) {
       await loadCurrentWallet();
-      // await navigatorKey.currentState
-      //     .pushNamedAndRemoveUntil(Routes.login, (_) => false);
     }
 
     if (state == AuthenticationState.allowed) {

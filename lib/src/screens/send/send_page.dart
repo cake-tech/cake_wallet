@@ -25,15 +25,29 @@ import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart'
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class SendPage extends BasePage {
-  SendPage({@required this.sendViewModel});
+  SendPage({@required this.sendViewModel})
+      : _addressController = TextEditingController(),
+        _cryptoAmountController = TextEditingController(),
+        _fiatAmountController = TextEditingController(),
+        _formKey = GlobalKey<FormState>(),
+        _cryptoAmountFocus = FocusNode(),
+        _fiatAmountFocus = FocusNode(),
+        _addressFocusNode = FocusNode() {
+    _addressFocusNode.addListener(() {
+      if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
+        getOpenaliasRecord(_addressFocusNode.context);
+      }
+    });
+  }
 
   final SendViewModel sendViewModel;
-  final _addressController = TextEditingController();
-  final _cryptoAmountController = TextEditingController();
-  final _fiatAmountController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  final _cryptoAmountFocus = FocusNode();
-  final _fiatAmountFocus = FocusNode();
+  final TextEditingController _addressController;
+  final TextEditingController _cryptoAmountController;
+  final TextEditingController _fiatAmountController;
+  final GlobalKey<FormState> _formKey;
+  final FocusNode _cryptoAmountFocus;
+  final FocusNode _fiatAmountFocus;
+  final FocusNode _addressFocusNode;
 
   bool _effectsInstalled = false;
 
@@ -105,6 +119,7 @@ class SendPage extends BasePage {
                           child: Column(
                             children: <Widget>[
                               AddressTextField(
+                                focusNode: _addressFocusNode,
                                 controller: _addressController,
                                 onURIScanned: (uri) {
                                   var address = '';
@@ -672,24 +687,23 @@ class SendPage extends BasePage {
   }
 
   Future<void> getOpenaliasRecord(BuildContext context) async {
-    // final isOpenalias =
-    //     await sendViewModel.isOpenaliasRecord(_addressController.text);
+    final record =
+        await sendViewModel.decodeOpenaliasRecord(_addressController.text);
 
-    // if (isOpenalias) {
-    //   _addressController.text = sendViewModel.recordAddress;
+    if (record != null) {
+      _addressController.text = record.address;
 
-    //   await showPopUp<void>(
-    //       context: context,
-    //       builder: (BuildContext context) {
-    //         return AlertWithOneAction(
-    //             alertTitle: S.of(context).openalias_alert_title,
-    //             alertContent: S
-    //                 .of(context)
-    //                 .openalias_alert_content(sendViewModel.recordName),
-    //             buttonText: S.of(context).ok,
-    //             buttonAction: () => Navigator.of(context).pop());
-    //       });
-    // }
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: S.of(context).openalias_alert_title,
+                alertContent:
+                    S.of(context).openalias_alert_content(record.name),
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    }
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {

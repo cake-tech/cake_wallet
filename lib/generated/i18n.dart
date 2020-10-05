@@ -97,7 +97,7 @@ class S implements WidgetsLocalizations {
   String get faq => "FAQ";
   String get fetching => "Fetching";
   String get filters => "Filter";
-  String get first_wallet_text => "Awesome wallet for Monero";
+  String get first_wallet_text => "Awesome wallet for Monero and Bitcoin";
   String get full_balance => "Full Balance";
   String get hidden_balance => "Hidden Balance";
   String get id => "ID: ";
@@ -303,9 +303,9 @@ class S implements WidgetsLocalizations {
   String get widgets_restore_from_blockheight => "Restore from blockheight";
   String get widgets_restore_from_date => "Restore from date";
   String get widgets_seed => "Seed";
-  String get xmr_available_balance => "XMR Available Balance";
-  String get xmr_full_balance => "XMR Full Balance";
-  String get xmr_hidden => "XMR Hidden";
+  String get xmr_available_balance => "Available Balance";
+  String get xmr_full_balance => "Full Balance";
+  String get xmr_hidden => "Hidden";
   String get yesterday => "Yesterday";
   String get you_will_get => "You will get";
   String get you_will_send => "You will send";
@@ -539,7 +539,7 @@ class $de extends S {
   @override
   String get restore_seed_keys_restore => "Seed / Schlüssel wiederherstellen";
   @override
-  String get xmr_hidden => "XMR versteckt";
+  String get xmr_hidden => "Versteckt";
   @override
   String get send_xmr => "Senden XMR";
   @override
@@ -635,7 +635,7 @@ class $de extends S {
   @override
   String get error_text_xmr => "Der XMR-Wert kann das verfügbare Guthaben nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 12 sein";
   @override
-  String get xmr_available_balance => "XMR verfügbares Guthaben";
+  String get xmr_available_balance => "Verfügbares Guthaben";
   @override
   String get restore_bitcoin_description_from_keys => "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her";
   @override
@@ -799,7 +799,7 @@ class $de extends S {
   @override
   String get all => "ALLE";
   @override
-  String get xmr_full_balance => "XMR Volle Balance";
+  String get xmr_full_balance => "Volle Balance";
   @override
   String get incoming => "Eingehend";
   @override
@@ -1181,7 +1181,7 @@ class $hi extends S {
   @override
   String get restore_seed_keys_restore => "बीज / कुंजी पुनर्स्थापित करें";
   @override
-  String get xmr_hidden => "XMR छिपा हुआ";
+  String get xmr_hidden => "छिपा हुआ";
   @override
   String get send_xmr => "संदेश XMR";
   @override
@@ -1277,7 +1277,7 @@ class $hi extends S {
   @override
   String get error_text_xmr => "एक्सएमआर मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता.\nअंश अंकों की संख्या 12 से कम या इसके बराबर होनी चाहिए";
   @override
-  String get xmr_available_balance => "XMR उपलब्ध शेष राशि";
+  String get xmr_available_balance => "उपलब्ध शेष राशि";
   @override
   String get restore_bitcoin_description_from_keys => "अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें";
   @override
@@ -1441,7 +1441,7 @@ class $hi extends S {
   @override
   String get all => "सब";
   @override
-  String get xmr_full_balance => "XMR पूर्ण संतुलन";
+  String get xmr_full_balance => "पूरा संतुलन";
   @override
   String get incoming => "आने वाली";
   @override
@@ -1823,7 +1823,7 @@ class $ru extends S {
   @override
   String get restore_seed_keys_restore => "Восстановить из мнемонической фразы/ключей";
   @override
-  String get xmr_hidden => "XMR Скрыто";
+  String get xmr_hidden => "Скрыто";
   @override
   String get send_xmr => "Отправить XMR";
   @override
@@ -1919,7 +1919,7 @@ class $ru extends S {
   @override
   String get error_text_xmr => "Значение XMR не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 12";
   @override
-  String get xmr_available_balance => "Доступный XMR баланс";
+  String get xmr_available_balance => "Доступный баланс";
   @override
   String get restore_bitcoin_description_from_keys => "Вы можете восстановить кошелёк с помощью WIF";
   @override
@@ -2083,7 +2083,7 @@ class $ru extends S {
   @override
   String get all => "ВСЕ";
   @override
-  String get xmr_full_balance => "Весь XMR баланс";
+  String get xmr_full_balance => "Весь баланс";
   @override
   String get incoming => "Входящие";
   @override
@@ -2465,7 +2465,7 @@ class $ko extends S {
   @override
   String get restore_seed_keys_restore => "종자 / 키 복원";
   @override
-  String get xmr_hidden => "XMR 숨김";
+  String get xmr_hidden => "숨김";
   @override
   String get send_xmr => "보내다 XMR";
   @override
@@ -2561,7 +2561,7 @@ class $ko extends S {
   @override
   String get error_text_xmr => "XMR 값은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 12 이하 여야합니다";
   @override
-  String get xmr_available_balance => "XMR 사용 가능한 잔액";
+  String get xmr_available_balance => "사용 가능한 잔액";
   @override
   String get restore_bitcoin_description_from_keys => "개인 키에서 생성 된 WIF 문자열에서 지갑 복원";
   @override
@@ -2725,7 +2725,7 @@ class $ko extends S {
   @override
   String get all => "모든";
   @override
-  String get xmr_full_balance => "XMR 풀 밸런스";
+  String get xmr_full_balance => "풀 밸런스";
   @override
   String get incoming => "들어오는";
   @override
@@ -3203,7 +3203,7 @@ class $pt extends S {
   @override
   String get error_text_xmr => "A quantia em XMR não pode exceder o saldo disponível.\nTO número de dígitos decimais deve ser menor ou igual a 12";
   @override
-  String get xmr_available_balance => "Saldo XMR disponível";
+  String get xmr_available_balance => "Saldo disponível";
   @override
   String get restore_bitcoin_description_from_keys => "Restaure sua carteira a partir da string WIF gerada de suas chaves privadas";
   @override
@@ -3367,7 +3367,7 @@ class $pt extends S {
   @override
   String get all => "TUDO";
   @override
-  String get xmr_full_balance => "Saldo XMR total";
+  String get xmr_full_balance => "Saldo total";
   @override
   String get incoming => "Recebidas";
   @override
@@ -3749,7 +3749,7 @@ class $uk extends S {
   @override
   String get restore_seed_keys_restore => "Відновити за допомогою мнемонічної фрази/ключів";
   @override
-  String get xmr_hidden => "XMR Приховано";
+  String get xmr_hidden => "Приховано";
   @override
   String get send_xmr => "Відправити XMR";
   @override
@@ -3845,7 +3845,7 @@ class $uk extends S {
   @override
   String get error_text_xmr => "Значення XMR не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 12";
   @override
-  String get xmr_available_balance => "Доступний XMR баланс";
+  String get xmr_available_balance => "Доступний баланс";
   @override
   String get restore_bitcoin_description_from_keys => "Ви можете відновити гаманець за допомогою WIF";
   @override
@@ -4009,7 +4009,7 @@ class $uk extends S {
   @override
   String get all => "ВСЕ";
   @override
-  String get xmr_full_balance => "Весь XMR баланс";
+  String get xmr_full_balance => "Весь баланс";
   @override
   String get incoming => "Вхідні";
   @override
@@ -4391,7 +4391,7 @@ class $ja extends S {
   @override
   String get restore_seed_keys_restore => "シード/キーの復元";
   @override
-  String get xmr_hidden => "XMR非表示";
+  String get xmr_hidden => "非表示";
   @override
   String get send_xmr => "送る XMR";
   @override
@@ -4487,7 +4487,7 @@ class $ja extends S {
   @override
   String get error_text_xmr => "XMR値は利用可能な残高を超えることはできません.\n小数桁数は12以下でなければなりません";
   @override
-  String get xmr_available_balance => "XMR利用可能残高";
+  String get xmr_available_balance => "利用可能残高";
   @override
   String get restore_bitcoin_description_from_keys => "秘密鍵から生成されたWIF文字列からウォレットを復元します";
   @override
@@ -4651,7 +4651,7 @@ class $ja extends S {
   @override
   String get all => "すべて";
   @override
-  String get xmr_full_balance => "XMRフルバランス";
+  String get xmr_full_balance => "フルバランス";
   @override
   String get incoming => "着信";
   @override
@@ -5037,7 +5037,7 @@ class $pl extends S {
   @override
   String get restore_seed_keys_restore => "Przywracanie nasion / kluczy";
   @override
-  String get xmr_hidden => "XMR Ukryty";
+  String get xmr_hidden => "Ukryty";
   @override
   String get send_xmr => "Wysłać XMR";
   @override
@@ -5133,7 +5133,7 @@ class $pl extends S {
   @override
   String get error_text_xmr => "Wartość XMR nie może przekraczać dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 12";
   @override
-  String get xmr_available_balance => "XMR Dostępne saldo";
+  String get xmr_available_balance => "Dostępne saldo";
   @override
   String get restore_bitcoin_description_from_keys => "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych";
   @override
@@ -5297,7 +5297,7 @@ class $pl extends S {
   @override
   String get all => "WSZYSTKO";
   @override
-  String get xmr_full_balance => "XMR Pełna równowaga";
+  String get xmr_full_balance => "Pełna równowaga";
   @override
   String get incoming => "Przychodzące";
   @override
@@ -5679,7 +5679,7 @@ class $es extends S {
   @override
   String get restore_seed_keys_restore => "Restauración de semillas / llaves";
   @override
-  String get xmr_hidden => "XMR Oculto";
+  String get xmr_hidden => "Oculto";
   @override
   String get send_xmr => "Enviar XMR";
   @override
@@ -5775,7 +5775,7 @@ class $es extends S {
   @override
   String get error_text_xmr => "El valor XMR no puede exceder el saldo disponible.\nTEl número de dígitos de fracción debe ser menor o igual a 12";
   @override
-  String get xmr_available_balance => "XMR Available Balance";
+  String get xmr_available_balance => "Saldo disponible";
   @override
   String get restore_bitcoin_description_from_keys => "Restaure su billetera a partir de una cadena WIF generada a partir de sus claves privadas";
   @override
@@ -5939,7 +5939,7 @@ class $es extends S {
   @override
   String get all => "TODOS";
   @override
-  String get xmr_full_balance => "XMR Saldo disponible";
+  String get xmr_full_balance => "Balance total";
   @override
   String get incoming => "Entrante";
   @override
@@ -6321,7 +6321,7 @@ class $nl extends S {
   @override
   String get restore_seed_keys_restore => "Zaad / sleutels herstellen";
   @override
-  String get xmr_hidden => "XMR Verborgen";
+  String get xmr_hidden => "Verborgen";
   @override
   String get send_xmr => "Sturen XMR";
   @override
@@ -6417,7 +6417,7 @@ class $nl extends S {
   @override
   String get error_text_xmr => "XMR-waarde kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 12";
   @override
-  String get xmr_available_balance => "XMR Beschikbaar saldo";
+  String get xmr_available_balance => "Beschikbaar saldo";
   @override
   String get restore_bitcoin_description_from_keys => "Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels";
   @override
@@ -6581,7 +6581,7 @@ class $nl extends S {
   @override
   String get all => "ALLE";
   @override
-  String get xmr_full_balance => "XMR Volledig saldo";
+  String get xmr_full_balance => "Volledig saldo";
   @override
   String get incoming => "inkomend";
   @override
@@ -6963,7 +6963,7 @@ class $zh extends S {
   @override
   String get restore_seed_keys_restore => "种子/密钥还原";
   @override
-  String get xmr_hidden => "XMR Hidden";
+  String get xmr_hidden => "隱";
   @override
   String get send_xmr => "发送 XMR";
   @override
@@ -7059,7 +7059,7 @@ class $zh extends S {
   @override
   String get error_text_xmr => "XMR值不能超过可用余额.\n小数位数必须小于或等于12";
   @override
-  String get xmr_available_balance => "XMR 可用余额 ";
+  String get xmr_available_balance => "可用余额 ";
   @override
   String get restore_bitcoin_description_from_keys => "從私鑰中生成的WIF字符串還原您的錢包";
   @override
@@ -7223,7 +7223,7 @@ class $zh extends S {
   @override
   String get all => "所有";
   @override
-  String get xmr_full_balance => "XMR 全部余额";
+  String get xmr_full_balance => "全部余额";
   @override
   String get incoming => "传入";
   @override
