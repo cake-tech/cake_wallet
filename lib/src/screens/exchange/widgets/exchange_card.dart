@@ -247,6 +247,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                 padding: EdgeInsets.only(top: 20),
                 child: AddressTextField(
                   controller: addressController,
+                  placeholder: widget.hasRefundAddress
+                      ? S.of(context).refund_address : null,
                   options: [
                     AddressTextFieldOption.paste,
                     AddressTextFieldOption.qrCode,
