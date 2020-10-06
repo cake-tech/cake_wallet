@@ -389,5 +389,7 @@
 
   "template" : "Modelo",
   "confirm_delete_template" : "Esta ação excluirá este modelo. Você deseja continuar?",
-  "confirm_delete_wallet" : "Esta ação excluirá esta carteira. Você deseja continuar?"
+  "confirm_delete_wallet" : "Esta ação excluirá esta carteira. Você deseja continuar?",
+
+  "picker_description" : "Para escolher ChangeNOW ou MorphToken, altere primeiro o seu par de negociação"
 }

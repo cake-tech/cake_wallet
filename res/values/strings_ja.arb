@@ -389,5 +389,7 @@
 
   "template" : "テンプレート",
   "confirm_delete_template" : "この操作により、このテンプレートが削除されます。 続行しますか？",
-  "confirm_delete_wallet" : "このアクションにより、このウォレットが削除されます。 続行しますか？"
+  "confirm_delete_wallet" : "このアクションにより、このウォレットが削除されます。 続行しますか？",
+
+  "picker_description" : "ChangeNOWまたはMorphTokenを選択するには、最初にトレーディングペアを変更してください"
 }
