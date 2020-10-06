@@ -389,5 +389,7 @@
 
   "template" : "Plantilla",
   "confirm_delete_template" : "Esta acción eliminará esta plantilla. ¿Desea continuar?",
-  "confirm_delete_wallet" : "Esta acción eliminará esta billetera. ¿Desea continuar?"
+  "confirm_delete_wallet" : "Esta acción eliminará esta billetera. ¿Desea continuar?",
+
+  "picker_description" : "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial"
 }

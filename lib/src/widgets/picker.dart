@@ -12,6 +12,7 @@ class Picker<Item extends Object> extends StatefulWidget {
     @required this.items,
     this.images,
     @required this.title,
+    this.description,
     @required this.onItemSelected,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.isAlwaysShowScrollThumb = false
@@ -21,6 +22,7 @@ class Picker<Item extends Object> extends StatefulWidget {
   final List<Item> items;
   final List<Image> images;
   final String title;
+  final String description;
   final Function(Item) onItemSelected;
   final MainAxisAlignment mainAxisAlignment;
   final bool isAlwaysShowScrollThumb;
@@ -145,6 +147,26 @@ class PickerState<Item> extends State<Picker> {
                                   );
                                 },
                               ),
+                              ((widget.description != null)
+                                  &&(widget.description.isNotEmpty))
+                              ? Positioned(
+                                bottom: 24,
+                                left: 24,
+                                right: 24,
+                                child: Text(
+                                  widget.description,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Poppins',
+                                    decoration: TextDecoration.none,
+                                    color: Theme.of(context).primaryTextTheme
+                                        .title.color
+                                  ),
+                                )
+                              )
+                              : Offstage(),
                               widget.isAlwaysShowScrollThumb
                                   ? CakeScrollbar(
                                   backgroundHeight: backgroundHeight,
