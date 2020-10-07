@@ -222,10 +222,10 @@ Future setup(
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
-  // getIt.get<SendTemplateStore>()
   getIt.registerFactory<SendViewModel>(() => SendViewModel(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
+      getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(
@@ -318,10 +318,10 @@ Future setup(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 
   getIt.registerFactory(() => ExchangeViewModel(
-      wallet: getIt.get<AppStore>().wallet,
-      exchangeTemplateStore: getIt.get<ExchangeTemplateStore>(),
-      trades: tradesSource,
-      tradesStore: getIt.get<TradesStore>()));
+      getIt.get<AppStore>().wallet,
+      tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>()));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,
