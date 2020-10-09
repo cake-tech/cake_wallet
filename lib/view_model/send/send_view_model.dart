@@ -1,4 +1,6 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
+import 'package:cake_wallet/entities/template.dart';
+import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/template_validator.dart';
@@ -29,7 +31,8 @@ class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
   SendViewModelBase(
-      this._wallet, this._settingsStore, this._fiatConversationStore)
+      this._wallet, this._settingsStore, this._sendTemplateStore,
+      this._fiatConversationStore)
       : state = InitialExecutionState(),
         _cryptoNumberFormat = NumberFormat(),
         sendAll = false {
@@ -90,8 +93,12 @@ abstract class SendViewModelBase with Store {
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
 
+  @computed
+  ObservableList<Template> get templates => _sendTemplateStore.templates;
+
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
+  final SendTemplateStore _sendTemplateStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
 
@@ -221,4 +228,17 @@ abstract class SendViewModelBase with Store {
 
     _cryptoNumberFormat.maximumFractionDigits = maximumFractionDigits;
   }
+
+  void updateTemplate() => _sendTemplateStore.update();
+
+  void addTemplate({String name, String address, String cryptoCurrency,
+    String amount}) => _sendTemplateStore
+      .addTemplate(
+         name: name,
+         address: address,
+         cryptoCurrency: cryptoCurrency,
+         amount: amount);
+
+  void removeTemplate({Template template}) =>
+      _sendTemplateStore.remove(template: template);
 }
