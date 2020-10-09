@@ -23,3 +23,11 @@ class AmountValidator extends TextValidator {
     }
   }
 }
+
+class AllAmountValidator extends TextValidator {
+  AllAmountValidator() : super(
+      errorMessage: S.current.error_text_amount,
+      pattern: S.current.all,
+      minLength: 0,
+      maxLength: 0);
+}
