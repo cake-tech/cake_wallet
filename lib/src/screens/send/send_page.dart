@@ -161,70 +161,73 @@ class SendPage extends BasePage {
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
                               ),
-                              Padding(
-                                  padding: const EdgeInsets.only(top: 20),
-                                  child: BaseTextFormField(
-                                      focusNode: _cryptoAmountFocus,
-                                      controller: _cryptoAmountController,
-                                      keyboardType:
+                              Observer(
+                                  builder: (_) => Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: BaseTextFormField(
+                                          focusNode: _cryptoAmountFocus,
+                                          controller: _cryptoAmountController,
+                                          keyboardType:
                                           TextInputType.numberWithOptions(
                                               signed: false, decimal: true),
-                                      prefixIcon: Padding(
-                                        padding: EdgeInsets.only(top: 9),
-                                        child: Text(
-                                            sendViewModel.currency.title + ':',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            )),
-                                      ),
-                                      suffixIcon: Container(
-                                        height: 32,
-                                        width: 32,
-                                        margin: EdgeInsets.only(
-                                            left: 14, top: 4, bottom: 10),
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .display1
-                                                .color,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(6))),
-                                        child: InkWell(
-                                          onTap: () =>
-                                              sendViewModel.setSendAll(),
-                                          child: Center(
-                                            child: Text(S.of(context).all,
-                                                textAlign: TextAlign.center,
+                                          prefixIcon: Padding(
+                                            padding: EdgeInsets.only(top: 9),
+                                            child: Text(
+                                                sendViewModel.currency.title + ':',
                                                 style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .display1
-                                                        .decorationColor)),
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                )),
                                           ),
-                                        ),
-                                      ),
-                                      hintText: '0.0000',
-                                      borderColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline
-                                          .color,
-                                      textStyle: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white),
-                                      placeholderTextStyle: TextStyle(
-                                          color: Theme.of(context)
+                                          suffixIcon: Container(
+                                            height: 32,
+                                            width: 32,
+                                            margin: EdgeInsets.only(
+                                                left: 14, top: 4, bottom: 10),
+                                            decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .display1
+                                                    .color,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(6))),
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  sendViewModel.setSendAll(),
+                                              child: Center(
+                                                child: Text(S.of(context).all,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Theme.of(context)
+                                                            .primaryTextTheme
+                                                            .display1
+                                                            .decorationColor)),
+                                              ),
+                                            ),
+                                          ),
+                                          hintText: '0.0000',
+                                          borderColor: Theme.of(context)
                                               .primaryTextTheme
                                               .headline
-                                              .decorationColor,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14),
-                                      validator:
-                                          sendViewModel.amountValidator)),
+                                              .color,
+                                          textStyle: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white),
+                                          placeholderTextStyle: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .headline
+                                                  .decorationColor,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14),
+                                          validator:
+                                          sendViewModel.sendAll
+                                              ? sendViewModel.allAmountValidator
+                                              : sendViewModel.amountValidator))),
                               Observer(
                                   builder: (_) => Padding(
                                         padding: EdgeInsets.only(top: 10),
@@ -504,6 +507,15 @@ class SendPage extends BasePage {
 
       if (amount != sendViewModel.cryptoAmount) {
         sendViewModel.setCryptoAmount(amount);
+      }
+    });
+
+    _fiatAmountController.addListener(() {
+      final amount = _fiatAmountController.text;
+
+      if (amount != sendViewModel.fiatAmount) {
+        sendViewModel.sendAll = false;
+        sendViewModel.setFiatAmount(amount);
       }
     });
 
