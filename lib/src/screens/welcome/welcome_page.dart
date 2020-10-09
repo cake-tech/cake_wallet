@@ -103,7 +103,7 @@ class WelcomePage extends BasePage {
                     Padding(
                       padding: EdgeInsets.only(top: 24),
                       child: PrimaryImageButton(
-                        onPressed: () => Navigator.pushNamed(context, Routes.newWallet),
+                        onPressed: () => Navigator.pushNamed(context, Routes.newWalletFromWelcome),
                         image: newWalletImage,
                         text: S.of(context).create_new,
                         color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
@@ -113,7 +113,7 @@ class WelcomePage extends BasePage {
                     Padding(
                       padding: EdgeInsets.only(top: 10),
                       child: PrimaryImageButton(
-                          onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletOptions),
+                          onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletOptionsFromWelcome),
                           image: restoreWalletImage,
                           text: S.of(context).restore_wallet,
                           color: Theme.of(context).accentTextTheme.caption.color,

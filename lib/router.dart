@@ -58,7 +58,7 @@ class Router {
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<SetupPinCodePage>(
                 param1: (BuildContext context, dynamic _) =>
-                    Navigator.pushNamed(context, Routes.newWalletType)),
+                    Navigator.pushNamed(context, Routes.newWallet)),
             fullscreenDialog: true);
 
       case Routes.newWalletType:
@@ -128,7 +128,7 @@ class Router {
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<SetupPinCodePage>(
                 param1: (BuildContext context, dynamic _) =>
-                    Navigator.pushNamed(context, Routes.restoreWalletType)),
+                    Navigator.pushNamed(context, Routes.restoreWalletFromSeed)),
             fullscreenDialog: true);
 
       case Routes.seed:
@@ -137,15 +137,15 @@ class Router {
                 getIt.get<WalletSeedPage>(param1: settings.arguments as bool));
 
       case Routes.restoreWalletFromSeed:
-        final args = settings.arguments as List<dynamic>;
-        final type = args.first as WalletType;
-        final language = type == WalletType.monero
-            ? args[1] as String
-            : LanguageList.english;
+        // final args = settings.arguments as List<dynamic>;
+        final type = WalletType.monero; //args.first as WalletType;
+        // final language = type == WalletType.monero
+        //     ? args[1] as String
+        //     : LanguageList.english;
 
         return CupertinoPageRoute<void>(
             builder: (_) =>
-                RestoreWalletFromSeedPage(type: type, language: language));
+                RestoreWalletFromSeedPage(type: type));
 
       case Routes.restoreWalletFromKeys:
         final args = settings.arguments as List<dynamic>;

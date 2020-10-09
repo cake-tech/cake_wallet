@@ -8,22 +8,25 @@ import 'package:cake_wallet/store/authentication_store.dart';
 ReactionDisposer _onAuthenticationStateChange;
 
 void startAuthenticationStateChange(AuthenticationStore authenticationStore,
-    GlobalKey<NavigatorState> navigatorKey) {
+    @required GlobalKey<NavigatorState> navigatorKey) {
   _onAuthenticationStateChange ??= autorun((_) async {
     final state = authenticationStore.state;
 
     if (state == AuthenticationState.installed) {
       await loadCurrentWallet();
+      return;
     }
 
     if (state == AuthenticationState.allowed) {
       await navigatorKey.currentState
           .pushNamedAndRemoveUntil(Routes.dashboard, (route) => false);
+      return;
     }
 
     if (state == AuthenticationState.denied) {
       await navigatorKey.currentState
           .pushNamedAndRemoveUntil(Routes.welcome, (_) => false);
+      return;
     }
   });
 }

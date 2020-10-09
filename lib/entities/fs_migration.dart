@@ -137,6 +137,11 @@ Future<void> ios_migrate_wallet_passwords() async {
   final walletsDir = Directory('${appDocDir.path}/wallets');
   final moneroWalletsDir = Directory('${walletsDir.path}/monero');
 
+  if (!moneroWalletsDir.existsSync() || moneroWalletsDir.listSync().isEmpty) {
+    await prefs.setBool('ios_migration_wallet_passwords_completed', true);
+    return;
+  }
+
   moneroWalletsDir.listSync().forEach((item) async {
     try {
       if (item is Directory) {

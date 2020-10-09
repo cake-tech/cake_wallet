@@ -35,13 +35,15 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
   static const aspectRatioImage = 1.22;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
-  final walletNameLightImage = Image.asset('assets/images/wallet_name_light.png');
+  final walletNameLightImage =
+      Image.asset('assets/images/wallet_name_light.png');
   final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
 
   @override
   Widget build(BuildContext context) {
     final walletImage = getIt.get<SettingsStore>().isDarkTheme
-        ? walletNameImage : walletNameLightImage;
+        ? walletNameImage
+        : walletNameLightImage;
 
     return Container(
       padding: EdgeInsets.only(top: 24),
@@ -78,8 +80,8 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
           bottomSection: Observer(
             builder: (context) {
               return PrimaryButton(
-                  onPressed: () => widget
-                      .onConfirm(context, _languageSelectorKey.currentState.selected),
+                  onPressed: () => widget.onConfirm(
+                      context, _languageSelectorKey.currentState.selected),
                   text: S.of(context).seed_language_next,
                   color: Colors.green,
                   textColor: Colors.white);

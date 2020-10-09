@@ -67,7 +67,7 @@ class MoneroWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('MoneroWalletsManager Error: $e');
+      print('MoneroWalletsManager Error: ${e.toString()}');
       rethrow;
     }
   }

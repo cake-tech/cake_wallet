@@ -19,11 +19,14 @@ class BaseTextFormField extends StatelessWidget {
       this.suffix,
       this.suffixIcon,
       this.enabled = true,
+      this.readOnly = false,
+      this.enableInteractiveSelection = true,
       this.validator,
       this.textStyle,
       this.placeholderTextStyle,
       this.maxLength,
-      this.focusNode});
+      this.focusNode,
+      this.initialValue});
 
   final TextEditingController controller;
   final TextInputType keyboardType;
@@ -46,10 +49,16 @@ class BaseTextFormField extends StatelessWidget {
   final TextStyle textStyle;
   final int maxLength;
   final FocusNode focusNode;
+  final bool readOnly;
+  final bool enableInteractiveSelection;
+  String initialValue;
 
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      enableInteractiveSelection: enableInteractiveSelection,
+      readOnly: readOnly,
+      initialValue: initialValue,
       focusNode: focusNode,
       controller: controller,
       keyboardType: keyboardType,
@@ -60,9 +69,11 @@ class BaseTextFormField extends StatelessWidget {
       inputFormatters: inputFormatters,
       enabled: enabled,
       maxLength: maxLength,
-      style: textStyle ?? TextStyle(
-          fontSize: 16.0,
-          color: textColor ?? Theme.of(context).primaryTextTheme.title.color),
+      style: textStyle ??
+          TextStyle(
+              fontSize: 16.0,
+              color:
+                  textColor ?? Theme.of(context).primaryTextTheme.title.color),
       decoration: InputDecoration(
           prefix: prefix,
           prefixIcon: prefixIcon,
@@ -75,15 +86,18 @@ class BaseTextFormField extends StatelessWidget {
           hintText: hintText,
           focusedBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
+                  color: borderColor ??
+                      Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0)),
           disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
+                  color: borderColor ??
+                      Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
-                  color: borderColor ?? Theme.of(context).primaryTextTheme.title.backgroundColor,
+                  color: borderColor ??
+                      Theme.of(context).primaryTextTheme.title.backgroundColor,
                   width: 1.0))),
       validator: validator,
     );
