@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'package:cw_monero/wallet.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_monero/convert_utf8_to_string.dart';
@@ -49,6 +50,8 @@ void createWalletSync(
     throw WalletCreationException(
         message: convertUTF8ToString(pointer: errorMessagePointer));
   }
+
+  // setupNodeSync(address: "node.moneroworld.com:18089");
 }
 
 bool isWalletExistSync({String path}) {

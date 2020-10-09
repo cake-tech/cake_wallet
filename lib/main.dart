@@ -95,7 +95,7 @@ Future<void> initialSetup(
       tradesSource: tradesSource,
       templates: templates,
       exchangeTemplates: exchangeTemplates);
-  await bootstrap(navigatorKey);
+  bootstrap(navigatorKey);
   monero_wallet.onStartup();
 }
 

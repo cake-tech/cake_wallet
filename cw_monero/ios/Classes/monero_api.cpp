@@ -219,6 +219,8 @@ extern "C"
 
     bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
+        Monero::WalletManagerFactory::setLogLevel(4);
+
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->createWallet(path, password, language, _networkType);
@@ -228,9 +230,9 @@ extern "C"
 
         wallet->statusWithErrorString(status, errorString);
 
-        if (status != Monero::Wallet::Status_Ok)
+        if (wallet->status() != Monero::Wallet::Status_Ok)
         {
-            error = strdup(errorString.c_str());
+            error = strdup(wallet->errorString().c_str());
             return false;
         }
 
@@ -254,7 +256,7 @@ extern "C"
 
         wallet->statusWithErrorString(status, errorString);
 
-        if (status != Monero::Wallet::Status_Ok)
+        if (status != Monero::Wallet::Status_Ok || !errorString.empty())
         {
             error = strdup(errorString.c_str());
             return false;
@@ -282,7 +284,7 @@ extern "C"
 
         wallet->statusWithErrorString(status, errorString);
 
-        if (status != Monero::Wallet::Status_Ok)
+        if (status != Monero::Wallet::Status_Ok || !errorString.empty())
         {
             error = strdup(errorString.c_str());
             return false;
@@ -349,11 +351,13 @@ extern "C"
 
     uint64_t get_full_balance(uint32_t account_index)
     {
+//        return 0;
         return get_current_wallet()->balance(account_index);
     }
 
     uint64_t get_unlocked_balance(uint32_t account_index)
     {
+//        return 0;
         return get_current_wallet()->unlockedBalance(account_index);
     }
 
@@ -681,6 +685,7 @@ extern "C"
     void on_startup()
     {
         Monero::Utils::onStartup();
+        Monero::WalletManagerFactory::setLogLevel(4);
     }
 
     void rescan_blockchain()
