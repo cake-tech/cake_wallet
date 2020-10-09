@@ -144,7 +144,7 @@ abstract class SettingsViewModelBase with Store {
         RegularListItem(
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>
-              Navigator.of(context).pushNamed(Routes.disclaimer),
+              Navigator.of(context).pushNamed(Routes.readDisclaimer),
         ),
         RegularListItem(
           title: S.current.faq,
