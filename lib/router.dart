@@ -58,7 +58,7 @@ class Router {
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<SetupPinCodePage>(
                 param1: (BuildContext context, dynamic _) =>
-                    Navigator.pushNamed(context, Routes.newWalletType)),
+                    Navigator.pushNamed(context, Routes.newWallet)),
             fullscreenDialog: true);
 
       case Routes.newWalletType:
@@ -128,7 +128,7 @@ class Router {
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<SetupPinCodePage>(
                 param1: (BuildContext context, dynamic _) =>
-                    Navigator.pushNamed(context, Routes.restoreWalletType)),
+                    Navigator.pushNamed(context, Routes.restoreWalletOptions)),
             fullscreenDialog: true);
 
       case Routes.seed:

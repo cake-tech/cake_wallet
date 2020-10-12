@@ -14,118 +14,178 @@ class WelcomePage extends BasePage {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme
+            .of(context)
+            .backgroundColor,
         resizeToAvoidBottomPadding: false,
         body: SafeArea(child: body(context)));
   }
 
   @override
   Widget body(BuildContext context) {
-    final welcomeImage = getIt.get<SettingsStore>().isDarkTheme
+    final welcomeImage = getIt
+        .get<SettingsStore>()
+        .isDarkTheme
         ? welcomeImageDark : welcomeImageLight;
 
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).accentTextTheme.headline.decorationColor);
+        color: Theme
+            .of(context)
+            .accentTextTheme
+            .headline
+            .decorationColor);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).primaryTextTheme.title.color);
+        color: Theme
+            .of(context)
+            .primaryTextTheme
+            .title
+            .color);
 
-    return Container(
-      padding: EdgeInsets.all(24),
-      child: Column(
-        children: <Widget>[
-          Flexible(
-            flex: 2,
-            child: AspectRatio(
-              aspectRatio: aspectRatioImage,
-              child: FittedBox(child: welcomeImage, fit: BoxFit.fill)
-            )
-          ),
-          Flexible(
-            flex: 3,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
+    return WillPopScope(onWillPop: () async =>, child: Container(
+        padding: EdgeInsets.all(24),
+        child: Column(
+          children: <Widget>[
+            Flexible(
+                flex: 2,
+                child: AspectRatio(
+                    aspectRatio: aspectRatioImage,
+                    child: FittedBox(child: welcomeImage, fit: BoxFit.fill)
+                )
+            ),
+            Flexible(
+                flex: 3,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
-                      child: Text(
-                        S.of(context).welcome,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).accentTextTheme.display3.color,
+                    Column(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: 24),
+                          child: Text(
+                            S
+                                .of(context)
+                                .welcome,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Theme
+                                  .of(context)
+                                  .accentTextTheme
+                                  .display3
+                                  .color,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Text(
-                        S.of(context).cake_wallet,
-                        style: TextStyle(
-                          fontSize: 36,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryTextTheme.title.color,
+                        Padding(
+                          padding: EdgeInsets.only(top: 5),
+                          child: Text(
+                            S
+                                .of(context)
+                                .cake_wallet,
+                            style: TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.bold,
+                              color: Theme
+                                  .of(context)
+                                  .primaryTextTheme
+                                  .title
+                                  .color,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 5),
-                      child: Text(
-                        S.of(context).first_wallet_text,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context).accentTextTheme.display3.color,
+                        Padding(
+                          padding: EdgeInsets.only(top: 5),
+                          child: Text(
+                            S
+                                .of(context)
+                                .first_wallet_text,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Theme
+                                  .of(context)
+                                  .accentTextTheme
+                                  .display3
+                                  .color,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
-                        textAlign: TextAlign.center,
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    Text(
-                      S.of(context).please_make_selection,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.normal,
-                        color: Theme.of(context).accentTextTheme.display3.color,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 24),
-                      child: PrimaryImageButton(
-                        onPressed: () => Navigator.pushNamed(context, Routes.newWallet),
-                        image: newWalletImage,
-                        text: S.of(context).create_new,
-                        color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
-                        textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 10),
-                      child: PrimaryImageButton(
-                          onPressed: () => Navigator.pushNamed(context, Routes.restoreWalletOptions),
-                          image: restoreWalletImage,
-                          text: S.of(context).restore_wallet,
-                          color: Theme.of(context).accentTextTheme.caption.color,
-                          textColor: Theme.of(context).primaryTextTheme.title.color),
+                    Column(
+                      children: <Widget>[
+                        Text(
+                          S
+                              .of(context)
+                              .please_make_selection,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.normal,
+                            color: Theme
+                                .of(context)
+                                .accentTextTheme
+                                .display3
+                                .color,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 24),
+                          child: PrimaryImageButton(
+                            onPressed: () =>
+                                Navigator.pushNamed(context,
+                                    Routes.newWalletFromWelcome),
+                            image: newWalletImage,
+                            text: S
+                                .of(context)
+                                .create_new,
+                            color: Theme
+                                .of(context)
+                                .accentTextTheme
+                                .subtitle
+                                .decorationColor,
+                            textColor: Theme
+                                .of(context)
+                                .accentTextTheme
+                                .headline
+                                .decorationColor,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 10),
+                          child: PrimaryImageButton(
+                              onPressed: () =>
+                                  Navigator.pushNamed(context,
+                                      Routes.restoreWalletOptionsFromWelcome),
+                              image: restoreWalletImage,
+                              text: S
+                                  .of(context)
+                                  .restore_wallet,
+                              color: Theme
+                                  .of(context)
+                                  .accentTextTheme
+                                  .caption
+                                  .color,
+                              textColor: Theme
+                                  .of(context)
+                                  .primaryTextTheme
+                                  .title
+                                  .color),
+                        )
+                      ],
                     )
                   ],
                 )
-              ],
             )
-          )
-        ],
-      )
-    );
+          ],
+        )
+    ));
   }
 }
