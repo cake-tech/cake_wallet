@@ -389,5 +389,7 @@
 
   "template" : "模板",
   "confirm_delete_template" : "此操作將刪除此模板。 你想繼續嗎？",
-  "confirm_delete_wallet" : "此操作將刪除此錢包。 你想繼續嗎？"
+  "confirm_delete_wallet" : "此操作將刪除此錢包。 你想繼續嗎？",
+
+  "picker_description" : "要選擇ChangeNOW或MorphToken，請先更改您的交易對"
 }

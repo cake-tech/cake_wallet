@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -19,26 +20,28 @@ class DisclaimerPage extends BasePage {
   String get title => 'Terms of Use';
 
   @override
-  Widget body(BuildContext context) => DisclaimerPageBody(isReadOnly: true);
+  Widget leading(BuildContext context) =>
+      isReadOnly ? super.leading(context) : null;
+
+  @override
+  Widget body(BuildContext context) => DisclaimerPageBody(isReadOnly: isReadOnly);
 }
 
 class DisclaimerPageBody extends StatefulWidget {
-  DisclaimerPageBody({this.isReadOnly = true});
+  DisclaimerPageBody({this.isReadOnly});
 
   final bool isReadOnly;
 
   @override
-  DisclaimerBodyState createState() => DisclaimerBodyState(false);
+  DisclaimerBodyState createState() => DisclaimerBodyState();
 }
 
 class DisclaimerBodyState extends State<DisclaimerPageBody> {
-  DisclaimerBodyState(this._isAccepted);
 
   static const xmrtoUrl = 'https://xmr.to/terms-of-service';
   static const changenowUrl = 'https://changenow.io/terms-of-use';
   static const morphUrl = 'http://morphtoken.com/terms';
 
-  final bool _isAccepted;
   bool _checked = false;
   String _fileText = '';
 
@@ -51,26 +54,10 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
     setState(() {});
   }
 
-  Future<void> _showAlertDialog(BuildContext context) async {
-    await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertWithOneAction(
-              alertTitle: 'Terms and conditions',
-              alertContent: 'By using this app, you agree to the Terms of Agreement set forth to below',
-              buttonText: S.of(context).ok,
-              buttonAction: () => Navigator.of(context).pop()
-          );
-        });
-  }
-
-  void _afterLayout(Duration _) => _showAlertDialog(context);
-
   @override
   void initState() {
     super.initState();
     getFileLines();
-    if (_isAccepted) WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
   }
 
   @override
@@ -87,8 +74,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                     padding: EdgeInsets.only(left: 24.0, right: 24.0),
                     child: Column(
                       children: <Widget>[
-                        !_isAccepted
-                        ? Row(
+                        Row(
                           children: <Widget>[
                             Expanded(
                               child: Text(
@@ -102,13 +88,10 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                               ),
                             )
                           ],
-                        )
-                        : Offstage(),
-                        !_isAccepted
-                        ? SizedBox(
+                        ),
+                        SizedBox(
                           height: 20.0,
-                        )
-                        : Offstage(),
+                        ),
                         Row(
                           children: <Widget>[
                             Expanded(
@@ -254,8 +237,7 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                 ],
               )),
           if (!widget.isReadOnly) ...[
-            !_isAccepted
-            ? Row(
+            Row(
               children: <Widget>[
                 Expanded(
                   child: Container(
@@ -303,25 +285,19 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                       )),
                 ),
               ],
-            )
-            : Offstage(),
-            !_isAccepted
-            ? Container(
+            ),
+            Container(
               padding:
               EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
               child: PrimaryButton(
-                onPressed: _checked ? () {} : null,
+                onPressed: _checked ? () =>
+                Navigator.of(context).popAndPushNamed(Routes.welcome)
+                : null,
                 text: 'Accept',
                 color: Colors.green,
                 textColor: Colors.white,
               ),
-            )
-            : Offstage(),
-            _isAccepted
-            ? SizedBox(
-              height: 24.0,
-            )
-            : Offstage()
+            ),
           ],
         ],
       ),

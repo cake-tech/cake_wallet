@@ -389,5 +389,7 @@
 
   "template" : "Sjabloon",
   "confirm_delete_template" : "Met deze actie wordt deze sjabloon verwijderd. Wilt u doorgaan?",
-  "confirm_delete_wallet" : "Met deze actie wordt deze portemonnee verwijderd. Wilt u doorgaan?"
+  "confirm_delete_wallet" : "Met deze actie wordt deze portemonnee verwijderd. Wilt u doorgaan?",
+
+  "picker_description" : "Om ChangeNOW of MorphToken te kiezen, moet u eerst uw handelspaar wijzigen"
 }

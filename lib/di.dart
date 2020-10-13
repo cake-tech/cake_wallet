@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/change_language.dart';
@@ -56,6 +57,7 @@ import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:flutter/widgets.dart';
@@ -222,10 +224,10 @@ Future setup(
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
-  // getIt.get<SendTemplateStore>()
   getIt.registerFactory<SendViewModel>(() => SendViewModel(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
+      getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(
@@ -318,10 +320,10 @@ Future setup(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 
   getIt.registerFactory(() => ExchangeViewModel(
-      wallet: getIt.get<AppStore>().wallet,
-      exchangeTemplateStore: getIt.get<ExchangeTemplateStore>(),
-      trades: tradesSource,
-      tradesStore: getIt.get<TradesStore>()));
+      getIt.get<AppStore>().wallet,
+      tradesSource,
+      getIt.get<ExchangeTemplateStore>(),
+      getIt.get<TradesStore>()));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,
@@ -371,4 +373,12 @@ Future setup(
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 
   getIt.registerFactory(() => LanguageListPage(getIt.get<SettingsStore>()));
+
+  getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>(
+      (type, _) => WalletRestoreViewModel(getIt.get<AppStore>(),
+          getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+          type: type));
+
+  getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) =>
+      WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
 }

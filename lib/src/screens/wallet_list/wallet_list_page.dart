@@ -175,7 +175,7 @@ class WalletListBodyState extends State<WalletListBody> {
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () =>
-                    Navigator.of(context).pushNamed(Routes.restoreWalletFromSeed),
+                    Navigator.of(context).pushNamed(Routes.restoreWallet),
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).accentTextTheme.caption.color,

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -128,13 +129,18 @@ class Router {
         return CupertinoPageRoute<void>(
             builder: (_) => getIt.get<SetupPinCodePage>(
                 param1: (BuildContext context, dynamic _) =>
-                    Navigator.pushNamed(context, Routes.restoreWalletFromSeed)),
+                    Navigator.pushNamed(context, Routes.restoreWallet)),
             fullscreenDialog: true);
 
       case Routes.seed:
         return MaterialPageRoute<void>(
             builder: (_) =>
                 getIt.get<WalletSeedPage>(param1: settings.arguments as bool));
+
+      case Routes.restoreWallet:
+        return MaterialPageRoute<void>(
+            builder: (_) =>
+                getIt.get<WalletRestorePage>(param1: WalletType.monero));
 
       case Routes.restoreWalletFromSeed:
         // final args = settings.arguments as List<dynamic>;
@@ -144,8 +150,7 @@ class Router {
         //     : LanguageList.english;
 
         return CupertinoPageRoute<void>(
-            builder: (_) =>
-                RestoreWalletFromSeedPage(type: type));
+            builder: (_) => RestoreWalletFromSeedPage(type: type));
 
       case Routes.restoreWalletFromKeys:
         final args = settings.arguments as List<dynamic>;

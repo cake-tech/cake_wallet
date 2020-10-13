@@ -27,10 +27,10 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(
-      {this.wallet,
+      this.wallet,
       this.trades,
-      this.exchangeTemplateStore,
-      this.tradesStore}) {
+      this._exchangeTemplateStore,
+      this.tradesStore) {
     providerList = [
       XMRTOExchangeProvider(),
       ChangeNowExchangeProvider(),
@@ -54,7 +54,7 @@ abstract class ExchangeViewModelBase with Store {
 
   final WalletBase wallet;
   final Box<Trade> trades;
-  final ExchangeTemplateStore exchangeTemplateStore;
+  final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
 
   @observable
@@ -101,7 +101,7 @@ abstract class ExchangeViewModelBase with Store {
 
   @computed
   ObservableList<ExchangeTemplate> get templates =>
-      exchangeTemplateStore.templates;
+      _exchangeTemplateStore.templates;
 
   @action
   void changeProvider({ExchangeProvider provider}) {
@@ -266,6 +266,22 @@ abstract class ExchangeViewModelBase with Store {
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     _onPairChange();
   }
+
+  void updateTemplate() => _exchangeTemplateStore.update();
+
+  void addTemplate({String amount, String depositCurrency, String receiveCurrency,
+    String provider, String depositAddress, String receiveAddress}) =>
+    _exchangeTemplateStore.addTemplate(
+      amount: amount,
+      depositCurrency: depositCurrency,
+      receiveCurrency: receiveCurrency,
+      provider: provider,
+      depositAddress: depositAddress,
+      receiveAddress: receiveAddress
+    );
+
+  void removeTemplate({ExchangeTemplate template}) =>
+    _exchangeTemplateStore.remove(template: template);
 
   List<ExchangeProvider> providersForCurrentPair() {
     return _providersForPair(from: depositCurrency, to: receiveCurrency);

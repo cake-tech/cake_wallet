@@ -389,5 +389,7 @@
 
   "template" : "Шаблон",
   "confirm_delete_template" : "Ця дія видалить шаблон. Ви хочете продовжити?",
-  "confirm_delete_wallet" : "Ця дія видалить гаманець. Ви хочете продовжити?"
+  "confirm_delete_wallet" : "Ця дія видалить гаманець. Ви хочете продовжити?",
+
+  "picker_description" : "Щоб вибрати ChangeNOW або MorphToken, спочатку змініть пару для обміну"
 }

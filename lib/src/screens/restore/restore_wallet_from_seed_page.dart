@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/restore/restore_from_keys.dart';
+import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
@@ -30,6 +31,7 @@ class RestoreWalletFromSeedPage extends BasePage {
   String get title => S.current.restore_title_from_seed;
 
   final controller = PageController(initialPage: 0);
+  List<Widget> _pages;
 
   Widget _page(BuildContext context, int index) {
     if (_pages == null || _pages.isEmpty) {
@@ -49,47 +51,11 @@ class RestoreWalletFromSeedPage extends BasePage {
 
   void _setPages(BuildContext context) {
     _pages = <Widget>[
-      Container(
-          padding: EdgeInsets.only(left: 25, right: 25),
-          child: Column(children: [
-            SeedWidget(
-              maxLength: mnemonicLength(WalletType.monero),
-              onMnemonicChange: (seed) => null,
-              onFinish: () => null,
-              // Navigator.of(context).pushNamed(
-              // Routes.restoreWalletFromSeedDetails,
-              // arguments: [WalletType.monero, '', '']),
-              validator: SeedValidator(type: WalletType.monero, language: ''),
-            ),
-            GestureDetector(
-                onTap: () async {
-                  final selected = await showPopUp<String>(
-                      context: context,
-                      builder: (BuildContext context) =>
-                          SeedLanguagePicker(selected: 'English')); //key: _pickerKey
-                  print('Seletec $selected');
-                },
-                child: Container(
-                    color: Colors.transparent,
-                    padding: EdgeInsets.only(top: 20.0),
-                    child: IgnorePointer(child: BaseTextFormField(
-                        enableInteractiveSelection: false,
-                        readOnly: true,
-                        hintText: 'Language',
-                        initialValue: 'English (Seed language)')))),
-            BlockchainHeightWidget(
-                // key: _blockchainHeightKey,
-                onHeightChange: (height) {
-              // widget.walletRestorationFromKeysVM.height = height;
-              print(height);
-            })
-          ])),
+      WalletRestoreFromSeedForm(),
       RestoreFromKeysFrom(),
       // Container(color: Colors.yellow)
     ];
   }
-
-  List<Widget> _pages;
 
   @override
   Widget body(BuildContext context) {
@@ -198,15 +164,15 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
           child: Column(children: [
             SeedWidget(
               // key: _seedKey,
-              maxLength: mnemonicLength(widget.type),
-              onMnemonicChange: (seed) => null,
-              onFinish: () => Navigator.of(context).pushNamed(
-                  Routes.restoreWalletFromSeedDetails,
-                  arguments: [widget.type, widget.language, mnemonic()]),
-              leading: widget.leading,
-              middle: widget.middle,
-              validator:
-                  SeedValidator(type: widget.type, language: widget.language),
+              // maxLength: mnemonicLength(widget.type),
+              // onMnemonicChange: (seed) => null,
+              // onFinish: () => Navigator.of(context).pushNamed(
+              //     Routes.restoreWalletFromSeedDetails,
+              //     arguments: [widget.type, widget.language, mnemonic()]),
+              // leading: widget.leading,
+              // middle: widget.middle,
+              // validator:
+              //     SeedValidator(type: widget.type, language: widget.language),
             ),
             BlockchainHeightWidget(
                 // key: _blockchainHeightKey,

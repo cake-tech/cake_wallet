@@ -18,6 +18,7 @@ class ExchangeCard extends StatefulWidget {
       this.initialIsAmountEditable,
       this.initialIsAddressEditable,
       this.isAmountEstimated,
+      this.hasRefundAddress = false,
       this.currencies,
       this.onCurrencySelected,
       this.imageArrow,
@@ -38,6 +39,7 @@ class ExchangeCard extends StatefulWidget {
   final bool initialIsAmountEditable;
   final bool initialIsAddressEditable;
   final bool isAmountEstimated;
+  final bool hasRefundAddress;
   final Image imageArrow;
   final Color currencyButtonColor;
   final Color addressButtonsColor;
@@ -228,23 +230,25 @@ class ExchangeCardState extends State<ExchangeCard> {
                 : Offstage(),
           ]),
         ),
-        _isAddressEditable
-            ? Offstage()
-            : Padding(
-                padding: EdgeInsets.only(top: 20),
-                child: Text(
-                  S.of(context).refund_address,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color:
-                          Theme.of(context).textTheme.subhead.decorationColor),
-                )),
+        !_isAddressEditable && widget.hasRefundAddress
+            ? Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Text(
+              S.of(context).refund_address,
+              style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color:
+                  Theme.of(context).textTheme.subhead.decorationColor),
+            ))
+            : Offstage(),
         _isAddressEditable
             ? Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: AddressTextField(
                   controller: addressController,
+                  placeholder: widget.hasRefundAddress
+                      ? S.of(context).refund_address : null,
                   options: [
                     AddressTextFieldOption.paste,
                     AddressTextFieldOption.qrCode,

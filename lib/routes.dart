@@ -46,4 +46,5 @@ class Routes {
   static const sendTemplate = '/send_template';
   static const exchangeTemplate = '/exchange_template';
   static const restoreWalletType = '/restore_wallet_type';
+  static const restoreWallet = '/restore_wallet';
 }

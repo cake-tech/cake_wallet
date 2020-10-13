@@ -389,5 +389,7 @@
 
   "template" : "주형",
   "confirm_delete_template" : "이 작업은이 템플릿을 삭제합니다. 계속 하시겠습니까?",
-  "confirm_delete_wallet" : "이 작업은이 지갑을 삭제합니다. 계속 하시겠습니까?"
+  "confirm_delete_wallet" : "이 작업은이 지갑을 삭제합니다. 계속 하시겠습니까?",
+
+  "picker_description" : "ChangeNOW 또는 MorphToken을 선택하려면 먼저 거래 쌍을 변경하십시오."
 }
