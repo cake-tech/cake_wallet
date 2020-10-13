@@ -123,6 +123,7 @@ class S implements WidgetsLocalizations {
   String get paste => "Paste";
   String get payment_id => "Payment ID: ";
   String get pending => " (pending)";
+  String get picker_description => "To choose ChangeNOW  or MorphToken, please change your trading pair first";
   String get pin_is_incorrect => "PIN is incorrect";
   String get placeholder_contacts => "Your contacts will be displayed here";
   String get placeholder_transactions => "Your transactions will be displayed here";
@@ -710,6 +711,8 @@ class $de extends S {
   String get login => "Einloggen";
   @override
   String get wallet_list_load_wallet => "Wallet einlegen";
+  @override
+  String get picker_description => "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar";
   @override
   String get sending => "Senden";
   @override
@@ -1353,6 +1356,8 @@ class $hi extends S {
   @override
   String get wallet_list_load_wallet => "वॉलेट लोड करें";
   @override
+  String get picker_description => "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें";
+  @override
   String get sending => "भेजना";
   @override
   String get restore_restore_wallet => "वॉलेट को पुनर्स्थापित करें";
@@ -1994,6 +1999,8 @@ class $ru extends S {
   String get login => "Логин";
   @override
   String get wallet_list_load_wallet => "Загрузка кошелька";
+  @override
+  String get picker_description => "Чтобы выбрать ChangeNOW или MorphToken, сначала смените пару для обмена";
   @override
   String get sending => "Отправка";
   @override
@@ -2637,6 +2644,8 @@ class $ko extends S {
   @override
   String get wallet_list_load_wallet => "지갑로드";
   @override
+  String get picker_description => "ChangeNOW 또는 MorphToken을 선택하려면 먼저 거래 쌍을 변경하십시오.";
+  @override
   String get sending => "배상";
   @override
   String get restore_restore_wallet => "월렛 복원";
@@ -3278,6 +3287,8 @@ class $pt extends S {
   String get login => "Login";
   @override
   String get wallet_list_load_wallet => "Abrir carteira";
+  @override
+  String get picker_description => "Para escolher ChangeNOW ou MorphToken, altere primeiro o seu par de negociação";
   @override
   String get sending => "Enviando";
   @override
@@ -3921,6 +3932,8 @@ class $uk extends S {
   @override
   String get wallet_list_load_wallet => "Завантаження гаманця";
   @override
+  String get picker_description => "Щоб вибрати ChangeNOW або MorphToken, спочатку змініть пару для обміну";
+  @override
   String get sending => "Відправлення";
   @override
   String get restore_restore_wallet => "Відновити гаманець";
@@ -4562,6 +4575,8 @@ class $ja extends S {
   String get login => "ログイン";
   @override
   String get wallet_list_load_wallet => "ウォレットをロード";
+  @override
+  String get picker_description => "ChangeNOWまたはMorphTokenを選択するには、最初にトレーディングペアを変更してください";
   @override
   String get sending => "送信";
   @override
@@ -5209,6 +5224,8 @@ class $pl extends S {
   @override
   String get wallet_list_load_wallet => "Załaduj portfel";
   @override
+  String get picker_description => "Aby wybrać ChangeNOW lub MorphToken, najpierw zmień swoją parę handlową";
+  @override
   String get sending => "Wysyłanie";
   @override
   String get restore_restore_wallet => "Przywróć portfel";
@@ -5850,6 +5867,8 @@ class $es extends S {
   String get login => "Iniciar sesión";
   @override
   String get wallet_list_load_wallet => "Billetera de carga";
+  @override
+  String get picker_description => "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial";
   @override
   String get sending => "Enviando";
   @override
@@ -6493,6 +6512,8 @@ class $nl extends S {
   @override
   String get wallet_list_load_wallet => "Portemonnee laden";
   @override
+  String get picker_description => "Om ChangeNOW of MorphToken te kiezen, moet u eerst uw handelspaar wijzigen";
+  @override
   String get sending => "Bezig met verzenden";
   @override
   String get restore_restore_wallet => "Portemonnee herstellen";
@@ -7134,6 +7155,8 @@ class $zh extends S {
   String get login => "登录";
   @override
   String get wallet_list_load_wallet => "装入钱包";
+  @override
+  String get picker_description => "要選擇ChangeNOW或MorphToken，請先更改您的交易對";
   @override
   String get sending => "正在发送";
   @override

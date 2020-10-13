@@ -29,7 +29,8 @@ Future<void> migrate_android_v1() async {
   await android_migrate_wallets(appDocDir: appDocDir);
 }
 
-Future<void> ios_migrate_v1(Box<WalletInfo> walletInfoSource, Box<Trade> tradeSource, Box<Contact> contactSource) async {
+Future<void> ios_migrate_v1(Box<WalletInfo> walletInfoSource,
+    Box<Trade> tradeSource, Box<Contact> contactSource) async {
   final prefs = await SharedPreferences.getInstance();
 
   if (prefs.getBool('ios_migration_v1_completed') ?? false) {
@@ -390,7 +391,7 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
 
 Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
   final prefs = await SharedPreferences.getInstance();
-  
+
   if (prefs.getBool('ios_migration_address_book_completed') ?? false) {
     return;
   }

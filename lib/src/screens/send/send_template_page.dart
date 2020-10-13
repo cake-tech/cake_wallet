@@ -134,7 +134,7 @@ class SendTemplatePage extends BasePage {
                                   signed: false, decimal: true),
                               inputFormatters: [
                                 BlacklistingTextInputFormatter(
-                                    RegExp('[\\-|\\ |\\,]'))
+                                    RegExp('[\\-|\\ ]'))
                               ],
                               prefixIcon: Padding(
                                 padding: EdgeInsets.only(top: 9),
@@ -172,7 +172,7 @@ class SendTemplatePage extends BasePage {
                               signed: false, decimal: true),
                           inputFormatters: [
                             BlacklistingTextInputFormatter(
-                                RegExp('[\\-|\\ |\\,]'))
+                                RegExp('[\\-|\\ ]'))
                           ],
                           prefixIcon: Padding(
                             padding: EdgeInsets.only(top: 9),
@@ -210,12 +210,12 @@ class SendTemplatePage extends BasePage {
         bottomSection: PrimaryButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                // sendViewModel.sendTemplateStore.addTemplate(
-                //     name: _nameController.text,
-                //     address: _addressController.text,
-                //     cryptoCurrency: sendViewModel.currency.title,
-                //     amount: _cryptoAmountController.text);
-                // sendViewModel.sendTemplateStore.update();
+                sendViewModel.addTemplate(
+                     name: _nameController.text,
+                     address: _addressController.text,
+                     cryptoCurrency: sendViewModel.currency.title,
+                     amount: _cryptoAmountController.text);
+                sendViewModel.updateTemplate();
                 Navigator.of(context).pop();
               }
             },
@@ -246,6 +246,22 @@ class SendTemplatePage extends BasePage {
     reaction((_) => sendViewModel.address, (String address) {
       if (address != _addressController.text) {
         _addressController.text = address;
+      }
+    });
+
+    _cryptoAmountController.addListener(() {
+      final amount = _cryptoAmountController.text;
+
+      if (amount != sendViewModel.cryptoAmount) {
+        sendViewModel.setCryptoAmount(amount);
+      }
+    });
+
+    _fiatAmountController.addListener(() {
+      final amount = _fiatAmountController.text;
+
+      if (amount != sendViewModel.fiatAmount) {
+        sendViewModel.setFiatAmount(amount);
       }
     });
 

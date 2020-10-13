@@ -120,7 +120,7 @@ class App extends StatelessWidget {
         settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
     final authenticationStore = getIt.get<AuthenticationStore>();
     final initialRoute = authenticationStore.state == AuthenticationState.denied
-        ? Routes.welcome
+        ? Routes.disclaimer
         : Routes.login;
 
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(

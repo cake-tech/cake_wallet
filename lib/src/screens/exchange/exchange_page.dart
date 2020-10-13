@@ -173,6 +173,7 @@ class ExchangePage extends BasePage {
                                 initialIsAddressEditable:
                                     exchangeViewModel.isDepositAddressEnabled,
                                 isAmountEstimated: false,
+                                hasRefundAddress: true,
                                 currencies: CryptoCurrency.all,
                                 onCurrencySelected: (currency) =>
                                     exchangeViewModel.changeDepositCurrency(
@@ -306,8 +307,7 @@ class ExchangePage extends BasePage {
                                 ),
                                 Observer(builder: (_) {
                                   final templates = exchangeViewModel.templates;
-                                  final itemCount =
-                                      exchangeViewModel.templates.length;
+                                  final itemCount = templates.length;
 
                                   return ListView.builder(
                                       scrollDirection: Axis.horizontal,
@@ -337,24 +337,22 @@ class ExchangePage extends BasePage {
                                                       alertContent: S
                                                           .of(context)
                                                           .confirm_delete_template,
-                                                      leftButtonText:
-                                                          S.of(context).delete,
                                                       rightButtonText:
+                                                          S.of(context).delete,
+                                                      leftButtonText:
                                                           S.of(context).cancel,
-                                                      actionLeftButton: () {
+                                                      actionRightButton: () {
                                                         Navigator.of(
                                                                 dialogContext)
                                                             .pop();
                                                         exchangeViewModel
-                                                            .exchangeTemplateStore
-                                                            .remove(
+                                                            .removeTemplate(
                                                                 template:
                                                                     template);
                                                         exchangeViewModel
-                                                            .exchangeTemplateStore
-                                                            .update();
+                                                            .updateTemplate();
                                                       },
-                                                      actionRightButton: () =>
+                                                      actionLeftButton: () =>
                                                           Navigator.of(
                                                                   dialogContext)
                                                               .pop());

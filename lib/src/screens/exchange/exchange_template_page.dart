@@ -134,6 +134,7 @@ class ExchangeTemplatePage extends BasePage {
                           initialIsAddressEditable: exchangeViewModel
                               .isDepositAddressEnabled,
                           isAmountEstimated: false,
+                          hasRefundAddress: true,
                           currencies: CryptoCurrency.all,
                           onCurrencySelected: (currency) =>
                               exchangeViewModel.changeDepositCurrency(
@@ -220,7 +221,7 @@ class ExchangeTemplatePage extends BasePage {
                 PrimaryButton(
                     onPressed: () {
                       if (_formKey.currentState.validate()) {
-                        exchangeViewModel.exchangeTemplateStore.addTemplate(
+                        exchangeViewModel.addTemplate(
                             amount: exchangeViewModel.depositAmount,
                             depositCurrency:
                             exchangeViewModel.depositCurrency.toString(),
@@ -229,7 +230,7 @@ class ExchangeTemplatePage extends BasePage {
                             provider: exchangeViewModel.provider.toString(),
                             depositAddress: exchangeViewModel.depositAddress,
                             receiveAddress: exchangeViewModel.receiveAddress);
-                        exchangeViewModel.exchangeTemplateStore.update();
+                        exchangeViewModel.updateTemplate();
                         Navigator.of(context).pop();
                       }
                     },

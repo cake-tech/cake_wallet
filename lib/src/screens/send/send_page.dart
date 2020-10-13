@@ -1,7 +1,9 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -416,53 +418,53 @@ class SendPage extends BasePage {
                                   )),
                             ),
                           ),
-                          // Observer(
-                          //     builder: (_) {
-                          //       final templates = sendViewModel.templates;
-                          //       final itemCount = templates.length;
+                           Observer(
+                               builder: (_) {
+                                 final templates = sendViewModel.templates;
+                                 final itemCount = templates.length;
 
-                          //       return ListView.builder(
-                          //           scrollDirection: Axis.horizontal,
-                          //           shrinkWrap: true,
-                          //           physics: NeverScrollableScrollPhysics(),
-                          //           itemCount: itemCount,
-                          //           itemBuilder: (context, index) {
-                          //             final template = templates[index];
+                                 return ListView.builder(
+                                     scrollDirection: Axis.horizontal,
+                                     shrinkWrap: true,
+                                     physics: NeverScrollableScrollPhysics(),
+                                     itemCount: itemCount,
+                                     itemBuilder: (context, index) {
+                                       final template = templates[index];
 
-                          //             return TemplateTile(
-                          //               key: UniqueKey(),
-                          //               to: template.name,
-                          //               amount: template.amount,
-                          //               from: template.cryptoCurrency,
-                          //               onTap: () {
-                          //                 _addressController.text = template.address;
-                          //                 _cryptoAmountController.text = template.amount;
-                          //                 getOpenaliasRecord(context);
-                          //               },
-                          //               onRemove: () {
-                          //                 showPopUp<void>(
-                          //                     context: context,
-                          //                     builder: (dialogContext) {
-                          //                       return AlertWithTwoActions(
-                          //                           alertTitle: S.of(context).template,
-                          //                           alertContent: S.of(context).confirm_delete_template,
-                          //                           leftButtonText: S.of(context).delete,
-                          //                           rightButtonText: S.of(context).cancel,
-                          //                           actionLeftButton: () {
-                          //                             Navigator.of(dialogContext).pop();
-                          //                             sendViewModel.sendTemplateStore.remove(template: template);
-                          //                             sendViewModel.sendTemplateStore.update();
-                          //                           },
-                          //                           actionRightButton: () => Navigator.of(dialogContext).pop()
-                          //                       );
-                          //                     }
-                          //                 );
-                          //               },
-                          //             );
-                          //           }
-                          //       );
-                          //     }
-                          // )
+                                       return TemplateTile(
+                                         key: UniqueKey(),
+                                         to: template.name,
+                                         amount: template.amount,
+                                         from: template.cryptoCurrency,
+                                         onTap: () {
+                                           _addressController.text = template.address;
+                                           _cryptoAmountController.text = template.amount;
+                                           getOpenaliasRecord(context);
+                                         },
+                                         onRemove: () {
+                                           showPopUp<void>(
+                                               context: context,
+                                               builder: (dialogContext) {
+                                                 return AlertWithTwoActions(
+                                                     alertTitle: S.of(context).template,
+                                                     alertContent: S.of(context).confirm_delete_template,
+                                                     rightButtonText: S.of(context).delete,
+                                                     leftButtonText: S.of(context).cancel,
+                                                     actionRightButton: () {
+                                                       Navigator.of(dialogContext).pop();
+                                                       sendViewModel.removeTemplate(template: template);
+                                                       sendViewModel.updateTemplate();
+                                                     },
+                                                     actionLeftButton: () => Navigator.of(dialogContext).pop()
+                                                 );
+                                               }
+                                           );
+                                         },
+                                       );
+                                     }
+                                 );
+                               }
+                           )
                         ],
                       ),
                     ),
@@ -504,6 +506,14 @@ class SendPage extends BasePage {
 
       if (amount != sendViewModel.cryptoAmount) {
         sendViewModel.setCryptoAmount(amount);
+      }
+    });
+
+    _fiatAmountController.addListener(() {
+      final amount = _fiatAmountController.text;
+
+      if (amount != sendViewModel.fiatAmount) {
+        sendViewModel.setFiatAmount(amount);
       }
     });
 
@@ -571,9 +581,9 @@ class SendPage extends BasePage {
                         sendViewModel.pendingTransaction.amountFormatted,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
-                    leftButtonText: S.of(context).ok,
-                    rightButtonText: S.of(context).cancel,
-                    actionLeftButton: () {
+                    rightButtonText: S.of(context).ok,
+                    leftButtonText: S.of(context).cancel,
+                    actionRightButton: () {
                       Navigator.of(context).pop();
                       sendViewModel.commitTransaction();
                       showPopUp<void>(
@@ -670,7 +680,7 @@ class SendPage extends BasePage {
                             });
                           });
                     },
-                    actionRightButton: () => Navigator.of(context).pop());
+                    actionLeftButton: () => Navigator.of(context).pop());
               });
         });
       }
