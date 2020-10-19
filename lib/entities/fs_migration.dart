@@ -349,8 +349,8 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
     final masterPassword = await flutterSecureStorage.read(
         key: 'master_password', iOptions: IOSOptions(syncFlag: "syna"));
     final key = masterPassword.replaceAll('-', '');
-    final decoded = await ios_legacy_helper.decrypt(content,
-        key: key, salt: secrets.keychainSalt);
+    final decoded =
+        await ios_legacy_helper.decrypt(content, key: key, salt: secrets.salt);
     final decodedJson = json.decode(decoded) as List<dynamic>;
     final trades = decodedJson.map((dynamic el) {
       final elAsMap = el as Map<String, dynamic>;
