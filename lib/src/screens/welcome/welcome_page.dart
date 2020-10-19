@@ -45,7 +45,7 @@ class WelcomePage extends BasePage {
             .title
             .color);
 
-    return WillPopScope(onWillPop: () async =>, child: Container(
+    return WillPopScope(onWillPop: () async => false, child: Container(
         padding: EdgeInsets.all(24),
         child: Column(
           children: <Widget>[
