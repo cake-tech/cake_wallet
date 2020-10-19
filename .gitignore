@@ -92,3 +92,4 @@ android/key.properties
 vendor/
 
 android/app/.cxx/**
+ios/Flutter/.last_build_id

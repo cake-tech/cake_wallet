@@ -8,7 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cw_monero/wallet.dart' as monero_wallet;
-import 'package:cake_wallet/router.dart';
+import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/reactions/bootstrap.dart';
@@ -144,7 +144,7 @@ class App extends StatelessWidget {
             ],
             supportedLocales: S.delegate.supportedLocales,
             locale: Locale(settingsStore.languageCode),
-            onGenerateRoute: (settings) => Router.generateRoute(settings),
+            onGenerateRoute: (settings) => Router.createRoute(settings),
             initialRoute: initialRoute,
           ));
     });
