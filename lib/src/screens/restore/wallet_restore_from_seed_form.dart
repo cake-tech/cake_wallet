@@ -7,7 +7,10 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
-  WalletRestoreFromSeedForm({Key key}) : super(key: key);
+  WalletRestoreFromSeedForm({Key key, this.blockHeightFocusNode})
+      : super(key: key);
+
+  final FocusNode blockHeightFocusNode;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -36,7 +39,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     return Container(
         padding: EdgeInsets.only(left: 25, right: 25),
         child: Column(children: [
-          SeedWidget(key: seedWidgetStateKey),
+          SeedWidget(key: seedWidgetStateKey, language: language),
           GestureDetector(
               onTap: () async {
                 final selected = await showPopUp<String>(
@@ -54,16 +57,15 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                           enableInteractiveSelection: false,
                           readOnly: true)))),
           BlockchainHeightWidget(
-              key: blockchainHeightKey,
-              onHeightChange: (height) {
-                print(height);
-              })
+              focusNode: widget.blockHeightFocusNode,
+              key: blockchainHeightKey)
         ]));
   }
 
   void _changeLanguage(String language) {
     setState(() {
       this.language = language;
+      seedWidgetStateKey.currentState.changeSeedLanguage(language);
       _setLanguageLabel(language);
     });
   }

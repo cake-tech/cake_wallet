@@ -157,7 +157,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
             builder: (context) {
               return LoadingPrimaryButton(
                 onPressed: _confirmForm,
-                //text: S.of(context).continue_text,
                 text: S.of(context).seed_language_next,
                 color: Colors.green,
                 textColor: Colors.white,

@@ -1,5 +1,8 @@
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -20,9 +23,12 @@ class WalletRestorePage extends BasePage {
         walletRestoreFromKeysFormKey =
             GlobalKey<WalletRestoreFromKeysFromState>(),
         _pages = [],
+        _blockHeightFocusNode = FocusNode(),
         _controller = PageController(initialPage: 0) {
     _pages.addAll([
-      WalletRestoreFromSeedForm(key: walletRestoreFromSeedFormKey),
+      WalletRestoreFromSeedForm(
+          key: walletRestoreFromSeedFormKey,
+          blockHeightFocusNode: _blockHeightFocusNode),
       WalletRestoreFromKeysFrom(key: walletRestoreFromKeysFormKey)
     ]);
   }
@@ -49,6 +55,7 @@ class WalletRestorePage extends BasePage {
   final List<Widget> _pages;
   final GlobalKey<WalletRestoreFromSeedFormState> walletRestoreFromSeedFormKey;
   final GlobalKey<WalletRestoreFromKeysFromState> walletRestoreFromKeysFormKey;
+  final FocusNode _blockHeightFocusNode;
 
   @override
   Widget body(BuildContext context) {
@@ -77,7 +84,7 @@ class WalletRestorePage extends BasePage {
               },
               controller: _controller,
               itemCount: _pages.length,
-              itemBuilder: (_, index) => _pages[index])),
+              itemBuilder: (_, index) => SingleChildScrollView(child:  _pages[index]))),
       Padding(
           padding: EdgeInsets.only(top: 10),
           child: SmoothPageIndicator(
@@ -93,13 +100,17 @@ class WalletRestorePage extends BasePage {
           )),
       Padding(
           padding: EdgeInsets.only(top: 20, bottom: 40, left: 25, right: 25),
-          child: PrimaryButton(
-              text: S.of(context).restore_recover,
-              isDisabled: false,
-              onPressed: () =>
-                  walletRestoreViewModel.create(options: _credentials()),
-              color: Theme.of(context).accentTextTheme.body2.color,
-              textColor: Colors.white)),
+          child: Observer(
+            builder: (context) {
+              return LoadingPrimaryButton(
+                  onPressed: () =>
+                      walletRestoreViewModel.create(options: _credentials()),
+                  text: S.of(context).seed_language_next,
+                  color: Colors.green,
+                  textColor: Colors.white,
+                  isLoading: walletRestoreViewModel.state is IsExecutingState);
+            },
+          ))
     ]);
   }
 

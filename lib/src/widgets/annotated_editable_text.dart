@@ -40,7 +40,7 @@ class AnnotatedEditableText extends EditableText {
           color: Colors.black,
           backgroundColor: Colors.transparent,
           fontWeight: FontWeight.normal,
-          fontSize: 20)))
+          fontSize: 16)))
       .toList(),
         super(
         maxLines: null,

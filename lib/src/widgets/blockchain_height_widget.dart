@@ -6,10 +6,11 @@ import 'package:cake_wallet/monero/get_height_by_date.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
-  BlockchainHeightWidget({GlobalKey key, this.onHeightChange})
+  BlockchainHeightWidget({GlobalKey key, this.onHeightChange, this.focusNode})
       : super(key: key);
 
   final Function(int) onHeightChange;
+  final FocusNode focusNode;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -47,14 +48,14 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
           children: <Widget>[
             Flexible(
                 child: Container(
-              padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
-              child: BaseTextFormField(
-                controller: restoreHeightController,
-                keyboardType: TextInputType.numberWithOptions(
-                    signed: false, decimal: false),
-                hintText: S.of(context).widgets_restore_from_blockheight,
-              )
-            ))
+                    padding: EdgeInsets.only(top: 20.0, bottom: 10.0),
+                    child: BaseTextFormField(
+                      focusNode: widget.focusNode,
+                      controller: restoreHeightController,
+                      keyboardType: TextInputType.numberWithOptions(
+                          signed: false, decimal: false),
+                      hintText: S.of(context).widgets_restore_from_blockheight,
+                    )))
           ],
         ),
         Padding(
@@ -74,11 +75,10 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
               child: InkWell(
                 onTap: () => _selectDate(context),
                 child: IgnorePointer(
-                  child: BaseTextFormField(
-                    controller: dateController,
-                    hintText: S.of(context).widgets_restore_from_date,
-                  )
-                ),
+                    child: BaseTextFormField(
+                  controller: dateController,
+                  hintText: S.of(context).widgets_restore_from_date,
+                )),
               ),
             ))
           ],

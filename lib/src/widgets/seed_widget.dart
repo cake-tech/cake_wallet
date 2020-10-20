@@ -12,22 +12,36 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/widgets.dart';
 
 class SeedWidget extends StatefulWidget {
-  SeedWidget({Key key}) : super(key: key);
+  SeedWidget({Key key, this.language}) : super(key: key);
+
+  final String language;
 
   @override
-  SeedWidgetState createState() => SeedWidgetState();
+  SeedWidgetState createState() => SeedWidgetState(language);
 }
 
 class SeedWidgetState extends State<SeedWidget> {
-  SeedWidgetState()
+  SeedWidgetState(String language)
       : controller = TextEditingController(),
         focusNode = FocusNode(),
-        words =
-            SeedValidator.getWordList(type: WalletType.monero, language: 'en');
+        words = SeedValidator.getWordList(
+            type: WalletType.monero, language: language) {
+    focusNode.addListener(() {
+      setState(() {
+        if (!focusNode.hasFocus && controller.text.isEmpty) {
+          _showPlaceholder = true;
+        }
+
+        if (focusNode.hasFocus) {
+          _showPlaceholder = false;
+        }
+      });
+    });
+  }
 
   final TextEditingController controller;
   final FocusNode focusNode;
-  final List<String> words;
+  List<String> words;
   bool _showPlaceholder;
 
   String get text => controller.text;
@@ -38,12 +52,11 @@ class SeedWidgetState extends State<SeedWidget> {
     _showPlaceholder = true;
   }
 
-  Future<void> _pasteAddress() async {
-    final value = await Clipboard.getData('text/plain');
-
-    if (value?.text?.isNotEmpty ?? false) {
-      controller.text = value.text;
-    }
+  void changeSeedLanguage(String language) {
+    setState(() {
+      words = SeedValidator.getWordList(
+          type: WalletType.monero, language: language);
+    });
   }
 
   @override
@@ -84,15 +97,16 @@ class SeedWidgetState extends State<SeedWidget> {
                     child: InkWell(
                       onTap: () async => _pasteAddress(),
                       child: Container(
-                        decoration: BoxDecoration(
-                            color: Theme.of(context).hintColor,
-                            borderRadius: BorderRadius.all(Radius.circular(6))),
-                        // child: Image.asset('assets/images/duplicate.png',
-                        //     color: Theme.of(context)
-                        //         .primaryTextTheme
-                        //         .display1
-                        //         .decorationColor)
-                      ),
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                              color: Theme.of(context).hintColor,
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(6))),
+                          child: Image.asset('assets/images/paste_ios.png',
+                              color: Theme.of(context)
+                                  .primaryTextTheme
+                                  .display1
+                                  .decorationColor)),
                     )))
           ]),
           Container(
@@ -100,5 +114,16 @@ class SeedWidgetState extends State<SeedWidget> {
               height: 1.0,
               color: Theme.of(context).primaryTextTheme.title.backgroundColor),
         ]));
+  }
+
+  Future<void> _pasteAddress() async {
+    final value = await Clipboard.getData('text/plain');
+
+    if (value?.text?.isNotEmpty ?? false) {
+      setState(() {
+        _showPlaceholder = false;
+        controller.text = value.text;
+      });
+    }
   }
 }
