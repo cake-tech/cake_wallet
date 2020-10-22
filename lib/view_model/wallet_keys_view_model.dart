@@ -25,7 +25,7 @@ abstract class WalletKeysViewModelBase with Store {
         StandartListItem(
             title: S.current.view_key_private, value: keys.privateViewKey),
         StandartListItem(
-            title: 'Wallet seed', value: wallet.seed),
+            title: S.current.wallet_seed, value: wallet.seed),
       ]);
     }
 
@@ -34,8 +34,9 @@ abstract class WalletKeysViewModelBase with Store {
 
       items.addAll([
         StandartListItem(title: 'WIF', value: keys.wif),
-        StandartListItem(title: 'Public key', value: keys.publicKey),
-        StandartListItem(title: 'Private key', value: keys.privateKey)
+        StandartListItem(title: S.current.public_key, value: keys.publicKey),
+        StandartListItem(title: S.current.private_key, value: keys.privateKey),
+        StandartListItem(title: S.current.wallet_seed, value: wallet.seed)
       ]);
     }
   }

@@ -53,7 +53,7 @@
   "reconnect" : "Reconectar",
   "wallets" : "Carteiras",
   "show_seed" : "Mostrar semente",
-  "show_keys" : "Mostrar chaves",
+  "show_keys" : "Mostrar semente/chaves",
   "address_book_menu" : "Livro de endereços",
   "reconnection" : "Reconectar",
   "reconnect_alert_text" : "Você tem certeza de que deseja reconectar?",
@@ -240,7 +240,10 @@
   "setup_successful" : "Seu PIN foi configurado com sucesso!",
 
 
-  "wallet_keys" : "Chaves da carteira",
+  "wallet_keys" : "Semente/chaves da carteira",
+  "wallet_seed" : "Semente de carteira",
+  "private_key" : "Chave privada",
+  "public_key" : "Chave pública",
   "view_key_private" : "Chave de visualização (privada)",
   "view_key_public" : "Chave de visualização (pública)",
   "spend_key_private" : "Chave de gastos (privada)",

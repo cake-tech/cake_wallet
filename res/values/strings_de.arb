@@ -53,7 +53,7 @@
   "reconnect" : "Erneut verbinden",
   "wallets" : "Wallets",
   "show_seed" : "Seed zeigen",
-  "show_keys" : "Schlüssel anzeigen",
+  "show_keys" : "Samen/Schlüssel anzeigen",
   "address_book_menu" : "Adressbuch",
   "reconnection" : "Wiederverbindung",
   "reconnect_alert_text" : "Sind Sie sicher, dass Sie die Verbindung wiederherstellen möchten?",
@@ -240,7 +240,10 @@
   "setup_successful" : "Ihre PIN wurde erfolgreich eingerichtet!",
 
 
-  "wallet_keys" : "Wallet schlüssel",
+  "wallet_keys" : "Brieftaschensamen / Schlüssel",
+  "wallet_seed" : "Brieftaschensamen",
+  "private_key" : "Privat Schlüssel",
+  "public_key" : "Öffentlicher Schlüssel",
   "view_key_private" : "Schlüssel anzeigen (eheim)",
   "view_key_public" : "Schlüssel anzeigen (Öffentlichkeit)",
   "spend_key_private" : "Schlüssel ausgeben (geheim)",
