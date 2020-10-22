@@ -53,7 +53,7 @@
   "reconnect" : "Sluit",
   "wallets" : "Portefeuilles",
   "show_seed" : "Toon zaad",
-  "show_keys" : "Toon sleutels",
+  "show_keys" : "Toon zaad/sleutels",
   "address_book_menu" : "Adresboek",
   "reconnection" : "Reconnection",
   "reconnect_alert_text" : "Weet u zeker dat u opnieuw verbinding wilt maken?",
@@ -240,7 +240,10 @@
   "setup_successful" : "Uw PIN is succesvol ingesteld!",
 
 
-  "wallet_keys" : "Portemonnee sleutels",
+  "wallet_keys" : "Portemonnee zaad/sleutels",
+  "wallet_seed" : "Portemonnee zaad",
+  "private_key" : "Prive sleutel",
+  "public_key" : "Publieke sleutel",
   "view_key_private" : "Bekijk sleutel (privaat)",
   "view_key_public" : "Bekijk sleutel (openbaar)",
   "spend_key_private" : "Sleutel uitgeven (privaat)",
