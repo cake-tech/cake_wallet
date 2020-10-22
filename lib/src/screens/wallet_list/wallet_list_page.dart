@@ -165,7 +165,7 @@ class WalletListBodyState extends State<WalletListBody> {
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
               onPressed: () =>
-                  Navigator.of(context).pushNamed(Routes.newWalletType),
+                  Navigator.of(context).pushNamed(Routes.newWallet),
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
