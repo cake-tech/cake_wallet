@@ -1,3 +1,5 @@
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -33,6 +35,7 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
   String pin;
   String title;
   double _aspectRatio;
+  Flushbar<void> _progressBar;
 
   int currentPinLength() => pin.length;
 
@@ -78,6 +81,17 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
     }
 
     setState(() {});
+  }
+
+  void changeProcessText(String text) {
+    hideProgressText();
+    _progressBar = createBar<void>(text, duration: null)
+      ..show(_key.currentContext);
+  }
+
+  void hideProgressText() {
+    _progressBar?.dismiss();
+    _progressBar = null;
   }
 
   @override

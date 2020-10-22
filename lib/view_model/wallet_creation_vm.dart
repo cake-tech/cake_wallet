@@ -8,8 +8,7 @@ import 'package:cake_wallet/entities/pathForWallet.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:flutter/services.dart';
-import 'dart:math';
+import 'package:cake_wallet/entities/generate_name.dart';
 
 part 'wallet_creation_vm.g.dart';
 
@@ -33,26 +32,9 @@ abstract class WalletCreationVMBase with Store {
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
 
-  Future<String> generateName() async {
-    final adjectiveStringRaw =
-        await rootBundle.loadString('assets/text/Wallet_Adjectives.txt');
-    final nounStringRaw =
-        await rootBundle.loadString('assets/text/Wallet_Nouns.txt');
-
-    final randomThing = new Random();
-
-    final adjectives = new List<String>.from(adjectiveStringRaw.split("\n"));
-    final nouns = new List<String>.from(nounStringRaw.split("\n"));
-
-    final chosenAdjective = adjectives[randomThing.nextInt(adjectives.length)];
-    final chosenNoun = nouns[randomThing.nextInt(nouns.length)];
-
-    final returnString = chosenAdjective + " " + chosenNoun;
-    return returnString;
-  }
-
   Future<void> create({dynamic options}) async {
     try {
+      name = await generateName();
       state = IsExecutingState();
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);

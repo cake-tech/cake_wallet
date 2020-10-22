@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart'
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
+import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
@@ -237,7 +238,10 @@ Future setup(
       () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
-      walletInfoSource, getIt.get<AppStore>(), getIt.get<KeyService>()));
+      walletInfoSource,
+      getIt.get<AppStore>(),
+      getIt.get<KeyService>(),
+      getIt.get<WalletNewVM>(param1: WalletType.monero)));
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
@@ -361,7 +365,7 @@ Future setup(
       getIt.get<AuthService>(), getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<SetupPinCodePage,
-          void Function(BuildContext, String), void>(
+          void Function(PinCodeState<PinCodeWidget>, String), void>(
       (onSuccessfulPinSetup, _) => SetupPinCodePage(
           getIt.get<SetupPinCodeViewModel>(),
           onSuccessfulPinSetup: onSuccessfulPinSetup));

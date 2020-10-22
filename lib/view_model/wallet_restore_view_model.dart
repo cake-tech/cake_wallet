@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:uuid/uuid.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
@@ -37,7 +36,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword(type);
     final height = options['height'] as int;
-    name = Uuid().v4().substring(0, 10);
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;

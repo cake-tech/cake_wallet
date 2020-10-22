@@ -8,19 +8,23 @@ import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 
 class SetupPinCodePage extends BasePage {
-  SetupPinCodePage(this.pinCodeViewModel, {this.onSuccessfulPinSetup});
+  SetupPinCodePage(this.pinCodeViewModel, {this.onSuccessfulPinSetup})
+      : pinCodeStateKey = GlobalKey<PinCodeState>();
 
   final SetupPinCodeViewModel pinCodeViewModel;
-  final void Function(BuildContext, String) onSuccessfulPinSetup;
+  final void Function(PinCodeState<PinCodeWidget>, String) onSuccessfulPinSetup;
+  final GlobalKey<PinCodeState> pinCodeStateKey;
 
   @override
   String get title => S.current.setup_pin;
 
   @override
   Widget body(BuildContext context) => PinCodeWidget(
+      key: pinCodeStateKey,
       hasLengthSwitcher: true,
       onFullPin: (String pin, PinCodeState<PinCodeWidget> state) async {
-        if (pinCodeViewModel.isOriginalPinCodeFull && !pinCodeViewModel.isRepeatedPinCodeFull) {
+        if (pinCodeViewModel.isOriginalPinCodeFull &&
+            !pinCodeViewModel.isRepeatedPinCodeFull) {
           state.title = S.current.enter_your_pin_again;
           state.clear();
           return;
@@ -53,7 +57,7 @@ class SetupPinCodePage extends BasePage {
                   buttonText: S.of(context).ok,
                   buttonAction: () {
                     Navigator.of(context).pop();
-                    onSuccessfulPinSetup(context, pin);
+                    onSuccessfulPinSetup(pinCodeStateKey.currentState, pin);
                     state.reset();
                   },
                   alertBarrierDismissible: false,
