@@ -163,14 +163,14 @@ class SendPage extends BasePage {
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
                               ),
-                              Padding(
+                              Observer(builder: (_) => Padding(
                                   padding: const EdgeInsets.only(top: 20),
                                   child: BaseTextFormField(
                                       focusNode: _cryptoAmountFocus,
                                       controller: _cryptoAmountController,
                                       keyboardType:
-                                          TextInputType.numberWithOptions(
-                                              signed: false, decimal: true),
+                                      TextInputType.numberWithOptions(
+                                          signed: false, decimal: true),
                                       prefixIcon: Padding(
                                         padding: EdgeInsets.only(top: 9),
                                         child: Text(
@@ -226,7 +226,9 @@ class SendPage extends BasePage {
                                           fontWeight: FontWeight.w500,
                                           fontSize: 14),
                                       validator:
-                                          sendViewModel.amountValidator)),
+                                      sendViewModel.sendAll
+                                          ? sendViewModel.allAmountValidator
+                                          : sendViewModel.amountValidator))),
                               Observer(
                                   builder: (_) => Padding(
                                         padding: EdgeInsets.only(top: 10),
@@ -513,6 +515,7 @@ class SendPage extends BasePage {
       final amount = _fiatAmountController.text;
 
       if (amount != sendViewModel.fiatAmount) {
+        sendViewModel.sendAll = false;
         sendViewModel.setFiatAmount(amount);
       }
     });

@@ -67,6 +67,8 @@ abstract class SendViewModelBase with Store {
 
   Validator get amountValidator => AmountValidator(type: _wallet.type);
 
+  Validator get allAmountValidator => AllAmountValidator();
+
   Validator get addressValidator => AddressValidator(type: _wallet.currency);
 
   Validator get templateValidator => TemplateValidator();
