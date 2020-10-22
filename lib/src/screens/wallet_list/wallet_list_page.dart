@@ -1,8 +1,10 @@
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_menu_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -42,6 +44,7 @@ class WalletListBodyState extends State<WalletListBody> {
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
+  Flushbar<void> _progressBar;
 
   @override
   Widget build(BuildContext context) {
@@ -164,8 +167,7 @@ class WalletListBodyState extends State<WalletListBody> {
           ),
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(Routes.newWallet),
+              onPressed: () => _generateNewWallet(),
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
@@ -236,5 +238,26 @@ class WalletListBodyState extends State<WalletListBody> {
 
       auth.close();
     });
+  }
+
+  Future<void> _generateNewWallet() async {
+    try {
+      changeProcessText('Creating new wallet'); // FIXME: Unnamed constant
+      await widget.walletListViewModel.walletNewVM.create(options: 'English'); // FIXME: Unnamed constant
+      hideProgressText();
+      await Navigator.of(context).pushNamed(Routes.seed, arguments: true);
+    } catch(e) {
+      changeProcessText('Error: ${e.toString()}');
+    }
+  }
+
+  void changeProcessText(String text) {
+    _progressBar = createBar<void>(text, duration: null)
+      ..show(context);
+  }
+
+  void hideProgressText() {
+    _progressBar?.dismiss();
+    _progressBar = null;
   }
 }

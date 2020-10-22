@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -57,8 +58,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWalletFromWelcome:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (BuildContext context, dynamic _) =>
-                  Navigator.pushNamed(context, Routes.newWallet)),
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) async {
+                try {
+                  context.changeProcessText('Creating new wallet'); // FIXME: Unnamed constant
+                  final newWalletVM = getIt.get<WalletNewVM>(param1: WalletType.monero);
+                  await newWalletVM.create(options: 'English'); // FIXME: Unnamed constant
+                  context.hideProgressText();
+                  await Navigator.of(context.context).pushNamed(Routes.seed, arguments: true);
+                } catch(e) {
+                  context.changeProcessText('Error: ${e.toString()}');
+                }
+              }),
           fullscreenDialog: true);
 
     case Routes.newWalletType:

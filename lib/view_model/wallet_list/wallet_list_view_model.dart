@@ -1,3 +1,4 @@
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
@@ -12,8 +13,8 @@ part 'wallet_list_view_model.g.dart';
 class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
-  WalletListViewModelBase(
-      this._walletInfoSource, this._appStore, this._keyService) {
+  WalletListViewModelBase(this._walletInfoSource, this._appStore,
+      this._keyService, this.walletNewVM) {
     wallets = ObservableList<WalletListItem>();
     _updateList();
   }
@@ -24,6 +25,7 @@ abstract class WalletListViewModelBase with Store {
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final KeyService _keyService;
+  final WalletNewVM walletNewVM;
 
   @action
   Future<void> loadWallet(WalletListItem wallet) async {
