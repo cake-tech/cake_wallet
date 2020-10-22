@@ -305,7 +305,8 @@ class Themes {
         decorationColor: Palette.darkLavender, // text color (information page)
       ),
       subtitle: TextStyle(
-        color: PaletteDark.lightBlueGrey, // QR code (exchange trade page)
+        //color: PaletteDark.lightBlueGrey, // QR code (exchange trade page)
+        color: Colors.white, // QR code (exchange trade page)
         backgroundColor: PaletteDark.deepVioletBlue, // divider (exchange trade page)
         decorationColor: Colors.white // crete new wallet button background (wallet list page)
       ),
