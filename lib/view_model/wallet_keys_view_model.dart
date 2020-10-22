@@ -24,6 +24,8 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.view_key_public, value: keys.publicViewKey),
         StandartListItem(
             title: S.current.view_key_private, value: keys.privateViewKey),
+        StandartListItem(
+            title: 'Wallet seed', value: wallet.seed),
       ]);
     }
 
