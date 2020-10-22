@@ -168,7 +168,8 @@ class MenuWidgetState extends State<MenuWidget> {
                         index--;
 
                         final item = walletMenu.items[index];
-                        final image = walletMenu.images[index] ?? Offstage();
+                        final title = item.title;
+                        final image = item.image ?? Offstage();
                         final isLastTile = index == itemCount - 1;
 
                         return GestureDetector(
@@ -199,7 +200,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                   SizedBox(width: 16),
                                   Expanded(
                                       child: Text(
-                                    item,
+                                    title,
                                     style: TextStyle(
                                         color: Theme.of(context)
                                             .textTheme

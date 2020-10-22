@@ -13,7 +13,7 @@ class WalletKeysPage extends BasePage {
   WalletKeysPage(this.walletKeysViewModel);
 
   @override
-  String get title => S.current.wallet_keys;
+  String get title => 'Wallet seed/keys';
 
   final WalletKeysViewModel walletKeysViewModel;
 
