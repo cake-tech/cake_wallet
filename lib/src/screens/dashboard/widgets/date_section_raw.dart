@@ -15,7 +15,7 @@ class DateSectionRaw extends StatelessWidget {
     final isToday = nowDate.day == date.day &&
         nowDate.month == date.month &&
         nowDate.year == date.year;
-    final dateSectionDateFormat = DateFormatter.withCurrentLocal();
+    final dateSectionDateFormat = DateFormatter.withCurrentLocal(hasTime: false);
     var title = "";
 
     if (isToday) {

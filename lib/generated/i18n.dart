@@ -285,7 +285,7 @@ class S implements WidgetsLocalizations {
   String get transaction_sent => "Transaction sent!";
   String get transactions => "Transactions";
   String get transactions_by_date => "Transactions by date";
-  String get use => "Use ";
+  String get use => "Switch to ";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
   String get wallet_keys => "Wallet keys";
