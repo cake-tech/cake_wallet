@@ -53,7 +53,7 @@
   "reconnect" : "再接続",
   "wallets" : "財布",
   "show_seed" : "シードを表示",
-  "show_keys" : "キーを表示",
+  "show_keys" : "シード/キーを表示する",
   "address_book_menu" : "住所録",
   "reconnection" : "再接続",
   "reconnect_alert_text" : "再接続しますか？",
@@ -240,7 +240,10 @@
   "setup_successful" : "PINは正常に設定されました!",
 
 
-  "wallet_keys" : "ウォレットキー",
+  "wallet_keys" : "ウォレットシード/キー",
+  "wallet_seed" : "ウォレットシード",
+  "private_key" : "秘密鍵",
+  "public_key" : "公開鍵",
   "view_key_private" : "ビューキー (プライベート)",
   "view_key_public" : "ビューキー (パブリック)",
   "spend_key_private" : "キーを使う (プライベート)",
