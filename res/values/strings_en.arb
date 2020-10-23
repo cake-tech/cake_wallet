@@ -53,7 +53,7 @@
   "reconnect" : "Reconnect",
   "wallets" : "Wallets",
   "show_seed" : "Show seed",
-  "show_keys" : "Show keys",
+  "show_keys" : "Show seed/keys",
   "address_book_menu" : "Address book",
   "reconnection" : "Reconnection",
   "reconnect_alert_text" : "Are you sure to reconnect?",
@@ -240,7 +240,10 @@
   "setup_successful" : "Your PIN has been set up successfully!",
 
 
-  "wallet_keys" : "Wallet keys",
+  "wallet_keys" : "Wallet seed/keys",
+  "wallet_seed" : "Wallet seed",
+  "private_key" : "Private key",
+  "public_key" : "Public key",
   "view_key_private" : "View key (private)",
   "view_key_public" : "View key (public)",
   "spend_key_private" : "Spend key (private)",

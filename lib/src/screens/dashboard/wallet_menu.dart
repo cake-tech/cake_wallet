@@ -1,7 +1,7 @@
+import 'package:cake_wallet/src/screens/dashboard/wallet_menu_item.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -11,26 +11,35 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 class WalletMenu {
   WalletMenu(this.context, this.reconnect);
 
-  final List<String> items = [
-    S.current.reconnect,
-    S.current.rescan,
-    S.current.wallets,
-    S.current.nodes,
-    S.current.show_seed,
-    S.current.show_keys,
-    S.current.address_book_menu,
-    S.current.settings_title
-  ];
-
-  final List<Image> images = [
-    Image.asset('assets/images/reconnect_menu.png', height: 16, width: 16),
-    Image.asset('assets/images/filter_icon.png', height: 16, width: 16),
-    Image.asset('assets/images/wallet_menu.png', height: 16, width: 16),
-    Image.asset('assets/images/nodes_menu.png', height: 16, width: 16),
-    Image.asset('assets/images/eye_menu.png', height: 16, width: 16),
-    Image.asset('assets/images/key_menu.png', height: 16, width: 16),
-    Image.asset('assets/images/open_book_menu.png', height: 16, width: 16),
-    Image.asset('assets/images/settings_menu.png', height: 16, width: 16),
+  final List<WalletMenuItem> items = [
+    WalletMenuItem(
+        title: S.current.reconnect,
+        image: Image.asset('assets/images/reconnect_menu.png',
+               height: 16, width: 16)),
+    WalletMenuItem(
+        title: S.current.rescan,
+        image: Image.asset('assets/images/filter_icon.png',
+               height: 16, width: 16)),
+    WalletMenuItem(
+        title: S.current.wallets,
+        image: Image.asset('assets/images/wallet_menu.png',
+               height: 16, width: 16)),
+    WalletMenuItem(
+        title: S.current.nodes,
+        image: Image.asset('assets/images/nodes_menu.png',
+               height: 16, width: 16)),
+    WalletMenuItem(
+        title: S.current.show_keys,
+        image: Image.asset('assets/images/key_menu.png',
+               height: 16, width: 16)),
+    WalletMenuItem(
+        title: S.current.address_book_menu,
+        image: Image.asset('assets/images/open_book_menu.png',
+               height: 16, width: 16)),
+    WalletMenuItem(
+        title: S.current.settings_title,
+        image: Image.asset('assets/images/settings_menu.png',
+               height: 16, width: 16)),
   ];
 
   final BuildContext context;
@@ -54,22 +63,14 @@ class WalletMenu {
         Navigator.of(context).pushNamed(Routes.auth,
             arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
                 isAuthenticatedSuccessfully
-                    ? Navigator.of(auth.context).popAndPushNamed(Routes.seed, arguments: false)
-                    : null);
-
-        break;
-      case 5:
-        Navigator.of(context).pushNamed(Routes.auth,
-            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
-                isAuthenticatedSuccessfully
                     ? Navigator.of(auth.context)
                         .popAndPushNamed(Routes.showKeys)
                     : null);
         break;
-      case 6:
+      case 5:
         Navigator.of(context).pushNamed(Routes.addressBook);
         break;
-      case 7:
+      case 6:
         Navigator.of(context).pushNamed(Routes.settings);
         break;
       default:
