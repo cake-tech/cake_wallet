@@ -89,6 +89,11 @@ class PinCodeState<T extends PinCodeWidget> extends State<T> {
       ..show(_key.currentContext);
   }
 
+  void close() {
+    _progressBar?.dismiss();
+    Navigator.of(_key.currentContext).pop();
+  }
+
   void hideProgressText() {
     _progressBar?.dismiss();
     _progressBar = null;

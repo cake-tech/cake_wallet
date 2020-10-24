@@ -930,7 +930,7 @@ packages:
       name: url_launcher
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.7.7"
+    version: "5.7.8"
   url_launcher_linux:
     dependency: transitive
     description:

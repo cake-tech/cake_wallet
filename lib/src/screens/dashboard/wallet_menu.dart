@@ -15,31 +15,31 @@ class WalletMenu {
     WalletMenuItem(
         title: S.current.reconnect,
         image: Image.asset('assets/images/reconnect_menu.png',
-               height: 16, width: 16)),
+            height: 16, width: 16)),
     WalletMenuItem(
         title: S.current.rescan,
         image: Image.asset('assets/images/filter_icon.png',
-               height: 16, width: 16)),
+            height: 16, width: 16)),
     WalletMenuItem(
         title: S.current.wallets,
         image: Image.asset('assets/images/wallet_menu.png',
-               height: 16, width: 16)),
+            height: 16, width: 16)),
     WalletMenuItem(
         title: S.current.nodes,
-        image: Image.asset('assets/images/nodes_menu.png',
-               height: 16, width: 16)),
+        image:
+            Image.asset('assets/images/nodes_menu.png', height: 16, width: 16)),
     WalletMenuItem(
         title: S.current.show_keys,
-        image: Image.asset('assets/images/key_menu.png',
-               height: 16, width: 16)),
+        image:
+            Image.asset('assets/images/key_menu.png', height: 16, width: 16)),
     WalletMenuItem(
         title: S.current.address_book_menu,
         image: Image.asset('assets/images/open_book_menu.png',
-               height: 16, width: 16)),
+            height: 16, width: 16)),
     WalletMenuItem(
         title: S.current.settings_title,
         image: Image.asset('assets/images/settings_menu.png',
-               height: 16, width: 16)),
+            height: 16, width: 16)),
   ];
 
   final BuildContext context;
@@ -61,11 +61,12 @@ class WalletMenu {
         break;
       case 4:
         Navigator.of(context).pushNamed(Routes.auth,
-            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) =>
-                isAuthenticatedSuccessfully
-                    ? Navigator.of(auth.context)
-                        .popAndPushNamed(Routes.showKeys)
-                    : null);
+            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+          if (isAuthenticatedSuccessfully) {
+            auth.close();
+            Navigator.of(auth.context).pushNamed(Routes.showKeys);
+          }
+        });
         break;
       case 5:
         Navigator.of(context).pushNamed(Routes.addressBook);

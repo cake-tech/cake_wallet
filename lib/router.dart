@@ -85,10 +85,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => NewWalletPage(walletNewVM));
 
     case Routes.setupPin:
-      Function(BuildContext, String) callback;
+      Function(PinCodeState<PinCodeWidget>, String) callback;
 
-      if (settings.arguments is Function(BuildContext, String)) {
-        callback = settings.arguments as Function(BuildContext, String);
+      if (settings.arguments is Function(PinCodeState<PinCodeWidget>, String)) {
+        callback = settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
       }
 
       return CupertinoPageRoute<void>(
