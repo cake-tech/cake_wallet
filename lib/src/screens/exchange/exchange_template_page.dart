@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -169,7 +170,9 @@ class ExchangeTemplatePage extends BasePage {
                                 exchangeViewModel.wallet.currency
                                 ? exchangeViewModel.wallet.address
                                 : exchangeViewModel.receiveAddress,
-                            initialIsAmountEditable: false,
+                            initialIsAmountEditable:
+                            exchangeViewModel.provider is
+                            XMRTOExchangeProvider ? true : false,
                             initialIsAddressEditable:
                             exchangeViewModel.isReceiveAddressEnabled,
                             isAmountEstimated: true,
@@ -202,7 +205,9 @@ class ExchangeTemplatePage extends BasePage {
                   child: Observer(builder: (_) {
                     final description =
                     exchangeViewModel.provider is XMRTOExchangeProvider
-                        ? S.of(context).amount_is_guaranteed
+                        ? exchangeViewModel.isReceiveAmountEntered
+                          ? S.of(context).amount_is_guaranteed
+                          : S.of(context).amount_is_estimate
                         : S.of(context).amount_is_estimate;
                     return Center(
                       child: Text(
@@ -328,6 +333,12 @@ class ExchangeTemplatePage extends BasePage {
           receiveKey.currentState.isAddressEditable(isEditable: isEnabled);
         });
 
+    reaction((_) => exchangeViewModel.provider, (ExchangeProvider provider) {
+      provider is XMRTOExchangeProvider
+          ? receiveKey.currentState.isAmountEditable(isEditable: true)
+          : receiveKey.currentState.isAmountEditable(isEditable: false);
+    });
+
     /*reaction((_) => exchangeViewModel.limitsState, (LimitsState state) {
       String min;
       String max;
@@ -358,6 +369,7 @@ class ExchangeTemplatePage extends BasePage {
       if (depositAmountController.text != exchangeViewModel.depositAmount) {
         exchangeViewModel.changeDepositAmount(
             amount: depositAmountController.text);
+        exchangeViewModel.isReceiveAmountEntered = false;
       }
     });
 
@@ -368,6 +380,7 @@ class ExchangeTemplatePage extends BasePage {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
         exchangeViewModel.changeReceiveAmount(
             amount: receiveAmountController.text);
+        exchangeViewModel.isReceiveAmountEntered = true;
       }
     });
 

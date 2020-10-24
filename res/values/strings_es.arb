@@ -53,7 +53,7 @@
   "reconnect" : "Volver a conectar",
   "wallets" : "Carteras",
   "show_seed" : "Mostrar semilla",
-  "show_keys" : "Mostrar llaves",
+  "show_keys" : "Mostrar semilla/claves",
   "address_book_menu" : "Libreta de direcciones",
   "reconnection" : "Reconexión",
   "reconnect_alert_text" : "¿Estás seguro de reconectar?",
@@ -240,7 +240,10 @@
   "setup_successful" : "Su PIN se ha configurado correctamente!",
 
 
-  "wallet_keys" : "Billetera clave",
+  "wallet_keys" : "Billetera semilla/claves",
+  "wallet_seed" : "Semilla de billetera",
+  "private_key" : "Clave privada",
+  "public_key" : "Clave pública",
   "view_key_private" : "View clave (privado)",
   "view_key_public" : "View clave (público)",
   "spend_key_private" : "Spend clave (privado)",

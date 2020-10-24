@@ -53,7 +53,7 @@
   "reconnect" : "다시 연결",
   "wallets" : "지갑",
   "show_seed" : "종자 표시",
-  "show_keys" : "키 표시",
+  "show_keys" : "시드 / 키 표시",
   "address_book_menu" : "주소록",
   "reconnection" : "재 연결",
   "reconnect_alert_text" : "다시 연결 하시겠습니까?",
@@ -240,7 +240,10 @@
   "setup_successful" : "PIN이 성공적으로 설정되었습니다!",
 
 
-  "wallet_keys" : "지갑 키",
+  "wallet_keys" : "지갑 시드 / 키",
+  "wallet_seed" : "지갑 시드",
+  "private_key" : "개인 키",
+  "public_key" : "공개 키",
   "view_key_private" : "키보기(은밀한)",
   "view_key_public" : "키보기 (공공의)",
   "spend_key_private" : "지출 키 (은밀한)",
