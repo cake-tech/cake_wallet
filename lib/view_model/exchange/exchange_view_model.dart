@@ -137,7 +137,7 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
-    final _amount = double.parse(amount) ?? 0;
+    final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
     provider
         .calculateAmount(
@@ -160,7 +160,7 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
-    final _amount = double.parse(amount);
+    final _amount = double.parse(amount.replaceAll(',', '.'));
     provider
         .calculateAmount(
             from: depositCurrency, to: receiveCurrency, amount: _amount,
