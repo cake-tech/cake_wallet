@@ -93,6 +93,7 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isReceiveAddressEnabled;
 
+  @observable
   bool isReceiveAmountEntered;
 
   Limits limits;
@@ -256,6 +257,7 @@ abstract class ExchangeViewModelBase with Store {
 
   @action
   void reset() {
+    isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
     depositCurrency = CryptoCurrency.xmr;

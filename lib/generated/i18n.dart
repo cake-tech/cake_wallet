@@ -130,6 +130,8 @@ class S implements WidgetsLocalizations {
   String get please_make_selection => "Please make selection below to create or recover your wallet.";
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
+  String get private_key => "Private key";
+  String get public_key => "Public key";
   String get receive => "Receive";
   String get receive_amount => "Amount";
   String get received => "Received";
@@ -229,7 +231,7 @@ class S implements WidgetsLocalizations {
   String get setup_pin => "Setup PIN";
   String get setup_successful => "Your PIN has been set up successfully!";
   String get share_address => "Share address";
-  String get show_keys => "Show keys";
+  String get show_keys => "Show seed/keys";
   String get show_seed => "Show seed";
   String get spend_key_private => "Spend key (private)";
   String get spend_key_public => "Spend key (public)";
@@ -288,7 +290,7 @@ class S implements WidgetsLocalizations {
   String get use => "Switch to ";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
-  String get wallet_keys => "Wallet keys";
+  String get wallet_keys => "Wallet seed/keys";
   String get wallet_list_create_new_wallet => "Create New Wallet";
   String get wallet_list_load_wallet => "Load wallet";
   String get wallet_list_restore_wallet => "Restore Wallet";
@@ -296,6 +298,7 @@ class S implements WidgetsLocalizations {
   String get wallet_menu => "Menu";
   String get wallet_name => "Wallet name";
   String get wallet_restoration_store_incorrect_seed_length => "Incorrect seed length";
+  String get wallet_seed => "Wallet seed";
   String get wallet_store_monero_wallet => "Monero Wallet";
   String get wallets => "Wallets";
   String get welcome => "Welcome to";
@@ -350,6 +353,8 @@ class $de extends S {
   @override
   String get cancel => "Abbrechen";
   @override
+  String get public_key => "Öffentlicher Schlüssel";
+  @override
   String get trade_state_unpaid => "Unbezahlt";
   @override
   String get authenticated => "Authentifiziert";
@@ -400,6 +405,8 @@ class $de extends S {
   @override
   String get received => "Empfangen";
   @override
+  String get private_key => "Privat Schlüssel";
+  @override
   String get auth_store_banned_minutes => " Protokoll";
   @override
   String get restore_title_from_seed_keys => "Vom Seed / Schlüssel wiederherstellen";
@@ -448,7 +455,7 @@ class $de extends S {
   @override
   String get seed_language_choose => "Bitte wählen Sie die Ausgangssprache:";
   @override
-  String get wallet_keys => "Wallet schlüssel";
+  String get wallet_keys => "Brieftaschensamen / Schlüssel";
   @override
   String get reconnect => "Erneut verbinden";
   @override
@@ -573,6 +580,8 @@ class $de extends S {
   String get remove => "Löschen";
   @override
   String get add_new_node => "Neuen Knoten hinzufügen";
+  @override
+  String get wallet_seed => "Brieftaschensamen";
   @override
   String get yesterday => "Gestern";
   @override
@@ -774,7 +783,7 @@ class $de extends S {
   @override
   String get rescan => "Erneut scannen";
   @override
-  String get show_keys => "Schlüssel anzeigen";
+  String get show_keys => "Samen/Schlüssel anzeigen";
   @override
   String get error_text_fiat => "Der Wert des Betrags darf den verfügbaren Kontostand nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 2 sein";
   @override
@@ -994,6 +1003,8 @@ class $hi extends S {
   @override
   String get cancel => "रद्द करना";
   @override
+  String get public_key => "सार्वजनिक कुंजी";
+  @override
   String get trade_state_unpaid => "अवैतनिक";
   @override
   String get authenticated => "प्रमाणीकृत";
@@ -1044,6 +1055,8 @@ class $hi extends S {
   @override
   String get received => "प्राप्त किया";
   @override
+  String get private_key => "निजी चाबी";
+  @override
   String get auth_store_banned_minutes => " मिनट";
   @override
   String get restore_title_from_seed_keys => "बीज / कुंजियों से पुनर्स्थापित करें";
@@ -1092,7 +1105,7 @@ class $hi extends S {
   @override
   String get seed_language_choose => "कृपया बीज भाषा चुनें:";
   @override
-  String get wallet_keys => "बटुआ की";
+  String get wallet_keys => "बटुआ बीज / चाबियाँ";
   @override
   String get reconnect => "रिकनेक्ट";
   @override
@@ -1217,6 +1230,8 @@ class $hi extends S {
   String get remove => "हटाना";
   @override
   String get add_new_node => "नया नोड जोड़ें";
+  @override
+  String get wallet_seed => "बटुआ का बीज";
   @override
   String get yesterday => "बिता कल";
   @override
@@ -1418,7 +1433,7 @@ class $hi extends S {
   @override
   String get rescan => "पुन: स्कैन";
   @override
-  String get show_keys => "चाबी दिखाओ";
+  String get show_keys => "बीज / कुंजियाँ दिखाएँ";
   @override
   String get error_text_fiat => "राशि का मूल्य उपलब्ध शेष राशि से अधिक नहीं हो सकता.\nअंश अंकों की संख्या कम या 2 के बराबर होनी चाहिए";
   @override
@@ -1638,6 +1653,8 @@ class $ru extends S {
   @override
   String get cancel => "Отменить";
   @override
+  String get public_key => "Публичный ключ";
+  @override
   String get trade_state_unpaid => "Неоплаченная";
   @override
   String get authenticated => "Аутентифицировано";
@@ -1688,6 +1705,8 @@ class $ru extends S {
   @override
   String get received => "Полученные";
   @override
+  String get private_key => "Приватный ключ";
+  @override
   String get auth_store_banned_minutes => " минут";
   @override
   String get restore_title_from_seed_keys => "Восстановить из мнемонической фразы/ключей";
@@ -1736,7 +1755,7 @@ class $ru extends S {
   @override
   String get seed_language_choose => "Пожалуйста, выберите язык мнемонической фразы:";
   @override
-  String get wallet_keys => "Ключи кошелька";
+  String get wallet_keys => "Мнемоническая фраза/ключи кошелька";
   @override
   String get reconnect => "Переподключиться";
   @override
@@ -1861,6 +1880,8 @@ class $ru extends S {
   String get remove => "Удалить";
   @override
   String get add_new_node => "Добавить новую ноду";
+  @override
+  String get wallet_seed => "Мнемоническая фраза кошелька";
   @override
   String get yesterday => "Вчера";
   @override
@@ -2062,7 +2083,7 @@ class $ru extends S {
   @override
   String get rescan => "Пересканировать";
   @override
-  String get show_keys => "Показать ключи";
+  String get show_keys => "Показать мнемоническую фразу/ключи";
   @override
   String get error_text_fiat => "Значение суммы не может превышать доступный баланс.\nКоличество цифр после запятой должно быть меньше или равно 2";
   @override
@@ -2282,6 +2303,8 @@ class $ko extends S {
   @override
   String get cancel => "취소";
   @override
+  String get public_key => "공개 키";
+  @override
   String get trade_state_unpaid => "미지급";
   @override
   String get authenticated => "인증";
@@ -2332,6 +2355,8 @@ class $ko extends S {
   @override
   String get received => "받았습니다";
   @override
+  String get private_key => "개인 키";
+  @override
   String get auth_store_banned_minutes => " 의사록";
   @override
   String get restore_title_from_seed_keys => "시드 / 키에서 복원";
@@ -2380,7 +2405,7 @@ class $ko extends S {
   @override
   String get seed_language_choose => "종자 언어를 선택하십시오:";
   @override
-  String get wallet_keys => "지갑 키";
+  String get wallet_keys => "지갑 시드 / 키";
   @override
   String get reconnect => "다시 연결";
   @override
@@ -2505,6 +2530,8 @@ class $ko extends S {
   String get remove => "없애다";
   @override
   String get add_new_node => "새 노드 추가";
+  @override
+  String get wallet_seed => "지갑 시드";
   @override
   String get yesterday => "어제";
   @override
@@ -2706,7 +2733,7 @@ class $ko extends S {
   @override
   String get rescan => "재검색";
   @override
-  String get show_keys => "키 표시";
+  String get show_keys => "시드 / 키 표시";
   @override
   String get error_text_fiat => "금액은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 2보다 작거나 같아야합니다";
   @override
@@ -2926,6 +2953,8 @@ class $pt extends S {
   @override
   String get cancel => "Cancelar";
   @override
+  String get public_key => "Chave pública";
+  @override
   String get trade_state_unpaid => "Não paga";
   @override
   String get authenticated => "Autenticado";
@@ -2976,6 +3005,8 @@ class $pt extends S {
   @override
   String get received => "Recebida";
   @override
+  String get private_key => "Chave privada";
+  @override
   String get auth_store_banned_minutes => " minutos";
   @override
   String get restore_title_from_seed_keys => "Restaurar a partir de sementes/chaves";
@@ -3024,7 +3055,7 @@ class $pt extends S {
   @override
   String get seed_language_choose => "Por favor, escolha o idioma da semente:";
   @override
-  String get wallet_keys => "Chaves da carteira";
+  String get wallet_keys => "Semente/chaves da carteira";
   @override
   String get reconnect => "Reconectar";
   @override
@@ -3149,6 +3180,8 @@ class $pt extends S {
   String get remove => "Remover";
   @override
   String get add_new_node => "Adicionar novo nó";
+  @override
+  String get wallet_seed => "Semente de carteira";
   @override
   String get yesterday => "Ontem";
   @override
@@ -3350,7 +3383,7 @@ class $pt extends S {
   @override
   String get rescan => "Reescanear";
   @override
-  String get show_keys => "Mostrar chaves";
+  String get show_keys => "Mostrar semente/chaves";
   @override
   String get error_text_fiat => "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos decimais deve ser menor ou igual a 2";
   @override
@@ -3570,6 +3603,8 @@ class $uk extends S {
   @override
   String get cancel => "Відмінити";
   @override
+  String get public_key => "Публічний ключ";
+  @override
   String get trade_state_unpaid => "Неоплачена";
   @override
   String get authenticated => "Аутентифіковано";
@@ -3620,6 +3655,8 @@ class $uk extends S {
   @override
   String get received => "Отримані";
   @override
+  String get private_key => "Приватний ключ";
+  @override
   String get auth_store_banned_minutes => " хвилин";
   @override
   String get restore_title_from_seed_keys => "Відновити з мнемонічної фрази/ключів";
@@ -3668,7 +3705,7 @@ class $uk extends S {
   @override
   String get seed_language_choose => "Будь ласка, виберіть мову мнемонічної фрази:";
   @override
-  String get wallet_keys => "Ключі гаманця";
+  String get wallet_keys => "Мнемонічна фраза/ключі гаманця";
   @override
   String get reconnect => "Перепідключитися";
   @override
@@ -3793,6 +3830,8 @@ class $uk extends S {
   String get remove => "Видалити";
   @override
   String get add_new_node => "Додати новий вузол";
+  @override
+  String get wallet_seed => "Мнемонічна фраза гаманця";
   @override
   String get yesterday => "Вчора";
   @override
@@ -3994,7 +4033,7 @@ class $uk extends S {
   @override
   String get rescan => "Пересканувати";
   @override
-  String get show_keys => "Показати ключі";
+  String get show_keys => "Показати мнемонічну фразу/ключі";
   @override
   String get error_text_fiat => "Значення суми не може перевищувати доступний баланс.\nКількість цифр після коми повинно бути меншим або дорівнювати 2";
   @override
@@ -4214,6 +4253,8 @@ class $ja extends S {
   @override
   String get cancel => "キャンセル";
   @override
+  String get public_key => "公開鍵";
+  @override
   String get trade_state_unpaid => "未払い";
   @override
   String get authenticated => "認証済み";
@@ -4264,6 +4305,8 @@ class $ja extends S {
   @override
   String get received => "受け取った";
   @override
+  String get private_key => "秘密鍵";
+  @override
   String get auth_store_banned_minutes => " 数分";
   @override
   String get restore_title_from_seed_keys => "シード/キーから復元";
@@ -4312,7 +4355,7 @@ class $ja extends S {
   @override
   String get seed_language_choose => "シード言語を選択してください:";
   @override
-  String get wallet_keys => "ウォレットキー";
+  String get wallet_keys => "ウォレットシード/キー";
   @override
   String get reconnect => "再接続";
   @override
@@ -4437,6 +4480,8 @@ class $ja extends S {
   String get remove => "削除する";
   @override
   String get add_new_node => "新しいノードを追加";
+  @override
+  String get wallet_seed => "ウォレットシード";
   @override
   String get yesterday => "昨日";
   @override
@@ -4638,7 +4683,7 @@ class $ja extends S {
   @override
   String get rescan => "再スキャン";
   @override
-  String get show_keys => "キーを表示";
+  String get show_keys => "シード/キーを表示する";
   @override
   String get error_text_fiat => "金額は利用可能な残高を超えることはできません.\n小数桁の数は2以下でなければなりません";
   @override
@@ -4862,6 +4907,8 @@ class $pl extends S {
   @override
   String get cancel => "Anulować";
   @override
+  String get public_key => "Klucz publiczny";
+  @override
   String get trade_state_unpaid => "Nie zapłacony";
   @override
   String get authenticated => "Zalegalizowany";
@@ -4912,6 +4959,8 @@ class $pl extends S {
   @override
   String get received => "Odebrane";
   @override
+  String get private_key => "Prywatny klucz";
+  @override
   String get auth_store_banned_minutes => " minuty";
   @override
   String get restore_title_from_seed_keys => "Przywróć z nasion / kluczy";
@@ -4960,7 +5009,7 @@ class $pl extends S {
   @override
   String get seed_language_choose => "Proszę wybrać język początkowy:";
   @override
-  String get wallet_keys => "Klucze portfela";
+  String get wallet_keys => "Nasiono portfela/klucze";
   @override
   String get reconnect => "Na nowo połączyć";
   @override
@@ -5085,6 +5134,8 @@ class $pl extends S {
   String get remove => "Usunąć";
   @override
   String get add_new_node => "Dodaj nowy węzeł";
+  @override
+  String get wallet_seed => "Nasiono portfela";
   @override
   String get yesterday => "Wczoraj";
   @override
@@ -5286,7 +5337,7 @@ class $pl extends S {
   @override
   String get rescan => "Skanuj ponownie";
   @override
-  String get show_keys => "Pokaż klucze";
+  String get show_keys => "Pokaż nasiona/klucze";
   @override
   String get error_text_fiat => "Wartość kwoty nie może przekroczyć dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 2";
   @override
@@ -5506,6 +5557,8 @@ class $es extends S {
   @override
   String get cancel => "Cancelar";
   @override
+  String get public_key => "Clave pública";
+  @override
   String get trade_state_unpaid => "No pagado";
   @override
   String get authenticated => "Autenticados";
@@ -5556,6 +5609,8 @@ class $es extends S {
   @override
   String get received => "Recibido";
   @override
+  String get private_key => "Clave privada";
+  @override
   String get auth_store_banned_minutes => " minutos";
   @override
   String get restore_title_from_seed_keys => "Restaurar desde semilla/claves";
@@ -5604,7 +5659,7 @@ class $es extends S {
   @override
   String get seed_language_choose => "Por favor elija el idioma semilla:";
   @override
-  String get wallet_keys => "Billetera clave";
+  String get wallet_keys => "Billetera semilla/claves";
   @override
   String get reconnect => "Volver a conectar";
   @override
@@ -5729,6 +5784,8 @@ class $es extends S {
   String get remove => "Retirar";
   @override
   String get add_new_node => "Agregar nuevo nodo";
+  @override
+  String get wallet_seed => "Semilla de billetera";
   @override
   String get yesterday => "Ayer";
   @override
@@ -5930,7 +5987,7 @@ class $es extends S {
   @override
   String get rescan => "Reescanear";
   @override
-  String get show_keys => "Mostrar llaves";
+  String get show_keys => "Mostrar semilla/claves";
   @override
   String get error_text_fiat => "El valor de la cantidad no puede exceder el saldo disponible.\nEl número de dígitos de fracción debe ser menor o igual a 2";
   @override
@@ -6150,6 +6207,8 @@ class $nl extends S {
   @override
   String get cancel => "Annuleer";
   @override
+  String get public_key => "Publieke sleutel";
+  @override
   String get trade_state_unpaid => "Onbetaald";
   @override
   String get authenticated => "Authenticated";
@@ -6200,6 +6259,8 @@ class $nl extends S {
   @override
   String get received => "Ontvangen";
   @override
+  String get private_key => "Prive sleutel";
+  @override
   String get auth_store_banned_minutes => " notulen";
   @override
   String get restore_title_from_seed_keys => "Herstel van zaad / sleutels";
@@ -6248,7 +6309,7 @@ class $nl extends S {
   @override
   String get seed_language_choose => "Kies een starttaal:";
   @override
-  String get wallet_keys => "Portemonnee sleutels";
+  String get wallet_keys => "Portemonnee zaad/sleutels";
   @override
   String get reconnect => "Sluit";
   @override
@@ -6373,6 +6434,8 @@ class $nl extends S {
   String get remove => "Verwijderen";
   @override
   String get add_new_node => "Voeg een nieuw knooppunt toe";
+  @override
+  String get wallet_seed => "Portemonnee zaad";
   @override
   String get yesterday => "Gisteren";
   @override
@@ -6574,7 +6637,7 @@ class $nl extends S {
   @override
   String get rescan => "Opnieuw scannen";
   @override
-  String get show_keys => "Toon sleutels";
+  String get show_keys => "Toon zaad/sleutels";
   @override
   String get error_text_fiat => "Waarde van bedrag kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 2";
   @override
@@ -6794,6 +6857,8 @@ class $zh extends S {
   @override
   String get cancel => "取消";
   @override
+  String get public_key => "公鑰";
+  @override
   String get trade_state_unpaid => "未付";
   @override
   String get authenticated => "已认证";
@@ -6844,6 +6909,8 @@ class $zh extends S {
   @override
   String get received => "已收到";
   @override
+  String get private_key => "私鑰";
+  @override
   String get auth_store_banned_minutes => " 分钟";
   @override
   String get restore_title_from_seed_keys => "从种子/密钥还原";
@@ -6892,7 +6959,7 @@ class $zh extends S {
   @override
   String get seed_language_choose => "請選擇種子語言:";
   @override
-  String get wallet_keys => "钱包钥匙";
+  String get wallet_keys => "錢包種子/鑰匙";
   @override
   String get reconnect => "重新连接";
   @override
@@ -7017,6 +7084,8 @@ class $zh extends S {
   String get remove => "去掉";
   @override
   String get add_new_node => "添加新節點";
+  @override
+  String get wallet_seed => "錢包種子";
   @override
   String get yesterday => "昨天";
   @override
@@ -7218,7 +7287,7 @@ class $zh extends S {
   @override
   String get rescan => "重新扫描";
   @override
-  String get show_keys => "显示按键";
+  String get show_keys => "顯示種子/密鑰";
   @override
   String get error_text_fiat => "金额不能超过可用余额.\n小数位数必须小于或等于2";
   @override

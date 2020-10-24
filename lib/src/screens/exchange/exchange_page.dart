@@ -373,7 +373,9 @@ class ExchangePage extends BasePage {
                     child: Observer(builder: (_) {
                       final description =
                           exchangeViewModel.provider is XMRTOExchangeProvider
-                              ? S.of(context).amount_is_guaranteed
+                              ? exchangeViewModel.isReceiveAmountEntered
+                                ? S.of(context).amount_is_guaranteed
+                                : S.of(context).amount_is_estimate
                               : S.of(context).amount_is_estimate;
                       return Center(
                         child: Text(
@@ -433,6 +435,7 @@ class ExchangePage extends BasePage {
     exchangeViewModel.changeDepositAmount(amount: template.amount);
     exchangeViewModel.depositAddress = template.depositAddress;
     exchangeViewModel.receiveAddress = template.receiveAddress;
+    exchangeViewModel.isReceiveAmountEntered = false;
   }
 
   void _setReactions(

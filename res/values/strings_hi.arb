@@ -53,7 +53,7 @@
   "reconnect" : "रिकनेक्ट",
   "wallets" : "पर्स",
   "show_seed" : "बीज दिखाओ",
-  "show_keys" : "चाबी दिखाओ",
+  "show_keys" : "बीज / कुंजियाँ दिखाएँ",
   "address_book_menu" : "पता पुस्तिका",
   "reconnection" : "पुनर्संयोजन",
   "reconnect_alert_text" : "क्या आप पुन: कनेक्ट होना सुनिश्चित करते हैं?",
@@ -240,7 +240,10 @@
   "setup_successful" : "आपका पिन सफलतापूर्वक सेट हो गया है",
 
 
-  "wallet_keys" : "बटुआ की",
+  "wallet_keys" : "बटुआ बीज / चाबियाँ",
+  "wallet_seed" : "बटुआ का बीज",
+  "private_key" : "निजी चाबी",
+  "public_key" : "सार्वजनिक कुंजी",
   "view_key_private" : "कुंजी देखें(निजी)",
   "view_key_public" : "कुंजी देखें (जनता)",
   "spend_key_private" : "खर्च करना (निजी)",
