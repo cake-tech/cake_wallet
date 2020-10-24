@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -64,16 +65,16 @@ abstract class SettingsViewModelBase with Store {
         RegularListItem(
             title: S.current.settings_change_pin,
             handler: (BuildContext context) {
-              Navigator.of(context).pushNamed(Routes.auth,
-                  arguments: (bool isAuthenticatedSuccessfully,
-                          AuthPageState auth) =>
-                      isAuthenticatedSuccessfully
-                          ? Navigator.of(context).popAndPushNamed(
-                              Routes.setupPin,
-                              arguments:
-                                  (BuildContext setupPinContext, String _) =>
-                                      Navigator.of(context).pop())
-                          : null);
+              Navigator.of(context).pushNamed(Routes.auth, arguments:
+                  (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+                auth.close();
+                if (isAuthenticatedSuccessfully) {
+                  Navigator.of(context).pushNamed(Routes.setupPin, arguments:
+                      (PinCodeState<PinCodeWidget> setupPinContext, String _) {
+                    setupPinContext.close();
+                  });
+                }
+              });
             }),
         RegularListItem(
           title: S.current.settings_change_language,
@@ -99,7 +100,7 @@ abstract class SettingsViewModelBase with Store {
                         isAuthenticatedSuccessfully);
                   }
 
-                  Navigator.of(context).pop();
+                  auth.close();
                 });
               } else {
                 setAllowBiometricalAuthentication(value);
