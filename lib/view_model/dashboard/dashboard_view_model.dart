@@ -138,7 +138,9 @@ abstract class DashboardViewModelBase with Store {
       appStore.settingsStore.balanceDisplayMode;
 
   @computed
-  List<TradeListItem> get trades => tradesStore.trades;
+  List<TradeListItem> get trades => tradesStore.trades
+      .where((trade) => trade.trade.walletId == wallet.id)
+      .toList();
 
   @computed
   double get price => balanceViewModel.price;
@@ -153,6 +155,7 @@ abstract class DashboardViewModelBase with Store {
     return formattedItemsList(_items);
   }
 
+  @observable
   WalletBase wallet;
 
   BalanceViewModel balanceViewModel;
@@ -174,7 +177,9 @@ abstract class DashboardViewModelBase with Store {
     await wallet.connectToNode(node: node);
   }
 
+  @action
   void _onWalletChange(WalletBase wallet) {
+    this.wallet = wallet;
     name = wallet.name;
     transactions.clear();
     transactions.addAll(wallet.transactionHistory.transactions.values.map(

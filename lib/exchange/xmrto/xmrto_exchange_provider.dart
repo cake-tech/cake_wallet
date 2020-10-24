@@ -89,8 +89,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     final url = await getApiUri() + _orderCreateUriSufix;
     final body = {
       'amount': _request.isBTCRequest
-          ? _request.receiveAmount
-          : _request.amount,
+          ? _request.receiveAmount.replaceAll(',', '.')
+          : _request.amount.replaceAll(',', '.'),
       'amount_currency': _request.isBTCRequest
           ? _request.to.toString()
           : _request.from.toString(),
@@ -146,9 +146,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final address = responseJSON['xmr_receiving_integrated_address'] as String;
+    final address = responseJSON['receiving_subaddress'] as String;
     final paymentId = responseJSON['xmr_required_payment_id_short'] as String;
-    final amount = responseJSON['xmr_amount_total'].toString();
+    final amount = responseJSON['incoming_amount_total'].toString();
     final stateRaw = responseJSON['state'] as String;
     final expiredAtRaw = responseJSON['expires_at'] as String;
     final expiredAt = DateTime.parse(expiredAtRaw).toLocal();
