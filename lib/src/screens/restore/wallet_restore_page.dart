@@ -47,9 +47,6 @@ class WalletRestorePage extends BasePage {
                     Theme.of(context).primaryTextTheme.title.color),
           ));
 
-  @override
-  String get title => S.current.restore_title_from_seed;
-
   final WalletRestoreViewModel walletRestoreViewModel;
   final PageController _controller;
   final List<Widget> _pages;
@@ -105,7 +102,7 @@ class WalletRestorePage extends BasePage {
               return LoadingPrimaryButton(
                   onPressed: () =>
                       walletRestoreViewModel.create(options: _credentials()),
-                  text: S.of(context).seed_language_next,
+                  text: S.of(context).restore_recover,
                   color: Colors.green,
                   textColor: Colors.white,
                   isLoading: walletRestoreViewModel.state is IsExecutingState);

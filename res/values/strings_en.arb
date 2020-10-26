@@ -1,7 +1,7 @@
 {
   "welcome" : "Welcome to",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Awesome wallet for Monero and Bitcoin",
+  "first_wallet_text" : "Awesome wallet for Monero",
   "please_make_selection" : "Please make selection below to create or recover your wallet.",
   "create_new" : "Create New Wallet",
   "restore_wallet" : "Restore Wallet",

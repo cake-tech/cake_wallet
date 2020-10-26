@@ -137,8 +137,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWalletOptionsFromWelcome:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (BuildContext context, dynamic _) =>
-                  Navigator.pushNamed(context, Routes.restoreWallet)),
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
+                  Navigator.pushNamed(context.context, Routes.restoreWallet)),
           fullscreenDialog: true);
 
     case Routes.seed:
