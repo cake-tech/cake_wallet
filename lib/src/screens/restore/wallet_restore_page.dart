@@ -103,8 +103,16 @@ class WalletRestorePage extends BasePage {
                   onPressed: () =>
                       walletRestoreViewModel.create(options: _credentials()),
                   text: S.of(context).restore_recover,
-                  color: Colors.green,
-                  textColor: Colors.white,
+                  color: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .subtitle
+                      .decorationColor,
+                  textColor: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .headline
+                      .decorationColor,
                   isLoading: walletRestoreViewModel.state is IsExecutingState);
             },
           ))
