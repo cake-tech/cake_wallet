@@ -97,7 +97,7 @@ class S implements WidgetsLocalizations {
   String get faq => "FAQ";
   String get fetching => "Fetching";
   String get filters => "Filter";
-  String get first_wallet_text => "Awesome wallet for Monero and Bitcoin";
+  String get first_wallet_text => "Awesome wallet for Monero";
   String get full_balance => "Full Balance";
   String get hidden_balance => "Hidden Balance";
   String get id => "ID: ";
