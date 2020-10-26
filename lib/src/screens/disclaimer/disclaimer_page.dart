@@ -305,14 +305,19 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
             Container(
               padding: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 24.0),
               child: PrimaryButton(
-                onPressed: _checked
-                    ? () =>
-                        Navigator.of(context).popAndPushNamed(Routes.welcome)
-                    : null,
-                text: 'Accept',
-                color: Colors.green,
-                textColor: Colors.white,
-              ),
+                  onPressed: _checked
+                      ? () =>
+                          Navigator.of(context).popAndPushNamed(Routes.welcome)
+                      : null,
+                  text: 'Accept',
+                  color: Theme.of(context)
+                      .accentTextTheme
+                      .subtitle
+                      .decorationColor,
+                  textColor: Theme.of(context)
+                      .accentTextTheme
+                      .headline
+                      .decorationColor),
             ),
           ],
         ],
