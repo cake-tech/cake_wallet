@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage(this.transactionInfo) : _items = [] {
@@ -26,7 +27,10 @@ class TransactionDetailsPage extends BasePage {
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
             title: S.current.transaction_details_amount,
-            value: tx.amountFormatted())
+            value: tx.amountFormatted()),
+        StandartListItem(
+            title: "View in Block Explorer",
+            value: "https://localmonero.co/blocks/search/${tx.id}"),
       ];
       // FIXME
 //      if (widget.settingsStore.shouldSaveRecipientAddress &&
@@ -57,7 +61,10 @@ class TransactionDetailsPage extends BasePage {
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
             title: S.current.transaction_details_amount,
-            value: tx.amountFormatted())
+            value: tx.amountFormatted()),
+        StandartListItem(
+            title: "View in Block Explorer",
+            value: "https://www.blockchain.com/btc/tx/${tx.id}"),
       ];
 
       _items.addAll(items);
@@ -88,19 +95,31 @@ class TransactionDetailsPage extends BasePage {
           itemCount: _items.length,
           itemBuilder: (context, index) {
             final item = _items[index];
-            final isDrawBottom = index == _items.length - 1 ? true : false;
-
-            return GestureDetector(
-              onTap: () {
-                Clipboard.setData(ClipboardData(text: item.value));
-                showBar<void>(context,
-                    S.of(context).transaction_details_copied(item.title));
-              },
-              child: StandartListRow(
-                  title: '${item.title}:',
-                  value: item.value,
-                  isDrawBottom: isDrawBottom),
-            );
+            final isFinalBlockExplorerItem =
+                index == _items.length - 1 ? true : false;
+            if (isFinalBlockExplorerItem == true) {
+              return GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: item.value));
+                  showBar<void>(context,
+                      S.of(context).transaction_details_copied(item.title));
+                },
+                child: StandartListRow(
+                    title: '${item.title}:',
+                    value: "",
+                    isDrawBottom: isFinalBlockExplorerItem),
+              );
+            } else {
+              return GestureDetector(
+                onTap: () {
+                  launch(item.value);
+                },
+                child: StandartListRow(
+                    title: '${item.title}:',
+                    value: item.value,
+                    isDrawBottom: isFinalBlockExplorerItem),
+              );
+            }
           }),
     );
   }
