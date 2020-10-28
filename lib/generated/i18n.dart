@@ -321,8 +321,8 @@ class S implements WidgetsLocalizations {
   String error_text_limits_loading_failed(String provider) => "Trade for ${provider} is not created. Limits loading failed";
   String error_text_maximum_limit(String provider, String max, String currency) => "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}";
   String error_text_minimal_limit(String provider, String min, String currency) => "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}";
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown above. Or you can send from your external wallet to the above address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.";
-  String exchange_result_description(String fetchingLabel, String from) => "Please send ${fetchingLabel} ${from} to the address shown above.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown below. Or you can send from your external wallet to the below address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.";
+  String exchange_result_description(String fetchingLabel, String from) => "Please send ${fetchingLabel} ${from} to the address shown below.";
   String failed_authentication(String state_error) => "Failed authentication. ${state_error}";
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
@@ -975,11 +975,11 @@ class $de extends S {
   @override
   String Blocks_remaining(String status) => "${status} Verbleibende Blöcke";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die oben angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die oben angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die unten angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die unten angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.";
   @override
   String error_text_limits_loading_failed(String provider) => "Handel für ${provider} wird nicht erstellt. Das Laden der Limits ist fehlgeschlagen";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Bitte senden ${fetchingLabel} ${from} an die oben angegebene Adresse.'";
+  String exchange_result_description(String fetchingLabel, String from) => "Bitte senden ${fetchingLabel} ${from} an die unten angegebene Adresse.'";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Transaktion festschreiben\nMenge: ${amount}\nGebühr: ${fee}";
   @override
@@ -1625,11 +1625,11 @@ class $hi extends S {
   @override
   String Blocks_remaining(String status) => "${status} शेष रहते हैं";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} ऊपर दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से उपरोक्त पते / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} नीचे दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से नीचे के पते पर भेज सकते हैं / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.";
   @override
   String error_text_limits_loading_failed(String provider) => "व्यापार ${provider} के लिए नहीं बनाया गया है। लोडिंग की सीमाएं विफल रहीं";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "कृपया भेजें ${fetchingLabel} ${from} ऊपर दिखाए गए पते पर";
+  String exchange_result_description(String fetchingLabel, String from) => "कृपया भेजें ${fetchingLabel} ${from} नीचे दिखाए गए पते पर";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "लेन-देन करें\nरकम: ${amount}\nशुल्क: ${fee}";
   @override
@@ -2275,11 +2275,11 @@ class $ru extends S {
   @override
   String Blocks_remaining(String status) => "${status} Осталось блоков";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Нажимая подтвердить, вы отправите ${fetchingLabel} ${from} с вашего кошелька ${walletName} на адрес указанный выше. Или вы можете отправить со своего внешнего кошелька на вышеуказанный адрес/QR-код.\n\nПожалуйста, нажмите подтвердить для продолжения, или вернитесь назад для изменения суммы.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Нажимая подтвердить, вы отправите ${fetchingLabel} ${from} с вашего кошелька ${walletName} на адрес указанный ниже. Или вы можете отправить со своего внешнего кошелька на нижеуказанный адрес/QR-код.\n\nПожалуйста, нажмите подтвердить для продолжения, или вернитесь назад для изменения суммы.";
   @override
   String error_text_limits_loading_failed(String provider) => "Сделка для ${provider} не создана. Ошибка загрузки лимитов";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный выше.";
+  String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный ниже.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}";
   @override
@@ -2925,11 +2925,11 @@ class $ko extends S {
   @override
   String Blocks_remaining(String status) => "${status} 남은 블록";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "확인을 누르면 전송됩니다 ${fetchingLabel} ${from} 지갑에서 ${walletName} 위에 표시된 주소로. 또는 외부 지갑에서 위의 주소 / QR 코드로 보낼 수 있습니다.\n\n확인을 눌러 계속하거나 금액을 변경하려면 돌아가십시오.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "확인을 누르면 전송됩니다 ${fetchingLabel} ${from} 지갑에서 ${walletName} 아래 주소로. 또는 외부 지갑에서 아래 주소로 보낼 수 있습니다 / QR 코드로 보낼 수 있습니다.\n\n확인을 눌러 계속하거나 금액을 변경하려면 돌아가십시오.";
   @override
   String error_text_limits_loading_failed(String provider) => "거래 ${provider} 가 생성되지 않습니다. 로딩 실패";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "보내주세요 ${fetchingLabel} ${from} 위에 표시된 주소로.";
+  String exchange_result_description(String fetchingLabel, String from) => "보내주세요 ${fetchingLabel} ${from} 아래 주소로.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "커밋 거래\n양: ${amount}\n보수: ${fee}";
   @override
@@ -3575,11 +3575,11 @@ class $pt extends S {
   @override
   String Blocks_remaining(String status) => "${status} blocos restantes";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço exibido acima. Você também pode enviar com uma carteira externa para o endereço/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço mostrado abaixo. Ou você pode enviar de sua carteira externa para o endereço abaixo/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.";
   @override
   String error_text_limits_loading_failed(String provider) => "A troca por ${provider} não é criada. Falha no carregamento dos limites";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado acima.";
+  String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado abaixo.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transação\nQuantia: ${amount}\nTaxa: ${fee}";
   @override
@@ -4225,11 +4225,11 @@ class $uk extends S {
   @override
   String Blocks_remaining(String status) => "${status} Залишилось блоків";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану вище. Або ви можете відправити зі свого зовнішнього гаманця на вищевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану нижче. Або ви можете відправити зі свого зовнішнього гаманця на нижчевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.";
   @override
   String error_text_limits_loading_failed(String provider) => "Операція для ${provider} не створена. Помилка завантаження лімітів";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану вище.";
+  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану нижче.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}";
   @override
@@ -4875,11 +4875,11 @@ class $ja extends S {
   @override
   String Blocks_remaining(String status) => "${status} 残りのブロック";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 上記のアドレスへ. または、外部ウォレットから上記のアドレス/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 下記の住所へ。 または、外部ウォレットから以下のアドレスに送信することもできます/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.";
   @override
   String error_text_limits_loading_failed(String provider) => "${provider} の取引は作成されません。 制限の読み込みに失敗しました";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "送信してください ${fetchingLabel} ${from} 上記のアドレスへ.";
+  String exchange_result_description(String fetchingLabel, String from) => "送信してください ${fetchingLabel} ${from} 下記の住所へ.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "トランザクションをコミット\n量: ${amount}\n費用: ${fee}";
   @override
@@ -5529,11 +5529,11 @@ class $pl extends S {
   @override
   String Blocks_remaining(String status) => "${status} Bloki pozostałe";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} z twojego portfela. Lub możesz wysłać z zewnętrznego portfela na powyższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} na adres podany poniżej. Lub możesz wysłać z zewnętrznego portfela na poniższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.";
   @override
   String error_text_limits_loading_failed(String provider) => "Wymiana dla ${provider} nie została utworzona. Ładowanie limitów nie powiodło się";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Proszę wyślij ${fetchingLabel} ${from} na adres podany powyżej.";
+  String exchange_result_description(String fetchingLabel, String from) => "Proszę wyślij ${fetchingLabel} ${from} na adres podany poniżej.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Zatwierdź transakcję\nIlość: ${amount}\nOpłata: ${fee}";
   @override
@@ -6179,11 +6179,11 @@ class $es extends S {
   @override
   String Blocks_remaining(String status) => "${status} Bloques restantes";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra arriba.  O puede enviar desde su billetera externa a la dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra a continuación. O puede enviar desde su billetera externa a la siguiente dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.";
   @override
   String error_text_limits_loading_failed(String provider) => "El comercio por ${provider} no se crea. Límites de carga fallidos";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Envíe ${fetchingLabel} ${from} a la dirección que se muestra arriba.";
+  String exchange_result_description(String fetchingLabel, String from) => "Envíe ${fetchingLabel} ${from} a la dirección que se muestra a continuación.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transacción\nCantidad: ${amount}\nCuota: ${fee}";
   @override
@@ -6829,11 +6829,11 @@ class $nl extends S {
   @override
   String Blocks_remaining(String status) => "${status} Resterende blokken";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar bovenstaand adres. Of u kunt uw externe portemonnee naar bovenstaand adres / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar het onderstaande adres. Of u kunt vanuit uw externe portemonnee naar het onderstaande adres verzenden / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.";
   @override
   String error_text_limits_loading_failed(String provider) => "Ruil voor ${provider} is niet gemaakt. Beperkingen laden mislukt";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Zend alstublieft ${fetchingLabel} ${from} naar bovenstaand adres.";
+  String exchange_result_description(String fetchingLabel, String from) => "Zend alstublieft ${fetchingLabel} ${from} naar het onderstaande adres.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Verricht transactie\nBedrag: ${amount}\nhonorarium: ${fee}";
   @override
@@ -7479,11 +7479,11 @@ class $zh extends S {
   @override
   String Blocks_remaining(String status) => "${status} 剩余的块";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到上面显示的地址. 或者，您也可以从外部钱包发送上述地址/ QR码。\n\n请按确认继续或返回以更改金额";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到下面顯示的地址。 或者您可以從外部錢包發送到以下地址/ QR码。\n\n请按确认继续或返回以更改金额";
   @override
   String error_text_limits_loading_failed(String provider) => "未創建 ${provider} 交易。 限制加載失敗";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到上面显示的地址.";
+  String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到下面顯示的地址.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "提交交易\n量: ${amount}\nFee: ${fee}";
   @override
