@@ -227,11 +227,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             );
           }),
           bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-          bottomSection: PrimaryButton(
-              onPressed: () {},
-              text: S.of(context).confirm,
-              color: Theme.of(context).accentTextTheme.body2.color,
-              textColor: Colors.white)
+          bottomSection:
           /*Observer(
             builder: (_) => tradeStore.trade.from == CryptoCurrency.xmr &&
                 !(sendStore.state is TransactionCommitted)
@@ -250,6 +246,24 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                 color: Colors.blue,
                 textColor: Colors.white)
                 : Offstage()),*/
+          Observer(
+              builder: (_) {
+                final trade = widget.exchangeTradeViewModel.trade;
+
+                return trade.from == CryptoCurrency.xmr
+                    ? LoadingPrimaryButton(
+                    isDisabled: trade.inputAddress == null ||
+                        trade.inputAddress.isEmpty,
+                    isLoading: false, // FIXME
+                    onPressed: () {}, // FIXME
+                    text: trade.provider ==
+                        ExchangeProviderDescription.xmrto
+                        ? S.of(context).confirm
+                        : S.of(context).send_xmr,
+                    color: Theme.of(context).accentTextTheme.body2.color,
+                    textColor: Colors.white)
+                    : Offstage();
+              })
           ),
     );
   }
