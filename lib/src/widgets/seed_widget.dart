@@ -78,16 +78,22 @@ class SeedWidgetState extends State<SeedWidget> {
             Padding(
                 padding: EdgeInsets.only(right: 40, top: 10),
                 child: AnnotatedEditableText(
-                    cursorColor: Colors.green,
-                    backgroundCursorColor: Colors.blue,
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.red,
-                        fontWeight: FontWeight.normal,
-                        backgroundColor: Colors.transparent),
-                    focusNode: focusNode,
-                    controller: controller,
-                    words: words)),
+                  cursorColor: Colors.blue,
+                  backgroundCursorColor: Colors.blue,
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.red,
+                      fontWeight: FontWeight.normal,
+                      backgroundColor: Colors.transparent),
+                  focusNode: focusNode,
+                  controller: controller,
+                  words: words,
+                  textStyle: TextStyle(
+                      color: Theme.of(context).primaryTextTheme.title.color,
+                      backgroundColor: Colors.transparent,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 16),
+                )),
             Positioned(
                 top: 0,
                 right: 0,

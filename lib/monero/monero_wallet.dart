@@ -19,7 +19,6 @@ import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 
-
 part 'monero_wallet.g.dart';
 
 const moneroBlockSize = 1000;
@@ -80,7 +79,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   final MoneroAccountList accountList;
 
   String _filename;
-  SyncListner _listener;
+  SyncListener _listener;
   ReactionDisposer _onAccountChangeReaction;
   int _cachedRefreshHeight;
 
@@ -96,11 +95,38 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     address = subaddress.address;
     _setListeners();
     await transactionHistory.update();
+
+    if (walletInfo.isRecovery) {
+      monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
+
+      if (monero_wallet.getCurrentHeight() <= 1) {
+        monero_wallet.setRefreshFromBlockHeight(
+            height: walletInfo.restoreHeight);
+      }
+    }
   }
 
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction?.dispose();
+  }
+
+  Future<bool> validate() async {
+    await accountList.update();
+    final accountListLength = accountList.accounts?.length ?? 0;
+
+    if (accountListLength <= 0) {
+      return false;
+    }
+
+    subaddressList.update(accountIndex: accountList.accounts.first.id);
+    final subaddressListLength = subaddressList.subaddresses?.length ?? 0;
+
+    if (subaddressListLength <= 0) {
+      return false;
+    }
+
+    return true;
   }
 
   @override
@@ -275,8 +301,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       return;
     }
 
-    syncStatus = SyncedSyncStatus();
-
     if (walletInfo.isRecovery) {
       _askForUpdateTransactionHistory();
       _askForUpdateBalance();
@@ -285,10 +309,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     final currentHeight = getCurrentHeight();
     final nodeHeight = monero_wallet.getNodeHeightSync();
 
-    if (walletInfo.isRecovery &&
-        (nodeHeight - currentHeight < moneroBlockSize)) {
-      await setAsRecovered();
+    if (nodeHeight - currentHeight < moneroBlockSize) {
+      syncStatus = SyncedSyncStatus();
+
+      if (walletInfo.isRecovery) {
+        await setAsRecovered();
+      }
     }
+
+    // if (walletInfo.isRecovery &&
+    //     (nodeHeight - currentHeight < moneroBlockSize)) {
+    //   await setAsRecovered();
+    // }
 
     if (currentHeight - _cachedRefreshHeight > moneroBlockSize) {
       _cachedRefreshHeight = currentHeight;

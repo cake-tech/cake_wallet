@@ -25,6 +25,11 @@ class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
   final String mnemonic;
 }
 
+class MoneroWalletLoadingException implements Exception {
+  @override
+  String toString() => 'The wallet is damaged.';
+}
+
 class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
   MoneroRestoreWalletFromKeysCredentials(
       {String name,
@@ -88,11 +93,29 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> openWallet(String name, String password) async {
     try {
       final path = await pathForWallet(name: name, type: WalletType.monero);
-      await monero_wallet_manager.openWalletAsync({'path': path, 'password': password});
+      await monero_wallet_manager
+          .openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values.firstWhere(
-          (info) => info.id == WalletBase.idFor(name, WalletType.monero), orElse: () => null);
+          (info) => info.id == WalletBase.idFor(name, WalletType.monero),
+          orElse: () => null);
       final wallet = MoneroWallet(
           filename: monero_wallet.getFilename(), walletInfo: walletInfo);
+      final isValid = await wallet.validate();
+
+      if (!isValid) {
+        if (wallet.seed?.isNotEmpty ?? false) {
+          // let restore from seed in this case;
+          final seed = wallet.seed;
+          final credentials = MoneroRestoreWalletFromSeedCredentials(
+              name: name, password: password, mnemonic: seed, height: 2000000)
+            ..walletInfo = walletInfo;
+          await remove(name);
+          return restoreFromSeed(credentials);
+        }
+
+        throw MoneroWalletLoadingException();
+      }
+
       await wallet.init();
 
       return wallet;
@@ -104,9 +127,15 @@ class MoneroWalletService extends WalletService<
   }
 
   @override
-  Future<void> remove(String wallet) async =>
-      File(await pathForWalletDir(name: wallet, type: WalletType.bitcoin))
-          .delete(recursive: true);
+  Future<void> remove(String wallet) async {
+    final path = await pathForWalletDir(name: wallet, type: WalletType.monero);
+    final file = Directory(path);
+    final isExist = file.existsSync();
+
+    if (isExist) {
+      await file.delete(recursive: true);
+    }
+  }
 
   @override
   Future<MoneroWallet> restoreFromKeys(

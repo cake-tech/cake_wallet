@@ -26,8 +26,18 @@ final subaddrressSetLabelNative = moneroApi
     .lookup<NativeFunction<subaddress_set_label>>('subaddress_set_label')
     .asFunction<SubaddressSetLabel>();
 
-void refreshSubaddresses({int accountIndex}) =>
+bool isUpdating = false;
+
+void refreshSubaddresses({@required int accountIndex}) {
+  try {
+    isUpdating = true;
     subaddressRefreshNative(accountIndex);
+    isUpdating = false;
+  } catch (e) {
+    isUpdating = false;
+    rethrow;
+  }
+}
 
 List<SubaddressRow> getAllSubaddresses() {
   final size = subaddressSizeNative();
@@ -48,7 +58,7 @@ void addSubaddressSync({int accountIndex, String label}) {
 void setLabelForSubaddressSync(
     {int accountIndex, int addressIndex, String label}) {
   final labelPointer = Utf8.toUtf8(label);
-  
+
   subaddrressSetLabelNative(accountIndex, addressIndex, labelPointer);
   free(labelPointer);
 }
@@ -70,7 +80,8 @@ void _setLabelForSubaddress(Map<String, dynamic> args) {
 }
 
 Future addSubaddress({int accountIndex, String label}) async =>
-    compute<Map<String, Object>, void>(_addSubaddress, {'accountIndex': accountIndex, 'label': label});
+    compute<Map<String, Object>, void>(
+        _addSubaddress, {'accountIndex': accountIndex, 'label': label});
 
 Future setLabelForSubaddress(
         {int accountIndex, int addressIndex, String label}) =>
