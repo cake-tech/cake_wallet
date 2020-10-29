@@ -39,31 +39,31 @@ abstract class DashboardViewModelBase with Store {
     filterItems = {
       S.current.transactions: [
         FilterItem(
-            value: transactionFilterStore.displayIncoming,
+            value: () => transactionFilterStore.displayIncoming,
             caption: S.current.incoming,
             onChanged: (value) => transactionFilterStore.toggleIncoming()),
         FilterItem(
-            value: transactionFilterStore.displayOutgoing,
+            value: () => transactionFilterStore.displayOutgoing,
             caption: S.current.outgoing,
             onChanged: (value) => transactionFilterStore.toggleOutgoing()),
-        FilterItem(
-            value: false,
-            caption: S.current.transactions_by_date,
-            onChanged: null),
+        // FilterItem(
+        //     value: () => false,
+        //     caption: S.current.transactions_by_date,
+        //     onChanged: null),
       ],
       S.current.trades: [
         FilterItem(
-            value: tradeFilterStore.displayXMRTO,
+            value: () => tradeFilterStore.displayXMRTO,
             caption: 'XMR.TO',
             onChanged: (value) => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.xmrto)),
         FilterItem(
-            value: tradeFilterStore.displayChangeNow,
+            value: () => tradeFilterStore.displayChangeNow,
             caption: 'Change.NOW',
             onChanged: (value) => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
         FilterItem(
-            value: tradeFilterStore.displayMorphToken,
+            value: () => tradeFilterStore.displayMorphToken,
             caption: 'MorphToken',
             onChanged: (value) => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.morphToken)),
