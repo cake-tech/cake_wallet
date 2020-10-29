@@ -97,7 +97,7 @@ class FilterWidget extends StatelessWidget {
                                 final item = section[index2];
                                 final content = item.onChanged != null
                                     ? CheckboxWidget(
-                                    value: item.value,
+                                    value: item.value(),
                                     caption: item.caption,
                                     onChanged: item.onChanged
                                 )
