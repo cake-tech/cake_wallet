@@ -114,6 +114,8 @@ final rescanBlockchainAsyncNative = moneroApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
 
+bool isStoring = false;
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -209,8 +211,8 @@ String getSecretSpendKey() =>
 String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
-class SyncListner {
-  SyncListner({this.onNewBlock, this.onNeedToRefresh, this.onNewTransaction});
+class SyncListener {
+  SyncListener({this.onNewBlock, this.onNeedToRefresh, this.onNewTransaction});
 
   void Function(int, int, double) onNewBlock;
   void Function() onNeedToRefresh;
@@ -234,7 +236,7 @@ class SyncListner {
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
     _updateSyncInfoTimer ??=
-        Timer.periodic(Duration(milliseconds: 200), (_) async {
+        Timer.periodic(Duration(milliseconds: 1200), (_) async {
       final syncHeight = getSyncingHeight();
       final needToRefresh = isNeededToRefresh();
       final newTransactionExist = isNewTransactionExist();
@@ -251,7 +253,7 @@ class SyncListner {
         final ptc = diff <= 0 ? 0.0 : diff / line;
         final left = bchHeight - syncHeight;
         // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
-        onNewBlock(syncHeight, left, ptc);
+        onNewBlock?.call(syncHeight, left, ptc);
       }
 
       if (newTransactionExist) {
@@ -267,9 +269,9 @@ class SyncListner {
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListner setListeners(void Function(int, int, double) onNewBlock,
+SyncListener setListeners(void Function(int, int, double) onNewBlock,
     void Function() onNeedToRefresh, void Function() onNewTransaction) {
-  final listener = SyncListner(
+  final listener = SyncListener(
       onNewBlock: onNewBlock,
       onNeedToRefresh: onNeedToRefresh,
       onNewTransaction: onNewTransaction);
@@ -281,7 +283,20 @@ SyncListner setListeners(void Function(int, int, double) onNewBlock,
 
 void onStartup() => onStartupNative();
 
-void _storeSync(Object _) => storeSync();
+void _storeSync(Object _) {
+  if (isStoring) {
+    return;
+  }
+
+  try {
+    isStoring = true;
+    storeSync();
+    isStoring = false;
+  } catch (e) {
+    isStoring = false;
+    rethrow;
+  }
+}
 
 bool _setupNodeSync(Map args) {
   final address = args['address'] as String;

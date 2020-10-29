@@ -87,7 +87,7 @@ extern "C"
 
         void updated()
         {
-            m_need_to_refresh = true;
+            m_new_transaction = true;
         }
 
         void refreshed()
@@ -472,7 +472,9 @@ extern "C"
             return false;
         }
 
-        m_listener->m_new_transaction = true;
+        if (m_listener != nullptr) {
+            m_listener->m_new_transaction = true;
+        }
 
         pendingTransaction = PendingTransactionRaw(transaction);
         return true;
@@ -485,7 +487,7 @@ extern "C"
         if (!committed)
         {
             error = Utf8Box(strdup(transaction->transaction->errorString().c_str()));
-        } else {
+        } else if (m_listener != nullptr) {
             m_listener->m_new_transaction = true;
         }
 
@@ -508,9 +510,13 @@ extern "C"
         }
 
         uint64_t height = m_listener->height();
-        uint64_t node_height = get_node_height_or_update(height);
+//        uint64_t node_height = get_node_height_or_update(height);
+//
+//        if (height <= 1 || node_height <= 0) {
+//            return 0;
+//        }
 
-        if (height <= 1 || node_height <= 0) {
+        if (height <= 1) {
             return 0;
         }
 
@@ -529,10 +535,14 @@ extern "C"
         }
 
         bool should_refresh = m_listener->isNeedToRefresh();
-        uint64_t node_height = get_node_height_or_update(m_last_known_wallet_height);
+//        uint64_t node_height = get_node_height_or_update(m_last_known_wallet_height);
+//
+//        if (should_refresh || (node_height - m_last_known_wallet_height < MONERO_BLOCK_SIZE))
+//        {
+//            m_listener->resetNeedToRefresh();
+//        }
 
-        if (should_refresh || (node_height - m_last_known_wallet_height < MONERO_BLOCK_SIZE))
-        {
+        if (should_refresh) {
             m_listener->resetNeedToRefresh();
         }
 
@@ -561,7 +571,7 @@ extern "C"
 
         if (m_listener != nullptr)
         {
-            // free(m_listener);
+             free(m_listener);
         }
 
         m_listener = new MoneroWalletListener();

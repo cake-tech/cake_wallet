@@ -32,42 +32,41 @@ class AnnotatedEditableText extends EditableText {
     Color selectionColor,
     Color backgroundCursorColor,
     TextSelectionControls selectionControls,
+    TextStyle textStyle = const TextStyle(
+        color: Colors.black,
+        backgroundColor: Colors.transparent,
+        fontWeight: FontWeight.normal,
+        fontSize: 16),
     @required this.words,
   })  : textAnnotations = words
-      .map((word) => TextAnnotation(
-      text: word,
-      style: TextStyle(
-          color: Colors.black,
-          backgroundColor: Colors.transparent,
-          fontWeight: FontWeight.normal,
-          fontSize: 16)))
-      .toList(),
+            .map((word) => TextAnnotation(text: word, style: textStyle))
+            .toList(),
         super(
-        maxLines: null,
-        key: key,
-        focusNode: focusNode,
-        controller: controller,
-        cursorColor: cursorColor,
-        style: style,
-        keyboardType: TextInputType.text,
-        autocorrect: false,
-        autofocus: false,
-        selectionColor: selectionColor,
-        selectionControls: selectionControls,
-        backgroundCursorColor: backgroundCursorColor,
-        onChanged: onChanged,
-        onSubmitted: onSubmitted,
-        toolbarOptions: const ToolbarOptions(
-          copy: true,
-          cut: true,
-          paste: true,
-          selectAll: true,
-        ),
-        enableSuggestions: false,
-        enableInteractiveSelection: true,
-        showSelectionHandles: true,
-        showCursor: true,
-      ) {
+          maxLines: null,
+          key: key,
+          focusNode: focusNode,
+          controller: controller,
+          cursorColor: cursorColor,
+          style: style,
+          keyboardType: TextInputType.text,
+          autocorrect: false,
+          autofocus: false,
+          selectionColor: selectionColor,
+          selectionControls: selectionControls,
+          backgroundCursorColor: backgroundCursorColor,
+          onChanged: onChanged,
+          onSubmitted: onSubmitted,
+          toolbarOptions: const ToolbarOptions(
+            copy: true,
+            cut: true,
+            paste: true,
+            selectAll: true,
+          ),
+          enableSuggestions: false,
+          enableInteractiveSelection: true,
+          showSelectionHandles: true,
+          showCursor: true,
+        ) {
     textAnnotations.add(TextAnnotation(
         text: ' ', style: TextStyle(backgroundColor: Colors.transparent)));
   }
@@ -86,7 +85,7 @@ class AnnotatedEditableTextState extends EditableTextState {
   List<Annotation> getRanges() {
     final source = widget.textAnnotations
         .map((item) => range(item.text, textEditingValue.text)
-        .map((range) => Annotation(style: item.style, range: range)))
+            .map((range) => Annotation(style: item.style, range: range)))
         .expand((e) => e)
         .toList();
     final result = List<Annotation>();
@@ -123,7 +122,7 @@ class AnnotatedEditableTextState extends EditableTextState {
     if (result.length > 0 && result.last.range.end < text.length) {
       result.add(Annotation(
           range: TextRange(start: result.last.range.end, end: text.length),
-          style: TextStyle( backgroundColor: Colors.transparent)));
+          style: TextStyle(backgroundColor: Colors.transparent)));
     }
     return result;
   }
@@ -132,8 +131,8 @@ class AnnotatedEditableTextState extends EditableTextState {
     final result = List<TextRange>();
 
     for (int index = source.indexOf(pattern);
-    index >= 0;
-    index = source.indexOf(pattern, index + 1)) {
+        index >= 0;
+        index = source.indexOf(pattern, index + 1)) {
       final start = index;
       final end = start + pattern.length;
       result.add(TextRange(start: start, end: end));
@@ -152,7 +151,7 @@ class AnnotatedEditableTextState extends EditableTextState {
           style: widget.style,
           children: ranges
               .map((item) => TextSpan(
-              style: item.style, text: item.range.textInside(text)))
+                  style: item.style, text: item.range.textInside(text)))
               .toList());
     }
 

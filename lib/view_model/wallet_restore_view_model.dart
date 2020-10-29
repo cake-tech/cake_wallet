@@ -55,7 +55,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           spendKey: spendKey,
           viewKey: viewKey,
           address: address,
-          password: password);
+          password: password,
+          language: 'English');
     }
 
     return null;

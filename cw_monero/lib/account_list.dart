@@ -26,7 +26,18 @@ final accountSetLabelNative = moneroApi
     .lookup<NativeFunction<account_set_label>>('account_set_label_row')
     .asFunction<AccountSetLabel>();
 
-void refreshAccounts() => accountRefreshNative();
+bool isUpdating = false;
+
+void refreshAccounts() {
+  try {
+    isUpdating = true;
+    accountRefreshNative();
+    isUpdating = false;
+  } catch (e) {
+    isUpdating = false;
+    rethrow;
+  }
+}
 
 List<AccountRow> getAllAccount() {
   final size = accountSizeNative();
