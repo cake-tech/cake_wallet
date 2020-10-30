@@ -107,6 +107,7 @@ abstract class SendViewModelBase with Store {
 
   @action
   void reset() {
+    sendAll = false;
     cryptoAmount = '';
     fiatAmount = '';
     address = '';
