@@ -65,7 +65,7 @@
   "change_exchange_provider" : "更改交易所提供商",
   "you_will_send" : "您将发送",
   "you_will_get" : "你会得到",
-  "amount_is_guaranteed" : "接收金额有保证",
+  "amount_is_guaranteed" : "如果輸入XMR，則將估算收到的金額。 如果您輸入BTC金額，則可以保證收到的金額",
   "amount_is_estimate" : "收款金额为估算值",
   "powered_by" : "供电 ${title}",
   "error" : "错误",

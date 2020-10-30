@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Change Exchange Provider",
   "you_will_send" : "You will send",
   "you_will_get" : "You will get",
-  "amount_is_guaranteed" : "The receive amount is guaranteed",
+  "amount_is_guaranteed" : "If you enter an XMR than received amount will be estimated. If you enter a BTC amount  your received amount is guaranteed",
   "amount_is_estimate" : "The receive amount is an estimate",
   "powered_by" : "Powered by ${title}",
   "error" : "Error",

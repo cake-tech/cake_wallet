@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Exchangeプロバイダーの変更",
   "you_will_send" : "送ります",
   "you_will_get" : "あなたが取得します",
-  "amount_is_guaranteed" : "受信金額は保証されています",
+  "amount_is_guaranteed" : "XMRを入力すると、受け取った金額が見積もられます。 BTC金額を入力すると、受け取った金額が保証されます",
   "amount_is_estimate" : "受け取り金額は見積もりです",
   "powered_by" : "搭載 ${title}",
   "error" : "エラー",
