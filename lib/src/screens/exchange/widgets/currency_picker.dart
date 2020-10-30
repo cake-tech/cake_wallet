@@ -95,6 +95,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             alignment: Alignment.center,
                             children: <Widget>[
                               GridView.count(
+                                padding: EdgeInsets.all(0),
                                   controller: controller,
                                   crossAxisCount: crossAxisCount,
                                   childAspectRatio: 1.25,
