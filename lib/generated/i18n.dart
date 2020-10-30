@@ -35,7 +35,7 @@ class S implements WidgetsLocalizations {
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
-  String get amount_is_guaranteed => "The receive amount is guaranteed";
+  String get amount_is_guaranteed => "If you enter an XMR than received amount will be estimated. If you enter a BTC amount  your received amount is guaranteed";
   String get auth_store_ban_timeout => "ban_timeout";
   String get auth_store_banned_for => "Banned for ";
   String get auth_store_banned_minutes => " minutes";
@@ -475,7 +475,7 @@ class $de extends S {
   @override
   String get receive => "Erhalten";
   @override
-  String get amount_is_guaranteed => "Der Empfangsbetrag ist garantiert";
+  String get amount_is_guaranteed => "Wenn Sie eine XMR eingeben, wird der erhaltene Betrag geschätzt. Wenn Sie einen BTC-Betrag eingeben, ist Ihr erhaltener Betrag garantiert";
   @override
   String get auth_store_banned_for => "Gebannt für ";
   @override
@@ -1125,7 +1125,7 @@ class $hi extends S {
   @override
   String get receive => "प्राप्त करना";
   @override
-  String get amount_is_guaranteed => "प्राप्त राशि की गारंटी है";
+  String get amount_is_guaranteed => "पयदि आप एक एक्सएमआर दर्ज करते हैं तो प्राप्त राशि का अनुमान लगाया जाएगा। यदि आप BTC राशि दर्ज करते हैं तो आपकी प्राप्त राशि की गारंटी है";
   @override
   String get auth_store_banned_for => "के लिए प्रतिबंधित है ";
   @override
@@ -1775,7 +1775,7 @@ class $ru extends S {
   @override
   String get receive => "Получить";
   @override
-  String get amount_is_guaranteed => "Сумма получения гарантирована";
+  String get amount_is_guaranteed => "Если вы введете величину XMR, то сумма получения будет приблизительной. Если вы введете величину BTC, то сумма получения гарантирована";
   @override
   String get auth_store_banned_for => "Заблокировано на ";
   @override
@@ -2425,7 +2425,7 @@ class $ko extends S {
   @override
   String get receive => "받다";
   @override
-  String get amount_is_guaranteed => "수신 금액이 보장됩니다";
+  String get amount_is_guaranteed => "XMR을 입력하면받은 금액보다 추정됩니다. BTC 금액을 입력하면 수령 한 금액이 보장됩니다.";
   @override
   String get auth_store_banned_for => "금지";
   @override
@@ -3075,7 +3075,7 @@ class $pt extends S {
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "Você receberá exatamente o valor informado acima";
+  String get amount_is_guaranteed => "Se você inserir um XMR, o valor recebido será estimado. Se você inserir um valor BTC, o valor recebido é garantido";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
@@ -3725,7 +3725,7 @@ class $uk extends S {
   @override
   String get receive => "Отримати";
   @override
-  String get amount_is_guaranteed => "Сума отримання гарантована";
+  String get amount_is_guaranteed => "Якщо ви введете величину XMR, то сума отримання буде приблизною. Якщо ви введете величину BTC, то сума отримання гарантована";
   @override
   String get auth_store_banned_for => "Заблоковано на ";
   @override
@@ -4375,7 +4375,7 @@ class $ja extends S {
   @override
   String get receive => "受け取る";
   @override
-  String get amount_is_guaranteed => "受信金額は保証されています";
+  String get amount_is_guaranteed => "XMRを入力すると、受け取った金額が見積もられます。 BTC金額を入力すると、受け取った金額が保証されます";
   @override
   String get auth_store_banned_for => "禁止されています ";
   @override
@@ -5029,7 +5029,7 @@ class $pl extends S {
   @override
   String get receive => "Otrzymać";
   @override
-  String get amount_is_guaranteed => "Otrzymana kwota jest gwarantowana";
+  String get amount_is_guaranteed => "Jeśli wprowadzisz XMR, kwota otrzymana zostanie oszacowana. Jeśli wpiszesz kwotę BTC, Twoja otrzymana kwota jest gwarantowana";
   @override
   String get auth_store_banned_for => "Bzbanowany za ";
   @override
@@ -5679,7 +5679,7 @@ class $es extends S {
   @override
   String get receive => "Recibir";
   @override
-  String get amount_is_guaranteed => "El monto recibido está garantizado";
+  String get amount_is_guaranteed => "Si ingresa un XMR, se estimará la cantidad recibida. Si ingresa una cantidad de BTC, la cantidad recibida está garantizada";
   @override
   String get auth_store_banned_for => "Prohibido para ";
   @override
@@ -6329,7 +6329,7 @@ class $nl extends S {
   @override
   String get receive => "Krijgen";
   @override
-  String get amount_is_guaranteed => "Het ontvangen bedrag is gegarandeerd";
+  String get amount_is_guaranteed => "Als u een XMR invoert, wordt het ontvangen bedrag geschat. Als u een BTC-bedrag invoert, is uw ontvangen bedrag gegarandeerd";
   @override
   String get auth_store_banned_for => "Verboden voor ";
   @override
@@ -6979,7 +6979,7 @@ class $zh extends S {
   @override
   String get receive => "接收";
   @override
-  String get amount_is_guaranteed => "接收金额有保证";
+  String get amount_is_guaranteed => "如果輸入XMR，則將估算收到的金額。 如果您輸入BTC金額，則可以保證收到的金額";
   @override
   String get auth_store_banned_for => "禁止 ";
   @override

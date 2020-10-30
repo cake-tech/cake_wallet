@@ -65,7 +65,7 @@
   "change_exchange_provider" : "교환 공급자 변경",
   "you_will_send" : "보내드립니다",
   "you_will_get" : "당신은 얻을 것이다",
-  "amount_is_guaranteed" : "수신 금액이 보장됩니다",
+  "amount_is_guaranteed" : "XMR을 입력하면받은 금액보다 추정됩니다. BTC 금액을 입력하면 수령 한 금액이 보장됩니다.",
   "amount_is_estimate" : "수신 금액은 견적입니다",
   "powered_by" : "에 의해 구동 ${title}",
   "error" : "오류",
