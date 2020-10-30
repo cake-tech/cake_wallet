@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Alterar o provedor de troca",
   "you_will_send" : "Você enviará",
   "you_will_get" : "Você receberá",
-  "amount_is_guaranteed" : "Você receberá exatamente o valor informado acima",
+  "amount_is_guaranteed" : "Se você inserir um XMR, o valor recebido será estimado. Se você inserir um valor BTC, o valor recebido é garantido",
   "amount_is_estimate" : "O valor a ser recebido informado acima é uma estimativa",
   "powered_by" : "Troca realizada por ${title}",
   "error" : "Erro",
