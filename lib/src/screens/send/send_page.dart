@@ -70,7 +70,10 @@ class SendPage extends BasePage {
 
   @override
   Widget trailing(context) => TrailButton(
-      caption: S.of(context).clear, onPressed: () => sendViewModel.reset());
+      caption: S.of(context).clear, onPressed: () {
+    _formKey.currentState.reset();
+    sendViewModel.reset();
+  });
 
   @override
   Widget body(BuildContext context) {
