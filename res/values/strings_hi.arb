@@ -394,5 +394,16 @@
   "confirm_delete_template" : "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
   "confirm_delete_wallet" : "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
 
-  "picker_description" : "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें"
+  "picker_description" : "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें",
+
+  "change_wallet_alert_title" : "वर्तमान बटुआ बदलें",
+  "change_wallet_alert_content" : "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?",
+
+  "creating_new_wallet" : "नया बटुआ बनाना",
+  "creating_new_wallet_error" : "त्रुटि: ${description}",
+
+  "seed_alert_title" : "ध्यान",
+  "seed_alert_content" : "बीज आपके बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। क्या आपने इसे लिखा है?",
+  "seed_alert_back" : "वापस जाओ",
+  "seed_alert_yes" : "हाँ मेरे पास है"
 }

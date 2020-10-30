@@ -394,5 +394,16 @@
   "confirm_delete_template" : "Ta czynność usunie ten szablon. Czy chcesz kontynuować?",
   "confirm_delete_wallet" : "Ta czynność usunie ten portfel. Czy chcesz kontynuować?",
 
-  "picker_description" : "Aby wybrać ChangeNOW lub MorphToken, najpierw zmień swoją parę handlową"
+  "picker_description" : "Aby wybrać ChangeNOW lub MorphToken, najpierw zmień swoją parę handlową",
+
+  "change_wallet_alert_title" : "Zmień obecny portfel",
+  "change_wallet_alert_content" : "Czy chcesz zmienić obecny portfel na ${wallet_name}?",
+
+  "creating_new_wallet" : "Tworzenie nowego portfela",
+  "creating_new_wallet_error" : "Pomyłka: ${description}",
+
+  "seed_alert_title" : "Uwaga",
+  "seed_alert_content" : "Ziarno to jedyny sposób na odzyskanie portfela. Zapisałeś to?",
+  "seed_alert_back" : "Wróć",
+  "seed_alert_yes" : "Tak"
 }

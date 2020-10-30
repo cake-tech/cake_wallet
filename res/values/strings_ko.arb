@@ -394,5 +394,16 @@
   "confirm_delete_template" : "이 작업은이 템플릿을 삭제합니다. 계속 하시겠습니까?",
   "confirm_delete_wallet" : "이 작업은이 지갑을 삭제합니다. 계속 하시겠습니까?",
 
-  "picker_description" : "ChangeNOW 또는 MorphToken을 선택하려면 먼저 거래 쌍을 변경하십시오."
+  "picker_description" : "ChangeNOW 또는 MorphToken을 선택하려면 먼저 거래 쌍을 변경하십시오.",
+
+  "change_wallet_alert_title" : "현재 지갑 변경",
+  "change_wallet_alert_content" : "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?",
+
+  "creating_new_wallet" : "새 지갑 생성",
+  "creating_new_wallet_error" : "오류: ${description}",
+
+  "seed_alert_title" : "주의",
+  "seed_alert_content" : "씨앗은 지갑을 복구하는 유일한 방법입니다. 적어 보셨나요?",
+  "seed_alert_back" : "돌아 가기",
+  "seed_alert_yes" : "네, 있어요"
 }
