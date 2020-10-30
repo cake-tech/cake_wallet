@@ -394,5 +394,16 @@
   "confirm_delete_template" : "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?",
   "confirm_delete_wallet" : "Diese Aktion löscht diese Brieftasche. Möchten Sie fortfahren?",
 
-  "picker_description" : "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar"
+  "picker_description" : "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar",
+
+  "change_wallet_alert_title" : "Ändern Sie die aktuelle Brieftasche",
+  "change_wallet_alert_content" : "Möchten Sie die aktuelle Brieftasche in ändern ${wallet_name}?",
+
+  "creating_new_wallet" : "Neue Brieftasche erstellen",
+  "creating_new_wallet_error" : "Error: ${description}",
+
+  "seed_alert_title" : "Beachtung",
+  "seed_alert_content" : "Der Samen ist der einzige Weg, um Ihren Geldbeutel wiederzugewinnen. Hast du es aufgeschrieben?",
+  "seed_alert_back" : "Geh zurück",
+  "seed_alert_yes" : "Ja, habe ich"
 }

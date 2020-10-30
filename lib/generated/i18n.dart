@@ -52,6 +52,7 @@ class S implements WidgetsLocalizations {
   String get change_currency => "Change Currency";
   String get change_exchange_provider => "Change Exchange Provider";
   String get change_language => "Change language";
+  String get change_wallet_alert_title => "Change current wallet";
   String get choose_account => "Choose account";
   String get choose_wallet_currency => "Please choose wallet currency:";
   String get clear => "Clear";
@@ -68,6 +69,7 @@ class S implements WidgetsLocalizations {
   String get copy_id => "Copy ID";
   String get create_new => "Create New Wallet";
   String get create_new_account => "Create new account";
+  String get creating_new_wallet => "Creating new wallet";
   String get delete => "Delete";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
@@ -173,6 +175,10 @@ class S implements WidgetsLocalizations {
   String get save => "Save";
   String get saved_the_trade_id => "I've saved the trade ID";
   String get scan_qr_code => "Scan the QR code to get the address";
+  String get seed_alert_back => "Go back";
+  String get seed_alert_content => "The seed is the only way to recover your wallet. Have you written it down?";
+  String get seed_alert_title => "Attention";
+  String get seed_alert_yes => "Yes, I have";
   String get seed_choose => "Choose seed language";
   String get seed_language_chinese => "Chinese";
   String get seed_language_choose => "Please choose seed language:";
@@ -316,8 +322,10 @@ class S implements WidgetsLocalizations {
   String Blocks_remaining(String status) => "${status} Blocks Remaining";
   String change_current_node(String node) => "Are you sure to change current node to ${node}?";
   String change_language_to(String language) => "Change language to ${language}?";
+  String change_wallet_alert_content(String wallet_name) => "Do you want to change current wallet to ${wallet_name}?";
   String commit_transaction_amount_fee(String amount, String fee) => "Commit transaction\nAmount: ${amount}\nFee: ${fee}";
   String copied_key_to_clipboard(String key) => "Copied ${key} to Clipboard";
+  String creating_new_wallet_error(String description) => "Error: ${description}";
   String error_text_limits_loading_failed(String provider) => "Trade for ${provider} is not created. Limits loading failed";
   String error_text_maximum_limit(String provider, String max, String currency) => "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}";
   String error_text_minimal_limit(String provider, String min, String currency) => "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}";
@@ -360,6 +368,8 @@ class $de extends S {
   String get authenticated => "Authentifiziert";
   @override
   String get new_subaddress_create => "Erstellen";
+  @override
+  String get seed_alert_back => "Geh zurück";
   @override
   String get restore_view_key_private => "Schlüssel anzeigen(geheim)";
   @override
@@ -487,6 +497,8 @@ class $de extends S {
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
   @override
+  String get change_wallet_alert_title => "Ändern Sie die aktuelle Brieftasche";
+  @override
   String get placeholder_transactions => "Ihre Transaktionen werden hier angezeigt";
   @override
   String get trade_details_provider => "Anbieter";
@@ -496,6 +508,8 @@ class $de extends S {
   String get you_will_send => "Du wirst senden";
   @override
   String get seed_language_german => "Deutsche";
+  @override
+  String get seed_alert_title => "Beachtung";
   @override
   String get create_new => "Neue Wallet erstellen";
   @override
@@ -530,6 +544,8 @@ class $de extends S {
   String get add => "Hinzufügen";
   @override
   String get remove_node => "Knoten entfernen";
+  @override
+  String get seed_alert_content => "Der Samen ist der einzige Weg, um Ihren Geldbeutel wiederzugewinnen. Hast du es aufgeschrieben?";
   @override
   String get trade_state_paid_unconfirmed => "Unbestätigt bezahlt";
   @override
@@ -582,6 +598,8 @@ class $de extends S {
   String get add_new_node => "Neuen Knoten hinzufügen";
   @override
   String get wallet_seed => "Brieftaschensamen";
+  @override
+  String get creating_new_wallet => "Neue Brieftasche erstellen";
   @override
   String get yesterday => "Gestern";
   @override
@@ -915,6 +933,8 @@ class $de extends S {
   @override
   String get enter_your_pin => "PIN eingeben";
   @override
+  String get seed_alert_yes => "Ja, habe ich";
+  @override
   String get wallet_list_restore_wallet => "Wallet wiederherstellen";
   @override
   String get restore_title_from_seed => "Aus Seed wiederherstellen";
@@ -961,9 +981,13 @@ class $de extends S {
   @override
   String trade_is_powered_by(String provider) => "Dieser Handel wird betrieben von ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Möchten Sie die aktuelle Brieftasche in ändern ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Error: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Handel für ${provider} wird nicht erstellt. Menge ist mehr als maximal: ${max} ${currency}";
   @override
@@ -1010,6 +1034,8 @@ class $hi extends S {
   String get authenticated => "प्रमाणीकृत";
   @override
   String get new_subaddress_create => "सर्जन करना";
+  @override
+  String get seed_alert_back => "वापस जाओ";
   @override
   String get restore_view_key_private => "कुंजी देखें (निजी)";
   @override
@@ -1137,6 +1163,8 @@ class $hi extends S {
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
   @override
+  String get change_wallet_alert_title => "वर्तमान बटुआ बदलें";
+  @override
   String get placeholder_transactions => "आपके लेनदेन यहां प्रदर्शित होंगे";
   @override
   String get trade_details_provider => "प्रदाता";
@@ -1146,6 +1174,8 @@ class $hi extends S {
   String get you_will_send => "तुम भेजोगे";
   @override
   String get seed_language_german => "जर्मन";
+  @override
+  String get seed_alert_title => "ध्यान";
   @override
   String get create_new => "नया बटुआ बनाएँ";
   @override
@@ -1180,6 +1210,8 @@ class $hi extends S {
   String get add => "जोड़ना";
   @override
   String get remove_node => "नोड निकालें";
+  @override
+  String get seed_alert_content => "बीज आपके बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। क्या आपने इसे लिखा है?";
   @override
   String get trade_state_paid_unconfirmed => "अपुष्ट भुगतान किया";
   @override
@@ -1232,6 +1264,8 @@ class $hi extends S {
   String get add_new_node => "नया नोड जोड़ें";
   @override
   String get wallet_seed => "बटुआ का बीज";
+  @override
+  String get creating_new_wallet => "नया बटुआ बनाना";
   @override
   String get yesterday => "बिता कल";
   @override
@@ -1565,6 +1599,8 @@ class $hi extends S {
   @override
   String get enter_your_pin => "अपना पिन दर्ज करो";
   @override
+  String get seed_alert_yes => "हाँ मेरे पास है";
+  @override
   String get wallet_list_restore_wallet => "वॉलेट को पुनर्स्थापित करें";
   @override
   String get restore_title_from_seed => "बीज से पुनर्स्थापित करें";
@@ -1611,9 +1647,13 @@ class $hi extends S {
   @override
   String trade_is_powered_by(String provider) => "यह व्यापार द्वारा संचालित है ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "मैक्स: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "त्रुटि: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि अधिक है तो अधिकतम: ${max} ${currency}";
   @override
@@ -1660,6 +1700,8 @@ class $ru extends S {
   String get authenticated => "Аутентифицировано";
   @override
   String get new_subaddress_create => "Создать";
+  @override
+  String get seed_alert_back => "Назад";
   @override
   String get restore_view_key_private => "Приватный ключ просмотра";
   @override
@@ -1787,6 +1829,8 @@ class $ru extends S {
   @override
   String get settings_display_balance_as => "Отображать баланс как";
   @override
+  String get change_wallet_alert_title => "Изменить текущий кошелек";
+  @override
   String get placeholder_transactions => "Ваши транзакции будут отображаться здесь";
   @override
   String get trade_details_provider => "Провайдер";
@@ -1796,6 +1840,8 @@ class $ru extends S {
   String get you_will_send => "Вы отправите";
   @override
   String get seed_language_german => "Немецкий";
+  @override
+  String get seed_alert_title => "Внимание";
   @override
   String get create_new => "Создать новый кошелёк";
   @override
@@ -1830,6 +1876,8 @@ class $ru extends S {
   String get add => "Добавить";
   @override
   String get remove_node => "Удалить ноду";
+  @override
+  String get seed_alert_content => "Мнемоническая фраза - единственный способ восстановить ваш кошелек. Вы записали ее?";
   @override
   String get trade_state_paid_unconfirmed => "Оплата неподтверждена";
   @override
@@ -1882,6 +1930,8 @@ class $ru extends S {
   String get add_new_node => "Добавить новую ноду";
   @override
   String get wallet_seed => "Мнемоническая фраза кошелька";
+  @override
+  String get creating_new_wallet => "Создание нового кошелька";
   @override
   String get yesterday => "Вчера";
   @override
@@ -2215,6 +2265,8 @@ class $ru extends S {
   @override
   String get enter_your_pin => "Введите ваш PIN";
   @override
+  String get seed_alert_yes => "Да";
+  @override
   String get wallet_list_restore_wallet => "Восстановить кошелёк";
   @override
   String get restore_title_from_seed => "Восстановить из мнемонической фразы";
@@ -2261,9 +2313,13 @@ class $ru extends S {
   @override
   String trade_is_powered_by(String provider) => "Сделка выполнена через ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Вы хотите изменить текущий кошелек на ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}мин ${seconds}сек";
   @override
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Ошибка: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Сделка для ${provider} не создана. Сумма больше максимальной: ${max} ${currency}";
   @override
@@ -2310,6 +2366,8 @@ class $ko extends S {
   String get authenticated => "인증";
   @override
   String get new_subaddress_create => "몹시 떠들어 대다";
+  @override
+  String get seed_alert_back => "돌아 가기";
   @override
   String get restore_view_key_private => "키보기 (은밀한)";
   @override
@@ -2437,6 +2495,8 @@ class $ko extends S {
   @override
   String get settings_display_balance_as => "잔액 표시";
   @override
+  String get change_wallet_alert_title => "현재 지갑 변경";
+  @override
   String get placeholder_transactions => "거래가 여기에 표시됩니다";
   @override
   String get trade_details_provider => "공급자";
@@ -2446,6 +2506,8 @@ class $ko extends S {
   String get you_will_send => "보내드립니다";
   @override
   String get seed_language_german => "독일 사람";
+  @override
+  String get seed_alert_title => "주의";
   @override
   String get create_new => "새 월렛 만들기";
   @override
@@ -2480,6 +2542,8 @@ class $ko extends S {
   String get add => "더하다";
   @override
   String get remove_node => "노드 제거";
+  @override
+  String get seed_alert_content => "씨앗은 지갑을 복구하는 유일한 방법입니다. 적어 보셨나요?";
   @override
   String get trade_state_paid_unconfirmed => "미확인 유료";
   @override
@@ -2532,6 +2596,8 @@ class $ko extends S {
   String get add_new_node => "새 노드 추가";
   @override
   String get wallet_seed => "지갑 시드";
+  @override
+  String get creating_new_wallet => "새 지갑 생성";
   @override
   String get yesterday => "어제";
   @override
@@ -2865,6 +2931,8 @@ class $ko extends S {
   @override
   String get enter_your_pin => "PIN을 입력하십시오";
   @override
+  String get seed_alert_yes => "네, 있어요";
+  @override
   String get wallet_list_restore_wallet => "월렛 복원";
   @override
   String get restore_title_from_seed => "종자에서 복원";
@@ -2911,9 +2979,13 @@ class $ko extends S {
   @override
   String trade_is_powered_by(String provider) => "이 거래는 ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "맥스: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "오류: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "거래 ${provider} 가 생성되지 않습니다. 금액이 최대 값보다 많습니다. ${max} ${currency}";
   @override
@@ -2960,6 +3032,8 @@ class $pt extends S {
   String get authenticated => "Autenticado";
   @override
   String get new_subaddress_create => "Criar";
+  @override
+  String get seed_alert_back => "Volte";
   @override
   String get restore_view_key_private => "Chave de visualização (privada)";
   @override
@@ -3087,6 +3161,8 @@ class $pt extends S {
   @override
   String get settings_display_balance_as => "Saldo a exibir";
   @override
+  String get change_wallet_alert_title => "Alterar carteira atual";
+  @override
   String get placeholder_transactions => "Suas transações serão exibidas aqui";
   @override
   String get trade_details_provider => "Provedor";
@@ -3096,6 +3172,8 @@ class $pt extends S {
   String get you_will_send => "Você enviará";
   @override
   String get seed_language_german => "Alemã";
+  @override
+  String get seed_alert_title => "Atenção";
   @override
   String get create_new => "Criar nova carteira";
   @override
@@ -3130,6 +3208,8 @@ class $pt extends S {
   String get add => "Adicionar";
   @override
   String get remove_node => "Remover nó";
+  @override
+  String get seed_alert_content => "A semente é a única forma de recuperar sua carteira. Você escreveu isso?";
   @override
   String get trade_state_paid_unconfirmed => "Pagamento não-confirmado";
   @override
@@ -3182,6 +3262,8 @@ class $pt extends S {
   String get add_new_node => "Adicionar novo nó";
   @override
   String get wallet_seed => "Semente de carteira";
+  @override
+  String get creating_new_wallet => "Criando nova carteira";
   @override
   String get yesterday => "Ontem";
   @override
@@ -3515,6 +3597,8 @@ class $pt extends S {
   @override
   String get enter_your_pin => "Insira seu PIN";
   @override
+  String get seed_alert_yes => "Sim, eu tenho";
+  @override
   String get wallet_list_restore_wallet => "Restaurar carteira";
   @override
   String get restore_title_from_seed => "Restaurar a partir de semente";
@@ -3561,9 +3645,13 @@ class $pt extends S {
   @override
   String trade_is_powered_by(String provider) => "Troca realizada por ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Quer mudar a carteira atual para ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Máx: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Erro: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "A troca por ${provider} não é criada. O valor é superior ao máximo: ${max} ${currency}";
   @override
@@ -3610,6 +3698,8 @@ class $uk extends S {
   String get authenticated => "Аутентифіковано";
   @override
   String get new_subaddress_create => "Створити";
+  @override
+  String get seed_alert_back => "Назад";
   @override
   String get restore_view_key_private => "Приватний ключ перегляду";
   @override
@@ -3737,6 +3827,8 @@ class $uk extends S {
   @override
   String get settings_display_balance_as => "Відображати баланс як";
   @override
+  String get change_wallet_alert_title => "Змінити поточний гаманець";
+  @override
   String get placeholder_transactions => "Тут відображатимуться ваші транзакції";
   @override
   String get trade_details_provider => "Провайдер";
@@ -3746,6 +3838,8 @@ class $uk extends S {
   String get you_will_send => "Ви відправите";
   @override
   String get seed_language_german => "Німецька";
+  @override
+  String get seed_alert_title => "Увага";
   @override
   String get create_new => "Створити новий гаманець";
   @override
@@ -3780,6 +3874,8 @@ class $uk extends S {
   String get add => "Добавити";
   @override
   String get remove_node => "Видалити вузол";
+  @override
+  String get seed_alert_content => "Мнемонічна фраза - єдиний спосіб відновити ваш гаманець. Ви записали її?";
   @override
   String get trade_state_paid_unconfirmed => "Оплата непідтверджена";
   @override
@@ -3832,6 +3928,8 @@ class $uk extends S {
   String get add_new_node => "Додати новий вузол";
   @override
   String get wallet_seed => "Мнемонічна фраза гаманця";
+  @override
+  String get creating_new_wallet => "Створення нового гаманця";
   @override
   String get yesterday => "Вчора";
   @override
@@ -4165,6 +4263,8 @@ class $uk extends S {
   @override
   String get enter_your_pin => "Введіть ваш PIN";
   @override
+  String get seed_alert_yes => "Так";
+  @override
   String get wallet_list_restore_wallet => "Відновити гаманець";
   @override
   String get restore_title_from_seed => "Відновити з мнемонічної фрази";
@@ -4211,9 +4311,13 @@ class $uk extends S {
   @override
   String trade_is_powered_by(String provider) => "Операція виконана через ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Ви хочете змінити поточний гаманець на ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}хв ${seconds}сек";
   @override
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Помилка: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Операція для ${provider} не створена. Сума більше максимальної: ${max} ${currency}";
   @override
@@ -4260,6 +4364,8 @@ class $ja extends S {
   String get authenticated => "認証済み";
   @override
   String get new_subaddress_create => "作成する";
+  @override
+  String get seed_alert_back => "戻る";
   @override
   String get restore_view_key_private => "ビューキー (プライベート)";
   @override
@@ -4387,6 +4493,8 @@ class $ja extends S {
   @override
   String get settings_display_balance_as => "残高を表示";
   @override
+  String get change_wallet_alert_title => "現在のウォレットを変更する";
+  @override
   String get placeholder_transactions => "あなたの取引はここに表示されます";
   @override
   String get trade_details_provider => "プロバイダー";
@@ -4396,6 +4504,8 @@ class $ja extends S {
   String get you_will_send => "送ります";
   @override
   String get seed_language_german => "ドイツ人";
+  @override
+  String get seed_alert_title => "注意";
   @override
   String get create_new => "新しいウォレットを作成";
   @override
@@ -4430,6 +4540,8 @@ class $ja extends S {
   String get add => "加える";
   @override
   String get remove_node => "ノードを削除";
+  @override
+  String get seed_alert_content => "種子はあなたの財布を回復する唯一の方法です。 書き留めましたか？";
   @override
   String get trade_state_paid_unconfirmed => "未確認の支払い";
   @override
@@ -4482,6 +4594,8 @@ class $ja extends S {
   String get add_new_node => "新しいノードを追加";
   @override
   String get wallet_seed => "ウォレットシード";
+  @override
+  String get creating_new_wallet => "新しいウォレットの作成";
   @override
   String get yesterday => "昨日";
   @override
@@ -4815,6 +4929,8 @@ class $ja extends S {
   @override
   String get enter_your_pin => "PINを入力してください";
   @override
+  String get seed_alert_yes => "はい、あります";
+  @override
   String get wallet_list_restore_wallet => "ウォレットを復元";
   @override
   String get restore_title_from_seed => "シードから復元";
@@ -4861,9 +4977,13 @@ class $ja extends S {
   @override
   String trade_is_powered_by(String provider) => "この取引は ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "現在のウォレットをに変更しますか ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "マックス: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "エラー： ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "${provider} の取引は作成されません。 金額は最大値を超えています： ${max} ${currency}";
   @override
@@ -4914,6 +5034,8 @@ class $pl extends S {
   String get authenticated => "Zalegalizowany";
   @override
   String get new_subaddress_create => "Stwórz";
+  @override
+  String get seed_alert_back => "Wróć";
   @override
   String get restore_view_key_private => "Wyświetl klucz (prywatny)";
   @override
@@ -5041,6 +5163,8 @@ class $pl extends S {
   @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
   @override
+  String get change_wallet_alert_title => "Zmień obecny portfel";
+  @override
   String get placeholder_transactions => "Twoje transakcje zostaną wyświetlone tutaj";
   @override
   String get trade_details_provider => "Dostawca";
@@ -5050,6 +5174,8 @@ class $pl extends S {
   String get you_will_send => "Wyślesz";
   @override
   String get seed_language_german => "Niemiecki";
+  @override
+  String get seed_alert_title => "Uwaga";
   @override
   String get create_new => "Utwórz nowy portfel";
   @override
@@ -5084,6 +5210,8 @@ class $pl extends S {
   String get add => "Dodaj";
   @override
   String get remove_node => "Usuń węzeł";
+  @override
+  String get seed_alert_content => "Ziarno to jedyny sposób na odzyskanie portfela. Zapisałeś to?";
   @override
   String get trade_state_paid_unconfirmed => "Płatne niepotwierdzone";
   @override
@@ -5136,6 +5264,8 @@ class $pl extends S {
   String get add_new_node => "Dodaj nowy węzeł";
   @override
   String get wallet_seed => "Nasiono portfela";
+  @override
+  String get creating_new_wallet => "Tworzenie nowego portfela";
   @override
   String get yesterday => "Wczoraj";
   @override
@@ -5469,6 +5599,8 @@ class $pl extends S {
   @override
   String get enter_your_pin => "Wpisz Twój kod PIN";
   @override
+  String get seed_alert_yes => "Tak";
+  @override
   String get wallet_list_restore_wallet => "Przywróć portfel";
   @override
   String get restore_title_from_seed => "Przywróć z nasion";
@@ -5515,9 +5647,13 @@ class $pl extends S {
   @override
   String trade_is_powered_by(String provider) => "Ten handel jest zasilany przez ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Czy chcesz zmienić obecny portfel na ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Pomyłka: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Wymiana dla ${provider} nie została utworzona. Kwota jest większa niż maksymalna: ${max} ${currency}";
   @override
@@ -5564,6 +5700,8 @@ class $es extends S {
   String get authenticated => "Autenticados";
   @override
   String get new_subaddress_create => "Crear";
+  @override
+  String get seed_alert_back => "Regresa";
   @override
   String get restore_view_key_private => "View clave (privado)";
   @override
@@ -5691,6 +5829,8 @@ class $es extends S {
   @override
   String get settings_display_balance_as => "Mostrar saldo como";
   @override
+  String get change_wallet_alert_title => "Cambiar billetera actual";
+  @override
   String get placeholder_transactions => "Sus transacciones se mostrarán aquí";
   @override
   String get trade_details_provider => "Proveedor";
@@ -5700,6 +5840,8 @@ class $es extends S {
   String get you_will_send => "Enviarás";
   @override
   String get seed_language_german => "Alemán";
+  @override
+  String get seed_alert_title => "Atención";
   @override
   String get create_new => "Crear nueva billetera";
   @override
@@ -5734,6 +5876,8 @@ class $es extends S {
   String get add => "Añadir";
   @override
   String get remove_node => "Eliminar nodo";
+  @override
+  String get seed_alert_content => "La semilla es la única forma de recuperar su billetera. ¿Lo has escrito?";
   @override
   String get trade_state_paid_unconfirmed => "Pagado sin confirmar";
   @override
@@ -5786,6 +5930,8 @@ class $es extends S {
   String get add_new_node => "Agregar nuevo nodo";
   @override
   String get wallet_seed => "Semilla de billetera";
+  @override
+  String get creating_new_wallet => "Creando nueva billetera";
   @override
   String get yesterday => "Ayer";
   @override
@@ -6119,6 +6265,8 @@ class $es extends S {
   @override
   String get enter_your_pin => "Introduce tu PIN";
   @override
+  String get seed_alert_yes => "Sí tengo";
+  @override
   String get wallet_list_restore_wallet => "Restaurar billetera";
   @override
   String get restore_title_from_seed => "De la semilla";
@@ -6165,9 +6313,13 @@ class $es extends S {
   @override
   String trade_is_powered_by(String provider) => "Este comercio es impulsado por ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "¿Quieres cambiar la billetera actual a ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Error: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "El comercio por ${provider} no se crea. La cantidad es más que el máximo: ${max} ${currency}";
   @override
@@ -6214,6 +6366,8 @@ class $nl extends S {
   String get authenticated => "Authenticated";
   @override
   String get new_subaddress_create => "Creëren";
+  @override
+  String get seed_alert_back => "Ga terug";
   @override
   String get restore_view_key_private => "Bekijk sleutel (privaat)";
   @override
@@ -6341,6 +6495,8 @@ class $nl extends S {
   @override
   String get settings_display_balance_as => "Toon saldo als";
   @override
+  String get change_wallet_alert_title => "Wijzig huidige portemonnee";
+  @override
   String get placeholder_transactions => "Uw transacties worden hier weergegeven";
   @override
   String get trade_details_provider => "Leverancier";
@@ -6350,6 +6506,8 @@ class $nl extends S {
   String get you_will_send => "Je zal versturen";
   @override
   String get seed_language_german => "Duitse";
+  @override
+  String get seed_alert_title => "Aandacht";
   @override
   String get create_new => "Maak een nieuwe portemonnee";
   @override
@@ -6384,6 +6542,8 @@ class $nl extends S {
   String get add => "Toevoegen";
   @override
   String get remove_node => "Knoop verwijderen";
+  @override
+  String get seed_alert_content => "Het zaad is de enige manier om uw portemonnee te herstellen. Heb je het opgeschreven?";
   @override
   String get trade_state_paid_unconfirmed => "Niet bevestigd";
   @override
@@ -6436,6 +6596,8 @@ class $nl extends S {
   String get add_new_node => "Voeg een nieuw knooppunt toe";
   @override
   String get wallet_seed => "Portemonnee zaad";
+  @override
+  String get creating_new_wallet => "Nieuwe portemonnee aanmaken";
   @override
   String get yesterday => "Gisteren";
   @override
@@ -6769,6 +6931,8 @@ class $nl extends S {
   @override
   String get enter_your_pin => "Voer uw pincode in";
   @override
+  String get seed_alert_yes => "Ja ik heb";
+  @override
   String get wallet_list_restore_wallet => "Portemonnee herstellen";
   @override
   String get restore_title_from_seed => "Herstel van zaad";
@@ -6815,9 +6979,13 @@ class $nl extends S {
   @override
   String trade_is_powered_by(String provider) => "Deze transactie wordt mogelijk gemaakt door ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Wilt u de huidige portemonnee wijzigen in ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Fout: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Ruil voor ${provider} is niet gemaakt. Bedrag is meer dan maximaal: ${max} ${currency}";
   @override
@@ -6864,6 +7032,8 @@ class $zh extends S {
   String get authenticated => "已认证";
   @override
   String get new_subaddress_create => "创建";
+  @override
+  String get seed_alert_back => "回去";
   @override
   String get restore_view_key_private => "查看金钥 (私人的)";
   @override
@@ -6991,6 +7161,8 @@ class $zh extends S {
   @override
   String get settings_display_balance_as => "将余额显示为";
   @override
+  String get change_wallet_alert_title => "更換當前錢包";
+  @override
   String get placeholder_transactions => "您的交易將顯示在這裡";
   @override
   String get trade_details_provider => "提供者";
@@ -7000,6 +7172,8 @@ class $zh extends S {
   String get you_will_send => "您将发送";
   @override
   String get seed_language_german => "德語";
+  @override
+  String get seed_alert_title => "注意";
   @override
   String get create_new => "创建新钱包";
   @override
@@ -7034,6 +7208,8 @@ class $zh extends S {
   String get add => "加";
   @override
   String get remove_node => "删除节点";
+  @override
+  String get seed_alert_content => "種子是恢復錢包的唯一方法。 你寫下來了嗎？";
   @override
   String get trade_state_paid_unconfirmed => "付费未确认";
   @override
@@ -7086,6 +7262,8 @@ class $zh extends S {
   String get add_new_node => "添加新節點";
   @override
   String get wallet_seed => "錢包種子";
+  @override
+  String get creating_new_wallet => "創建新錢包";
   @override
   String get yesterday => "昨天";
   @override
@@ -7419,6 +7597,8 @@ class $zh extends S {
   @override
   String get enter_your_pin => "输入密码";
   @override
+  String get seed_alert_yes => "是的，我有";
+  @override
   String get wallet_list_restore_wallet => "恢复钱包";
   @override
   String get restore_title_from_seed => "从种子还原";
@@ -7465,9 +7645,13 @@ class $zh extends S {
   @override
   String trade_is_powered_by(String provider) => "该交易由 ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "您要將當前的錢包更改為 ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "最高: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "錯誤： ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}";
   @override
