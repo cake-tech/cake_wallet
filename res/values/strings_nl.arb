@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Wijzig Exchange Provider",
   "you_will_send" : "Je zal versturen",
   "you_will_get" : "Je zult krijgen",
-  "amount_is_guaranteed" : "Het ontvangen bedrag is gegarandeerd",
+  "amount_is_guaranteed" : "Als u een XMR invoert, wordt het ontvangen bedrag geschat. Als u een BTC-bedrag invoert, is uw ontvangen bedrag gegarandeerd",
   "amount_is_estimate" : "Het ontvangen bedrag is een schatting",
   "powered_by" : "Aangedreven door ${title}",
   "error" : "Fout",

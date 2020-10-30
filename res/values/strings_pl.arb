@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Zmień dostawcę programu Exchange",
   "you_will_send" : "Wyślesz",
   "you_will_get" : "Dostaniesz",
-  "amount_is_guaranteed" : "Otrzymana kwota jest gwarantowana",
+  "amount_is_guaranteed" : "Jeśli wprowadzisz XMR, kwota otrzymana zostanie oszacowana. Jeśli wpiszesz kwotę BTC, Twoja otrzymana kwota jest gwarantowana",
   "amount_is_estimate" : "Otrzymana kwota jest wartością szacunkową",
   "powered_by" : "Zasilany przez ${title}",
   "error" : "Błąd",
