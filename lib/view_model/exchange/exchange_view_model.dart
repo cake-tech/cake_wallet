@@ -227,6 +227,8 @@ abstract class ExchangeViewModelBase with Store {
       currency = depositCurrency;
     }
 
+    amount = amount.replaceAll(',', '.');
+
     if (limitsState is LimitsLoadedSuccessfully && amount != null) {
       if (double.parse(amount) < limits.min) {
         tradeState = TradeIsCreatedFailure(
