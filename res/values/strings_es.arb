@@ -394,5 +394,16 @@
   "confirm_delete_template" : "Esta acción eliminará esta plantilla. ¿Desea continuar?",
   "confirm_delete_wallet" : "Esta acción eliminará esta billetera. ¿Desea continuar?",
 
-  "picker_description" : "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial"
+  "picker_description" : "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial",
+
+  "change_wallet_alert_title" : "Cambiar billetera actual",
+  "change_wallet_alert_content" : "¿Quieres cambiar la billetera actual a ${wallet_name}?",
+
+  "creating_new_wallet" : "Creando nueva billetera",
+  "creating_new_wallet_error" : "Error: ${description}",
+
+  "seed_alert_title" : "Atención",
+  "seed_alert_content" : "La semilla es la única forma de recuperar su billetera. ¿Lo has escrito?",
+  "seed_alert_back" : "Regresa",
+  "seed_alert_yes" : "Sí tengo"
 }

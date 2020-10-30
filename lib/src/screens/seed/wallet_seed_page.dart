@@ -32,13 +32,11 @@ class WalletSeedPage extends BasePage {
       final confirmed = await showPopUp<bool>(
               context: context,
               builder: (BuildContext context) {
-                // FIXME: add translations
                 return AlertWithTwoActions(
-                    alertTitle: 'Attention',
-                    alertContent:
-                        'The seed is the only way to recover your wallet. Have you written it down?',
-                    leftButtonText: 'Go back',
-                    rightButtonText: 'Yes, I have',
+                    alertTitle: S.of(context).seed_alert_title,
+                    alertContent: S.of(context).seed_alert_content,
+                    leftButtonText: S.of(context).seed_alert_back,
+                    rightButtonText: S.of(context).seed_alert_yes,
                     actionLeftButton: () => Navigator.of(context).pop(false),
                     actionRightButton: () => Navigator.of(context).pop(true));
               }) ??

@@ -394,5 +394,16 @@
   "confirm_delete_template" : "Это действие удалит шаблон. Вы хотите продолжить?",
   "confirm_delete_wallet" : "Это действие удалит кошелек. Вы хотите продолжить?",
 
-  "picker_description" : "Чтобы выбрать ChangeNOW или MorphToken, сначала смените пару для обмена"
+  "picker_description" : "Чтобы выбрать ChangeNOW или MorphToken, сначала смените пару для обмена",
+
+  "change_wallet_alert_title" : "Изменить текущий кошелек",
+  "change_wallet_alert_content" : "Вы хотите изменить текущий кошелек на ${wallet_name}?",
+
+  "creating_new_wallet" : "Создание нового кошелька",
+  "creating_new_wallet_error" : "Ошибка: ${description}",
+
+  "seed_alert_title" : "Внимание",
+  "seed_alert_content" : "Мнемоническая фраза - единственный способ восстановить ваш кошелек. Вы записали ее?",
+  "seed_alert_back" : "Назад",
+  "seed_alert_yes" : "Да"
 }
