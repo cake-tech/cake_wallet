@@ -90,6 +90,7 @@ class PickerState<Item> extends State<Picker> {
                             alignment: Alignment.center,
                             children: <Widget>[
                               ListView.separated(
+                                padding: EdgeInsets.all(0),
                                 controller: controller,
                                 separatorBuilder: (context, index) => Divider(
                                   color: Theme.of(context).accentTextTheme.title.backgroundColor,
