@@ -394,5 +394,16 @@
   "confirm_delete_template" : "此操作將刪除此模板。 你想繼續嗎？",
   "confirm_delete_wallet" : "此操作將刪除此錢包。 你想繼續嗎？",
 
-  "picker_description" : "要選擇ChangeNOW或MorphToken，請先更改您的交易對"
+  "picker_description" : "要選擇ChangeNOW或MorphToken，請先更改您的交易對",
+
+  "change_wallet_alert_title" : "更換當前錢包",
+  "change_wallet_alert_content" : "您要將當前的錢包更改為 ${wallet_name}?",
+
+  "creating_new_wallet" : "創建新錢包",
+  "creating_new_wallet_error" : "錯誤： ${description}",
+
+  "seed_alert_title" : "注意",
+  "seed_alert_content" : "種子是恢復錢包的唯一方法。 你寫下來了嗎？",
+  "seed_alert_back" : "回去",
+  "seed_alert_yes" : "是的，我有"
 }

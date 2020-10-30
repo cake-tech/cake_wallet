@@ -87,11 +87,9 @@ class WalletListBodyState extends State<WalletListBody> {
                           final confirmed = await showPopUp<bool>(
                               context: context,
                               builder: (dialogContext) {
-                                // FIXME:
                                 return AlertWithTwoActions(
-                                    alertTitle: 'Change current wallet',
-                                    alertContent:
-                                        'Do you want to change current wallet to ${wallet.name} ?',
+                                    alertTitle: S.of(context).change_wallet_alert_title,
+                                    alertContent: S.of(context).change_wallet_alert_content(wallet.name),
                                     leftButtonText: S.of(context).cancel,
                                     rightButtonText: S.of(context).change,
                                     actionLeftButton: () =>
@@ -242,12 +240,12 @@ class WalletListBodyState extends State<WalletListBody> {
 
   Future<void> _generateNewWallet() async {
     try {
-      changeProcessText('Creating new wallet'); // FIXME: Unnamed constant
+      changeProcessText(S.of(context).creating_new_wallet);
       await widget.walletListViewModel.walletNewVM.create(options: 'English'); // FIXME: Unnamed constant
       hideProgressText();
       await Navigator.of(context).pushNamed(Routes.seed, arguments: true);
     } catch(e) {
-      changeProcessText('Error: ${e.toString()}');
+      changeProcessText(S.of(context).creating_new_wallet_error(e.toString()));
     }
   }
 
