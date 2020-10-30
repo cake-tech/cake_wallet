@@ -1,3 +1,4 @@
+
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
@@ -332,7 +333,8 @@ Future setup(
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,
       trades: tradesSource,
-      tradesStore: getIt.get<TradesStore>()));
+      tradesStore: getIt.get<TradesStore>(),
+      sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>()));
 

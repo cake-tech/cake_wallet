@@ -1,8 +1,8 @@
+import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
-import 'package:intl/intl.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/template_validator.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
