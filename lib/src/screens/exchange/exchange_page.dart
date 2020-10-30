@@ -61,7 +61,10 @@ class ExchangePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
-      caption: S.of(context).reset, onPressed: () => exchangeViewModel.reset());
+      caption: S.of(context).reset, onPressed: () {
+        _formKey.currentState.reset();
+        exchangeViewModel.reset();
+  });
 
   @override
   Widget body(BuildContext context) {
