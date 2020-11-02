@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -394,19 +395,30 @@ class ExchangePage extends BasePage {
                     }),
                   ),
                   Observer(
-                      builder: (_) => LoadingPrimaryButton(
-                            text: S.of(context).exchange,
-                            onPressed: () {
-                              if (_formKey.currentState.validate()) {
-                                exchangeViewModel.createTrade();
-                              }
-                            },
-                            color:
-                                Theme.of(context).accentTextTheme.body2.color,
-                            textColor: Colors.white,
-                            isLoading: exchangeViewModel.tradeState
-                                is TradeIsCreating,
-                          )),
+                    builder: (_) => LoadingPrimaryButton(
+                      text: S.of(context).exchange,
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {
+                          if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr)
+                          &&(!(exchangeViewModel.status is SyncedSyncStatus))) {
+                            showPopUp<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertWithOneAction(
+                                  alertTitle: S.of(context).exchange,
+                                  alertContent: 'Please wait until your wallet is synchronized',
+                                  buttonText: S.of(context).ok,
+                                  buttonAction: () => Navigator.of(context).pop());
+                              });
+                          } else {
+                            exchangeViewModel.createTrade();
+                          }
+                        }
+                      },
+                      color: Theme.of(context).accentTextTheme.body2.color,
+                      textColor: Colors.white,
+                      isLoading: exchangeViewModel.tradeState
+                                 is TradeIsCreating)),
                 ]),
               )),
         ));
