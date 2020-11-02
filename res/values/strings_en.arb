@@ -405,5 +405,7 @@
   "seed_alert_title" : "Attention",
   "seed_alert_content" : "The seed is the only way to recover your wallet. Have you written it down?",
   "seed_alert_back" : "Go back",
-  "seed_alert_yes" : "Yes, I have"
+  "seed_alert_yes" : "Yes, I have",
+
+  "exchange_sync_alert_content" : "Please wait until your wallet is synchronized"
 }

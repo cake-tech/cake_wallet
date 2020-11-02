@@ -405,5 +405,7 @@
   "seed_alert_title" : "Atenção",
   "seed_alert_content" : "A semente é a única forma de recuperar sua carteira. Você escreveu isso?",
   "seed_alert_back" : "Volte",
-  "seed_alert_yes" : "Sim, eu tenho"
+  "seed_alert_yes" : "Sim, eu tenho",
+
+  "exchange_sync_alert_content" : "Por favor, espere até que sua carteira seja sincronizada"
 }

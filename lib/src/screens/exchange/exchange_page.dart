@@ -406,7 +406,7 @@ class ExchangePage extends BasePage {
                               builder: (BuildContext context) {
                                 return AlertWithOneAction(
                                   alertTitle: S.of(context).exchange,
-                                  alertContent: 'Please wait until your wallet is synchronized',
+                                  alertContent: S.of(context).exchange_sync_alert_content,
                                   buttonText: S.of(context).ok,
                                   buttonAction: () => Navigator.of(context).pop());
                               });

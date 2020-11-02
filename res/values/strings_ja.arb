@@ -405,5 +405,7 @@
   "seed_alert_title" : "注意",
   "seed_alert_content" : "種子はあなたの財布を回復する唯一の方法です。 書き留めましたか？",
   "seed_alert_back" : "戻る",
-  "seed_alert_yes" : "はい、あります"
+  "seed_alert_yes" : "はい、あります",
+
+  "exchange_sync_alert_content" : "ウォレットが同期されるまでお待ちください"
 }
