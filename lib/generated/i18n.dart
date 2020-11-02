@@ -109,7 +109,7 @@ class S implements WidgetsLocalizations {
   String get login => "Login";
   String get new_subaddress_create => "Create";
   String get new_subaddress_label_name => "Label name";
-  String get new_subaddress_title => "New subaddress";
+  String get new_subaddress_title => "New address";
   String get new_wallet => "New Wallet";
   String get node_address => "Node Address";
   String get node_new => "New Node";
@@ -138,7 +138,7 @@ class S implements WidgetsLocalizations {
   String get receive_amount => "Amount";
   String get received => "Received";
   String get reconnect => "Reconnect";
-  String get reconnect_alert_text => "Are you sure to reconnect?";
+  String get reconnect_alert_text => "Are you sure you want to reconnect?";
   String get reconnection => "Reconnection";
   String get refund_address => "Refund address";
   String get remove => "Remove";
@@ -156,7 +156,7 @@ class S implements WidgetsLocalizations {
   String get restore_description_from_keys => "Restore your wallet from generated keystrokes saved from your private keys";
   String get restore_description_from_seed => "Restore your wallet from either the 25 word or 13 word combination code";
   String get restore_description_from_seed_keys => "Get back your wallet from seed/keys that you've saved to secure place";
-  String get restore_from_date_or_blockheight => "Please enter the date you created this wallet. Or if you know the blockheight, please enter it instead";
+  String get restore_from_date_or_blockheight => "Please enter a date a few days before you created this wallet. Or if you know the blockheight, please enter it instead";
   String get restore_from_seed_placeholder => "Please enter or paste your seed here";
   String get restore_new_seed => "New seed";
   String get restore_next => "Next";
@@ -767,7 +767,7 @@ class $de extends S {
   @override
   String get exchange_result_write_down_trade_id => "Bitte kopieren oder notieren Sie die Handel-ID, um fortzufahren.";
   @override
-  String get new_subaddress_title => "Neue Unteradresse";
+  String get new_subaddress_title => "Neue Adresse";
   @override
   String get change => "Veränderung";
   @override
@@ -821,7 +821,7 @@ class $de extends S {
   @override
   String get choose_account => "Konto auswählen";
   @override
-  String get restore_from_date_or_blockheight => "Bitte geben Sie das Datum ein, an dem Sie diese Brieftasche erstellt haben. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein";
+  String get restore_from_date_or_blockheight => "Bitte geben Sie einige Tage vor dem Erstellen dieser Brieftasche ein Datum ein. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein";
   @override
   String get settings_only_trades => "Nur Trades";
   @override
@@ -1433,7 +1433,7 @@ class $hi extends S {
   @override
   String get exchange_result_write_down_trade_id => "जारी रखने के लिए कृपया ट्रेड ID की प्रतिलिपि बनाएँ या लिखें.";
   @override
-  String get new_subaddress_title => "नई उपशादी";
+  String get new_subaddress_title => "नया पता";
   @override
   String get change => "परिवर्तन";
   @override
@@ -1487,7 +1487,7 @@ class $hi extends S {
   @override
   String get choose_account => "खाता चुनें";
   @override
-  String get restore_from_date_or_blockheight => "कृपया इस वॉलेट को बनाने की तिथि दर्ज करें। या यदि आप ब्लॉकचाइट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें";
+  String get restore_from_date_or_blockheight => "कृपया इस वॉलेट को बनाने से कुछ दिन पहले एक तारीख दर्ज करें। या यदि आप ब्लॉकचेट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें";
   @override
   String get settings_only_trades => "केवल ट्रेड करता है";
   @override
@@ -2099,7 +2099,7 @@ class $ru extends S {
   @override
   String get exchange_result_write_down_trade_id => "Пожалуйста, скопируйте или запишите ID сделки.";
   @override
-  String get new_subaddress_title => "Новый субадрес";
+  String get new_subaddress_title => "Новый адрес";
   @override
   String get change => "Изменить";
   @override
@@ -2153,7 +2153,7 @@ class $ru extends S {
   @override
   String get choose_account => "Выберите аккаунт";
   @override
-  String get restore_from_date_or_blockheight => "Пожалуйста, введите дату создания кошелька. Или, если вы знаете высоту блока, введите ее значение";
+  String get restore_from_date_or_blockheight => "Пожалуйста, введите дату за несколько дней до создания этого кошелька. Или, если вы знаете высоту блока, введите ее значение";
   @override
   String get settings_only_trades => "Сделки";
   @override
@@ -2765,7 +2765,7 @@ class $ko extends S {
   @override
   String get exchange_result_write_down_trade_id => "계속하려면 거래 ID를 복사하거나 적어 두십시오..";
   @override
-  String get new_subaddress_title => "새로운 하위 주소";
+  String get new_subaddress_title => "새 주소";
   @override
   String get change => "변화";
   @override
@@ -2819,7 +2819,7 @@ class $ko extends S {
   @override
   String get choose_account => "계정을 선택하십시오";
   @override
-  String get restore_from_date_or_blockheight => "이 지갑을 만든 날짜를 입력하세요. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.";
+  String get restore_from_date_or_blockheight => "이 지갑을 생성하기 며칠 전에 날짜를 입력하십시오. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.";
   @override
   String get settings_only_trades => "거래 만";
   @override
@@ -3431,7 +3431,7 @@ class $pt extends S {
   @override
   String get exchange_result_write_down_trade_id => "Copie ou anote o ID da troca para continuar.";
   @override
-  String get new_subaddress_title => "Criar sub-endereço";
+  String get new_subaddress_title => "Novo endereço";
   @override
   String get change => "Mudar";
   @override
@@ -3485,7 +3485,7 @@ class $pt extends S {
   @override
   String get choose_account => "Escolha uma conta";
   @override
-  String get restore_from_date_or_blockheight => "Por favor, insira a data em que você criou esta carteira. Ou se você souber a altura do bloco, insira-o";
+  String get restore_from_date_or_blockheight => "Insira uma data alguns dias antes de criar esta carteira. Ou se você souber a altura do bloco, insira-o";
   @override
   String get settings_only_trades => "Somente trocas";
   @override
@@ -4097,7 +4097,7 @@ class $uk extends S {
   @override
   String get exchange_result_write_down_trade_id => "Будь ласка, скопіюйте або запишіть ID операції.";
   @override
-  String get new_subaddress_title => "Нова субадреса";
+  String get new_subaddress_title => "Нова адреса";
   @override
   String get change => "Змінити";
   @override
@@ -4151,7 +4151,7 @@ class $uk extends S {
   @override
   String get choose_account => "Оберіть акаунт";
   @override
-  String get restore_from_date_or_blockheight => "Будь ласка, введіть дату створення гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення";
+  String get restore_from_date_or_blockheight => "Будь ласка, введіть дату за кілька днів до створення цього гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення";
   @override
   String get settings_only_trades => "Операції";
   @override
@@ -4763,7 +4763,7 @@ class $ja extends S {
   @override
   String get exchange_result_write_down_trade_id => "続行するには、取引IDをコピーまたは書き留めてください.";
   @override
-  String get new_subaddress_title => "新しいサブアドレス";
+  String get new_subaddress_title => "新しいアドレス";
   @override
   String get change => "変化する";
   @override
@@ -4817,7 +4817,7 @@ class $ja extends S {
   @override
   String get choose_account => "アカウントを選択";
   @override
-  String get restore_from_date_or_blockheight => "このウォレットを作成した日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください";
+  String get restore_from_date_or_blockheight => "このウォレットを作成する数日前に日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください";
   @override
   String get settings_only_trades => "取引のみ";
   @override
@@ -5433,7 +5433,7 @@ class $pl extends S {
   @override
   String get exchange_result_write_down_trade_id => "Skopiuj lub zanotuj identyfikator transakcji, aby kontynuować.";
   @override
-  String get new_subaddress_title => "Nowy podadres";
+  String get new_subaddress_title => "Nowy adres";
   @override
   String get change => "Zmiana";
   @override
@@ -5487,7 +5487,7 @@ class $pl extends S {
   @override
   String get choose_account => "Wybierz konto";
   @override
-  String get restore_from_date_or_blockheight => "Wprowadź datę utworzenia tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego";
+  String get restore_from_date_or_blockheight => "Wprowadź datę na kilka dni przed utworzeniem tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego";
   @override
   String get settings_only_trades => "Tylko transakcje";
   @override
@@ -6099,7 +6099,7 @@ class $es extends S {
   @override
   String get exchange_result_write_down_trade_id => "Por favor, copia o escribe el ID.";
   @override
-  String get new_subaddress_title => "Nueva subdirección";
+  String get new_subaddress_title => "Nueva direccion";
   @override
   String get change => "Cambio";
   @override
@@ -6153,7 +6153,7 @@ class $es extends S {
   @override
   String get choose_account => "Elegir cuenta";
   @override
-  String get restore_from_date_or_blockheight => "Ingrese la fecha en que creó esta billetera. O si conoce la altura del bloque, ingréselo en su lugar";
+  String get restore_from_date_or_blockheight => "Ingrese una fecha unos días antes de crear esta billetera. O si conoce la altura del bloque, ingréselo en su lugar";
   @override
   String get settings_only_trades => "Solo comercia";
   @override
@@ -6765,7 +6765,7 @@ class $nl extends S {
   @override
   String get exchange_result_write_down_trade_id => "Kopieer of noteer de handels-ID om door te gaan.";
   @override
-  String get new_subaddress_title => "Nieuw subadres";
+  String get new_subaddress_title => "Nieuw adres";
   @override
   String get change => "Verandering";
   @override
@@ -6819,7 +6819,7 @@ class $nl extends S {
   @override
   String get choose_account => "Kies account";
   @override
-  String get restore_from_date_or_blockheight => "Voer de datum in waarop u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voer deze dan in";
+  String get restore_from_date_or_blockheight => "Voer een datum in een paar dagen voordat u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voert u deze in";
   @override
   String get settings_only_trades => "Alleen handel";
   @override
@@ -7431,7 +7431,7 @@ class $zh extends S {
   @override
   String get exchange_result_write_down_trade_id => "请复制或写下交易编号以继续.";
   @override
-  String get new_subaddress_title => "新子地址";
+  String get new_subaddress_title => "新地址";
   @override
   String get change => "更改";
   @override
@@ -7485,7 +7485,7 @@ class $zh extends S {
   @override
   String get choose_account => "選擇帳號";
   @override
-  String get restore_from_date_or_blockheight => "請輸入創建此錢包的日期。 或者，如果您知道塊高，請改為輸入";
+  String get restore_from_date_or_blockheight => "請在創建此錢包之前幾天輸入一個日期。 或者，如果您知道塊高，請改為輸入";
   @override
   String get settings_only_trades => "只交易";
   @override
