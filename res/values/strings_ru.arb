@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу",
   "restore_bitcoin_description_from_keys" : "Вы можете восстановить кошелёк с помощью WIF",
   "restore_bitcoin_title_from_keys" : "Восстановить с помощью WIF",
-  "restore_from_date_or_blockheight" : "Пожалуйста, введите дату создания кошелька. Или, если вы знаете высоту блока, введите ее значение",
+  "restore_from_date_or_blockheight" : "Пожалуйста, введите дату за несколько дней до создания этого кошелька. Или, если вы знаете высоту блока, введите ее значение",
 
 
   "seed_reminder" : "Пожалуйста, запишите мнемоническую фразу на случай потери или очистки телефона",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "Скопировано ${key} в буфер обмена",
 
 
-  "new_subaddress_title" : "Новый субадрес",
+  "new_subaddress_title" : "Новый адрес",
   "new_subaddress_label_name" : "Имя",
   "new_subaddress_create" : "Создать",
 
