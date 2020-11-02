@@ -405,5 +405,7 @@
   "seed_alert_title" : "주의",
   "seed_alert_content" : "씨앗은 지갑을 복구하는 유일한 방법입니다. 적어 보셨나요?",
   "seed_alert_back" : "돌아 가기",
-  "seed_alert_yes" : "네, 있어요"
+  "seed_alert_yes" : "네, 있어요",
+
+  "exchange_sync_alert_content" : "지갑이 동기화 될 때까지 기다리십시오"
 }

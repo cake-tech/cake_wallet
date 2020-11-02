@@ -405,5 +405,7 @@
   "seed_alert_title" : "Внимание",
   "seed_alert_content" : "Мнемоническая фраза - единственный способ восстановить ваш кошелек. Вы записали ее?",
   "seed_alert_back" : "Назад",
-  "seed_alert_yes" : "Да"
+  "seed_alert_yes" : "Да",
+
+  "exchange_sync_alert_content" : "Подождите, пока ваш кошелек синхронизируется"
 }

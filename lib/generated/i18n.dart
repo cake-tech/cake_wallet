@@ -95,6 +95,7 @@ class S implements WidgetsLocalizations {
   String get exchange_new_template => "New template";
   String get exchange_result_write_down_ID => "*Please copy or write down your ID shown above.";
   String get exchange_result_write_down_trade_id => "Please copy or write down the trade ID to continue.";
+  String get exchange_sync_alert_content => "Please wait until your wallet is synchronized";
   String get expired => "Expired";
   String get faq => "FAQ";
   String get fetching => "Fetching";
@@ -668,6 +669,8 @@ class $de extends S {
   String get restore_bitcoin_description_from_keys => "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her";
   @override
   String get restore_bitcoin_title_from_keys => "Aus WIF wiederherstellen";
+  @override
+  String get exchange_sync_alert_content => "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist";
   @override
   String get scan_qr_code => "Scannen Sie den QR-Code, um die Adresse zu erhalten";
   @override
@@ -1335,6 +1338,8 @@ class $hi extends S {
   @override
   String get restore_bitcoin_title_from_keys => "WIF से पुनर्स्थापित करें";
   @override
+  String get exchange_sync_alert_content => "कृपया प्रतीक्षा करें जब तक आपका बटुआ सिंक्रनाइज़ नहीं किया जाता है";
+  @override
   String get scan_qr_code => "पता प्राप्त करने के लिए QR कोड स्कैन करें";
   @override
   String get trade_state_paid => "भुगतान किया है";
@@ -2000,6 +2005,8 @@ class $ru extends S {
   String get restore_bitcoin_description_from_keys => "Вы можете восстановить кошелёк с помощью WIF";
   @override
   String get restore_bitcoin_title_from_keys => "Восстановить с помощью WIF";
+  @override
+  String get exchange_sync_alert_content => "Подождите, пока ваш кошелек синхронизируется";
   @override
   String get scan_qr_code => "Отсканируйте QR-код для получения адреса";
   @override
@@ -2667,6 +2674,8 @@ class $ko extends S {
   @override
   String get restore_bitcoin_title_from_keys => "WIF에서 복원";
   @override
+  String get exchange_sync_alert_content => "지갑이 동기화 될 때까지 기다리십시오";
+  @override
   String get scan_qr_code => "QR 코드를 스캔하여 주소를 얻습니다.";
   @override
   String get trade_state_paid => "유료";
@@ -3332,6 +3341,8 @@ class $pt extends S {
   String get restore_bitcoin_description_from_keys => "Restaure sua carteira a partir da string WIF gerada de suas chaves privadas";
   @override
   String get restore_bitcoin_title_from_keys => "Restaurar de WIF";
+  @override
+  String get exchange_sync_alert_content => "Por favor, espere até que sua carteira seja sincronizada";
   @override
   String get scan_qr_code => "Digitalize o código QR para obter o endereço";
   @override
@@ -3999,6 +4010,8 @@ class $uk extends S {
   @override
   String get restore_bitcoin_title_from_keys => "Відновити за допомогою WIF";
   @override
+  String get exchange_sync_alert_content => "Зачекайте, поки ваш гаманець не синхронізується";
+  @override
   String get scan_qr_code => "Скануйте QR-код для одержання адреси";
   @override
   String get trade_state_paid => "Оплачена";
@@ -4664,6 +4677,8 @@ class $ja extends S {
   String get restore_bitcoin_description_from_keys => "秘密鍵から生成されたWIF文字列からウォレットを復元します";
   @override
   String get restore_bitcoin_title_from_keys => "WIFから復元";
+  @override
+  String get exchange_sync_alert_content => "ウォレットが同期されるまでお待ちください";
   @override
   String get scan_qr_code => "QRコードをスキャンして住所を取得します";
   @override
@@ -5335,6 +5350,8 @@ class $pl extends S {
   @override
   String get restore_bitcoin_title_from_keys => "Przywróć z WIF";
   @override
+  String get exchange_sync_alert_content => "Poczekaj, aż portfel zostanie zsynchronizowany";
+  @override
   String get scan_qr_code => "Zeskanuj kod QR, aby uzyskać adres";
   @override
   String get trade_state_paid => "Płatny";
@@ -6000,6 +6017,8 @@ class $es extends S {
   String get restore_bitcoin_description_from_keys => "Restaure su billetera a partir de una cadena WIF generada a partir de sus claves privadas";
   @override
   String get restore_bitcoin_title_from_keys => "Restaurar desde WIF";
+  @override
+  String get exchange_sync_alert_content => "Espere hasta que su billetera esté sincronizada";
   @override
   String get scan_qr_code => "Escanee el código QR para obtener la dirección";
   @override
@@ -6667,6 +6686,8 @@ class $nl extends S {
   @override
   String get restore_bitcoin_title_from_keys => "Herstel van WIF";
   @override
+  String get exchange_sync_alert_content => "Wacht tot uw portemonnee is gesynchroniseerd";
+  @override
   String get scan_qr_code => "Scan de QR-code om het adres te krijgen";
   @override
   String get trade_state_paid => "Betaald";
@@ -7332,6 +7353,8 @@ class $zh extends S {
   String get restore_bitcoin_description_from_keys => "從私鑰中生成的WIF字符串還原您的錢包";
   @override
   String get restore_bitcoin_title_from_keys => "從WIF還原";
+  @override
+  String get exchange_sync_alert_content => "請等待，直到您的錢包同步";
   @override
   String get scan_qr_code => "掃描二維碼獲取地址";
   @override

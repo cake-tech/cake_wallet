@@ -405,5 +405,7 @@
   "seed_alert_title" : "Увага",
   "seed_alert_content" : "Мнемонічна фраза - єдиний спосіб відновити ваш гаманець. Ви записали її?",
   "seed_alert_back" : "Назад",
-  "seed_alert_yes" : "Так"
+  "seed_alert_yes" : "Так",
+
+  "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується"
 }

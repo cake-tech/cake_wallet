@@ -405,5 +405,7 @@
   "seed_alert_title" : "Uwaga",
   "seed_alert_content" : "Ziarno to jedyny sposób na odzyskanie portfela. Zapisałeś to?",
   "seed_alert_back" : "Wróć",
-  "seed_alert_yes" : "Tak"
+  "seed_alert_yes" : "Tak",
+
+  "exchange_sync_alert_content" : "Poczekaj, aż portfel zostanie zsynchronizowany"
 }

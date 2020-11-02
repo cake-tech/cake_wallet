@@ -405,5 +405,7 @@
   "seed_alert_title" : "Atención",
   "seed_alert_content" : "La semilla es la única forma de recuperar su billetera. ¿Lo has escrito?",
   "seed_alert_back" : "Regresa",
-  "seed_alert_yes" : "Sí tengo"
+  "seed_alert_yes" : "Sí tengo",
+
+  "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada"
 }

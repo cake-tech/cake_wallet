@@ -405,5 +405,7 @@
   "seed_alert_title" : "注意",
   "seed_alert_content" : "種子是恢復錢包的唯一方法。 你寫下來了嗎？",
   "seed_alert_back" : "回去",
-  "seed_alert_yes" : "是的，我有"
+  "seed_alert_yes" : "是的，我有",
+
+  "exchange_sync_alert_content" : "請等待，直到您的錢包同步"
 }
