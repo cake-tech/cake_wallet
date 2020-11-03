@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "從12個單詞的組合碼恢復您的錢包",
   "restore_bitcoin_description_from_keys" : "從私鑰中生成的WIF字符串還原您的錢包",
   "restore_bitcoin_title_from_keys" : "從WIF還原",
-  "restore_from_date_or_blockheight" : "請輸入創建此錢包的日期。 或者，如果您知道塊高，請改為輸入",
+  "restore_from_date_or_blockheight" : "請在創建此錢包之前幾天輸入一個日期。 或者，如果您知道塊高，請改為輸入",
 
 
   "seed_reminder" : "請寫下這些，以防丟失或擦拭手機",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "复制 ${key} 到剪贴板",
 
 
-  "new_subaddress_title" : "新子地址",
+  "new_subaddress_title" : "新地址",
   "new_subaddress_label_name" : "标签名称",
   "new_subaddress_create" : "创建",
 
