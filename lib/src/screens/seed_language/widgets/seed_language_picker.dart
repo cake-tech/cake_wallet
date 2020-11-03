@@ -92,6 +92,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                       width: 300,
                       color: Theme.of(context).accentTextTheme.title.backgroundColor,
                       child: GridView.count(
+                        padding: EdgeInsets.all(0),
                         shrinkWrap: true,
                         crossAxisCount: 3,
                         childAspectRatio: 1,
