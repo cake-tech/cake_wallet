@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "12ワードの組み合わせコードからウォレットを復元する",
   "restore_bitcoin_description_from_keys" : "秘密鍵から生成されたWIF文字列からウォレットを復元します",
   "restore_bitcoin_title_from_keys" : "WIFから復元",
-  "restore_from_date_or_blockheight" : "このウォレットを作成した日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください",
+  "restore_from_date_or_blockheight" : "このウォレットを作成する数日前に日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください",
 
 
   "seed_reminder" : "スマートフォンを紛失したりワイプした場合に備えて、これらを書き留めてください",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "コピー済み ${key} クリップボードへ",
 
 
-  "new_subaddress_title" : "新しいサブアドレス",
+  "new_subaddress_title" : "新しいアドレス",
   "new_subaddress_label_name" : "ラベル名",
   "new_subaddress_create" : "作成する",
 
