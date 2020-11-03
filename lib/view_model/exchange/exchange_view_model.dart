@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -99,6 +100,9 @@ abstract class ExchangeViewModelBase with Store {
   Limits limits;
 
   NumberFormat _cryptoNumberFormat;
+
+  @computed
+  SyncStatus get status => wallet.syncStatus;
 
   @computed
   ObservableList<ExchangeTemplate> get templates =>

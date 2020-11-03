@@ -63,9 +63,9 @@
   "clear" : "명확한",
   "refund_address" : "환불 주소",
   "change_exchange_provider" : "교환 공급자 변경",
-  "you_will_send" : "보내드립니다",
-  "you_will_get" : "당신은 얻을 것이다",
-  "amount_is_guaranteed" : "XMR을 입력하면받은 금액보다 추정됩니다. BTC 금액을 입력하면 수령 한 금액이 보장됩니다.",
+  "you_will_send" : "다음에서 변환",
+  "you_will_get" : "로 변환하다",
+  "amount_is_guaranteed" : "중대한:\n보장 된 BTC 금액을 받으려면 BTC 필드에 해당 금액을 입력하십시오. 대신 XMR 금액을 입력하면 수령 한 BTC 금액이 추정치이며 요율에 따라 변동될 수 있습니다.",
   "amount_is_estimate" : "수신 금액은 견적입니다",
   "powered_by" : "에 의해 구동 ${title}",
   "error" : "오류",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "12 단어 조합 코드에서 지갑 복원",
   "restore_bitcoin_description_from_keys" : "개인 키에서 생성 된 WIF 문자열에서 지갑 복원",
   "restore_bitcoin_title_from_keys" : "WIF에서 복원",
-  "restore_from_date_or_blockheight" : "이 지갑을 만든 날짜를 입력하세요. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.",
+  "restore_from_date_or_blockheight" : "이 지갑을 생성하기 며칠 전에 날짜를 입력하십시오. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.",
 
 
   "seed_reminder" : "휴대 전화를 분실하거나 닦을 경우를 대비해 적어 두세요.",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "복사 ${key} 클립 보드로",
 
 
-  "new_subaddress_title" : "새로운 하위 주소",
+  "new_subaddress_title" : "새 주소",
   "new_subaddress_label_name" : "라벨 이름",
   "new_subaddress_create" : "몹시 떠들어 대다",
 
@@ -405,5 +405,7 @@
   "seed_alert_title" : "주의",
   "seed_alert_content" : "씨앗은 지갑을 복구하는 유일한 방법입니다. 적어 보셨나요?",
   "seed_alert_back" : "돌아 가기",
-  "seed_alert_yes" : "네, 있어요"
+  "seed_alert_yes" : "네, 있어요",
+
+  "exchange_sync_alert_content" : "지갑이 동기화 될 때까지 기다리십시오"
 }
