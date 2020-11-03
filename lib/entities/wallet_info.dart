@@ -48,5 +48,8 @@ class WalletInfo extends HiveObject {
   @HiveField(7)
   String path;
 
+  @HiveField(8)
+  String displayName;
+
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 }

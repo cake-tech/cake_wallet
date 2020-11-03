@@ -16,7 +16,7 @@ abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(this._walletInfoSource, this._appStore,
       this._keyService, this.walletNewVM) {
     wallets = ObservableList<WalletListItem>();
-    _updateList();
+    updateList();
   }
 
   @observable
@@ -33,7 +33,7 @@ abstract class WalletListViewModelBase with Store {
         await _keyService.getWalletPassword(walletName: wallet.name);
     final walletService = getIt.get<WalletService>(param1: wallet.type);
     _appStore.wallet = await walletService.openWallet(wallet.name, password);
-    _updateList();
+    updateList();
   }
 
   @action
@@ -41,13 +41,14 @@ abstract class WalletListViewModelBase with Store {
     final walletService = getIt.get<WalletService>(param1: wallet.type);
     await walletService.remove(wallet.name);
     await _walletInfoSource.delete(wallet.key);
-    _updateList();
+    updateList();
   }
 
-  void _updateList() {
+  void updateList() {
     wallets.clear();
     wallets.addAll(_walletInfoSource.values.map((info) => WalletListItem(
         name: info.name,
+        displayName: info.displayName ?? info.name,
         type: info.type,
         key: info.key,
         isCurrent: info.name == _appStore.wallet.name &&

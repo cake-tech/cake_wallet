@@ -26,6 +26,8 @@ import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
+import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
+import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
@@ -58,6 +60,8 @@ import 'package:cake_wallet/view_model/monero_account_list/monero_account_list_v
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_keys_view_model.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_edit_name_vm.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
@@ -246,6 +250,14 @@ Future setup(
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
+
+  getIt.registerFactoryParam<WalletEditNameVM, WalletListItem, void>(
+          (WalletListItem wallet, _) =>
+          WalletEditNameVM(walletInfoSource, wallet: wallet));
+
+  getIt.registerFactoryParam<EditWalletNamePage, WalletListItem, void>(
+          (WalletListItem wallet, _) =>
+          EditWalletNamePage(getIt.get<WalletEditNameVM>(param1: wallet)));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
