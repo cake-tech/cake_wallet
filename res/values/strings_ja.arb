@@ -63,9 +63,9 @@
   "clear" : "クリア",
   "refund_address" : "払い戻し住所",
   "change_exchange_provider" : "Exchangeプロバイダーの変更",
-  "you_will_send" : "送ります",
-  "you_will_get" : "あなたが取得します",
-  "amount_is_guaranteed" : "XMRを入力すると、受け取った金額が見積もられます。 BTC金額を入力すると、受け取った金額が保証されます",
+  "you_will_send" : "から変換",
+  "you_will_get" : "に変換",
+  "amount_is_guaranteed" : "重要：\n保証された金額のBTCを受け取りたい場合は、その金額を[BTC]フィールドに入力してください。 代わりにXMR金額を入力した場合、受け取ったBTC金額は見積もりであり、レートに応じて変動する可能性があります。",
   "amount_is_estimate" : "受け取り金額は見積もりです",
   "powered_by" : "搭載 ${title}",
   "error" : "エラー",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "12ワードの組み合わせコードからウォレットを復元する",
   "restore_bitcoin_description_from_keys" : "秘密鍵から生成されたWIF文字列からウォレットを復元します",
   "restore_bitcoin_title_from_keys" : "WIFから復元",
-  "restore_from_date_or_blockheight" : "このウォレットを作成した日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください",
+  "restore_from_date_or_blockheight" : "このウォレットを作成する数日前に日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください",
 
 
   "seed_reminder" : "スマートフォンを紛失したりワイプした場合に備えて、これらを書き留めてください",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "コピー済み ${key} クリップボードへ",
 
 
-  "new_subaddress_title" : "新しいサブアドレス",
+  "new_subaddress_title" : "新しいアドレス",
   "new_subaddress_label_name" : "ラベル名",
   "new_subaddress_create" : "作成する",
 
@@ -405,5 +405,7 @@
   "seed_alert_title" : "注意",
   "seed_alert_content" : "種子はあなたの財布を回復する唯一の方法です。 書き留めましたか？",
   "seed_alert_back" : "戻る",
-  "seed_alert_yes" : "はい、あります"
+  "seed_alert_yes" : "はい、あります",
+
+  "exchange_sync_alert_content" : "ウォレットが同期されるまでお待ちください"
 }

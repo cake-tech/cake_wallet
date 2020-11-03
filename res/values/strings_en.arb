@@ -56,16 +56,16 @@
   "show_keys" : "Show seed/keys",
   "address_book_menu" : "Address book",
   "reconnection" : "Reconnection",
-  "reconnect_alert_text" : "Are you sure to reconnect?",
+  "reconnect_alert_text" : "Are you sure you want to reconnect?",
 
 
   "exchange" : "Exchange",
   "clear" : "Clear",
   "refund_address" : "Refund address",
   "change_exchange_provider" : "Change Exchange Provider",
-  "you_will_send" : "You will send",
-  "you_will_get" : "You will get",
-  "amount_is_guaranteed" : "If you enter an XMR than received amount will be estimated. If you enter a BTC amount  your received amount is guaranteed",
+  "you_will_send" : "Convert from",
+  "you_will_get" : "Convert to",
+  "amount_is_guaranteed" : "IMPORTANT:\nIf you want to receive a guaranteed amount of BTC, please enter that amount in the BTC field. If you enter an XMR amount instead, then the BTC amount received is an estimate and can fluctuate depending on the rates.",
   "amount_is_estimate" : "The receive amount is an estimate",
   "powered_by" : "Powered by ${title}",
   "error" : "Error",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "Restore your wallet from 12 word combination code",
   "restore_bitcoin_description_from_keys" : "Restore your wallet from generated WIF string from your private keys",
   "restore_bitcoin_title_from_keys" : "Restore from WIF",
-  "restore_from_date_or_blockheight" : "Please enter the date you created this wallet. Or if you know the blockheight, please enter it instead",
+  "restore_from_date_or_blockheight" : "Please enter a date a few days before you created this wallet. Or if you know the blockheight, please enter it instead",
 
 
   "seed_reminder" : "Please write these down in case you lose or wipe your phone",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "Copied ${key} to Clipboard",
 
 
-  "new_subaddress_title" : "New subaddress",
+  "new_subaddress_title" : "New address",
   "new_subaddress_label_name" : "Label name",
   "new_subaddress_create" : "Create",
 
@@ -405,5 +405,7 @@
   "seed_alert_title" : "Attention",
   "seed_alert_content" : "The seed is the only way to recover your wallet. Have you written it down?",
   "seed_alert_back" : "Go back",
-  "seed_alert_yes" : "Yes, I have"
+  "seed_alert_yes" : "Yes, I have",
+
+  "exchange_sync_alert_content" : "Please wait until your wallet is synchronized"
 }

@@ -63,9 +63,9 @@
   "clear" : "Wyczyść",
   "refund_address" : "Adres zwrotu",
   "change_exchange_provider" : "Zmień dostawcę programu Exchange",
-  "you_will_send" : "Wyślesz",
-  "you_will_get" : "Dostaniesz",
-  "amount_is_guaranteed" : "Jeśli wprowadzisz XMR, kwota otrzymana zostanie oszacowana. Jeśli wpiszesz kwotę BTC, Twoja otrzymana kwota jest gwarantowana",
+  "you_will_send" : "Konwertuj z",
+  "you_will_get" : "Konwertuj na",
+  "amount_is_guaranteed" : "WAŻNY:\nJeśli chcesz otrzymać gwarantowaną kwotę BTC, wprowadź tę kwotę w polu BTC. Jeśli zamiast tego wpiszesz kwotę XMR, otrzymana kwota BTC jest szacunkowa i może się zmieniać w zależności od stawek.",
   "amount_is_estimate" : "Otrzymana kwota jest wartością szacunkową",
   "powered_by" : "Zasilany przez ${title}",
   "error" : "Błąd",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 12 słów",
   "restore_bitcoin_description_from_keys" : "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych",
   "restore_bitcoin_title_from_keys" : "Przywróć z WIF",
-  "restore_from_date_or_blockheight" : "Wprowadź datę utworzenia tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego",
+  "restore_from_date_or_blockheight" : "Wprowadź datę na kilka dni przed utworzeniem tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego",
 
 
   "seed_reminder" : "Zapisz je na wypadek zgubienia lub wyczyszczenia telefonu",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "Skopiowane ${key} do schowka",
 
 
-  "new_subaddress_title" : "Nowy podadres",
+  "new_subaddress_title" : "Nowy adres",
   "new_subaddress_label_name" : "Nazwa etykiety",
   "new_subaddress_create" : "Stwórz",
 
@@ -405,5 +405,7 @@
   "seed_alert_title" : "Uwaga",
   "seed_alert_content" : "Ziarno to jedyny sposób na odzyskanie portfela. Zapisałeś to?",
   "seed_alert_back" : "Wróć",
-  "seed_alert_yes" : "Tak"
+  "seed_alert_yes" : "Tak",
+
+  "exchange_sync_alert_content" : "Poczekaj, aż portfel zostanie zsynchronizowany"
 }
