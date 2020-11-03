@@ -35,7 +35,7 @@ class S implements WidgetsLocalizations {
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
-  String get amount_is_guaranteed => "If you enter an XMR than received amount will be estimated. If you enter a BTC amount  your received amount is guaranteed";
+  String get amount_is_guaranteed => "IMPORTANT:\nIf you want to receive a guaranteed amount of BTC, please enter that amount in the BTC field. If you enter an XMR amount instead, then the BTC amount received is an estimate and can fluctuate depending on the rates.";
   String get auth_store_ban_timeout => "ban_timeout";
   String get auth_store_banned_for => "Banned for ";
   String get auth_store_banned_minutes => " minutes";
@@ -317,8 +317,8 @@ class S implements WidgetsLocalizations {
   String get xmr_full_balance => "Full Balance";
   String get xmr_hidden => "Hidden";
   String get yesterday => "Yesterday";
-  String get you_will_get => "You will get";
-  String get you_will_send => "You will send";
+  String get you_will_get => "Convert to";
+  String get you_will_send => "Convert from";
   String Blocks_remaining(String status) => "${status} Blocks Remaining";
   String change_current_node(String node) => "Are you sure to change current node to ${node}?";
   String change_language_to(String language) => "Change language to ${language}?";
@@ -387,7 +387,7 @@ class $de extends S {
   @override
   String get password => "Passwort";
   @override
-  String get you_will_get => "Sie erhalten";
+  String get you_will_get => "Konvertieren zu";
   @override
   String get trade_id => "Handel-ID:";
   @override
@@ -485,7 +485,7 @@ class $de extends S {
   @override
   String get receive => "Erhalten";
   @override
-  String get amount_is_guaranteed => "Wenn Sie eine XMR eingeben, wird der erhaltene Betrag geschätzt. Wenn Sie einen BTC-Betrag eingeben, ist Ihr erhaltener Betrag garantiert";
+  String get amount_is_guaranteed => "WICHTIG:\nWenn Sie einen garantierten BTC-Betrag erhalten möchten, geben Sie diesen Betrag in das Feld BTC ein. Wenn Sie stattdessen einen XMR-Betrag eingeben, handelt es sich bei dem erhaltenen BTC-Betrag um eine Schätzung, die je nach Kurs schwanken kann.";
   @override
   String get auth_store_banned_for => "Gebannt für ";
   @override
@@ -505,7 +505,7 @@ class $de extends S {
   @override
   String get seed_language_japanese => "Japanisch";
   @override
-  String get you_will_send => "Du wirst senden";
+  String get you_will_send => "Konvertieren von";
   @override
   String get seed_language_german => "Deutsche";
   @override
@@ -1053,7 +1053,7 @@ class $hi extends S {
   @override
   String get password => "पारण शब्द";
   @override
-  String get you_will_get => "आपको मिल जायेगा";
+  String get you_will_get => "में बदलें";
   @override
   String get trade_id => "व्यापार ID:";
   @override
@@ -1151,7 +1151,7 @@ class $hi extends S {
   @override
   String get receive => "प्राप्त करना";
   @override
-  String get amount_is_guaranteed => "पयदि आप एक एक्सएमआर दर्ज करते हैं तो प्राप्त राशि का अनुमान लगाया जाएगा। यदि आप BTC राशि दर्ज करते हैं तो आपकी प्राप्त राशि की गारंटी है";
+  String get amount_is_guaranteed => "महत्वपूर्ण:\nयदि आप BTC की गारंटीकृत राशि प्राप्त करना चाहते हैं, तो कृपया उस राशि को BTC फ़ील्ड में दर्ज करें। यदि आप इसके बजाय एक एक्सएमआर राशि दर्ज करते हैं, तो प्राप्त बीटीसी राशि एक अनुमान है और दरों के आधार पर इसमें उतार-चढ़ाव हो सकता है।";
   @override
   String get auth_store_banned_for => "के लिए प्रतिबंधित है ";
   @override
@@ -1171,7 +1171,7 @@ class $hi extends S {
   @override
   String get seed_language_japanese => "जापानी";
   @override
-  String get you_will_send => "तुम भेजोगे";
+  String get you_will_send => "से रूपांतरित करें";
   @override
   String get seed_language_german => "जर्मन";
   @override
@@ -1719,7 +1719,7 @@ class $ru extends S {
   @override
   String get password => "Пароль";
   @override
-  String get you_will_get => "Вы получите";
+  String get you_will_get => "Конвертировать в";
   @override
   String get trade_id => "ID сделки:";
   @override
@@ -1817,7 +1817,7 @@ class $ru extends S {
   @override
   String get receive => "Получить";
   @override
-  String get amount_is_guaranteed => "Если вы введете величину XMR, то сумма получения будет приблизительной. Если вы введете величину BTC, то сумма получения гарантирована";
+  String get amount_is_guaranteed => "ВАЖНО:\nЕсли вы хотите получить гарантированную сумму BTC, введите эту сумму в поле BTC. Если вместо этого вы вводите сумму XMR, полученная сумма BTC является приблизительной и может колебаться в зависимости от курса.";
   @override
   String get auth_store_banned_for => "Заблокировано на ";
   @override
@@ -1837,7 +1837,7 @@ class $ru extends S {
   @override
   String get seed_language_japanese => "Японский";
   @override
-  String get you_will_send => "Вы отправите";
+  String get you_will_send => "Конвертировать из";
   @override
   String get seed_language_german => "Немецкий";
   @override
@@ -2385,7 +2385,7 @@ class $ko extends S {
   @override
   String get password => "암호";
   @override
-  String get you_will_get => "당신은 얻을 것이다";
+  String get you_will_get => "로 변환하다";
   @override
   String get trade_id => "무역 ID:";
   @override
@@ -2483,7 +2483,7 @@ class $ko extends S {
   @override
   String get receive => "받다";
   @override
-  String get amount_is_guaranteed => "XMR을 입력하면받은 금액보다 추정됩니다. BTC 금액을 입력하면 수령 한 금액이 보장됩니다.";
+  String get amount_is_guaranteed => "중대한:\n보장 된 BTC 금액을 받으려면 BTC 필드에 해당 금액을 입력하십시오. 대신 XMR 금액을 입력하면 수령 한 BTC 금액이 추정치이며 요율에 따라 변동될 수 있습니다.";
   @override
   String get auth_store_banned_for => "금지";
   @override
@@ -2503,7 +2503,7 @@ class $ko extends S {
   @override
   String get seed_language_japanese => "일본어";
   @override
-  String get you_will_send => "보내드립니다";
+  String get you_will_send => "다음에서 변환";
   @override
   String get seed_language_german => "독일 사람";
   @override
@@ -3051,7 +3051,7 @@ class $pt extends S {
   @override
   String get password => "Senha";
   @override
-  String get you_will_get => "Você receberá";
+  String get you_will_get => "Converter para";
   @override
   String get trade_id => "ID da troca:";
   @override
@@ -3149,7 +3149,7 @@ class $pt extends S {
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "Se você inserir um XMR, o valor recebido será estimado. Se você inserir um valor BTC, o valor recebido é garantido";
+  String get amount_is_guaranteed => "IMPORTANTE:\nSe você deseja receber um valor garantido de BTC, insira esse valor no campo BTC. Se, em vez disso, você inserir um valor XMR, o valor BTC recebido é uma estimativa e pode flutuar dependendo das taxas.";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
@@ -3169,7 +3169,7 @@ class $pt extends S {
   @override
   String get seed_language_japanese => "Japonês";
   @override
-  String get you_will_send => "Você enviará";
+  String get you_will_send => "Converter de";
   @override
   String get seed_language_german => "Alemã";
   @override
@@ -3717,7 +3717,7 @@ class $uk extends S {
   @override
   String get password => "Пароль";
   @override
-  String get you_will_get => "Ви отримаєте";
+  String get you_will_get => "Конвертувати в";
   @override
   String get trade_id => "ID операції:";
   @override
@@ -3815,7 +3815,7 @@ class $uk extends S {
   @override
   String get receive => "Отримати";
   @override
-  String get amount_is_guaranteed => "Якщо ви введете величину XMR, то сума отримання буде приблизною. Якщо ви введете величину BTC, то сума отримання гарантована";
+  String get amount_is_guaranteed => "ВАЖЛИВО:\nЯкщо ви хочете отримати гарантовану суму BTC, введіть цю суму в поле BTC. Якщо замість цього ввести суму XMR, отримана сума BTC є приблизною і може коливатися залежно від курсу.";
   @override
   String get auth_store_banned_for => "Заблоковано на ";
   @override
@@ -3835,7 +3835,7 @@ class $uk extends S {
   @override
   String get seed_language_japanese => "Японська";
   @override
-  String get you_will_send => "Ви відправите";
+  String get you_will_send => "Конвертувати з";
   @override
   String get seed_language_german => "Німецька";
   @override
@@ -4383,7 +4383,7 @@ class $ja extends S {
   @override
   String get password => "パスワード";
   @override
-  String get you_will_get => "あなたが取得します";
+  String get you_will_get => "に変換";
   @override
   String get trade_id => "取引ID:";
   @override
@@ -4481,7 +4481,7 @@ class $ja extends S {
   @override
   String get receive => "受け取る";
   @override
-  String get amount_is_guaranteed => "XMRを入力すると、受け取った金額が見積もられます。 BTC金額を入力すると、受け取った金額が保証されます";
+  String get amount_is_guaranteed => "重要：\n保証された金額のBTCを受け取りたい場合は、その金額を[BTC]フィールドに入力してください。 代わりにXMR金額を入力した場合、受け取ったBTC金額は見積もりであり、レートに応じて変動する可能性があります。";
   @override
   String get auth_store_banned_for => "禁止されています ";
   @override
@@ -4501,7 +4501,7 @@ class $ja extends S {
   @override
   String get seed_language_japanese => "日本語";
   @override
-  String get you_will_send => "送ります";
+  String get you_will_send => "から変換";
   @override
   String get seed_language_german => "ドイツ人";
   @override
@@ -5053,7 +5053,7 @@ class $pl extends S {
   @override
   String get password => "Hasło";
   @override
-  String get you_will_get => "Dostaniesz";
+  String get you_will_get => "Konwertuj na";
   @override
   String get trade_id => "Identyfikator handlu:";
   @override
@@ -5151,7 +5151,7 @@ class $pl extends S {
   @override
   String get receive => "Otrzymać";
   @override
-  String get amount_is_guaranteed => "Jeśli wprowadzisz XMR, kwota otrzymana zostanie oszacowana. Jeśli wpiszesz kwotę BTC, Twoja otrzymana kwota jest gwarantowana";
+  String get amount_is_guaranteed => "WAŻNY:\nJeśli chcesz otrzymać gwarantowaną kwotę BTC, wprowadź tę kwotę w polu BTC. Jeśli zamiast tego wpiszesz kwotę XMR, otrzymana kwota BTC jest szacunkowa i może się zmieniać w zależności od stawek.";
   @override
   String get auth_store_banned_for => "Bzbanowany za ";
   @override
@@ -5171,7 +5171,7 @@ class $pl extends S {
   @override
   String get seed_language_japanese => "Japoński";
   @override
-  String get you_will_send => "Wyślesz";
+  String get you_will_send => "Konwertuj z";
   @override
   String get seed_language_german => "Niemiecki";
   @override
@@ -5719,7 +5719,7 @@ class $es extends S {
   @override
   String get password => "Contraseña";
   @override
-  String get you_will_get => "Conseguirás";
+  String get you_will_get => "Convertir a";
   @override
   String get trade_id => "Comercial ID:";
   @override
@@ -5817,7 +5817,7 @@ class $es extends S {
   @override
   String get receive => "Recibir";
   @override
-  String get amount_is_guaranteed => "Si ingresa un XMR, se estimará la cantidad recibida. Si ingresa una cantidad de BTC, la cantidad recibida está garantizada";
+  String get amount_is_guaranteed => "IMPORTANTE:\nSi desea recibir una cantidad garantizada de BTC, ingrese esa cantidad en el campo BTC. Si ingresa una cantidad de XMR en su lugar, la cantidad de BTC recibida es una estimación y puede variar según las tarifas.";
   @override
   String get auth_store_banned_for => "Prohibido para ";
   @override
@@ -5837,7 +5837,7 @@ class $es extends S {
   @override
   String get seed_language_japanese => "Japonés";
   @override
-  String get you_will_send => "Enviarás";
+  String get you_will_send => "Convertir de";
   @override
   String get seed_language_german => "Alemán";
   @override
@@ -6385,7 +6385,7 @@ class $nl extends S {
   @override
   String get password => "Wachtwoord";
   @override
-  String get you_will_get => "Je zult krijgen";
+  String get you_will_get => "Converteren naar";
   @override
   String get trade_id => "Trade ID:";
   @override
@@ -6483,7 +6483,7 @@ class $nl extends S {
   @override
   String get receive => "Krijgen";
   @override
-  String get amount_is_guaranteed => "Als u een XMR invoert, wordt het ontvangen bedrag geschat. Als u een BTC-bedrag invoert, is uw ontvangen bedrag gegarandeerd";
+  String get amount_is_guaranteed => "BELANGRIJK:\nAls u een gegarandeerd bedrag aan BTC wilt ontvangen, voert u dat bedrag in het BTC-veld in. Als u in plaats daarvan een XMR-bedrag invoert, is het ontvangen BTC-bedrag een schatting en kan het fluctueren afhankelijk van de tarieven.";
   @override
   String get auth_store_banned_for => "Verboden voor ";
   @override
@@ -6503,7 +6503,7 @@ class $nl extends S {
   @override
   String get seed_language_japanese => "Japans";
   @override
-  String get you_will_send => "Je zal versturen";
+  String get you_will_send => "Converteren van";
   @override
   String get seed_language_german => "Duitse";
   @override
@@ -7051,7 +7051,7 @@ class $zh extends S {
   @override
   String get password => "密码";
   @override
-  String get you_will_get => "你会得到";
+  String get you_will_get => "轉換成";
   @override
   String get trade_id => "贸易编号:";
   @override
@@ -7149,7 +7149,7 @@ class $zh extends S {
   @override
   String get receive => "接收";
   @override
-  String get amount_is_guaranteed => "如果輸入XMR，則將估算收到的金額。 如果您輸入BTC金額，則可以保證收到的金額";
+  String get amount_is_guaranteed => "重要：\n如果您想獲得保證的BTC金額，請在BTC字段中輸入該金額。 如果您輸入的是XMR金額，則收到的BTC金額只是估算值，可能會隨匯率而波動。";
   @override
   String get auth_store_banned_for => "禁止 ";
   @override
@@ -7169,7 +7169,7 @@ class $zh extends S {
   @override
   String get seed_language_japanese => "日本";
   @override
-  String get you_will_send => "您将发送";
+  String get you_will_send => "從轉換";
   @override
   String get seed_language_german => "德語";
   @override
