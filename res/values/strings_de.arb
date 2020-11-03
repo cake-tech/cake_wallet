@@ -405,5 +405,7 @@
   "seed_alert_title" : "Beachtung",
   "seed_alert_content" : "Der Samen ist der einzige Weg, um Ihren Geldbeutel wiederzugewinnen. Hast du es aufgeschrieben?",
   "seed_alert_back" : "Geh zurück",
-  "seed_alert_yes" : "Ja, habe ich"
+  "seed_alert_yes" : "Ja, habe ich",
+
+  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist"
 }

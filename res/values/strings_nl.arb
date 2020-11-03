@@ -405,5 +405,7 @@
   "seed_alert_title" : "Aandacht",
   "seed_alert_content" : "Het zaad is de enige manier om uw portemonnee te herstellen. Heb je het opgeschreven?",
   "seed_alert_back" : "Ga terug",
-  "seed_alert_yes" : "Ja ik heb"
+  "seed_alert_yes" : "Ja ik heb",
+
+  "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd"
 }
