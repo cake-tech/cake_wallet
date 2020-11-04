@@ -73,12 +73,14 @@ class ValidableAnnotatedEditableText extends EditableText {
   final TextStyle invalidStyle;
 
   @override
-  ValidableAnnotatedEditableTextState createState() => ValidableAnnotatedEditableTextState();
+  ValidableAnnotatedEditableTextState createState() =>
+      ValidableAnnotatedEditableTextState();
 }
 
 class ValidableAnnotatedEditableTextState extends EditableTextState {
   @override
-  ValidableAnnotatedEditableText get widget => super.widget as ValidableAnnotatedEditableText;
+  ValidableAnnotatedEditableText get widget =>
+      super.widget as ValidableAnnotatedEditableText;
 
   List<Annotation> getRanges() {
     final result = List<Annotation>();
@@ -154,17 +156,13 @@ class ValidableAnnotatedEditableTextState extends EditableTextState {
     final text = textEditingValue.text;
     final ranges = getRanges().toSet();
 
-    print('text $text');
-
     if (ranges.isNotEmpty) {
       return TextSpan(
           style: widget.style,
-          children: ranges.map((item) {
-            final _text = item.range.textInside(text);
-            print(
-                '_text $_text; range ${item.range.start} : ${item.range.end}');
-            return TextSpan(style: item.style, text: _text);
-          }).toList());
+          children: ranges
+              .map((item) => TextSpan(
+                  style: item.style, text: item.range.textInside(text)))
+              .toList());
     }
 
     return TextSpan(style: widget.style, text: text);

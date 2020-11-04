@@ -39,9 +39,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
+      _lastAutosaveTimestamp = 0;
     });
-    _cachedRefreshHeight = 0;
   }
+
+  static const int _autoAfterSyncSaceInterval = 60000;
 
   @override
   final MoneroTransactionHistory transactionHistory;
@@ -81,7 +83,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   String _filename;
   SyncListener _listener;
   ReactionDisposer _onAccountChangeReaction;
-  int _cachedRefreshHeight;
+  int _lastAutosaveTimestamp;
 
   Future<void> init() async {
     await accountList.update();
@@ -95,7 +97,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     address = subaddress.address;
     _setListeners();
     await transactionHistory.update();
-    print('walletInfo.isRecovery ${walletInfo.isRecovery}');
+
     if (walletInfo.isRecovery) {
       monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
 
@@ -156,6 +158,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     try {
       syncStatus = StartingSyncStatus();
       monero_wallet.startRefresh();
+      _setListeners();
+      _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
       print(e);
@@ -234,7 +238,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   void _setListeners() {
     _listener?.stop();
     _listener = monero_wallet.setListeners(_onNewBlock);
-    _listener.start();
   }
 
   void _setInitialHeight() {
@@ -292,18 +295,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   int _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: account.id);
 
-  int _lastAutosaveTimestamp = 0;
-  final int _autosaveInterval = 60000;
-
-  Future<void> _autoSave() async {
+  Future<void> _afterSyncSave() async {
     final nowTimestamp = DateTime.now().millisecondsSinceEpoch;
-    final sum = _lastAutosaveTimestamp + _autosaveInterval;
+    final sum = _lastAutosaveTimestamp + _autoAfterSyncSaceInterval;
 
     if (_lastAutosaveTimestamp != 0 && sum < nowTimestamp) {
       return;
     }
 
-    _lastAutosaveTimestamp = nowTimestamp + _autosaveInterval;
+    _lastAutosaveTimestamp = nowTimestamp + _autoAfterSyncSaceInterval;
     await save();
   }
 
@@ -313,7 +313,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
     if (blocksLeft < moneroBlockSize) {
       syncStatus = SyncedSyncStatus();
-      await _autoSave();
+      await _afterSyncSave();
     } else {
       syncStatus = SyncingSyncStatus(blocksLeft, ptc);
     }
