@@ -78,8 +78,8 @@ class EditWalletNamePage extends BasePage {
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
-                alertTitle: S.current.wallet_name,
-                alertContent: 'Wallet with the same name is exists',
+                alertTitle: S.of(context).wallet_name,
+                alertContent: S.of(context).wallet_name_alert_content,
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });

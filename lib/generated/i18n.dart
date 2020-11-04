@@ -88,7 +88,7 @@ class S implements WidgetsLocalizations {
   String get error_text_payment_id => "Payment ID can only contain from 16 to 64 chars in hex";
   String get error_text_subaddress_name => "Subaddress name can't contain ` , ' \" symbols\nand must be between 1 and 20 characters long";
   String get error_text_template => "Template name and address can't contain ` , ' \" symbols\nand must be between 1 and 106 characters long";
-  String get error_text_wallet_name => "Wallet name can only contain letters, numbers\nand must be between 1 and 15 characters long";
+  String get error_text_wallet_name => "Wallet name can only contain letters, numbers\nand must be between 1 and 20 characters long";
   String get error_text_xmr => "XMR value can't exceed available balance.\nThe number of fraction digits must be less or equal to 12";
   String get estimated => "Estimated";
   String get exchange => "Exchange";
@@ -303,6 +303,7 @@ class S implements WidgetsLocalizations {
   String get wallet_list_title => "Monero Wallet";
   String get wallet_menu => "Menu";
   String get wallet_name => "Wallet name";
+  String get wallet_name_alert_content => "Wallet with the same name is exists";
   String get wallet_restoration_store_incorrect_seed_length => "Incorrect seed length";
   String get wallet_seed => "Wallet seed";
   String get wallet_store_monero_wallet => "Monero Wallet";
@@ -581,6 +582,8 @@ class $de extends S {
   @override
   String get pending => " (steht aus)";
   @override
+  String get wallet_name_alert_content => "Brieftasche mit dem gleichen Namen ist vorhanden";
+  @override
   String get setup_successful => "Ihre PIN wurde erfolgreich eingerichtet!";
   @override
   String get fetching => "holen";
@@ -837,7 +840,7 @@ class $de extends S {
   @override
   String get address_remove_contact => "Kontakt entfernen";
   @override
-  String get error_text_wallet_name => "Der Wallet darf nur Buchstaben und Zahlen enthalten\nund muss zwischen 1 und 15 Zeichen lang sein";
+  String get error_text_wallet_name => "Der Wallet darf nur Buchstaben und Zahlen enthalten\nund muss zwischen 1 und 20 Zeichen lang sein";
   @override
   String get restore_description_from_keys => "Stellen Sie Ihr Wallet von generiert wieder her Tastenanschläge, die von Ihren privaten Schlüsseln gespeichert wurden";
   @override
@@ -1247,6 +1250,8 @@ class $hi extends S {
   @override
   String get pending => " (अपूर्ण)";
   @override
+  String get wallet_name_alert_content => "समान नाम वाला वॉलेट मौजूद है";
+  @override
   String get setup_successful => "आपका पिन सफलतापूर्वक सेट हो गया है";
   @override
   String get fetching => "ला रहा है";
@@ -1503,7 +1508,7 @@ class $hi extends S {
   @override
   String get address_remove_contact => "संपर्क हटाये";
   @override
-  String get error_text_wallet_name => "वॉलेट नाम में केवल अक्षर, संख्याएं हो सकती हैं\nऔर 1 और 15 वर्णों के बीच लंबा होना चाहिए";
+  String get error_text_wallet_name => "वॉलेट नाम में केवल अक्षर, संख्याएं हो सकती हैं\nऔर 1 और 20 वर्णों के बीच लंबा होना चाहिए";
   @override
   String get restore_description_from_keys => "अपने वॉलेट को जेनरेट से पुनर्स्थापित करें आपकी निजी कुंजी से कीस्ट्रोक्स सहेजे गए";
   @override
@@ -1913,6 +1918,8 @@ class $ru extends S {
   @override
   String get pending => " (в ожидании)";
   @override
+  String get wallet_name_alert_content => "Кошелек с таким именем существует";
+  @override
   String get setup_successful => "PIN был успешно установлен!";
   @override
   String get fetching => "Загрузка";
@@ -2169,7 +2176,7 @@ class $ru extends S {
   @override
   String get address_remove_contact => "Удалить контакт";
   @override
-  String get error_text_wallet_name => "Имя кошелька может содержать только буквы, цифры\nи должно быть от 1 до 15 символов в длину";
+  String get error_text_wallet_name => "Имя кошелька может содержать только буквы, цифры\nи должно быть от 1 до 20 символов в длину";
   @override
   String get restore_description_from_keys => "Вы можете восстановить кошелёк с помощью приватных ключей";
   @override
@@ -2579,6 +2586,8 @@ class $ko extends S {
   @override
   String get pending => " (보류 중)";
   @override
+  String get wallet_name_alert_content => "같은 이름의 지갑이 있습니다.";
+  @override
   String get setup_successful => "PIN이 성공적으로 설정되었습니다!";
   @override
   String get fetching => "가져 오는 중";
@@ -2835,7 +2844,7 @@ class $ko extends S {
   @override
   String get address_remove_contact => "연락처 삭제";
   @override
-  String get error_text_wallet_name => "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다";
+  String get error_text_wallet_name => "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 20 자 사이 여야합니다";
   @override
   String get restore_description_from_keys => "개인 키에서 저장된 생성 된 키 스트로크에서 월렛 복원";
   @override
@@ -3245,6 +3254,8 @@ class $pt extends S {
   @override
   String get pending => " (pendente)";
   @override
+  String get wallet_name_alert_content => "Já existe carteira com o mesmo nome";
+  @override
   String get setup_successful => "Seu PIN foi configurado com sucesso!";
   @override
   String get fetching => "Buscando";
@@ -3501,7 +3512,7 @@ class $pt extends S {
   @override
   String get address_remove_contact => "Remover contato";
   @override
-  String get error_text_wallet_name => "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 15 caracteres";
+  String get error_text_wallet_name => "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 20 caracteres";
   @override
   String get restore_description_from_keys => "Restaure sua carteira a partir de suas chaves privadas";
   @override
@@ -3911,6 +3922,8 @@ class $uk extends S {
   @override
   String get pending => " (в очікуванні)";
   @override
+  String get wallet_name_alert_content => "Гаманець з такою ж назвою існує";
+  @override
   String get setup_successful => "PIN було успішно встановлено!";
   @override
   String get fetching => "Завантаження";
@@ -4167,7 +4180,7 @@ class $uk extends S {
   @override
   String get address_remove_contact => "Видалити контакт";
   @override
-  String get error_text_wallet_name => "Ім'я гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину";
+  String get error_text_wallet_name => "Ім'я гаманця може містити тільки букви, цифри\nі повинно бути від 1 до 20 символів у довжину";
   @override
   String get restore_description_from_keys => "Ви можете відновити гаманець за допомогою приватних ключів";
   @override
@@ -4577,6 +4590,8 @@ class $ja extends S {
   @override
   String get pending => " (保留中)";
   @override
+  String get wallet_name_alert_content => "同じ名前のウォレットが存在します";
+  @override
   String get setup_successful => "PINは正常に設定されました!";
   @override
   String get fetching => "フェッチング";
@@ -4833,7 +4848,7 @@ class $ja extends S {
   @override
   String get address_remove_contact => "連絡先を削除します";
   @override
-  String get error_text_wallet_name => "ウォレット名には文字のみを含めることができます\n1〜15文字である必要があります";
+  String get error_text_wallet_name => "ウォレット名には文字のみを含めることができます\n1〜20文字である必要があります";
   @override
   String get restore_description_from_keys => "生成されたウォレットを復元します秘密鍵から保存されたキーストローク";
   @override
@@ -5247,6 +5262,8 @@ class $pl extends S {
   @override
   String get pending => " (w oczekiwaniu)";
   @override
+  String get wallet_name_alert_content => "Istnieje portfel o tej samej nazwie";
+  @override
   String get setup_successful => "Twój kod PIN został pomyślnie skonfigurowany!";
   @override
   String get fetching => "Ujmujący";
@@ -5503,7 +5520,7 @@ class $pl extends S {
   @override
   String get address_remove_contact => "Usuń kontakt";
   @override
-  String get error_text_wallet_name => "Nazwa portfela może zawierać tylko litery i cyfry\ni musi mieć od 1 do 15 znaków";
+  String get error_text_wallet_name => "Nazwa portfela może zawierać tylko litery i cyfry\ni musi mieć od 1 do 20 znaków";
   @override
   String get restore_description_from_keys => "Przywróć swój portfel z wygenerowanego naciśnięcia klawiszy zapisane z kluczy prywatnych";
   @override
@@ -5913,6 +5930,8 @@ class $es extends S {
   @override
   String get pending => " (pendiente)";
   @override
+  String get wallet_name_alert_content => "Existe una billetera con el mismo nombre";
+  @override
   String get setup_successful => "Su PIN se ha configurado correctamente!";
   @override
   String get fetching => "Cargando";
@@ -6169,7 +6188,7 @@ class $es extends S {
   @override
   String get address_remove_contact => "Remover contacto";
   @override
-  String get error_text_wallet_name => "El nombre de la billetera solo puede contener letras, números \ny debe tener entre 1 y 15 caracteres de longitud";
+  String get error_text_wallet_name => "El nombre de la billetera solo puede contener letras, números \ny debe tener entre 1 y 20 caracteres de longitud";
   @override
   String get restore_description_from_keys => "Restaure su billetera de las pulsaciones de teclas generadas guardadas de sus claves privadas";
   @override
@@ -6579,6 +6598,8 @@ class $nl extends S {
   @override
   String get pending => " (in afwachting)";
   @override
+  String get wallet_name_alert_content => "Portemonnee met dezelfde naam bestaat";
+  @override
   String get setup_successful => "Uw PIN is succesvol ingesteld!";
   @override
   String get fetching => "Ophalen";
@@ -6835,7 +6856,7 @@ class $nl extends S {
   @override
   String get address_remove_contact => "Contact verwijderen";
   @override
-  String get error_text_wallet_name => "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn";
+  String get error_text_wallet_name => "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 20 tekens lang zijn";
   @override
   String get restore_description_from_keys => "Herstel uw portemonnee van gegenereerd toetsaanslagen opgeslagen van uw privésleutels";
   @override
@@ -7245,6 +7266,8 @@ class $zh extends S {
   @override
   String get pending => " (待定)";
   @override
+  String get wallet_name_alert_content => "存在同名錢包";
+  @override
   String get setup_successful => "您的PIN码已成功设置!";
   @override
   String get fetching => "正在取得";
@@ -7501,7 +7524,7 @@ class $zh extends S {
   @override
   String get address_remove_contact => "刪除聯繫人";
   @override
-  String get error_text_wallet_name => "钱包名称只能包含字母，数字\n且必须介于1到15个字符之间";
+  String get error_text_wallet_name => "钱包名称只能包含字母，数字\n且必须介于1到20个字符之间";
   @override
   String get restore_description_from_keys => "R从生成的电子钱包从您的私钥中保存的击键";
   @override

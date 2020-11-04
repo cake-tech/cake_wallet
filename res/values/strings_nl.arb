@@ -311,7 +311,7 @@
   "error_text_fiat" : "Waarde van bedrag kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 2",
   "error_text_subaddress_name" : "Naam subadres mag niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 20 tekens lang zijn",
   "error_text_amount" : "Bedrag kan alleen cijfers bevatten",
-  "error_text_wallet_name" : "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn",
+  "error_text_wallet_name" : "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 20 tekens lang zijn",
   "error_text_keys" : "Portefeuillesleutels kunnen maximaal 64 tekens bevatten in hexadecimale volgorde",
   "error_text_crypto_currency" : "Het aantal breukcijfers\nmoet kleiner zijn dan of gelijk zijn aan 12",
   "error_text_minimal_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is minder dan minimaal: ${min} ${currency}",
@@ -405,5 +405,7 @@
   "seed_alert_title" : "Aandacht",
   "seed_alert_content" : "Het zaad is de enige manier om uw portemonnee te herstellen. Heb je het opgeschreven?",
   "seed_alert_back" : "Ga terug",
-  "seed_alert_yes" : "Ja ik heb"
+  "seed_alert_yes" : "Ja ik heb",
+
+  "wallet_name_alert_content" : "Portemonnee met dezelfde naam bestaat"
 }

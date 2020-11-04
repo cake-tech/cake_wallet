@@ -311,7 +311,7 @@
   "error_text_fiat" : "Value of amount can't exceed available balance.\nThe number of fraction digits must be less or equal to 2",
   "error_text_subaddress_name" : "Subaddress name can't contain ` , ' \" symbols\nand must be between 1 and 20 characters long",
   "error_text_amount" : "Amount can only contain numbers",
-  "error_text_wallet_name" : "Wallet name can only contain letters, numbers\nand must be between 1 and 15 characters long",
+  "error_text_wallet_name" : "Wallet name can only contain letters, numbers\nand must be between 1 and 20 characters long",
   "error_text_keys" : "Wallet keys can only contain 64 chars in hex",
   "error_text_crypto_currency" : "The number of fraction digits\nmust be less or equal to 12",
   "error_text_minimal_limit" : "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}",
@@ -405,5 +405,7 @@
   "seed_alert_title" : "Attention",
   "seed_alert_content" : "The seed is the only way to recover your wallet. Have you written it down?",
   "seed_alert_back" : "Go back",
-  "seed_alert_yes" : "Yes, I have"
+  "seed_alert_yes" : "Yes, I have",
+
+  "wallet_name_alert_content" : "Wallet with the same name is exists"
 }

@@ -311,7 +311,7 @@
   "error_text_fiat" : "El valor de la cantidad no puede exceder el saldo disponible.\nEl número de dígitos de fracción debe ser menor o igual a 2",
   "error_text_subaddress_name" : "El nombre de la subdirección no puede contener símbolos `, '\" \ny debe tener entre 1 y 20 caracteres de longitud",
   "error_text_amount" : "La cantidad solo puede contener números",
-  "error_text_wallet_name" : "El nombre de la billetera solo puede contener letras, números \ny debe tener entre 1 y 15 caracteres de longitud",
+  "error_text_wallet_name" : "El nombre de la billetera solo puede contener letras, números \ny debe tener entre 1 y 20 caracteres de longitud",
   "error_text_keys" : "Las llaves de billetera solo pueden contener 64 caracteres en hexadecimal",
   "error_text_crypto_currency" : "El número de dígitos fraccionarios \ndebe ser menor o igual a 12",
   "error_text_minimal_limit" : "El comercio por ${provider} no se crea. La cantidad es menos que mínima: ${min} ${currency}",
@@ -405,5 +405,7 @@
   "seed_alert_title" : "Atención",
   "seed_alert_content" : "La semilla es la única forma de recuperar su billetera. ¿Lo has escrito?",
   "seed_alert_back" : "Regresa",
-  "seed_alert_yes" : "Sí tengo"
+  "seed_alert_yes" : "Sí tengo",
+
+  "wallet_name_alert_content" : "Existe una billetera con el mismo nombre"
 }

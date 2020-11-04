@@ -311,7 +311,7 @@
   "error_text_fiat" : "금액은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 2보다 작거나 같아야합니다",
   "error_text_subaddress_name" : "하위 주소 이름은 포함 할 수 없습니다 ` , ' \" 기호 \n1 ~ 20 자 사이 여야합니다",
   "error_text_amount" : "금액은 숫자 만 포함 할 수 있습니다",
-  "error_text_wallet_name" : "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다",
+  "error_text_wallet_name" : "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 20 자 사이 여야합니다",
   "error_text_keys" : "지갑 키는 16 진수로 64 자만 포함 할 수 있습니다",
   "error_text_crypto_currency" : "소수 자릿수\n12 이하 여야합니다",
   "error_text_minimal_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최소보다 적습니다. ${min} ${currency}",
@@ -405,5 +405,7 @@
   "seed_alert_title" : "주의",
   "seed_alert_content" : "씨앗은 지갑을 복구하는 유일한 방법입니다. 적어 보셨나요?",
   "seed_alert_back" : "돌아 가기",
-  "seed_alert_yes" : "네, 있어요"
+  "seed_alert_yes" : "네, 있어요",
+
+  "wallet_name_alert_content" : "같은 이름의 지갑이 있습니다."
 }

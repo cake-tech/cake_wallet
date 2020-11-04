@@ -311,7 +311,7 @@
   "error_text_fiat" : "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos decimais deve ser menor ou igual a 2",
   "error_text_subaddress_name" : "O nome do sub-endereço não pode conter os símbolos ` , ' \" \ne deve ter entre 1 e 20 caracteres",
   "error_text_amount" : "A quantia deve conter apenas números",
-  "error_text_wallet_name" : "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 15 caracteres",
+  "error_text_wallet_name" : "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 20 caracteres",
   "error_text_keys" : "As chaves da carteira podem conter apenas 64 caracteres em hexadecimal",
   "error_text_crypto_currency" : "O número de dígitos decimais\ndeve ser menor ou igual a 12",
   "error_text_minimal_limit" : "A troca por ${provider} não é criada. O valor é menor que o mínimo: ${min} ${currency}",
@@ -405,5 +405,7 @@
   "seed_alert_title" : "Atenção",
   "seed_alert_content" : "A semente é a única forma de recuperar sua carteira. Você escreveu isso?",
   "seed_alert_back" : "Volte",
-  "seed_alert_yes" : "Sim, eu tenho"
+  "seed_alert_yes" : "Sim, eu tenho",
+
+  "wallet_name_alert_content" : "Já existe carteira com o mesmo nome"
 }
