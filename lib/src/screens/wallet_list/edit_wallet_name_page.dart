@@ -1,4 +1,5 @@
 import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -51,13 +52,12 @@ class EditWalletNamePage extends BasePage {
                   child: BaseTextFormField(
                     controller: _nameController,
                     hintText: S.of(context).wallet_name,
+                    validator: WalletNameValidator(),
                   ),
                 )),
             Observer(
                 builder: (_) => PrimaryButton(
-                    onPressed: () async {
-                      await walletEditNameVM.save();
-                    },
+                    onPressed: () => _confirmForm(context),
                     text: S.of(context).rename,
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Colors.white,
@@ -66,6 +66,26 @@ class EditWalletNamePage extends BasePage {
         ),
       ),
     );
+  }
+
+  void _confirmForm(BuildContext context) {
+    if (!_formKey.currentState.validate()) {
+      return;
+    }
+
+    if (walletEditNameVM.isWalletNameExists()) {
+      showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: S.current.wallet_name,
+                alertContent: 'Wallet with the same name is exists',
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    } else {
+      walletEditNameVM.save();
+    }
   }
 
   void _onContactSavingFailure(BuildContext context, String error) {

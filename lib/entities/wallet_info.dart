@@ -6,19 +6,20 @@ part 'wallet_info.g.dart';
 
 @HiveType(typeId: 4)
 class WalletInfo extends HiveObject {
-  WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
-      this.timestamp, this.dirPath, this.path);
+  WalletInfo(this.id, this.name, this.displayName, this.type, this.isRecovery,
+      this.restoreHeight, this.timestamp, this.dirPath, this.path);
 
   factory WalletInfo.external(
       {@required String id,
       @required String name,
+      @required String displayName,
       @required WalletType type,
       @required bool isRecovery,
       @required int restoreHeight,
       @required DateTime date,
       @required String dirPath,
       @required String path}) {
-    return WalletInfo(id, name, type, isRecovery, restoreHeight,
+    return WalletInfo(id, name, displayName, type, isRecovery, restoreHeight,
         date.millisecondsSinceEpoch ?? 0, dirPath, path);
   }
 

@@ -155,12 +155,9 @@ class WalletListBodyState extends State<WalletListBody> {
                                 caption: S.of(context).edit,
                                 color: Colors.blue,
                                 icon: Icons.edit,
-                                onTap: () {
-                                  Navigator.of(context)
-                                      .pushNamed(Routes.editWalletName,
-                                                 arguments: wallet);
-                                  widget.walletListViewModel.updateList();
-                                },
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed(Routes.editWalletName,
+                                    arguments: wallet),
                               ),
                               IconSlideAction(
                                 caption: S.of(context).delete,

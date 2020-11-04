@@ -41,4 +41,25 @@ abstract class WalletEditNameVMBase with Store {
       state = FailureState(e.toString());
     }
   }
+
+  bool isWalletNameExists() {
+    bool isExist = false;
+
+    final wallets = _walletInfoSource.values.where(
+            (elem) => (elem.type == _wallet.type)&&(elem.name != _wallet.name)).toList();
+
+    if (wallets != null) {
+      for (var info in wallets) {
+        if (info.name == displayName) {
+          isExist = true;
+          break;
+        } else if ((info.displayName != null)&&(info.displayName == displayName)) {
+          isExist = true;
+          break;
+        }
+      }
+    }
+
+    return isExist;
+  }
 }

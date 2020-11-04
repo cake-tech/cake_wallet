@@ -42,6 +42,7 @@ abstract class WalletCreationVMBase with Store {
       final walletInfo = WalletInfo.external(
           id: WalletBase.idFor(name, type),
           name: name,
+          displayName: name,
           type: type,
           isRecovery: isRecovery,
           restoreHeight: credentials.height ?? 0,
