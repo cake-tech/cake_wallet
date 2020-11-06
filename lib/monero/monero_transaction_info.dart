@@ -52,5 +52,6 @@ class MoneroTransactionInfo extends TransactionInfo {
   @override
   String fiatAmount() => _fiatAmount ?? '';
 
+  @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 }
