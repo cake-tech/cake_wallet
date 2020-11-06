@@ -144,28 +144,29 @@ class WalletListBodyState extends State<WalletListBody> {
                           ),
                         ));
 
-                    return wallet.isCurrent
-                        ? row
-                        : Slidable(
+                    final editAction = IconSlideAction(
+                      caption: S.of(context).edit,
+                      color: Colors.blue,
+                      icon: Icons.edit,
+                      onTap: () => Navigator.of(context)
+                          .pushNamed(Routes.editWalletName,
+                          arguments: wallet),
+                    );
+
+                    final deleteAction = IconSlideAction(
+                      caption: S.of(context).delete,
+                      color: Colors.red,
+                      icon: CupertinoIcons.delete,
+                      onTap: () async => _removeWallet(wallet),
+                    );
+
+                    return Slidable(
                             key: Key('${wallet.key}'),
                             actionPane: SlidableDrawerActionPane(),
                             child: row,
-                            secondaryActions: <Widget>[
-                              IconSlideAction(
-                                caption: S.of(context).edit,
-                                color: Colors.blue,
-                                icon: Icons.edit,
-                                onTap: () => Navigator.of(context)
-                                    .pushNamed(Routes.editWalletName,
-                                    arguments: wallet),
-                              ),
-                              IconSlideAction(
-                                caption: S.of(context).delete,
-                                color: Colors.red,
-                                icon: CupertinoIcons.delete,
-                                onTap: () async => _removeWallet(wallet),
-                              )
-                            ]);
+                            secondaryActions: wallet.isCurrent
+                            ? <Widget>[editAction]
+                            : <Widget>[editAction, deleteAction]);
                   }),
             ),
           ),
