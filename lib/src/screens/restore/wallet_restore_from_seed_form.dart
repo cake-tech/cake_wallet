@@ -46,6 +46,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                     context: context,
                     builder: (BuildContext context) =>
                         SeedLanguagePicker(selected: language));
+
+                if (selected == null || selected.isEmpty) {
+                  return;
+                }
+
                 _changeLanguage(selected);
               },
               child: Container(
