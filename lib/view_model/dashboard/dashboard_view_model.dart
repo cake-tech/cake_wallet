@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
@@ -14,6 +17,7 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
@@ -35,7 +39,8 @@ abstract class DashboardViewModelBase with Store {
       this.appStore,
       this.tradesStore,
       this.tradeFilterStore,
-      this.transactionFilterStore}) {
+      this.transactionFilterStore,
+      this.walletInfoSource}) {
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -70,7 +75,10 @@ abstract class DashboardViewModelBase with Store {
       ]
     };
 
-    name = appStore.wallet?.name;
+    final info = walletInfoSource.values.firstWhere((element) =>
+    element.name == appStore.wallet?.name);
+
+    name = info?.displayName ?? appStore.wallet?.name;
     wallet ??= appStore.wallet;
     type = wallet.type;
 
@@ -98,6 +106,8 @@ abstract class DashboardViewModelBase with Store {
     if (_wallet is MoneroWallet) {
       subname = _wallet.account?.label;
     }
+
+    _onNamesChanged = walletInfoSource.watch().listen((_) => _onWalletNameChanged());
   }
 
   @observable
@@ -168,7 +178,11 @@ abstract class DashboardViewModelBase with Store {
 
   TransactionFilterStore transactionFilterStore;
 
+  final Box<WalletInfo> walletInfoSource;
+
   Map<String, List<FilterItem>> filterItems;
+
+  StreamSubscription<BoxEvent> _onNamesChanged;
 
   ReactionDisposer _reaction;
 
@@ -180,7 +194,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onWalletChange(WalletBase wallet) {
     this.wallet = wallet;
-    name = wallet.name;
+
+    final info = walletInfoSource.values.firstWhere((element) =>
+    element.name == wallet.name);
+
+    name = info?.displayName ?? wallet.name;
     transactions.clear();
     transactions.addAll(wallet.transactionHistory.transactions.values.map(
         (transaction) => TransactionListItem(
@@ -188,5 +206,13 @@ abstract class DashboardViewModelBase with Store {
             price: price,
             fiatCurrency: appStore.settingsStore.fiatCurrency,
             displayMode: balanceDisplayMode)));
+  }
+
+  @action
+  void _onWalletNameChanged() {
+    final info = walletInfoSource.values.firstWhere((element) =>
+    element.name == wallet.name);
+
+    name = info?.displayName ?? wallet.name;
   }
 }

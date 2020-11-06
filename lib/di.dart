@@ -173,7 +173,8 @@ Future setup(
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
       tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>()));
+      transactionFilterStore: getIt.get<TransactionFilterStore>(),
+      walletInfoSource: walletInfoSource));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
