@@ -407,7 +407,7 @@
   "seed_alert_back" : "Regresa",
   "seed_alert_yes" : "Sí tengo",
 
-  "wallet_name_alert_content" : "Existe una billetera con el mismo nombre"
+  "wallet_name_alert_content" : "Existe una billetera con el mismo nombre",
 
   "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada"
 }
