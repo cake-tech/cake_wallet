@@ -157,7 +157,7 @@ Future setup(
   });
 
   getIt.registerFactory<WalletAddressListViewModel>(
-      () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
+      () => WalletAddressListViewModel(appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),

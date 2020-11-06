@@ -8,6 +8,7 @@ import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/ios_legacy_helper.dart'
     as ios_legacy_helper;
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
@@ -98,7 +99,7 @@ Future<void> ios_migrate_user_defaults() async {
 
   //assign the pin lenght
   final pinLength = await ios_legacy_helper.getInt('pin-length');
-  await prefs.setInt('pin-length', pinLength);
+  await prefs.setInt(PreferencesKey.currentPinLength, pinLength);
 
   //default value for display list key?
   final walletName = await ios_legacy_helper.getString('current_wallet_name');
