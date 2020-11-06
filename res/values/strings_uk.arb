@@ -407,7 +407,7 @@
   "seed_alert_back" : "Назад",
   "seed_alert_yes" : "Так",
 
-  "wallet_name_alert_content" : "Гаманець з такою ж назвою існує"
+  "wallet_name_alert_content" : "Гаманець з такою ж назвою існує",
 
   "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується"
 }

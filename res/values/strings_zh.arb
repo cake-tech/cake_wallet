@@ -407,7 +407,7 @@
   "seed_alert_back" : "回去",
   "seed_alert_yes" : "是的，我有",
 
-  "wallet_name_alert_content" : "存在同名錢包"
+  "wallet_name_alert_content" : "存在同名錢包",
 
   "exchange_sync_alert_content" : "請等待，直到您的錢包同步"
 }

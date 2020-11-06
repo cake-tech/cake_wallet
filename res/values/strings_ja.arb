@@ -407,7 +407,7 @@
   "seed_alert_back" : "戻る",
   "seed_alert_yes" : "はい、あります",
 
-  "wallet_name_alert_content" : "同じ名前のウォレットが存在します"
+  "wallet_name_alert_content" : "同じ名前のウォレットが存在します",
 
   "exchange_sync_alert_content" : "ウォレットが同期されるまでお待ちください"
 }

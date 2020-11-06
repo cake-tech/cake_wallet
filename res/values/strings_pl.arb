@@ -407,7 +407,7 @@
   "seed_alert_back" : "Wróć",
   "seed_alert_yes" : "Tak",
 
-  "wallet_name_alert_content" : "Istnieje portfel o tej samej nazwie"
+  "wallet_name_alert_content" : "Istnieje portfel o tej samej nazwie",
 
   "exchange_sync_alert_content" : "Poczekaj, aż portfel zostanie zsynchronizowany"
 }

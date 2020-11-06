@@ -35,7 +35,7 @@ class S implements WidgetsLocalizations {
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
-  String get amount_is_guaranteed => "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above";
+  String get amount_is_guaranteed => "IMPORTANT:\nIf you want to receive a guaranteed amount of BTC, please enter that amount in the BTC field. If you enter an XMR amount instead, then the BTC amount received is an estimate and can fluctuate depending on the rates.";
   String get auth_store_ban_timeout => "ban_timeout";
   String get auth_store_banned_for => "Banned for ";
   String get auth_store_banned_minutes => " minutes";
@@ -487,7 +487,7 @@ class $de extends S {
   @override
   String get receive => "Erhalten";
   @override
-  String get amount_is_guaranteed => "Geben Sie in xmr.to den BTC-Betrag und nicht den oben genannten XMR-Betrag ein, um einen garantierten BTC-Betrag zu erhalten";
+  String get amount_is_guaranteed => "WICHTIG:\nWenn Sie einen garantierten BTC-Betrag erhalten möchten, geben Sie diesen Betrag in das Feld BTC ein. Wenn Sie stattdessen einen XMR-Betrag eingeben, handelt es sich bei dem erhaltenen BTC-Betrag um eine Schätzung, die je nach Kurs schwanken kann.";
   @override
   String get auth_store_banned_for => "Gebannt für ";
   @override
@@ -1157,7 +1157,7 @@ class $hi extends S {
   @override
   String get receive => "प्राप्त करना";
   @override
-  String get amount_is_guaranteed => "Xmr.to में, गारंटीशुदा BTC राशि प्राप्त करने के लिए, BTC राशि दर्ज करें और ऊपर XMR राशि नहीं";
+  String get amount_is_guaranteed => "महत्वपूर्ण:\nयदि आप BTC की गारंटीकृत राशि प्राप्त करना चाहते हैं, तो कृपया उस राशि को BTC फ़ील्ड में दर्ज करें। यदि आप इसके बजाय एक एक्सएमआर राशि दर्ज करते हैं, तो प्राप्त बीटीसी राशि एक अनुमान है और दरों के आधार पर इसमें उतार-चढ़ाव हो सकता है।";
   @override
   String get auth_store_banned_for => "के लिए प्रतिबंधित है ";
   @override
@@ -1827,7 +1827,7 @@ class $ru extends S {
   @override
   String get receive => "Получить";
   @override
-  String get amount_is_guaranteed => "В xmr.to, чтобы получить гарантированную сумму BTC, введите сумму BTC, а не сумму XMR выше";
+  String get amount_is_guaranteed => "ВАЖНО:\nЕсли вы хотите получить гарантированную сумму BTC, введите эту сумму в поле BTC. Если вместо этого вы вводите сумму XMR, полученная сумма BTC является приблизительной и может колебаться в зависимости от курса.";
   @override
   String get auth_store_banned_for => "Заблокировано на ";
   @override
@@ -2497,7 +2497,7 @@ class $ko extends S {
   @override
   String get receive => "받다";
   @override
-  String get amount_is_guaranteed => "xmr.to에서 보장 된 BTC 금액을 받으려면 위의 XMR 금액이 아닌 BTC 금액을 입력하십시오.";
+  String get amount_is_guaranteed => "중대한:\n보장 된 BTC 금액을 받으려면 BTC 필드에 해당 금액을 입력하십시오. 대신 XMR 금액을 입력하면 수령 한 BTC 금액이 추정치이며 요율에 따라 변동될 수 있습니다.";
   @override
   String get auth_store_banned_for => "금지";
   @override
@@ -3167,7 +3167,7 @@ class $pt extends S {
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "Em xmr.to, para receber um valor BTC garantido, insira o valor BTC e não o valor XMR acima";
+  String get amount_is_guaranteed => "IMPORTANTE:\nSe você deseja receber um valor garantido de BTC, insira esse valor no campo BTC. Se, em vez disso, você inserir um valor XMR, o valor BTC recebido é uma estimativa e pode flutuar dependendo das taxas.";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
@@ -3837,7 +3837,7 @@ class $uk extends S {
   @override
   String get receive => "Отримати";
   @override
-  String get amount_is_guaranteed => "У xmr.to, щоб отримати гарантовану суму BTC, введіть суму BTC, а не XMR вище";
+  String get amount_is_guaranteed => "ВАЖЛИВО:\nЯкщо ви хочете отримати гарантовану суму BTC, введіть цю суму в поле BTC. Якщо замість цього ввести суму XMR, отримана сума BTC є приблизною і може коливатися залежно від курсу.";
   @override
   String get auth_store_banned_for => "Заблоковано на ";
   @override
@@ -4507,7 +4507,7 @@ class $ja extends S {
   @override
   String get receive => "受け取る";
   @override
-  String get amount_is_guaranteed => "xmr.toで、保証されたBTC金額を受け取るには、上記のXMR金額ではなく、BTC金額を入力します";
+  String get amount_is_guaranteed => "重要：\n保証された金額のBTCを受け取りたい場合は、その金額を[BTC]フィールドに入力してください。 代わりにXMR金額を入力した場合、受け取ったBTC金額は見積もりであり、レートに応じて変動する可能性があります。";
   @override
   String get auth_store_banned_for => "禁止されています ";
   @override
@@ -5181,7 +5181,7 @@ class $pl extends S {
   @override
   String get receive => "Otrzymać";
   @override
-  String get amount_is_guaranteed => "W xmr.to, aby otrzymać gwarantowaną kwotę BTC, wprowadź kwotę BTC, a nie kwotę XMR powyżej";
+  String get amount_is_guaranteed => "WAŻNY:\nJeśli chcesz otrzymać gwarantowaną kwotę BTC, wprowadź tę kwotę w polu BTC. Jeśli zamiast tego wpiszesz kwotę XMR, otrzymana kwota BTC jest szacunkowa i może się zmieniać w zależności od stawek.";
   @override
   String get auth_store_banned_for => "Bzbanowany za ";
   @override
@@ -5851,7 +5851,7 @@ class $es extends S {
   @override
   String get receive => "Recibir";
   @override
-  String get amount_is_guaranteed => "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba";
+  String get amount_is_guaranteed => "IMPORTANTE:\nSi desea recibir una cantidad garantizada de BTC, ingrese esa cantidad en el campo BTC. Si ingresa una cantidad de XMR en su lugar, la cantidad de BTC recibida es una estimación y puede variar según las tarifas.";
   @override
   String get auth_store_banned_for => "Prohibido para ";
   @override
@@ -6521,7 +6521,7 @@ class $nl extends S {
   @override
   String get receive => "Krijgen";
   @override
-  String get amount_is_guaranteed => "Om een gegarandeerd BTC-bedrag te ontvangen, voert u in xmr.to het BTC-bedrag in en niet het bovenstaande XMR-bedrag";
+  String get amount_is_guaranteed => "BELANGRIJK:\nAls u een gegarandeerd bedrag aan BTC wilt ontvangen, voert u dat bedrag in het BTC-veld in. Als u in plaats daarvan een XMR-bedrag invoert, is het ontvangen BTC-bedrag een schatting en kan het fluctueren afhankelijk van de tarieven.";
   @override
   String get auth_store_banned_for => "Verboden voor ";
   @override
@@ -7191,7 +7191,7 @@ class $zh extends S {
   @override
   String get receive => "接收";
   @override
-  String get amount_is_guaranteed => "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量";
+  String get amount_is_guaranteed => "重要：\n如果您想獲得保證的BTC金額，請在BTC字段中輸入該金額。 如果您輸入的是XMR金額，則收到的BTC金額只是估算值，可能會隨匯率而波動。";
   @override
   String get auth_store_banned_for => "禁止 ";
   @override

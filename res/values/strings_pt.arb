@@ -407,7 +407,7 @@
   "seed_alert_back" : "Volte",
   "seed_alert_yes" : "Sim, eu tenho",
 
-  "wallet_name_alert_content" : "Já existe carteira com o mesmo nome"
+  "wallet_name_alert_content" : "Já existe carteira com o mesmo nome",
 
   "exchange_sync_alert_content" : "Por favor, espere até que sua carteira seja sincronizada"
 }

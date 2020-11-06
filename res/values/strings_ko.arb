@@ -407,7 +407,7 @@
   "seed_alert_back" : "돌아 가기",
   "seed_alert_yes" : "네, 있어요",
 
-  "wallet_name_alert_content" : "같은 이름의 지갑이 있습니다."
+  "wallet_name_alert_content" : "같은 이름의 지갑이 있습니다.",
 
   "exchange_sync_alert_content" : "지갑이 동기화 될 때까지 기다리십시오"
 }

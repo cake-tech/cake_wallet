@@ -407,7 +407,7 @@
   "seed_alert_back" : "Назад",
   "seed_alert_yes" : "Да",
 
-  "wallet_name_alert_content" : "Кошелек с таким именем существует"
+  "wallet_name_alert_content" : "Кошелек с таким именем существует",
 
   "exchange_sync_alert_content" : "Подождите, пока ваш кошелек синхронизируется"
 }
