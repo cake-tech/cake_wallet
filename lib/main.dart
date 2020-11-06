@@ -67,6 +67,7 @@ void main() async {
       // fiatConvertationService: fiatConvertationService,
       templates: templates,
       exchangeTemplates: exchangeTemplates,
+      transactionDescriptions: transactionDescriptions,
       initialMigrationVersion: 4);
   runApp(App());
 }
@@ -80,6 +81,7 @@ Future<void> initialSetup(
     // @required FiatConvertationService fiatConvertationService,
     @required Box<Template> templates,
     @required Box<ExchangeTemplate> exchangeTemplates,
+    @required Box<TransactionDescription> transactionDescriptions,
     int initialMigrationVersion = 5}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
@@ -94,7 +96,8 @@ Future<void> initialSetup(
       contactSource: contactSource,
       tradesSource: tradesSource,
       templates: templates,
-      exchangeTemplates: exchangeTemplates);
+      exchangeTemplates: exchangeTemplates,
+      transactionDescriptionBox: transactionDescriptions);
   bootstrap(navigatorKey);
   monero_wallet.onStartup();
 }

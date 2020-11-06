@@ -237,7 +237,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   void _setListeners() {
     _listener?.stop();
-    _listener = monero_wallet.setListeners(_onNewBlock);
+    _listener = monero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
   void _setInitialHeight() {
@@ -308,14 +308,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
-    _askForUpdateTransactionHistory();
+    if (walletInfo.isRecovery) {
+      _askForUpdateTransactionHistory();
+    }
+
     _askForUpdateBalance();
 
-    if (blocksLeft < moneroBlockSize) {
+    if (blocksLeft < 100) {
       syncStatus = SyncedSyncStatus();
       await _afterSyncSave();
     } else {
       syncStatus = SyncingSyncStatus(blocksLeft, ptc);
     }
+  }
+
+  void _onNewTransaction() {
+    _askForUpdateTransactionHistory();
+    _askForUpdateBalance();
+    _afterSyncSave();
   }
 }

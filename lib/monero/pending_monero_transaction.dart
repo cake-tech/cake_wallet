@@ -11,6 +11,9 @@ class PendingMoneroTransaction with PendingTransaction {
   final PendingTransactionDescription pendingTransactionDescription;
 
   @override
+  String get id => pendingTransactionDescription.hash;
+
+  @override
   String get amountFormatted => AmountConverter.amountIntToString(
       CryptoCurrency.xmr, pendingTransactionDescription.amount);
 

@@ -1,8 +1,9 @@
-
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -23,6 +24,7 @@ import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/change_language.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
+import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -92,7 +94,8 @@ Future setup(
     Box<Contact> contactSource,
     Box<Trade> tradesSource,
     Box<Template> templates,
-    Box<ExchangeTemplate> exchangeTemplates}) async {
+    Box<ExchangeTemplate> exchangeTemplates,
+    Box<TransactionDescription> transactionDescriptionBox}) async {
   getIt.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
 
@@ -230,7 +233,8 @@ Future setup(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateStore>(),
-      getIt.get<FiatConversionStore>()));
+      getIt.get<FiatConversionStore>(),
+      transactionDescriptionBox));
 
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
@@ -387,4 +391,10 @@ Future setup(
 
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) =>
       WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
+
+  getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
+      (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
+          transactionInfo,
+          getIt.get<SettingsStore>().shouldSaveRecipientAddress,
+          transactionDescriptionBox));
 }
