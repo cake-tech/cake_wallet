@@ -373,6 +373,7 @@ extern "C"
 
     bool connect_to_node(char *error)
     {
+        nice(19);
         bool is_connected = get_current_wallet()->connectToDaemon();
 
         if (!is_connected)
@@ -385,6 +386,7 @@ extern "C"
 
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
+        nice(19);
         Monero::Wallet *wallet = get_current_wallet();
         
         std::string _login = "";
@@ -494,6 +496,8 @@ extern "C"
         return committed;
     }
 
+    // START
+
     uint64_t get_node_height_or_update(uint64_t base_eight)
     {
         if (m_cached_syncing_blockchain_height < base_eight) {
@@ -577,6 +581,8 @@ extern "C"
         m_listener = new MoneroWalletListener();
         get_current_wallet()->setListener(m_listener);
     }
+
+    // END
 
     int64_t *subaddrress_get_all()
     {

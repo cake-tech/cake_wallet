@@ -56,7 +56,7 @@ class MoneroAccountEditOrCreatePage extends BasePage {
                         text: moneroAccountCreationViewModel.isEdit
                             ? S.of(context).rename
                             : S.of(context).add,
-                        color: Colors.green,
+                        color: Theme.of(context).accentTextTheme.body2.color,
                         textColor: Colors.white,
                         isLoading: moneroAccountCreationViewModel.state
                         is IsExecutingState,
