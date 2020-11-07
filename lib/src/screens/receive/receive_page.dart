@@ -19,6 +19,14 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 
+import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
+
+void generateSubaddress() {
+  WalletAddressEditOrCreateViewModel myViewModel =
+      getIt.get<WalletAddressEditOrCreateViewModel>();
+  myViewModel.save();
+}
+
 class ReceivePage extends BasePage {
   ReceivePage({this.addressListViewModel}) : _cryptoAmountFocus = FocusNode();
 
@@ -85,7 +93,6 @@ class ReceivePage extends BasePage {
     final shareImage =
         Image.asset('assets/images/share.png',
             color: Theme.of(context).accentTextTheme.display3.backgroundColor);
-
     return SizedBox(
       height: 20.0,
       width: 20.0,
