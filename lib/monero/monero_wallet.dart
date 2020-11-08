@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:cake_wallet/monero/monero_amount_format.dart';
+import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/wallet.dart';
@@ -170,6 +174,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
+    final amount = moneroParseAmount(amount: _credentials.amount);
+    final unlockedBalance =
+        monero_wallet.getUnlockedBalance(accountIndex: account.id);
+
+    if (unlockedBalance < amount) {
+      throw MoneroTransactionCreationException(
+          'Incorrect unlocked balance. Unlocked: $unlockedBalance. Transaction amount: ${_credentials.amount}.');
+    }
+
+    if (!(syncStatus is SyncedSyncStatus)) {
+      throw MoneroTransactionCreationException('The wallet is not synced.');
+    }
+
     final pendingTransactionDescription =
         await transaction_history.createTransaction(
             address: _credentials.address,
