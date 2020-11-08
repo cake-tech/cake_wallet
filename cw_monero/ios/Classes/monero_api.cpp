@@ -351,13 +351,11 @@ extern "C"
 
     uint64_t get_full_balance(uint32_t account_index)
     {
-//        return 0;
         return get_current_wallet()->balance(account_index);
     }
 
     uint64_t get_unlocked_balance(uint32_t account_index)
     {
-//        return 0;
         return get_current_wallet()->unlockedBalance(account_index);
     }
 

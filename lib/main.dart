@@ -29,47 +29,59 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  final appDir = await getApplicationDocumentsDirectory();
-  Hive.init(appDir.path);
-  Hive.registerAdapter(ContactAdapter());
-  Hive.registerAdapter(NodeAdapter());
-  Hive.registerAdapter(TransactionDescriptionAdapter());
-  Hive.registerAdapter(TradeAdapter());
-  Hive.registerAdapter(WalletInfoAdapter());
-  Hive.registerAdapter(WalletTypeAdapter());
-  Hive.registerAdapter(TemplateAdapter());
-  Hive.registerAdapter(ExchangeTemplateAdapter());
-
-  final secureStorage = FlutterSecureStorage();
-  final transactionDescriptionsBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
-  final tradesBoxKey = await getEncryptionKey(
-      secureStorage: secureStorage, forKey: Trade.boxKey);
-  final contacts = await Hive.openBox<Contact>(Contact.boxName);
-  final nodes = await Hive.openBox<Node>(Node.boxName);
-  final transactionDescriptions = await Hive.openBox<TransactionDescription>(
-      TransactionDescription.boxName,
-      encryptionKey: transactionDescriptionsBoxKey);
-  final trades =
-      await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
-  final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
-  final templates = await Hive.openBox<Template>(Template.boxName);
-  final exchangeTemplates =
-      await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-  await initialSetup(
-      sharedPreferences: await SharedPreferences.getInstance(),
-      nodes: nodes,
-      walletInfoSource: walletInfoSource,
-      contactSource: contacts,
-      tradesSource: trades,
-      // fiatConvertationService: fiatConvertationService,
-      templates: templates,
-      exchangeTemplates: exchangeTemplates,
-      transactionDescriptions: transactionDescriptions,
-      initialMigrationVersion: 4);
-  runApp(App());
+    final appDir = await getApplicationDocumentsDirectory();
+    Hive.init(appDir.path);
+    Hive.registerAdapter(ContactAdapter());
+    Hive.registerAdapter(NodeAdapter());
+    Hive.registerAdapter(TransactionDescriptionAdapter());
+    Hive.registerAdapter(TradeAdapter());
+    Hive.registerAdapter(WalletInfoAdapter());
+    Hive.registerAdapter(WalletTypeAdapter());
+    Hive.registerAdapter(TemplateAdapter());
+    Hive.registerAdapter(ExchangeTemplateAdapter());
+    final secureStorage = FlutterSecureStorage();
+    final transactionDescriptionsBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
+    final tradesBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: Trade.boxKey);
+    final contacts = await Hive.openBox<Contact>(Contact.boxName);
+    final nodes = await Hive.openBox<Node>(Node.boxName);
+    final transactionDescriptions = await Hive.openBox<TransactionDescription>(
+        TransactionDescription.boxName,
+        encryptionKey: transactionDescriptionsBoxKey);
+    final trades =
+        await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+    final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
+    final templates = await Hive.openBox<Template>(Template.boxName);
+    final exchangeTemplates =
+        await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+    await initialSetup(
+        sharedPreferences: await SharedPreferences.getInstance(),
+        nodes: nodes,
+        walletInfoSource: walletInfoSource,
+        contactSource: contacts,
+        tradesSource: trades,
+        // fiatConvertationService: fiatConvertationService,
+        templates: templates,
+        exchangeTemplates: exchangeTemplates,
+        transactionDescriptions: transactionDescriptions,
+        initialMigrationVersion: 4);
+    runApp(App());
+  } catch (e) {
+    runApp(MaterialApp(
+        debugShowCheckedModeBanner: true,
+        home: Scaffold(
+            body: Container(
+                margin:
+                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+                child: Text(
+                  'Error:\n${e.toString()}',
+                  style: TextStyle(fontSize: 22),
+                )))));
+  }
 }
 
 Future<void> initialSetup(
