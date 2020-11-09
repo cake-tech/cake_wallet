@@ -44,10 +44,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
       _lastAutosaveTimestamp = 0;
+      _isSavingAfterSync = false;
+      _isSavingAfterNewTransaction = false;
     });
   }
 
-  static const int _autoAfterSyncSaceInterval = 60000;
+  static const int _autoAfterSyncSaveInterval = 60000;
 
   @override
   final MoneroTransactionHistory transactionHistory;
@@ -88,6 +90,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   SyncListener _listener;
   ReactionDisposer _onAccountChangeReaction;
   int _lastAutosaveTimestamp;
+  bool _isSavingAfterSync;
+  bool _isSavingAfterNewTransaction;
 
   Future<void> init() async {
     await accountList.update();
@@ -174,11 +178,14 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
-    final amount = moneroParseAmount(amount: _credentials.amount);
+    final amount = _credentials.amount != null
+        ? moneroParseAmount(amount: _credentials.amount)
+        : null;
     final unlockedBalance =
         monero_wallet.getUnlockedBalance(accountIndex: account.id);
 
-    if (unlockedBalance < amount) {
+    if ((amount != null && unlockedBalance < amount) ||
+        (amount == null && unlockedBalance <= 0)) {
       throw MoneroTransactionCreationException(
           'Incorrect unlocked balance. Unlocked: $unlockedBalance. Transaction amount: ${_credentials.amount}.');
     }
@@ -292,8 +299,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   void _askForUpdateBalance() {
-    final fullBalance = _getFullBalance();
     final unlockedBalance = _getUnlockedBalance();
+    final fullBalance = _getFullBalance();
 
     if (balance.fullBalance != fullBalance ||
         balance.unlockedBalance != unlockedBalance) {
@@ -313,18 +320,47 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       monero_wallet.getUnlockedBalance(accountIndex: account.id);
 
   Future<void> _afterSyncSave() async {
-    final nowTimestamp = DateTime.now().millisecondsSinceEpoch;
-    final sum = _lastAutosaveTimestamp + _autoAfterSyncSaceInterval;
-
-    if (_lastAutosaveTimestamp != 0 && sum < nowTimestamp) {
+    if (_isSavingAfterSync) {
       return;
     }
 
-    _lastAutosaveTimestamp = nowTimestamp + _autoAfterSyncSaceInterval;
-    await save();
+    _isSavingAfterSync = true;
+
+    try {
+      final nowTimestamp = DateTime.now().millisecondsSinceEpoch;
+      final sum = _lastAutosaveTimestamp + _autoAfterSyncSaveInterval;
+
+      if (_lastAutosaveTimestamp > 0 && sum < nowTimestamp) {
+        return;
+      }
+
+      await save();
+      _lastAutosaveTimestamp = nowTimestamp + _autoAfterSyncSaveInterval;
+    } catch (e) {
+      print(e.toString());
+    }
+
+    _isSavingAfterSync = false;
+  }
+
+  Future<void> _afterNewTransactionSave() async {
+    if (_isSavingAfterNewTransaction) {
+      return;
+    }
+
+    _isSavingAfterNewTransaction = true;
+
+    try {
+      await save();
+    } catch (e) {
+      print(e.toString());
+    }
+
+    _isSavingAfterNewTransaction = false;
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
+    print('_onNewBlock called');
     if (walletInfo.isRecovery) {
       _askForUpdateTransactionHistory();
     }
@@ -334,14 +370,19 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     if (blocksLeft < 100) {
       syncStatus = SyncedSyncStatus();
       await _afterSyncSave();
+
+      if (walletInfo.isRecovery) {
+        setAsRecovered();
+      }
     } else {
       syncStatus = SyncingSyncStatus(blocksLeft, ptc);
     }
   }
 
   void _onNewTransaction() {
+    print('_onNewTransaction called');
     _askForUpdateTransactionHistory();
     _askForUpdateBalance();
-    _afterSyncSave();
+    Timer(Duration(seconds: 1), () => _afterNewTransactionSave());
   }
 }

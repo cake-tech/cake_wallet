@@ -160,9 +160,12 @@ abstract class SettingsStoreBase with Store {
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
             defaultActionsMode));
-    final pinLength =
-        sharedPreferences.getInt(PreferencesKey.currentPinLength) ??
-            defaultPinLength;
+    var pinLength = sharedPreferences.getInt(PreferencesKey.currentPinLength);
+    // If no value
+    if (pinLength == null || pinLength == 0) {
+      pinLength = defaultPinLength;
+    }
+
     final savedLanguageCode =
         sharedPreferences.getString(PreferencesKey.currentLanguageCode) ??
             await LanguageService.localeDetection();
