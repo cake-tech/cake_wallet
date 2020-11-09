@@ -391,32 +391,36 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
 }
 
 Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
-  final prefs = await SharedPreferences.getInstance();
+  try {
+    final prefs = await SharedPreferences.getInstance();
 
-  if (prefs.getBool('ios_migration_address_book_completed') ?? false) {
-    return;
-  }
+    if (prefs.getBool('ios_migration_address_book_completed') ?? false) {
+      return;
+    }
 
-  final appDocDir = await getApplicationDocumentsDirectory();
-  final addressBookJSON = File('${appDocDir.path}/address_book.json');
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final addressBookJSON = File('${appDocDir.path}/address_book.json');
 
-  if (!addressBookJSON.existsSync()) {
+    if (!addressBookJSON.existsSync()) {
+      await prefs.setBool('ios_migration_address_book_completed', true);
+      return;
+    }
+
+    final List<dynamic> addresses =
+    json.decode(addressBookJSON.readAsStringSync()) as List<dynamic>;
+    final contacts = addresses.map((dynamic item) {
+      final _item = item as Map<String, dynamic>;
+      final type = _item["type"] as String;
+      final address = _item["address"] as String;
+      final name = _item["name"] as String;
+
+      return Contact(
+          address: address, name: name, type: CryptoCurrency.fromString(type));
+    });
+
+    await contactSource.addAll(contacts);
     await prefs.setBool('ios_migration_address_book_completed', true);
-    return;
+  } catch(e) {
+    print(e.toString());
   }
-
-  final List<dynamic> addresses =
-      json.decode(addressBookJSON.readAsStringSync()) as List<dynamic>;
-  final contacts = addresses.map((dynamic item) {
-    final _item = item as Map<String, dynamic>;
-    final type = _item["type"] as String;
-    final address = _item["address"] as String;
-    final name = _item["name"] as String;
-
-    return Contact(
-        address: address, name: name, type: CryptoCurrency.fromString(type));
-  });
-
-  await contactSource.addAll(contacts);
-  await prefs.setBool('ios_migration_address_book_completed', true);
 }
