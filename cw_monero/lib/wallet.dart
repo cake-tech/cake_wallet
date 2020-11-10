@@ -240,12 +240,12 @@ class SyncListener {
     _initialSyncHeight = 0;
     _updateSyncInfoTimer ??=
         Timer.periodic(Duration(milliseconds: 1200), (_) async {
-      if (isNewTransactionExist() ?? isNeededToRefresh() ?? false) {
-        onNewTransaction?.call();
-      }
-
       final _isNeededToRefresh = isNeededToRefresh();
       print('isNeededToRefresh $_isNeededToRefresh');
+
+      if (isNewTransactionExist() || _isNeededToRefresh) {
+        onNewTransaction?.call();
+      }
 
       var syncHeight = getSyncingHeight();
 
