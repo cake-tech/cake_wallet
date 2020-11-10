@@ -8,7 +8,7 @@ import 'package:cw_monero/transaction_history.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
   MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex);
+      this.isPending, this.amount, this.accountIndex, this.fee);
 
   MoneroTransactionInfo.fromMap(Map map)
       : id = (map['hash'] ?? '') as String,
@@ -21,7 +21,8 @@ class MoneroTransactionInfo extends TransactionInfo {
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
-        key = getTxKey((map['hash'] ?? '') as String);
+        key = getTxKey((map['hash'] ?? '') as String),
+        fee = map['fee'] as int ?? 0;
 
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
@@ -32,7 +33,8 @@ class MoneroTransactionInfo extends TransactionInfo {
         isPending = row.isPending != 0,
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
-        key = getTxKey(row.getHash());
+        key = getTxKey(row.getHash()),
+        fee = row.fee;
 
   final String id;
   final int height;
@@ -41,17 +43,22 @@ class MoneroTransactionInfo extends TransactionInfo {
   final int accountIndex;
   final bool isPending;
   final int amount;
+  final int fee;
   String recipientAddress;
   String key;
 
   String _fiatAmount;
 
   @override
-  String amountFormatted() => '${formatAmount(moneroAmountToString(amount: amount))} XMR';
+  String amountFormatted() =>
+      '${formatAmount(moneroAmountToString(amount: amount))} XMR';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
 
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
+
+  String feeFormatted() =>
+      '${formatAmount(moneroAmountToString(amount: fee))} XMR';
 }

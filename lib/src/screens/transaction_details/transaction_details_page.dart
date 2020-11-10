@@ -29,7 +29,10 @@ class TransactionDetailsPage extends BasePage {
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
             title: S.current.transaction_details_amount,
-            value: tx.amountFormatted())
+            value: tx.amountFormatted()),
+        StandartListItem(
+            title: S.current.send_fee,
+            value: tx.feeFormatted())
       ];
 
       if (showRecipientAddress) {
