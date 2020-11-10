@@ -89,8 +89,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     final url = await getApiUri() + _orderCreateUriSufix;
     final body = {
       'amount': _request.isBTCRequest
-          ? _request.receiveAmount.replaceAll(',', '.')
-          : _request.amount.replaceAll(',', '.'),
+          ? _request.receiveAmount
+          : _request.amount,
       'amount_currency': _request.isBTCRequest
           ? _request.to.toString()
           : _request.from.toString(),
