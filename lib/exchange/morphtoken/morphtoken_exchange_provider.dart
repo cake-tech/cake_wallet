@@ -61,8 +61,14 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   String get title => 'MorphToken';
 
   @override
+  bool get isAvailable => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.morphToken;
+
+  @override
+  Future<bool> checkIsAvailable() async => true;
 
   @override
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {

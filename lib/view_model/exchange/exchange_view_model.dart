@@ -28,10 +28,7 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(
-      this.wallet,
-      this.trades,
-      this._exchangeTemplateStore,
-      this.tradesStore) {
+      this.wallet, this.trades, this._exchangeTemplateStore, this.tradesStore) {
     providerList = [
       XMRTOExchangeProvider(),
       ChangeNowExchangeProvider(),
@@ -43,12 +40,22 @@ abstract class ExchangeViewModelBase with Store {
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = '';
     receiveAddress = '';
+    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     provider = providersForCurrentPair().first;
+    final initialProvider = provider;
+    provider.checkIsAvailable().then((bool isAvailable) {
+      if (!isAvailable && provider == initialProvider) {
+        provider = providerList.firstWhere(
+            (provider) => provider is ChangeNowExchangeProvider,
+            orElse: () => providerList.last);
+        _onPairChange();
+      }
+    });
+
     isReceiveAmountEntered = false;
     loadLimits();
   }
@@ -146,7 +153,9 @@ abstract class ExchangeViewModelBase with Store {
 
     provider
         .calculateAmount(
-            from: depositCurrency, to: receiveCurrency, amount: _amount,
+            from: depositCurrency,
+            to: receiveCurrency,
+            amount: _amount,
             isReceiveAmount: true)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
@@ -168,7 +177,9 @@ abstract class ExchangeViewModelBase with Store {
     final _amount = double.parse(amount.replaceAll(',', '.'));
     provider
         .calculateAmount(
-            from: depositCurrency, to: receiveCurrency, amount: _amount,
+            from: depositCurrency,
+            to: receiveCurrency,
+            amount: _amount,
             isReceiveAmount: false)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
@@ -277,19 +288,23 @@ abstract class ExchangeViewModelBase with Store {
 
   void updateTemplate() => _exchangeTemplateStore.update();
 
-  void addTemplate({String amount, String depositCurrency, String receiveCurrency,
-    String provider, String depositAddress, String receiveAddress}) =>
-    _exchangeTemplateStore.addTemplate(
-      amount: amount,
-      depositCurrency: depositCurrency,
-      receiveCurrency: receiveCurrency,
-      provider: provider,
-      depositAddress: depositAddress,
-      receiveAddress: receiveAddress
-    );
+  void addTemplate(
+          {String amount,
+          String depositCurrency,
+          String receiveCurrency,
+          String provider,
+          String depositAddress,
+          String receiveAddress}) =>
+      _exchangeTemplateStore.addTemplate(
+          amount: amount,
+          depositCurrency: depositCurrency,
+          receiveCurrency: receiveCurrency,
+          provider: provider,
+          depositAddress: depositAddress,
+          receiveAddress: receiveAddress);
 
   void removeTemplate({ExchangeTemplate template}) =>
-    _exchangeTemplateStore.remove(template: template);
+      _exchangeTemplateStore.remove(template: template);
 
   List<ExchangeProvider> providersForCurrentPair() {
     return _providersForPair(from: depositCurrency, to: receiveCurrency);
@@ -322,9 +337,9 @@ abstract class ExchangeViewModelBase with Store {
       }
     }
 
+    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
     depositAmount = '';
     receiveAmount = '';
-
     loadLimits();
   }
 
