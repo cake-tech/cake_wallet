@@ -200,8 +200,8 @@ abstract class ExchangeViewModelBase with Store {
       request = XMRTOTradeRequest(
           from: depositCurrency,
           to: receiveCurrency,
-          amount: depositAmount,
-          receiveAmount: receiveAmount,
+          amount: depositAmount?.replaceAll(',', '.'),
+          receiveAmount: receiveAmount?.replaceAll(',', '.'),
           address: receiveAddress,
           refundAddress: depositAddress,
           isBTCRequest: isReceiveAmountEntered);
@@ -213,7 +213,7 @@ abstract class ExchangeViewModelBase with Store {
       request = ChangeNowRequest(
           from: depositCurrency,
           to: receiveCurrency,
-          amount: depositAmount,
+          amount: depositAmount?.replaceAll(',', '.'),
           refundAddress: depositAddress,
           address: receiveAddress);
       amount = depositAmount;
@@ -224,7 +224,7 @@ abstract class ExchangeViewModelBase with Store {
       request = MorphTokenRequest(
           from: depositCurrency,
           to: receiveCurrency,
-          amount: depositAmount,
+          amount: depositAmount?.replaceAll(',', '.'),
           refundAddress: depositAddress,
           address: receiveAddress);
       amount = depositAmount;
