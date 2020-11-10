@@ -101,7 +101,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
         unlockedBalance:
-            monero_wallet.getFullBalance(accountIndex: account.id));
+            monero_wallet.getUnlockedBalance(accountIndex: account.id));
     address = subaddress.address;
     _setListeners();
     await transactionHistory.update();
@@ -186,8 +186,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
     if ((amount != null && unlockedBalance < amount) ||
         (amount == null && unlockedBalance <= 0)) {
+      final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+
       throw MoneroTransactionCreationException(
-          'Incorrect unlocked balance. Unlocked: $unlockedBalance. Transaction amount: ${_credentials.amount}.');
+          'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${_credentials.amount}.');
     }
 
     if (!(syncStatus is SyncedSyncStatus)) {
@@ -363,11 +365,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     print('_onNewBlock called');
     if (walletInfo.isRecovery) {
       _askForUpdateTransactionHistory();
+      _askForUpdateBalance();
     }
 
-    _askForUpdateBalance();
-
     if (blocksLeft < 100) {
+      _askForUpdateBalance();
       syncStatus = SyncedSyncStatus();
       await _afterSyncSave();
 
