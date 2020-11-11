@@ -1,7 +1,7 @@
 String formatAmount(String amount) {
-  if (!amount.contains('.')) {
+  if ((!amount.contains('.'))&&(!amount.contains(','))) {
     return amount + '.00';
-  } else if (amount.endsWith('.')) {
+  } else if ((amount.endsWith('.'))||(amount.endsWith(','))) {
     return amount + '00';
   }
   return amount;
