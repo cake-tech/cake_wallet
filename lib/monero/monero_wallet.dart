@@ -362,7 +362,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
-    print('_onNewBlock called');
     if (walletInfo.isRecovery) {
       _askForUpdateTransactionHistory();
       _askForUpdateBalance();
@@ -382,7 +381,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   void _onNewTransaction() {
-    print('_onNewTransaction called');
     _askForUpdateTransactionHistory();
     _askForUpdateBalance();
     Timer(Duration(seconds: 1), () => _afterNewTransactionSave());
