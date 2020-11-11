@@ -50,7 +50,7 @@ abstract class BasePage extends StatelessWidget {
 
     final _backButton = Icon(Icons.arrow_back_ios,
       color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
-      size: 24,);
+      size: 16,);
     final _closeButton =
         isDarkTheme ? _closeButtonImageDarkTheme : _closeButtonImage;
 
