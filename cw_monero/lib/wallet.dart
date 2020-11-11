@@ -238,16 +238,11 @@ class SyncListener {
     _initialSyncHeight = 0;
     _updateSyncInfoTimer ??=
         Timer.periodic(Duration(milliseconds: 1200), (_) async {
-      // final _isNeededToRefresh = isNeededToRefresh();
-      // print('isNeededToRefresh $_isNeededToRefresh');
-
       if (isNewTransactionExist()) {
         onNewTransaction?.call();
       }
 
       var syncHeight = getSyncingHeight();
-
-      // print('syncHeight $syncHeight');
 
       if (syncHeight <= 0) {
         syncHeight = getCurrentHeight();
