@@ -42,7 +42,7 @@ class WalletRestorePage extends BasePage {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
+                fontFamily: 'Lato',
                 color: titleColor ??
                     Theme.of(context).primaryTextTheme.title.color),
           ));

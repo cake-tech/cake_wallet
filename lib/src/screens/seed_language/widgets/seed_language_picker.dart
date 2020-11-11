@@ -77,7 +77,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         decoration: TextDecoration.none,
                         color: Colors.white
                     ),
@@ -172,7 +172,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         decoration: TextDecoration.none,
                         color: textColor
                     ),

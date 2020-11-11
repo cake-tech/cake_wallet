@@ -17,7 +17,7 @@ class BaseAlertDialog extends StatelessWidget {
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 20,
-        fontFamily: 'Poppins',
+        fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
         color: Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,
@@ -32,7 +32,7 @@ class BaseAlertDialog extends StatelessWidget {
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.normal,
-        fontFamily: 'Poppins',
+        fontFamily: 'Lato',
         color: Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,
       ),
@@ -59,7 +59,7 @@ class BaseAlertDialog extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                         decoration: TextDecoration.none,
@@ -84,7 +84,7 @@ class BaseAlertDialog extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
                         decoration: TextDecoration.none,

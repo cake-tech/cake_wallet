@@ -55,7 +55,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'Poppins',
+                fontFamily: 'Lato',
                 color: Theme.of(context).primaryTextTheme.title.color,
                 decoration: TextDecoration.none,
               ),
@@ -65,7 +65,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'Poppins',
+                fontFamily: 'Lato',
                 color: Theme.of(context).primaryTextTheme.title.color,
                 decoration: TextDecoration.none,
               ),
@@ -81,7 +81,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'Poppins',
+                fontFamily: 'Lato',
                 color: Theme.of(context).primaryTextTheme.title.color,
                 decoration: TextDecoration.none,
               ),
@@ -91,7 +91,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'Poppins',
+                fontFamily: 'Lato',
                 color: Theme.of(context).primaryTextTheme.title.color,
                 decoration: TextDecoration.none,
               ),

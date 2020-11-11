@@ -33,7 +33,7 @@ class FilterWidget extends StatelessWidget {
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  fontFamily: 'Poppins',
+                  fontFamily: 'Lato',
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -74,7 +74,7 @@ class FilterWidget extends StatelessWidget {
                                     color: Theme.of(context).accentTextTheme.subhead.color,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Lato',
                                     decoration: TextDecoration.none
                                 ),
                               ),
@@ -127,7 +127,7 @@ class FilterWidget extends StatelessWidget {
                                       style: TextStyle(
                                           color: Theme.of(context).primaryTextTheme.title.color,
                                           fontSize: 18,
-                                          fontFamily: 'Poppins',
+                                          fontFamily: 'Lato',
                                           fontWeight: FontWeight.w500,
                                           decoration: TextDecoration.none
                                       ),

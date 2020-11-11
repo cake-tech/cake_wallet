@@ -4,7 +4,7 @@ import android.app.Activity
 import android.os.AsyncTask
 import android.os.Looper
 import android.os.Handler
-import android.os.Process 
+import android.os.Process
 
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -22,10 +22,10 @@ class doAsync(val handler: () -> Unit) : AsyncTask<Void, Void, Void>() {
 
 class CwMoneroPlugin: MethodCallHandler {
   companion object {
-    val moneroApi = MoneroApi()
+//    val moneroApi = MoneroApi()
     val main = Handler(Looper.getMainLooper());
 
-    init {  
+    init {
       System.loadLibrary("cw_monero")
     }
 
@@ -43,31 +43,31 @@ class CwMoneroPlugin: MethodCallHandler {
       val password = call.argument("password") ?: ""
       val useSSL = false
       val isLightWallet = false
-      doAsync {
-        try {
-          moneroApi.setNodeAddressJNI(uri, login, password, useSSL, isLightWallet)
-          main.post({
-            result.success(true)
-          });
-        } catch(e: Throwable) {
-          main.post({
-            result.error("CONNECTION_ERROR", e.message, null)
-          });
-        }
-      }.execute()
+//      doAsync {
+//        try {
+//          moneroApi.setNodeAddressJNI(uri, login, password, useSSL, isLightWallet)
+//          main.post({
+//            result.success(true)
+//          });
+//        } catch(e: Throwable) {
+//          main.post({
+//            result.error("CONNECTION_ERROR", e.message, null)
+//          });
+//        }
+//      }.execute()
     }
     if (call.method == "startSync") {
-      doAsync {
-        moneroApi.startSyncJNI()
-        main.post({
-          result.success(true)
-        });
-      }.execute()
+//      doAsync {
+//        moneroApi.startSyncJNI()
+//        main.post({
+//          result.success(true)
+//        });
+//      }.execute()
     }
     if (call.method == "loadWallet") {
       val path = call.argument("path") ?: ""
       val password = call.argument("password") ?: ""
-      moneroApi.loadWalletJNI(path, password)
+//      moneroApi.loadWalletJNI(path, password)
       result.success(true)
     }
   }

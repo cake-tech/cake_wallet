@@ -89,7 +89,7 @@ class WalletMenuAlert extends StatelessWidget {
                                 style: TextStyle(
                                     color: Theme.of(context).primaryTextTheme.title.color,
                                     fontSize: 18,
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Lato',
                                     fontWeight: FontWeight.w500,
                                     decoration: TextDecoration.none
                                 ),

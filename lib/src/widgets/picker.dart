@@ -70,7 +70,7 @@ class PickerState<Item> extends State<Picker> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 18,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,
                         color: Colors.white
@@ -135,7 +135,7 @@ class PickerState<Item> extends State<Picker> {
                                               item.toString(),
                                               style: TextStyle(
                                                 fontSize: 18,
-                                                fontFamily: 'Poppins',
+                                                fontFamily: 'Lato',
                                                 fontWeight: FontWeight.w600,
                                                 color: textColor,
                                                 decoration: TextDecoration.none,
@@ -160,7 +160,7 @@ class PickerState<Item> extends State<Picker> {
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w500,
-                                    fontFamily: 'Poppins',
+                                    fontFamily: 'Lato',
                                     decoration: TextDecoration.none,
                                     color: Theme.of(context).primaryTextTheme
                                         .title.color

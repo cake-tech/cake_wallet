@@ -11,8 +11,6 @@ import 'package:flutter/services.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
-final moneroAPIChannel = const MethodChannel('cw_monero');
-
 final getFileNameNative = moneroApi
     .lookup<NativeFunction<get_filename>>('get_filename')
     .asFunction<GetFilename>();
