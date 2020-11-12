@@ -92,7 +92,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
     final date = await getDate(
         context: context,
         initialDate: now.subtract(Duration(days: 1)),
-        firstDate: DateTime(2014, DateTime.april),
+        firstDate: DateTime(2014, DateTime.may),
         lastDate: now);
 
     if (date != null) {
