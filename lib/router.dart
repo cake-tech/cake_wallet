@@ -60,29 +60,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newWalletFromWelcome:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(param1:
-                  (PinCodeState<PinCodeWidget> context, dynamic _) async {
-                try {
-                  context.changeProcessText(
-                      'Creating new wallet'); // FIXME: Unnamed constant
-                  final newWalletVM =
-                      getIt.get<WalletNewVM>(param1: WalletType.monero);
-                  await newWalletVM.create(
-                      options: 'English'); // FIXME: Unnamed constant
-                  context.hideProgressText();
-                  await Navigator.of(context.context)
-                      .pushNamed(Routes.seed, arguments: true);
-                } catch (e) {
-                  context.changeProcessText('Error: ${e.toString()}');
-                }
-              }),
+          builder: (_) => getIt.get<SetupPinCodePage>(
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
+                  Navigator.of(context.context)
+                      .pushNamed(Routes.newWalletType)),
           fullscreenDialog: true);
 
     case Routes.newWalletType:
       return CupertinoPageRoute<void>(
-          builder: (_) => NewWalletTypePage(
-              onTypeSelected: (context, type) => Navigator.of(context)
-                  .pushNamed(Routes.newWallet, arguments: type)));
+          builder: (_) => getIt.get<NewWalletTypePage>(
+              param1: (BuildContext context, WalletType _) =>
+                  Navigator.of(context).pushNamed(Routes.seed, arguments: true),
+              param2: true));
 
     case Routes.newWallet:
       final type = WalletType.monero; // settings.arguments as WalletType;
@@ -104,11 +93,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWalletType:
       return CupertinoPageRoute<void>(
-          builder: (_) => NewWalletTypePage(
-                onTypeSelected: (context, type) => Navigator.of(context)
-                    .pushNamed(Routes.restoreWalletOptions, arguments: type),
-                isNewWallet: false,
-              ));
+          builder: (_) => getIt.get<NewWalletTypePage>(
+              param1: (BuildContext context, WalletType type) =>
+                  Navigator.of(context)
+                      .pushNamed(Routes.restoreWalletFromSeed, arguments: type),
+              param2: false));
 
     case Routes.restoreOptions:
       final type = settings.arguments as WalletType;
@@ -146,7 +135,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.pushNamed(context.context, Routes.restoreWallet)),
+                  Navigator.pushNamed(context.context, Routes.restoreWalletType)),
           fullscreenDialog: true);
 
     case Routes.seed:
@@ -160,12 +149,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               getIt.get<WalletRestorePage>(param1: WalletType.monero));
 
     case Routes.restoreWalletFromSeed:
-      // final args = settings.arguments as List<dynamic>;
-      final type = WalletType.monero; //args.first as WalletType;
-      // final language = type == WalletType.monero
-      //     ? args[1] as String
-      //     : LanguageList.english;
-
+      final type = settings.arguments as WalletType;
       return CupertinoPageRoute<void>(
           builder: (_) => RestoreWalletFromSeedPage(type: type));
 

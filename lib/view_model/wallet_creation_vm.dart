@@ -27,7 +27,7 @@ abstract class WalletCreationVMBase with Store {
   @observable
   ExecutionState state;
 
-  final WalletType type;
+  WalletType type;
   final bool isRecovery;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;

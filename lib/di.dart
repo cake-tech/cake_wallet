@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:cake_wallet/src/screens/faq/faq_page.dart';
+import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -353,7 +354,7 @@ Future setup(
 
   getIt.registerFactory(() => MoneroWalletService(walletInfoSource));
 
-  getIt.registerFactory(() => BitcoinWalletService());
+  getIt.registerFactory(() => BitcoinWalletService(walletInfoSource));
 
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
@@ -397,4 +398,9 @@ Future setup(
           transactionInfo,
           getIt.get<SettingsStore>().shouldSaveRecipientAddress,
           transactionDescriptionBox));
+
+  getIt.registerFactoryParam<NewWalletTypePage,
+          void Function(BuildContext, WalletType), bool>(
+      (para1, param2) => NewWalletTypePage(getIt.get<WalletNewVM>(),
+          onTypeSelected: para1, isNewWallet: param2));
 }

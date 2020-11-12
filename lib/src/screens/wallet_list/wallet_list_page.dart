@@ -165,7 +165,7 @@ class WalletListBodyState extends State<WalletListBody> {
           ),
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
-              onPressed: () => _generateNewWallet(),
+              onPressed: () => Navigator.of(context).pushNamed(Routes.newWalletType),
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
@@ -175,7 +175,7 @@ class WalletListBodyState extends State<WalletListBody> {
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () =>
-                    Navigator.of(context).pushNamed(Routes.restoreWallet),
+                    Navigator.of(context).pushNamed(Routes.restoreWalletType),
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).accentTextTheme.caption.color,
