@@ -82,7 +82,7 @@ final dates = {
   "2020-8": 2153983,
   "2020-9": 2176466,
   "2020-10": 2198453,
-  "2020-11": 2221803
+  "2020-11": 2220000
 };
 
 final heightCoefficient = 0.7;
@@ -104,9 +104,9 @@ int getHeigthByDate({DateTime date}) {
     startHeight = dates[raw];
     final index = dates.values.toList().indexOf(startHeight);
     endHeight = dates.values.toList()[index + 1];
-    final heightPerDay = (endHeight - startHeight) / 31;
-    final daysHeight = (date.day - 1) * heightPerDay.round();
-    height = startHeight + daysHeight;
+    final heightPerDay = ((endHeight - startHeight) / 31).round();
+    final daysHeight = (date.day - 1) * heightPerDay;
+    height = startHeight + daysHeight - heightPerDay;
   }
 
   return height;
