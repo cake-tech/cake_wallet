@@ -98,14 +98,14 @@ int getHeigthByDate({DateTime date}) {
     startHeight = dates.values.toList()[dates.length - 2];
     endHeight = dates.values.toList()[dates.length - 1];
     final heightPerDay = (endHeight - startHeight) / 31;
-    final daysHeight = (heightCoefficient * date.day * heightPerDay).round();
+    final daysHeight = (heightCoefficient * (date.day - 1) * heightPerDay).round();
     height = endHeight + daysHeight;
   } else {
     startHeight = dates[raw];
     final index = dates.values.toList().indexOf(startHeight);
     endHeight = dates.values.toList()[index + 1];
     final heightPerDay = (endHeight - startHeight) / 31;
-    final daysHeight = date.day * heightPerDay.round();
+    final daysHeight = (date.day - 1) * heightPerDay.round();
     height = startHeight + daysHeight;
   }
 
