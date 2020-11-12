@@ -13,6 +13,6 @@ void startCurrentFiatChangeReaction(AppStore appStore, SettingsStore settingsSto
           (_) => settingsStore.fiatCurrency, (FiatCurrency fiatCurrency) async {
     final cryptoCurrency = appStore.wallet.currency;
     fiatConversionStore.price = await FiatConversionService.fetchPrice(
-        cryptoCurrency, settingsStore.fiatCurrency);
+        cryptoCurrency, fiatCurrency);
   });
 }
