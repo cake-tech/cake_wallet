@@ -10,11 +10,15 @@ enum RescanWalletState { rescaning, none }
 abstract class RescanViewModelBase with Store {
   RescanViewModelBase(this._wallet) {
     state = RescanWalletState.none;
+    isButtonEnabled = false;
   }
 
   @observable
   RescanWalletState state;
   final WalletBase _wallet;
+
+  @observable
+  bool isButtonEnabled;
 
   @action
   Future<void> rescanCurrentWallet({int restoreHeight}) async {

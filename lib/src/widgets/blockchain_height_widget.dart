@@ -6,10 +6,12 @@ import 'package:cake_wallet/monero/get_height_by_date.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
-  BlockchainHeightWidget({GlobalKey key, this.onHeightChange, this.focusNode})
+  BlockchainHeightWidget({GlobalKey key, this.onHeightChange, this.focusNode,
+    this.onHeightOrDateEntered})
       : super(key: key);
 
   final Function(int) onHeightChange;
+  final Function(bool) onHeightOrDateEntered;
   final FocusNode focusNode;
 
   @override
@@ -26,6 +28,13 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
   @override
   void initState() {
     restoreHeightController.addListener(() {
+      if (restoreHeightController.text.isNotEmpty) {
+        widget.onHeightOrDateEntered?.call(true);
+      }
+      else {
+        widget.onHeightOrDateEntered?.call(false);
+        dateController.text = '';
+      }
       try {
         _changeHeight(restoreHeightController.text != null &&
                 restoreHeightController.text.isNotEmpty
@@ -83,6 +92,18 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
             ))
           ],
         ),
+        Padding(
+          padding: EdgeInsets.only(left: 40, right: 40, top: 24),
+          child: Text(
+            S.of(context).restore_from_date_or_blockheight,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).hintColor
+            ),
+          ),
+        )
       ],
     );
   }
