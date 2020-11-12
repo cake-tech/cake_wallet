@@ -103,15 +103,15 @@ class MoneroWalletService extends WalletService<
       final isValid = await wallet.validate();
 
       if (!isValid) {
-        if (wallet.seed?.isNotEmpty ?? false) {
+        // if (wallet.seed?.isNotEmpty ?? false) {
           // let restore from seed in this case;
-          final seed = wallet.seed;
-          final credentials = MoneroRestoreWalletFromSeedCredentials(
-              name: name, password: password, mnemonic: seed, height: 2000000)
-            ..walletInfo = walletInfo;
-          await remove(name);
-          return restoreFromSeed(credentials);
-        }
+          // final seed = wallet.seed;
+          // final credentials = MoneroRestoreWalletFromSeedCredentials(
+          //     name: name, password: password, mnemonic: seed, height: 2000000)
+          //   ..walletInfo = walletInfo;
+          // await remove(name);
+          // return restoreFromSeed(credentials);
+        // }
 
         throw MoneroWalletLoadingException();
       }

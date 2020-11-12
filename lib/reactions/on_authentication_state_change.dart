@@ -7,13 +7,19 @@ import 'package:cake_wallet/store/authentication_store.dart';
 
 ReactionDisposer _onAuthenticationStateChange;
 
+dynamic loginError;
+
 void startAuthenticationStateChange(AuthenticationStore authenticationStore,
     @required GlobalKey<NavigatorState> navigatorKey) {
   _onAuthenticationStateChange ??= autorun((_) async {
     final state = authenticationStore.state;
 
     if (state == AuthenticationState.installed) {
-      await loadCurrentWallet();
+      try {
+        await loadCurrentWallet();
+      } catch(e) {
+        loginError = e;
+      }
       return;
     }
 
