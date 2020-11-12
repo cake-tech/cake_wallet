@@ -58,6 +58,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       {@required String password,
       @required String name,
       @required String dirPath,
+        @required WalletInfo walletInfo,
       String jsonSource}) {
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
@@ -83,7 +84,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         name: name,
         accountIndex: accountIndex,
         initialAddresses: addresses,
-        initialBalance: balance);
+        initialBalance: balance,
+        walletInfo: walletInfo);
   }
 
   static BitcoinWallet build(
@@ -91,6 +93,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       @required String password,
       @required String name,
       @required String dirPath,
+      @required WalletInfo walletInfo,
       List<BitcoinAddressRecord> initialAddresses,
       BitcoinBalance initialBalance,
       int accountIndex = 0}) {
@@ -107,7 +110,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         accountIndex: accountIndex,
         initialAddresses: initialAddresses,
         initialBalance: initialBalance,
-        transactionHistory: history);
+        transactionHistory: history,
+        walletInfo: walletInfo);
   }
 
   @override
