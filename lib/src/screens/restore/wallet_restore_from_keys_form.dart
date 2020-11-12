@@ -6,7 +6,10 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
-  WalletRestoreFromKeysFrom({Key key}) : super(key: key);
+  WalletRestoreFromKeysFrom({Key key, this.onHeightOrDateEntered})
+      : super(key: key);
+
+  final Function (bool) onHeightOrDateEntered;
 
   @override
   WalletRestoreFromKeysFromState createState() =>
@@ -63,7 +66,9 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                     hintText: S.of(context).restore_spend_key_private,
                     maxLines: null)),
             BlockchainHeightWidget(
-                key: blockchainHeightKey, onHeightChange: (_) => null)
+                key: blockchainHeightKey,
+                onHeightChange: (_) => null,
+                onHeightOrDateEntered: widget.onHeightOrDateEntered)
           ]),
         ));
   }
