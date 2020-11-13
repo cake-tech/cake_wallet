@@ -40,6 +40,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
         unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
     _onAccountChangeReaction = reaction((_) => account, (Account account) {
+      balance = MoneroBalance(
+          fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
+          unlockedBalance:
+          monero_wallet.getUnlockedBalance(accountIndex: account.id));
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
