@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
@@ -74,27 +75,41 @@ abstract class DashboardViewModelBase with Store {
     wallet ??= appStore.wallet;
     type = wallet.type;
 
-    transactions = ObservableList.of(wallet
-        .transactionHistory.transactions.values
-        .map((transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore)));
-
     _reaction = reaction((_) => appStore.wallet, _onWalletChange);
-    // FIXME: fixme
-    connectMapToListWithTransform(
-        appStore.wallet.transactionHistory.transactions,
-        transactions,
-        (TransactionInfo val) => TransactionListItem(
-            transaction: val,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore));
 
     final _wallet = wallet;
 
     if (_wallet is MoneroWallet) {
       subname = _wallet.account?.label;
+
+      _onMoneroAccountChangeReaction = reaction((_) => _wallet.account,
+              (Account account) => _onMoneroAccountChange(_wallet));
+
+      final _accountTransactions = _wallet
+          .transactionHistory.transactions.values
+          .where((tx) => tx.accountIndex == _wallet.account.id).toList();
+
+      transactions = ObservableList.of(_accountTransactions
+          .map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
+    } else {
+      transactions = ObservableList.of(wallet
+          .transactionHistory.transactions.values
+          .map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
+
+      // FIXME: fixme
+      connectMapToListWithTransform(
+          appStore.wallet.transactionHistory.transactions,
+          transactions,
+              (TransactionInfo val) => TransactionListItem(
+              transaction: val,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore));
     }
   }
 
@@ -170,6 +185,8 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer _reaction;
 
+  ReactionDisposer _onMoneroAccountChangeReaction;
+
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
     await wallet.connectToNode(node: node);
@@ -180,10 +197,38 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     name = wallet.name;
     transactions.clear();
-    transactions.addAll(wallet.transactionHistory.transactions.values.map(
-        (transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore)));
+
+    if (wallet is MoneroWallet) {
+      final _accountTransactions = wallet
+          .transactionHistory.transactions.values
+          .where((tx) => tx.accountIndex == wallet.account.id).toList();
+
+      transactions.addAll(_accountTransactions
+          .map((transaction) => TransactionListItem(
+          transaction: transaction,
+          balanceViewModel: balanceViewModel,
+          settingsStore: appStore.settingsStore)));
+    } else {
+      transactions.addAll(wallet.transactionHistory.transactions.values.map(
+              (transaction) => TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
+    }
+  }
+
+  @action
+  void _onMoneroAccountChange(MoneroWallet wallet) {
+    transactions.clear();
+
+    final _accountTransactions = wallet
+        .transactionHistory.transactions.values
+        .where((tx) => tx.accountIndex == wallet.account.id).toList();
+
+    transactions.addAll(_accountTransactions
+        .map((transaction) => TransactionListItem(
+        transaction: transaction,
+        balanceViewModel: balanceViewModel,
+        settingsStore: appStore.settingsStore)));
   }
 }
