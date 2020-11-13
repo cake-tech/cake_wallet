@@ -77,7 +77,7 @@ class SeedWidgetState extends State<SeedWidget> {
                           fontSize: 16.0, color: Theme.of(context).hintColor))),
             Padding(
                 padding: EdgeInsets.only(right: 40, top: 10),
-                child: ValidableAnnotatedEditableText(
+                child: ValidatableAnnotatedEditableText(
                   cursorColor: Colors.blue,
                   backgroundCursorColor: Colors.blue,
                   validStyle: TextStyle(

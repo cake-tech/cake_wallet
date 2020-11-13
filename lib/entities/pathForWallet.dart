@@ -19,3 +19,10 @@ Future<String> pathForWalletDir({@required String name, @required  WalletType ty
 Future<String> pathForWallet({@required String name, @required WalletType type}) async =>
     await pathForWalletDir(name: name, type: type)
         .then((path) => path + '/$name');
+
+Future<String> outdatedAndroidPathForWalletDir({String name}) async {
+  final directory = await getApplicationDocumentsDirectory();
+  final pathDir = directory.path + '/$name';
+
+  return pathDir;
+}
