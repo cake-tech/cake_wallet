@@ -20,7 +20,7 @@ abstract class MoneroAccountListBase with Store {
   bool _isRefreshing;
   bool _isUpdating;
 
-  Future update() async {
+  void update() async {
     if (_isUpdating) {
       return;
     }
