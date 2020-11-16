@@ -203,7 +203,8 @@ Future setup(
             authPageState.changeProcessText('Loading the wallet');
 
             if (loginError != null) {
-              authPageState.changeProcessText('ERROR: ${loginError.toString()}');
+              authPageState
+                  .changeProcessText('ERROR: ${loginError.toString()}');
             }
 
             ReactionDisposer _reaction;
