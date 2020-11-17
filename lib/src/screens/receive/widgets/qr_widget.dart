@@ -11,7 +11,9 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 
 class QRWidget extends StatelessWidget {
   QRWidget(
-      {@required this.addressListViewModel, this.isAmountFieldShow = false})
+      {@required this.addressListViewModel,
+      this.isAmountFieldShow = false,
+      this.amountTextFieldFocusNode})
       : amountController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
     amountController.addListener(() => addressListViewModel.amount =
@@ -21,6 +23,7 @@ class QRWidget extends StatelessWidget {
   final WalletAddressListViewModel addressListViewModel;
   final bool isAmountFieldShow;
   final TextEditingController amountController;
+  final FocusNode amountTextFieldFocusNode;
   final GlobalKey<FormState> _formKey;
 
   @override
@@ -45,7 +48,7 @@ class QRWidget extends StatelessWidget {
                             data: addressListViewModel.uri.toString(),
                             backgroundColor: Colors.transparent,
                             foregroundColor: Colors.white,
-                                //Theme.of(context).textTheme.headline.color,
+                            //Theme.of(context).textTheme.headline.color,
                           ))))),
           Spacer(flex: 3)
         ]),
@@ -68,6 +71,7 @@ class QRWidget extends StatelessWidget {
                         child: Form(
                             key: _formKey,
                             child: BaseTextFormField(
+                                focusNode: amountTextFieldFocusNode,
                                 controller: amountController,
                                 keyboardType: TextInputType.numberWithOptions(
                                     decimal: true),

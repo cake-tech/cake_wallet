@@ -22,8 +22,8 @@ class TextAnnotation extends Comparable<TextAnnotation> {
   int compareTo(TextAnnotation other) => text.compareTo(other.text);
 }
 
-class ValidableAnnotatedEditableText extends EditableText {
-  ValidableAnnotatedEditableText({
+class ValidatableAnnotatedEditableText extends EditableText {
+  ValidatableAnnotatedEditableText({
     Key key,
     FocusNode focusNode,
     TextEditingController controller,
@@ -49,7 +49,7 @@ class ValidableAnnotatedEditableText extends EditableText {
             controller: controller,
             cursorColor: cursorColor,
             style: validStyle,
-            keyboardType: TextInputType.text,
+            keyboardType: TextInputType.visiblePassword,
             autocorrect: false,
             autofocus: false,
             selectionColor: selectionColor,
@@ -73,14 +73,14 @@ class ValidableAnnotatedEditableText extends EditableText {
   final TextStyle invalidStyle;
 
   @override
-  ValidableAnnotatedEditableTextState createState() =>
-      ValidableAnnotatedEditableTextState();
+  ValidatableAnnotatedEditableTextState createState() =>
+      ValidatableAnnotatedEditableTextState();
 }
 
-class ValidableAnnotatedEditableTextState extends EditableTextState {
+class ValidatableAnnotatedEditableTextState extends EditableTextState {
   @override
-  ValidableAnnotatedEditableText get widget =>
-      super.widget as ValidableAnnotatedEditableText;
+  ValidatableAnnotatedEditableText get widget =>
+      super.widget as ValidatableAnnotatedEditableText;
 
   List<Annotation> getRanges() {
     final result = List<Annotation>();
