@@ -39,12 +39,15 @@ class AuthPageState extends State<AuthPage> {
     _reaction ??=
         reaction((_) => widget.authViewModel.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        _authBar?.dismiss();
-        if (widget.onAuthenticationFinished != null) {
-          widget.onAuthenticationFinished(true, this);
-        } else {
-          showBar<void>(context, S.of(context).authenticated);
-        }
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _authBar?.dismiss();
+          if (widget.onAuthenticationFinished != null) {
+            widget.onAuthenticationFinished(true, this);
+          } else {
+            showBar<void>(context, S.of(context).authenticated);
+          }
+        });
+        setState(() {});
       }
 
       if (state is IsExecutingState) {
