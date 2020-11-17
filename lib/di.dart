@@ -48,6 +48,7 @@ import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
+import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
@@ -272,7 +273,7 @@ Future setup(
   getIt.registerFactory(() => MoneroAccountListPage(
       accountListViewModel: getIt.get<MoneroAccountListViewModel>()));
 
-  getIt.registerFactory(() {
+  /*getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
 
     if (wallet is MoneroWallet) {
@@ -285,7 +286,20 @@ Future setup(
 
   getIt.registerFactory(() => MoneroAccountEditOrCreatePage(
       moneroAccountCreationViewModel:
-          getIt.get<MoneroAccountEditOrCreateViewModel>()));
+          getIt.get<MoneroAccountEditOrCreateViewModel>()));*/
+
+  getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel,
+      AccountListItem, void>(
+          (AccountListItem account, _) =>
+          MoneroAccountEditOrCreateViewModel((
+              getIt.get<AppStore>().wallet as MoneroWallet).accountList,
+              accountListItem: account));
+
+  getIt.registerFactoryParam<MoneroAccountEditOrCreatePage,
+      AccountListItem, void>((AccountListItem account, _) =>
+      MoneroAccountEditOrCreatePage(
+          moneroAccountCreationViewModel:
+          getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();

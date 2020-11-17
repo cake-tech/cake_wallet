@@ -116,6 +116,8 @@ class ReceivePage extends BasePage {
                     }
 
                     if (item is WalletAddressListItem) {
+                      final isFirst = addressListViewModel.isFirstAddress;
+                      addressListViewModel.isFirstAddress = false;
                       cell = Observer(builder: (_) {
                         final isCurrent = item.address ==
                             addressListViewModel.address.address;
@@ -134,6 +136,7 @@ class ReceivePage extends BasePage {
 
                         return AddressCell.fromItem(item,
                             isCurrent: isCurrent,
+                            isFirstAddress: isFirst,
                             backgroundColor: backgroundColor,
                             textColor: textColor,
                             onTap: (_) => addressListViewModel.setAddress(item),

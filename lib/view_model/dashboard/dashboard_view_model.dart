@@ -1,6 +1,8 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/monero/account.dart';
+import 'package:cake_wallet/monero/monero_transaction_history.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
@@ -84,6 +86,10 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroAccountChangeReaction = reaction((_) => _wallet.account,
               (Account account) => _onMoneroAccountChange(_wallet));
+
+      _onMoneroTransactionsChangeReaction = reaction((_) => _wallet.transactionHistory,
+              (MoneroTransactionHistory transactionHistory) =>
+                  _onMoneroTransactionsChange(_wallet));
 
       final _accountTransactions = _wallet
           .transactionHistory.transactions.values
@@ -187,6 +193,8 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer _onMoneroAccountChangeReaction;
 
+  ReactionDisposer _onMoneroTransactionsChangeReaction;
+
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
     await wallet.connectToNode(node: node);
@@ -199,6 +207,18 @@ abstract class DashboardViewModelBase with Store {
     transactions.clear();
 
     if (wallet is MoneroWallet) {
+      subname = wallet.account?.label;
+
+      _onMoneroAccountChangeReaction?.reaction?.dispose();
+      _onMoneroTransactionsChangeReaction?.reaction?.dispose();
+
+      _onMoneroAccountChangeReaction = reaction((_) => wallet.account,
+              (Account account) => _onMoneroAccountChange(wallet));
+
+      _onMoneroTransactionsChangeReaction = reaction((_) => wallet.transactionHistory,
+              (MoneroTransactionHistory transactionHistory) =>
+              _onMoneroTransactionsChange(wallet));
+
       final _accountTransactions = wallet
           .transactionHistory.transactions.values
           .where((tx) => tx.accountIndex == wallet.account.id).toList();
@@ -219,6 +239,22 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onMoneroAccountChange(MoneroWallet wallet) {
+    subname = wallet.account?.label;
+    transactions.clear();
+
+    final _accountTransactions = wallet
+        .transactionHistory.transactions.values
+        .where((tx) => tx.accountIndex == wallet.account.id).toList();
+
+    transactions.addAll(_accountTransactions
+        .map((transaction) => TransactionListItem(
+        transaction: transaction,
+        balanceViewModel: balanceViewModel,
+        settingsStore: appStore.settingsStore)));
+  }
+
+  @action
+  void _onMoneroTransactionsChange(MoneroWallet wallet) {
     transactions.clear();
 
     final _accountTransactions = wallet
