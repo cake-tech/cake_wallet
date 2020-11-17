@@ -2,12 +2,14 @@ import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -200,6 +202,12 @@ Future setup(
             }
 
             authPageState.changeProcessText('Loading the wallet');
+
+            if (loginError != null) {
+              authPageState
+                  .changeProcessText('ERROR: ${loginError.toString()}');
+            }
+
             ReactionDisposer _reaction;
             _reaction = reaction((_) => appStore.wallet, (Object _) {
               _reaction?.reaction?.dispose();

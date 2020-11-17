@@ -28,8 +28,12 @@ class WalletRestorePage extends BasePage {
     _pages.addAll([
       WalletRestoreFromSeedForm(
           key: walletRestoreFromSeedFormKey,
-          blockHeightFocusNode: _blockHeightFocusNode),
-      WalletRestoreFromKeysFrom(key: walletRestoreFromKeysFormKey)
+          blockHeightFocusNode: _blockHeightFocusNode,
+          onHeightOrDateEntered: (value)
+          => walletRestoreViewModel.isButtonEnabled = value),
+      WalletRestoreFromKeysFrom(key: walletRestoreFromKeysFormKey,
+          onHeightOrDateEntered: (value)
+          => walletRestoreViewModel.isButtonEnabled = value)
     ]);
   }
 
@@ -72,6 +76,21 @@ class WalletRestorePage extends BasePage {
       }
     });
 
+    reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode)
+      {
+        walletRestoreViewModel.isButtonEnabled = false;
+
+        walletRestoreFromSeedFormKey.currentState.blockchainHeightKey
+            .currentState.restoreHeightController.text = '';
+        walletRestoreFromSeedFormKey.currentState.blockchainHeightKey
+            .currentState.dateController.text = '';
+
+        walletRestoreFromKeysFormKey.currentState.blockchainHeightKey
+            .currentState.restoreHeightController.text = '';
+        walletRestoreFromKeysFormKey.currentState.blockchainHeightKey
+            .currentState.dateController.text = '';
+      });
+
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Expanded(
           child: PageView.builder(
@@ -113,7 +132,8 @@ class WalletRestorePage extends BasePage {
                       .accentTextTheme
                       .headline
                       .decorationColor,
-                  isLoading: walletRestoreViewModel.state is IsExecutingState);
+                  isLoading: walletRestoreViewModel.state is IsExecutingState,
+                  isDisabled: !walletRestoreViewModel.isButtonEnabled,);
             },
           ))
     ]);
