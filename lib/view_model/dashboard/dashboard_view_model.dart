@@ -89,7 +89,7 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroTransactionsChangeReaction = reaction((_) => _wallet.transactionHistory,
               (MoneroTransactionHistory transactionHistory) =>
-                  _onMoneroTransactionsChange(_wallet));
+                  _onMoneroTransactionsUpdate(_wallet));
 
       final _accountTransactions = _wallet
           .transactionHistory.transactions.values
@@ -204,7 +204,6 @@ abstract class DashboardViewModelBase with Store {
   void _onWalletChange(WalletBase wallet) {
     this.wallet = wallet;
     name = wallet.name;
-    transactions.clear();
 
     if (wallet is MoneroWallet) {
       subname = wallet.account?.label;
@@ -217,18 +216,12 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroTransactionsChangeReaction = reaction((_) => wallet.transactionHistory,
               (MoneroTransactionHistory transactionHistory) =>
-              _onMoneroTransactionsChange(wallet));
+              _onMoneroTransactionsUpdate(wallet));
 
-      final _accountTransactions = wallet
-          .transactionHistory.transactions.values
-          .where((tx) => tx.accountIndex == wallet.account.id).toList();
-
-      transactions.addAll(_accountTransactions
-          .map((transaction) => TransactionListItem(
-          transaction: transaction,
-          balanceViewModel: balanceViewModel,
-          settingsStore: appStore.settingsStore)));
+      _onMoneroTransactionsUpdate(wallet);
     } else {
+      transactions.clear();
+
       transactions.addAll(wallet.transactionHistory.transactions.values.map(
               (transaction) => TransactionListItem(
               transaction: transaction,
@@ -240,21 +233,11 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onMoneroAccountChange(MoneroWallet wallet) {
     subname = wallet.account?.label;
-    transactions.clear();
-
-    final _accountTransactions = wallet
-        .transactionHistory.transactions.values
-        .where((tx) => tx.accountIndex == wallet.account.id).toList();
-
-    transactions.addAll(_accountTransactions
-        .map((transaction) => TransactionListItem(
-        transaction: transaction,
-        balanceViewModel: balanceViewModel,
-        settingsStore: appStore.settingsStore)));
+    _onMoneroTransactionsUpdate(wallet);
   }
 
   @action
-  void _onMoneroTransactionsChange(MoneroWallet wallet) {
+  void _onMoneroTransactionsUpdate(MoneroWallet wallet) {
     transactions.clear();
 
     final _accountTransactions = wallet
