@@ -401,10 +401,10 @@ packages:
     description:
       path: "."
       ref: cake
-      resolved-ref: a734c2ea3239f9153dba6f5bec740e1df54ee754
+      resolved-ref: d4d68a9c1e4c45eb236cd7a5a2fac84c394a7605
       url: "https://github.com/cake-tech/flutter_secure_storage.git"
     source: git
-    version: "3.3.55"
+    version: "3.3.57"
   flutter_slidable:
     dependency: "direct main"
     description:
@@ -498,7 +498,7 @@ packages:
       name: image
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.18"
+    version: "2.1.19"
   intl:
     dependency: "direct main"
     description:
@@ -1000,7 +1000,7 @@ packages:
       name: win32
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.7.3"
+    version: "1.7.4"
   xdg_directories:
     dependency: transitive
     description:

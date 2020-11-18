@@ -125,8 +125,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     _onAccountChangeReaction?.reaction?.dispose();
   }
 
-  Future<bool> validate() async {
-    await accountList.update();
+  bool validate() {
+    accountList.update();
     final accountListLength = accountList.accounts?.length ?? 0;
 
     if (accountListLength <= 0) {
