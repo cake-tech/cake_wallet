@@ -1,3 +1,6 @@
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/node_list/connection_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -10,6 +13,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/node_list/connection_state.dart';
 
 class NodeCreateOrEditPage extends BasePage {
   NodeCreateOrEditPage(this.nodeCreateOrEditViewModel)
@@ -60,6 +64,8 @@ class NodeCreateOrEditPage extends BasePage {
   final TextEditingController _loginController;
   final TextEditingController _passwordController;
 
+  bool _effectsInstalled = false;
+
   @override
   String get title => S.current.node_new;
 
@@ -67,6 +73,8 @@ class NodeCreateOrEditPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    _setEffects(context);
+
     return Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
@@ -133,9 +141,18 @@ class NodeCreateOrEditPage extends BasePage {
                       Flexible(
                           child: Container(
                         padding: EdgeInsets.only(right: 8.0),
-                        child: PrimaryButton(
-                            onPressed: () => nodeCreateOrEditViewModel.reset(),
-                            text: S.of(context).reset,
+                        child: LoadingPrimaryButton(
+                            onPressed: () async {
+                              if (!_formKey.currentState.validate()) {
+                                return;
+                              }
+
+                              await nodeCreateOrEditViewModel.connect();
+                            },
+                            isLoading: nodeCreateOrEditViewModel
+                                .connectionState is IsConnectingState,
+                            text: 'Connect',
+                            isDisabled: !nodeCreateOrEditViewModel.isReady,
                             color: Colors.orange,
                             textColor: Colors.white),
                       )),
@@ -160,5 +177,45 @@ class NodeCreateOrEditPage extends BasePage {
                     ],
                   )),
         ));
+  }
+
+  void _setEffects(BuildContext context) {
+    if (_effectsInstalled) {
+      return;
+    }
+
+    reaction((_) => nodeCreateOrEditViewModel.connectionState,
+            (ConnectionToNodeState state) {
+          if (state is ConnectedSuccessfullyState) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showPopUp<void>(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      AlertWithOneAction(
+                          alertTitle: S.of(context).node_new,
+                          alertContent: state.isAlive
+                              ? 'Connected to node'
+                              : 'Not connected to node',
+                          buttonText: S.of(context).ok,
+                          buttonAction: () => Navigator.of(context).pop()));
+            });
+          }
+
+          if (state is FailureConnectedState) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showPopUp<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertWithOneAction(
+                        alertTitle: S.of(context).error,
+                        alertContent: state.error,
+                        buttonText: S.of(context).ok,
+                        buttonAction: () => Navigator.of(context).pop());
+                  });
+            });
+          }
+        });
+
+    _effectsInstalled = true;
   }
 }
