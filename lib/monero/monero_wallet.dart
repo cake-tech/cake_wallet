@@ -147,7 +147,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
           address: node.uri,
           login: node.login,
           password: node.password,
-          useSSL: false,
+          useSSL: true,
           // FIXME: hardcoded value
           isLightWallet: false); // FIXME: hardcoded value
       syncStatus = ConnectedSyncStatus();
