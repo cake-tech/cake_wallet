@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -61,7 +62,10 @@ class ExchangePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
-      caption: S.of(context).reset, onPressed: () => exchangeViewModel.reset());
+      caption: S.of(context).reset, onPressed: () {
+        _formKey.currentState.reset();
+        exchangeViewModel.reset();
+  });
 
   @override
   Widget body(BuildContext context) {
@@ -373,13 +377,12 @@ class ExchangePage extends BasePage {
                     child: Observer(builder: (_) {
                       final description =
                           exchangeViewModel.provider is XMRTOExchangeProvider
-                              ? exchangeViewModel.isReceiveAmountEntered
-                                ? S.of(context).amount_is_guaranteed
-                                : S.of(context).amount_is_estimate
+                              ? S.of(context).amount_is_guaranteed
                               : S.of(context).amount_is_estimate;
                       return Center(
                         child: Text(
                           description,
+                          textAlign: TextAlign.center,
                           style: TextStyle(
                               color: Theme.of(context)
                                   .primaryTextTheme
@@ -392,19 +395,30 @@ class ExchangePage extends BasePage {
                     }),
                   ),
                   Observer(
-                      builder: (_) => LoadingPrimaryButton(
-                            text: S.of(context).exchange,
-                            onPressed: () {
-                              if (_formKey.currentState.validate()) {
-                                exchangeViewModel.createTrade();
-                              }
-                            },
-                            color:
-                                Theme.of(context).accentTextTheme.body2.color,
-                            textColor: Colors.white,
-                            isLoading: exchangeViewModel.tradeState
-                                is TradeIsCreating,
-                          )),
+                    builder: (_) => LoadingPrimaryButton(
+                      text: S.of(context).exchange,
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {
+                          if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr)
+                          &&(!(exchangeViewModel.status is SyncedSyncStatus))) {
+                            showPopUp<void>(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertWithOneAction(
+                                  alertTitle: S.of(context).exchange,
+                                  alertContent: S.of(context).exchange_sync_alert_content,
+                                  buttonText: S.of(context).ok,
+                                  buttonAction: () => Navigator.of(context).pop());
+                              });
+                          } else {
+                            exchangeViewModel.createTrade();
+                          }
+                        }
+                      },
+                      color: Theme.of(context).accentTextTheme.body2.color,
+                      textColor: Colors.white,
+                      isLoading: exchangeViewModel.tradeState
+                                 is TradeIsCreating)),
                 ]),
               )),
         ));

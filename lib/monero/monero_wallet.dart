@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:cake_wallet/monero/monero_amount_format.dart';
+import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/wallet.dart';
@@ -19,7 +23,6 @@ import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 
-
 part 'monero_wallet.g.dart';
 
 const moneroBlockSize = 1000;
@@ -40,9 +43,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
+      _lastAutosaveTimestamp = 0;
+      _isSavingAfterSync = false;
+      _isSavingAfterNewTransaction = false;
     });
-    _cachedRefreshHeight = 0;
   }
+
+  static const int _autoAfterSyncSaveInterval = 60000;
 
   @override
   final MoneroTransactionHistory transactionHistory;
@@ -80,9 +87,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   final MoneroAccountList accountList;
 
   String _filename;
-  SyncListner _listener;
+  SyncListener _listener;
   ReactionDisposer _onAccountChangeReaction;
-  int _cachedRefreshHeight;
+  int _lastAutosaveTimestamp;
+  bool _isSavingAfterSync;
+  bool _isSavingAfterNewTransaction;
 
   Future<void> init() async {
     await accountList.update();
@@ -92,15 +101,42 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
         unlockedBalance:
-            monero_wallet.getFullBalance(accountIndex: account.id));
+            monero_wallet.getUnlockedBalance(accountIndex: account.id));
     address = subaddress.address;
     _setListeners();
     await transactionHistory.update();
+
+    if (walletInfo.isRecovery) {
+      monero_wallet.setRecoveringFromSeed(isRecovery: walletInfo.isRecovery);
+
+      if (monero_wallet.getCurrentHeight() <= 1) {
+        monero_wallet.setRefreshFromBlockHeight(
+            height: walletInfo.restoreHeight);
+      }
+    }
   }
 
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction?.dispose();
+  }
+
+  bool validate() {
+    accountList.update();
+    final accountListLength = accountList.accounts?.length ?? 0;
+
+    if (accountListLength <= 0) {
+      return false;
+    }
+
+    subaddressList.update(accountIndex: accountList.accounts.first.id);
+    final subaddressListLength = subaddressList.subaddresses?.length ?? 0;
+
+    if (subaddressListLength <= 0) {
+      return false;
+    }
+
+    return true;
   }
 
   @override
@@ -130,6 +166,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     try {
       syncStatus = StartingSyncStatus();
       monero_wallet.startRefresh();
+      _setListeners();
+      _listener?.start();
     } catch (e) {
       syncStatus = FailedSyncStatus();
       print(e);
@@ -140,6 +178,24 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
+    final amount = _credentials.amount != null
+        ? moneroParseAmount(amount: _credentials.amount)
+        : null;
+    final unlockedBalance =
+        monero_wallet.getUnlockedBalance(accountIndex: account.id);
+
+    if ((amount != null && unlockedBalance < amount) ||
+        (amount == null && unlockedBalance <= 0)) {
+      final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+
+      throw MoneroTransactionCreationException(
+          'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${_credentials.amount}.');
+    }
+
+    if (!(syncStatus is SyncedSyncStatus)) {
+      throw MoneroTransactionCreationException('The wallet is not synced.');
+    }
+
     final pendingTransactionDescription =
         await transaction_history.createTransaction(
             address: _credentials.address,
@@ -207,9 +263,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   void _setListeners() {
     _listener?.stop();
-    _listener = monero_wallet.setListeners(
-        _onNewBlock, _onNeedToRefresh, _onNewTransaction);
-    _listener.start();
+    _listener = monero_wallet.setListeners(_onNewBlock, _onNewTransaction);
   }
 
   void _setInitialHeight() {
@@ -247,8 +301,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   void _askForUpdateBalance() {
-    final fullBalance = _getFullBalance();
     final unlockedBalance = _getUnlockedBalance();
+    final fullBalance = _getFullBalance();
 
     if (balance.fullBalance != fullBalance ||
         balance.unlockedBalance != unlockedBalance) {
@@ -267,37 +321,68 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   int _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: account.id);
 
-  void _onNewBlock(int height, int blocksLeft, double ptc) =>
-      syncStatus = SyncingSyncStatus(blocksLeft, ptc);
-
-  Future _onNeedToRefresh() async {
-    if (syncStatus is FailedSyncStatus) {
+  Future<void> _afterSyncSave() async {
+    if (_isSavingAfterSync) {
       return;
     }
 
-    syncStatus = SyncedSyncStatus();
+    _isSavingAfterSync = true;
 
+    try {
+      final nowTimestamp = DateTime.now().millisecondsSinceEpoch;
+      final sum = _lastAutosaveTimestamp + _autoAfterSyncSaveInterval;
+
+      if (_lastAutosaveTimestamp > 0 && sum < nowTimestamp) {
+        return;
+      }
+
+      await save();
+      _lastAutosaveTimestamp = nowTimestamp + _autoAfterSyncSaveInterval;
+    } catch (e) {
+      print(e.toString());
+    }
+
+    _isSavingAfterSync = false;
+  }
+
+  Future<void> _afterNewTransactionSave() async {
+    if (_isSavingAfterNewTransaction) {
+      return;
+    }
+
+    _isSavingAfterNewTransaction = true;
+
+    try {
+      await save();
+    } catch (e) {
+      print(e.toString());
+    }
+
+    _isSavingAfterNewTransaction = false;
+  }
+
+  void _onNewBlock(int height, int blocksLeft, double ptc) async {
     if (walletInfo.isRecovery) {
       _askForUpdateTransactionHistory();
       _askForUpdateBalance();
     }
 
-    final currentHeight = getCurrentHeight();
-    final nodeHeight = monero_wallet.getNodeHeightSync();
+    if (blocksLeft < 100) {
+      _askForUpdateBalance();
+      syncStatus = SyncedSyncStatus();
+      await _afterSyncSave();
 
-    if (walletInfo.isRecovery &&
-        (nodeHeight - currentHeight < moneroBlockSize)) {
-      await setAsRecovered();
-    }
-
-    if (currentHeight - _cachedRefreshHeight > moneroBlockSize) {
-      _cachedRefreshHeight = currentHeight;
-      await save();
+      if (walletInfo.isRecovery) {
+        setAsRecovered();
+      }
+    } else {
+      syncStatus = SyncingSyncStatus(blocksLeft, ptc);
     }
   }
 
   void _onNewTransaction() {
-    _askForUpdateBalance();
     _askForUpdateTransactionHistory();
+    _askForUpdateBalance();
+    Timer(Duration(seconds: 1), () => _afterNewTransactionSave());
   }
 }

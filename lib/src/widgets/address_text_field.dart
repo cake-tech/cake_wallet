@@ -220,9 +220,9 @@ class AddressTextField extends StatelessWidget {
   Future<void> _pasteAddress(BuildContext context) async {
     String address;
 
-    await Clipboard.getData('text/plain').then((value) => address = value.text);
+    await Clipboard.getData('text/plain').then((value) => address = value?.text);
 
-    if (address.isNotEmpty) {
+    if (address?.isNotEmpty ?? false) {
       controller.text = address;
     }
   }

@@ -13,29 +13,29 @@ import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 class TradeDetailsPage extends BasePage {
   TradeDetailsPage(this.trade) : _items = [] {
     final dateFormat = DateFormatter.withCurrentLocal();
-    final items = [
+    _items.addAll([
       StandartListItem(title: S.current.trade_details_id, value: trade.id),
       StandartListItem(
           title: S.current.trade_details_state,
           value: trade.state != null
               ? trade.state.toString()
               : S.current.trade_details_fetching)
-    ];
+    ]);
 
     if (trade.provider != null) {
-      items.add(StandartListItem(
+      _items.add(StandartListItem(
           title: S.current.trade_details_provider,
           value: trade.provider.toString()));
     }
 
     if (trade.createdAt != null) {
-      items.add(StandartListItem(
+      _items.add(StandartListItem(
           title: S.current.trade_details_created_at,
           value: dateFormat.format(trade.createdAt).toString()));
     }
 
     if (trade.from != null && trade.to != null) {
-      items.add(StandartListItem(
+      _items.add(StandartListItem(
           title: S.current.trade_details_pair,
           value: '${trade.from.toString()} → ${trade.to.toString()}'));
     }

@@ -1,31 +1,26 @@
-import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
-import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
+import 'dart:ui';
 import 'package:mobx/mobx.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-
-// import 'package:cake_wallet/src/stores/exchange_trade/exchange_trade_store.dart';
-// import 'package:cake_wallet/src/stores/send/send_store.dart';
-// import 'package:cake_wallet/src/stores/send/sending_state.dart';
-// import 'package:cake_wallet/src/stores/wallet/wallet_store.dart';
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
+import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/widgets/timer_widget.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
 void showInformation(
     ExchangeTradeViewModel exchangeTradeViewModel, BuildContext context) {
@@ -110,7 +105,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
         width: 16,
         color: Theme.of(context).primaryTextTheme.overline.color);
 
-    //_setEffects(context);
+    _setEffects(context);
 
     return Container(
       child: ScrollableWithBottomSection(
@@ -227,30 +222,25 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             );
           }),
           bottomSectionPadding: EdgeInsets.fromLTRB(24, 0, 24, 24),
-          bottomSection: PrimaryButton(
-              onPressed: () {},
-              text: S.of(context).confirm,
-              color: Theme.of(context).accentTextTheme.body2.color,
-              textColor: Colors.white)
-          /*Observer(
-            builder: (_) => tradeStore.trade.from == CryptoCurrency.xmr &&
-                !(sendStore.state is TransactionCommitted)
+          bottomSection: Observer(builder: (_) {
+            final trade = widget.exchangeTradeViewModel.trade;
+            final sendingState =
+                widget.exchangeTradeViewModel.sendViewModel.state;
+
+            return trade.from == CryptoCurrency.xmr && !(sendingState is TransactionCommitted)
                 ? LoadingPrimaryButton(
-                isDisabled: tradeStore.trade.inputAddress == null ||
-                    tradeStore.trade.inputAddress.isEmpty,
-                isLoading: sendStore.state is CreatingTransaction ||
-                    sendStore.state is TransactionCommitted,
-                onPressed: () => sendStore.createTransaction(
-                    address: tradeStore.trade.inputAddress,
-                    amount: tradeStore.trade.amount),
-                text: tradeStore.trade.provider ==
-                    ExchangeProviderDescription.xmrto
-                    ? S.of(context).confirm
-                    : S.of(context).send_xmr,
-                color: Colors.blue,
-                textColor: Colors.white)
-                : Offstage()),*/
-          ),
+                    isDisabled: trade.inputAddress == null ||
+                        trade.inputAddress.isEmpty,
+                    isLoading: sendingState is IsExecutingState,
+                    onPressed: () =>
+                        widget.exchangeTradeViewModel.confirmSending(),
+                    text: trade.provider == ExchangeProviderDescription.xmrto
+                        ? S.of(context).confirm
+                        : S.of(context).send_xmr,
+                    color: Theme.of(context).accentTextTheme.body2.color,
+                    textColor: Colors.white)
+                : Offstage();
+          })),
     );
   }
 
@@ -259,10 +249,9 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
       return;
     }
 
-    /*final sendStore = Provider.of<SendStore>(context);
-
-    reaction((_) => sendStore.state, (SendingState state) {
-      if (state is SendingFailed) {
+    reaction((_) => this.widget.exchangeTradeViewModel.sendViewModel.state,
+        (ExecutionState state) {
+      if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
@@ -271,30 +260,126 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     alertTitle: S.of(context).error,
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop()
-                );
+                    buttonAction: () => Navigator.of(context).pop());
               });
         });
       }
 
-      if (state is TransactionCreatedSuccessfully) {
+      if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
-                return AlertWithTwoActions(
+                return ConfirmSendingAlert(
                     alertTitle: S.of(context).confirm_sending,
-                    alertContent: S.of(context).commit_transaction_amount_fee(
-                        sendStore.pendingTransaction.amount,
-                        sendStore.pendingTransaction.fee),
-                    leftButtonText: S.of(context).ok,
-                    rightButtonText: S.of(context).cancel,
-                    actionLeftButton: () {
+                    amount: S.of(context).send_amount,
+                    amountValue: widget.exchangeTradeViewModel.sendViewModel
+                        .pendingTransaction.amountFormatted,
+                    fee: S.of(context).send_fee,
+                    feeValue: widget.exchangeTradeViewModel.sendViewModel
+                        .pendingTransaction.feeFormatted,
+                    rightButtonText: S.of(context).ok,
+                    leftButtonText: S.of(context).cancel,
+                    actionRightButton: () {
                       Navigator.of(context).pop();
-                      sendStore.commitTransaction();
+                      widget.exchangeTradeViewModel.sendViewModel
+                          .commitTransaction();
+                      showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return Observer(builder: (_) {
+                              final state = widget
+                                  .exchangeTradeViewModel.sendViewModel.state;
+
+                              if (state is TransactionCommitted) {
+                                return Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      color: Theme.of(context).backgroundColor,
+                                      child: Center(
+                                        child: Image.asset(
+                                            'assets/images/birthday_cake.png'),
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: 220, left: 24, right: 24),
+                                        child: Text(
+                                          S.of(context).send_success,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.bold,
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .title
+                                                .color,
+                                            decoration: TextDecoration.none,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                        left: 24,
+                                        right: 24,
+                                        bottom: 24,
+                                        child: PrimaryButton(
+                                            onPressed: () =>
+                                                Navigator.of(context).pop(),
+                                            text: S.of(context).send_got_it,
+                                            color: Theme.of(context)
+                                                .accentTextTheme
+                                                .body2
+                                                .color,
+                                            textColor: Colors.white))
+                                  ],
+                                );
+                              }
+
+                              return Stack(
+                                children: <Widget>[
+                                  Container(
+                                    color: Theme.of(context).backgroundColor,
+                                    child: Center(
+                                      child: Image.asset(
+                                          'assets/images/birthday_cake.png'),
+                                    ),
+                                  ),
+                                  BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                        sigmaX: 3.0, sigmaY: 3.0),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .backgroundColor
+                                              .withOpacity(0.25)),
+                                      child: Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(top: 220),
+                                          child: Text(
+                                            S.of(context).send_sending,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .title
+                                                  .color,
+                                              decoration: TextDecoration.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              );
+                            });
+                          });
                     },
-                    actionRightButton: () => Navigator.of(context).pop()
-                );
+                    actionLeftButton: () => Navigator.of(context).pop());
               });
         });
       }
@@ -308,12 +393,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     alertTitle: S.of(context).sending,
                     alertContent: S.of(context).transaction_sent,
                     buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop()
-                );
+                    buttonAction: () => Navigator.of(context).pop());
               });
         });
       }
-    });*/
+    });
 
     _effectsInstalled = true;
   }

@@ -63,9 +63,9 @@
   "clear" : "Очистити",
   "refund_address" : "Адреса повернення коштів",
   "change_exchange_provider" : "Змінити провайдера обміну",
-  "you_will_send" : "Ви відправите",
-  "you_will_get" : "Ви отримаєте",
-  "amount_is_guaranteed" : "Сума отримання гарантована",
+  "you_will_send" : "Конвертувати з",
+  "you_will_get" : "Конвертувати в",
+  "amount_is_guaranteed" : "ВАЖЛИВО:\nЯкщо ви хочете отримати гарантовану суму BTC, введіть цю суму в поле BTC. Якщо замість цього ввести суму XMR, отримана сума BTC є приблизною і може коливатися залежно від курсу.",
   "amount_is_estimate" : "Отримана сума є приблизною",
   "powered_by" : "Використовуючи ${title}",
   "error" : "Помилка",
@@ -88,8 +88,8 @@
   "offer_expires_in" : "Пропозиція закінчиться через: ",
   "trade_is_powered_by" : "Операція виконана через ${provider}",
   "copy_address" : "Cкопіювати адресу",
-  "exchange_result_confirm" : "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану вище. Або ви можете відправити зі свого зовнішнього гаманця на вищевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.",
-  "exchange_result_description" : "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану вище.",
+  "exchange_result_confirm" : "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану нижче. Або ви можете відправити зі свого зовнішнього гаманця на нижчевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.",
+  "exchange_result_description" : "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану нижче.",
   "exchange_result_write_down_ID" : "*Будь ласка, скопіюйте або запишіть ID, вказаний вище.",
   "confirm" : "Підтвердити",
   "confirm_sending" : "Підтвердити відправлення",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "Ви можете відновити гаманець використовуючи 12-ти слівну мнемонічну фразу",
   "restore_bitcoin_description_from_keys" : "Ви можете відновити гаманець за допомогою WIF",
   "restore_bitcoin_title_from_keys" : "Відновити за допомогою WIF",
-  "restore_from_date_or_blockheight" : "Будь ласка, введіть дату створення гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення",
+  "restore_from_date_or_blockheight" : "Будь ласка, введіть дату за кілька днів до створення цього гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення",
 
 
   "seed_reminder" : "Будь ласка, запишіть мнемонічну фразу на випадок втрати або очищення телефону",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "Скопійовано ${key} в буфер обміну",
 
 
-  "new_subaddress_title" : "Нова субадреса",
+  "new_subaddress_title" : "Нова адреса",
   "new_subaddress_label_name" : "Ім'я",
   "new_subaddress_create" : "Створити",
 
@@ -394,5 +394,18 @@
   "confirm_delete_template" : "Ця дія видалить шаблон. Ви хочете продовжити?",
   "confirm_delete_wallet" : "Ця дія видалить гаманець. Ви хочете продовжити?",
 
-  "picker_description" : "Щоб вибрати ChangeNOW або MorphToken, спочатку змініть пару для обміну"
+  "picker_description" : "Щоб вибрати ChangeNOW або MorphToken, спочатку змініть пару для обміну",
+
+  "change_wallet_alert_title" : "Змінити поточний гаманець",
+  "change_wallet_alert_content" : "Ви хочете змінити поточний гаманець на ${wallet_name}?",
+
+  "creating_new_wallet" : "Створення нового гаманця",
+  "creating_new_wallet_error" : "Помилка: ${description}",
+
+  "seed_alert_title" : "Увага",
+  "seed_alert_content" : "Мнемонічна фраза - єдиний спосіб відновити ваш гаманець. Ви записали її?",
+  "seed_alert_back" : "Назад",
+  "seed_alert_yes" : "Так",
+
+  "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується"
 }

@@ -28,8 +28,12 @@ class WalletRestorePage extends BasePage {
     _pages.addAll([
       WalletRestoreFromSeedForm(
           key: walletRestoreFromSeedFormKey,
-          blockHeightFocusNode: _blockHeightFocusNode),
-      WalletRestoreFromKeysFrom(key: walletRestoreFromKeysFormKey)
+          blockHeightFocusNode: _blockHeightFocusNode,
+          onHeightOrDateEntered: (value)
+          => walletRestoreViewModel.isButtonEnabled = value),
+      WalletRestoreFromKeysFrom(key: walletRestoreFromKeysFormKey,
+          onHeightOrDateEntered: (value)
+          => walletRestoreViewModel.isButtonEnabled = value)
     ]);
   }
 
@@ -42,13 +46,10 @@ class WalletRestorePage extends BasePage {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
+                fontFamily: 'Lato',
                 color: titleColor ??
                     Theme.of(context).primaryTextTheme.title.color),
           ));
-
-  @override
-  String get title => S.current.restore_title_from_seed;
 
   final WalletRestoreViewModel walletRestoreViewModel;
   final PageController _controller;
@@ -74,6 +75,21 @@ class WalletRestorePage extends BasePage {
         });
       }
     });
+
+    reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode)
+      {
+        walletRestoreViewModel.isButtonEnabled = false;
+
+        walletRestoreFromSeedFormKey.currentState.blockchainHeightKey
+            .currentState.restoreHeightController.text = '';
+        walletRestoreFromSeedFormKey.currentState.blockchainHeightKey
+            .currentState.dateController.text = '';
+
+        walletRestoreFromKeysFormKey.currentState.blockchainHeightKey
+            .currentState.restoreHeightController.text = '';
+        walletRestoreFromKeysFormKey.currentState.blockchainHeightKey
+            .currentState.dateController.text = '';
+      });
 
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Expanded(
@@ -105,10 +121,19 @@ class WalletRestorePage extends BasePage {
               return LoadingPrimaryButton(
                   onPressed: () =>
                       walletRestoreViewModel.create(options: _credentials()),
-                  text: S.of(context).seed_language_next,
-                  color: Colors.green,
-                  textColor: Colors.white,
-                  isLoading: walletRestoreViewModel.state is IsExecutingState);
+                  text: S.of(context).restore_recover,
+                  color: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .subtitle
+                      .decorationColor,
+                  textColor: Theme
+                      .of(context)
+                      .accentTextTheme
+                      .headline
+                      .decorationColor,
+                  isLoading: walletRestoreViewModel.state is IsExecutingState,
+                  isDisabled: !walletRestoreViewModel.isButtonEnabled,);
             },
           ))
     ]);

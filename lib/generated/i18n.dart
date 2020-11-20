@@ -35,7 +35,7 @@ class S implements WidgetsLocalizations {
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
-  String get amount_is_guaranteed => "The receive amount is guaranteed";
+  String get amount_is_guaranteed => "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above";
   String get auth_store_ban_timeout => "ban_timeout";
   String get auth_store_banned_for => "Banned for ";
   String get auth_store_banned_minutes => " minutes";
@@ -52,6 +52,7 @@ class S implements WidgetsLocalizations {
   String get change_currency => "Change Currency";
   String get change_exchange_provider => "Change Exchange Provider";
   String get change_language => "Change language";
+  String get change_wallet_alert_title => "Change current wallet";
   String get choose_account => "Choose account";
   String get choose_wallet_currency => "Please choose wallet currency:";
   String get clear => "Clear";
@@ -68,6 +69,7 @@ class S implements WidgetsLocalizations {
   String get copy_id => "Copy ID";
   String get create_new => "Create New Wallet";
   String get create_new_account => "Create new account";
+  String get creating_new_wallet => "Creating new wallet";
   String get delete => "Delete";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
@@ -93,11 +95,12 @@ class S implements WidgetsLocalizations {
   String get exchange_new_template => "New template";
   String get exchange_result_write_down_ID => "*Please copy or write down your ID shown above.";
   String get exchange_result_write_down_trade_id => "Please copy or write down the trade ID to continue.";
+  String get exchange_sync_alert_content => "Please wait until your wallet is synchronized";
   String get expired => "Expired";
   String get faq => "FAQ";
   String get fetching => "Fetching";
   String get filters => "Filter";
-  String get first_wallet_text => "Awesome wallet for Monero and Bitcoin";
+  String get first_wallet_text => "Awesome wallet for Monero";
   String get full_balance => "Full Balance";
   String get hidden_balance => "Hidden Balance";
   String get id => "ID: ";
@@ -107,7 +110,7 @@ class S implements WidgetsLocalizations {
   String get login => "Login";
   String get new_subaddress_create => "Create";
   String get new_subaddress_label_name => "Label name";
-  String get new_subaddress_title => "New subaddress";
+  String get new_subaddress_title => "New address";
   String get new_wallet => "New Wallet";
   String get node_address => "Node Address";
   String get node_new => "New Node";
@@ -136,7 +139,7 @@ class S implements WidgetsLocalizations {
   String get receive_amount => "Amount";
   String get received => "Received";
   String get reconnect => "Reconnect";
-  String get reconnect_alert_text => "Are you sure to reconnect?";
+  String get reconnect_alert_text => "Are you sure you want to reconnect?";
   String get reconnection => "Reconnection";
   String get refund_address => "Refund address";
   String get remove => "Remove";
@@ -154,7 +157,7 @@ class S implements WidgetsLocalizations {
   String get restore_description_from_keys => "Restore your wallet from generated keystrokes saved from your private keys";
   String get restore_description_from_seed => "Restore your wallet from either the 25 word or 13 word combination code";
   String get restore_description_from_seed_keys => "Get back your wallet from seed/keys that you've saved to secure place";
-  String get restore_from_date_or_blockheight => "Please enter the date you created this wallet. Or if you know the blockheight, please enter it instead";
+  String get restore_from_date_or_blockheight => "Please enter a date a few days before you created this wallet. Or if you know the blockheight, please enter it instead";
   String get restore_from_seed_placeholder => "Please enter or paste your seed here";
   String get restore_new_seed => "New seed";
   String get restore_next => "Next";
@@ -173,6 +176,10 @@ class S implements WidgetsLocalizations {
   String get save => "Save";
   String get saved_the_trade_id => "I've saved the trade ID";
   String get scan_qr_code => "Scan the QR code to get the address";
+  String get seed_alert_back => "Go back";
+  String get seed_alert_content => "The seed is the only way to recover your wallet. Have you written it down?";
+  String get seed_alert_title => "Attention";
+  String get seed_alert_yes => "Yes, I have";
   String get seed_choose => "Choose seed language";
   String get seed_language_chinese => "Chinese";
   String get seed_language_choose => "Please choose seed language:";
@@ -311,18 +318,20 @@ class S implements WidgetsLocalizations {
   String get xmr_full_balance => "Full Balance";
   String get xmr_hidden => "Hidden";
   String get yesterday => "Yesterday";
-  String get you_will_get => "You will get";
-  String get you_will_send => "You will send";
+  String get you_will_get => "Convert to";
+  String get you_will_send => "Convert from";
   String Blocks_remaining(String status) => "${status} Blocks Remaining";
   String change_current_node(String node) => "Are you sure to change current node to ${node}?";
   String change_language_to(String language) => "Change language to ${language}?";
+  String change_wallet_alert_content(String wallet_name) => "Do you want to change current wallet to ${wallet_name}?";
   String commit_transaction_amount_fee(String amount, String fee) => "Commit transaction\nAmount: ${amount}\nFee: ${fee}";
   String copied_key_to_clipboard(String key) => "Copied ${key} to Clipboard";
+  String creating_new_wallet_error(String description) => "Error: ${description}";
   String error_text_limits_loading_failed(String provider) => "Trade for ${provider} is not created. Limits loading failed";
   String error_text_maximum_limit(String provider, String max, String currency) => "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}";
   String error_text_minimal_limit(String provider, String min, String currency) => "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}";
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown above. Or you can send from your external wallet to the above address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.";
-  String exchange_result_description(String fetchingLabel, String from) => "Please send ${fetchingLabel} ${from} to the address shown above.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown below. Or you can send from your external wallet to the below address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.";
+  String exchange_result_description(String fetchingLabel, String from) => "Please send ${fetchingLabel} ${from} to the address shown below.";
   String failed_authentication(String state_error) => "Failed authentication. ${state_error}";
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
@@ -361,6 +370,8 @@ class $de extends S {
   @override
   String get new_subaddress_create => "Erstellen";
   @override
+  String get seed_alert_back => "Geh zurück";
+  @override
   String get restore_view_key_private => "Schlüssel anzeigen(geheim)";
   @override
   String get transaction_priority_fast => "Schnell";
@@ -377,7 +388,7 @@ class $de extends S {
   @override
   String get password => "Passwort";
   @override
-  String get you_will_get => "Sie erhalten";
+  String get you_will_get => "Konvertieren zu";
   @override
   String get trade_id => "Handel-ID:";
   @override
@@ -475,7 +486,7 @@ class $de extends S {
   @override
   String get receive => "Erhalten";
   @override
-  String get amount_is_guaranteed => "Der Empfangsbetrag ist garantiert";
+  String get amount_is_guaranteed => "Geben Sie in xmr.to den BTC-Betrag und nicht den oben genannten XMR-Betrag ein, um einen garantierten BTC-Betrag zu erhalten";
   @override
   String get auth_store_banned_for => "Gebannt für ";
   @override
@@ -487,15 +498,19 @@ class $de extends S {
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
   @override
+  String get change_wallet_alert_title => "Ändern Sie die aktuelle Brieftasche";
+  @override
   String get placeholder_transactions => "Ihre Transaktionen werden hier angezeigt";
   @override
   String get trade_details_provider => "Anbieter";
   @override
   String get seed_language_japanese => "Japanisch";
   @override
-  String get you_will_send => "Du wirst senden";
+  String get you_will_send => "Konvertieren von";
   @override
   String get seed_language_german => "Deutsche";
+  @override
+  String get seed_alert_title => "Beachtung";
   @override
   String get create_new => "Neue Wallet erstellen";
   @override
@@ -530,6 +545,8 @@ class $de extends S {
   String get add => "Hinzufügen";
   @override
   String get remove_node => "Knoten entfernen";
+  @override
+  String get seed_alert_content => "Der Samen ist der einzige Weg, um Ihren Geldbeutel wiederzugewinnen. Hast du es aufgeschrieben?";
   @override
   String get trade_state_paid_unconfirmed => "Unbestätigt bezahlt";
   @override
@@ -582,6 +599,8 @@ class $de extends S {
   String get add_new_node => "Neuen Knoten hinzufügen";
   @override
   String get wallet_seed => "Brieftaschensamen";
+  @override
+  String get creating_new_wallet => "Neue Brieftasche erstellen";
   @override
   String get yesterday => "Gestern";
   @override
@@ -650,6 +669,8 @@ class $de extends S {
   String get restore_bitcoin_description_from_keys => "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her";
   @override
   String get restore_bitcoin_title_from_keys => "Aus WIF wiederherstellen";
+  @override
+  String get exchange_sync_alert_content => "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist";
   @override
   String get scan_qr_code => "Scannen Sie den QR-Code, um die Adresse zu erhalten";
   @override
@@ -749,7 +770,7 @@ class $de extends S {
   @override
   String get exchange_result_write_down_trade_id => "Bitte kopieren oder notieren Sie die Handel-ID, um fortzufahren.";
   @override
-  String get new_subaddress_title => "Neue Unteradresse";
+  String get new_subaddress_title => "Neue Adresse";
   @override
   String get change => "Veränderung";
   @override
@@ -803,7 +824,7 @@ class $de extends S {
   @override
   String get choose_account => "Konto auswählen";
   @override
-  String get restore_from_date_or_blockheight => "Bitte geben Sie das Datum ein, an dem Sie diese Brieftasche erstellt haben. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein";
+  String get restore_from_date_or_blockheight => "Bitte geben Sie einige Tage vor dem Erstellen dieser Brieftasche ein Datum ein. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein";
   @override
   String get settings_only_trades => "Nur Trades";
   @override
@@ -915,6 +936,8 @@ class $de extends S {
   @override
   String get enter_your_pin => "PIN eingeben";
   @override
+  String get seed_alert_yes => "Ja, habe ich";
+  @override
   String get wallet_list_restore_wallet => "Wallet wiederherstellen";
   @override
   String get restore_title_from_seed => "Aus Seed wiederherstellen";
@@ -961,9 +984,13 @@ class $de extends S {
   @override
   String trade_is_powered_by(String provider) => "Dieser Handel wird betrieben von ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Möchten Sie die aktuelle Brieftasche in ändern ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Error: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Handel für ${provider} wird nicht erstellt. Menge ist mehr als maximal: ${max} ${currency}";
   @override
@@ -975,11 +1002,11 @@ class $de extends S {
   @override
   String Blocks_remaining(String status) => "${status} Verbleibende Blöcke";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die oben angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die oben angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die unten angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die unten angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.";
   @override
   String error_text_limits_loading_failed(String provider) => "Handel für ${provider} wird nicht erstellt. Das Laden der Limits ist fehlgeschlagen";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Bitte senden ${fetchingLabel} ${from} an die oben angegebene Adresse.'";
+  String exchange_result_description(String fetchingLabel, String from) => "Bitte senden ${fetchingLabel} ${from} an die unten angegebene Adresse.'";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Transaktion festschreiben\nMenge: ${amount}\nGebühr: ${fee}";
   @override
@@ -1011,6 +1038,8 @@ class $hi extends S {
   @override
   String get new_subaddress_create => "सर्जन करना";
   @override
+  String get seed_alert_back => "वापस जाओ";
+  @override
   String get restore_view_key_private => "कुंजी देखें (निजी)";
   @override
   String get transaction_priority_fast => "उपवास";
@@ -1027,7 +1056,7 @@ class $hi extends S {
   @override
   String get password => "पारण शब्द";
   @override
-  String get you_will_get => "आपको मिल जायेगा";
+  String get you_will_get => "में बदलें";
   @override
   String get trade_id => "व्यापार ID:";
   @override
@@ -1125,7 +1154,7 @@ class $hi extends S {
   @override
   String get receive => "प्राप्त करना";
   @override
-  String get amount_is_guaranteed => "प्राप्त राशि की गारंटी है";
+  String get amount_is_guaranteed => "Xmr.to में, गारंटीशुदा BTC राशि प्राप्त करने के लिए, BTC राशि दर्ज करें और ऊपर XMR राशि नहीं";
   @override
   String get auth_store_banned_for => "के लिए प्रतिबंधित है ";
   @override
@@ -1137,15 +1166,19 @@ class $hi extends S {
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
   @override
+  String get change_wallet_alert_title => "वर्तमान बटुआ बदलें";
+  @override
   String get placeholder_transactions => "आपके लेनदेन यहां प्रदर्शित होंगे";
   @override
   String get trade_details_provider => "प्रदाता";
   @override
   String get seed_language_japanese => "जापानी";
   @override
-  String get you_will_send => "तुम भेजोगे";
+  String get you_will_send => "से रूपांतरित करें";
   @override
   String get seed_language_german => "जर्मन";
+  @override
+  String get seed_alert_title => "ध्यान";
   @override
   String get create_new => "नया बटुआ बनाएँ";
   @override
@@ -1180,6 +1213,8 @@ class $hi extends S {
   String get add => "जोड़ना";
   @override
   String get remove_node => "नोड निकालें";
+  @override
+  String get seed_alert_content => "बीज आपके बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। क्या आपने इसे लिखा है?";
   @override
   String get trade_state_paid_unconfirmed => "अपुष्ट भुगतान किया";
   @override
@@ -1232,6 +1267,8 @@ class $hi extends S {
   String get add_new_node => "नया नोड जोड़ें";
   @override
   String get wallet_seed => "बटुआ का बीज";
+  @override
+  String get creating_new_wallet => "नया बटुआ बनाना";
   @override
   String get yesterday => "बिता कल";
   @override
@@ -1300,6 +1337,8 @@ class $hi extends S {
   String get restore_bitcoin_description_from_keys => "अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें";
   @override
   String get restore_bitcoin_title_from_keys => "WIF से पुनर्स्थापित करें";
+  @override
+  String get exchange_sync_alert_content => "कृपया प्रतीक्षा करें जब तक आपका बटुआ सिंक्रनाइज़ नहीं किया जाता है";
   @override
   String get scan_qr_code => "पता प्राप्त करने के लिए QR कोड स्कैन करें";
   @override
@@ -1399,7 +1438,7 @@ class $hi extends S {
   @override
   String get exchange_result_write_down_trade_id => "जारी रखने के लिए कृपया ट्रेड ID की प्रतिलिपि बनाएँ या लिखें.";
   @override
-  String get new_subaddress_title => "नई उपशादी";
+  String get new_subaddress_title => "नया पता";
   @override
   String get change => "परिवर्तन";
   @override
@@ -1453,7 +1492,7 @@ class $hi extends S {
   @override
   String get choose_account => "खाता चुनें";
   @override
-  String get restore_from_date_or_blockheight => "कृपया इस वॉलेट को बनाने की तिथि दर्ज करें। या यदि आप ब्लॉकचाइट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें";
+  String get restore_from_date_or_blockheight => "कृपया इस वॉलेट को बनाने से कुछ दिन पहले एक तारीख दर्ज करें। या यदि आप ब्लॉकचेट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें";
   @override
   String get settings_only_trades => "केवल ट्रेड करता है";
   @override
@@ -1565,6 +1604,8 @@ class $hi extends S {
   @override
   String get enter_your_pin => "अपना पिन दर्ज करो";
   @override
+  String get seed_alert_yes => "हाँ मेरे पास है";
+  @override
   String get wallet_list_restore_wallet => "वॉलेट को पुनर्स्थापित करें";
   @override
   String get restore_title_from_seed => "बीज से पुनर्स्थापित करें";
@@ -1611,9 +1652,13 @@ class $hi extends S {
   @override
   String trade_is_powered_by(String provider) => "यह व्यापार द्वारा संचालित है ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "मैक्स: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "त्रुटि: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि अधिक है तो अधिकतम: ${max} ${currency}";
   @override
@@ -1625,11 +1670,11 @@ class $hi extends S {
   @override
   String Blocks_remaining(String status) => "${status} शेष रहते हैं";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} ऊपर दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से उपरोक्त पते / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} नीचे दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से नीचे के पते पर भेज सकते हैं / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.";
   @override
   String error_text_limits_loading_failed(String provider) => "व्यापार ${provider} के लिए नहीं बनाया गया है। लोडिंग की सीमाएं विफल रहीं";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "कृपया भेजें ${fetchingLabel} ${from} ऊपर दिखाए गए पते पर";
+  String exchange_result_description(String fetchingLabel, String from) => "कृपया भेजें ${fetchingLabel} ${from} नीचे दिखाए गए पते पर";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "लेन-देन करें\nरकम: ${amount}\nशुल्क: ${fee}";
   @override
@@ -1661,6 +1706,8 @@ class $ru extends S {
   @override
   String get new_subaddress_create => "Создать";
   @override
+  String get seed_alert_back => "Назад";
+  @override
   String get restore_view_key_private => "Приватный ключ просмотра";
   @override
   String get transaction_priority_fast => "Быстрый";
@@ -1677,7 +1724,7 @@ class $ru extends S {
   @override
   String get password => "Пароль";
   @override
-  String get you_will_get => "Вы получите";
+  String get you_will_get => "Конвертировать в";
   @override
   String get trade_id => "ID сделки:";
   @override
@@ -1775,7 +1822,7 @@ class $ru extends S {
   @override
   String get receive => "Получить";
   @override
-  String get amount_is_guaranteed => "Сумма получения гарантирована";
+  String get amount_is_guaranteed => "В xmr.to, чтобы получить гарантированную сумму BTC, введите сумму BTC, а не сумму XMR выше";
   @override
   String get auth_store_banned_for => "Заблокировано на ";
   @override
@@ -1787,15 +1834,19 @@ class $ru extends S {
   @override
   String get settings_display_balance_as => "Отображать баланс как";
   @override
+  String get change_wallet_alert_title => "Изменить текущий кошелек";
+  @override
   String get placeholder_transactions => "Ваши транзакции будут отображаться здесь";
   @override
   String get trade_details_provider => "Провайдер";
   @override
   String get seed_language_japanese => "Японский";
   @override
-  String get you_will_send => "Вы отправите";
+  String get you_will_send => "Конвертировать из";
   @override
   String get seed_language_german => "Немецкий";
+  @override
+  String get seed_alert_title => "Внимание";
   @override
   String get create_new => "Создать новый кошелёк";
   @override
@@ -1830,6 +1881,8 @@ class $ru extends S {
   String get add => "Добавить";
   @override
   String get remove_node => "Удалить ноду";
+  @override
+  String get seed_alert_content => "Мнемоническая фраза - единственный способ восстановить ваш кошелек. Вы записали ее?";
   @override
   String get trade_state_paid_unconfirmed => "Оплата неподтверждена";
   @override
@@ -1882,6 +1935,8 @@ class $ru extends S {
   String get add_new_node => "Добавить новую ноду";
   @override
   String get wallet_seed => "Мнемоническая фраза кошелька";
+  @override
+  String get creating_new_wallet => "Создание нового кошелька";
   @override
   String get yesterday => "Вчера";
   @override
@@ -1950,6 +2005,8 @@ class $ru extends S {
   String get restore_bitcoin_description_from_keys => "Вы можете восстановить кошелёк с помощью WIF";
   @override
   String get restore_bitcoin_title_from_keys => "Восстановить с помощью WIF";
+  @override
+  String get exchange_sync_alert_content => "Подождите, пока ваш кошелек синхронизируется";
   @override
   String get scan_qr_code => "Отсканируйте QR-код для получения адреса";
   @override
@@ -2049,7 +2106,7 @@ class $ru extends S {
   @override
   String get exchange_result_write_down_trade_id => "Пожалуйста, скопируйте или запишите ID сделки.";
   @override
-  String get new_subaddress_title => "Новый субадрес";
+  String get new_subaddress_title => "Новый адрес";
   @override
   String get change => "Изменить";
   @override
@@ -2103,7 +2160,7 @@ class $ru extends S {
   @override
   String get choose_account => "Выберите аккаунт";
   @override
-  String get restore_from_date_or_blockheight => "Пожалуйста, введите дату создания кошелька. Или, если вы знаете высоту блока, введите ее значение";
+  String get restore_from_date_or_blockheight => "Пожалуйста, введите дату за несколько дней до создания этого кошелька. Или, если вы знаете высоту блока, введите ее значение";
   @override
   String get settings_only_trades => "Сделки";
   @override
@@ -2215,6 +2272,8 @@ class $ru extends S {
   @override
   String get enter_your_pin => "Введите ваш PIN";
   @override
+  String get seed_alert_yes => "Да";
+  @override
   String get wallet_list_restore_wallet => "Восстановить кошелёк";
   @override
   String get restore_title_from_seed => "Восстановить из мнемонической фразы";
@@ -2261,9 +2320,13 @@ class $ru extends S {
   @override
   String trade_is_powered_by(String provider) => "Сделка выполнена через ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Вы хотите изменить текущий кошелек на ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}мин ${seconds}сек";
   @override
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Ошибка: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Сделка для ${provider} не создана. Сумма больше максимальной: ${max} ${currency}";
   @override
@@ -2275,11 +2338,11 @@ class $ru extends S {
   @override
   String Blocks_remaining(String status) => "${status} Осталось блоков";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Нажимая подтвердить, вы отправите ${fetchingLabel} ${from} с вашего кошелька ${walletName} на адрес указанный выше. Или вы можете отправить со своего внешнего кошелька на вышеуказанный адрес/QR-код.\n\nПожалуйста, нажмите подтвердить для продолжения, или вернитесь назад для изменения суммы.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Нажимая подтвердить, вы отправите ${fetchingLabel} ${from} с вашего кошелька ${walletName} на адрес указанный ниже. Или вы можете отправить со своего внешнего кошелька на нижеуказанный адрес/QR-код.\n\nПожалуйста, нажмите подтвердить для продолжения, или вернитесь назад для изменения суммы.";
   @override
   String error_text_limits_loading_failed(String provider) => "Сделка для ${provider} не создана. Ошибка загрузки лимитов";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный выше.";
+  String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный ниже.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}";
   @override
@@ -2311,6 +2374,8 @@ class $ko extends S {
   @override
   String get new_subaddress_create => "몹시 떠들어 대다";
   @override
+  String get seed_alert_back => "돌아 가기";
+  @override
   String get restore_view_key_private => "키보기 (은밀한)";
   @override
   String get transaction_priority_fast => "빠른";
@@ -2327,7 +2392,7 @@ class $ko extends S {
   @override
   String get password => "암호";
   @override
-  String get you_will_get => "당신은 얻을 것이다";
+  String get you_will_get => "로 변환하다";
   @override
   String get trade_id => "무역 ID:";
   @override
@@ -2425,7 +2490,7 @@ class $ko extends S {
   @override
   String get receive => "받다";
   @override
-  String get amount_is_guaranteed => "수신 금액이 보장됩니다";
+  String get amount_is_guaranteed => "xmr.to에서 보장 된 BTC 금액을 받으려면 위의 XMR 금액이 아닌 BTC 금액을 입력하십시오.";
   @override
   String get auth_store_banned_for => "금지";
   @override
@@ -2437,15 +2502,19 @@ class $ko extends S {
   @override
   String get settings_display_balance_as => "잔액 표시";
   @override
+  String get change_wallet_alert_title => "현재 지갑 변경";
+  @override
   String get placeholder_transactions => "거래가 여기에 표시됩니다";
   @override
   String get trade_details_provider => "공급자";
   @override
   String get seed_language_japanese => "일본어";
   @override
-  String get you_will_send => "보내드립니다";
+  String get you_will_send => "다음에서 변환";
   @override
   String get seed_language_german => "독일 사람";
+  @override
+  String get seed_alert_title => "주의";
   @override
   String get create_new => "새 월렛 만들기";
   @override
@@ -2480,6 +2549,8 @@ class $ko extends S {
   String get add => "더하다";
   @override
   String get remove_node => "노드 제거";
+  @override
+  String get seed_alert_content => "씨앗은 지갑을 복구하는 유일한 방법입니다. 적어 보셨나요?";
   @override
   String get trade_state_paid_unconfirmed => "미확인 유료";
   @override
@@ -2532,6 +2603,8 @@ class $ko extends S {
   String get add_new_node => "새 노드 추가";
   @override
   String get wallet_seed => "지갑 시드";
+  @override
+  String get creating_new_wallet => "새 지갑 생성";
   @override
   String get yesterday => "어제";
   @override
@@ -2600,6 +2673,8 @@ class $ko extends S {
   String get restore_bitcoin_description_from_keys => "개인 키에서 생성 된 WIF 문자열에서 지갑 복원";
   @override
   String get restore_bitcoin_title_from_keys => "WIF에서 복원";
+  @override
+  String get exchange_sync_alert_content => "지갑이 동기화 될 때까지 기다리십시오";
   @override
   String get scan_qr_code => "QR 코드를 스캔하여 주소를 얻습니다.";
   @override
@@ -2699,7 +2774,7 @@ class $ko extends S {
   @override
   String get exchange_result_write_down_trade_id => "계속하려면 거래 ID를 복사하거나 적어 두십시오..";
   @override
-  String get new_subaddress_title => "새로운 하위 주소";
+  String get new_subaddress_title => "새 주소";
   @override
   String get change => "변화";
   @override
@@ -2753,7 +2828,7 @@ class $ko extends S {
   @override
   String get choose_account => "계정을 선택하십시오";
   @override
-  String get restore_from_date_or_blockheight => "이 지갑을 만든 날짜를 입력하세요. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.";
+  String get restore_from_date_or_blockheight => "이 지갑을 생성하기 며칠 전에 날짜를 입력하십시오. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.";
   @override
   String get settings_only_trades => "거래 만";
   @override
@@ -2865,6 +2940,8 @@ class $ko extends S {
   @override
   String get enter_your_pin => "PIN을 입력하십시오";
   @override
+  String get seed_alert_yes => "네, 있어요";
+  @override
   String get wallet_list_restore_wallet => "월렛 복원";
   @override
   String get restore_title_from_seed => "종자에서 복원";
@@ -2911,9 +2988,13 @@ class $ko extends S {
   @override
   String trade_is_powered_by(String provider) => "이 거래는 ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "맥스: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "오류: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "거래 ${provider} 가 생성되지 않습니다. 금액이 최대 값보다 많습니다. ${max} ${currency}";
   @override
@@ -2925,11 +3006,11 @@ class $ko extends S {
   @override
   String Blocks_remaining(String status) => "${status} 남은 블록";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "확인을 누르면 전송됩니다 ${fetchingLabel} ${from} 지갑에서 ${walletName} 위에 표시된 주소로. 또는 외부 지갑에서 위의 주소 / QR 코드로 보낼 수 있습니다.\n\n확인을 눌러 계속하거나 금액을 변경하려면 돌아가십시오.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "확인을 누르면 전송됩니다 ${fetchingLabel} ${from} 지갑에서 ${walletName} 아래 주소로. 또는 외부 지갑에서 아래 주소로 보낼 수 있습니다 / QR 코드로 보낼 수 있습니다.\n\n확인을 눌러 계속하거나 금액을 변경하려면 돌아가십시오.";
   @override
   String error_text_limits_loading_failed(String provider) => "거래 ${provider} 가 생성되지 않습니다. 로딩 실패";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "보내주세요 ${fetchingLabel} ${from} 위에 표시된 주소로.";
+  String exchange_result_description(String fetchingLabel, String from) => "보내주세요 ${fetchingLabel} ${from} 아래 주소로.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "커밋 거래\n양: ${amount}\n보수: ${fee}";
   @override
@@ -2961,6 +3042,8 @@ class $pt extends S {
   @override
   String get new_subaddress_create => "Criar";
   @override
+  String get seed_alert_back => "Volte";
+  @override
   String get restore_view_key_private => "Chave de visualização (privada)";
   @override
   String get transaction_priority_fast => "Rápida";
@@ -2977,7 +3060,7 @@ class $pt extends S {
   @override
   String get password => "Senha";
   @override
-  String get you_will_get => "Você receberá";
+  String get you_will_get => "Converter para";
   @override
   String get trade_id => "ID da troca:";
   @override
@@ -3075,7 +3158,7 @@ class $pt extends S {
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "Você receberá exatamente o valor informado acima";
+  String get amount_is_guaranteed => "Em xmr.to, para receber um valor BTC garantido, insira o valor BTC e não o valor XMR acima";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
@@ -3087,15 +3170,19 @@ class $pt extends S {
   @override
   String get settings_display_balance_as => "Saldo a exibir";
   @override
+  String get change_wallet_alert_title => "Alterar carteira atual";
+  @override
   String get placeholder_transactions => "Suas transações serão exibidas aqui";
   @override
   String get trade_details_provider => "Provedor";
   @override
   String get seed_language_japanese => "Japonês";
   @override
-  String get you_will_send => "Você enviará";
+  String get you_will_send => "Converter de";
   @override
   String get seed_language_german => "Alemã";
+  @override
+  String get seed_alert_title => "Atenção";
   @override
   String get create_new => "Criar nova carteira";
   @override
@@ -3130,6 +3217,8 @@ class $pt extends S {
   String get add => "Adicionar";
   @override
   String get remove_node => "Remover nó";
+  @override
+  String get seed_alert_content => "A semente é a única forma de recuperar sua carteira. Você escreveu isso?";
   @override
   String get trade_state_paid_unconfirmed => "Pagamento não-confirmado";
   @override
@@ -3182,6 +3271,8 @@ class $pt extends S {
   String get add_new_node => "Adicionar novo nó";
   @override
   String get wallet_seed => "Semente de carteira";
+  @override
+  String get creating_new_wallet => "Criando nova carteira";
   @override
   String get yesterday => "Ontem";
   @override
@@ -3250,6 +3341,8 @@ class $pt extends S {
   String get restore_bitcoin_description_from_keys => "Restaure sua carteira a partir da string WIF gerada de suas chaves privadas";
   @override
   String get restore_bitcoin_title_from_keys => "Restaurar de WIF";
+  @override
+  String get exchange_sync_alert_content => "Por favor, espere até que sua carteira seja sincronizada";
   @override
   String get scan_qr_code => "Digitalize o código QR para obter o endereço";
   @override
@@ -3349,7 +3442,7 @@ class $pt extends S {
   @override
   String get exchange_result_write_down_trade_id => "Copie ou anote o ID da troca para continuar.";
   @override
-  String get new_subaddress_title => "Criar sub-endereço";
+  String get new_subaddress_title => "Novo endereço";
   @override
   String get change => "Mudar";
   @override
@@ -3403,7 +3496,7 @@ class $pt extends S {
   @override
   String get choose_account => "Escolha uma conta";
   @override
-  String get restore_from_date_or_blockheight => "Por favor, insira a data em que você criou esta carteira. Ou se você souber a altura do bloco, insira-o";
+  String get restore_from_date_or_blockheight => "Insira uma data alguns dias antes de criar esta carteira. Ou se você souber a altura do bloco, insira-o";
   @override
   String get settings_only_trades => "Somente trocas";
   @override
@@ -3515,6 +3608,8 @@ class $pt extends S {
   @override
   String get enter_your_pin => "Insira seu PIN";
   @override
+  String get seed_alert_yes => "Sim, eu tenho";
+  @override
   String get wallet_list_restore_wallet => "Restaurar carteira";
   @override
   String get restore_title_from_seed => "Restaurar a partir de semente";
@@ -3561,9 +3656,13 @@ class $pt extends S {
   @override
   String trade_is_powered_by(String provider) => "Troca realizada por ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Quer mudar a carteira atual para ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Máx: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Erro: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "A troca por ${provider} não é criada. O valor é superior ao máximo: ${max} ${currency}";
   @override
@@ -3575,11 +3674,11 @@ class $pt extends S {
   @override
   String Blocks_remaining(String status) => "${status} blocos restantes";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço exibido acima. Você também pode enviar com uma carteira externa para o endereço/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço mostrado abaixo. Ou você pode enviar de sua carteira externa para o endereço abaixo/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.";
   @override
   String error_text_limits_loading_failed(String provider) => "A troca por ${provider} não é criada. Falha no carregamento dos limites";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado acima.";
+  String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado abaixo.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transação\nQuantia: ${amount}\nTaxa: ${fee}";
   @override
@@ -3611,6 +3710,8 @@ class $uk extends S {
   @override
   String get new_subaddress_create => "Створити";
   @override
+  String get seed_alert_back => "Назад";
+  @override
   String get restore_view_key_private => "Приватний ключ перегляду";
   @override
   String get transaction_priority_fast => "Швидкий";
@@ -3627,7 +3728,7 @@ class $uk extends S {
   @override
   String get password => "Пароль";
   @override
-  String get you_will_get => "Ви отримаєте";
+  String get you_will_get => "Конвертувати в";
   @override
   String get trade_id => "ID операції:";
   @override
@@ -3725,7 +3826,7 @@ class $uk extends S {
   @override
   String get receive => "Отримати";
   @override
-  String get amount_is_guaranteed => "Сума отримання гарантована";
+  String get amount_is_guaranteed => "У xmr.to, щоб отримати гарантовану суму BTC, введіть суму BTC, а не XMR вище";
   @override
   String get auth_store_banned_for => "Заблоковано на ";
   @override
@@ -3737,15 +3838,19 @@ class $uk extends S {
   @override
   String get settings_display_balance_as => "Відображати баланс як";
   @override
+  String get change_wallet_alert_title => "Змінити поточний гаманець";
+  @override
   String get placeholder_transactions => "Тут відображатимуться ваші транзакції";
   @override
   String get trade_details_provider => "Провайдер";
   @override
   String get seed_language_japanese => "Японська";
   @override
-  String get you_will_send => "Ви відправите";
+  String get you_will_send => "Конвертувати з";
   @override
   String get seed_language_german => "Німецька";
+  @override
+  String get seed_alert_title => "Увага";
   @override
   String get create_new => "Створити новий гаманець";
   @override
@@ -3780,6 +3885,8 @@ class $uk extends S {
   String get add => "Добавити";
   @override
   String get remove_node => "Видалити вузол";
+  @override
+  String get seed_alert_content => "Мнемонічна фраза - єдиний спосіб відновити ваш гаманець. Ви записали її?";
   @override
   String get trade_state_paid_unconfirmed => "Оплата непідтверджена";
   @override
@@ -3832,6 +3939,8 @@ class $uk extends S {
   String get add_new_node => "Додати новий вузол";
   @override
   String get wallet_seed => "Мнемонічна фраза гаманця";
+  @override
+  String get creating_new_wallet => "Створення нового гаманця";
   @override
   String get yesterday => "Вчора";
   @override
@@ -3900,6 +4009,8 @@ class $uk extends S {
   String get restore_bitcoin_description_from_keys => "Ви можете відновити гаманець за допомогою WIF";
   @override
   String get restore_bitcoin_title_from_keys => "Відновити за допомогою WIF";
+  @override
+  String get exchange_sync_alert_content => "Зачекайте, поки ваш гаманець не синхронізується";
   @override
   String get scan_qr_code => "Скануйте QR-код для одержання адреси";
   @override
@@ -3999,7 +4110,7 @@ class $uk extends S {
   @override
   String get exchange_result_write_down_trade_id => "Будь ласка, скопіюйте або запишіть ID операції.";
   @override
-  String get new_subaddress_title => "Нова субадреса";
+  String get new_subaddress_title => "Нова адреса";
   @override
   String get change => "Змінити";
   @override
@@ -4053,7 +4164,7 @@ class $uk extends S {
   @override
   String get choose_account => "Оберіть акаунт";
   @override
-  String get restore_from_date_or_blockheight => "Будь ласка, введіть дату створення гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення";
+  String get restore_from_date_or_blockheight => "Будь ласка, введіть дату за кілька днів до створення цього гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення";
   @override
   String get settings_only_trades => "Операції";
   @override
@@ -4165,6 +4276,8 @@ class $uk extends S {
   @override
   String get enter_your_pin => "Введіть ваш PIN";
   @override
+  String get seed_alert_yes => "Так";
+  @override
   String get wallet_list_restore_wallet => "Відновити гаманець";
   @override
   String get restore_title_from_seed => "Відновити з мнемонічної фрази";
@@ -4211,9 +4324,13 @@ class $uk extends S {
   @override
   String trade_is_powered_by(String provider) => "Операція виконана через ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Ви хочете змінити поточний гаманець на ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}хв ${seconds}сек";
   @override
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Помилка: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Операція для ${provider} не створена. Сума більше максимальної: ${max} ${currency}";
   @override
@@ -4225,11 +4342,11 @@ class $uk extends S {
   @override
   String Blocks_remaining(String status) => "${status} Залишилось блоків";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану вище. Або ви можете відправити зі свого зовнішнього гаманця на вищевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану нижче. Або ви можете відправити зі свого зовнішнього гаманця на нижчевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.";
   @override
   String error_text_limits_loading_failed(String provider) => "Операція для ${provider} не створена. Помилка завантаження лімітів";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану вище.";
+  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану нижче.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}";
   @override
@@ -4261,6 +4378,8 @@ class $ja extends S {
   @override
   String get new_subaddress_create => "作成する";
   @override
+  String get seed_alert_back => "戻る";
+  @override
   String get restore_view_key_private => "ビューキー (プライベート)";
   @override
   String get transaction_priority_fast => "速い";
@@ -4277,7 +4396,7 @@ class $ja extends S {
   @override
   String get password => "パスワード";
   @override
-  String get you_will_get => "あなたが取得します";
+  String get you_will_get => "に変換";
   @override
   String get trade_id => "取引ID:";
   @override
@@ -4375,7 +4494,7 @@ class $ja extends S {
   @override
   String get receive => "受け取る";
   @override
-  String get amount_is_guaranteed => "受信金額は保証されています";
+  String get amount_is_guaranteed => "xmr.toで、保証されたBTC金額を受け取るには、上記のXMR金額ではなく、BTC金額を入力します";
   @override
   String get auth_store_banned_for => "禁止されています ";
   @override
@@ -4387,15 +4506,19 @@ class $ja extends S {
   @override
   String get settings_display_balance_as => "残高を表示";
   @override
+  String get change_wallet_alert_title => "現在のウォレットを変更する";
+  @override
   String get placeholder_transactions => "あなたの取引はここに表示されます";
   @override
   String get trade_details_provider => "プロバイダー";
   @override
   String get seed_language_japanese => "日本語";
   @override
-  String get you_will_send => "送ります";
+  String get you_will_send => "から変換";
   @override
   String get seed_language_german => "ドイツ人";
+  @override
+  String get seed_alert_title => "注意";
   @override
   String get create_new => "新しいウォレットを作成";
   @override
@@ -4430,6 +4553,8 @@ class $ja extends S {
   String get add => "加える";
   @override
   String get remove_node => "ノードを削除";
+  @override
+  String get seed_alert_content => "種子はあなたの財布を回復する唯一の方法です。 書き留めましたか？";
   @override
   String get trade_state_paid_unconfirmed => "未確認の支払い";
   @override
@@ -4482,6 +4607,8 @@ class $ja extends S {
   String get add_new_node => "新しいノードを追加";
   @override
   String get wallet_seed => "ウォレットシード";
+  @override
+  String get creating_new_wallet => "新しいウォレットの作成";
   @override
   String get yesterday => "昨日";
   @override
@@ -4550,6 +4677,8 @@ class $ja extends S {
   String get restore_bitcoin_description_from_keys => "秘密鍵から生成されたWIF文字列からウォレットを復元します";
   @override
   String get restore_bitcoin_title_from_keys => "WIFから復元";
+  @override
+  String get exchange_sync_alert_content => "ウォレットが同期されるまでお待ちください";
   @override
   String get scan_qr_code => "QRコードをスキャンして住所を取得します";
   @override
@@ -4649,7 +4778,7 @@ class $ja extends S {
   @override
   String get exchange_result_write_down_trade_id => "続行するには、取引IDをコピーまたは書き留めてください.";
   @override
-  String get new_subaddress_title => "新しいサブアドレス";
+  String get new_subaddress_title => "新しいアドレス";
   @override
   String get change => "変化する";
   @override
@@ -4703,7 +4832,7 @@ class $ja extends S {
   @override
   String get choose_account => "アカウントを選択";
   @override
-  String get restore_from_date_or_blockheight => "このウォレットを作成した日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください";
+  String get restore_from_date_or_blockheight => "このウォレットを作成する数日前に日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください";
   @override
   String get settings_only_trades => "取引のみ";
   @override
@@ -4815,6 +4944,8 @@ class $ja extends S {
   @override
   String get enter_your_pin => "PINを入力してください";
   @override
+  String get seed_alert_yes => "はい、あります";
+  @override
   String get wallet_list_restore_wallet => "ウォレットを復元";
   @override
   String get restore_title_from_seed => "シードから復元";
@@ -4861,9 +4992,13 @@ class $ja extends S {
   @override
   String trade_is_powered_by(String provider) => "この取引は ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "現在のウォレットをに変更しますか ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "マックス: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "エラー： ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "${provider} の取引は作成されません。 金額は最大値を超えています： ${max} ${currency}";
   @override
@@ -4875,11 +5010,11 @@ class $ja extends S {
   @override
   String Blocks_remaining(String status) => "${status} 残りのブロック";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 上記のアドレスへ. または、外部ウォレットから上記のアドレス/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 下記の住所へ。 または、外部ウォレットから以下のアドレスに送信することもできます/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.";
   @override
   String error_text_limits_loading_failed(String provider) => "${provider} の取引は作成されません。 制限の読み込みに失敗しました";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "送信してください ${fetchingLabel} ${from} 上記のアドレスへ.";
+  String exchange_result_description(String fetchingLabel, String from) => "送信してください ${fetchingLabel} ${from} 下記の住所へ.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "トランザクションをコミット\n量: ${amount}\n費用: ${fee}";
   @override
@@ -4915,6 +5050,8 @@ class $pl extends S {
   @override
   String get new_subaddress_create => "Stwórz";
   @override
+  String get seed_alert_back => "Wróć";
+  @override
   String get restore_view_key_private => "Wyświetl klucz (prywatny)";
   @override
   String get transaction_priority_fast => "Szybki";
@@ -4931,7 +5068,7 @@ class $pl extends S {
   @override
   String get password => "Hasło";
   @override
-  String get you_will_get => "Dostaniesz";
+  String get you_will_get => "Konwertuj na";
   @override
   String get trade_id => "Identyfikator handlu:";
   @override
@@ -5029,7 +5166,7 @@ class $pl extends S {
   @override
   String get receive => "Otrzymać";
   @override
-  String get amount_is_guaranteed => "Otrzymana kwota jest gwarantowana";
+  String get amount_is_guaranteed => "W xmr.to, aby otrzymać gwarantowaną kwotę BTC, wprowadź kwotę BTC, a nie kwotę XMR powyżej";
   @override
   String get auth_store_banned_for => "Bzbanowany za ";
   @override
@@ -5041,15 +5178,19 @@ class $pl extends S {
   @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
   @override
+  String get change_wallet_alert_title => "Zmień obecny portfel";
+  @override
   String get placeholder_transactions => "Twoje transakcje zostaną wyświetlone tutaj";
   @override
   String get trade_details_provider => "Dostawca";
   @override
   String get seed_language_japanese => "Japoński";
   @override
-  String get you_will_send => "Wyślesz";
+  String get you_will_send => "Konwertuj z";
   @override
   String get seed_language_german => "Niemiecki";
+  @override
+  String get seed_alert_title => "Uwaga";
   @override
   String get create_new => "Utwórz nowy portfel";
   @override
@@ -5084,6 +5225,8 @@ class $pl extends S {
   String get add => "Dodaj";
   @override
   String get remove_node => "Usuń węzeł";
+  @override
+  String get seed_alert_content => "Ziarno to jedyny sposób na odzyskanie portfela. Zapisałeś to?";
   @override
   String get trade_state_paid_unconfirmed => "Płatne niepotwierdzone";
   @override
@@ -5136,6 +5279,8 @@ class $pl extends S {
   String get add_new_node => "Dodaj nowy węzeł";
   @override
   String get wallet_seed => "Nasiono portfela";
+  @override
+  String get creating_new_wallet => "Tworzenie nowego portfela";
   @override
   String get yesterday => "Wczoraj";
   @override
@@ -5204,6 +5349,8 @@ class $pl extends S {
   String get restore_bitcoin_description_from_keys => "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych";
   @override
   String get restore_bitcoin_title_from_keys => "Przywróć z WIF";
+  @override
+  String get exchange_sync_alert_content => "Poczekaj, aż portfel zostanie zsynchronizowany";
   @override
   String get scan_qr_code => "Zeskanuj kod QR, aby uzyskać adres";
   @override
@@ -5303,7 +5450,7 @@ class $pl extends S {
   @override
   String get exchange_result_write_down_trade_id => "Skopiuj lub zanotuj identyfikator transakcji, aby kontynuować.";
   @override
-  String get new_subaddress_title => "Nowy podadres";
+  String get new_subaddress_title => "Nowy adres";
   @override
   String get change => "Zmiana";
   @override
@@ -5357,7 +5504,7 @@ class $pl extends S {
   @override
   String get choose_account => "Wybierz konto";
   @override
-  String get restore_from_date_or_blockheight => "Wprowadź datę utworzenia tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego";
+  String get restore_from_date_or_blockheight => "Wprowadź datę na kilka dni przed utworzeniem tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego";
   @override
   String get settings_only_trades => "Tylko transakcje";
   @override
@@ -5469,6 +5616,8 @@ class $pl extends S {
   @override
   String get enter_your_pin => "Wpisz Twój kod PIN";
   @override
+  String get seed_alert_yes => "Tak";
+  @override
   String get wallet_list_restore_wallet => "Przywróć portfel";
   @override
   String get restore_title_from_seed => "Przywróć z nasion";
@@ -5515,9 +5664,13 @@ class $pl extends S {
   @override
   String trade_is_powered_by(String provider) => "Ten handel jest zasilany przez ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Czy chcesz zmienić obecny portfel na ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Pomyłka: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Wymiana dla ${provider} nie została utworzona. Kwota jest większa niż maksymalna: ${max} ${currency}";
   @override
@@ -5529,11 +5682,11 @@ class $pl extends S {
   @override
   String Blocks_remaining(String status) => "${status} Bloki pozostałe";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} z twojego portfela. Lub możesz wysłać z zewnętrznego portfela na powyższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} na adres podany poniżej. Lub możesz wysłać z zewnętrznego portfela na poniższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.";
   @override
   String error_text_limits_loading_failed(String provider) => "Wymiana dla ${provider} nie została utworzona. Ładowanie limitów nie powiodło się";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Proszę wyślij ${fetchingLabel} ${from} na adres podany powyżej.";
+  String exchange_result_description(String fetchingLabel, String from) => "Proszę wyślij ${fetchingLabel} ${from} na adres podany poniżej.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Zatwierdź transakcję\nIlość: ${amount}\nOpłata: ${fee}";
   @override
@@ -5565,6 +5718,8 @@ class $es extends S {
   @override
   String get new_subaddress_create => "Crear";
   @override
+  String get seed_alert_back => "Regresa";
+  @override
   String get restore_view_key_private => "View clave (privado)";
   @override
   String get transaction_priority_fast => "Rápido";
@@ -5581,7 +5736,7 @@ class $es extends S {
   @override
   String get password => "Contraseña";
   @override
-  String get you_will_get => "Conseguirás";
+  String get you_will_get => "Convertir a";
   @override
   String get trade_id => "Comercial ID:";
   @override
@@ -5679,7 +5834,7 @@ class $es extends S {
   @override
   String get receive => "Recibir";
   @override
-  String get amount_is_guaranteed => "El monto recibido está garantizado";
+  String get amount_is_guaranteed => "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba";
   @override
   String get auth_store_banned_for => "Prohibido para ";
   @override
@@ -5691,15 +5846,19 @@ class $es extends S {
   @override
   String get settings_display_balance_as => "Mostrar saldo como";
   @override
+  String get change_wallet_alert_title => "Cambiar billetera actual";
+  @override
   String get placeholder_transactions => "Sus transacciones se mostrarán aquí";
   @override
   String get trade_details_provider => "Proveedor";
   @override
   String get seed_language_japanese => "Japonés";
   @override
-  String get you_will_send => "Enviarás";
+  String get you_will_send => "Convertir de";
   @override
   String get seed_language_german => "Alemán";
+  @override
+  String get seed_alert_title => "Atención";
   @override
   String get create_new => "Crear nueva billetera";
   @override
@@ -5734,6 +5893,8 @@ class $es extends S {
   String get add => "Añadir";
   @override
   String get remove_node => "Eliminar nodo";
+  @override
+  String get seed_alert_content => "La semilla es la única forma de recuperar su billetera. ¿Lo has escrito?";
   @override
   String get trade_state_paid_unconfirmed => "Pagado sin confirmar";
   @override
@@ -5786,6 +5947,8 @@ class $es extends S {
   String get add_new_node => "Agregar nuevo nodo";
   @override
   String get wallet_seed => "Semilla de billetera";
+  @override
+  String get creating_new_wallet => "Creando nueva billetera";
   @override
   String get yesterday => "Ayer";
   @override
@@ -5854,6 +6017,8 @@ class $es extends S {
   String get restore_bitcoin_description_from_keys => "Restaure su billetera a partir de una cadena WIF generada a partir de sus claves privadas";
   @override
   String get restore_bitcoin_title_from_keys => "Restaurar desde WIF";
+  @override
+  String get exchange_sync_alert_content => "Espere hasta que su billetera esté sincronizada";
   @override
   String get scan_qr_code => "Escanee el código QR para obtener la dirección";
   @override
@@ -5953,7 +6118,7 @@ class $es extends S {
   @override
   String get exchange_result_write_down_trade_id => "Por favor, copia o escribe el ID.";
   @override
-  String get new_subaddress_title => "Nueva subdirección";
+  String get new_subaddress_title => "Nueva direccion";
   @override
   String get change => "Cambio";
   @override
@@ -6007,7 +6172,7 @@ class $es extends S {
   @override
   String get choose_account => "Elegir cuenta";
   @override
-  String get restore_from_date_or_blockheight => "Ingrese la fecha en que creó esta billetera. O si conoce la altura del bloque, ingréselo en su lugar";
+  String get restore_from_date_or_blockheight => "Ingrese una fecha unos días antes de crear esta billetera. O si conoce la altura del bloque, ingréselo en su lugar";
   @override
   String get settings_only_trades => "Solo comercia";
   @override
@@ -6119,6 +6284,8 @@ class $es extends S {
   @override
   String get enter_your_pin => "Introduce tu PIN";
   @override
+  String get seed_alert_yes => "Sí tengo";
+  @override
   String get wallet_list_restore_wallet => "Restaurar billetera";
   @override
   String get restore_title_from_seed => "De la semilla";
@@ -6165,9 +6332,13 @@ class $es extends S {
   @override
   String trade_is_powered_by(String provider) => "Este comercio es impulsado por ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "¿Quieres cambiar la billetera actual a ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Error: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "El comercio por ${provider} no se crea. La cantidad es más que el máximo: ${max} ${currency}";
   @override
@@ -6179,11 +6350,11 @@ class $es extends S {
   @override
   String Blocks_remaining(String status) => "${status} Bloques restantes";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra arriba.  O puede enviar desde su billetera externa a la dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra a continuación. O puede enviar desde su billetera externa a la siguiente dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.";
   @override
   String error_text_limits_loading_failed(String provider) => "El comercio por ${provider} no se crea. Límites de carga fallidos";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Envíe ${fetchingLabel} ${from} a la dirección que se muestra arriba.";
+  String exchange_result_description(String fetchingLabel, String from) => "Envíe ${fetchingLabel} ${from} a la dirección que se muestra a continuación.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transacción\nCantidad: ${amount}\nCuota: ${fee}";
   @override
@@ -6215,6 +6386,8 @@ class $nl extends S {
   @override
   String get new_subaddress_create => "Creëren";
   @override
+  String get seed_alert_back => "Ga terug";
+  @override
   String get restore_view_key_private => "Bekijk sleutel (privaat)";
   @override
   String get transaction_priority_fast => "Snel";
@@ -6231,7 +6404,7 @@ class $nl extends S {
   @override
   String get password => "Wachtwoord";
   @override
-  String get you_will_get => "Je zult krijgen";
+  String get you_will_get => "Converteren naar";
   @override
   String get trade_id => "Trade ID:";
   @override
@@ -6329,7 +6502,7 @@ class $nl extends S {
   @override
   String get receive => "Krijgen";
   @override
-  String get amount_is_guaranteed => "Het ontvangen bedrag is gegarandeerd";
+  String get amount_is_guaranteed => "Om een gegarandeerd BTC-bedrag te ontvangen, voert u in xmr.to het BTC-bedrag in en niet het bovenstaande XMR-bedrag";
   @override
   String get auth_store_banned_for => "Verboden voor ";
   @override
@@ -6341,15 +6514,19 @@ class $nl extends S {
   @override
   String get settings_display_balance_as => "Toon saldo als";
   @override
+  String get change_wallet_alert_title => "Wijzig huidige portemonnee";
+  @override
   String get placeholder_transactions => "Uw transacties worden hier weergegeven";
   @override
   String get trade_details_provider => "Leverancier";
   @override
   String get seed_language_japanese => "Japans";
   @override
-  String get you_will_send => "Je zal versturen";
+  String get you_will_send => "Converteren van";
   @override
   String get seed_language_german => "Duitse";
+  @override
+  String get seed_alert_title => "Aandacht";
   @override
   String get create_new => "Maak een nieuwe portemonnee";
   @override
@@ -6384,6 +6561,8 @@ class $nl extends S {
   String get add => "Toevoegen";
   @override
   String get remove_node => "Knoop verwijderen";
+  @override
+  String get seed_alert_content => "Het zaad is de enige manier om uw portemonnee te herstellen. Heb je het opgeschreven?";
   @override
   String get trade_state_paid_unconfirmed => "Niet bevestigd";
   @override
@@ -6436,6 +6615,8 @@ class $nl extends S {
   String get add_new_node => "Voeg een nieuw knooppunt toe";
   @override
   String get wallet_seed => "Portemonnee zaad";
+  @override
+  String get creating_new_wallet => "Nieuwe portemonnee aanmaken";
   @override
   String get yesterday => "Gisteren";
   @override
@@ -6504,6 +6685,8 @@ class $nl extends S {
   String get restore_bitcoin_description_from_keys => "Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels";
   @override
   String get restore_bitcoin_title_from_keys => "Herstel van WIF";
+  @override
+  String get exchange_sync_alert_content => "Wacht tot uw portemonnee is gesynchroniseerd";
   @override
   String get scan_qr_code => "Scan de QR-code om het adres te krijgen";
   @override
@@ -6603,7 +6786,7 @@ class $nl extends S {
   @override
   String get exchange_result_write_down_trade_id => "Kopieer of noteer de handels-ID om door te gaan.";
   @override
-  String get new_subaddress_title => "Nieuw subadres";
+  String get new_subaddress_title => "Nieuw adres";
   @override
   String get change => "Verandering";
   @override
@@ -6657,7 +6840,7 @@ class $nl extends S {
   @override
   String get choose_account => "Kies account";
   @override
-  String get restore_from_date_or_blockheight => "Voer de datum in waarop u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voer deze dan in";
+  String get restore_from_date_or_blockheight => "Voer een datum in een paar dagen voordat u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voert u deze in";
   @override
   String get settings_only_trades => "Alleen handel";
   @override
@@ -6769,6 +6952,8 @@ class $nl extends S {
   @override
   String get enter_your_pin => "Voer uw pincode in";
   @override
+  String get seed_alert_yes => "Ja ik heb";
+  @override
   String get wallet_list_restore_wallet => "Portemonnee herstellen";
   @override
   String get restore_title_from_seed => "Herstel van zaad";
@@ -6815,9 +7000,13 @@ class $nl extends S {
   @override
   String trade_is_powered_by(String provider) => "Deze transactie wordt mogelijk gemaakt door ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "Wilt u de huidige portemonnee wijzigen in ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "Fout: ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "Ruil voor ${provider} is niet gemaakt. Bedrag is meer dan maximaal: ${max} ${currency}";
   @override
@@ -6829,11 +7018,11 @@ class $nl extends S {
   @override
   String Blocks_remaining(String status) => "${status} Resterende blokken";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar bovenstaand adres. Of u kunt uw externe portemonnee naar bovenstaand adres / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar het onderstaande adres. Of u kunt vanuit uw externe portemonnee naar het onderstaande adres verzenden / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.";
   @override
   String error_text_limits_loading_failed(String provider) => "Ruil voor ${provider} is niet gemaakt. Beperkingen laden mislukt";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Zend alstublieft ${fetchingLabel} ${from} naar bovenstaand adres.";
+  String exchange_result_description(String fetchingLabel, String from) => "Zend alstublieft ${fetchingLabel} ${from} naar het onderstaande adres.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Verricht transactie\nBedrag: ${amount}\nhonorarium: ${fee}";
   @override
@@ -6865,6 +7054,8 @@ class $zh extends S {
   @override
   String get new_subaddress_create => "创建";
   @override
+  String get seed_alert_back => "回去";
+  @override
   String get restore_view_key_private => "查看金钥 (私人的)";
   @override
   String get transaction_priority_fast => "快速";
@@ -6881,7 +7072,7 @@ class $zh extends S {
   @override
   String get password => "密码";
   @override
-  String get you_will_get => "你会得到";
+  String get you_will_get => "轉換成";
   @override
   String get trade_id => "贸易编号:";
   @override
@@ -6979,7 +7170,7 @@ class $zh extends S {
   @override
   String get receive => "接收";
   @override
-  String get amount_is_guaranteed => "接收金额有保证";
+  String get amount_is_guaranteed => "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量";
   @override
   String get auth_store_banned_for => "禁止 ";
   @override
@@ -6991,15 +7182,19 @@ class $zh extends S {
   @override
   String get settings_display_balance_as => "将余额显示为";
   @override
+  String get change_wallet_alert_title => "更換當前錢包";
+  @override
   String get placeholder_transactions => "您的交易將顯示在這裡";
   @override
   String get trade_details_provider => "提供者";
   @override
   String get seed_language_japanese => "日本";
   @override
-  String get you_will_send => "您将发送";
+  String get you_will_send => "從轉換";
   @override
   String get seed_language_german => "德語";
+  @override
+  String get seed_alert_title => "注意";
   @override
   String get create_new => "创建新钱包";
   @override
@@ -7034,6 +7229,8 @@ class $zh extends S {
   String get add => "加";
   @override
   String get remove_node => "删除节点";
+  @override
+  String get seed_alert_content => "種子是恢復錢包的唯一方法。 你寫下來了嗎？";
   @override
   String get trade_state_paid_unconfirmed => "付费未确认";
   @override
@@ -7086,6 +7283,8 @@ class $zh extends S {
   String get add_new_node => "添加新節點";
   @override
   String get wallet_seed => "錢包種子";
+  @override
+  String get creating_new_wallet => "創建新錢包";
   @override
   String get yesterday => "昨天";
   @override
@@ -7154,6 +7353,8 @@ class $zh extends S {
   String get restore_bitcoin_description_from_keys => "從私鑰中生成的WIF字符串還原您的錢包";
   @override
   String get restore_bitcoin_title_from_keys => "從WIF還原";
+  @override
+  String get exchange_sync_alert_content => "請等待，直到您的錢包同步";
   @override
   String get scan_qr_code => "掃描二維碼獲取地址";
   @override
@@ -7253,7 +7454,7 @@ class $zh extends S {
   @override
   String get exchange_result_write_down_trade_id => "请复制或写下交易编号以继续.";
   @override
-  String get new_subaddress_title => "新子地址";
+  String get new_subaddress_title => "新地址";
   @override
   String get change => "更改";
   @override
@@ -7307,7 +7508,7 @@ class $zh extends S {
   @override
   String get choose_account => "選擇帳號";
   @override
-  String get restore_from_date_or_blockheight => "請輸入創建此錢包的日期。 或者，如果您知道塊高，請改為輸入";
+  String get restore_from_date_or_blockheight => "請在創建此錢包之前幾天輸入一個日期。 或者，如果您知道塊高，請改為輸入";
   @override
   String get settings_only_trades => "只交易";
   @override
@@ -7419,6 +7620,8 @@ class $zh extends S {
   @override
   String get enter_your_pin => "输入密码";
   @override
+  String get seed_alert_yes => "是的，我有";
+  @override
   String get wallet_list_restore_wallet => "恢复钱包";
   @override
   String get restore_title_from_seed => "从种子还原";
@@ -7465,9 +7668,13 @@ class $zh extends S {
   @override
   String trade_is_powered_by(String provider) => "该交易由 ${provider}";
   @override
+  String change_wallet_alert_content(String wallet_name) => "您要將當前的錢包更改為 ${wallet_name}?";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "最高: ${value} ${currency}";
+  @override
+  String creating_new_wallet_error(String description) => "錯誤： ${description}";
   @override
   String error_text_maximum_limit(String provider, String max, String currency) => "未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}";
   @override
@@ -7479,11 +7686,11 @@ class $zh extends S {
   @override
   String Blocks_remaining(String status) => "${status} 剩余的块";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到上面显示的地址. 或者，您也可以从外部钱包发送上述地址/ QR码。\n\n请按确认继续或返回以更改金额";
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到下面顯示的地址。 或者您可以從外部錢包發送到以下地址/ QR码。\n\n请按确认继续或返回以更改金额";
   @override
   String error_text_limits_loading_failed(String provider) => "未創建 ${provider} 交易。 限制加載失敗";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到上面显示的地址.";
+  String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到下面顯示的地址.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "提交交易\n量: ${amount}\nFee: ${fee}";
   @override

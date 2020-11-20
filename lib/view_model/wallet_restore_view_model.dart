@@ -23,12 +23,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       Box<WalletInfo> walletInfoSource,
       {@required WalletType type})
       : super(appStore, walletInfoSource, type: type, isRecovery: true) {
+    isButtonEnabled = false;
     mode = WalletRestoreMode.seed;
     _walletCreationService.changeWalletType(type: WalletType.monero);
   }
 
   @observable
   WalletRestoreMode mode;
+
+  @observable
+  bool isButtonEnabled;
 
   final WalletCreationService _walletCreationService;
 
@@ -55,7 +59,8 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
           spendKey: spendKey,
           viewKey: viewKey,
           address: address,
-          password: password);
+          password: password,
+          language: 'English');
     }
 
     return null;

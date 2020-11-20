@@ -11,8 +11,6 @@ import 'package:flutter/services.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
-final moneroAPIChannel = const MethodChannel('cw_monero');
-
 final getFileNameNative = moneroApi
     .lookup<NativeFunction<get_filename>>('get_filename')
     .asFunction<GetFilename>();
@@ -114,6 +112,8 @@ final rescanBlockchainAsyncNative = moneroApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
 
+bool isStoring = false;
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -209,20 +209,23 @@ String getSecretSpendKey() =>
 String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
-class SyncListner {
-  SyncListner({this.onNewBlock, this.onNeedToRefresh, this.onNewTransaction});
+class SyncListener {
+  SyncListener(this.onNewBlock, this.onNewTransaction) {
+    _cachedBlockchainHeight = 0;
+    _lastKnownBlockHeight = 0;
+    _initialSyncHeight = 0;
+  }
 
   void Function(int, int, double) onNewBlock;
-  void Function() onNeedToRefresh;
   void Function() onNewTransaction;
 
   Timer _updateSyncInfoTimer;
-  int _cachedBlockchainHeight = 0;
-  int _lastKnownBlockHeight = 0;
-  int _initialSyncHeight = 0;
+  int _cachedBlockchainHeight;
+  int _lastKnownBlockHeight;
+  int _initialSyncHeight;
 
   Future<int> getNodeHeightOrUpdate(int baseHeight) async {
-    if (_cachedBlockchainHeight < baseHeight) {
+    if (_cachedBlockchainHeight < baseHeight || _cachedBlockchainHeight == 0) {
       _cachedBlockchainHeight = await getNodeHeight();
     }
 
@@ -234,54 +237,68 @@ class SyncListner {
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
     _updateSyncInfoTimer ??=
-        Timer.periodic(Duration(milliseconds: 200), (_) async {
-      final syncHeight = getSyncingHeight();
-      final needToRefresh = isNeededToRefresh();
-      final newTransactionExist = isNewTransactionExist();
-      final bchHeight = await getNodeHeightOrUpdate(syncHeight);
-
-      if (_lastKnownBlockHeight != syncHeight && syncHeight != null) {
-        if (_initialSyncHeight <= 0) {
-          _initialSyncHeight = syncHeight;
-        }
-
-        _lastKnownBlockHeight = syncHeight;
-        final line = bchHeight - _initialSyncHeight;
-        final diff = line - (bchHeight - syncHeight);
-        final ptc = diff <= 0 ? 0.0 : diff / line;
-        final left = bchHeight - syncHeight;
-        // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
-        onNewBlock(syncHeight, left, ptc);
-      }
-
-      if (newTransactionExist) {
+        Timer.periodic(Duration(milliseconds: 1200), (_) async {
+      if (isNewTransactionExist()) {
         onNewTransaction?.call();
       }
 
-      if (needToRefresh) {
-        onNeedToRefresh?.call();
+      var syncHeight = getSyncingHeight();
+
+      if (syncHeight <= 0) {
+        syncHeight = getCurrentHeight();
       }
+
+      if (_initialSyncHeight <= 0) {
+        _initialSyncHeight = syncHeight;
+      }
+
+      final bchHeight = await getNodeHeightOrUpdate(syncHeight);
+
+      if (_lastKnownBlockHeight == syncHeight || syncHeight == null) {
+        return;
+      }
+
+      _lastKnownBlockHeight = syncHeight;
+      final track = bchHeight - _initialSyncHeight;
+      final diff = track - (bchHeight - syncHeight);
+      final ptc = diff <= 0 ? 0.0 : diff / track;
+      final left = bchHeight - syncHeight;
+
+      if (syncHeight < 0 || left < 0) {
+        return;
+      }
+
+      // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
+      onNewBlock?.call(syncHeight, left, ptc);
     });
   }
 
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListner setListeners(void Function(int, int, double) onNewBlock,
-    void Function() onNeedToRefresh, void Function() onNewTransaction) {
-  final listener = SyncListner(
-      onNewBlock: onNewBlock,
-      onNeedToRefresh: onNeedToRefresh,
-      onNewTransaction: onNewTransaction);
-
+SyncListener setListeners(void Function(int, int, double) onNewBlock,
+    void Function() onNewTransaction) {
+  final listener = SyncListener(onNewBlock, onNewTransaction);
   setListenerNative();
-
   return listener;
 }
 
 void onStartup() => onStartupNative();
 
-void _storeSync(Object _) => storeSync();
+void _storeSync(Object _) {
+  if (isStoring) {
+    return;
+  }
+
+  try {
+    isStoring = true;
+    storeSync();
+    isStoring = false;
+  } catch (e) {
+    isStoring = false;
+    rethrow;
+  }
+}
 
 bool _setupNodeSync(Map args) {
   final address = args['address'] as String;

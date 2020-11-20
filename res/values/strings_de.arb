@@ -63,9 +63,9 @@
   "clear" : "klar",
   "refund_address" : "Rückerstattungsadresse",
   "change_exchange_provider" : "Wechseln Sie den Exchange-Anbieter",
-  "you_will_send" : "Du wirst senden",
-  "you_will_get" : "Sie erhalten",
-  "amount_is_guaranteed" : "Der Empfangsbetrag ist garantiert",
+  "you_will_send" : "Konvertieren von",
+  "you_will_get" : "Konvertieren zu",
+  "amount_is_guaranteed" : "WICHTIG:\nWenn Sie einen garantierten BTC-Betrag erhalten möchten, geben Sie diesen Betrag in das Feld BTC ein. Wenn Sie stattdessen einen XMR-Betrag eingeben, handelt es sich bei dem erhaltenen BTC-Betrag um eine Schätzung, die je nach Kurs schwanken kann.",
   "amount_is_estimate" : "Der empfangene Betrag ist eine Schätzung",
   "powered_by" : "Unterstützt von ${title}",
   "error" : "Error",
@@ -88,8 +88,8 @@
   "offer_expires_in" : "Angebot läuft ab in: ",
   "trade_is_powered_by" : "Dieser Handel wird betrieben von ${provider}",
   "copy_address" : "Adresse kopieren",
-  "exchange_result_confirm" : "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die oben angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die oben angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.",
-  "exchange_result_description" : "Bitte senden ${fetchingLabel} ${from} an die oben angegebene Adresse.'",
+  "exchange_result_confirm" : "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die unten angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die unten angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.",
+  "exchange_result_description" : "Bitte senden ${fetchingLabel} ${from} an die unten angegebene Adresse.'",
   "exchange_result_write_down_ID" : "*Bitte kopieren oder notieren Sie Ihren oben gezeigten Ausweis.",
   "confirm" : "Bestätigen",
   "confirm_sending" : "Bestätigen Sie das Senden",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her",
   "restore_bitcoin_description_from_keys" : "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her",
   "restore_bitcoin_title_from_keys" : "Aus WIF wiederherstellen",
-  "restore_from_date_or_blockheight" : "Bitte geben Sie das Datum ein, an dem Sie diese Brieftasche erstellt haben. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein",
+  "restore_from_date_or_blockheight" : "Bitte geben Sie einige Tage vor dem Erstellen dieser Brieftasche ein Datum ein. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein",
 
 
   "seed_reminder" : "Bitte notieren Sie diese, falls Sie Ihr Telefon verlieren oder abwischen",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "Kopiert ${key} Zur Zwischenablage",
 
 
-  "new_subaddress_title" : "Neue Unteradresse",
+  "new_subaddress_title" : "Neue Adresse",
   "new_subaddress_label_name" : "Markenname",
   "new_subaddress_create" : "Erstellen",
 
@@ -394,5 +394,18 @@
   "confirm_delete_template" : "Diese Aktion löscht diese Vorlage. Möchten Sie fortfahren?",
   "confirm_delete_wallet" : "Diese Aktion löscht diese Brieftasche. Möchten Sie fortfahren?",
 
-  "picker_description" : "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar"
+  "picker_description" : "Um ChangeNOW oder MorphToken zu wählen, ändern Sie bitte zuerst Ihr Handelspaar",
+
+  "change_wallet_alert_title" : "Ändern Sie die aktuelle Brieftasche",
+  "change_wallet_alert_content" : "Möchten Sie die aktuelle Brieftasche in ändern ${wallet_name}?",
+
+  "creating_new_wallet" : "Neue Brieftasche erstellen",
+  "creating_new_wallet_error" : "Error: ${description}",
+
+  "seed_alert_title" : "Beachtung",
+  "seed_alert_content" : "Der Samen ist der einzige Weg, um Ihren Geldbeutel wiederzugewinnen. Hast du es aufgeschrieben?",
+  "seed_alert_back" : "Geh zurück",
+  "seed_alert_yes" : "Ja, habe ich",
+
+  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist"
 }
