@@ -2,7 +2,9 @@ import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/monero/account.dart';
+import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_history.dart';
+import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
@@ -87,9 +89,9 @@ abstract class DashboardViewModelBase with Store {
       _onMoneroAccountChangeReaction = reaction((_) => _wallet.account,
               (Account account) => _onMoneroAccountChange(_wallet));
 
-      _onMoneroTransactionsChangeReaction = reaction((_) => _wallet.transactionHistory,
-              (MoneroTransactionHistory transactionHistory) =>
-                  _onMoneroTransactionsUpdate(_wallet));
+      _onMoneroBalanceChangeReaction = reaction((_) =>
+      _wallet.balance, (MoneroBalance balance) =>
+              _onMoneroTransactionsUpdate(_wallet));
 
       final _accountTransactions = _wallet
           .transactionHistory.transactions.values
@@ -193,7 +195,7 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer _onMoneroAccountChangeReaction;
 
-  ReactionDisposer _onMoneroTransactionsChangeReaction;
+  ReactionDisposer _onMoneroBalanceChangeReaction;
 
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
@@ -209,14 +211,14 @@ abstract class DashboardViewModelBase with Store {
       subname = wallet.account?.label;
 
       _onMoneroAccountChangeReaction?.reaction?.dispose();
-      _onMoneroTransactionsChangeReaction?.reaction?.dispose();
+      _onMoneroBalanceChangeReaction?.reaction?.dispose();
 
       _onMoneroAccountChangeReaction = reaction((_) => wallet.account,
               (Account account) => _onMoneroAccountChange(wallet));
 
-      _onMoneroTransactionsChangeReaction = reaction((_) => wallet.transactionHistory,
-              (MoneroTransactionHistory transactionHistory) =>
-              _onMoneroTransactionsUpdate(wallet));
+      _onMoneroBalanceChangeReaction = reaction((_) =>
+      wallet.balance, (MoneroBalance balance) =>
+          _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
     } else {
