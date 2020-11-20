@@ -367,17 +367,18 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     if (walletInfo.isRecovery) {
-      _askForUpdateTransactionHistory();
+      await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
     }
 
     if (blocksLeft < 100) {
+      await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
       syncStatus = SyncedSyncStatus();
       await _afterSyncSave();
 
       if (walletInfo.isRecovery) {
-        setAsRecovered();
+        await setAsRecovered();
       }
     } else {
       syncStatus = SyncingSyncStatus(blocksLeft, ptc);
