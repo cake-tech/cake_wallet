@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Exchangeプロバイダーの変更",
   "you_will_send" : "から変換",
   "you_will_get" : "に変換",
-  "amount_is_guaranteed" : "重要：\n保証された金額のBTCを受け取りたい場合は、その金額を[BTC]フィールドに入力してください。 代わりにXMR金額を入力した場合、受け取ったBTC金額は見積もりであり、レートに応じて変動する可能性があります。",
+  "amount_is_guaranteed" : "xmr.toで、保証されたBTC金額を受け取るには、上記のXMR金額ではなく、BTC金額を入力します",
   "amount_is_estimate" : "受け取り金額は見積もりです",
   "powered_by" : "搭載 ${title}",
   "error" : "エラー",
@@ -129,6 +129,11 @@
   "remove" : "削除する",
   "delete" : "削除する",
   "add_new_node" : "新しいノードを追加",
+  "change_current_node_title" : "現在のノードを変更する",
+  "node_test" : "テスト",
+  "node_connection_successful" : "接続に成功しました",
+  "node_connection_failed" : "接続に失敗しました",
+  "new_node_testing" : "新しいノードのテスト",
 
 
   "use" : "使用する ",

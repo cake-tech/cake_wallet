@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Змінити провайдера обміну",
   "you_will_send" : "Конвертувати з",
   "you_will_get" : "Конвертувати в",
-  "amount_is_guaranteed" : "ВАЖЛИВО:\nЯкщо ви хочете отримати гарантовану суму BTC, введіть цю суму в поле BTC. Якщо замість цього ввести суму XMR, отримана сума BTC є приблизною і може коливатися залежно від курсу.",
+  "amount_is_guaranteed" : "У xmr.to, щоб отримати гарантовану суму BTC, введіть суму BTC, а не XMR вище",
   "amount_is_estimate" : "Отримана сума є приблизною",
   "powered_by" : "Використовуючи ${title}",
   "error" : "Помилка",
@@ -129,6 +129,11 @@
   "remove" : "Видалити",
   "delete" : "Видалити",
   "add_new_node" : "Додати новий вузол",
+  "change_current_node_title" : "Змінити поточний вузол",
+  "node_test" : "Тест",
+  "node_connection_successful" : "З'єднання було успішним",
+  "node_connection_failed" : "Помилка з’єднання",
+  "new_node_testing" : "Тестування нового вузла",
 
 
   "use" : "Використати ",

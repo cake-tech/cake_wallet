@@ -99,9 +99,9 @@ class NodeListPage extends BasePage {
                           await showPopUp<void>(
                               context: context,
                               builder: (BuildContext context) {
-                                // FIXME: Add translation.
                                 return AlertWithTwoActions(
-                                    alertTitle: 'Change current node',
+                                    alertTitle: S.of(context)
+                                        .change_current_node_title,
                                     alertContent: S
                                         .of(context)
                                         .change_current_node(node.uri),

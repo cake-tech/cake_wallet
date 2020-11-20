@@ -50,6 +50,7 @@ class S implements WidgetsLocalizations {
   String get card_address => "Address:";
   String get change => "Change";
   String get change_currency => "Change Currency";
+  String get change_current_node_title => "Change current node";
   String get change_exchange_provider => "Change Exchange Provider";
   String get change_language => "Change language";
   String get change_wallet_alert_title => "Change current wallet";
@@ -108,14 +109,18 @@ class S implements WidgetsLocalizations {
   String get incorrect_seed => "The text entered is not valid.";
   String get loading_your_wallet => "Loading your wallet";
   String get login => "Login";
+  String get new_node_testing => "New node testing";
   String get new_subaddress_create => "Create";
   String get new_subaddress_label_name => "Label name";
   String get new_subaddress_title => "New address";
   String get new_wallet => "New Wallet";
   String get node_address => "Node Address";
+  String get node_connection_failed => "Connection was failed";
+  String get node_connection_successful => "Connection was successful";
   String get node_new => "New Node";
   String get node_port => "Node port";
   String get node_reset_settings_title => "Reset settings";
+  String get node_test => "Test";
   String get nodes => "Nodes";
   String get nodes_list_reset_to_default_message => "Are you sure that you want to reset settings to default?";
   String get offer_expires_in => "Offer expires in: ";
@@ -494,6 +499,8 @@ class $de extends S {
   @override
   String get choose_wallet_currency => "Bitte wählen Sie die Brieftaschenwährung:";
   @override
+  String get node_connection_successful => "Die Verbindung war erfolgreich";
+  @override
   String get confirm => "Bestätigen";
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
@@ -534,6 +541,8 @@ class $de extends S {
   @override
   String get contact => "Kontakt";
   @override
+  String get change_current_node_title => "Ändern Sie den aktuellen Knoten";
+  @override
   String get openalias_alert_title => "XMR-Empfänger erkannt";
   @override
   String get auth_store_incorrect_password => "Falsches PIN";
@@ -565,6 +574,8 @@ class $de extends S {
   String get restore_seed_keys_restore => "Seed / Schlüssel wiederherstellen";
   @override
   String get xmr_hidden => "Versteckt";
+  @override
+  String get node_connection_failed => "Verbindung fehlgeschlagen";
   @override
   String get send_xmr => "Senden XMR";
   @override
@@ -641,6 +652,8 @@ class $de extends S {
   String get seed_share => "Teilen Sie Seed";
   @override
   String get widgets_restore_from_blockheight => "Aus Blockhöhe wiederherstellen";
+  @override
+  String get new_node_testing => "Neuer Knotentest";
   @override
   String get seed_language_chinese => "Chinesisch";
   @override
@@ -773,6 +786,8 @@ class $de extends S {
   String get new_subaddress_title => "Neue Adresse";
   @override
   String get change => "Veränderung";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Fertig";
   @override
@@ -1162,6 +1177,8 @@ class $hi extends S {
   @override
   String get choose_wallet_currency => "कृपया बटुआ मुद्रा चुनें:";
   @override
+  String get node_connection_successful => "कनेक्शन सफल रहा";
+  @override
   String get confirm => "की पुष्टि करें";
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
@@ -1202,6 +1219,8 @@ class $hi extends S {
   @override
   String get contact => "संपर्क करें";
   @override
+  String get change_current_node_title => "वर्तमान नोड बदलें";
+  @override
   String get openalias_alert_title => "XMR प्राप्तकर्ता का पता लगाया";
   @override
   String get auth_store_incorrect_password => "गलत पिन";
@@ -1233,6 +1252,8 @@ class $hi extends S {
   String get restore_seed_keys_restore => "बीज / कुंजी पुनर्स्थापित करें";
   @override
   String get xmr_hidden => "छिपा हुआ";
+  @override
+  String get node_connection_failed => "कनेक्शन विफल रहा";
   @override
   String get send_xmr => "संदेश XMR";
   @override
@@ -1309,6 +1330,8 @@ class $hi extends S {
   String get seed_share => "बीज साझा करें";
   @override
   String get widgets_restore_from_blockheight => "ब्लॉकचेन से पुनर्स्थापित करें";
+  @override
+  String get new_node_testing => "नई नोड परीक्षण";
   @override
   String get seed_language_chinese => "चीनी";
   @override
@@ -1441,6 +1464,8 @@ class $hi extends S {
   String get new_subaddress_title => "नया पता";
   @override
   String get change => "परिवर्तन";
+  @override
+  String get node_test => "परीक्षा";
   @override
   String get trade_state_finished => "ख़त्म होना";
   @override
@@ -1830,6 +1855,8 @@ class $ru extends S {
   @override
   String get choose_wallet_currency => "Пожалуйста, выберите валюту кошелька:";
   @override
+  String get node_connection_successful => "Подключение прошло успешно";
+  @override
   String get confirm => "Подтвердить";
   @override
   String get settings_display_balance_as => "Отображать баланс как";
@@ -1870,6 +1897,8 @@ class $ru extends S {
   @override
   String get contact => "Контакт";
   @override
+  String get change_current_node_title => "Изменить текущую ноду";
+  @override
   String get openalias_alert_title => "Получатель XMR обнаружен";
   @override
   String get auth_store_incorrect_password => "Некорректный PIN";
@@ -1901,6 +1930,8 @@ class $ru extends S {
   String get restore_seed_keys_restore => "Восстановить из мнемонической фразы/ключей";
   @override
   String get xmr_hidden => "Скрыто";
+  @override
+  String get node_connection_failed => "Подключение не удалось";
   @override
   String get send_xmr => "Отправить XMR";
   @override
@@ -1977,6 +2008,8 @@ class $ru extends S {
   String get seed_share => "Поделиться мнемонической фразой";
   @override
   String get widgets_restore_from_blockheight => "Восстановить на высоте блока";
+  @override
+  String get new_node_testing => "Тестирование новой ноды";
   @override
   String get seed_language_chinese => "Китайский";
   @override
@@ -2109,6 +2142,8 @@ class $ru extends S {
   String get new_subaddress_title => "Новый адрес";
   @override
   String get change => "Изменить";
+  @override
+  String get node_test => "Тест";
   @override
   String get trade_state_finished => "Завершена";
   @override
@@ -2498,6 +2533,8 @@ class $ko extends S {
   @override
   String get choose_wallet_currency => "지갑 통화를 선택하십시오:";
   @override
+  String get node_connection_successful => "성공적으로 연결되었습니다.";
+  @override
   String get confirm => "확인";
   @override
   String get settings_display_balance_as => "잔액 표시";
@@ -2538,6 +2575,8 @@ class $ko extends S {
   @override
   String get contact => "접촉";
   @override
+  String get change_current_node_title => "현재 노드 변경";
+  @override
   String get openalias_alert_title => "XMR 수신자 감지";
   @override
   String get auth_store_incorrect_password => "잘못된 PIN";
@@ -2569,6 +2608,8 @@ class $ko extends S {
   String get restore_seed_keys_restore => "종자 / 키 복원";
   @override
   String get xmr_hidden => "숨김";
+  @override
+  String get node_connection_failed => "연결 실패";
   @override
   String get send_xmr => "보내다 XMR";
   @override
@@ -2645,6 +2686,8 @@ class $ko extends S {
   String get seed_share => "시드 공유";
   @override
   String get widgets_restore_from_blockheight => "블록 높이에서 복원";
+  @override
+  String get new_node_testing => "새로운 노드 테스트";
   @override
   String get seed_language_chinese => "중국말";
   @override
@@ -2777,6 +2820,8 @@ class $ko extends S {
   String get new_subaddress_title => "새 주소";
   @override
   String get change => "변화";
+  @override
+  String get node_test => "테스트";
   @override
   String get trade_state_finished => "끝마친";
   @override
@@ -3166,6 +3211,8 @@ class $pt extends S {
   @override
   String get choose_wallet_currency => "Escolha a moeda da carteira:";
   @override
+  String get node_connection_successful => "A conexão foi bem sucedida";
+  @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Saldo a exibir";
@@ -3206,6 +3253,8 @@ class $pt extends S {
   @override
   String get contact => "Contato";
   @override
+  String get change_current_node_title => "Mudar o nó atual";
+  @override
   String get openalias_alert_title => "Destinatário XMR detectado";
   @override
   String get auth_store_incorrect_password => "PIN incorreto";
@@ -3237,6 +3286,8 @@ class $pt extends S {
   String get restore_seed_keys_restore => "Restauração com sementes/chaves";
   @override
   String get xmr_hidden => "Esconder saldo";
+  @override
+  String get node_connection_failed => "A conexão falhou";
   @override
   String get send_xmr => "Enviar XMR";
   @override
@@ -3313,6 +3364,8 @@ class $pt extends S {
   String get seed_share => "Compartilhar semente";
   @override
   String get widgets_restore_from_blockheight => "Restaurar a partir de altura do bloco";
+  @override
+  String get new_node_testing => "Teste de novo nó";
   @override
   String get seed_language_chinese => "Chinesa";
   @override
@@ -3445,6 +3498,8 @@ class $pt extends S {
   String get new_subaddress_title => "Novo endereço";
   @override
   String get change => "Mudar";
+  @override
+  String get node_test => "Teste";
   @override
   String get trade_state_finished => "Finalizada";
   @override
@@ -3834,6 +3889,8 @@ class $uk extends S {
   @override
   String get choose_wallet_currency => "Будь ласка, виберіть валюту гаманця:";
   @override
+  String get node_connection_successful => "З'єднання було успішним";
+  @override
   String get confirm => "Підтвердити";
   @override
   String get settings_display_balance_as => "Відображати баланс як";
@@ -3874,6 +3931,8 @@ class $uk extends S {
   @override
   String get contact => "Контакт";
   @override
+  String get change_current_node_title => "Змінити поточний вузол";
+  @override
   String get openalias_alert_title => "Отримувача XMR виявлено";
   @override
   String get auth_store_incorrect_password => "Некоректний PIN";
@@ -3905,6 +3964,8 @@ class $uk extends S {
   String get restore_seed_keys_restore => "Відновити за допомогою мнемонічної фрази/ключів";
   @override
   String get xmr_hidden => "Приховано";
+  @override
+  String get node_connection_failed => "Помилка з’єднання";
   @override
   String get send_xmr => "Відправити XMR";
   @override
@@ -3981,6 +4042,8 @@ class $uk extends S {
   String get seed_share => "Поділитися мнемонічною фразою";
   @override
   String get widgets_restore_from_blockheight => "Відновити на висоті блоку";
+  @override
+  String get new_node_testing => "Тестування нового вузла";
   @override
   String get seed_language_chinese => "Китайська";
   @override
@@ -4113,6 +4176,8 @@ class $uk extends S {
   String get new_subaddress_title => "Нова адреса";
   @override
   String get change => "Змінити";
+  @override
+  String get node_test => "Тест";
   @override
   String get trade_state_finished => "Завершена";
   @override
@@ -4502,6 +4567,8 @@ class $ja extends S {
   @override
   String get choose_wallet_currency => "ウォレット通貨を選択してください：";
   @override
+  String get node_connection_successful => "接続に成功しました";
+  @override
   String get confirm => "確認する";
   @override
   String get settings_display_balance_as => "残高を表示";
@@ -4542,6 +4609,8 @@ class $ja extends S {
   @override
   String get contact => "接触";
   @override
+  String get change_current_node_title => "現在のノードを変更する";
+  @override
   String get openalias_alert_title => "XMR受信者が検出されました";
   @override
   String get auth_store_incorrect_password => "間違ったPIN";
@@ -4573,6 +4642,8 @@ class $ja extends S {
   String get restore_seed_keys_restore => "シード/キーの復元";
   @override
   String get xmr_hidden => "非表示";
+  @override
+  String get node_connection_failed => "接続に失敗しました";
   @override
   String get send_xmr => "送る XMR";
   @override
@@ -4649,6 +4720,8 @@ class $ja extends S {
   String get seed_share => "シードを共有する";
   @override
   String get widgets_restore_from_blockheight => "ブロックの高さから復元";
+  @override
+  String get new_node_testing => "新しいノードのテスト";
   @override
   String get seed_language_chinese => "中国語";
   @override
@@ -4781,6 +4854,8 @@ class $ja extends S {
   String get new_subaddress_title => "新しいアドレス";
   @override
   String get change => "変化する";
+  @override
+  String get node_test => "テスト";
   @override
   String get trade_state_finished => "完成した";
   @override
@@ -5174,6 +5249,8 @@ class $pl extends S {
   @override
   String get choose_wallet_currency => "Wybierz walutę portfela:";
   @override
+  String get node_connection_successful => "Połączenie powiodło się";
+  @override
   String get confirm => "Potwierdzać";
   @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
@@ -5214,6 +5291,8 @@ class $pl extends S {
   @override
   String get contact => "Kontakt";
   @override
+  String get change_current_node_title => "Zmień bieżący węzeł";
+  @override
   String get openalias_alert_title => "Wykryto odbiorcę XMR";
   @override
   String get auth_store_incorrect_password => "Niepoprawny PIN";
@@ -5245,6 +5324,8 @@ class $pl extends S {
   String get restore_seed_keys_restore => "Przywracanie nasion / kluczy";
   @override
   String get xmr_hidden => "Ukryty";
+  @override
+  String get node_connection_failed => "Połączenie nie powiodło się";
   @override
   String get send_xmr => "Wysłać XMR";
   @override
@@ -5321,6 +5402,8 @@ class $pl extends S {
   String get seed_share => "Udostępnij ziarno";
   @override
   String get widgets_restore_from_blockheight => "Przywróć z wysokości bloku";
+  @override
+  String get new_node_testing => "Testowanie nowych węzłów";
   @override
   String get seed_language_chinese => "Chiński";
   @override
@@ -5453,6 +5536,8 @@ class $pl extends S {
   String get new_subaddress_title => "Nowy adres";
   @override
   String get change => "Zmiana";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Skończone";
   @override
@@ -5842,6 +5927,8 @@ class $es extends S {
   @override
   String get choose_wallet_currency => "Por favor, elija la moneda de la billetera:";
   @override
+  String get node_connection_successful => "La conexión fue exitosa";
+  @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Mostrar saldo como";
@@ -5882,6 +5969,8 @@ class $es extends S {
   @override
   String get contact => "Contacto";
   @override
+  String get change_current_node_title => "Cambiar el nodo actual";
+  @override
   String get openalias_alert_title => "Destinatario XMR detectado";
   @override
   String get auth_store_incorrect_password => "Contraseña PIN";
@@ -5913,6 +6002,8 @@ class $es extends S {
   String get restore_seed_keys_restore => "Restauración de semillas / llaves";
   @override
   String get xmr_hidden => "Oculto";
+  @override
+  String get node_connection_failed => "La conexión falló";
   @override
   String get send_xmr => "Enviar XMR";
   @override
@@ -5989,6 +6080,8 @@ class $es extends S {
   String get seed_share => "Compartir semillas";
   @override
   String get widgets_restore_from_blockheight => "Restaurar desde blockheight";
+  @override
+  String get new_node_testing => "Prueba de nuevos nodos";
   @override
   String get seed_language_chinese => "Chino";
   @override
@@ -6121,6 +6214,8 @@ class $es extends S {
   String get new_subaddress_title => "Nueva direccion";
   @override
   String get change => "Cambio";
+  @override
+  String get node_test => "Prueba";
   @override
   String get trade_state_finished => "Terminado";
   @override
@@ -6510,6 +6605,8 @@ class $nl extends S {
   @override
   String get choose_wallet_currency => "Kies een portemonnee-valuta:";
   @override
+  String get node_connection_successful => "Verbinding is gelukt";
+  @override
   String get confirm => "Bevestigen";
   @override
   String get settings_display_balance_as => "Toon saldo als";
@@ -6550,6 +6647,8 @@ class $nl extends S {
   @override
   String get contact => "Contact";
   @override
+  String get change_current_node_title => "Wijzig het huidige knooppunt";
+  @override
   String get openalias_alert_title => "XMR-ontvanger gedetecteerd";
   @override
   String get auth_store_incorrect_password => "Incorrect PIN";
@@ -6581,6 +6680,8 @@ class $nl extends S {
   String get restore_seed_keys_restore => "Zaad / sleutels herstellen";
   @override
   String get xmr_hidden => "Verborgen";
+  @override
+  String get node_connection_failed => "De verbinding is mislukt";
   @override
   String get send_xmr => "Sturen XMR";
   @override
@@ -6657,6 +6758,8 @@ class $nl extends S {
   String get seed_share => "Deel zaad";
   @override
   String get widgets_restore_from_blockheight => "Herstel vanaf blockheight";
+  @override
+  String get new_node_testing => "Nieuwe knooppunttest";
   @override
   String get seed_language_chinese => "Chinese";
   @override
@@ -6789,6 +6892,8 @@ class $nl extends S {
   String get new_subaddress_title => "Nieuw adres";
   @override
   String get change => "Verandering";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Afgewerkt";
   @override
@@ -7178,6 +7283,8 @@ class $zh extends S {
   @override
   String get choose_wallet_currency => "請選擇錢包貨幣：";
   @override
+  String get node_connection_successful => "連接成功";
+  @override
   String get confirm => "确认";
   @override
   String get settings_display_balance_as => "将余额显示为";
@@ -7218,6 +7325,8 @@ class $zh extends S {
   @override
   String get contact => "联系";
   @override
+  String get change_current_node_title => "更改當前節點";
+  @override
   String get openalias_alert_title => "檢測到XMR收件人";
   @override
   String get auth_store_incorrect_password => "PIN码错误";
@@ -7249,6 +7358,8 @@ class $zh extends S {
   String get restore_seed_keys_restore => "种子/密钥还原";
   @override
   String get xmr_hidden => "隱";
+  @override
+  String get node_connection_failed => "連接失敗";
   @override
   String get send_xmr => "发送 XMR";
   @override
@@ -7325,6 +7436,8 @@ class $zh extends S {
   String get seed_share => "分享种子";
   @override
   String get widgets_restore_from_blockheight => "从块高还原";
+  @override
+  String get new_node_testing => "新節點測試";
   @override
   String get seed_language_chinese => "中文";
   @override
@@ -7457,6 +7570,8 @@ class $zh extends S {
   String get new_subaddress_title => "新地址";
   @override
   String get change => "更改";
+  @override
+  String get node_test => "測試";
   @override
   String get trade_state_finished => "已完成";
   @override
