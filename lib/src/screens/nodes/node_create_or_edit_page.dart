@@ -171,7 +171,9 @@ class NodeCreateOrEditPage extends BasePage {
                           text: S.of(context).save,
                           color: Theme.of(context).accentTextTheme.body2.color,
                           textColor: Colors.white,
-                          isDisabled: !nodeCreateOrEditViewModel.isReady,
+                          isDisabled: (!nodeCreateOrEditViewModel.isReady)||
+                              (nodeCreateOrEditViewModel
+                              .connectionState is IsConnectingState),
                         ),
                       )),
                     ],
