@@ -151,7 +151,7 @@ class NodeCreateOrEditPage extends BasePage {
                             },
                             isLoading: nodeCreateOrEditViewModel
                                 .connectionState is IsConnectingState,
-                            text: 'Connect',
+                            text: S.of(context).node_test,
                             isDisabled: !nodeCreateOrEditViewModel.isReady,
                             color: Colors.orange,
                             textColor: Colors.white),
@@ -192,10 +192,10 @@ class NodeCreateOrEditPage extends BasePage {
                   context: context,
                   builder: (BuildContext context) =>
                       AlertWithOneAction(
-                          alertTitle: S.of(context).node_new,
+                          alertTitle: S.of(context).new_node_testing,
                           alertContent: state.isAlive
-                              ? 'Connected to node'
-                              : 'Not connected to node',
+                              ? S.of(context).node_connection_successful
+                              : S.of(context).node_connection_failed,
                           buttonText: S.of(context).ok,
                           buttonAction: () => Navigator.of(context).pop()));
             });

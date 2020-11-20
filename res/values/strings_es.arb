@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Cambiar proveedor de intercambio",
   "you_will_send" : "Convertir de",
   "you_will_get" : "Convertir a",
-  "amount_is_guaranteed" : "IMPORTANTE:\nSi desea recibir una cantidad garantizada de BTC, ingrese esa cantidad en el campo BTC. Si ingresa una cantidad de XMR en su lugar, la cantidad de BTC recibida es una estimación y puede variar según las tarifas.",
+  "amount_is_guaranteed" : "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba",
   "amount_is_estimate" : "El monto recibido es un estimado",
   "powered_by" : "Energizado por ${title}",
   "error" : "Error",
@@ -129,6 +129,11 @@
   "remove" : "Retirar",
   "delete" : "Borrar",
   "add_new_node" : "Agregar nuevo nodo",
+  "change_current_node_title" : "Cambiar el nodo actual",
+  "node_test" : "Prueba",
+  "node_connection_successful" : "La conexión fue exitosa",
+  "node_connection_failed" : "La conexión falló",
+  "new_node_testing" : "Prueba de nuevos nodos",
 
 
   "use" : "Utilizar a ",
