@@ -63,9 +63,9 @@
   "clear" : "明确",
   "refund_address" : "退款地址",
   "change_exchange_provider" : "更改交易所提供商",
-  "you_will_send" : "您将发送",
-  "you_will_get" : "你会得到",
-  "amount_is_guaranteed" : "接收金额有保证",
+  "you_will_send" : "從轉換",
+  "you_will_get" : "轉換成",
+  "amount_is_guaranteed" : "重要：\n如果您想獲得保證的BTC金額，請在BTC字段中輸入該金額。 如果您輸入的是XMR金額，則收到的BTC金額只是估算值，可能會隨匯率而波動。",
   "amount_is_estimate" : "收款金额为估算值",
   "powered_by" : "供电 ${title}",
   "error" : "错误",
@@ -88,8 +88,8 @@
   "offer_expires_in" : "优惠有效期至 ",
   "trade_is_powered_by" : "该交易由 ${provider}",
   "copy_address" : "复制地址",
-  "exchange_result_confirm" : "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到上面显示的地址. 或者，您也可以从外部钱包发送上述地址/ QR码。\n\n请按确认继续或返回以更改金额",
-  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到上面显示的地址.",
+  "exchange_result_confirm" : "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到下面顯示的地址。 或者您可以從外部錢包發送到以下地址/ QR码。\n\n请按确认继续或返回以更改金额",
+  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到下面顯示的地址.",
   "exchange_result_write_down_ID" : "*请复制或写下您上面显示的ID.",
   "confirm" : "确认",
   "confirm_sending" : "确认发送",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "從12個單詞的組合碼恢復您的錢包",
   "restore_bitcoin_description_from_keys" : "從私鑰中生成的WIF字符串還原您的錢包",
   "restore_bitcoin_title_from_keys" : "從WIF還原",
-  "restore_from_date_or_blockheight" : "請輸入創建此錢包的日期。 或者，如果您知道塊高，請改為輸入",
+  "restore_from_date_or_blockheight" : "請在創建此錢包之前幾天輸入一個日期。 或者，如果您知道塊高，請改為輸入",
 
 
   "seed_reminder" : "請寫下這些，以防丟失或擦拭手機",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "复制 ${key} 到剪贴板",
 
 
-  "new_subaddress_title" : "新子地址",
+  "new_subaddress_title" : "新地址",
   "new_subaddress_label_name" : "标签名称",
   "new_subaddress_create" : "创建",
 
@@ -394,5 +394,18 @@
   "confirm_delete_template" : "此操作將刪除此模板。 你想繼續嗎？",
   "confirm_delete_wallet" : "此操作將刪除此錢包。 你想繼續嗎？",
 
-  "picker_description" : "要選擇ChangeNOW或MorphToken，請先更改您的交易對"
+  "picker_description" : "要選擇ChangeNOW或MorphToken，請先更改您的交易對",
+
+  "change_wallet_alert_title" : "更換當前錢包",
+  "change_wallet_alert_content" : "您要將當前的錢包更改為 ${wallet_name}?",
+
+  "creating_new_wallet" : "創建新錢包",
+  "creating_new_wallet_error" : "錯誤： ${description}",
+
+  "seed_alert_title" : "注意",
+  "seed_alert_content" : "種子是恢復錢包的唯一方法。 你寫下來了嗎？",
+  "seed_alert_back" : "回去",
+  "seed_alert_yes" : "是的，我有",
+
+  "exchange_sync_alert_content" : "請等待，直到您的錢包同步"
 }

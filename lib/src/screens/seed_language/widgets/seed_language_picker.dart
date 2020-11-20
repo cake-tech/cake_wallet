@@ -77,7 +77,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         decoration: TextDecoration.none,
                         color: Colors.white
                     ),
@@ -92,6 +92,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                       width: 300,
                       color: Theme.of(context).accentTextTheme.title.backgroundColor,
                       child: GridView.count(
+                        padding: EdgeInsets.all(0),
                         shrinkWrap: true,
                         crossAxisCount: 3,
                         childAspectRatio: 1,
@@ -171,7 +172,7 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                     style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         decoration: TextDecoration.none,
                         color: textColor
                     ),

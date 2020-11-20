@@ -63,9 +63,9 @@
   "clear" : "Claro",
   "refund_address" : "Dirección de reembolso",
   "change_exchange_provider" : "Cambiar proveedor de intercambio",
-  "you_will_send" : "Enviarás",
-  "you_will_get" : "Conseguirás",
-  "amount_is_guaranteed" : "El monto recibido está garantizado",
+  "you_will_send" : "Convertir de",
+  "you_will_get" : "Convertir a",
+  "amount_is_guaranteed" : "IMPORTANTE:\nSi desea recibir una cantidad garantizada de BTC, ingrese esa cantidad en el campo BTC. Si ingresa una cantidad de XMR en su lugar, la cantidad de BTC recibida es una estimación y puede variar según las tarifas.",
   "amount_is_estimate" : "El monto recibido es un estimado",
   "powered_by" : "Energizado por ${title}",
   "error" : "Error",
@@ -88,8 +88,8 @@
   "offer_expires_in" : "Oferta expira en: ",
   "trade_is_powered_by" : "Este comercio es impulsado por ${provider}",
   "copy_address" : "Copiar dirección ",
-  "exchange_result_confirm" : "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra arriba.  O puede enviar desde su billetera externa a la dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.",
-  "exchange_result_description" : "Envíe ${fetchingLabel} ${from} a la dirección que se muestra arriba.",
+  "exchange_result_confirm" : "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra a continuación. O puede enviar desde su billetera externa a la siguiente dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.",
+  "exchange_result_description" : "Envíe ${fetchingLabel} ${from} a la dirección que se muestra a continuación.",
   "exchange_result_write_down_ID" : "*Copie o escriba su identificación que se muestra arriba.",
   "confirm" : "Confirmar",
   "confirm_sending" : "Confirmar envío",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "Restaure su billetera a partir del código de combinación de 12 palabras",
   "restore_bitcoin_description_from_keys" : "Restaure su billetera a partir de una cadena WIF generada a partir de sus claves privadas",
   "restore_bitcoin_title_from_keys" : "Restaurar desde WIF",
-  "restore_from_date_or_blockheight" : "Ingrese la fecha en que creó esta billetera. O si conoce la altura del bloque, ingréselo en su lugar",
+  "restore_from_date_or_blockheight" : "Ingrese una fecha unos días antes de crear esta billetera. O si conoce la altura del bloque, ingréselo en su lugar",
 
 
   "seed_reminder" : "Anótelos en caso de que pierda o borre su teléfono",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "Copiado ${key} al portapapeles",
 
 
-  "new_subaddress_title" : "Nueva subdirección",
+  "new_subaddress_title" : "Nueva direccion",
   "new_subaddress_label_name" : "Nombre de etiqueta",
   "new_subaddress_create" : "Crear",
 
@@ -394,5 +394,18 @@
   "confirm_delete_template" : "Esta acción eliminará esta plantilla. ¿Desea continuar?",
   "confirm_delete_wallet" : "Esta acción eliminará esta billetera. ¿Desea continuar?",
 
-  "picker_description" : "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial"
+  "picker_description" : "Para elegir ChangeNOW o MorphToken, primero cambie su par comercial",
+
+  "change_wallet_alert_title" : "Cambiar billetera actual",
+  "change_wallet_alert_content" : "¿Quieres cambiar la billetera actual a ${wallet_name}?",
+
+  "creating_new_wallet" : "Creando nueva billetera",
+  "creating_new_wallet_error" : "Error: ${description}",
+
+  "seed_alert_title" : "Atención",
+  "seed_alert_content" : "La semilla es la única forma de recuperar su billetera. ¿Lo has escrito?",
+  "seed_alert_back" : "Regresa",
+  "seed_alert_yes" : "Sí tengo",
+
+  "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada"
 }

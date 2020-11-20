@@ -34,8 +34,8 @@ abstract class WalletCreationVMBase with Store {
 
   Future<void> create({dynamic options}) async {
     try {
-      name = await generateName();
       state = IsExecutingState();
+      name = await generateName();
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
       final credentials = getCredentials(options);

@@ -7,6 +7,7 @@ import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dar
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
@@ -18,7 +19,8 @@ class ExchangeTradeViewModel = ExchangeTradeViewModelBase
     with _$ExchangeTradeViewModel;
 
 abstract class ExchangeTradeViewModelBase with Store {
-  ExchangeTradeViewModelBase({this.wallet, this.trades, this.tradesStore}) {
+  ExchangeTradeViewModelBase(
+      {this.wallet, this.trades, this.tradesStore, this.sendViewModel}) {
     trade = tradesStore.trade;
 
     isSendable = trade.from == wallet.currency ||
@@ -57,6 +59,7 @@ abstract class ExchangeTradeViewModelBase with Store {
   final WalletBase wallet;
   final Box<Trade> trades;
   final TradesStore tradesStore;
+  final SendViewModel sendViewModel;
 
   @observable
   Trade trade;
@@ -70,6 +73,17 @@ abstract class ExchangeTradeViewModelBase with Store {
   ExchangeProvider _provider;
 
   Timer _timer;
+
+  @action
+  Future confirmSending() async {
+    if (!isSendable) {
+      return;
+    }
+
+    sendViewModel.address = trade.inputAddress;
+    sendViewModel.setCryptoAmount(trade.amount);
+    await sendViewModel.createTransaction();
+  }
 
   @action
   Future<void> _updateTrade() async {

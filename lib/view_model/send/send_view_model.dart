@@ -1,8 +1,10 @@
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
-import 'package:intl/intl.dart';
-import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/template_validator.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
@@ -30,9 +32,8 @@ part 'send_view_model.g.dart';
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
-  SendViewModelBase(
-      this._wallet, this._settingsStore, this._sendTemplateStore,
-      this._fiatConversationStore)
+  SendViewModelBase(this._wallet, this._settingsStore, this._sendTemplateStore,
+      this._fiatConversationStore, this.transactionDescriptionBox)
       : state = InitialExecutionState(),
         _cryptoNumberFormat = NumberFormat(),
         sendAll = false {
@@ -101,12 +102,14 @@ abstract class SendViewModelBase with Store {
   final SendTemplateStore _sendTemplateStore;
   final FiatConversionStore _fiatConversationStore;
   final NumberFormat _cryptoNumberFormat;
+  final Box<TransactionDescription> transactionDescriptionBox;
 
   @action
   void setSendAll() => sendAll = true;
 
   @action
   void reset() {
+    sendAll = false;
     cryptoAmount = '';
     fiatAmount = '';
     address = '';
@@ -128,6 +131,13 @@ abstract class SendViewModelBase with Store {
     try {
       state = TransactionCommitting();
       await pendingTransaction.commit();
+
+      if (_settingsStore.shouldSaveRecipientAddress &&
+          (pendingTransaction.id?.isNotEmpty ?? false)) {
+        await transactionDescriptionBox.add(TransactionDescription(
+            id: pendingTransaction.id, recipientAddress: address));
+      }
+
       state = TransactionCommitted();
     } catch (e) {
       state = FailureState(e.toString());
@@ -155,8 +165,8 @@ abstract class SendViewModelBase with Store {
       _settingsStore.transactionPriority = priority;
 
   Future<OpenaliasRecord> decodeOpenaliasRecord(String name) async {
-    final record = await OpenaliasRecord
-        .fetchAddressAndName(OpenaliasRecord.formatDomainName(name));
+    final record = await OpenaliasRecord.fetchAddressAndName(
+        OpenaliasRecord.formatDomainName(name));
 
     return record.name != name ? record : null;
   }
@@ -231,13 +241,16 @@ abstract class SendViewModelBase with Store {
 
   void updateTemplate() => _sendTemplateStore.update();
 
-  void addTemplate({String name, String address, String cryptoCurrency,
-    String amount}) => _sendTemplateStore
-      .addTemplate(
-         name: name,
-         address: address,
-         cryptoCurrency: cryptoCurrency,
-         amount: amount);
+  void addTemplate(
+          {String name,
+          String address,
+          String cryptoCurrency,
+          String amount}) =>
+      _sendTemplateStore.addTemplate(
+          name: name,
+          address: address,
+          cryptoCurrency: cryptoCurrency,
+          amount: amount);
 
   void removeTemplate({Template template}) =>
       _sendTemplateStore.remove(template: template);

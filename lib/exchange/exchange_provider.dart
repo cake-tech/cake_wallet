@@ -12,6 +12,7 @@ abstract class ExchangeProvider {
   String get title;
   List<ExchangePair> pairList;
   ExchangeProviderDescription description;
+  bool get isAvailable;
 
   @override
   String toString() => title;
@@ -21,4 +22,5 @@ abstract class ExchangeProvider {
   Future<Trade> findTradeById({@required String id});
   Future<double> calculateAmount(
     {CryptoCurrency from, CryptoCurrency to, double amount, bool isReceiveAmount});
+  Future<bool> checkIsAvailable();
 }

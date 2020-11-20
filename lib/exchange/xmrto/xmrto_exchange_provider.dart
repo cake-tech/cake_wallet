@@ -15,44 +15,47 @@ import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
 
 class XMRTOExchangeProvider extends ExchangeProvider {
   XMRTOExchangeProvider()
-      : super(pairList: [
+      : _isAvailable = false,
+        super(pairList: [
           ExchangePair(
               from: CryptoCurrency.xmr, to: CryptoCurrency.btc, reverse: false)
         ]);
 
   static const userAgent = 'CakeWallet/XMR iOS';
   static const originalApiUri = 'https://xmr.to/api/v3/xmr2btc';
-  static const proxyApiUri = 'https://xmrproxy.net/api/v3/xmr2btc';
-  static const _orderParameterUriSufix = '/order_parameter_query';
-  static const _orderStatusUriSufix = '/order_status_query/';
-  static const _orderCreateUriSufix = '/order_create/';
-  static String _apiUri = '';
+  static const _orderParameterUriSuffix = '/order_parameter_query';
+  static const _orderStatusUriSuffix = '/order_status_query/';
+  static const _orderCreateUriSuffix = '/order_create/';
 
-  static Future<String> getApiUri() async {
-    if (_apiUri != null && _apiUri.isNotEmpty) {
-      return _apiUri;
-    }
-
-    const url = originalApiUri + _orderParameterUriSufix;
+  static Future<bool> _checkIsAvailable() async {
+    const url = originalApiUri + _orderParameterUriSuffix;
     final response =
         await get(url, headers: {'Content-Type': 'application/json'});
-    _apiUri = response.statusCode == 403 ? proxyApiUri : originalApiUri;
-
-    return _apiUri;
+    return !(response.statusCode == 403);
   }
 
   @override
   String get title => 'XMR.TO';
 
   @override
+  bool get isAvailable => _isAvailable;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.xmrto;
 
   double _rate = 0;
+  bool _isAvailable;
+
+  @override
+  Future<bool> checkIsAvailable() async {
+    _isAvailable = await _checkIsAvailable();
+    return isAvailable;
+  }
 
   @override
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
-    final url = await getApiUri() + _orderParameterUriSufix;
+    final url = originalApiUri + _orderParameterUriSuffix;
     final response = await get(url);
     final correction = 0.001;
 
@@ -67,9 +70,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
     if (price > 0) {
       try {
-        min = min/price + correction;
+        min = min / price + correction;
         min = _limitsFormat(min);
-        max = max/price - correction;
+        max = max / price - correction;
         max = _limitsFormat(max);
       } catch (e) {
         min = 0;
@@ -86,11 +89,10 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   @override
   Future<Trade> createTrade({TradeRequest request}) async {
     final _request = request as XMRTOTradeRequest;
-    final url = await getApiUri() + _orderCreateUriSufix;
+    final url = originalApiUri + _orderCreateUriSuffix;
     final body = {
-      'amount': _request.isBTCRequest
-          ? _request.receiveAmount.replaceAll(',', '.')
-          : _request.amount.replaceAll(',', '.'),
+      'amount':
+          _request.isBTCRequest ? _request.receiveAmount : _request.amount,
       'amount_currency': _request.isBTCRequest
           ? _request.to.toString()
           : _request.from.toString(),
@@ -129,7 +131,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       'Content-Type': 'application/json',
       'User-Agent': userAgent
     };
-    final url = await getApiUri() + _orderStatusUriSufix;
+    final url = originalApiUri + _orderStatusUriSuffix;
     final body = {'uuid': id};
     final response = await post(url, headers: headers, body: json.encode(body));
 
@@ -170,8 +172,10 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount,
-        bool isReceiveAmount}) async {
+      {CryptoCurrency from,
+      CryptoCurrency to,
+      double amount,
+      bool isReceiveAmount}) async {
     if (from != CryptoCurrency.xmr && to != CryptoCurrency.btc) {
       return 0;
     }
@@ -181,7 +185,9 @@ class XMRTOExchangeProvider extends ExchangeProvider {
     }
 
     final double result = isReceiveAmount
-        ? _rate == 0 ? 0 : amount / _rate
+        ? _rate == 0
+            ? 0
+            : amount / _rate
         : _rate * amount;
 
     return double.parse(result.toStringAsFixed(12));
@@ -189,7 +195,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
   Future<double> _fetchRates() async {
     try {
-      final url = await getApiUri() + _orderParameterUriSufix;
+      final url = originalApiUri + _orderParameterUriSuffix;
       final response =
           await get(url, headers: {'Content-Type': 'application/json'});
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;

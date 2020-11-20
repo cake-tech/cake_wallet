@@ -1,5 +1,5 @@
 import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/src/widgets/annotated_editable_text.dart';
+import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -77,17 +77,28 @@ class SeedWidgetState extends State<SeedWidget> {
                           fontSize: 16.0, color: Theme.of(context).hintColor))),
             Padding(
                 padding: EdgeInsets.only(right: 40, top: 10),
-                child: AnnotatedEditableText(
-                    cursorColor: Colors.green,
-                    backgroundCursorColor: Colors.blue,
-                    style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.red,
-                        fontWeight: FontWeight.normal,
-                        backgroundColor: Colors.transparent),
-                    focusNode: focusNode,
-                    controller: controller,
-                    words: words)),
+                child: ValidatableAnnotatedEditableText(
+                  cursorColor: Colors.blue,
+                  backgroundCursorColor: Colors.blue,
+                  validStyle: TextStyle(
+                      color: Theme.of(context).primaryTextTheme.title.color,
+                      backgroundColor: Colors.transparent,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 16),
+                  invalidStyle: TextStyle(
+                      fontSize: 16,
+                      color: Colors.red,
+                      fontWeight: FontWeight.normal,
+                      backgroundColor: Colors.transparent),
+                  focusNode: focusNode,
+                  controller: controller,
+                  words: words,
+                  textStyle: TextStyle(
+                      color: Theme.of(context).primaryTextTheme.title.color,
+                      backgroundColor: Colors.transparent,
+                      fontWeight: FontWeight.normal,
+                      fontSize: 16),
+                )),
             Positioned(
                 top: 0,
                 right: 0,
@@ -95,7 +106,7 @@ class SeedWidgetState extends State<SeedWidget> {
                     width: 34,
                     height: 34,
                     child: InkWell(
-                      onTap: () async => _pasteAddress(),
+                      onTap: () async => _pasteText(),
                       child: Container(
                           padding: EdgeInsets.all(8),
                           decoration: BoxDecoration(
@@ -116,7 +127,7 @@ class SeedWidgetState extends State<SeedWidget> {
         ]));
   }
 
-  Future<void> _pasteAddress() async {
+  Future<void> _pasteText() async {
     final value = await Clipboard.getData('text/plain');
 
     if (value?.text?.isNotEmpty ?? false) {

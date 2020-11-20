@@ -87,7 +87,7 @@ extern "C"
 
         void updated()
         {
-            m_need_to_refresh = true;
+            m_new_transaction = true;
         }
 
         void refreshed()
@@ -351,13 +351,11 @@ extern "C"
 
     uint64_t get_full_balance(uint32_t account_index)
     {
-//        return 0;
         return get_current_wallet()->balance(account_index);
     }
 
     uint64_t get_unlocked_balance(uint32_t account_index)
     {
-//        return 0;
         return get_current_wallet()->unlockedBalance(account_index);
     }
 
@@ -373,6 +371,7 @@ extern "C"
 
     bool connect_to_node(char *error)
     {
+        nice(19);
         bool is_connected = get_current_wallet()->connectToDaemon();
 
         if (!is_connected)
@@ -385,6 +384,7 @@ extern "C"
 
     bool setup_node(char *address, char *login, char *password, bool use_ssl, bool is_light_wallet, char *error)
     {
+        nice(19);
         Monero::Wallet *wallet = get_current_wallet();
         
         std::string _login = "";
@@ -437,7 +437,7 @@ extern "C"
     {
         store_mutex.lock();
         get_current_wallet()->store(std::string(path));
-        store_mutex.unlock();       
+        store_mutex.unlock();
     }
 
     bool transaction_create(char *address, char *payment_id, char *amount,
@@ -472,7 +472,9 @@ extern "C"
             return false;
         }
 
-        m_listener->m_new_transaction = true;
+        if (m_listener != nullptr) {
+            m_listener->m_new_transaction = true;
+        }
 
         pendingTransaction = PendingTransactionRaw(transaction);
         return true;
@@ -485,7 +487,7 @@ extern "C"
         if (!committed)
         {
             error = Utf8Box(strdup(transaction->transaction->errorString().c_str()));
-        } else {
+        } else if (m_listener != nullptr) {
             m_listener->m_new_transaction = true;
         }
 
@@ -508,9 +510,8 @@ extern "C"
         }
 
         uint64_t height = m_listener->height();
-        uint64_t node_height = get_node_height_or_update(height);
 
-        if (height <= 1 || node_height <= 0) {
+        if (height <= 1) {
             return 0;
         }
 
@@ -529,10 +530,8 @@ extern "C"
         }
 
         bool should_refresh = m_listener->isNeedToRefresh();
-        uint64_t node_height = get_node_height_or_update(m_last_known_wallet_height);
 
-        if (should_refresh || (node_height - m_last_known_wallet_height < MONERO_BLOCK_SIZE))
-        {
+        if (should_refresh) {
             m_listener->resetNeedToRefresh();
         }
 
@@ -561,7 +560,7 @@ extern "C"
 
         if (m_listener != nullptr)
         {
-            // free(m_listener);
+             free(m_listener);
         }
 
         m_listener = new MoneroWalletListener();

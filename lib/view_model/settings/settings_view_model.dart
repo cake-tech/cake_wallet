@@ -120,13 +120,13 @@ abstract class SettingsViewModelBase with Store {
         LinkListItem(
             title: 'Telegram',
             icon: 'assets/images/Telegram.png',
-            linkTitle: 'Cake_Wallet',
+            linkTitle: '@cakewallet_bot',
             link: 'https:t.me/cakewallet_bot'),
         LinkListItem(
             title: 'Twitter',
             icon: 'assets/images/Twitter.png',
-            linkTitle: '@CakeWalletXMR',
-            link: 'https:twitter.com/CakewalletXMR'),
+            linkTitle: '@cakewallet',
+            link: 'https://twitter.com/cakewallet'),
         LinkListItem(
             title: 'ChangeNow',
             icon: 'assets/images/change_now.png',

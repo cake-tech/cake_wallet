@@ -63,9 +63,9 @@
   "clear" : "Duidelijk",
   "refund_address" : "Adres voor terugbetaling",
   "change_exchange_provider" : "Wijzig Exchange Provider",
-  "you_will_send" : "Je zal versturen",
-  "you_will_get" : "Je zult krijgen",
-  "amount_is_guaranteed" : "Het ontvangen bedrag is gegarandeerd",
+  "you_will_send" : "Converteren van",
+  "you_will_get" : "Converteren naar",
+  "amount_is_guaranteed" : "BELANGRIJK:\nAls u een gegarandeerd bedrag aan BTC wilt ontvangen, voert u dat bedrag in het BTC-veld in. Als u in plaats daarvan een XMR-bedrag invoert, is het ontvangen BTC-bedrag een schatting en kan het fluctueren afhankelijk van de tarieven.",
   "amount_is_estimate" : "Het ontvangen bedrag is een schatting",
   "powered_by" : "Aangedreven door ${title}",
   "error" : "Fout",
@@ -88,8 +88,8 @@
   "offer_expires_in" : "Aanbieding verloopt over: ",
   "trade_is_powered_by" : "Deze transactie wordt mogelijk gemaakt door ${provider}",
   "copy_address" : "Adres kopiëren",
-  "exchange_result_confirm" : "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar bovenstaand adres. Of u kunt uw externe portemonnee naar bovenstaand adres / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.",
-  "exchange_result_description" : "Zend alstublieft ${fetchingLabel} ${from} naar bovenstaand adres.",
+  "exchange_result_confirm" : "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar het onderstaande adres. Of u kunt vanuit uw externe portemonnee naar het onderstaande adres verzenden / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.",
+  "exchange_result_description" : "Zend alstublieft ${fetchingLabel} ${from} naar het onderstaande adres.",
   "exchange_result_write_down_ID" : "*Kopieer of noteer uw hierboven getoonde ID.",
   "confirm" : "Bevestigen",
   "confirm_sending" : "Bevestig verzending",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "Herstel uw portemonnee met een combinatiecode van 12 woorden",
   "restore_bitcoin_description_from_keys" : "Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels",
   "restore_bitcoin_title_from_keys" : "Herstel van WIF",
-  "restore_from_date_or_blockheight" : "Voer de datum in waarop u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voer deze dan in",
+  "restore_from_date_or_blockheight" : "Voer een datum in een paar dagen voordat u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voert u deze in",
 
 
   "seed_reminder" : "Schrijf deze op voor het geval u uw telefoon kwijtraakt of veegt",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "Gekopieerd ${key} naar het klembord",
 
 
-  "new_subaddress_title" : "Nieuw subadres",
+  "new_subaddress_title" : "Nieuw adres",
   "new_subaddress_label_name" : "Label naam",
   "new_subaddress_create" : "Creëren",
 
@@ -394,5 +394,18 @@
   "confirm_delete_template" : "Met deze actie wordt deze sjabloon verwijderd. Wilt u doorgaan?",
   "confirm_delete_wallet" : "Met deze actie wordt deze portemonnee verwijderd. Wilt u doorgaan?",
 
-  "picker_description" : "Om ChangeNOW of MorphToken te kiezen, moet u eerst uw handelspaar wijzigen"
+  "picker_description" : "Om ChangeNOW of MorphToken te kiezen, moet u eerst uw handelspaar wijzigen",
+
+  "change_wallet_alert_title" : "Wijzig huidige portemonnee",
+  "change_wallet_alert_content" : "Wilt u de huidige portemonnee wijzigen in ${wallet_name}?",
+
+  "creating_new_wallet" : "Nieuwe portemonnee aanmaken",
+  "creating_new_wallet_error" : "Fout: ${description}",
+
+  "seed_alert_title" : "Aandacht",
+  "seed_alert_content" : "Het zaad is de enige manier om uw portemonnee te herstellen. Heb je het opgeschreven?",
+  "seed_alert_back" : "Ga terug",
+  "seed_alert_yes" : "Ja ik heb",
+
+  "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd"
 }

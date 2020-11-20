@@ -74,7 +74,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontSize: 18,
-                        fontFamily: 'Poppins',
+                        fontFamily: 'Lato',
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.none,
                         color: Colors.white
@@ -95,6 +95,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             alignment: Alignment.center,
                             children: <Widget>[
                               GridView.count(
+                                padding: EdgeInsets.all(0),
                                   controller: controller,
                                   crossAxisCount: crossAxisCount,
                                   childAspectRatio: 1.25,
@@ -136,7 +137,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                                 item.toString(),
                                                 style: TextStyle(
                                                     fontSize: 15,
-                                                    fontFamily: 'Poppins',
+                                                    fontFamily: 'Lato',
                                                     fontWeight: FontWeight.w600,
                                                     decoration: TextDecoration.none,
                                                     color: textColor

@@ -18,19 +18,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider()
       : super(
             pairList: CryptoCurrency.all
-                .map((i) {
-                  return CryptoCurrency.all.map((k) {
-                    if (i == CryptoCurrency.btc && k == CryptoCurrency.xmr) {
-                      return ExchangePair(from: i, to: k, reverse: false);
-                    }
-
-                    if (i == CryptoCurrency.xmr && k == CryptoCurrency.btc) {
-                      return null;
-                    }
-
-                    return ExchangePair(from: i, to: k, reverse: true);
-                  }).where((c) => c != null);
-                })
+                .map((i) => CryptoCurrency.all
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
+                    .where((c) => c != null))
                 .expand((i) => i)
                 .toList());
 
@@ -44,8 +34,14 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   String get title => 'ChangeNOW';
 
   @override
+  bool get isAvailable => true;
+
+  @override
   ExchangeProviderDescription get description =>
       ExchangeProviderDescription.changeNow;
+
+  @override
+  Future<bool> checkIsAvailable() async => true;
 
   @override
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
@@ -146,8 +142,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount,
-        bool isReceiveAmount}) async {
+      {CryptoCurrency from,
+      CryptoCurrency to,
+      double amount,
+      bool isReceiveAmount}) async {
     final url = apiUri +
         _exchangeAmountUriSufix +
         amount.toString() +

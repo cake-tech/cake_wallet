@@ -53,7 +53,7 @@ class MoneroAccountListPage extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      fontFamily: 'Poppins',
+                      fontFamily: 'Lato',
                       decoration: TextDecoration.none,
                       color: Colors.white
                   ),
@@ -141,7 +141,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
-                                          fontFamily: 'Poppins',
+                                          fontFamily: 'Lato',
                                           color: Colors.white,
                                           decoration: TextDecoration.none,
                                         ),

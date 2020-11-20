@@ -67,38 +67,47 @@ final dates = {
   "2019-5": 1824671,
   "2019-6": 1847005,
   "2019-7": 1868590,
-  "2019-8": 1888590,
-  "2019-9": 1898590,
+  "2019-8": 1890552,
+  "2019-9": 1912212,
+  "2019-10": 1932200,
+  "2019-11": 1957040,
+  "2019-12": 1978090,
+  "2020-1": 2001290,
+  "2020-2": 2022688,
+  "2020-3": 2043987,
+  "2020-4": 2066536,
+  "2020-5": 2090797,
+  "2020-6": 2111633,
+  "2020-7": 2131433,
+  "2020-8": 2153983,
+  "2020-9": 2176466,
+  "2020-10": 2198453,
+  "2020-11": 2220000
 };
+
+final heightCoefficient = 0.7;
 
 int getHeigthByDate({DateTime date}) {
   final raw = '${date.year}' + '-' + '${date.month}';
-  var endHeight = dates[raw] ?? 0;
-  int preLastYear = date.year;
-  int preLastMonth = date.month - 1;
+  final lastHeight = dates.values.last;
+  int startHeight;
+  int endHeight;
+  int height;
 
-  if (endHeight <= 0) {
+  if ((dates[raw] == null)||(dates[raw] == lastHeight)) {
+    startHeight = dates.values.toList()[dates.length - 2];
     endHeight = dates.values.toList()[dates.length - 1];
-    final preLastDate =
-        dateFormat.parse(dates.keys.elementAt(dates.keys.length - 2));
-    preLastYear = preLastDate.year;
-    preLastMonth = preLastDate.month;
+    final heightPerDay = (endHeight - startHeight) / 31;
+    final daysHeight = (heightCoefficient * (date.day - 1) * heightPerDay).round();
+    height = endHeight + daysHeight;
   } else {
-    preLastYear = date.year;
-    preLastMonth = date.month - 1;
+    startHeight = dates[raw];
+    final index = dates.values.toList().indexOf(startHeight);
+    endHeight = dates.values.toList()[index + 1];
+    final heightPerDay = ((endHeight - startHeight) / 31).round();
+    final daysHeight = (date.day - 1) * heightPerDay;
+    height = startHeight + daysHeight - heightPerDay;
   }
-
-  if (preLastMonth <= 0) {
-    preLastMonth = 12;
-    preLastYear -= 1;
-  }
-
-  final startRaw = '$preLastYear' + '-' + '$preLastMonth';
-  final startHeight = dates[startRaw];
-  final diff = endHeight - startHeight;
-  final heightPerDay = diff / 30;
-  final daysHeight = date.day * heightPerDay.round();
-  final height = endHeight + daysHeight;
 
   return height;
 }

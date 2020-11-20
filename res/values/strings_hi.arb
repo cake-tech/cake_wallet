@@ -63,9 +63,9 @@
   "clear" : "स्पष्ट",
   "refund_address" : "वापसी का पता",
   "change_exchange_provider" : "एक्सचेंज प्रदाता बदलें",
-  "you_will_send" : "तुम भेजोगे",
-  "you_will_get" : "आपको मिल जायेगा",
-  "amount_is_guaranteed" : "प्राप्त राशि की गारंटी है",
+  "you_will_send" : "से रूपांतरित करें",
+  "you_will_get" : "में बदलें",
+  "amount_is_guaranteed" : "महत्वपूर्ण:\nयदि आप BTC की गारंटीकृत राशि प्राप्त करना चाहते हैं, तो कृपया उस राशि को BTC फ़ील्ड में दर्ज करें। यदि आप इसके बजाय एक एक्सएमआर राशि दर्ज करते हैं, तो प्राप्त बीटीसी राशि एक अनुमान है और दरों के आधार पर इसमें उतार-चढ़ाव हो सकता है।",
   "amount_is_estimate" : "प्राप्त राशि एक अनुमान है",
   "powered_by" : "द्वारा संचालित ${title}",
   "error" : "त्रुटि",
@@ -88,8 +88,8 @@
   "offer_expires_in" : "में ऑफर समाप्त हो रहा है: ",
   "trade_is_powered_by" : "यह व्यापार द्वारा संचालित है ${provider}",
   "copy_address" : "पता कॉपी करें",
-  "exchange_result_confirm" : "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} ऊपर दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से उपरोक्त पते / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.",
-  "exchange_result_description" : "कृपया भेजें ${fetchingLabel} ${from} ऊपर दिखाए गए पते पर",
+  "exchange_result_confirm" : "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} नीचे दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से नीचे के पते पर भेज सकते हैं / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.",
+  "exchange_result_description" : "कृपया भेजें ${fetchingLabel} ${from} नीचे दिखाए गए पते पर",
   "exchange_result_write_down_ID" : "*कृपया ऊपर दिखाए गए अपने ID को कॉपी या लिख लें.",
   "confirm" : "की पुष्टि करें",
   "confirm_sending" : "भेजने की पुष्टि करें",
@@ -168,7 +168,7 @@
   "restore_bitcoin_description_from_seed" : "12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_description_from_keys" : "अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_title_from_keys" : "WIF से पुनर्स्थापित करें",
-  "restore_from_date_or_blockheight" : "कृपया इस वॉलेट को बनाने की तिथि दर्ज करें। या यदि आप ब्लॉकचाइट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें",
+  "restore_from_date_or_blockheight" : "कृपया इस वॉलेट को बनाने से कुछ दिन पहले एक तारीख दर्ज करें। या यदि आप ब्लॉकचेट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें",
 
 
   "seed_reminder" : "यदि आप अपना फोन खो देते हैं या मिटा देते हैं तो कृपया इन्हें लिख लें",
@@ -251,7 +251,7 @@
   "copied_key_to_clipboard" : "की नकल की ${key} क्लिपबोर्ड पर",
 
 
-  "new_subaddress_title" : "नई उपशादी",
+  "new_subaddress_title" : "नया पता",
   "new_subaddress_label_name" : "लेबल का नाम",
   "new_subaddress_create" : "सर्जन करना",
 
@@ -394,5 +394,18 @@
   "confirm_delete_template" : "यह क्रिया इस टेम्पलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
   "confirm_delete_wallet" : "यह क्रिया इस वॉलेट को हटा देगी। क्या आप जारी रखना चाहते हैं?",
 
-  "picker_description" : "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें"
+  "picker_description" : "ChangeNOW या MorphToken चुनने के लिए, कृपया अपनी ट्रेडिंग जोड़ी को पहले बदलें",
+
+  "change_wallet_alert_title" : "वर्तमान बटुआ बदलें",
+  "change_wallet_alert_content" : "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?",
+
+  "creating_new_wallet" : "नया बटुआ बनाना",
+  "creating_new_wallet_error" : "त्रुटि: ${description}",
+
+  "seed_alert_title" : "ध्यान",
+  "seed_alert_content" : "बीज आपके बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। क्या आपने इसे लिखा है?",
+  "seed_alert_back" : "वापस जाओ",
+  "seed_alert_yes" : "हाँ मेरे पास है",
+
+  "exchange_sync_alert_content" : "कृपया प्रतीक्षा करें जब तक आपका बटुआ सिंक्रनाइज़ नहीं किया जाता है"
 }

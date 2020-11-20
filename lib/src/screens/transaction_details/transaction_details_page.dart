@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,10 +10,15 @@ import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
+import 'package:hive/hive.dart';
+
 class TransactionDetailsPage extends BasePage {
-  TransactionDetailsPage(this.transactionInfo) : _items = [] {
+  TransactionDetailsPage(this.transactionInfo, bool showRecipientAddress,
+      Box<TransactionDescription> transactionDescriptionBox)
+      : _items = [] {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
@@ -31,16 +37,23 @@ class TransactionDetailsPage extends BasePage {
         StandartListItem(
             title: "View in Block Explorer",
             value: "https://localmonero.co/blocks/search/${tx.id}"),
+        StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
       ];
-      // FIXME
-//      if (widget.settingsStore.shouldSaveRecipientAddress &&
-//          tx.recipientAddress != null) {
-//        items.add(StandartListItem(
-//            title: S.current.transaction_details_recipient_address,
-//            value: tx.recipientAddress));
-//      }
 
-      if (tx.key?.isNotEmpty) {
+      if (showRecipientAddress) {
+        final recipientAddress = transactionDescriptionBox.values
+            .firstWhere((val) => val.id == transactionInfo.id,
+                orElse: () => null)
+            ?.recipientAddress;
+
+        if (recipientAddress?.isNotEmpty ?? false) {
+          items.add(StandartListItem(
+              title: S.current.transaction_details_recipient_address,
+              value: recipientAddress));
+        }
+      }
+
+      if (tx.key?.isNotEmpty ?? null) {
         // FIXME: add translation
         items.add(StandartListItem(title: 'Transaction Key', value: tx.key));
       }
