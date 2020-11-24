@@ -52,7 +52,9 @@ class QRWidget extends StatelessWidget {
                           ))))),
           Spacer(flex: 3)
         ]),
-        Padding(
+        isAmountFieldShow
+        ? Offstage()
+        : Padding(
           padding: EdgeInsets.only(top: 20),
           child: Text(
             S.of(context).scan_qr_code,
