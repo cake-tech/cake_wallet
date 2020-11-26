@@ -411,7 +411,18 @@ class ExchangePage extends BasePage {
                                   buttonAction: () => Navigator.of(context).pop());
                               });
                           } else {
-                            exchangeViewModel.createTrade();
+                            exchangeViewModel.isValidAmount()
+                            ? exchangeViewModel.createTrade()
+                            : showPopUp<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertWithOneAction(
+                                      alertTitle: 'XMR.TO error',
+                                      alertContent: 'Invalid amount. Maximum limit 8 digits after the decimal point ',
+                                      buttonText: S.of(context).ok,
+                                      buttonAction: () =>
+                                          Navigator.of(context).pop());
+                                });
                           }
                         }
                       },
