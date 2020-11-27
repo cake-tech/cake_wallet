@@ -15,7 +15,7 @@ class PreSeedPage extends BasePage {
   Widget leading(BuildContext context) => null;
 
   @override
-  String get title => 'IMPORTANT';
+  String get title => S.current.pre_seed_title;
 
   @override
   Widget body(BuildContext context) {
@@ -40,7 +40,7 @@ class PreSeedPage extends BasePage {
                     padding:
                     EdgeInsets.only(top: 70, left: 16, right: 16),
                     child: Text(
-                      'On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.',
+                      S.of(context).pre_seed_description,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 14,
@@ -55,7 +55,7 @@ class PreSeedPage extends BasePage {
                       onPressed: () =>
                           Navigator.of(context).popAndPushNamed(Routes.seed,
                               arguments: true),
-                      text: 'I understand. Show me my seed',
+                      text: S.of(context).pre_seed_button_text,
                       color: Theme.of(context)
                           .accentTextTheme
                           .body2
