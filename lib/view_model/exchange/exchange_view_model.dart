@@ -313,8 +313,8 @@ abstract class ExchangeViewModelBase with Store {
       final amount = isReceiveAmountEntered
           ? receiveAmount
           : depositAmount;
-      isValid = RegExp('^([0-9]+([.\,][0-9]{0,8})?|[.\,][0-9]{1,8})\$')
-          .hasMatch(amount);
+      final pattern = '^([0-9]+([.\,][0-9]{0,8})?|[.\,][0-9]{1,8})\$';
+      isValid = RegExp(pattern).hasMatch(amount);
     }
 
     return isValid;

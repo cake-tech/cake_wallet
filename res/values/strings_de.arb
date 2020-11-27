@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Wechseln Sie den Exchange-Anbieter",
   "you_will_send" : "Konvertieren von",
   "you_will_get" : "Konvertieren zu",
-  "amount_is_guaranteed" : "WICHTIG:\nWenn Sie einen garantierten BTC-Betrag erhalten möchten, geben Sie diesen Betrag in das Feld BTC ein. Wenn Sie stattdessen einen XMR-Betrag eingeben, handelt es sich bei dem erhaltenen BTC-Betrag um eine Schätzung, die je nach Kurs schwanken kann.",
+  "amount_is_guaranteed" : "Geben Sie in xmr.to den BTC-Betrag und nicht den oben genannten XMR-Betrag ein, um einen garantierten BTC-Betrag zu erhalten",
   "amount_is_estimate" : "Der empfangene Betrag ist eine Schätzung",
   "powered_by" : "Unterstützt von ${title}",
   "error" : "Error",
@@ -407,5 +407,8 @@
   "seed_alert_back" : "Geh zurück",
   "seed_alert_yes" : "Ja, habe ich",
 
-  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist"
+  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist",
+
+  "xmr_to_error" : "XMR.TO-Fehler",
+  "xmr_to_error_description" : "Ungültiger Betrag. Höchstgrenze 8 Stellen nach dem Dezimalpunkt"
 }

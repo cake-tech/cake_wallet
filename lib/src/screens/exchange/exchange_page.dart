@@ -417,8 +417,8 @@ class ExchangePage extends BasePage {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertWithOneAction(
-                                      alertTitle: 'XMR.TO error',
-                                      alertContent: 'Invalid amount. Maximum limit 8 digits after the decimal point ',
+                                      alertTitle: S.of(context).xmr_to_error,
+                                      alertContent: S.of(context).xmr_to_error_description,
                                       buttonText: S.of(context).ok,
                                       buttonAction: () =>
                                           Navigator.of(context).pop());
