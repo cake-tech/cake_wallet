@@ -134,7 +134,7 @@ class S implements WidgetsLocalizations {
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
   String get pre_seed_button_text => "I understand. Show me my seed";
-  String get pre_seed_description => "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the ____________ app.";
+  String get pre_seed_description => "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.";
   String get pre_seed_title => "IMPORTANT";
   String get private_key => "Private key";
   String get public_key => "Public key";
