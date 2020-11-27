@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:mobx/mobx.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
@@ -42,8 +42,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       BitcoinBalance initialBalance})
       : balance =
             initialBalance ?? BitcoinBalance(confirmed: 0, unconfirmed: 0),
-        hd = bitcoin.HDWallet.fromSeed(bip39.mnemonicToSeed(mnemonic),
-            network: bitcoin.bitcoin),
+        hd = bitcoin.HDWallet.fromSeed(mnemonicToSeedBytes(mnemonic),
+                network: bitcoin.bitcoin)
+            .derivePath("m/0'/0"),
         addresses = initialAddresses != null
             ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
             : ObservableList<BitcoinAddressRecord>(),
@@ -58,7 +59,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       {@required String password,
       @required String name,
       @required String dirPath,
-        @required WalletInfo walletInfo,
+      @required WalletInfo walletInfo,
       String jsonSource}) {
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;

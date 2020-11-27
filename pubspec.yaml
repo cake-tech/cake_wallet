@@ -60,6 +60,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   encrypt: ^4.0.0
+  crypto: ^2.1.5
   password: ^1.0.0
   basic_utils: ^1.0.8
   bitcoin_flutter: ^2.0.0
@@ -67,6 +68,8 @@ dependencies:
   connectivity: ^0.4.9+2
   keyboard_actions: ^3.3.0
   flushbar: ^1.10.4
+  unorm_dart: ^0.1.2
+  cryptography: ^1.4.0
 
 dev_dependencies:
   flutter_test:
