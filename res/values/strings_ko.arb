@@ -65,7 +65,7 @@
   "change_exchange_provider" : "교환 공급자 변경",
   "you_will_send" : "다음에서 변환",
   "you_will_get" : "로 변환하다",
-  "amount_is_guaranteed" : "중대한:\n보장 된 BTC 금액을 받으려면 BTC 필드에 해당 금액을 입력하십시오. 대신 XMR 금액을 입력하면 수령 한 BTC 금액이 추정치이며 요율에 따라 변동될 수 있습니다.",
+  "amount_is_guaranteed" : "xmr.to에서 보장 된 BTC 금액을 받으려면 위의 XMR 금액이 아닌 BTC 금액을 입력하십시오.",
   "amount_is_estimate" : "수신 금액은 견적입니다",
   "powered_by" : "에 의해 구동 ${title}",
   "error" : "오류",
@@ -407,5 +407,10 @@
   "seed_alert_back" : "돌아 가기",
   "seed_alert_yes" : "네, 있어요",
 
-  "exchange_sync_alert_content" : "지갑이 동기화 될 때까지 기다리십시오"
+  "exchange_sync_alert_content" : "지갑이 동기화 될 때까지 기다리십시오",
+
+
+  "pre_seed_title" : "중대한",
+  "pre_seed_description" : "다음 페이지에서 25 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.",
+  "pre_seed_button_text" : "이해 했어요. 내 씨앗을 보여줘"
 }

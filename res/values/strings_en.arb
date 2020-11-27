@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Change Exchange Provider",
   "you_will_send" : "Convert from",
   "you_will_get" : "Convert to",
-  "amount_is_guaranteed" : "IMPORTANT:\nIf you want to receive a guaranteed amount of BTC, please enter that amount in the BTC field. If you enter an XMR amount instead, then the BTC amount received is an estimate and can fluctuate depending on the rates.",
+  "amount_is_guaranteed" : "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above",
   "amount_is_estimate" : "The receive amount is an estimate",
   "powered_by" : "Powered by ${title}",
   "error" : "Error",
@@ -407,5 +407,10 @@
   "seed_alert_back" : "Go back",
   "seed_alert_yes" : "Yes, I have",
 
-  "exchange_sync_alert_content" : "Please wait until your wallet is synchronized"
+  "exchange_sync_alert_content" : "Please wait until your wallet is synchronized",
+
+
+  "pre_seed_title" : "IMPORTANT",
+  "pre_seed_description" : "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the ____________ app.",
+  "pre_seed_button_text" : "I understand. Show me my seed"
 }
