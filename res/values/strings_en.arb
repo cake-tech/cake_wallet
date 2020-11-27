@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Change Exchange Provider",
   "you_will_send" : "Convert from",
   "you_will_get" : "Convert to",
-  "amount_is_guaranteed" : "IMPORTANT:\nIf you want to receive a guaranteed amount of BTC, please enter that amount in the BTC field. If you enter an XMR amount instead, then the BTC amount received is an estimate and can fluctuate depending on the rates.",
+  "amount_is_guaranteed" : "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above",
   "amount_is_estimate" : "The receive amount is an estimate",
   "powered_by" : "Powered by ${title}",
   "error" : "Error",
@@ -407,5 +407,8 @@
   "seed_alert_back" : "Go back",
   "seed_alert_yes" : "Yes, I have",
 
-  "exchange_sync_alert_content" : "Please wait until your wallet is synchronized"
+  "exchange_sync_alert_content" : "Please wait until your wallet is synchronized",
+
+  "xmr_to_error" : "XMR.TO error",
+  "xmr_to_error_description" : "Invalid amount. Maximum limit 8 digits after the decimal point"
 }

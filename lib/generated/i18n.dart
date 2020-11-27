@@ -317,6 +317,8 @@ class S implements WidgetsLocalizations {
   String get xmr_available_balance => "Available Balance";
   String get xmr_full_balance => "Full Balance";
   String get xmr_hidden => "Hidden";
+  String get xmr_to_error => "XMR.TO error";
+  String get xmr_to_error_description => "Invalid amount. Maximum limit 8 digits after the decimal point";
   String get yesterday => "Yesterday";
   String get you_will_get => "Convert to";
   String get you_will_send => "Convert from";
@@ -750,6 +752,8 @@ class $de extends S {
   @override
   String get seed_language_dutch => "Niederländisch";
   @override
+  String get xmr_to_error => "XMR.TO-Fehler";
+  @override
   String get restore_description_from_seed_keys => "Holen Sie sich Ihr Wallet von Seed / Schlüsseln zurück, die Sie an einem sicheren Ort aufbewahrt haben";
   @override
   String get copy => "Kopieren";
@@ -851,6 +855,8 @@ class $de extends S {
   String get view_key_public => "Schlüssel anzeigen (Öffentlichkeit)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Ungültiger Betrag. Höchstgrenze 8 Stellen nach dem Dezimalpunkt";
   @override
   String get trade_state_confirming => "Bestätigung";
   @override
@@ -1418,6 +1424,8 @@ class $hi extends S {
   @override
   String get seed_language_dutch => "डच";
   @override
+  String get xmr_to_error => "XMR.TO त्रुटि";
+  @override
   String get restore_description_from_seed_keys => "अपने बटुए को बीज से वापस लें/वे कुंजियाँ जिन्हें आपने सुरक्षित स्थान पर सहेजा है";
   @override
   String get copy => "प्रतिलिपि";
@@ -1519,6 +1527,8 @@ class $hi extends S {
   String get view_key_public => "कुंजी देखें (जनता)";
   @override
   String get trade_details_id => "आईडी";
+  @override
+  String get xmr_to_error_description => "अवैध राशि। दशमलव बिंदु के बाद अधिकतम सीमा 8 अंक";
   @override
   String get trade_state_confirming => "पुष्टि";
   @override
@@ -2086,6 +2096,8 @@ class $ru extends S {
   @override
   String get seed_language_dutch => "Нидерландский";
   @override
+  String get xmr_to_error => "Ошибка XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Вы можете восстановить кошелёк из мнемонической фразы/ключей, которые вы сохранили ранее";
   @override
   String get copy => "Скопировать";
@@ -2187,6 +2199,8 @@ class $ru extends S {
   String get view_key_public => "Публичный ключ просмотра";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Недопустимая сумма. Максимум - 8 цифр после десятичной точки";
   @override
   String get trade_state_confirming => "Подтверждение";
   @override
@@ -2754,6 +2768,8 @@ class $ko extends S {
   @override
   String get seed_language_dutch => "네덜란드 사람";
   @override
+  String get xmr_to_error => "XMR.TO 오류";
+  @override
   String get restore_description_from_seed_keys => "안전한 장소에 저장 한 종자 / 키로 지갑을 되 찾으십시오.";
   @override
   String get copy => "부";
@@ -2855,6 +2871,8 @@ class $ko extends S {
   String get view_key_public => "키보기 (공공의)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "금액이 잘못되었습니다. 소수점 이하 최대 8 자리";
   @override
   String get trade_state_confirming => "확인 중";
   @override
@@ -3422,6 +3440,8 @@ class $pt extends S {
   @override
   String get seed_language_dutch => "Holandesa";
   @override
+  String get xmr_to_error => "Erro XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Restaure a sua carteira a partir de sementes/chaves que você salvou em um local seguro";
   @override
   String get copy => "Copiar";
@@ -3523,6 +3543,8 @@ class $pt extends S {
   String get view_key_public => "Chave de visualização (pública)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Montante inválido. Limite máximo de 8 dígitos após o ponto decimal";
   @override
   String get trade_state_confirming => "Confirmando";
   @override
@@ -4090,6 +4112,8 @@ class $uk extends S {
   @override
   String get seed_language_dutch => "Голландська";
   @override
+  String get xmr_to_error => "Помилка XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше";
   @override
   String get copy => "Скопіювати";
@@ -4191,6 +4215,8 @@ class $uk extends S {
   String get view_key_public => "Публічний ключ перегляду";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Неприпустима сума. Максимум - 8 цифр після десяткової коми";
   @override
   String get trade_state_confirming => "Підтвердження";
   @override
@@ -4758,6 +4784,8 @@ class $ja extends S {
   @override
   String get seed_language_dutch => "オランダの";
   @override
+  String get xmr_to_error => "XMR.TOエラー";
+  @override
   String get restore_description_from_seed_keys => "安全な場所に保存したシード/キーから財布を取り戻す";
   @override
   String get copy => "コピー";
@@ -4859,6 +4887,8 @@ class $ja extends S {
   String get view_key_public => "ビューキー (パブリック)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "金額が無効です。 小数点以下8桁の上限";
   @override
   String get trade_state_confirming => "確認中";
   @override
@@ -5430,6 +5460,8 @@ class $pl extends S {
   @override
   String get seed_language_dutch => "Holenderski";
   @override
+  String get xmr_to_error => "Pomyłka XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Odzyskaj swój portfel z nasion / kluczy, które zapisałeś w bezpiecznym miejscu";
   @override
   String get copy => "Kopiuj";
@@ -5531,6 +5563,8 @@ class $pl extends S {
   String get view_key_public => "Wyświetl klucz (publiczny)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Nieprawidłowa kwota. Maksymalny limit 8 cyfr po przecinku";
   @override
   String get trade_state_confirming => "Potwierdzam";
   @override
@@ -6098,6 +6132,8 @@ class $es extends S {
   @override
   String get seed_language_dutch => "Holandés";
   @override
+  String get xmr_to_error => "Error de XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Recupere su billetera de las semillas/claves que ha guardado en un lugar seguro";
   @override
   String get copy => "Dupdo";
@@ -6199,6 +6235,8 @@ class $es extends S {
   String get view_key_public => "View clave (público)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Monto invalido. Límite máximo de 8 dígitos después del punto decimal";
   @override
   String get trade_state_confirming => "Confirmando";
   @override
@@ -6766,6 +6804,8 @@ class $nl extends S {
   @override
   String get seed_language_dutch => "Nederlands";
   @override
+  String get xmr_to_error => "XMR.TO-fout";
+  @override
   String get restore_description_from_seed_keys => "Ontvang uw portemonnee terug uit seed / keys die u hebt opgeslagen op een veilige plaats";
   @override
   String get copy => "Kopiëren";
@@ -6867,6 +6907,8 @@ class $nl extends S {
   String get view_key_public => "Bekijk sleutel (openbaar)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Ongeldige hoeveelheid. Maximaal 8 cijfers achter de komma";
   @override
   String get trade_state_confirming => "Bevestiging";
   @override
@@ -7434,6 +7476,8 @@ class $zh extends S {
   @override
   String get seed_language_dutch => "荷蘭人";
   @override
+  String get xmr_to_error => "XMR.TO錯誤";
+  @override
   String get restore_description_from_seed_keys => "从保存到安全地方的种子/钥匙取回钱包";
   @override
   String get copy => "复制";
@@ -7535,6 +7579,8 @@ class $zh extends S {
   String get view_key_public => "查看金钥 (public)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "無效的金額。 小數點後最多8位數字";
   @override
   String get trade_state_confirming => "确认中";
   @override
