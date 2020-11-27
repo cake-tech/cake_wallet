@@ -313,15 +313,8 @@ abstract class ExchangeViewModelBase with Store {
       final amount = isReceiveAmountEntered
           ? receiveAmount
           : depositAmount;
-
-      final amountParts = amount.replaceAll(',', '.')
-          .split('.');
-
-      final numberOfFractionDigits =
-      amountParts.length > 1
-          ? amountParts[1].length : 0;
-
-      isValid = !(numberOfFractionDigits > 8);
+      isValid = RegExp('^([0-9]+([.\,][0-9]{0,8})?|[.\,][0-9]{1,8})\$')
+          .hasMatch(amount);
     }
 
     return isValid;
