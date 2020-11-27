@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:bip39/bip39.dart' as bip39;
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
@@ -24,7 +24,7 @@ class BitcoinWalletService extends WalletService<
         type: WalletType.bitcoin, name: credentials.name);
     final wallet = BitcoinWalletBase.build(
         dirPath: dirPath,
-        mnemonic: bip39.generateMnemonic(),
+        mnemonic: generateMnemonic(),
         password: credentials.password,
         name: credentials.name,
         walletInfo: credentials.walletInfo);
