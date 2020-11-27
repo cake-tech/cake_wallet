@@ -2200,7 +2200,7 @@ class $ru extends S {
   @override
   String get trade_details_id => "ID";
   @override
-  String get xmr_to_error_description => "Недопустимая сумма. Максимум - 8 цифр после десятичной точки";
+  String get xmr_to_error_description => "Недопустимая сумма. Максимум 8 цифр после десятичной точки";
   @override
   String get trade_state_confirming => "Подтверждение";
   @override
@@ -4216,7 +4216,7 @@ class $uk extends S {
   @override
   String get trade_details_id => "ID";
   @override
-  String get xmr_to_error_description => "Неприпустима сума. Максимум - 8 цифр після десяткової коми";
+  String get xmr_to_error_description => "Неприпустима сума. Максимум 8 цифр після десяткової коми";
   @override
   String get trade_state_confirming => "Підтвердження";
   @override
