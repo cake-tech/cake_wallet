@@ -15,6 +15,14 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:hive/hive.dart';
 
+String blockExplorerName(String inputName) {
+  if (inputName.contains("xmrchain")) {
+    return "XMRChain.net";
+  } else {
+    return "Blockchain.com";
+  }
+}
+
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage(this.transactionInfo, bool showRecipientAddress,
       Box<TransactionDescription> transactionDescriptionBox)
@@ -34,10 +42,10 @@ class TransactionDetailsPage extends BasePage {
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
+        StandartListItem(title: S.current.send_fee, value: tx.feeFormatted()),
         StandartListItem(
             title: "View in Block Explorer",
-            value: "https://localmonero.co/blocks/search/${tx.id}"),
-        StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
+            value: "https://xmrchain.net/search?value=${tx.id}")
       ];
 
       if (showRecipientAddress) {
@@ -110,7 +118,7 @@ class TransactionDetailsPage extends BasePage {
             final item = _items[index];
             final isFinalBlockExplorerItem =
                 index == _items.length - 1 ? true : false;
-            if (isFinalBlockExplorerItem == true) {
+            if (isFinalBlockExplorerItem == false) {
               return GestureDetector(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: item.value));
@@ -119,7 +127,7 @@ class TransactionDetailsPage extends BasePage {
                 },
                 child: StandartListRow(
                     title: '${item.title}:',
-                    value: "",
+                    value: item.value,
                     isDrawBottom: isFinalBlockExplorerItem),
               );
             } else {
@@ -129,7 +137,8 @@ class TransactionDetailsPage extends BasePage {
                 },
                 child: StandartListRow(
                     title: '${item.title}:',
-                    value: item.value,
+                    value:
+                        "View transaction on ${blockExplorerName(item.value)}",
                     isDrawBottom: isFinalBlockExplorerItem),
               );
             }
