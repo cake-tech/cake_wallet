@@ -98,7 +98,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   bool _isSavingAfterNewTransaction;
 
   Future<void> init() async {
-    await accountList.update();
+    accountList.update();
     account = accountList.accounts.first;
     subaddressList.update(accountIndex: account.id ?? 0);
     subaddress = subaddressList.getAll().first;
@@ -260,6 +260,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     monero_wallet.rescanBlockchainAsync();
     await startSync();
     _askForUpdateBalance();
+    accountList.update();
     await _askForUpdateTransactionHistory();
     await save();
     await walletInfo.save();
@@ -369,11 +370,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     if (walletInfo.isRecovery) {
       await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
+      accountList.update();
     }
 
     if (blocksLeft < 100) {
       await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
+      accountList.update();
       syncStatus = SyncedSyncStatus();
       await _afterSyncSave();
 
