@@ -1,4 +1,6 @@
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/connection_state.dart';
 import 'package:flutter/material.dart';
@@ -130,7 +132,22 @@ class NodeCreateOrEditPage extends BasePage {
                           )
                         )
                       ],
-                    )
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Observer(
+                              builder: (_) => StandardCheckbox(
+                                value: nodeCreateOrEditViewModel.useSSL,
+                                onChanged: (value) =>
+                                  nodeCreateOrEditViewModel.useSSL = value,
+                                caption: 'Use SSL',
+                              ))
+                        ],
+                      ))
                   ]
                 ],
               )),
