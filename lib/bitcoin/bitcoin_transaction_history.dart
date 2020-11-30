@@ -65,7 +65,7 @@ abstract class BitcoinTransactionHistoryBase
 
     return historiesWithDetails.fold<Map<String, BitcoinTransactionInfo>>(
         <String, BitcoinTransactionInfo>{}, (acc, tx) {
-      acc[tx.id] = tx;
+      acc[tx.id] = acc[tx.id]?.updated(tx) ?? tx;
       return acc;
     });
   }
@@ -103,10 +103,6 @@ abstract class BitcoinTransactionHistoryBase
 
   Future<void> save() async {
     final data = json.encode({'height': _height, 'transactions': transactions});
-
-    print('data');
-    print(data);
-
     await writeData(path: path, password: _password, data: data);
   }
 
@@ -168,7 +164,9 @@ abstract class BitcoinTransactionHistoryBase
       });
 
       _height = content['height'] as int;
-    } catch (_) {}
+    } catch (e) {
+      print(e);
+    }
   }
 
   void _updateOrInsert(BitcoinTransactionInfo transaction) {

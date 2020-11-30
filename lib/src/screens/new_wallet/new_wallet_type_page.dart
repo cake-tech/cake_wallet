@@ -70,7 +70,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         : walletTypeLightImage;
 
     return Container(
-      padding: EdgeInsets.only(top: 24),
+      padding: EdgeInsets.only(top: 24, bottom: 24),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         content: Column(
@@ -107,7 +107,10 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         bottomSection: PrimaryButton(
           onPressed: () => onTypeSelected(),
           text: S.of(context).seed_language_next,
-          color: Colors.green,
+          color: Theme.of(context)
+              .accentTextTheme
+              .subtitle
+              .decorationColor,
           textColor: Colors.white,
           isDisabled: selected == null,
         ),

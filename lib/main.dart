@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';

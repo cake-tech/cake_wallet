@@ -130,6 +130,17 @@ class BitcoinTransactionInfo extends TransactionInfo {
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
+  BitcoinTransactionInfo updated(BitcoinTransactionInfo info) {
+    return BitcoinTransactionInfo(
+        id: id,
+        height: info.height,
+        amount: info.amount,
+        direction: direction ?? info.direction,
+        date: date ?? info.date,
+        isPending: isPending ?? info.isPending,
+        confirmations: info.confirmations);
+  }
+
   Map<String, dynamic> toJson() {
     final m = <String, dynamic>{};
     m['id'] = id;

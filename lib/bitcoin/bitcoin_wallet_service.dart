@@ -84,6 +84,7 @@ class BitcoinWalletService extends WalletService<
         walletInfo: credentials.walletInfo);
     await wallet.save();
     await wallet.init();
+    await wallet.generateNewAddresses(32);
 
     return wallet;
   }

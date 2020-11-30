@@ -175,6 +175,22 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     return address;
   }
 
+  Future<List<BitcoinAddressRecord>> generateNewAddresses(int count) async {
+    final list = <BitcoinAddressRecord>[];
+
+    for (var i = 0; i < count; i++) {
+      _accountIndex += 1;
+      final address = BitcoinAddressRecord(_getAddress(index: _accountIndex),
+          index: _accountIndex, label: null);
+      list.add(address);
+    }
+
+    addresses.addAll(list);
+    await save();
+
+    return list;
+  }
+
   Future<void> updateAddress(String address, {String label}) async {
     for (final addr in addresses) {
       if (addr.address == address) {
@@ -190,8 +206,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> startSync() async {
     try {
       syncStatus = StartingSyncStatus();
-      transactionHistory.updateAsync(
-          onFinished: () => print('transactionHistory update finished!'));
+      transactionHistory.updateAsync(onFinished: () {
+        print('transactionHistory update finished!');
+        transactionHistory.save();
+      });
       _subscribeForUpdates();
       await _updateBalance();
       syncStatus = SyncedSyncStatus();
@@ -315,8 +333,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       bitcoinAmountToDouble(amount: _feeMultiplier(priority));
 
   @override
-  Future<void> save() async =>
-      await write(path: path, password: _password, data: toJSON());
+  Future<void> save() async {
+    await write(path: path, password: _password, data: toJSON());
+    await transactionHistory.save();
+  }
 
   bitcoin.ECPair keyPairFor({@required int index}) =>
       generateKeyPair(hd: hd, index: index);

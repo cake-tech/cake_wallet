@@ -74,7 +74,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param2: true));
 
     case Routes.newWallet:
-      final type = WalletType.monero; // settings.arguments as WalletType;
+      final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
 
       return CupertinoPageRoute<void>(
@@ -96,7 +96,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<NewWalletTypePage>(
               param1: (BuildContext context, WalletType type) =>
                   Navigator.of(context)
-                      .pushNamed(Routes.restoreWalletFromSeed, arguments: type),
+                      .pushNamed(Routes.restoreWallet, arguments: type),
               param2: false));
 
     case Routes.restoreOptions:
@@ -146,7 +146,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
           builder: (_) =>
-              getIt.get<WalletRestorePage>(param1: WalletType.monero));
+              getIt.get<WalletRestorePage>(param1: settings.arguments as WalletType));
 
     case Routes.restoreWalletFromSeed:
       final type = settings.arguments as WalletType;
