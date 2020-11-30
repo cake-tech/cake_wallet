@@ -412,5 +412,7 @@
   "seed_alert_back" : "回去",
   "seed_alert_yes" : "是的，我有",
 
-  "exchange_sync_alert_content" : "請等待，直到您的錢包同步"
+  "exchange_sync_alert_content" : "請等待，直到您的錢包同步",
+
+  "use_ssl" : "使用SSL"
 }

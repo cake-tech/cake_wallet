@@ -412,5 +412,7 @@
   "seed_alert_back" : "Назад",
   "seed_alert_yes" : "Так",
 
-  "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується"
+  "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується",
+
+  "use_ssl" : "Використати SSL"
 }

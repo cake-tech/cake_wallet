@@ -412,5 +412,7 @@
   "seed_alert_back" : "Ga terug",
   "seed_alert_yes" : "Ja ik heb",
 
-  "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd"
+  "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd",
+
+  "use_ssl" : "Gebruik SSL"
 }

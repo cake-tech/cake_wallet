@@ -412,5 +412,7 @@
   "seed_alert_back" : "Volte",
   "seed_alert_yes" : "Sim, eu tenho",
 
-  "exchange_sync_alert_content" : "Por favor, espere até que sua carteira seja sincronizada"
+  "exchange_sync_alert_content" : "Por favor, espere até que sua carteira seja sincronizada",
+
+  "use_ssl" : "Use SSL"
 }

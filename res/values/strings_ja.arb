@@ -412,5 +412,7 @@
   "seed_alert_back" : "戻る",
   "seed_alert_yes" : "はい、あります",
 
-  "exchange_sync_alert_content" : "ウォレットが同期されるまでお待ちください"
+  "exchange_sync_alert_content" : "ウォレットが同期されるまでお待ちください",
+
+  "use_ssl" : "SSLを使用する"
 }

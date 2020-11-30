@@ -412,5 +412,7 @@
   "seed_alert_back" : "Geh zurück",
   "seed_alert_yes" : "Ja, habe ich",
 
-  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist"
+  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist",
+
+  "use_ssl" : "Verwenden Sie SSL"
 }

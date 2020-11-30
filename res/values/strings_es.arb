@@ -412,5 +412,7 @@
   "seed_alert_back" : "Regresa",
   "seed_alert_yes" : "Sí tengo",
 
-  "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada"
+  "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada",
+
+  "use_ssl" : "Utilice SSL"
 }

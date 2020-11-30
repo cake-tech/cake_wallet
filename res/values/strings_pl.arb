@@ -412,5 +412,7 @@
   "seed_alert_back" : "Wróć",
   "seed_alert_yes" : "Tak",
 
-  "exchange_sync_alert_content" : "Poczekaj, aż portfel zostanie zsynchronizowany"
+  "exchange_sync_alert_content" : "Poczekaj, aż portfel zostanie zsynchronizowany",
+
+  "use_ssl" : "Użyj SSL"
 }
