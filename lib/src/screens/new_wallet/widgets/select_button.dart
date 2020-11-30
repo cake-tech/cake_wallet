@@ -16,7 +16,7 @@ class SelectButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = isSelected
-          ? Theme.of(context).accentTextTheme.subtitle.decorationColor
+          ? Colors.green
           : Theme.of(context).accentTextTheme.caption.color;
     final textColor = isSelected
           ? Theme.of(context).accentTextTheme.headline.decorationColor

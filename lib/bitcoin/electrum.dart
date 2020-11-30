@@ -78,14 +78,14 @@ class ElectrumClient {
         print(jsoned);
         final method = jsoned['method'];
         final id = jsoned['id'] as String;
-        final params = jsoned['result'];
+        final result = jsoned['result'];
 
         if (method is String) {
           _methodHandler(method: method, request: jsoned);
           return;
         }
 
-        _finish(id, params);
+        _finish(id, result);
       } catch (e) {
         print(e);
       }
@@ -209,16 +209,20 @@ class ElectrumClient {
 
   Future<Map<String, Object>> getTransactionExpanded(
       {@required String hash}) async {
-    final originalTx = await getTransactionRaw(hash: hash);
-    final vins = originalTx['vin'] as List<Object>;
+    try {
+      final originalTx = await getTransactionRaw(hash: hash);
+      final vins = originalTx['vin'] as List<Object>;
 
-    for (dynamic vin in vins) {
-      if (vin is Map<String, Object>) {
-        vin['tx'] = await getTransactionRaw(hash: vin['txid'] as String);
+      for (dynamic vin in vins) {
+        if (vin is Map<String, Object>) {
+          vin['tx'] = await getTransactionRaw(hash: vin['txid'] as String);
+        }
       }
-    }
 
-    return originalTx;
+      return originalTx;
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<String> broadcastTransaction(
@@ -256,11 +260,13 @@ class ElectrumClient {
         return 0;
       });
 
-  BehaviorSubject<Object> scripthashUpdate(String scripthash) =>
-      subscribe<Object>(
-          id: 'blockchain.scripthash.subscribe:$scripthash',
-          method: 'blockchain.scripthash.subscribe',
-          params: [scripthash]);
+  BehaviorSubject<Object> scripthashUpdate(String scripthash) {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.scripthash.subscribe:$scripthash',
+        method: 'blockchain.scripthash.subscribe',
+        params: [scripthash]);
+  }
 
   BehaviorSubject<T> subscribe<T>(
       {@required String id,
@@ -273,7 +279,8 @@ class ElectrumClient {
     return subscription;
   }
 
-  Future<dynamic> call({String method, List<Object> params = const []}) {
+  Future<dynamic> call({String method, List<Object> params = const []}) async {
+    await Future<void>.delayed(Duration(milliseconds: 100));
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;

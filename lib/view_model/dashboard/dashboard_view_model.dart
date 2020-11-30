@@ -178,6 +178,7 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onWalletChange(WalletBase wallet) {
     this.wallet = wallet;
+    type = wallet.type;
     name = wallet.name;
     transactions.clear();
     transactions.addAll(wallet.transactionHistory.transactions.values.map(

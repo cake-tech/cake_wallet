@@ -128,6 +128,17 @@ Uint8List mnemonicToSeedBytes(String mnemonic, {String prefix = segwit}) {
       nonce: cryptography.Nonce('electrum'.codeUnits));
 }
 
+bool matchesAnyPrefix(String mnemonic) =>
+    prefixMatches(mnemonic, [segwit]).any((el) => el);
+
+bool validateMnemonic(String mnemonic, {String prefix = segwit}) {
+  try {
+    return matchesAnyPrefix(mnemonic);
+  } catch(e) {
+    return false;
+  }
+}
+
 final COMBININGCODEPOINTS = combiningcodepoints();
 
 List<int> combiningcodepoints() {
