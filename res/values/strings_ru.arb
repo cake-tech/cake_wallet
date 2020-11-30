@@ -412,5 +412,7 @@
   "seed_alert_back" : "Назад",
   "seed_alert_yes" : "Да",
 
-  "exchange_sync_alert_content" : "Подождите, пока ваш кошелек синхронизируется"
+  "exchange_sync_alert_content" : "Подождите, пока ваш кошелек синхронизируется",
+
+  "use_ssl" : "Использовать SSL"
 }

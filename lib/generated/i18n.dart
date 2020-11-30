@@ -300,6 +300,7 @@ class S implements WidgetsLocalizations {
   String get transactions => "Transactions";
   String get transactions_by_date => "Transactions by date";
   String get use => "Switch to ";
+  String get use_ssl => "Use SSL";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
   String get wallet_keys => "Wallet seed/keys";
@@ -496,6 +497,8 @@ class $de extends S {
   String get auth_store_banned_for => "Gebannt für ";
   @override
   String get trade_details_pair => "Paar";
+  @override
+  String get use_ssl => "Verwenden Sie SSL";
   @override
   String get choose_wallet_currency => "Bitte wählen Sie die Brieftaschenwährung:";
   @override
@@ -1175,6 +1178,8 @@ class $hi extends S {
   @override
   String get trade_details_pair => "जोड़ा";
   @override
+  String get use_ssl => "उपयोग SSL";
+  @override
   String get choose_wallet_currency => "कृपया बटुआ मुद्रा चुनें:";
   @override
   String get node_connection_successful => "कनेक्शन सफल रहा";
@@ -1852,6 +1857,8 @@ class $ru extends S {
   String get auth_store_banned_for => "Заблокировано на ";
   @override
   String get trade_details_pair => "Пара";
+  @override
+  String get use_ssl => "Использовать SSL";
   @override
   String get choose_wallet_currency => "Пожалуйста, выберите валюту кошелька:";
   @override
@@ -2531,6 +2538,8 @@ class $ko extends S {
   @override
   String get trade_details_pair => "쌍";
   @override
+  String get use_ssl => "SSL 사용";
+  @override
   String get choose_wallet_currency => "지갑 통화를 선택하십시오:";
   @override
   String get node_connection_successful => "성공적으로 연결되었습니다.";
@@ -3208,6 +3217,8 @@ class $pt extends S {
   String get auth_store_banned_for => "Banido por";
   @override
   String get trade_details_pair => "Par";
+  @override
+  String get use_ssl => "Use SSL";
   @override
   String get choose_wallet_currency => "Escolha a moeda da carteira:";
   @override
@@ -3887,6 +3898,8 @@ class $uk extends S {
   @override
   String get trade_details_pair => "Пара";
   @override
+  String get use_ssl => "Використати SSL";
+  @override
   String get choose_wallet_currency => "Будь ласка, виберіть валюту гаманця:";
   @override
   String get node_connection_successful => "З'єднання було успішним";
@@ -4564,6 +4577,8 @@ class $ja extends S {
   String get auth_store_banned_for => "禁止されています ";
   @override
   String get trade_details_pair => "ペア";
+  @override
+  String get use_ssl => "SSLを使用する";
   @override
   String get choose_wallet_currency => "ウォレット通貨を選択してください：";
   @override
@@ -5247,6 +5262,8 @@ class $pl extends S {
   @override
   String get trade_details_pair => "Para";
   @override
+  String get use_ssl => "Użyj SSL";
+  @override
   String get choose_wallet_currency => "Wybierz walutę portfela:";
   @override
   String get node_connection_successful => "Połączenie powiodło się";
@@ -5924,6 +5941,8 @@ class $es extends S {
   String get auth_store_banned_for => "Prohibido para ";
   @override
   String get trade_details_pair => "Par";
+  @override
+  String get use_ssl => "Utilice SSL";
   @override
   String get choose_wallet_currency => "Por favor, elija la moneda de la billetera:";
   @override
@@ -6603,6 +6622,8 @@ class $nl extends S {
   @override
   String get trade_details_pair => "Paar";
   @override
+  String get use_ssl => "Gebruik SSL";
+  @override
   String get choose_wallet_currency => "Kies een portemonnee-valuta:";
   @override
   String get node_connection_successful => "Verbinding is gelukt";
@@ -7280,6 +7301,8 @@ class $zh extends S {
   String get auth_store_banned_for => "禁止 ";
   @override
   String get trade_details_pair => "对";
+  @override
+  String get use_ssl => "使用SSL";
   @override
   String get choose_wallet_currency => "請選擇錢包貨幣：";
   @override

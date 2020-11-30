@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
-import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/node_list/connection_state.dart';
@@ -144,7 +143,7 @@ class NodeCreateOrEditPage extends BasePage {
                                 value: nodeCreateOrEditViewModel.useSSL,
                                 onChanged: (value) =>
                                   nodeCreateOrEditViewModel.useSSL = value,
-                                caption: 'Use SSL',
+                                caption: S.of(context).use_ssl,
                               ))
                         ],
                       ))
