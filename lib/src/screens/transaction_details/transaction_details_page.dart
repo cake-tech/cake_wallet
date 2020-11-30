@@ -15,14 +15,6 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:hive/hive.dart';
 
-String blockExplorerName(String inputName) {
-  if (inputName.contains("xmrchain")) {
-    return "XMRChain.net";
-  } else {
-    return "Blockchain.com";
-  }
-}
-
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage(this.transactionInfo, bool showRecipientAddress,
       Box<TransactionDescription> transactionDescriptionBox)
@@ -137,8 +129,7 @@ class TransactionDetailsPage extends BasePage {
                 },
                 child: StandartListRow(
                     title: '${item.title}:',
-                    value:
-                        "View transaction on ${blockExplorerName(item.value)}",
+                    value: item.value,
                     isDrawBottom: isFinalBlockExplorerItem),
               );
             }
