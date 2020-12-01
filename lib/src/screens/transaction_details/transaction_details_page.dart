@@ -15,6 +15,19 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'package:hive/hive.dart';
 
+String stripURLToTXID(String inputString) {
+  final RegExp txidRegex = new RegExp('[a-z0-9]{64}');
+  return txidRegex.allMatches(inputString).first.group(0);
+}
+
+String blockExplorerName(String inputName) {
+  if (inputName.contains("xmrchain")) {
+    return "XMRChain.net";
+  } else {
+    return "Blockchain.com";
+  }
+}
+
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage(this.transactionInfo, bool showRecipientAddress,
       Box<TransactionDescription> transactionDescriptionBox)
@@ -34,12 +47,8 @@ class TransactionDetailsPage extends BasePage {
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
-        StandartListItem(title: S.current.send_fee, value: tx.feeFormatted()),
-        StandartListItem(
-            title: "View in Block Explorer",
-            value: "https://xmrchain.net/search?value=${tx.id}")
+        StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
       ];
-
       if (showRecipientAddress) {
         final recipientAddress = transactionDescriptionBox.values
             .firstWhere((val) => val.id == transactionInfo.id,
@@ -52,9 +61,11 @@ class TransactionDetailsPage extends BasePage {
               value: recipientAddress));
         }
       }
+      items.add(StandartListItem(
+          title: "View in Block Explorer",
+          value: "https://xmrchain.net/search?value=${tx.id}"));
 
       if (tx.key?.isNotEmpty ?? null) {
-        // FIXME: add translation
         items.add(StandartListItem(title: 'Transaction Key', value: tx.key));
       }
 
@@ -129,7 +140,8 @@ class TransactionDetailsPage extends BasePage {
                 },
                 child: StandartListRow(
                     title: '${item.title}:',
-                    value: item.value,
+                    value:
+                        "View transaction on ${blockExplorerName(item.value)}",
                     isDrawBottom: isFinalBlockExplorerItem),
               );
             }
