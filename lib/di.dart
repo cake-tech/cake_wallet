@@ -21,6 +21,7 @@ import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
+import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/change_language.dart';
@@ -405,4 +406,6 @@ Future setup(
           transactionInfo,
           getIt.get<SettingsStore>().shouldSaveRecipientAddress,
           transactionDescriptionBox));
+
+  getIt.registerFactory(() => PreSeedPage());
 }
