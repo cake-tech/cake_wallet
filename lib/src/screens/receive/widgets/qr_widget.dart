@@ -52,19 +52,9 @@ class QRWidget extends StatelessWidget {
                           ))))),
           Spacer(flex: 3)
         ]),
-        Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Text(
-            S.of(context).scan_qr_code,
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).indicatorColor),
-          ),
-        ),
         isAmountFieldShow
             ? Padding(
-                padding: EdgeInsets.only(top: 40),
+                padding: EdgeInsets.only(top: 60),
                 child: Row(
                   children: <Widget>[
                     Expanded(
