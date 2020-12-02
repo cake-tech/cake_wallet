@@ -138,6 +138,9 @@ class S implements WidgetsLocalizations {
   String get please_make_selection => "Please make selection below to create or recover your wallet.";
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
+  String get pre_seed_button_text => "I understand. Show me my seed";
+  String get pre_seed_description => "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.";
+  String get pre_seed_title => "IMPORTANT";
   String get private_key => "Private key";
   String get public_key => "Public key";
   String get receive => "Receive";
@@ -502,6 +505,8 @@ class $de extends S {
   @override
   String get choose_wallet_currency => "Bitte wählen Sie die Brieftaschenwährung:";
   @override
+  String get pre_seed_description => "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.";
+  @override
   String get node_connection_successful => "Die Verbindung war erfolgreich";
   @override
   String get confirm => "Bestätigen";
@@ -509,6 +514,8 @@ class $de extends S {
   String get settings_display_balance_as => "Kontostand anzeigen als";
   @override
   String get change_wallet_alert_title => "Ändern Sie die aktuelle Brieftasche";
+  @override
+  String get pre_seed_button_text => "Ich verstehe. Zeig mir meinen Samen";
   @override
   String get placeholder_transactions => "Ihre Transaktionen werden hier angezeigt";
   @override
@@ -960,6 +967,8 @@ class $de extends S {
   @override
   String get restore_title_from_seed => "Aus Seed wiederherstellen";
   @override
+  String get pre_seed_title => "WICHTIG";
+  @override
   String get restore_description_from_backup => "Sie können die gesamte Cake Wallet-App von wiederherstellen Ihre Sicherungsdatei";
   @override
   String get error_text_node_port => "Der Knotenport kann nur Nummern zwischen 0 und 65535 enthalten";
@@ -1182,6 +1191,8 @@ class $hi extends S {
   @override
   String get choose_wallet_currency => "कृपया बटुआ मुद्रा चुनें:";
   @override
+  String get pre_seed_description => "अगले पेज पर आपको 25 शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।";
+  @override
   String get node_connection_successful => "कनेक्शन सफल रहा";
   @override
   String get confirm => "की पुष्टि करें";
@@ -1189,6 +1200,8 @@ class $hi extends S {
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
   @override
   String get change_wallet_alert_title => "वर्तमान बटुआ बदलें";
+  @override
+  String get pre_seed_button_text => "मै समझता हुँ। मुझे अपना बीज दिखाओ";
   @override
   String get placeholder_transactions => "आपके लेनदेन यहां प्रदर्शित होंगे";
   @override
@@ -1640,6 +1653,8 @@ class $hi extends S {
   @override
   String get restore_title_from_seed => "बीज से पुनर्स्थापित करें";
   @override
+  String get pre_seed_title => "महत्वपूर्ण";
+  @override
   String get restore_description_from_backup => "आप से पूरे केक वॉलेट एप्लिकेशन को पुनर्स्थापित कर सकते हैं आपकी बैक-अप फ़ाइल";
   @override
   String get error_text_node_port => "नोड पोर्ट में केवल 0 और 65535 के बीच संख्याएँ हो सकती हैं";
@@ -1862,6 +1877,8 @@ class $ru extends S {
   @override
   String get choose_wallet_currency => "Пожалуйста, выберите валюту кошелька:";
   @override
+  String get pre_seed_description => "На следующей странице вы увидите серию из 25 слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.";
+  @override
   String get node_connection_successful => "Подключение прошло успешно";
   @override
   String get confirm => "Подтвердить";
@@ -1869,6 +1886,8 @@ class $ru extends S {
   String get settings_display_balance_as => "Отображать баланс как";
   @override
   String get change_wallet_alert_title => "Изменить текущий кошелек";
+  @override
+  String get pre_seed_button_text => "Понятно. Покажите мнемоническую фразу";
   @override
   String get placeholder_transactions => "Ваши транзакции будут отображаться здесь";
   @override
@@ -2320,6 +2339,8 @@ class $ru extends S {
   @override
   String get restore_title_from_seed => "Восстановить из мнемонической фразы";
   @override
+  String get pre_seed_title => "ВАЖНО";
+  @override
   String get restore_description_from_backup => "Вы можете восстановить Cake Wallet из вашего back-up файла";
   @override
   String get error_text_node_port => "Порт ноды может содержать только цифры от 0 до 65535";
@@ -2542,6 +2563,8 @@ class $ko extends S {
   @override
   String get choose_wallet_currency => "지갑 통화를 선택하십시오:";
   @override
+  String get pre_seed_description => "다음 페이지에서 25 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.";
+  @override
   String get node_connection_successful => "성공적으로 연결되었습니다.";
   @override
   String get confirm => "확인";
@@ -2549,6 +2572,8 @@ class $ko extends S {
   String get settings_display_balance_as => "잔액 표시";
   @override
   String get change_wallet_alert_title => "현재 지갑 변경";
+  @override
+  String get pre_seed_button_text => "이해 했어요. 내 씨앗을 보여줘";
   @override
   String get placeholder_transactions => "거래가 여기에 표시됩니다";
   @override
@@ -3000,6 +3025,8 @@ class $ko extends S {
   @override
   String get restore_title_from_seed => "종자에서 복원";
   @override
+  String get pre_seed_title => "중대한";
+  @override
   String get restore_description_from_backup => "백업 파일에서 전체 Cake Wallet 앱을 복원 할 수 있습니다.";
   @override
   String get error_text_node_port => "노드 포트는 0에서 65535 사이의 숫자 만 포함 할 수 있습니다";
@@ -3222,6 +3249,8 @@ class $pt extends S {
   @override
   String get choose_wallet_currency => "Escolha a moeda da carteira:";
   @override
+  String get pre_seed_description => "Na próxima página, você verá uma série de 25 palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.";
+  @override
   String get node_connection_successful => "A conexão foi bem sucedida";
   @override
   String get confirm => "Confirmar";
@@ -3229,6 +3258,8 @@ class $pt extends S {
   String get settings_display_balance_as => "Saldo a exibir";
   @override
   String get change_wallet_alert_title => "Alterar carteira atual";
+  @override
+  String get pre_seed_button_text => "Compreendo. Me mostre minha semente";
   @override
   String get placeholder_transactions => "Suas transações serão exibidas aqui";
   @override
@@ -3680,6 +3711,8 @@ class $pt extends S {
   @override
   String get restore_title_from_seed => "Restaurar a partir de semente";
   @override
+  String get pre_seed_title => "IMPORTANTE";
+  @override
   String get restore_description_from_backup => "Você pode restaurar todo o aplicativo Cake Wallet de seu arquivo de backup";
   @override
   String get error_text_node_port => "A porta do nó deve conter apenas números entre 0 e 65535";
@@ -3902,6 +3935,8 @@ class $uk extends S {
   @override
   String get choose_wallet_currency => "Будь ласка, виберіть валюту гаманця:";
   @override
+  String get pre_seed_description => "На наступній сторінці ви побачите серію з 25 слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.";
+  @override
   String get node_connection_successful => "З'єднання було успішним";
   @override
   String get confirm => "Підтвердити";
@@ -3909,6 +3944,8 @@ class $uk extends S {
   String get settings_display_balance_as => "Відображати баланс як";
   @override
   String get change_wallet_alert_title => "Змінити поточний гаманець";
+  @override
+  String get pre_seed_button_text => "Зрозуміло. Покажіть мнемонічну фразу";
   @override
   String get placeholder_transactions => "Тут відображатимуться ваші транзакції";
   @override
@@ -4360,6 +4397,8 @@ class $uk extends S {
   @override
   String get restore_title_from_seed => "Відновити з мнемонічної фрази";
   @override
+  String get pre_seed_title => "ВАЖЛИВО";
+  @override
   String get restore_description_from_backup => "Ви можете відновити Cake Wallet з вашого резервного файлу";
   @override
   String get error_text_node_port => "Порт вузла може містити тільки цифри від 0 до 65535";
@@ -4582,6 +4621,8 @@ class $ja extends S {
   @override
   String get choose_wallet_currency => "ウォレット通貨を選択してください：";
   @override
+  String get pre_seed_description => "次のページでは、一連の25語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。";
+  @override
   String get node_connection_successful => "接続に成功しました";
   @override
   String get confirm => "確認する";
@@ -4589,6 +4630,8 @@ class $ja extends S {
   String get settings_display_balance_as => "残高を表示";
   @override
   String get change_wallet_alert_title => "現在のウォレットを変更する";
+  @override
+  String get pre_seed_button_text => "わかります。 種を見せて";
   @override
   String get placeholder_transactions => "あなたの取引はここに表示されます";
   @override
@@ -5040,6 +5083,8 @@ class $ja extends S {
   @override
   String get restore_title_from_seed => "シードから復元";
   @override
+  String get pre_seed_title => "重要";
+  @override
   String get restore_description_from_backup => "Cake Walletアプリ全体を復元できますバックアップファイル";
   @override
   String get error_text_node_port => "ノードポートには、0〜65535の数字のみを含めることができます";
@@ -5266,6 +5311,8 @@ class $pl extends S {
   @override
   String get choose_wallet_currency => "Wybierz walutę portfela:";
   @override
+  String get pre_seed_description => "Na następnej stronie zobaczysz serię 25 słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.";
+  @override
   String get node_connection_successful => "Połączenie powiodło się";
   @override
   String get confirm => "Potwierdzać";
@@ -5273,6 +5320,8 @@ class $pl extends S {
   String get settings_display_balance_as => "Wyświetl saldo jako";
   @override
   String get change_wallet_alert_title => "Zmień obecny portfel";
+  @override
+  String get pre_seed_button_text => "Rozumiem. Pokaż mi moje nasienie";
   @override
   String get placeholder_transactions => "Twoje transakcje zostaną wyświetlone tutaj";
   @override
@@ -5724,6 +5773,8 @@ class $pl extends S {
   @override
   String get restore_title_from_seed => "Przywróć z nasion";
   @override
+  String get pre_seed_title => "WAŻNY";
+  @override
   String get restore_description_from_backup => "Możesz przywrócić całą aplikację Cake Wallet z plik kopii zapasowej";
   @override
   String get error_text_node_port => "Port węzła może zawierać tylko liczby od 0 do 65535";
@@ -5946,6 +5997,8 @@ class $es extends S {
   @override
   String get choose_wallet_currency => "Por favor, elija la moneda de la billetera:";
   @override
+  String get pre_seed_description => "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.";
+  @override
   String get node_connection_successful => "La conexión fue exitosa";
   @override
   String get confirm => "Confirmar";
@@ -5953,6 +6006,8 @@ class $es extends S {
   String get settings_display_balance_as => "Mostrar saldo como";
   @override
   String get change_wallet_alert_title => "Cambiar billetera actual";
+  @override
+  String get pre_seed_button_text => "Entiendo. Muéstrame mi semilla";
   @override
   String get placeholder_transactions => "Sus transacciones se mostrarán aquí";
   @override
@@ -6404,6 +6459,8 @@ class $es extends S {
   @override
   String get restore_title_from_seed => "De la semilla";
   @override
+  String get pre_seed_title => "IMPORTANTE";
+  @override
   String get restore_description_from_backup => "Puede restaurar toda la aplicación Cake Wallet desde ysu archivo de respaldo";
   @override
   String get error_text_node_port => "El puerto de nodo solo puede contener números entre 0 y 65535";
@@ -6626,6 +6683,8 @@ class $nl extends S {
   @override
   String get choose_wallet_currency => "Kies een portemonnee-valuta:";
   @override
+  String get pre_seed_description => "Op de volgende pagina ziet u een reeks van 25 woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.";
+  @override
   String get node_connection_successful => "Verbinding is gelukt";
   @override
   String get confirm => "Bevestigen";
@@ -6633,6 +6692,8 @@ class $nl extends S {
   String get settings_display_balance_as => "Toon saldo als";
   @override
   String get change_wallet_alert_title => "Wijzig huidige portemonnee";
+  @override
+  String get pre_seed_button_text => "Ik begrijp het. Laat me mijn zaad zien";
   @override
   String get placeholder_transactions => "Uw transacties worden hier weergegeven";
   @override
@@ -7084,6 +7145,8 @@ class $nl extends S {
   @override
   String get restore_title_from_seed => "Herstel van zaad";
   @override
+  String get pre_seed_title => "BELANGRIJK";
+  @override
   String get restore_description_from_backup => "Je kunt de hele Cake Wallet-app herstellen van uw back-upbestand";
   @override
   String get error_text_node_port => "Knooppuntpoort kan alleen nummers tussen 0 en 65535 bevatten";
@@ -7306,6 +7369,8 @@ class $zh extends S {
   @override
   String get choose_wallet_currency => "請選擇錢包貨幣：";
   @override
+  String get pre_seed_description => "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。";
+  @override
   String get node_connection_successful => "連接成功";
   @override
   String get confirm => "确认";
@@ -7313,6 +7378,8 @@ class $zh extends S {
   String get settings_display_balance_as => "将余额显示为";
   @override
   String get change_wallet_alert_title => "更換當前錢包";
+  @override
+  String get pre_seed_button_text => "我明白。 給我看我的種子";
   @override
   String get placeholder_transactions => "您的交易將顯示在這裡";
   @override
@@ -7763,6 +7830,8 @@ class $zh extends S {
   String get wallet_list_restore_wallet => "恢复钱包";
   @override
   String get restore_title_from_seed => "从种子还原";
+  @override
+  String get pre_seed_title => "重要";
   @override
   String get restore_description_from_backup => "您可以从还原整个Cake Wallet应用您的备份文件";
   @override
