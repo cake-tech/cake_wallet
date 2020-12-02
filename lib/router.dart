@@ -2,6 +2,7 @@ import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
+import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -64,14 +65,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   (PinCodeState<PinCodeWidget> context, dynamic _) async {
                 try {
                   context.changeProcessText(
-                      'Creating new wallet'); // FIXME: Unnamed constant
+                      S.current.creating_new_wallet);
                   final newWalletVM =
                       getIt.get<WalletNewVM>(param1: WalletType.monero);
                   await newWalletVM.create(
                       options: 'English'); // FIXME: Unnamed constant
                   context.hideProgressText();
                   await Navigator.of(context.context)
-                      .pushNamed(Routes.seed, arguments: true);
+                      .pushNamed(Routes.preSeed);
                 } catch (e) {
                   context.changeProcessText('Error: ${e.toString()}');
                 }
@@ -321,6 +322,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.changeLanguage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<LanguageListPage>());
+
+    case Routes.preSeed:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<PreSeedPage>());
 
     default:
       return MaterialPageRoute<void>(

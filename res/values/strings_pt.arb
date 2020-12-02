@@ -414,5 +414,9 @@
 
   "exchange_sync_alert_content" : "Por favor, espere até que sua carteira seja sincronizada",
 
+  "pre_seed_title" : "IMPORTANTE",
+  "pre_seed_description" : "Na próxima página, você verá uma série de 25 palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.",
+  "pre_seed_button_text" : "Compreendo. Me mostre minha semente",
+
   "use_ssl" : "Use SSL"
 }
