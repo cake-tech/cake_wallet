@@ -1,5 +1,4 @@
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/view_model/node_list/connection_state.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
@@ -14,7 +13,7 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
 abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(this._nodeSource, this._wallet)
       : state = InitialExecutionState(),
-        connectionState = InitialConnectionState(),
+        connectionState = InitialExecutionState(),
         useSSL = false;
 
   @observable
@@ -33,7 +32,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   String password;
 
   @observable
-  ConnectionToNodeState connectionState;
+  ExecutionState connectionState;
 
   @observable
   bool useSSL;
@@ -83,13 +82,13 @@ abstract class NodeCreateOrEditViewModelBase with Store {
   @action
   Future<void> connect() async {
     try {
-      connectionState = IsConnectingState();
+      connectionState = IsExecutingState();
       final node =
         Node(uri: uri, type: _wallet.type, login: login, password: password);
       final isAlive = await node.requestNode();
-      connectionState = ConnectedSuccessfullyState(isAlive);
+      connectionState = ExecutedSuccessfullyState(payload: isAlive);
     } catch (e) {
-      connectionState = FailureConnectedState(e.toString());
+      connectionState = FailureState(e.toString());
     }
   }
 }
