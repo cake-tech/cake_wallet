@@ -129,6 +129,11 @@
   "remove" : "Удалить",
   "delete" : "Удалить",
   "add_new_node" : "Добавить новую ноду",
+  "change_current_node_title" : "Изменить текущую ноду",
+  "node_test" : "Тест",
+  "node_connection_successful" : "Подключение прошло успешно",
+  "node_connection_failed" : "Подключение не удалось",
+  "new_node_testing" : "Тестирование новой ноды",
 
 
   "use" : "Использовать ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "Ошибка XMR.TO",
   "xmr_to_error_description" : "Недопустимая сумма. Максимум 8 цифр после десятичной точки",
 
-  "provider_error" : "${provider} ошибка"
+  "provider_error" : "${provider} ошибка",
+
+
+  "use_ssl" : "Использовать SSL"
 }

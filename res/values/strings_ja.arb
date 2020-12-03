@@ -129,6 +129,11 @@
   "remove" : "削除する",
   "delete" : "削除する",
   "add_new_node" : "新しいノードを追加",
+  "change_current_node_title" : "現在のノードを変更する",
+  "node_test" : "テスト",
+  "node_connection_successful" : "接続に成功しました",
+  "node_connection_failed" : "接続に失敗しました",
+  "new_node_testing" : "新しいノードのテスト",
 
 
   "use" : "使用する ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "XMR.TOエラー",
   "xmr_to_error_description" : "金額が無効です。 小数点以下8桁の上限",
 
-  "provider_error" : "${provider} エラー"
+  "provider_error" : "${provider} エラー",
+
+
+  "use_ssl" : "SSLを使用する"
 }

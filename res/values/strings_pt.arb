@@ -129,6 +129,11 @@
   "remove" : "Remover",
   "delete" : "Excluir",
   "add_new_node" : "Adicionar novo nó",
+  "change_current_node_title" : "Mudar o nó atual",
+  "node_test" : "Teste",
+  "node_connection_successful" : "A conexão foi bem sucedida",
+  "node_connection_failed" : "A conexão falhou",
+  "new_node_testing" : "Teste de novo nó",
 
 
   "use" : "Use PIN de ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "Erro XMR.TO",
   "xmr_to_error_description" : "Montante inválido. Limite máximo de 8 dígitos após o ponto decimal",
 
-  "provider_error" : "${provider} erro"
+  "provider_error" : "${provider} erro",
+
+
+  "use_ssl" : "Use SSL"
 }

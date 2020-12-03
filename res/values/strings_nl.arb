@@ -129,6 +129,11 @@
   "remove" : "Verwijderen",
   "delete" : "Delete",
   "add_new_node" : "Voeg een nieuw knooppunt toe",
+  "change_current_node_title" : "Wijzig het huidige knooppunt",
+  "node_test" : "Test",
+  "node_connection_successful" : "Verbinding is gelukt",
+  "node_connection_failed" : "De verbinding is mislukt",
+  "new_node_testing" : "Nieuwe knooppunttest",
 
 
   "use" : "Gebruik ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "XMR.TO-fout",
   "xmr_to_error_description" : "Ongeldige hoeveelheid. Maximaal 8 cijfers achter de komma",
 
-  "provider_error" : "${provider} fout"
+  "provider_error" : "${provider} fout",
+
+
+  "use_ssl" : "Gebruik SSL"
 }

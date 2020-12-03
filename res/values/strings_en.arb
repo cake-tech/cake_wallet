@@ -129,6 +129,11 @@
   "remove" : "Remove",
   "delete" : "Delete",
   "add_new_node" : "Add new node",
+  "change_current_node_title" : "Change current node",
+  "node_test" : "Test",
+  "node_connection_successful" : "Connection was successful",
+  "node_connection_failed" : "Connection was failed",
+  "new_node_testing" : "New node testing",
 
 
   "use" : "Switch to ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "XMR.TO error",
   "xmr_to_error_description" : "Invalid amount. Maximum limit 8 digits after the decimal point",
 
-  "provider_error" : "${provider} error"
+  "provider_error" : "${provider} error",
+
+
+  "use_ssl" : "Use SSL"
 }
