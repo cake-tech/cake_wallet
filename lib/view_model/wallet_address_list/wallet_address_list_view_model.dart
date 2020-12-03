@@ -67,9 +67,6 @@ abstract class WalletAddressListViewModelBase with Store {
   @observable
   String amount;
 
-  @observable
-  bool isFirstAddress;
-
   @computed
   WalletType get type => _wallet.type;
 
@@ -100,7 +97,6 @@ abstract class WalletAddressListViewModelBase with Store {
     final addressList = ObservableList<ListItem>();
 
     if (wallet is MoneroWallet) {
-      isFirstAddress = true;
       addressList.addAll(wallet.subaddressList.subaddresses.map((subaddress) =>
           WalletAddressListItem(
               id: subaddress.id,
