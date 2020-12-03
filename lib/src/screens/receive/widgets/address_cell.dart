@@ -6,7 +6,6 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 class AddressCell extends StatelessWidget {
   factory AddressCell.fromItem(WalletAddressListItem item,
           {@required bool isCurrent,
-          @required bool isPrimary,
           @required Color backgroundColor,
           @required Color textColor,
           Function(String) onTap,
@@ -15,7 +14,7 @@ class AddressCell extends StatelessWidget {
           address: item.address,
           name: item.name,
           isCurrent: isCurrent,
-          isPrimary: isPrimary,
+          isPrimary: item.isPrimary,
           backgroundColor: backgroundColor,
           textColor: textColor,
           onTap: onTap,
