@@ -86,9 +86,8 @@ abstract class DashboardViewModelBase with Store {
         .transactionHistory.transactions.values
         .map((transaction) => TransactionListItem(
             transaction: transaction,
-            price: price,
-            fiatCurrency: appStore.settingsStore.fiatCurrency,
-            displayMode: balanceDisplayMode)));
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore)));
 
     _reaction = reaction((_) => appStore.wallet, _onWalletChange);
     // FIXME: fixme
@@ -97,9 +96,8 @@ abstract class DashboardViewModelBase with Store {
         transactions,
         (TransactionInfo val) => TransactionListItem(
             transaction: val,
-            price: price,
-            fiatCurrency: appStore.settingsStore.fiatCurrency,
-            displayMode: balanceDisplayMode));
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore));
 
     final _wallet = wallet;
 
@@ -203,9 +201,8 @@ abstract class DashboardViewModelBase with Store {
     transactions.addAll(wallet.transactionHistory.transactions.values.map(
         (transaction) => TransactionListItem(
             transaction: transaction,
-            price: price,
-            fiatCurrency: appStore.settingsStore.fiatCurrency,
-            displayMode: balanceDisplayMode)));
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore)));
   }
 
   @action

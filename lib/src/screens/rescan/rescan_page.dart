@@ -21,23 +21,9 @@ class RescanPage extends BasePage {
       padding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
       child:
           Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Column(
-          children: <Widget>[
-            BlockchainHeightWidget(key: _blockchainHeightWidgetKey),
-            Padding(
-              padding: EdgeInsets.only(left: 40, right: 40, top: 24),
-              child: Text(
-                S.of(context).restore_from_date_or_blockheight,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).hintColor
-                ),
-              ),
-            )
-          ],
-        ),
+              BlockchainHeightWidget(key: _blockchainHeightWidgetKey,
+                  onHeightOrDateEntered: (value) =>
+                  _rescanViewModel.isButtonEnabled = value),
         Observer(
             builder: (_) => LoadingPrimaryButton(
                   isLoading:
@@ -51,6 +37,7 @@ class RescanPage extends BasePage {
                   },
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white,
+                  isDisabled: !_rescanViewModel.isButtonEnabled,
                 ))
       ]),
     );

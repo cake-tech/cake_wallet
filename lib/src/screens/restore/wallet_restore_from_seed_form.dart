@@ -7,10 +7,12 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
-  WalletRestoreFromSeedForm({Key key, this.blockHeightFocusNode})
+  WalletRestoreFromSeedForm({Key key, this.blockHeightFocusNode,
+    this.onHeightOrDateEntered})
       : super(key: key);
 
   final FocusNode blockHeightFocusNode;
+  final Function (bool) onHeightOrDateEntered;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -63,7 +65,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                           readOnly: true)))),
           BlockchainHeightWidget(
               focusNode: widget.blockHeightFocusNode,
-              key: blockchainHeightKey)
+              key: blockchainHeightKey,
+              onHeightOrDateEntered: widget.onHeightOrDateEntered)
         ]));
   }
 

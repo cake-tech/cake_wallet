@@ -48,14 +48,15 @@ abstract class BasePage extends StatelessWidget {
       return null;
     }
 
-    final _backButton = Image.asset('assets/images/back_arrow.png',
-        color: titleColor ?? Theme.of(context).primaryTextTheme.title.color);
+    final _backButton = Icon(Icons.arrow_back_ios,
+      color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
+      size: 16,);
     final _closeButton =
         isDarkTheme ? _closeButtonImageDarkTheme : _closeButtonImage;
 
     return SizedBox(
       height: 37,
-      width: isModalBackButton ? 37 : 20,
+      width: 37,
       child: ButtonTheme(
         minWidth: double.minPositive,
         child: FlatButton(
@@ -76,7 +77,7 @@ abstract class BasePage extends StatelessWidget {
             style: TextStyle(
                 fontSize: 18.0,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'Poppins',
+                fontFamily: 'Lato',
                 color: titleColor ??
                     Theme.of(context).primaryTextTheme.title.color),
           );

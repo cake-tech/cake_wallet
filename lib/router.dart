@@ -1,6 +1,9 @@
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
+import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,6 +54,7 @@ import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
+import 'package:hive/hive.dart';
 
 Route<dynamic> createRoute(RouteSettings settings) {
   switch (settings.name) {
@@ -59,15 +63,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newWalletFromWelcome:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) async {
+          builder: (_) => getIt.get<SetupPinCodePage>(param1:
+                  (PinCodeState<PinCodeWidget> context, dynamic _) async {
                 try {
-                  context.changeProcessText('Creating new wallet'); // FIXME: Unnamed constant
-                  final newWalletVM = getIt.get<WalletNewVM>(param1: WalletType.monero);
-                  await newWalletVM.create(options: 'English'); // FIXME: Unnamed constant
+                  context.changeProcessText(
+                      S.current.creating_new_wallet);
+                  final newWalletVM =
+                      getIt.get<WalletNewVM>(param1: WalletType.monero);
+                  await newWalletVM.create(
+                      options: 'English'); // FIXME: Unnamed constant
                   context.hideProgressText();
-                  await Navigator.of(context.context).pushNamed(Routes.seed, arguments: true);
-                } catch(e) {
+                  await Navigator.of(context.context)
+                      .pushNamed(Routes.preSeed);
+                } catch (e) {
                   context.changeProcessText('Error: ${e.toString()}');
                 }
               }),
@@ -90,7 +98,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       Function(PinCodeState<PinCodeWidget>, String) callback;
 
       if (settings.arguments is Function(PinCodeState<PinCodeWidget>, String)) {
-        callback = settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
+        callback =
+            settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
       }
 
       return CupertinoPageRoute<void>(
@@ -196,8 +205,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) =>
-              TransactionDetailsPage(settings.arguments as TransactionInfo));
+          builder: (_) => getIt.get<TransactionDetailsPage>(
+              param1: settings.arguments as TransactionInfo));
 
     case Routes.newSubaddress:
       return CupertinoPageRoute<void>(
@@ -320,6 +329,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.changeLanguage:
       return MaterialPageRoute<void>(
           builder: (_) => getIt.get<LanguageListPage>());
+
+    case Routes.preSeed:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<PreSeedPage>());
 
     default:
       return MaterialPageRoute<void>(

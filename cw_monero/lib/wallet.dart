@@ -11,8 +11,6 @@ import 'package:flutter/services.dart';
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
-final moneroAPIChannel = const MethodChannel('cw_monero');
-
 final getFileNameNative = moneroApi
     .lookup<NativeFunction<get_filename>>('get_filename')
     .asFunction<GetFilename>();
@@ -212,13 +210,14 @@ String getPublicSpendKey() =>
     convertUTF8ToString(pointer: getPublicSpendKeyNative());
 
 class SyncListener {
-  SyncListener({this.onNewBlock}) {
+  SyncListener(this.onNewBlock, this.onNewTransaction) {
     _cachedBlockchainHeight = 0;
     _lastKnownBlockHeight = 0;
     _initialSyncHeight = 0;
   }
 
   void Function(int, int, double) onNewBlock;
+  void Function() onNewTransaction;
 
   Timer _updateSyncInfoTimer;
   int _cachedBlockchainHeight;
@@ -239,6 +238,10 @@ class SyncListener {
     _initialSyncHeight = 0;
     _updateSyncInfoTimer ??=
         Timer.periodic(Duration(milliseconds: 1200), (_) async {
+      if (isNewTransactionExist()) {
+        onNewTransaction?.call();
+      }
+
       var syncHeight = getSyncingHeight();
 
       if (syncHeight <= 0) {
@@ -273,8 +276,9 @@ class SyncListener {
   void stop() => _updateSyncInfoTimer?.cancel();
 }
 
-SyncListener setListeners(void Function(int, int, double) onNewBlock) {
-  final listener = SyncListener(onNewBlock: onNewBlock);
+SyncListener setListeners(void Function(int, int, double) onNewBlock,
+    void Function() onNewTransaction) {
+  final listener = SyncListener(onNewBlock, onNewTransaction);
   setListenerNative();
   return listener;
 }

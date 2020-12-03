@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
@@ -54,9 +55,12 @@ class BitcoinURI extends PaymentURI {
 }
 
 abstract class WalletAddressListViewModelBase with Store {
-  WalletAddressListViewModelBase({@required WalletBase wallet}) {
+  WalletAddressListViewModelBase(
+      {@required AppStore appStore}) {
     hasAccounts = _wallet is MoneroWallet;
-    _wallet = wallet;
+    _appStore = appStore;
+    _wallet = _appStore.wallet;
+    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase wallet) => _wallet = wallet);
     _init();
   }
 
@@ -111,9 +115,14 @@ abstract class WalletAddressListViewModelBase with Store {
 
   bool hasAccounts;
 
+  @observable
   WalletBase _wallet;
 
   List<ListItem> _baseItems;
+
+  AppStore _appStore;
+
+  ReactionDisposer _onWalletChangeReaction;
 
   @computed
   String get accountLabel {

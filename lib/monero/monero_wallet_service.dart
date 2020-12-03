@@ -27,7 +27,7 @@ class MoneroRestoreWalletFromSeedCredentials extends WalletCredentials {
 
 class MoneroWalletLoadingException implements Exception {
   @override
-  String toString() => 'The wallet is damaged.';
+  String toString() => 'Failure to load the wallet.';
 }
 
 class MoneroRestoreWalletFromKeysCredentials extends WalletCredentials {
@@ -93,6 +93,11 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> openWallet(String name, String password) async {
     try {
       final path = await pathForWallet(name: name, type: WalletType.monero);
+
+      if (!File(path).existsSync()) {
+        await repairOldAndroidWallet(name);
+      }
+
       await monero_wallet_manager
           .openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values.firstWhere(
@@ -100,18 +105,18 @@ class MoneroWalletService extends WalletService<
           orElse: () => null);
       final wallet = MoneroWallet(
           filename: monero_wallet.getFilename(), walletInfo: walletInfo);
-      final isValid = await wallet.validate();
+      final isValid = wallet.validate();
 
       if (!isValid) {
-        if (wallet.seed?.isNotEmpty ?? false) {
-          // let restore from seed in this case;
-          final seed = wallet.seed;
-          final credentials = MoneroRestoreWalletFromSeedCredentials(
-              name: name, password: password, mnemonic: seed, height: 2000000)
-            ..walletInfo = walletInfo;
-          await remove(name);
-          return restoreFromSeed(credentials);
-        }
+        // if (wallet.seed?.isNotEmpty ?? false) {
+        // let restore from seed in this case;
+        // final seed = wallet.seed;
+        // final credentials = MoneroRestoreWalletFromSeedCredentials(
+        //     name: name, password: password, mnemonic: seed, height: 2000000)
+        //   ..walletInfo = walletInfo;
+        // await remove(name);
+        // return restoreFromSeed(credentials);
+        // }
 
         throw MoneroWalletLoadingException();
       }
@@ -185,6 +190,40 @@ class MoneroWalletService extends WalletService<
       // TODO: Implement Exception for wallet list service.
       print('MoneroWalletsManager Error: $e');
       rethrow;
+    }
+  }
+
+  Future<void> repairOldAndroidWallet(String name) async {
+    try {
+      if (!Platform.isAndroid) {
+        return;
+      }
+
+      final oldAndroidWalletDirPath =
+          await outdatedAndroidPathForWalletDir(name: name);
+      final dir = Directory(oldAndroidWalletDirPath);
+
+      if (!dir.existsSync()) {
+        throw MoneroWalletLoadingException();
+      }
+
+      final newWalletDirPath =
+          await pathForWalletDir(name: name, type: WalletType.monero);
+
+      dir.listSync().forEach((f) {
+        final file = File(f.path);
+        final name = f.path.split('/').last;
+        final newPath = newWalletDirPath + '/$name';
+        final newFile = File(newPath);
+        print(file.path);
+        if (!newFile.existsSync()) {
+          newFile.createSync();
+        }
+        newFile.writeAsBytesSync(file.readAsBytesSync());
+      });
+    } catch (e) {
+      print(e.toString());
+      throw MoneroWalletLoadingException();
     }
   }
 }

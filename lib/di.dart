@@ -1,12 +1,15 @@
-
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/load_current_wallet.dart';
+import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -18,11 +21,13 @@ import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
+import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/settings/change_language.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
+import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
@@ -96,7 +101,8 @@ Future setup(
     Box<Contact> contactSource,
     Box<Trade> tradesSource,
     Box<Template> templates,
-    Box<ExchangeTemplate> exchangeTemplates}) async {
+    Box<ExchangeTemplate> exchangeTemplates,
+    Box<TransactionDescription> transactionDescriptionBox}) async {
   getIt.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
 
@@ -161,7 +167,7 @@ Future setup(
   });
 
   getIt.registerFactory<WalletAddressListViewModel>(
-      () => WalletAddressListViewModel(wallet: getIt.get<AppStore>().wallet));
+      () => WalletAddressListViewModel(appStore: getIt.get<AppStore>()));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -201,6 +207,12 @@ Future setup(
             }
 
             authPageState.changeProcessText('Loading the wallet');
+
+            if (loginError != null) {
+              authPageState
+                  .changeProcessText('ERROR: ${loginError.toString()}');
+            }
+
             ReactionDisposer _reaction;
             _reaction = reaction((_) => appStore.wallet, (Object _) {
               _reaction?.reaction?.dispose();
@@ -235,7 +247,8 @@ Future setup(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateStore>(),
-      getIt.get<FiatConversionStore>()));
+      getIt.get<FiatConversionStore>(),
+      transactionDescriptionBox));
 
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
@@ -400,4 +413,12 @@ Future setup(
 
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) =>
       WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
+
+  getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
+      (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
+          transactionInfo,
+          getIt.get<SettingsStore>().shouldSaveRecipientAddress,
+          transactionDescriptionBox));
+
+  getIt.registerFactory(() => PreSeedPage());
 }
