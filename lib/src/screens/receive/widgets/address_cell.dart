@@ -6,7 +6,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_i
 class AddressCell extends StatelessWidget {
   factory AddressCell.fromItem(WalletAddressListItem item,
           {@required bool isCurrent,
-          @required bool isFirstAddress,
+          @required bool isPrimary,
           @required Color backgroundColor,
           @required Color textColor,
           Function(String) onTap,
@@ -15,7 +15,7 @@ class AddressCell extends StatelessWidget {
           address: item.address,
           name: item.name,
           isCurrent: isCurrent,
-          isFirstAddress: isFirstAddress,
+          isPrimary: isPrimary,
           backgroundColor: backgroundColor,
           textColor: textColor,
           onTap: onTap,
@@ -25,7 +25,7 @@ class AddressCell extends StatelessWidget {
       {@required this.address,
       @required this.name,
       @required this.isCurrent,
-      @required this.isFirstAddress,
+      @required this.isPrimary,
       @required this.backgroundColor,
       @required this.textColor,
       this.onTap,
@@ -34,7 +34,7 @@ class AddressCell extends StatelessWidget {
   final String address;
   final String name;
   final bool isCurrent;
-  final bool isFirstAddress;
+  final bool isPrimary;
   final Color backgroundColor;
   final Color textColor;
   final Function(String) onTap;
@@ -60,7 +60,7 @@ class AddressCell extends StatelessWidget {
           ),
         ));
 
-    return (isCurrent || isFirstAddress)
+    return (isCurrent || isPrimary)
         ? cell
         : Slidable(
             key: Key(address),

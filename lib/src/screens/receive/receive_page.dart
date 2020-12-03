@@ -95,85 +95,90 @@ class ReceivePage extends BasePage {
                     amountTextFieldFocusNode: _cryptoAmountFocus),
               ),
               Observer(
-                  builder: (_) => ListView.separated(
-                      padding: EdgeInsets.all(0),
-                      separatorBuilder: (context, _) => Container(
-                          height: 1, color: Theme.of(context).dividerColor),
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: addressListViewModel.items.length,
-                      itemBuilder: (context, index) {
-                        final item = addressListViewModel.items[index];
-                        Widget cell = Container();
+                  builder: (_) {
+                    var isPrimaryAddress = true;
 
-                        if (item is WalletAccountListHeader) {
-                          cell = HeaderTile(
-                              onTap: () async => await showPopUp<void>(
-                                  context: context,
-                                  builder: (_) =>
-                                      getIt.get<MoneroAccountListPage>()),
-                              title: S.of(context).accounts,
-                              icon: Icon(
-                                Icons.arrow_forward_ios,
-                                size: 14,
-                                color:
-                                    Theme.of(context).textTheme.display1.color,
-                              ));
-                        }
+                    return ListView.separated(
+                        padding: EdgeInsets.all(0),
+                        separatorBuilder: (context, _) => Container(
+                            height: 1, color: Theme.of(context).dividerColor),
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: addressListViewModel.items.length,
+                        itemBuilder: (context, index) {
+                          final item = addressListViewModel.items[index];
+                          Widget cell = Container();
 
-                        if (item is WalletAddressListHeader) {
-                          cell = HeaderTile(
-                              onTap: () => Navigator.of(context)
-                                  .pushNamed(Routes.newSubaddress),
-                              title: S.of(context).addresses,
-                              icon: Icon(
-                                Icons.add,
-                                size: 20,
-                                color:
-                                    Theme.of(context).textTheme.display1.color,
-                              ));
-                        }
+                          if (item is WalletAccountListHeader) {
+                            cell = HeaderTile(
+                                onTap: () async => await showPopUp<void>(
+                                    context: context,
+                                    builder: (_) =>
+                                        getIt.get<MoneroAccountListPage>()),
+                                title: S.of(context).accounts,
+                                icon: Icon(
+                                  Icons.arrow_forward_ios,
+                                  size: 14,
+                                  color:
+                                  Theme.of(context).textTheme.display1.color,
+                                ));
+                          }
 
-                    if (item is WalletAddressListItem) {
-                      final isFirst = addressListViewModel.isFirstAddress;
-                      addressListViewModel.isFirstAddress = false;
-                      cell = Observer(builder: (_) {
-                        final isCurrent = item.address ==
-                            addressListViewModel.address.address;
-                        final backgroundColor = isCurrent
-                            ? Theme.of(context)
-                                .textTheme
-                                .display3
-                                .decorationColor
-                            : Theme.of(context)
-                                .textTheme
-                                .display2
-                                .decorationColor;
-                        final textColor = isCurrent
-                            ? Theme.of(context).textTheme.display3.color
-                            : Theme.of(context).textTheme.display2.color;
+                          if (item is WalletAddressListHeader) {
+                            cell = HeaderTile(
+                                onTap: () => Navigator.of(context)
+                                    .pushNamed(Routes.newSubaddress),
+                                title: S.of(context).addresses,
+                                icon: Icon(
+                                  Icons.add,
+                                  size: 20,
+                                  color:
+                                  Theme.of(context).textTheme.display1.color,
+                                ));
+                          }
 
-                        return AddressCell.fromItem(item,
-                            isCurrent: isCurrent,
-                            isFirstAddress: isFirst,
-                            backgroundColor: backgroundColor,
-                            textColor: textColor,
-                            onTap: (_) => addressListViewModel.setAddress(item),
-                            onEdit: () => Navigator.of(context).pushNamed(
-                                Routes.newSubaddress,
-                                arguments: item));
-                      });
-                    }
+                          if (item is WalletAddressListItem) {
+                            final isPrimary = isPrimaryAddress;
+                            isPrimaryAddress = false;
 
-                        return index != 0
-                            ? cell
-                            : ClipRRect(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30)),
-                                child: cell,
-                              );
-                      })),
+                            cell = Observer(builder: (_) {
+                              final isCurrent = item.address ==
+                                  addressListViewModel.address.address;
+                              final backgroundColor = isCurrent
+                                  ? Theme.of(context)
+                                  .textTheme
+                                  .display3
+                                  .decorationColor
+                                  : Theme.of(context)
+                                  .textTheme
+                                  .display2
+                                  .decorationColor;
+                              final textColor = isCurrent
+                                  ? Theme.of(context).textTheme.display3.color
+                                  : Theme.of(context).textTheme.display2.color;
+
+                              return AddressCell.fromItem(item,
+                                  isCurrent: isCurrent,
+                                  isPrimary: isPrimary,
+                                  backgroundColor: backgroundColor,
+                                  textColor: textColor,
+                                  onTap: (_) => addressListViewModel.setAddress(item),
+                                  onEdit: () => Navigator.of(context).pushNamed(
+                                      Routes.newSubaddress,
+                                      arguments: item));
+                            });
+                          }
+
+                          return index != 0
+                              ? cell
+                              : ClipRRect(
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(30),
+                                topRight: Radius.circular(30)),
+                            child: cell,
+                          );
+                        });
+                  }),
             ],
           ),
         ));
