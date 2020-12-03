@@ -423,6 +423,5 @@
 
   "provider_error" : "${provider} fout",
 
-
   "use_ssl" : "Gebruik SSL"
 }
