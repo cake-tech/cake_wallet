@@ -409,6 +409,10 @@
 
   "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada",
 
+  "pre_seed_title" : "IMPORTANTE",
+  "pre_seed_description" : "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.",
+  "pre_seed_button_text" : "Entiendo. Muéstrame mi semilla",
+
   "xmr_to_error" : "Error de XMR.TO",
   "xmr_to_error_description" : "Monto invalido. Límite máximo de 8 dígitos después del punto decimal"
 }
