@@ -129,6 +129,11 @@
   "remove" : "Usunąć",
   "delete" : "Kasować",
   "add_new_node" : "Dodaj nowy węzeł",
+  "change_current_node_title" : "Zmień bieżący węzeł",
+  "node_test" : "Test",
+  "node_connection_successful" : "Połączenie powiodło się",
+  "node_connection_failed" : "Połączenie nie powiodło się",
+  "new_node_testing" : "Testowanie nowych węzłów",
 
 
   "use" : "Używać ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "Pomyłka XMR.TO",
   "xmr_to_error_description" : "Nieprawidłowa kwota. Maksymalny limit 8 cyfr po przecinku",
 
-  "provider_error" : "${provider} pomyłka"
+  "provider_error" : "${provider} pomyłka",
+
+
+  "use_ssl" : "Użyj SSL"
 }

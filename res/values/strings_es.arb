@@ -129,6 +129,11 @@
   "remove" : "Retirar",
   "delete" : "Borrar",
   "add_new_node" : "Agregar nuevo nodo",
+  "change_current_node_title" : "Cambiar el nodo actual",
+  "node_test" : "Prueba",
+  "node_connection_successful" : "La conexión fue exitosa",
+  "node_connection_failed" : "La conexión falló",
+  "new_node_testing" : "Prueba de nuevos nodos",
 
 
   "use" : "Utilizar a ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "Error de XMR.TO",
   "xmr_to_error_description" : "Monto invalido. Límite máximo de 8 dígitos después del punto decimal",
 
-  "provider_error" : "${provider} error"
+  "provider_error" : "${provider} error",
+
+
+  "use_ssl" : "Utilice SSL"
 }

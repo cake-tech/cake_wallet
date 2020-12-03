@@ -129,6 +129,11 @@
   "remove" : "없애다",
   "delete" : "지우다",
   "add_new_node" : "새 노드 추가",
+  "change_current_node_title" : "현재 노드 변경",
+  "node_test" : "테스트",
+  "node_connection_successful" : "성공적으로 연결되었습니다.",
+  "node_connection_failed" : "연결 실패",
+  "new_node_testing" : "새로운 노드 테스트",
 
 
   "use" : "사용하다 ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "XMR.TO 오류",
   "xmr_to_error_description" : "금액이 잘못되었습니다. 소수점 이하 최대 8 자리",
 
-  "provider_error" : "${provider} 오류"
+  "provider_error" : "${provider} 오류",
+
+
+  "use_ssl" : "SSL 사용"
 }

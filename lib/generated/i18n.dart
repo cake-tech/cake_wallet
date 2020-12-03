@@ -50,6 +50,7 @@ class S implements WidgetsLocalizations {
   String get card_address => "Address:";
   String get change => "Change";
   String get change_currency => "Change Currency";
+  String get change_current_node_title => "Change current node";
   String get change_exchange_provider => "Change Exchange Provider";
   String get change_language => "Change language";
   String get change_wallet_alert_title => "Change current wallet";
@@ -108,14 +109,18 @@ class S implements WidgetsLocalizations {
   String get incorrect_seed => "The text entered is not valid.";
   String get loading_your_wallet => "Loading your wallet";
   String get login => "Login";
+  String get new_node_testing => "New node testing";
   String get new_subaddress_create => "Create";
   String get new_subaddress_label_name => "Label name";
   String get new_subaddress_title => "New address";
   String get new_wallet => "New Wallet";
   String get node_address => "Node Address";
+  String get node_connection_failed => "Connection was failed";
+  String get node_connection_successful => "Connection was successful";
   String get node_new => "New Node";
   String get node_port => "Node port";
   String get node_reset_settings_title => "Reset settings";
+  String get node_test => "Test";
   String get nodes => "Nodes";
   String get nodes_list_reset_to_default_message => "Are you sure that you want to reset settings to default?";
   String get offer_expires_in => "Offer expires in: ";
@@ -298,6 +303,7 @@ class S implements WidgetsLocalizations {
   String get transactions => "Transactions";
   String get transactions_by_date => "Transactions by date";
   String get use => "Switch to ";
+  String get use_ssl => "Use SSL";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
   String get wallet_keys => "Wallet seed/keys";
@@ -498,9 +504,13 @@ class $de extends S {
   @override
   String get trade_details_pair => "Paar";
   @override
+  String get use_ssl => "Verwenden Sie SSL";
+  @override
   String get choose_wallet_currency => "Bitte wählen Sie die Brieftaschenwährung:";
   @override
   String get pre_seed_description => "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.";
+  @override
+  String get node_connection_successful => "Die Verbindung war erfolgreich";
   @override
   String get confirm => "Bestätigen";
   @override
@@ -544,6 +554,8 @@ class $de extends S {
   @override
   String get contact => "Kontakt";
   @override
+  String get change_current_node_title => "Ändern Sie den aktuellen Knoten";
+  @override
   String get openalias_alert_title => "XMR-Empfänger erkannt";
   @override
   String get auth_store_incorrect_password => "Falsches PIN";
@@ -575,6 +587,8 @@ class $de extends S {
   String get restore_seed_keys_restore => "Seed / Schlüssel wiederherstellen";
   @override
   String get xmr_hidden => "Versteckt";
+  @override
+  String get node_connection_failed => "Verbindung fehlgeschlagen";
   @override
   String get send_xmr => "Senden XMR";
   @override
@@ -651,6 +665,8 @@ class $de extends S {
   String get seed_share => "Teilen Sie Seed";
   @override
   String get widgets_restore_from_blockheight => "Aus Blockhöhe wiederherstellen";
+  @override
+  String get new_node_testing => "Neuer Knotentest";
   @override
   String get seed_language_chinese => "Chinesisch";
   @override
@@ -785,6 +801,8 @@ class $de extends S {
   String get new_subaddress_title => "Neue Adresse";
   @override
   String get change => "Veränderung";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Fertig";
   @override
@@ -1178,9 +1196,13 @@ class $hi extends S {
   @override
   String get trade_details_pair => "जोड़ा";
   @override
+  String get use_ssl => "उपयोग SSL";
+  @override
   String get choose_wallet_currency => "कृपया बटुआ मुद्रा चुनें:";
   @override
   String get pre_seed_description => "अगले पेज पर आपको 25 शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।";
+  @override
+  String get node_connection_successful => "कनेक्शन सफल रहा";
   @override
   String get confirm => "की पुष्टि करें";
   @override
@@ -1224,6 +1246,8 @@ class $hi extends S {
   @override
   String get contact => "संपर्क करें";
   @override
+  String get change_current_node_title => "वर्तमान नोड बदलें";
+  @override
   String get openalias_alert_title => "XMR प्राप्तकर्ता का पता लगाया";
   @override
   String get auth_store_incorrect_password => "गलत पिन";
@@ -1255,6 +1279,8 @@ class $hi extends S {
   String get restore_seed_keys_restore => "बीज / कुंजी पुनर्स्थापित करें";
   @override
   String get xmr_hidden => "छिपा हुआ";
+  @override
+  String get node_connection_failed => "कनेक्शन विफल रहा";
   @override
   String get send_xmr => "संदेश XMR";
   @override
@@ -1331,6 +1357,8 @@ class $hi extends S {
   String get seed_share => "बीज साझा करें";
   @override
   String get widgets_restore_from_blockheight => "ब्लॉकचेन से पुनर्स्थापित करें";
+  @override
+  String get new_node_testing => "नई नोड परीक्षण";
   @override
   String get seed_language_chinese => "चीनी";
   @override
@@ -1465,6 +1493,8 @@ class $hi extends S {
   String get new_subaddress_title => "नया पता";
   @override
   String get change => "परिवर्तन";
+  @override
+  String get node_test => "परीक्षा";
   @override
   String get trade_state_finished => "ख़त्म होना";
   @override
@@ -1858,9 +1888,13 @@ class $ru extends S {
   @override
   String get trade_details_pair => "Пара";
   @override
+  String get use_ssl => "Использовать SSL";
+  @override
   String get choose_wallet_currency => "Пожалуйста, выберите валюту кошелька:";
   @override
   String get pre_seed_description => "На следующей странице вы увидите серию из 25 слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.";
+  @override
+  String get node_connection_successful => "Подключение прошло успешно";
   @override
   String get confirm => "Подтвердить";
   @override
@@ -1904,6 +1938,8 @@ class $ru extends S {
   @override
   String get contact => "Контакт";
   @override
+  String get change_current_node_title => "Изменить текущую ноду";
+  @override
   String get openalias_alert_title => "Получатель XMR обнаружен";
   @override
   String get auth_store_incorrect_password => "Некорректный PIN";
@@ -1935,6 +1971,8 @@ class $ru extends S {
   String get restore_seed_keys_restore => "Восстановить из мнемонической фразы/ключей";
   @override
   String get xmr_hidden => "Скрыто";
+  @override
+  String get node_connection_failed => "Подключение не удалось";
   @override
   String get send_xmr => "Отправить XMR";
   @override
@@ -2011,6 +2049,8 @@ class $ru extends S {
   String get seed_share => "Поделиться мнемонической фразой";
   @override
   String get widgets_restore_from_blockheight => "Восстановить на высоте блока";
+  @override
+  String get new_node_testing => "Тестирование новой ноды";
   @override
   String get seed_language_chinese => "Китайский";
   @override
@@ -2145,6 +2185,8 @@ class $ru extends S {
   String get new_subaddress_title => "Новый адрес";
   @override
   String get change => "Изменить";
+  @override
+  String get node_test => "Тест";
   @override
   String get trade_state_finished => "Завершена";
   @override
@@ -2538,9 +2580,13 @@ class $ko extends S {
   @override
   String get trade_details_pair => "쌍";
   @override
+  String get use_ssl => "SSL 사용";
+  @override
   String get choose_wallet_currency => "지갑 통화를 선택하십시오:";
   @override
   String get pre_seed_description => "다음 페이지에서 25 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.";
+  @override
+  String get node_connection_successful => "성공적으로 연결되었습니다.";
   @override
   String get confirm => "확인";
   @override
@@ -2584,6 +2630,8 @@ class $ko extends S {
   @override
   String get contact => "접촉";
   @override
+  String get change_current_node_title => "현재 노드 변경";
+  @override
   String get openalias_alert_title => "XMR 수신자 감지";
   @override
   String get auth_store_incorrect_password => "잘못된 PIN";
@@ -2615,6 +2663,8 @@ class $ko extends S {
   String get restore_seed_keys_restore => "종자 / 키 복원";
   @override
   String get xmr_hidden => "숨김";
+  @override
+  String get node_connection_failed => "연결 실패";
   @override
   String get send_xmr => "보내다 XMR";
   @override
@@ -2691,6 +2741,8 @@ class $ko extends S {
   String get seed_share => "시드 공유";
   @override
   String get widgets_restore_from_blockheight => "블록 높이에서 복원";
+  @override
+  String get new_node_testing => "새로운 노드 테스트";
   @override
   String get seed_language_chinese => "중국말";
   @override
@@ -2825,6 +2877,8 @@ class $ko extends S {
   String get new_subaddress_title => "새 주소";
   @override
   String get change => "변화";
+  @override
+  String get node_test => "테스트";
   @override
   String get trade_state_finished => "끝마친";
   @override
@@ -3218,9 +3272,13 @@ class $pt extends S {
   @override
   String get trade_details_pair => "Par";
   @override
+  String get use_ssl => "Use SSL";
+  @override
   String get choose_wallet_currency => "Escolha a moeda da carteira:";
   @override
   String get pre_seed_description => "Na próxima página, você verá uma série de 25 palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.";
+  @override
+  String get node_connection_successful => "A conexão foi bem sucedida";
   @override
   String get confirm => "Confirmar";
   @override
@@ -3264,6 +3322,8 @@ class $pt extends S {
   @override
   String get contact => "Contato";
   @override
+  String get change_current_node_title => "Mudar o nó atual";
+  @override
   String get openalias_alert_title => "Destinatário XMR detectado";
   @override
   String get auth_store_incorrect_password => "PIN incorreto";
@@ -3295,6 +3355,8 @@ class $pt extends S {
   String get restore_seed_keys_restore => "Restauração com sementes/chaves";
   @override
   String get xmr_hidden => "Esconder saldo";
+  @override
+  String get node_connection_failed => "A conexão falhou";
   @override
   String get send_xmr => "Enviar XMR";
   @override
@@ -3371,6 +3433,8 @@ class $pt extends S {
   String get seed_share => "Compartilhar semente";
   @override
   String get widgets_restore_from_blockheight => "Restaurar a partir de altura do bloco";
+  @override
+  String get new_node_testing => "Teste de novo nó";
   @override
   String get seed_language_chinese => "Chinesa";
   @override
@@ -3505,6 +3569,8 @@ class $pt extends S {
   String get new_subaddress_title => "Novo endereço";
   @override
   String get change => "Mudar";
+  @override
+  String get node_test => "Teste";
   @override
   String get trade_state_finished => "Finalizada";
   @override
@@ -3898,9 +3964,13 @@ class $uk extends S {
   @override
   String get trade_details_pair => "Пара";
   @override
+  String get use_ssl => "Використати SSL";
+  @override
   String get choose_wallet_currency => "Будь ласка, виберіть валюту гаманця:";
   @override
   String get pre_seed_description => "На наступній сторінці ви побачите серію з 25 слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.";
+  @override
+  String get node_connection_successful => "З'єднання було успішним";
   @override
   String get confirm => "Підтвердити";
   @override
@@ -3944,6 +4014,8 @@ class $uk extends S {
   @override
   String get contact => "Контакт";
   @override
+  String get change_current_node_title => "Змінити поточний вузол";
+  @override
   String get openalias_alert_title => "Отримувача XMR виявлено";
   @override
   String get auth_store_incorrect_password => "Некоректний PIN";
@@ -3975,6 +4047,8 @@ class $uk extends S {
   String get restore_seed_keys_restore => "Відновити за допомогою мнемонічної фрази/ключів";
   @override
   String get xmr_hidden => "Приховано";
+  @override
+  String get node_connection_failed => "Помилка з’єднання";
   @override
   String get send_xmr => "Відправити XMR";
   @override
@@ -4051,6 +4125,8 @@ class $uk extends S {
   String get seed_share => "Поділитися мнемонічною фразою";
   @override
   String get widgets_restore_from_blockheight => "Відновити на висоті блоку";
+  @override
+  String get new_node_testing => "Тестування нового вузла";
   @override
   String get seed_language_chinese => "Китайська";
   @override
@@ -4185,6 +4261,8 @@ class $uk extends S {
   String get new_subaddress_title => "Нова адреса";
   @override
   String get change => "Змінити";
+  @override
+  String get node_test => "Тест";
   @override
   String get trade_state_finished => "Завершена";
   @override
@@ -4578,9 +4656,13 @@ class $ja extends S {
   @override
   String get trade_details_pair => "ペア";
   @override
+  String get use_ssl => "SSLを使用する";
+  @override
   String get choose_wallet_currency => "ウォレット通貨を選択してください：";
   @override
   String get pre_seed_description => "次のページでは、一連の25語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。";
+  @override
+  String get node_connection_successful => "接続に成功しました";
   @override
   String get confirm => "確認する";
   @override
@@ -4624,6 +4706,8 @@ class $ja extends S {
   @override
   String get contact => "接触";
   @override
+  String get change_current_node_title => "現在のノードを変更する";
+  @override
   String get openalias_alert_title => "XMR受信者が検出されました";
   @override
   String get auth_store_incorrect_password => "間違ったPIN";
@@ -4655,6 +4739,8 @@ class $ja extends S {
   String get restore_seed_keys_restore => "シード/キーの復元";
   @override
   String get xmr_hidden => "非表示";
+  @override
+  String get node_connection_failed => "接続に失敗しました";
   @override
   String get send_xmr => "送る XMR";
   @override
@@ -4731,6 +4817,8 @@ class $ja extends S {
   String get seed_share => "シードを共有する";
   @override
   String get widgets_restore_from_blockheight => "ブロックの高さから復元";
+  @override
+  String get new_node_testing => "新しいノードのテスト";
   @override
   String get seed_language_chinese => "中国語";
   @override
@@ -4865,6 +4953,8 @@ class $ja extends S {
   String get new_subaddress_title => "新しいアドレス";
   @override
   String get change => "変化する";
+  @override
+  String get node_test => "テスト";
   @override
   String get trade_state_finished => "完成した";
   @override
@@ -5262,9 +5352,13 @@ class $pl extends S {
   @override
   String get trade_details_pair => "Para";
   @override
+  String get use_ssl => "Użyj SSL";
+  @override
   String get choose_wallet_currency => "Wybierz walutę portfela:";
   @override
   String get pre_seed_description => "Na następnej stronie zobaczysz serię 25 słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.";
+  @override
+  String get node_connection_successful => "Połączenie powiodło się";
   @override
   String get confirm => "Potwierdzać";
   @override
@@ -5308,6 +5402,8 @@ class $pl extends S {
   @override
   String get contact => "Kontakt";
   @override
+  String get change_current_node_title => "Zmień bieżący węzeł";
+  @override
   String get openalias_alert_title => "Wykryto odbiorcę XMR";
   @override
   String get auth_store_incorrect_password => "Niepoprawny PIN";
@@ -5339,6 +5435,8 @@ class $pl extends S {
   String get restore_seed_keys_restore => "Przywracanie nasion / kluczy";
   @override
   String get xmr_hidden => "Ukryty";
+  @override
+  String get node_connection_failed => "Połączenie nie powiodło się";
   @override
   String get send_xmr => "Wysłać XMR";
   @override
@@ -5415,6 +5513,8 @@ class $pl extends S {
   String get seed_share => "Udostępnij ziarno";
   @override
   String get widgets_restore_from_blockheight => "Przywróć z wysokości bloku";
+  @override
+  String get new_node_testing => "Testowanie nowych węzłów";
   @override
   String get seed_language_chinese => "Chiński";
   @override
@@ -5549,6 +5649,8 @@ class $pl extends S {
   String get new_subaddress_title => "Nowy adres";
   @override
   String get change => "Zmiana";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Skończone";
   @override
@@ -5942,9 +6044,13 @@ class $es extends S {
   @override
   String get trade_details_pair => "Par";
   @override
+  String get use_ssl => "Utilice SSL";
+  @override
   String get choose_wallet_currency => "Por favor, elija la moneda de la billetera:";
   @override
   String get pre_seed_description => "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.";
+  @override
+  String get node_connection_successful => "La conexión fue exitosa";
   @override
   String get confirm => "Confirmar";
   @override
@@ -5988,6 +6094,8 @@ class $es extends S {
   @override
   String get contact => "Contacto";
   @override
+  String get change_current_node_title => "Cambiar el nodo actual";
+  @override
   String get openalias_alert_title => "Destinatario XMR detectado";
   @override
   String get auth_store_incorrect_password => "Contraseña PIN";
@@ -6019,6 +6127,8 @@ class $es extends S {
   String get restore_seed_keys_restore => "Restauración de semillas / llaves";
   @override
   String get xmr_hidden => "Oculto";
+  @override
+  String get node_connection_failed => "La conexión falló";
   @override
   String get send_xmr => "Enviar XMR";
   @override
@@ -6095,6 +6205,8 @@ class $es extends S {
   String get seed_share => "Compartir semillas";
   @override
   String get widgets_restore_from_blockheight => "Restaurar desde blockheight";
+  @override
+  String get new_node_testing => "Prueba de nuevos nodos";
   @override
   String get seed_language_chinese => "Chino";
   @override
@@ -6229,6 +6341,8 @@ class $es extends S {
   String get new_subaddress_title => "Nueva direccion";
   @override
   String get change => "Cambio";
+  @override
+  String get node_test => "Prueba";
   @override
   String get trade_state_finished => "Terminado";
   @override
@@ -6622,9 +6736,13 @@ class $nl extends S {
   @override
   String get trade_details_pair => "Paar";
   @override
+  String get use_ssl => "Gebruik SSL";
+  @override
   String get choose_wallet_currency => "Kies een portemonnee-valuta:";
   @override
   String get pre_seed_description => "Op de volgende pagina ziet u een reeks van 25 woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.";
+  @override
+  String get node_connection_successful => "Verbinding is gelukt";
   @override
   String get confirm => "Bevestigen";
   @override
@@ -6668,6 +6786,8 @@ class $nl extends S {
   @override
   String get contact => "Contact";
   @override
+  String get change_current_node_title => "Wijzig het huidige knooppunt";
+  @override
   String get openalias_alert_title => "XMR-ontvanger gedetecteerd";
   @override
   String get auth_store_incorrect_password => "Incorrect PIN";
@@ -6699,6 +6819,8 @@ class $nl extends S {
   String get restore_seed_keys_restore => "Zaad / sleutels herstellen";
   @override
   String get xmr_hidden => "Verborgen";
+  @override
+  String get node_connection_failed => "De verbinding is mislukt";
   @override
   String get send_xmr => "Sturen XMR";
   @override
@@ -6775,6 +6897,8 @@ class $nl extends S {
   String get seed_share => "Deel zaad";
   @override
   String get widgets_restore_from_blockheight => "Herstel vanaf blockheight";
+  @override
+  String get new_node_testing => "Nieuwe knooppunttest";
   @override
   String get seed_language_chinese => "Chinese";
   @override
@@ -6909,6 +7033,8 @@ class $nl extends S {
   String get new_subaddress_title => "Nieuw adres";
   @override
   String get change => "Verandering";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Afgewerkt";
   @override
@@ -7302,9 +7428,13 @@ class $zh extends S {
   @override
   String get trade_details_pair => "对";
   @override
+  String get use_ssl => "使用SSL";
+  @override
   String get choose_wallet_currency => "請選擇錢包貨幣：";
   @override
   String get pre_seed_description => "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。";
+  @override
+  String get node_connection_successful => "連接成功";
   @override
   String get confirm => "确认";
   @override
@@ -7348,6 +7478,8 @@ class $zh extends S {
   @override
   String get contact => "联系";
   @override
+  String get change_current_node_title => "更改當前節點";
+  @override
   String get openalias_alert_title => "檢測到XMR收件人";
   @override
   String get auth_store_incorrect_password => "PIN码错误";
@@ -7379,6 +7511,8 @@ class $zh extends S {
   String get restore_seed_keys_restore => "种子/密钥还原";
   @override
   String get xmr_hidden => "隱";
+  @override
+  String get node_connection_failed => "連接失敗";
   @override
   String get send_xmr => "发送 XMR";
   @override
@@ -7455,6 +7589,8 @@ class $zh extends S {
   String get seed_share => "分享种子";
   @override
   String get widgets_restore_from_blockheight => "从块高还原";
+  @override
+  String get new_node_testing => "新節點測試";
   @override
   String get seed_language_chinese => "中文";
   @override
@@ -7589,6 +7725,8 @@ class $zh extends S {
   String get new_subaddress_title => "新地址";
   @override
   String get change => "更改";
+  @override
+  String get node_test => "測試";
   @override
   String get trade_state_finished => "已完成";
   @override

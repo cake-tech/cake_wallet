@@ -129,6 +129,11 @@
   "remove" : "Видалити",
   "delete" : "Видалити",
   "add_new_node" : "Додати новий вузол",
+  "change_current_node_title" : "Змінити поточний вузол",
+  "node_test" : "Тест",
+  "node_connection_successful" : "З'єднання було успішним",
+  "node_connection_failed" : "Помилка з’єднання",
+  "new_node_testing" : "Тестування нового вузла",
 
 
   "use" : "Використати ",
@@ -416,5 +421,8 @@
   "xmr_to_error" : "Помилка XMR.TO",
   "xmr_to_error_description" : "Неприпустима сума. Максимум 8 цифр після десяткової коми",
 
-  "provider_error" : "${provider} помилка"
+  "provider_error" : "${provider} помилка",
+
+
+  "use_ssl" : "Використати SSL"
 }

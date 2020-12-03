@@ -12,7 +12,9 @@ class NodeCreateOrEditViewModel = NodeCreateOrEditViewModelBase
 
 abstract class NodeCreateOrEditViewModelBase with Store {
   NodeCreateOrEditViewModelBase(this._nodeSource, this._wallet)
-      : state = InitialExecutionState();
+      : state = InitialExecutionState(),
+        connectionState = InitialExecutionState(),
+        useSSL = false;
 
   @observable
   ExecutionState state;
@@ -28,6 +30,12 @@ abstract class NodeCreateOrEditViewModelBase with Store {
 
   @observable
   String password;
+
+  @observable
+  ExecutionState connectionState;
+
+  @observable
+  bool useSSL;
 
   @computed
   bool get isReady =>
@@ -54,6 +62,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     port = '';
     login = '';
     password = '';
+    useSSL = false;
   }
 
   @action
@@ -61,11 +70,25 @@ abstract class NodeCreateOrEditViewModelBase with Store {
     try {
       state = IsExecutingState();
       final node =
-          Node(uri: uri, type: _wallet.type, login: login, password: password);
+          Node(uri: uri, type: _wallet.type, login: login, password: password,
+              useSSL: useSSL);
       await _nodeSource.add(node);
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
+    }
+  }
+
+  @action
+  Future<void> connect() async {
+    try {
+      connectionState = IsExecutingState();
+      final node =
+        Node(uri: uri, type: _wallet.type, login: login, password: password);
+      final isAlive = await node.requestNode();
+      connectionState = ExecutedSuccessfullyState(payload: isAlive);
+    } catch (e) {
+      connectionState = FailureState(e.toString());
     }
   }
 }
