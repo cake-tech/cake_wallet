@@ -129,6 +129,11 @@
   "remove" : "去掉",
   "delete" : "删除",
   "add_new_node" : "添加新節點",
+  "change_current_node_title" : "更改當前節點",
+  "node_test" : "測試",
+  "node_connection_successful" : "連接成功",
+  "node_connection_failed" : "連接失敗",
+  "new_node_testing" : "新節點測試",
 
 
   "use" : "採用 ",
@@ -409,8 +414,10 @@
 
   "exchange_sync_alert_content" : "請等待，直到您的錢包同步",
 
-
   "pre_seed_title" : "重要",
   "pre_seed_description" : "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。",
-  "pre_seed_button_text" : "我明白。 給我看我的種子"
+  "pre_seed_button_text" : "我明白。 給我看我的種子",
+
+
+  "use_ssl" : "使用SSL"
 }
