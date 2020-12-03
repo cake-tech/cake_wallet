@@ -311,20 +311,6 @@ abstract class ExchangeViewModelBase with Store {
   void removeTemplate({ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);
 
-  bool isValidAmount() {
-    bool isValid = true;
-
-    if (provider is XMRTOExchangeProvider) {
-      final amount = isReceiveAmountEntered
-          ? receiveAmount
-          : depositAmount;
-      final pattern = '^([0-9]+([.\,][0-9]{0,8})?|[.\,][0-9]{1,8})\$';
-      isValid = RegExp(pattern).hasMatch(amount);
-    }
-
-    return isValid;
-  }
-
   List<ExchangeProvider> providersForCurrentPair() {
     return _providersForPair(from: depositCurrency, to: receiveCurrency);
   }

@@ -411,18 +411,7 @@ class ExchangePage extends BasePage {
                                   buttonAction: () => Navigator.of(context).pop());
                               });
                           } else {
-                            exchangeViewModel.isValidAmount()
-                            ? exchangeViewModel.createTrade()
-                            : showPopUp<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertWithOneAction(
-                                      alertTitle: S.of(context).xmr_to_error,
-                                      alertContent: S.of(context).xmr_to_error_description,
-                                      buttonText: S.of(context).ok,
-                                      buttonAction: () =>
-                                          Navigator.of(context).pop());
-                                });
+                            exchangeViewModel.createTrade();
                           }
                         }
                       },
