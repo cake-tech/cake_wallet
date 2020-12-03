@@ -50,7 +50,7 @@ abstract class SettingsViewModelBase with Store {
                 setFiatCurrency(currency)),
         PickerListItem(
             title: S.current.settings_fee_priority,
-            items: _transactionPriorities(wallet.type),
+            items: TransactionPriority.forWalletType(wallet.type),
             selectedItem: () => transactionPriority,
             isAlwaysShowScrollThumb: true,
             onItemSelected: (TransactionPriority priority) =>
@@ -234,19 +234,4 @@ abstract class SettingsViewModelBase with Store {
 
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
-
-  static List<TransactionPriority> _transactionPriorities(WalletType type) {
-    switch (type) {
-      case WalletType.monero:
-        return TransactionPriority.all;
-      case WalletType.bitcoin:
-        return [
-          TransactionPriority.slow,
-          TransactionPriority.regular,
-          TransactionPriority.fast
-        ];
-      default:
-        return [];
-    }
-  }
 }
