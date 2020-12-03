@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cake_wallet/entities/node_ssl.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:flutter/foundation.dart';
@@ -144,12 +143,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   Future<void> connectToNode({@required Node node}) async {
     try {
       syncStatus = ConnectingSyncStatus();
-      final nodeSSL = NodeSSL(node);
       await monero_wallet.setupNode(
           address: node.uri,
           login: node.login,
           password: node.password,
-          useSSL: nodeSSL.useSSL,
+          useSSL: node.isSSL,
           isLightWallet: false); // FIXME: hardcoded value
       syncStatus = ConnectedSyncStatus();
     } catch (e) {
