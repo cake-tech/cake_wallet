@@ -43,6 +43,8 @@ class Node extends HiveObject with Keyable {
   @HiveField(4)
   bool useSSL;
 
+  bool get isSSL => useSSL ?? false;
+
   @override
   dynamic get keyIndex {
     _keyIndex ??= key;
