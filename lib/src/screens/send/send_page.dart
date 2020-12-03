@@ -634,7 +634,9 @@ class SendPage extends BasePage {
                                         padding: EdgeInsets.only(
                                             top: 220, left: 24, right: 24),
                                         child: Text(
-                                          S.of(context).send_success,
+                                          S.of(context).send_success(
+                                              sendViewModel.currency
+                                                  .toString()),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 22,
@@ -748,7 +750,8 @@ class SendPage extends BasePage {
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
-    final items = TransactionPriority.all;
+    final items =
+        TransactionPriority.forWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
 
     await showPopUp<void>(

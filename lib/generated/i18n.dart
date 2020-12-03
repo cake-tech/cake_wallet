@@ -206,7 +206,7 @@ class S implements WidgetsLocalizations {
   String get send_new => "New";
   String get send_payment_id => "Payment ID (optional)";
   String get send_sending => "Sending...";
-  String get send_success => "Your Monero was successfully sent";
+  String send_success(String crypto) => "Your ${crypto} was successfully sent";
   String get send_templates => "Templates";
   String get send_title => "Send";
   String get send_xmr => "Send XMR";
@@ -612,7 +612,7 @@ class $de extends S {
   @override
   String get trade_details_created_at => "Hergestellt in";
   @override
-  String get send_success => "Ihr Monero wurde erfolgreich gesendet";
+  String send_success(String crypto) => "Ihr ${crypto} wurde erfolgreich gesendet";
   @override
   String get settings_wallets => "Brieftaschen";
   @override
@@ -1280,7 +1280,7 @@ class $hi extends S {
   @override
   String get trade_details_created_at => "पर बनाया गया";
   @override
-  String get send_success => "आपका Monero सफलतापूर्वक भेजा गया";
+  String send_success(String crypto) => "आपका ${crypto} सफलतापूर्वक भेजा गया";
   @override
   String get settings_wallets => "पर्स";
   @override
@@ -1948,7 +1948,7 @@ class $ru extends S {
   @override
   String get trade_details_created_at => "Создано";
   @override
-  String get send_success => "Ваш Monero был успешно отправлен";
+  String send_success(String crypto) => "Ваш ${crypto} был успешно отправлен";
   @override
   String get settings_wallets => "Кошельки";
   @override
@@ -2616,7 +2616,7 @@ class $ko extends S {
   @override
   String get trade_details_created_at => "에 작성";
   @override
-  String get send_success => "Monero가 성공적으로 전송되었습니다";
+  String send_success(String crypto) => "${crypto}가 성공적으로 전송되었습니다";
   @override
   String get settings_wallets => "지갑";
   @override
@@ -3284,7 +3284,7 @@ class $pt extends S {
   @override
   String get trade_details_created_at => "Criada em";
   @override
-  String get send_success => "Seu Monero foi enviado com sucesso";
+  String send_success(String crypto) => "Seu ${crypto} foi enviado com sucesso";
   @override
   String get settings_wallets => "Carteiras";
   @override
@@ -3952,7 +3952,7 @@ class $uk extends S {
   @override
   String get trade_details_created_at => "Створено";
   @override
-  String get send_success => "Ваш Monero успішно надісланий";
+  String send_success(String crypto) => "Ваш ${crypto} успішно надісланий";
   @override
   String get settings_wallets => "Гаманці";
   @override
@@ -4620,7 +4620,7 @@ class $ja extends S {
   @override
   String get trade_details_created_at => "で作成";
   @override
-  String get send_success => "Moneroが送信されました";
+  String send_success(String crypto) => "${crypto}が送信されました";
   @override
   String get settings_wallets => "財布";
   @override
@@ -5292,7 +5292,7 @@ class $pl extends S {
   @override
   String get trade_details_created_at => "Utworzono w";
   @override
-  String get send_success => "Twoje Monero zostało pomyślnie wysłane";
+  String send_success(String crypto) => "Twoje ${crypto} zostało pomyślnie wysłane";
   @override
   String get settings_wallets => "Portfele";
   @override
@@ -5960,7 +5960,7 @@ class $es extends S {
   @override
   String get trade_details_created_at => "Creado en";
   @override
-  String get send_success => "Su Monero fue enviado con éxito";
+  String send_success(String crypto) => "Su ${crypto} fue enviado con éxito";
   @override
   String get settings_wallets => "Carteras";
   @override
@@ -6628,7 +6628,7 @@ class $nl extends S {
   @override
   String get trade_details_created_at => "Gemaakt bij";
   @override
-  String get send_success => "Uw Monero is succesvol verzonden";
+  String send_success(String crypto) => "Uw ${crypto} is succesvol verzonden";
   @override
   String get settings_wallets => "Portemonnee";
   @override
@@ -7296,7 +7296,7 @@ class $zh extends S {
   @override
   String get trade_details_created_at => "创建于";
   @override
-  String get send_success => "你Monero已成功發送";
+  String send_success(String crypto) => "你${crypto}已成功發送";
   @override
   String get settings_wallets => "皮夹";
   @override

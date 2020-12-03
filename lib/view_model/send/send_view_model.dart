@@ -97,6 +97,7 @@ abstract class SendViewModelBase with Store {
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
+  WalletType get walletType => _wallet.type;
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateStore _sendTemplateStore;

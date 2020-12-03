@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
@@ -74,6 +75,10 @@ class BitcoinWalletService extends WalletService<
   @override
   Future<BitcoinWallet> restoreFromSeed(
       BitcoinRestoreWalletFromSeedCredentials credentials) async {
+    if (!validateMnemonic(credentials.mnemonic)) {
+      throw BitcoinMnemonicIsIncorrectException();
+    }
+
     final dirPath = await pathForWalletDir(
         type: WalletType.bitcoin, name: credentials.name);
     final wallet = BitcoinWalletBase.build(
