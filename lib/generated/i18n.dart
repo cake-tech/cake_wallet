@@ -35,7 +35,7 @@ class S implements WidgetsLocalizations {
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
-  String get amount_is_guaranteed => "IMPORTANT:\nIf you want to receive a guaranteed amount of BTC, please enter that amount in the BTC field. If you enter an XMR amount instead, then the BTC amount received is an estimate and can fluctuate depending on the rates.";
+  String get amount_is_guaranteed => "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above";
   String get auth_store_ban_timeout => "ban_timeout";
   String get auth_store_banned_for => "Banned for ";
   String get auth_store_banned_minutes => " minutes";
@@ -327,6 +327,8 @@ class S implements WidgetsLocalizations {
   String get xmr_available_balance => "Available Balance";
   String get xmr_full_balance => "Full Balance";
   String get xmr_hidden => "Hidden";
+  String get xmr_to_error => "XMR.TO error";
+  String get xmr_to_error_description => "Invalid amount. Maximum limit 8 digits after the decimal point";
   String get yesterday => "Yesterday";
   String get you_will_get => "Convert to";
   String get you_will_send => "Convert from";
@@ -347,6 +349,7 @@ class S implements WidgetsLocalizations {
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   String openalias_alert_content(String recipient_name) => "You will be sending funds to\n${recipient_name}";
   String powered_by(String title) => "Powered by ${title}";
+  String provider_error(String provider) => "${provider} error";
   String router_no_route(String name) => "No route defined for ${name}";
   String send_address(String cryptoCurrency) => "${cryptoCurrency} address";
   String send_priority(String transactionPriority) => "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings";
@@ -496,7 +499,7 @@ class $de extends S {
   @override
   String get receive => "Erhalten";
   @override
-  String get amount_is_guaranteed => "WICHTIG:\nWenn Sie einen garantierten BTC-Betrag erhalten möchten, geben Sie diesen Betrag in das Feld BTC ein. Wenn Sie stattdessen einen XMR-Betrag eingeben, handelt es sich bei dem erhaltenen BTC-Betrag um eine Schätzung, die je nach Kurs schwanken kann.";
+  String get amount_is_guaranteed => "Geben Sie in xmr.to den BTC-Betrag und nicht den oben genannten XMR-Betrag ein, um einen garantierten BTC-Betrag zu erhalten";
   @override
   String get auth_store_banned_for => "Gebannt für ";
   @override
@@ -776,6 +779,8 @@ class $de extends S {
   @override
   String get seed_language_dutch => "Niederländisch";
   @override
+  String get xmr_to_error => "XMR.TO-Fehler";
+  @override
   String get restore_description_from_seed_keys => "Holen Sie sich Ihr Wallet von Seed / Schlüsseln zurück, die Sie an einem sicheren Ort aufbewahrt haben";
   @override
   String get copy => "Kopieren";
@@ -879,6 +884,8 @@ class $de extends S {
   String get view_key_public => "Schlüssel anzeigen (Öffentlichkeit)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Ungültiger Betrag. Höchstgrenze 8 Stellen nach dem Dezimalpunkt";
   @override
   String get trade_state_confirming => "Bestätigung";
   @override
@@ -1044,6 +1051,8 @@ class $de extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Fehler beim Entfernen ${wallet_name} Wallet. ${error}";
   @override
+  String provider_error(String provider) => "${provider} Error";
+  @override
   String copied_key_to_clipboard(String key) => "Kopiert ${key} Zur Zwischenablage";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden fehlgeschlagen ${wallet_name} Wallet. ${error}";
@@ -1184,7 +1193,7 @@ class $hi extends S {
   @override
   String get receive => "प्राप्त करना";
   @override
-  String get amount_is_guaranteed => "महत्वपूर्ण:\nयदि आप BTC की गारंटीकृत राशि प्राप्त करना चाहते हैं, तो कृपया उस राशि को BTC फ़ील्ड में दर्ज करें। यदि आप इसके बजाय एक एक्सएमआर राशि दर्ज करते हैं, तो प्राप्त बीटीसी राशि एक अनुमान है और दरों के आधार पर इसमें उतार-चढ़ाव हो सकता है।";
+  String get amount_is_guaranteed => "Xmr.to में, गारंटीशुदा BTC राशि प्राप्त करने के लिए, BTC राशि दर्ज करें और ऊपर XMR राशि नहीं";
   @override
   String get auth_store_banned_for => "के लिए प्रतिबंधित है ";
   @override
@@ -1464,6 +1473,8 @@ class $hi extends S {
   @override
   String get seed_language_dutch => "डच";
   @override
+  String get xmr_to_error => "XMR.TO त्रुटि";
+  @override
   String get restore_description_from_seed_keys => "अपने बटुए को बीज से वापस लें/वे कुंजियाँ जिन्हें आपने सुरक्षित स्थान पर सहेजा है";
   @override
   String get copy => "प्रतिलिपि";
@@ -1567,6 +1578,8 @@ class $hi extends S {
   String get view_key_public => "कुंजी देखें (जनता)";
   @override
   String get trade_details_id => "आईडी";
+  @override
+  String get xmr_to_error_description => "अवैध राशि। दशमलव बिंदु के बाद अधिकतम सीमा 8 अंक";
   @override
   String get trade_state_confirming => "पुष्टि";
   @override
@@ -1732,6 +1745,8 @@ class $hi extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "निकालने में विफल ${wallet_name} बटुआ. ${error}";
   @override
+  String provider_error(String provider) => "${provider} त्रुटि";
+  @override
   String copied_key_to_clipboard(String key) => "की नकल की ${key} क्लिपबोर्ड पर";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "लोड करने में विफल ${wallet_name} बटुआ. ${error}";
@@ -1872,7 +1887,7 @@ class $ru extends S {
   @override
   String get receive => "Получить";
   @override
-  String get amount_is_guaranteed => "ВАЖНО:\nЕсли вы хотите получить гарантированную сумму BTC, введите эту сумму в поле BTC. Если вместо этого вы вводите сумму XMR, полученная сумма BTC является приблизительной и может колебаться в зависимости от курса.";
+  String get amount_is_guaranteed => "В xmr.to, чтобы получить гарантированную сумму BTC, введите сумму BTC, а не сумму XMR выше";
   @override
   String get auth_store_banned_for => "Заблокировано на ";
   @override
@@ -2152,6 +2167,8 @@ class $ru extends S {
   @override
   String get seed_language_dutch => "Нидерландский";
   @override
+  String get xmr_to_error => "Ошибка XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Вы можете восстановить кошелёк из мнемонической фразы/ключей, которые вы сохранили ранее";
   @override
   String get copy => "Скопировать";
@@ -2255,6 +2272,8 @@ class $ru extends S {
   String get view_key_public => "Публичный ключ просмотра";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Недопустимая сумма. Максимум 8 цифр после десятичной точки";
   @override
   String get trade_state_confirming => "Подтверждение";
   @override
@@ -2420,6 +2439,8 @@ class $ru extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Ошибка при удалении ${wallet_name} кошелька. ${error}";
   @override
+  String provider_error(String provider) => "${provider} ошибка";
+  @override
   String copied_key_to_clipboard(String key) => "Скопировано ${key} в буфер обмена";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Ошибка при загрузке ${wallet_name} кошелька. ${error}";
@@ -2560,7 +2581,7 @@ class $ko extends S {
   @override
   String get receive => "받다";
   @override
-  String get amount_is_guaranteed => "중대한:\n보장 된 BTC 금액을 받으려면 BTC 필드에 해당 금액을 입력하십시오. 대신 XMR 금액을 입력하면 수령 한 BTC 금액이 추정치이며 요율에 따라 변동될 수 있습니다.";
+  String get amount_is_guaranteed => "xmr.to에서 보장 된 BTC 금액을 받으려면 위의 XMR 금액이 아닌 BTC 금액을 입력하십시오.";
   @override
   String get auth_store_banned_for => "금지";
   @override
@@ -2840,6 +2861,8 @@ class $ko extends S {
   @override
   String get seed_language_dutch => "네덜란드 사람";
   @override
+  String get xmr_to_error => "XMR.TO 오류";
+  @override
   String get restore_description_from_seed_keys => "안전한 장소에 저장 한 종자 / 키로 지갑을 되 찾으십시오.";
   @override
   String get copy => "부";
@@ -2943,6 +2966,8 @@ class $ko extends S {
   String get view_key_public => "키보기 (공공의)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "금액이 잘못되었습니다. 소수점 이하 최대 8 자리";
   @override
   String get trade_state_confirming => "확인 중";
   @override
@@ -3108,6 +3133,8 @@ class $ko extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "제거하지 못했습니다 ${wallet_name} 지갑. ${error}";
   @override
+  String provider_error(String provider) => "${provider} 오류";
+  @override
   String copied_key_to_clipboard(String key) => "복사 ${key} 클립 보드로";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "불러 오지 못했습니다 ${wallet_name} 지갑. ${error}";
@@ -3248,7 +3275,7 @@ class $pt extends S {
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "IMPORTANTE:\nSe você deseja receber um valor garantido de BTC, insira esse valor no campo BTC. Se, em vez disso, você inserir um valor XMR, o valor BTC recebido é uma estimativa e pode flutuar dependendo das taxas.";
+  String get amount_is_guaranteed => "Em xmr.to, para receber um valor BTC garantido, insira o valor BTC e não o valor XMR acima";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
@@ -3528,6 +3555,8 @@ class $pt extends S {
   @override
   String get seed_language_dutch => "Holandesa";
   @override
+  String get xmr_to_error => "Erro XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Restaure a sua carteira a partir de sementes/chaves que você salvou em um local seguro";
   @override
   String get copy => "Copiar";
@@ -3631,6 +3660,8 @@ class $pt extends S {
   String get view_key_public => "Chave de visualização (pública)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Montante inválido. Limite máximo de 8 dígitos após o ponto decimal";
   @override
   String get trade_state_confirming => "Confirmando";
   @override
@@ -3796,6 +3827,8 @@ class $pt extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Falha ao remover a carteira ${wallet_name}. ${error}";
   @override
+  String provider_error(String provider) => "${provider} erro";
+  @override
   String copied_key_to_clipboard(String key) => "${key} copiada para a área de transferência";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao abrir a carteira ${wallet_name}. ${error}";
@@ -3936,7 +3969,7 @@ class $uk extends S {
   @override
   String get receive => "Отримати";
   @override
-  String get amount_is_guaranteed => "ВАЖЛИВО:\nЯкщо ви хочете отримати гарантовану суму BTC, введіть цю суму в поле BTC. Якщо замість цього ввести суму XMR, отримана сума BTC є приблизною і може коливатися залежно від курсу.";
+  String get amount_is_guaranteed => "У xmr.to, щоб отримати гарантовану суму BTC, введіть суму BTC, а не XMR вище";
   @override
   String get auth_store_banned_for => "Заблоковано на ";
   @override
@@ -4216,6 +4249,8 @@ class $uk extends S {
   @override
   String get seed_language_dutch => "Голландська";
   @override
+  String get xmr_to_error => "Помилка XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше";
   @override
   String get copy => "Скопіювати";
@@ -4319,6 +4354,8 @@ class $uk extends S {
   String get view_key_public => "Публічний ключ перегляду";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Неприпустима сума. Максимум 8 цифр після десяткової коми";
   @override
   String get trade_state_confirming => "Підтвердження";
   @override
@@ -4484,6 +4521,8 @@ class $uk extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Помилка при видаленні ${wallet_name} гаманця. ${error}";
   @override
+  String provider_error(String provider) => "${provider} помилка";
+  @override
   String copied_key_to_clipboard(String key) => "Скопійовано ${key} в буфер обміну";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Помилка при завантаженні ${wallet_name} гаманця. ${error}";
@@ -4624,7 +4663,7 @@ class $ja extends S {
   @override
   String get receive => "受け取る";
   @override
-  String get amount_is_guaranteed => "重要：\n保証された金額のBTCを受け取りたい場合は、その金額を[BTC]フィールドに入力してください。 代わりにXMR金額を入力した場合、受け取ったBTC金額は見積もりであり、レートに応じて変動する可能性があります。";
+  String get amount_is_guaranteed => "xmr.toで、保証されたBTC金額を受け取るには、上記のXMR金額ではなく、BTC金額を入力します";
   @override
   String get auth_store_banned_for => "禁止されています ";
   @override
@@ -4904,6 +4943,8 @@ class $ja extends S {
   @override
   String get seed_language_dutch => "オランダの";
   @override
+  String get xmr_to_error => "XMR.TOエラー";
+  @override
   String get restore_description_from_seed_keys => "安全な場所に保存したシード/キーから財布を取り戻す";
   @override
   String get copy => "コピー";
@@ -5007,6 +5048,8 @@ class $ja extends S {
   String get view_key_public => "ビューキー (パブリック)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "金額が無効です。 小数点以下8桁の上限";
   @override
   String get trade_state_confirming => "確認中";
   @override
@@ -5172,6 +5215,8 @@ class $ja extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "削除できませんでした ${wallet_name} 財布. ${error}";
   @override
+  String provider_error(String provider) => "${provider} エラー";
+  @override
   String copied_key_to_clipboard(String key) => "コピー済み ${key} クリップボードへ";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "読み込みに失敗しました ${wallet_name} 財布. ${error}";
@@ -5316,7 +5361,7 @@ class $pl extends S {
   @override
   String get receive => "Otrzymać";
   @override
-  String get amount_is_guaranteed => "WAŻNY:\nJeśli chcesz otrzymać gwarantowaną kwotę BTC, wprowadź tę kwotę w polu BTC. Jeśli zamiast tego wpiszesz kwotę XMR, otrzymana kwota BTC jest szacunkowa i może się zmieniać w zależności od stawek.";
+  String get amount_is_guaranteed => "W xmr.to, aby otrzymać gwarantowaną kwotę BTC, wprowadź kwotę BTC, a nie kwotę XMR powyżej";
   @override
   String get auth_store_banned_for => "Bzbanowany za ";
   @override
@@ -5596,6 +5641,8 @@ class $pl extends S {
   @override
   String get seed_language_dutch => "Holenderski";
   @override
+  String get xmr_to_error => "Pomyłka XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Odzyskaj swój portfel z nasion / kluczy, które zapisałeś w bezpiecznym miejscu";
   @override
   String get copy => "Kopiuj";
@@ -5699,6 +5746,8 @@ class $pl extends S {
   String get view_key_public => "Wyświetl klucz (publiczny)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Nieprawidłowa kwota. Maksymalny limit 8 cyfr po przecinku";
   @override
   String get trade_state_confirming => "Potwierdzam";
   @override
@@ -5864,6 +5913,8 @@ class $pl extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Nie udało się usunąć ${wallet_name} portfel. ${error}";
   @override
+  String provider_error(String provider) => "${provider} pomyłka";
+  @override
   String copied_key_to_clipboard(String key) => "Skopiowane ${key} do schowka";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Nie udało się załadować ${wallet_name} portfel. ${error}";
@@ -6004,7 +6055,7 @@ class $es extends S {
   @override
   String get receive => "Recibir";
   @override
-  String get amount_is_guaranteed => "IMPORTANTE:\nSi desea recibir una cantidad garantizada de BTC, ingrese esa cantidad en el campo BTC. Si ingresa una cantidad de XMR en su lugar, la cantidad de BTC recibida es una estimación y puede variar según las tarifas.";
+  String get amount_is_guaranteed => "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba";
   @override
   String get auth_store_banned_for => "Prohibido para ";
   @override
@@ -6284,6 +6335,8 @@ class $es extends S {
   @override
   String get seed_language_dutch => "Holandés";
   @override
+  String get xmr_to_error => "Error de XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Recupere su billetera de las semillas/claves que ha guardado en un lugar seguro";
   @override
   String get copy => "Dupdo";
@@ -6387,6 +6440,8 @@ class $es extends S {
   String get view_key_public => "View clave (público)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Monto invalido. Límite máximo de 8 dígitos después del punto decimal";
   @override
   String get trade_state_confirming => "Confirmando";
   @override
@@ -6552,6 +6607,8 @@ class $es extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Error al elimina ${wallet_name} billetera. ${error}";
   @override
+  String provider_error(String provider) => "${provider} error";
+  @override
   String copied_key_to_clipboard(String key) => "Copiado ${key} al portapapeles";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "No se pudo cargar  ${wallet_name} la billetera. ${error}";
@@ -6692,7 +6749,7 @@ class $nl extends S {
   @override
   String get receive => "Krijgen";
   @override
-  String get amount_is_guaranteed => "BELANGRIJK:\nAls u een gegarandeerd bedrag aan BTC wilt ontvangen, voert u dat bedrag in het BTC-veld in. Als u in plaats daarvan een XMR-bedrag invoert, is het ontvangen BTC-bedrag een schatting en kan het fluctueren afhankelijk van de tarieven.";
+  String get amount_is_guaranteed => "Om een gegarandeerd BTC-bedrag te ontvangen, voert u in xmr.to het BTC-bedrag in en niet het bovenstaande XMR-bedrag";
   @override
   String get auth_store_banned_for => "Verboden voor ";
   @override
@@ -6972,6 +7029,8 @@ class $nl extends S {
   @override
   String get seed_language_dutch => "Nederlands";
   @override
+  String get xmr_to_error => "XMR.TO-fout";
+  @override
   String get restore_description_from_seed_keys => "Ontvang uw portemonnee terug uit seed / keys die u hebt opgeslagen op een veilige plaats";
   @override
   String get copy => "Kopiëren";
@@ -7075,6 +7134,8 @@ class $nl extends S {
   String get view_key_public => "Bekijk sleutel (openbaar)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Ongeldige hoeveelheid. Maximaal 8 cijfers achter de komma";
   @override
   String get trade_state_confirming => "Bevestiging";
   @override
@@ -7240,6 +7301,8 @@ class $nl extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Verwijderen mislukt ${wallet_name} portemonnee. ${error}";
   @override
+  String provider_error(String provider) => "${provider} fout";
+  @override
   String copied_key_to_clipboard(String key) => "Gekopieerd ${key} naar het klembord";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden mislukt ${wallet_name} portemonnee. ${error}";
@@ -7380,7 +7443,7 @@ class $zh extends S {
   @override
   String get receive => "接收";
   @override
-  String get amount_is_guaranteed => "重要：\n如果您想獲得保證的BTC金額，請在BTC字段中輸入該金額。 如果您輸入的是XMR金額，則收到的BTC金額只是估算值，可能會隨匯率而波動。";
+  String get amount_is_guaranteed => "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量";
   @override
   String get auth_store_banned_for => "禁止 ";
   @override
@@ -7660,6 +7723,8 @@ class $zh extends S {
   @override
   String get seed_language_dutch => "荷蘭人";
   @override
+  String get xmr_to_error => "XMR.TO錯誤";
+  @override
   String get restore_description_from_seed_keys => "从保存到安全地方的种子/钥匙取回钱包";
   @override
   String get copy => "复制";
@@ -7763,6 +7828,8 @@ class $zh extends S {
   String get view_key_public => "查看金钥 (public)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "無效的金額。 小數點後最多8位數字";
   @override
   String get trade_state_confirming => "确认中";
   @override
@@ -7927,6 +7994,8 @@ class $zh extends S {
   String openalias_alert_content(String recipient_name) => "您將匯款至\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "删除失败 ${wallet_name} 钱包. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} 錯誤";
   @override
   String copied_key_to_clipboard(String key) => "复制 ${key} 到剪贴板";
   @override
