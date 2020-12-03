@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "Зрозуміло. Покажіть мнемонічну фразу",
 
   "xmr_to_error" : "Помилка XMR.TO",
-  "xmr_to_error_description" : "Неприпустима сума. Максимум 8 цифр після десяткової коми"
+  "xmr_to_error_description" : "Неприпустима сума. Максимум 8 цифр після десяткової коми",
+
+  "provider_error" : "${provider} помилка"
 }

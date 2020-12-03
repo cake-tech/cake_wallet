@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "이해 했어요. 내 씨앗을 보여줘",
 
   "xmr_to_error" : "XMR.TO 오류",
-  "xmr_to_error_description" : "금액이 잘못되었습니다. 소수점 이하 최대 8 자리"
+  "xmr_to_error_description" : "금액이 잘못되었습니다. 소수점 이하 최대 8 자리",
+
+  "provider_error" : "${provider} 오류"
 }

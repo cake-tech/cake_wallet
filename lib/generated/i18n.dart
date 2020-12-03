@@ -342,6 +342,7 @@ class S implements WidgetsLocalizations {
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   String openalias_alert_content(String recipient_name) => "You will be sending funds to\n${recipient_name}";
   String powered_by(String title) => "Powered by ${title}";
+  String provider_error(String provider) => "${provider} error";
   String router_no_route(String name) => "No route defined for ${name}";
   String send_address(String cryptoCurrency) => "${cryptoCurrency} address";
   String send_priority(String transactionPriority) => "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings";
@@ -1029,6 +1030,8 @@ class $de extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Fehler beim Entfernen ${wallet_name} Wallet. ${error}";
   @override
+  String provider_error(String provider) => "${provider} Error";
+  @override
   String copied_key_to_clipboard(String key) => "Kopiert ${key} Zur Zwischenablage";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden fehlgeschlagen ${wallet_name} Wallet. ${error}";
@@ -1706,6 +1709,8 @@ class $hi extends S {
   String openalias_alert_content(String recipient_name) => "आपको धनराशि भेजी जाएगी\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "निकालने में विफल ${wallet_name} बटुआ. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} त्रुटि";
   @override
   String copied_key_to_clipboard(String key) => "की नकल की ${key} क्लिपबोर्ड पर";
   @override
@@ -2385,6 +2390,8 @@ class $ru extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Ошибка при удалении ${wallet_name} кошелька. ${error}";
   @override
+  String provider_error(String provider) => "${provider} ошибка";
+  @override
   String copied_key_to_clipboard(String key) => "Скопировано ${key} в буфер обмена";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Ошибка при загрузке ${wallet_name} кошелька. ${error}";
@@ -3062,6 +3069,8 @@ class $ko extends S {
   String openalias_alert_content(String recipient_name) => "당신은에 자금을 보낼 것입니다\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "제거하지 못했습니다 ${wallet_name} 지갑. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} 오류";
   @override
   String copied_key_to_clipboard(String key) => "복사 ${key} 클립 보드로";
   @override
@@ -3741,6 +3750,8 @@ class $pt extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Falha ao remover a carteira ${wallet_name}. ${error}";
   @override
+  String provider_error(String provider) => "${provider} erro";
+  @override
   String copied_key_to_clipboard(String key) => "${key} copiada para a área de transferência";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao abrir a carteira ${wallet_name}. ${error}";
@@ -4419,6 +4430,8 @@ class $uk extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Помилка при видаленні ${wallet_name} гаманця. ${error}";
   @override
+  String provider_error(String provider) => "${provider} помилка";
+  @override
   String copied_key_to_clipboard(String key) => "Скопійовано ${key} в буфер обміну";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Помилка при завантаженні ${wallet_name} гаманця. ${error}";
@@ -5096,6 +5109,8 @@ class $ja extends S {
   String openalias_alert_content(String recipient_name) => "に送金します\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "削除できませんでした ${wallet_name} 財布. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} エラー";
   @override
   String copied_key_to_clipboard(String key) => "コピー済み ${key} クリップボードへ";
   @override
@@ -5779,6 +5794,8 @@ class $pl extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Nie udało się usunąć ${wallet_name} portfel. ${error}";
   @override
+  String provider_error(String provider) => "${provider} pomyłka";
+  @override
   String copied_key_to_clipboard(String key) => "Skopiowane ${key} do schowka";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Nie udało się załadować ${wallet_name} portfel. ${error}";
@@ -6456,6 +6473,8 @@ class $es extends S {
   String openalias_alert_content(String recipient_name) => "Enviará fondos a\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Error al elimina ${wallet_name} billetera. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} error";
   @override
   String copied_key_to_clipboard(String key) => "Copiado ${key} al portapapeles";
   @override
@@ -7135,6 +7154,8 @@ class $nl extends S {
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Verwijderen mislukt ${wallet_name} portemonnee. ${error}";
   @override
+  String provider_error(String provider) => "${provider} fout";
+  @override
   String copied_key_to_clipboard(String key) => "Gekopieerd ${key} naar het klembord";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden mislukt ${wallet_name} portemonnee. ${error}";
@@ -7812,6 +7833,8 @@ class $zh extends S {
   String openalias_alert_content(String recipient_name) => "您將匯款至\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "删除失败 ${wallet_name} 钱包. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} 錯誤";
   @override
   String copied_key_to_clipboard(String key) => "复制 ${key} 到剪贴板";
   @override

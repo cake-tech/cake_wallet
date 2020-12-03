@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "わかります。 種を見せて",
 
   "xmr_to_error" : "XMR.TOエラー",
-  "xmr_to_error_description" : "金額が無効です。 小数点以下8桁の上限"
+  "xmr_to_error_description" : "金額が無効です。 小数点以下8桁の上限",
+
+  "provider_error" : "${provider} エラー"
 }

@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "Rozumiem. Pokaż mi moje nasienie",
 
   "xmr_to_error" : "Pomyłka XMR.TO",
-  "xmr_to_error_description" : "Nieprawidłowa kwota. Maksymalny limit 8 cyfr po przecinku"
+  "xmr_to_error_description" : "Nieprawidłowa kwota. Maksymalny limit 8 cyfr po przecinku",
+
+  "provider_error" : "${provider} pomyłka"
 }

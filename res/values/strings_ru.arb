@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "Понятно. Покажите мнемоническую фразу",
 
   "xmr_to_error" : "Ошибка XMR.TO",
-  "xmr_to_error_description" : "Недопустимая сумма. Максимум 8 цифр после десятичной точки"
+  "xmr_to_error_description" : "Недопустимая сумма. Максимум 8 цифр после десятичной точки",
+
+  "provider_error" : "${provider} ошибка"
 }
