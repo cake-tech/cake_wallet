@@ -86,7 +86,7 @@ class WalletSeedPage extends BasePage {
     final image =
         getIt.get<SettingsStore>().isDarkTheme ? imageDark : imageLight;
 
-    return Container(
+    return WillPopScope(onWillPop: () async => false, child:  Container(
         padding: EdgeInsets.all(24),
         child: Column(
           children: <Widget>[
@@ -194,6 +194,6 @@ class WalletSeedPage extends BasePage {
                   ],
                 ))
           ],
-        ));
+        )));
   }
 }
