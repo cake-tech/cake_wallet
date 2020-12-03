@@ -423,6 +423,5 @@
 
   "provider_error" : "${provider} エラー",
 
-
   "use_ssl" : "SSLを使用する"
 }

@@ -423,6 +423,5 @@
 
   "provider_error" : "${provider} Error",
 
-
   "use_ssl" : "Verwenden Sie SSL"
 }

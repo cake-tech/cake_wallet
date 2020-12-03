@@ -423,6 +423,5 @@
 
   "provider_error" : "${provider} помилка",
 
-
   "use_ssl" : "Використати SSL"
 }

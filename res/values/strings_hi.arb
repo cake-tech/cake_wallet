@@ -423,6 +423,5 @@
 
   "provider_error" : "${provider} त्रुटि",
 
-
   "use_ssl" : "उपयोग SSL"
 }
