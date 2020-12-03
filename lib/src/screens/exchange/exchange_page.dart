@@ -555,6 +555,7 @@ class ExchangePage extends BasePage {
         });
       }
       if (state is TradeIsCreatedSuccessfully) {
+        exchangeViewModel.reset();
         Navigator.of(context).pushNamed(Routes.exchangeConfirm);
       }
     });
