@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "Entiendo. Muéstrame mi semilla",
 
   "xmr_to_error" : "Error de XMR.TO",
-  "xmr_to_error_description" : "Monto invalido. Límite máximo de 8 dígitos después del punto decimal"
+  "xmr_to_error_description" : "Monto invalido. Límite máximo de 8 dígitos después del punto decimal",
+
+  "provider_error" : "${provider} error"
 }

@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "मै समझता हुँ। मुझे अपना बीज दिखाओ",
 
   "xmr_to_error" : "XMR.TO त्रुटि",
-  "xmr_to_error_description" : "अवैध राशि। दशमलव बिंदु के बाद अधिकतम सीमा 8 अंक"
+  "xmr_to_error_description" : "अवैध राशि। दशमलव बिंदु के बाद अधिकतम सीमा 8 अंक",
+
+  "provider_error" : "${provider} त्रुटि"
 }

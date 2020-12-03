@@ -558,7 +558,7 @@ class ExchangePage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    alertTitle: state.title,
+                    alertTitle: S.of(context).provider_error(state.title),
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
                     buttonAction: () => Navigator.of(context).pop());

@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "Ik begrijp het. Laat me mijn zaad zien",
 
   "xmr_to_error" : "XMR.TO-fout",
-  "xmr_to_error_description" : "Ongeldige hoeveelheid. Maximaal 8 cijfers achter de komma"
+  "xmr_to_error_description" : "Ongeldige hoeveelheid. Maximaal 8 cijfers achter de komma",
+
+  "provider_error" : "${provider} fout"
 }

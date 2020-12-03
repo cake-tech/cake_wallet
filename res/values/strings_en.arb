@@ -414,5 +414,7 @@
   "pre_seed_button_text" : "I understand. Show me my seed",
 
   "xmr_to_error" : "XMR.TO error",
-  "xmr_to_error_description" : "Invalid amount. Maximum limit 8 digits after the decimal point"
+  "xmr_to_error_description" : "Invalid amount. Maximum limit 8 digits after the decimal point",
+
+  "provider_error" : "${provider} error"
 }
