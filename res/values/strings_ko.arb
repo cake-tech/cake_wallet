@@ -418,6 +418,10 @@
   "pre_seed_description" : "다음 페이지에서 25 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.",
   "pre_seed_button_text" : "이해 했어요. 내 씨앗을 보여줘",
 
+  "xmr_to_error" : "XMR.TO 오류",
+  "xmr_to_error_description" : "금액이 잘못되었습니다. 소수점 이하 최대 8 자리",
+
+  "provider_error" : "${provider} 오류",
 
   "use_ssl" : "SSL 사용"
 }

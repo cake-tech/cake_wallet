@@ -418,6 +418,10 @@
   "pre_seed_description" : "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.",
   "pre_seed_button_text" : "I understand. Show me my seed",
 
+  "xmr_to_error" : "XMR.TO error",
+  "xmr_to_error_description" : "Invalid amount. Maximum limit 8 digits after the decimal point",
+
+  "provider_error" : "${provider} error",
 
   "use_ssl" : "Use SSL"
 }
