@@ -14,7 +14,8 @@ class TradeIsCreatedSuccessfully extends ExchangeTradeState {
 }
 
 class TradeIsCreatedFailure extends ExchangeTradeState {
-  TradeIsCreatedFailure({@required this.error});
+  TradeIsCreatedFailure({@required this.title, @required this.error});
 
+  final String title;
   final String error;
 }

@@ -418,6 +418,10 @@
   "pre_seed_description" : "Na następnej stronie zobaczysz serię 25 słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.",
   "pre_seed_button_text" : "Rozumiem. Pokaż mi moje nasienie",
 
+  "xmr_to_error" : "Pomyłka XMR.TO",
+  "xmr_to_error_description" : "Nieprawidłowa kwota. Maksymalny limit 8 cyfr po przecinku",
+
+  "provider_error" : "${provider} pomyłka",
 
   "use_ssl" : "Użyj SSL"
 }

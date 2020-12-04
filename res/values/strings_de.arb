@@ -418,6 +418,10 @@
   "pre_seed_description" : "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.",
   "pre_seed_button_text" : "Ich verstehe. Zeig mir meinen Samen",
 
+  "xmr_to_error" : "XMR.TO-Fehler",
+  "xmr_to_error_description" : "Ungültiger Betrag. Höchstgrenze 8 Stellen nach dem Dezimalpunkt",
+
+  "provider_error" : "${provider} Error",
 
   "use_ssl" : "Verwenden Sie SSL"
 }
