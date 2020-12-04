@@ -547,7 +547,7 @@ class ExchangePage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
+                    alertTitle: S.of(context).provider_error(state.title),
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
                     buttonAction: () => Navigator.of(context).pop());
@@ -555,6 +555,7 @@ class ExchangePage extends BasePage {
         });
       }
       if (state is TradeIsCreatedSuccessfully) {
+        exchangeViewModel.reset();
         Navigator.of(context).pushNamed(Routes.exchangeConfirm);
       }
     });

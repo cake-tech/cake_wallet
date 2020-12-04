@@ -5,6 +5,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 // FIXME: terrible design.
 
@@ -147,7 +148,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                       ),
                                       if (widget.dashboardViewModel.subname !=
                                           null)
-                                        Text(
+                                        Observer(builder: (_) => Text(
                                           widget.dashboardViewModel.subname,
                                           style: TextStyle(
                                               color: Theme.of(context)
@@ -156,7 +157,7 @@ class MenuWidgetState extends State<MenuWidget> {
                                                   .decorationColor,
                                               fontWeight: FontWeight.w500,
                                               fontSize: 12),
-                                        )
+                                        ))
                                     ],
                                   ),
                                 ))

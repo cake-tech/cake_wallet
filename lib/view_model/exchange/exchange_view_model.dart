@@ -174,7 +174,7 @@ abstract class ExchangeViewModelBase with Store {
       return;
     }
 
-    final _amount = double.parse(amount.replaceAll(',', '.'));
+    final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
     provider
         .calculateAmount(
             from: depositCurrency,
@@ -247,10 +247,12 @@ abstract class ExchangeViewModelBase with Store {
     if (limitsState is LimitsLoadedSuccessfully && amount != null) {
       if (double.parse(amount) < limits.min) {
         tradeState = TradeIsCreatedFailure(
+            title: provider.title,
             error: S.current.error_text_minimal_limit('${provider.description}',
                 '${limits.min}', currency.toString()));
       } else if (limits.max != null && double.parse(amount) > limits.max) {
         tradeState = TradeIsCreatedFailure(
+            title: provider.title,
             error: S.current.error_text_maximum_limit('${provider.description}',
                 '${limits.max}', currency.toString()));
       } else {
@@ -262,11 +264,14 @@ abstract class ExchangeViewModelBase with Store {
           await trades.add(trade);
           tradeState = TradeIsCreatedSuccessfully(trade: trade);
         } catch (e) {
-          tradeState = TradeIsCreatedFailure(error: e.toString());
+          tradeState = TradeIsCreatedFailure(
+              title: provider.title,
+              error: e.toString());
         }
       }
     } else {
       tradeState = TradeIsCreatedFailure(
+          title: provider.title,
           error: S.current
               .error_text_limits_loading_failed('${provider.description}'));
     }
