@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
@@ -83,7 +82,7 @@ abstract class DashboardViewModelBase with Store {
     final info = walletInfoSource.values.firstWhere((element) =>
     element.name == appStore.wallet?.name);
 
-    name = info?.displayName ?? appStore.wallet?.name;
+    name = info?.displayedName;
     wallet ??= appStore.wallet;
     type = wallet.type;
 
@@ -222,7 +221,7 @@ abstract class DashboardViewModelBase with Store {
     final info = walletInfoSource.values.firstWhere((element) =>
     element.name == wallet.name);
 
-    name = info?.displayName ?? wallet.name;
+    name = info?.displayedName;
 
     if (wallet is MoneroWallet) {
       subname = wallet.account?.label;
@@ -275,6 +274,6 @@ abstract class DashboardViewModelBase with Store {
     final info = walletInfoSource.values.firstWhere((element) =>
     element.name == wallet.name);
 
-    name = info?.displayName ?? wallet.name;
+    name = info?.displayedName;
   }
 }

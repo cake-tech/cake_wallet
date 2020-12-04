@@ -52,7 +52,7 @@ abstract class WalletListViewModelBase with Store {
     wallets.clear();
     wallets.addAll(_walletInfoSource.values.map((info) => WalletListItem(
         name: info.name,
-        displayName: info.displayName ?? info.name,
+        displayName: info.displayedName,
         type: info.type,
         key: info.key,
         isCurrent: info.name == _appStore.wallet.name &&
