@@ -103,7 +103,12 @@ class MoneroAccountListPage extends StatelessWidget {
                                                   accountListViewModel
                                                       .select(account);
                                                   Navigator.of(context).pop();
-                                                });
+                                                },
+                                                onEdit: () async =>
+                                                await Navigator.of(context)
+                                                    .pushNamed(
+                                                    Routes.accountCreation,
+                                                    arguments: account));
                                           },
                                         ),
                                         isAlwaysShowScrollThumb

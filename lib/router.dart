@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -262,7 +263,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
-          builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>());
+          builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
+            param1: settings.arguments as AccountListItem));
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(

@@ -7,7 +7,7 @@ class MoneroLabelValidator extends TextValidator {
   MoneroLabelValidator({@required CryptoCurrency type})
       : super(
       errorMessage: S.current.error_text_account_name,
-      pattern: '^[a-zA-Z0-9_]{1,15}\$',
+      pattern: '^[a-zA-Z0-9_ ]{1,15}\$',
       minLength: 1,
       maxLength: 15);
 }
