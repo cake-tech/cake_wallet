@@ -40,6 +40,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
         unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
     _onAccountChangeReaction = reaction((_) => account, (Account account) {
+      balance = MoneroBalance(
+          fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
+          unlockedBalance:
+          monero_wallet.getUnlockedBalance(accountIndex: account.id));
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
@@ -94,7 +98,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   bool _isSavingAfterNewTransaction;
 
   Future<void> init() async {
-    await accountList.update();
+    accountList.update();
     account = accountList.accounts.first;
     subaddressList.update(accountIndex: account.id ?? 0);
     subaddress = subaddressList.getAll().first;
@@ -255,6 +259,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     monero_wallet.rescanBlockchainAsync();
     await startSync();
     _askForUpdateBalance();
+    accountList.update();
     await _askForUpdateTransactionHistory();
     await save();
     await walletInfo.save();
@@ -362,17 +367,20 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     if (walletInfo.isRecovery) {
-      _askForUpdateTransactionHistory();
+      await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
+      accountList.update();
     }
 
     if (blocksLeft < 100) {
+      await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
+      accountList.update();
       syncStatus = SyncedSyncStatus();
       await _afterSyncSave();
 
       if (walletInfo.isRecovery) {
-        setAsRecovered();
+        await setAsRecovered();
       }
     } else {
       syncStatus = SyncingSyncStatus(blocksLeft, ptc);

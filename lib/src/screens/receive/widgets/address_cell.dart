@@ -14,6 +14,7 @@ class AddressCell extends StatelessWidget {
           address: item.address,
           name: item.name,
           isCurrent: isCurrent,
+          isPrimary: item.isPrimary,
           backgroundColor: backgroundColor,
           textColor: textColor,
           onTap: onTap,
@@ -23,6 +24,7 @@ class AddressCell extends StatelessWidget {
       {@required this.address,
       @required this.name,
       @required this.isCurrent,
+      @required this.isPrimary,
       @required this.backgroundColor,
       @required this.textColor,
       this.onTap,
@@ -31,6 +33,7 @@ class AddressCell extends StatelessWidget {
   final String address;
   final String name;
   final bool isCurrent;
+  final bool isPrimary;
   final Color backgroundColor;
   final Color textColor;
   final Function(String) onTap;
@@ -56,7 +59,7 @@ class AddressCell extends StatelessWidget {
           ),
         ));
 
-    return isCurrent
+    return (isCurrent || isPrimary)
         ? cell
         : Slidable(
             key: Key(address),
