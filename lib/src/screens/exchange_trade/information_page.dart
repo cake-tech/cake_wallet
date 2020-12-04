@@ -33,7 +33,7 @@ class InformationPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.normal,
-                    fontFamily: 'Poppins',
+                    fontFamily: 'Lato',
                     decoration: TextDecoration.none,
                     color: Theme.of(context).accentTextTheme.caption.decorationColor
                   ),

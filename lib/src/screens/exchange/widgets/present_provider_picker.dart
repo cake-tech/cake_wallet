@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -14,8 +15,8 @@ class PresentProviderPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final arrowBottom =
-    Image.asset('assets/images/arrow_bottom_purple_icon.png',
+    final arrowBottom = Image.asset(
+        'assets/images/arrow_bottom_purple_icon.png',
         color: Colors.white,
         height: 6);
 
@@ -50,8 +51,7 @@ class PresentProviderPicker extends StatelessWidget {
               child: arrowBottom,
             )
           ],
-        )
-    );
+        ));
   }
 
   void _presentProviderPicker(BuildContext context) {
@@ -64,7 +64,6 @@ class PresentProviderPicker extends StatelessWidget {
       switch (provider.description) {
         case ExchangeProviderDescription.xmrto:
           images.add(Image.asset('assets/images/xmr_btc.png'));
-          description = S.of(context).picker_description;
           break;
         case ExchangeProviderDescription.changeNow:
           images.add(Image.asset('assets/images/change_now.png'));
@@ -76,14 +75,25 @@ class PresentProviderPicker extends StatelessWidget {
     }
 
     showPopUp<void>(
-        builder: (_) => Picker(
+        builder: (BuildContext popUpContext) => Picker(
             items: items,
             images: images,
             selectedAtIndex: selectedItem,
             title: S.of(context).change_exchange_provider,
             description: description,
-            onItemSelected: (ExchangeProvider provider) =>
-                exchangeViewModel.changeProvider(provider: provider)),
+            onItemSelected: (ExchangeProvider provider) {
+              if (!provider.isAvailable) {
+                showPopUp<void>(
+                    builder: (BuildContext popUpContext) => AlertWithOneAction(
+                        alertTitle: 'Error',
+                        alertContent: 'The exchange is blocked in your region.',
+                        buttonText: S.of(context).ok,
+                        buttonAction: () => Navigator.of(context).pop()),
+                    context: context);
+                return;
+              }
+              exchangeViewModel.changeProvider(provider: provider);
+            }),
         context: context);
   }
 }

@@ -35,7 +35,7 @@ class S implements WidgetsLocalizations {
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
-  String get amount_is_guaranteed => "IMPORTANT:\nIf you want to receive a guaranteed amount of BTC, please enter that amount in the BTC field. If you enter an XMR amount instead, then the BTC amount received is an estimate and can fluctuate depending on the rates.";
+  String get amount_is_guaranteed => "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above";
   String get auth_store_ban_timeout => "ban_timeout";
   String get auth_store_banned_for => "Banned for ";
   String get auth_store_banned_minutes => " minutes";
@@ -50,6 +50,7 @@ class S implements WidgetsLocalizations {
   String get card_address => "Address:";
   String get change => "Change";
   String get change_currency => "Change Currency";
+  String get change_current_node_title => "Change current node";
   String get change_exchange_provider => "Change Exchange Provider";
   String get change_language => "Change language";
   String get change_wallet_alert_title => "Change current wallet";
@@ -108,14 +109,18 @@ class S implements WidgetsLocalizations {
   String get incorrect_seed => "The text entered is not valid.";
   String get loading_your_wallet => "Loading your wallet";
   String get login => "Login";
+  String get new_node_testing => "New node testing";
   String get new_subaddress_create => "Create";
   String get new_subaddress_label_name => "Label name";
   String get new_subaddress_title => "New address";
   String get new_wallet => "New Wallet";
   String get node_address => "Node Address";
+  String get node_connection_failed => "Connection was failed";
+  String get node_connection_successful => "Connection was successful";
   String get node_new => "New Node";
   String get node_port => "Node port";
   String get node_reset_settings_title => "Reset settings";
+  String get node_test => "Test";
   String get nodes => "Nodes";
   String get nodes_list_reset_to_default_message => "Are you sure that you want to reset settings to default?";
   String get offer_expires_in => "Offer expires in: ";
@@ -133,6 +138,9 @@ class S implements WidgetsLocalizations {
   String get please_make_selection => "Please make selection below to create or recover your wallet.";
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
+  String get pre_seed_button_text => "I understand. Show me my seed";
+  String get pre_seed_description => "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.";
+  String get pre_seed_title => "IMPORTANT";
   String get private_key => "Private key";
   String get public_key => "Public key";
   String get receive => "Receive";
@@ -295,6 +303,7 @@ class S implements WidgetsLocalizations {
   String get transactions => "Transactions";
   String get transactions_by_date => "Transactions by date";
   String get use => "Switch to ";
+  String get use_ssl => "Use SSL";
   String get view_key_private => "View key (private)";
   String get view_key_public => "View key (public)";
   String get wallet_keys => "Wallet seed/keys";
@@ -318,6 +327,8 @@ class S implements WidgetsLocalizations {
   String get xmr_available_balance => "Available Balance";
   String get xmr_full_balance => "Full Balance";
   String get xmr_hidden => "Hidden";
+  String get xmr_to_error => "XMR.TO error";
+  String get xmr_to_error_description => "Invalid amount. Maximum limit 8 digits after the decimal point";
   String get yesterday => "Yesterday";
   String get you_will_get => "Convert to";
   String get you_will_send => "Convert from";
@@ -338,6 +349,7 @@ class S implements WidgetsLocalizations {
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   String openalias_alert_content(String recipient_name) => "You will be sending funds to\n${recipient_name}";
   String powered_by(String title) => "Powered by ${title}";
+  String provider_error(String provider) => "${provider} error";
   String router_no_route(String name) => "No route defined for ${name}";
   String send_address(String cryptoCurrency) => "${cryptoCurrency} address";
   String send_priority(String transactionPriority) => "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings";
@@ -487,19 +499,27 @@ class $de extends S {
   @override
   String get receive => "Erhalten";
   @override
-  String get amount_is_guaranteed => "WICHTIG:\nWenn Sie einen garantierten BTC-Betrag erhalten möchten, geben Sie diesen Betrag in das Feld BTC ein. Wenn Sie stattdessen einen XMR-Betrag eingeben, handelt es sich bei dem erhaltenen BTC-Betrag um eine Schätzung, die je nach Kurs schwanken kann.";
+  String get amount_is_guaranteed => "Geben Sie in xmr.to den BTC-Betrag und nicht den oben genannten XMR-Betrag ein, um einen garantierten BTC-Betrag zu erhalten";
   @override
   String get auth_store_banned_for => "Gebannt für ";
   @override
   String get trade_details_pair => "Paar";
   @override
+  String get use_ssl => "Verwenden Sie SSL";
+  @override
   String get choose_wallet_currency => "Bitte wählen Sie die Brieftaschenwährung:";
+  @override
+  String get pre_seed_description => "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.";
+  @override
+  String get node_connection_successful => "Die Verbindung war erfolgreich";
   @override
   String get confirm => "Bestätigen";
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
   @override
   String get change_wallet_alert_title => "Ändern Sie die aktuelle Brieftasche";
+  @override
+  String get pre_seed_button_text => "Ich verstehe. Zeig mir meinen Samen";
   @override
   String get placeholder_transactions => "Ihre Transaktionen werden hier angezeigt";
   @override
@@ -535,6 +555,8 @@ class $de extends S {
   @override
   String get contact => "Kontakt";
   @override
+  String get change_current_node_title => "Ändern Sie den aktuellen Knoten";
+  @override
   String get openalias_alert_title => "XMR-Empfänger erkannt";
   @override
   String get auth_store_incorrect_password => "Falsches PIN";
@@ -566,6 +588,8 @@ class $de extends S {
   String get restore_seed_keys_restore => "Seed / Schlüssel wiederherstellen";
   @override
   String get xmr_hidden => "Versteckt";
+  @override
+  String get node_connection_failed => "Verbindung fehlgeschlagen";
   @override
   String get send_xmr => "Senden XMR";
   @override
@@ -644,6 +668,8 @@ class $de extends S {
   String get seed_share => "Teilen Sie Seed";
   @override
   String get widgets_restore_from_blockheight => "Aus Blockhöhe wiederherstellen";
+  @override
+  String get new_node_testing => "Neuer Knotentest";
   @override
   String get seed_language_chinese => "Chinesisch";
   @override
@@ -753,6 +779,8 @@ class $de extends S {
   @override
   String get seed_language_dutch => "Niederländisch";
   @override
+  String get xmr_to_error => "XMR.TO-Fehler";
+  @override
   String get restore_description_from_seed_keys => "Holen Sie sich Ihr Wallet von Seed / Schlüsseln zurück, die Sie an einem sicheren Ort aufbewahrt haben";
   @override
   String get copy => "Kopieren";
@@ -776,6 +804,8 @@ class $de extends S {
   String get new_subaddress_title => "Neue Adresse";
   @override
   String get change => "Veränderung";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Fertig";
   @override
@@ -854,6 +884,8 @@ class $de extends S {
   String get view_key_public => "Schlüssel anzeigen (Öffentlichkeit)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Ungültiger Betrag. Höchstgrenze 8 Stellen nach dem Dezimalpunkt";
   @override
   String get trade_state_confirming => "Bestätigung";
   @override
@@ -945,6 +977,8 @@ class $de extends S {
   @override
   String get restore_title_from_seed => "Aus Seed wiederherstellen";
   @override
+  String get pre_seed_title => "WICHTIG";
+  @override
   String get restore_description_from_backup => "Sie können die gesamte Cake Wallet-App von wiederherstellen Ihre Sicherungsdatei";
   @override
   String get error_text_node_port => "Der Knotenport kann nur Nummern zwischen 0 und 65535 enthalten";
@@ -1016,6 +1050,8 @@ class $de extends S {
   String openalias_alert_content(String recipient_name) => "Sie senden Geld an\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Fehler beim Entfernen ${wallet_name} Wallet. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} Error";
   @override
   String copied_key_to_clipboard(String key) => "Kopiert ${key} Zur Zwischenablage";
   @override
@@ -1157,19 +1193,27 @@ class $hi extends S {
   @override
   String get receive => "प्राप्त करना";
   @override
-  String get amount_is_guaranteed => "महत्वपूर्ण:\nयदि आप BTC की गारंटीकृत राशि प्राप्त करना चाहते हैं, तो कृपया उस राशि को BTC फ़ील्ड में दर्ज करें। यदि आप इसके बजाय एक एक्सएमआर राशि दर्ज करते हैं, तो प्राप्त बीटीसी राशि एक अनुमान है और दरों के आधार पर इसमें उतार-चढ़ाव हो सकता है।";
+  String get amount_is_guaranteed => "Xmr.to में, गारंटीशुदा BTC राशि प्राप्त करने के लिए, BTC राशि दर्ज करें और ऊपर XMR राशि नहीं";
   @override
   String get auth_store_banned_for => "के लिए प्रतिबंधित है ";
   @override
   String get trade_details_pair => "जोड़ा";
   @override
+  String get use_ssl => "उपयोग SSL";
+  @override
   String get choose_wallet_currency => "कृपया बटुआ मुद्रा चुनें:";
+  @override
+  String get pre_seed_description => "अगले पेज पर आपको 25 शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।";
+  @override
+  String get node_connection_successful => "कनेक्शन सफल रहा";
   @override
   String get confirm => "की पुष्टि करें";
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
   @override
   String get change_wallet_alert_title => "वर्तमान बटुआ बदलें";
+  @override
+  String get pre_seed_button_text => "मै समझता हुँ। मुझे अपना बीज दिखाओ";
   @override
   String get placeholder_transactions => "आपके लेनदेन यहां प्रदर्शित होंगे";
   @override
@@ -1205,6 +1249,8 @@ class $hi extends S {
   @override
   String get contact => "संपर्क करें";
   @override
+  String get change_current_node_title => "वर्तमान नोड बदलें";
+  @override
   String get openalias_alert_title => "XMR प्राप्तकर्ता का पता लगाया";
   @override
   String get auth_store_incorrect_password => "गलत पिन";
@@ -1236,6 +1282,8 @@ class $hi extends S {
   String get restore_seed_keys_restore => "बीज / कुंजी पुनर्स्थापित करें";
   @override
   String get xmr_hidden => "छिपा हुआ";
+  @override
+  String get node_connection_failed => "कनेक्शन विफल रहा";
   @override
   String get send_xmr => "संदेश XMR";
   @override
@@ -1314,6 +1362,8 @@ class $hi extends S {
   String get seed_share => "बीज साझा करें";
   @override
   String get widgets_restore_from_blockheight => "ब्लॉकचेन से पुनर्स्थापित करें";
+  @override
+  String get new_node_testing => "नई नोड परीक्षण";
   @override
   String get seed_language_chinese => "चीनी";
   @override
@@ -1423,6 +1473,8 @@ class $hi extends S {
   @override
   String get seed_language_dutch => "डच";
   @override
+  String get xmr_to_error => "XMR.TO त्रुटि";
+  @override
   String get restore_description_from_seed_keys => "अपने बटुए को बीज से वापस लें/वे कुंजियाँ जिन्हें आपने सुरक्षित स्थान पर सहेजा है";
   @override
   String get copy => "प्रतिलिपि";
@@ -1446,6 +1498,8 @@ class $hi extends S {
   String get new_subaddress_title => "नया पता";
   @override
   String get change => "परिवर्तन";
+  @override
+  String get node_test => "परीक्षा";
   @override
   String get trade_state_finished => "ख़त्म होना";
   @override
@@ -1524,6 +1578,8 @@ class $hi extends S {
   String get view_key_public => "कुंजी देखें (जनता)";
   @override
   String get trade_details_id => "आईडी";
+  @override
+  String get xmr_to_error_description => "अवैध राशि। दशमलव बिंदु के बाद अधिकतम सीमा 8 अंक";
   @override
   String get trade_state_confirming => "पुष्टि";
   @override
@@ -1615,6 +1671,8 @@ class $hi extends S {
   @override
   String get restore_title_from_seed => "बीज से पुनर्स्थापित करें";
   @override
+  String get pre_seed_title => "महत्वपूर्ण";
+  @override
   String get restore_description_from_backup => "आप से पूरे केक वॉलेट एप्लिकेशन को पुनर्स्थापित कर सकते हैं आपकी बैक-अप फ़ाइल";
   @override
   String get error_text_node_port => "नोड पोर्ट में केवल 0 और 65535 के बीच संख्याएँ हो सकती हैं";
@@ -1686,6 +1744,8 @@ class $hi extends S {
   String openalias_alert_content(String recipient_name) => "आपको धनराशि भेजी जाएगी\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "निकालने में विफल ${wallet_name} बटुआ. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} त्रुटि";
   @override
   String copied_key_to_clipboard(String key) => "की नकल की ${key} क्लिपबोर्ड पर";
   @override
@@ -1827,19 +1887,27 @@ class $ru extends S {
   @override
   String get receive => "Получить";
   @override
-  String get amount_is_guaranteed => "ВАЖНО:\nЕсли вы хотите получить гарантированную сумму BTC, введите эту сумму в поле BTC. Если вместо этого вы вводите сумму XMR, полученная сумма BTC является приблизительной и может колебаться в зависимости от курса.";
+  String get amount_is_guaranteed => "В xmr.to, чтобы получить гарантированную сумму BTC, введите сумму BTC, а не сумму XMR выше";
   @override
   String get auth_store_banned_for => "Заблокировано на ";
   @override
   String get trade_details_pair => "Пара";
   @override
+  String get use_ssl => "Использовать SSL";
+  @override
   String get choose_wallet_currency => "Пожалуйста, выберите валюту кошелька:";
+  @override
+  String get pre_seed_description => "На следующей странице вы увидите серию из 25 слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.";
+  @override
+  String get node_connection_successful => "Подключение прошло успешно";
   @override
   String get confirm => "Подтвердить";
   @override
   String get settings_display_balance_as => "Отображать баланс как";
   @override
   String get change_wallet_alert_title => "Изменить текущий кошелек";
+  @override
+  String get pre_seed_button_text => "Понятно. Покажите мнемоническую фразу";
   @override
   String get placeholder_transactions => "Ваши транзакции будут отображаться здесь";
   @override
@@ -1875,6 +1943,8 @@ class $ru extends S {
   @override
   String get contact => "Контакт";
   @override
+  String get change_current_node_title => "Изменить текущую ноду";
+  @override
   String get openalias_alert_title => "Получатель XMR обнаружен";
   @override
   String get auth_store_incorrect_password => "Некорректный PIN";
@@ -1906,6 +1976,8 @@ class $ru extends S {
   String get restore_seed_keys_restore => "Восстановить из мнемонической фразы/ключей";
   @override
   String get xmr_hidden => "Скрыто";
+  @override
+  String get node_connection_failed => "Подключение не удалось";
   @override
   String get send_xmr => "Отправить XMR";
   @override
@@ -1984,6 +2056,8 @@ class $ru extends S {
   String get seed_share => "Поделиться мнемонической фразой";
   @override
   String get widgets_restore_from_blockheight => "Восстановить на высоте блока";
+  @override
+  String get new_node_testing => "Тестирование новой ноды";
   @override
   String get seed_language_chinese => "Китайский";
   @override
@@ -2093,6 +2167,8 @@ class $ru extends S {
   @override
   String get seed_language_dutch => "Нидерландский";
   @override
+  String get xmr_to_error => "Ошибка XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Вы можете восстановить кошелёк из мнемонической фразы/ключей, которые вы сохранили ранее";
   @override
   String get copy => "Скопировать";
@@ -2116,6 +2192,8 @@ class $ru extends S {
   String get new_subaddress_title => "Новый адрес";
   @override
   String get change => "Изменить";
+  @override
+  String get node_test => "Тест";
   @override
   String get trade_state_finished => "Завершена";
   @override
@@ -2194,6 +2272,8 @@ class $ru extends S {
   String get view_key_public => "Публичный ключ просмотра";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Недопустимая сумма. Максимум 8 цифр после десятичной точки";
   @override
   String get trade_state_confirming => "Подтверждение";
   @override
@@ -2285,6 +2365,8 @@ class $ru extends S {
   @override
   String get restore_title_from_seed => "Восстановить из мнемонической фразы";
   @override
+  String get pre_seed_title => "ВАЖНО";
+  @override
   String get restore_description_from_backup => "Вы можете восстановить Cake Wallet из вашего back-up файла";
   @override
   String get error_text_node_port => "Порт ноды может содержать только цифры от 0 до 65535";
@@ -2356,6 +2438,8 @@ class $ru extends S {
   String openalias_alert_content(String recipient_name) => "Вы будете отправлять средства\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Ошибка при удалении ${wallet_name} кошелька. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} ошибка";
   @override
   String copied_key_to_clipboard(String key) => "Скопировано ${key} в буфер обмена";
   @override
@@ -2497,19 +2581,27 @@ class $ko extends S {
   @override
   String get receive => "받다";
   @override
-  String get amount_is_guaranteed => "중대한:\n보장 된 BTC 금액을 받으려면 BTC 필드에 해당 금액을 입력하십시오. 대신 XMR 금액을 입력하면 수령 한 BTC 금액이 추정치이며 요율에 따라 변동될 수 있습니다.";
+  String get amount_is_guaranteed => "xmr.to에서 보장 된 BTC 금액을 받으려면 위의 XMR 금액이 아닌 BTC 금액을 입력하십시오.";
   @override
   String get auth_store_banned_for => "금지";
   @override
   String get trade_details_pair => "쌍";
   @override
+  String get use_ssl => "SSL 사용";
+  @override
   String get choose_wallet_currency => "지갑 통화를 선택하십시오:";
+  @override
+  String get pre_seed_description => "다음 페이지에서 25 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.";
+  @override
+  String get node_connection_successful => "성공적으로 연결되었습니다.";
   @override
   String get confirm => "확인";
   @override
   String get settings_display_balance_as => "잔액 표시";
   @override
   String get change_wallet_alert_title => "현재 지갑 변경";
+  @override
+  String get pre_seed_button_text => "이해 했어요. 내 씨앗을 보여줘";
   @override
   String get placeholder_transactions => "거래가 여기에 표시됩니다";
   @override
@@ -2545,6 +2637,8 @@ class $ko extends S {
   @override
   String get contact => "접촉";
   @override
+  String get change_current_node_title => "현재 노드 변경";
+  @override
   String get openalias_alert_title => "XMR 수신자 감지";
   @override
   String get auth_store_incorrect_password => "잘못된 PIN";
@@ -2576,6 +2670,8 @@ class $ko extends S {
   String get restore_seed_keys_restore => "종자 / 키 복원";
   @override
   String get xmr_hidden => "숨김";
+  @override
+  String get node_connection_failed => "연결 실패";
   @override
   String get send_xmr => "보내다 XMR";
   @override
@@ -2654,6 +2750,8 @@ class $ko extends S {
   String get seed_share => "시드 공유";
   @override
   String get widgets_restore_from_blockheight => "블록 높이에서 복원";
+  @override
+  String get new_node_testing => "새로운 노드 테스트";
   @override
   String get seed_language_chinese => "중국말";
   @override
@@ -2763,6 +2861,8 @@ class $ko extends S {
   @override
   String get seed_language_dutch => "네덜란드 사람";
   @override
+  String get xmr_to_error => "XMR.TO 오류";
+  @override
   String get restore_description_from_seed_keys => "안전한 장소에 저장 한 종자 / 키로 지갑을 되 찾으십시오.";
   @override
   String get copy => "부";
@@ -2786,6 +2886,8 @@ class $ko extends S {
   String get new_subaddress_title => "새 주소";
   @override
   String get change => "변화";
+  @override
+  String get node_test => "테스트";
   @override
   String get trade_state_finished => "끝마친";
   @override
@@ -2864,6 +2966,8 @@ class $ko extends S {
   String get view_key_public => "키보기 (공공의)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "금액이 잘못되었습니다. 소수점 이하 최대 8 자리";
   @override
   String get trade_state_confirming => "확인 중";
   @override
@@ -2955,6 +3059,8 @@ class $ko extends S {
   @override
   String get restore_title_from_seed => "종자에서 복원";
   @override
+  String get pre_seed_title => "중대한";
+  @override
   String get restore_description_from_backup => "백업 파일에서 전체 Cake Wallet 앱을 복원 할 수 있습니다.";
   @override
   String get error_text_node_port => "노드 포트는 0에서 65535 사이의 숫자 만 포함 할 수 있습니다";
@@ -3026,6 +3132,8 @@ class $ko extends S {
   String openalias_alert_content(String recipient_name) => "당신은에 자금을 보낼 것입니다\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "제거하지 못했습니다 ${wallet_name} 지갑. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} 오류";
   @override
   String copied_key_to_clipboard(String key) => "복사 ${key} 클립 보드로";
   @override
@@ -3167,19 +3275,27 @@ class $pt extends S {
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "IMPORTANTE:\nSe você deseja receber um valor garantido de BTC, insira esse valor no campo BTC. Se, em vez disso, você inserir um valor XMR, o valor BTC recebido é uma estimativa e pode flutuar dependendo das taxas.";
+  String get amount_is_guaranteed => "Em xmr.to, para receber um valor BTC garantido, insira o valor BTC e não o valor XMR acima";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
   String get trade_details_pair => "Par";
   @override
+  String get use_ssl => "Use SSL";
+  @override
   String get choose_wallet_currency => "Escolha a moeda da carteira:";
+  @override
+  String get pre_seed_description => "Na próxima página, você verá uma série de 25 palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.";
+  @override
+  String get node_connection_successful => "A conexão foi bem sucedida";
   @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Saldo a exibir";
   @override
   String get change_wallet_alert_title => "Alterar carteira atual";
+  @override
+  String get pre_seed_button_text => "Compreendo. Me mostre minha semente";
   @override
   String get placeholder_transactions => "Suas transações serão exibidas aqui";
   @override
@@ -3215,6 +3331,8 @@ class $pt extends S {
   @override
   String get contact => "Contato";
   @override
+  String get change_current_node_title => "Mudar o nó atual";
+  @override
   String get openalias_alert_title => "Destinatário XMR detectado";
   @override
   String get auth_store_incorrect_password => "PIN incorreto";
@@ -3246,6 +3364,8 @@ class $pt extends S {
   String get restore_seed_keys_restore => "Restauração com sementes/chaves";
   @override
   String get xmr_hidden => "Esconder saldo";
+  @override
+  String get node_connection_failed => "A conexão falhou";
   @override
   String get send_xmr => "Enviar XMR";
   @override
@@ -3324,6 +3444,8 @@ class $pt extends S {
   String get seed_share => "Compartilhar semente";
   @override
   String get widgets_restore_from_blockheight => "Restaurar a partir de altura do bloco";
+  @override
+  String get new_node_testing => "Teste de novo nó";
   @override
   String get seed_language_chinese => "Chinesa";
   @override
@@ -3433,6 +3555,8 @@ class $pt extends S {
   @override
   String get seed_language_dutch => "Holandesa";
   @override
+  String get xmr_to_error => "Erro XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Restaure a sua carteira a partir de sementes/chaves que você salvou em um local seguro";
   @override
   String get copy => "Copiar";
@@ -3456,6 +3580,8 @@ class $pt extends S {
   String get new_subaddress_title => "Novo endereço";
   @override
   String get change => "Mudar";
+  @override
+  String get node_test => "Teste";
   @override
   String get trade_state_finished => "Finalizada";
   @override
@@ -3534,6 +3660,8 @@ class $pt extends S {
   String get view_key_public => "Chave de visualização (pública)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Montante inválido. Limite máximo de 8 dígitos após o ponto decimal";
   @override
   String get trade_state_confirming => "Confirmando";
   @override
@@ -3625,6 +3753,8 @@ class $pt extends S {
   @override
   String get restore_title_from_seed => "Restaurar a partir de semente";
   @override
+  String get pre_seed_title => "IMPORTANTE";
+  @override
   String get restore_description_from_backup => "Você pode restaurar todo o aplicativo Cake Wallet de seu arquivo de backup";
   @override
   String get error_text_node_port => "A porta do nó deve conter apenas números entre 0 e 65535";
@@ -3696,6 +3826,8 @@ class $pt extends S {
   String openalias_alert_content(String recipient_name) => "Você enviará fundos para\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Falha ao remover a carteira ${wallet_name}. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} erro";
   @override
   String copied_key_to_clipboard(String key) => "${key} copiada para a área de transferência";
   @override
@@ -3837,19 +3969,27 @@ class $uk extends S {
   @override
   String get receive => "Отримати";
   @override
-  String get amount_is_guaranteed => "ВАЖЛИВО:\nЯкщо ви хочете отримати гарантовану суму BTC, введіть цю суму в поле BTC. Якщо замість цього ввести суму XMR, отримана сума BTC є приблизною і може коливатися залежно від курсу.";
+  String get amount_is_guaranteed => "У xmr.to, щоб отримати гарантовану суму BTC, введіть суму BTC, а не XMR вище";
   @override
   String get auth_store_banned_for => "Заблоковано на ";
   @override
   String get trade_details_pair => "Пара";
   @override
+  String get use_ssl => "Використати SSL";
+  @override
   String get choose_wallet_currency => "Будь ласка, виберіть валюту гаманця:";
+  @override
+  String get pre_seed_description => "На наступній сторінці ви побачите серію з 25 слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.";
+  @override
+  String get node_connection_successful => "З'єднання було успішним";
   @override
   String get confirm => "Підтвердити";
   @override
   String get settings_display_balance_as => "Відображати баланс як";
   @override
   String get change_wallet_alert_title => "Змінити поточний гаманець";
+  @override
+  String get pre_seed_button_text => "Зрозуміло. Покажіть мнемонічну фразу";
   @override
   String get placeholder_transactions => "Тут відображатимуться ваші транзакції";
   @override
@@ -3885,6 +4025,8 @@ class $uk extends S {
   @override
   String get contact => "Контакт";
   @override
+  String get change_current_node_title => "Змінити поточний вузол";
+  @override
   String get openalias_alert_title => "Отримувача XMR виявлено";
   @override
   String get auth_store_incorrect_password => "Некоректний PIN";
@@ -3916,6 +4058,8 @@ class $uk extends S {
   String get restore_seed_keys_restore => "Відновити за допомогою мнемонічної фрази/ключів";
   @override
   String get xmr_hidden => "Приховано";
+  @override
+  String get node_connection_failed => "Помилка з’єднання";
   @override
   String get send_xmr => "Відправити XMR";
   @override
@@ -3994,6 +4138,8 @@ class $uk extends S {
   String get seed_share => "Поділитися мнемонічною фразою";
   @override
   String get widgets_restore_from_blockheight => "Відновити на висоті блоку";
+  @override
+  String get new_node_testing => "Тестування нового вузла";
   @override
   String get seed_language_chinese => "Китайська";
   @override
@@ -4103,6 +4249,8 @@ class $uk extends S {
   @override
   String get seed_language_dutch => "Голландська";
   @override
+  String get xmr_to_error => "Помилка XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Ви можете відновити гаманець з мнемонічної фрази/ключів, які ви зберегли раніше";
   @override
   String get copy => "Скопіювати";
@@ -4126,6 +4274,8 @@ class $uk extends S {
   String get new_subaddress_title => "Нова адреса";
   @override
   String get change => "Змінити";
+  @override
+  String get node_test => "Тест";
   @override
   String get trade_state_finished => "Завершена";
   @override
@@ -4204,6 +4354,8 @@ class $uk extends S {
   String get view_key_public => "Публічний ключ перегляду";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Неприпустима сума. Максимум 8 цифр після десяткової коми";
   @override
   String get trade_state_confirming => "Підтвердження";
   @override
@@ -4295,6 +4447,8 @@ class $uk extends S {
   @override
   String get restore_title_from_seed => "Відновити з мнемонічної фрази";
   @override
+  String get pre_seed_title => "ВАЖЛИВО";
+  @override
   String get restore_description_from_backup => "Ви можете відновити Cake Wallet з вашого резервного файлу";
   @override
   String get error_text_node_port => "Порт вузла може містити тільки цифри від 0 до 65535";
@@ -4366,6 +4520,8 @@ class $uk extends S {
   String openalias_alert_content(String recipient_name) => "Ви будете відправляти кошти\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Помилка при видаленні ${wallet_name} гаманця. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} помилка";
   @override
   String copied_key_to_clipboard(String key) => "Скопійовано ${key} в буфер обміну";
   @override
@@ -4507,19 +4663,27 @@ class $ja extends S {
   @override
   String get receive => "受け取る";
   @override
-  String get amount_is_guaranteed => "重要：\n保証された金額のBTCを受け取りたい場合は、その金額を[BTC]フィールドに入力してください。 代わりにXMR金額を入力した場合、受け取ったBTC金額は見積もりであり、レートに応じて変動する可能性があります。";
+  String get amount_is_guaranteed => "xmr.toで、保証されたBTC金額を受け取るには、上記のXMR金額ではなく、BTC金額を入力します";
   @override
   String get auth_store_banned_for => "禁止されています ";
   @override
   String get trade_details_pair => "ペア";
   @override
+  String get use_ssl => "SSLを使用する";
+  @override
   String get choose_wallet_currency => "ウォレット通貨を選択してください：";
+  @override
+  String get pre_seed_description => "次のページでは、一連の25語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。";
+  @override
+  String get node_connection_successful => "接続に成功しました";
   @override
   String get confirm => "確認する";
   @override
   String get settings_display_balance_as => "残高を表示";
   @override
   String get change_wallet_alert_title => "現在のウォレットを変更する";
+  @override
+  String get pre_seed_button_text => "わかります。 種を見せて";
   @override
   String get placeholder_transactions => "あなたの取引はここに表示されます";
   @override
@@ -4555,6 +4719,8 @@ class $ja extends S {
   @override
   String get contact => "接触";
   @override
+  String get change_current_node_title => "現在のノードを変更する";
+  @override
   String get openalias_alert_title => "XMR受信者が検出されました";
   @override
   String get auth_store_incorrect_password => "間違ったPIN";
@@ -4586,6 +4752,8 @@ class $ja extends S {
   String get restore_seed_keys_restore => "シード/キーの復元";
   @override
   String get xmr_hidden => "非表示";
+  @override
+  String get node_connection_failed => "接続に失敗しました";
   @override
   String get send_xmr => "送る XMR";
   @override
@@ -4664,6 +4832,8 @@ class $ja extends S {
   String get seed_share => "シードを共有する";
   @override
   String get widgets_restore_from_blockheight => "ブロックの高さから復元";
+  @override
+  String get new_node_testing => "新しいノードのテスト";
   @override
   String get seed_language_chinese => "中国語";
   @override
@@ -4773,6 +4943,8 @@ class $ja extends S {
   @override
   String get seed_language_dutch => "オランダの";
   @override
+  String get xmr_to_error => "XMR.TOエラー";
+  @override
   String get restore_description_from_seed_keys => "安全な場所に保存したシード/キーから財布を取り戻す";
   @override
   String get copy => "コピー";
@@ -4796,6 +4968,8 @@ class $ja extends S {
   String get new_subaddress_title => "新しいアドレス";
   @override
   String get change => "変化する";
+  @override
+  String get node_test => "テスト";
   @override
   String get trade_state_finished => "完成した";
   @override
@@ -4874,6 +5048,8 @@ class $ja extends S {
   String get view_key_public => "ビューキー (パブリック)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "金額が無効です。 小数点以下8桁の上限";
   @override
   String get trade_state_confirming => "確認中";
   @override
@@ -4965,6 +5141,8 @@ class $ja extends S {
   @override
   String get restore_title_from_seed => "シードから復元";
   @override
+  String get pre_seed_title => "重要";
+  @override
   String get restore_description_from_backup => "Cake Walletアプリ全体を復元できますバックアップファイル";
   @override
   String get error_text_node_port => "ノードポートには、0〜65535の数字のみを含めることができます";
@@ -5036,6 +5214,8 @@ class $ja extends S {
   String openalias_alert_content(String recipient_name) => "に送金します\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "削除できませんでした ${wallet_name} 財布. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} エラー";
   @override
   String copied_key_to_clipboard(String key) => "コピー済み ${key} クリップボードへ";
   @override
@@ -5181,19 +5361,27 @@ class $pl extends S {
   @override
   String get receive => "Otrzymać";
   @override
-  String get amount_is_guaranteed => "WAŻNY:\nJeśli chcesz otrzymać gwarantowaną kwotę BTC, wprowadź tę kwotę w polu BTC. Jeśli zamiast tego wpiszesz kwotę XMR, otrzymana kwota BTC jest szacunkowa i może się zmieniać w zależności od stawek.";
+  String get amount_is_guaranteed => "W xmr.to, aby otrzymać gwarantowaną kwotę BTC, wprowadź kwotę BTC, a nie kwotę XMR powyżej";
   @override
   String get auth_store_banned_for => "Bzbanowany za ";
   @override
   String get trade_details_pair => "Para";
   @override
+  String get use_ssl => "Użyj SSL";
+  @override
   String get choose_wallet_currency => "Wybierz walutę portfela:";
+  @override
+  String get pre_seed_description => "Na następnej stronie zobaczysz serię 25 słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.";
+  @override
+  String get node_connection_successful => "Połączenie powiodło się";
   @override
   String get confirm => "Potwierdzać";
   @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
   @override
   String get change_wallet_alert_title => "Zmień obecny portfel";
+  @override
+  String get pre_seed_button_text => "Rozumiem. Pokaż mi moje nasienie";
   @override
   String get placeholder_transactions => "Twoje transakcje zostaną wyświetlone tutaj";
   @override
@@ -5229,6 +5417,8 @@ class $pl extends S {
   @override
   String get contact => "Kontakt";
   @override
+  String get change_current_node_title => "Zmień bieżący węzeł";
+  @override
   String get openalias_alert_title => "Wykryto odbiorcę XMR";
   @override
   String get auth_store_incorrect_password => "Niepoprawny PIN";
@@ -5260,6 +5450,8 @@ class $pl extends S {
   String get restore_seed_keys_restore => "Przywracanie nasion / kluczy";
   @override
   String get xmr_hidden => "Ukryty";
+  @override
+  String get node_connection_failed => "Połączenie nie powiodło się";
   @override
   String get send_xmr => "Wysłać XMR";
   @override
@@ -5338,6 +5530,8 @@ class $pl extends S {
   String get seed_share => "Udostępnij ziarno";
   @override
   String get widgets_restore_from_blockheight => "Przywróć z wysokości bloku";
+  @override
+  String get new_node_testing => "Testowanie nowych węzłów";
   @override
   String get seed_language_chinese => "Chiński";
   @override
@@ -5447,6 +5641,8 @@ class $pl extends S {
   @override
   String get seed_language_dutch => "Holenderski";
   @override
+  String get xmr_to_error => "Pomyłka XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Odzyskaj swój portfel z nasion / kluczy, które zapisałeś w bezpiecznym miejscu";
   @override
   String get copy => "Kopiuj";
@@ -5470,6 +5666,8 @@ class $pl extends S {
   String get new_subaddress_title => "Nowy adres";
   @override
   String get change => "Zmiana";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Skończone";
   @override
@@ -5548,6 +5746,8 @@ class $pl extends S {
   String get view_key_public => "Wyświetl klucz (publiczny)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Nieprawidłowa kwota. Maksymalny limit 8 cyfr po przecinku";
   @override
   String get trade_state_confirming => "Potwierdzam";
   @override
@@ -5639,6 +5839,8 @@ class $pl extends S {
   @override
   String get restore_title_from_seed => "Przywróć z nasion";
   @override
+  String get pre_seed_title => "WAŻNY";
+  @override
   String get restore_description_from_backup => "Możesz przywrócić całą aplikację Cake Wallet z plik kopii zapasowej";
   @override
   String get error_text_node_port => "Port węzła może zawierać tylko liczby od 0 do 65535";
@@ -5710,6 +5912,8 @@ class $pl extends S {
   String openalias_alert_content(String recipient_name) => "Będziesz wysyłać środki na\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Nie udało się usunąć ${wallet_name} portfel. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} pomyłka";
   @override
   String copied_key_to_clipboard(String key) => "Skopiowane ${key} do schowka";
   @override
@@ -5851,19 +6055,27 @@ class $es extends S {
   @override
   String get receive => "Recibir";
   @override
-  String get amount_is_guaranteed => "IMPORTANTE:\nSi desea recibir una cantidad garantizada de BTC, ingrese esa cantidad en el campo BTC. Si ingresa una cantidad de XMR en su lugar, la cantidad de BTC recibida es una estimación y puede variar según las tarifas.";
+  String get amount_is_guaranteed => "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba";
   @override
   String get auth_store_banned_for => "Prohibido para ";
   @override
   String get trade_details_pair => "Par";
   @override
+  String get use_ssl => "Utilice SSL";
+  @override
   String get choose_wallet_currency => "Por favor, elija la moneda de la billetera:";
+  @override
+  String get pre_seed_description => "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.";
+  @override
+  String get node_connection_successful => "La conexión fue exitosa";
   @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Mostrar saldo como";
   @override
   String get change_wallet_alert_title => "Cambiar billetera actual";
+  @override
+  String get pre_seed_button_text => "Entiendo. Muéstrame mi semilla";
   @override
   String get placeholder_transactions => "Sus transacciones se mostrarán aquí";
   @override
@@ -5899,6 +6111,8 @@ class $es extends S {
   @override
   String get contact => "Contacto";
   @override
+  String get change_current_node_title => "Cambiar el nodo actual";
+  @override
   String get openalias_alert_title => "Destinatario XMR detectado";
   @override
   String get auth_store_incorrect_password => "Contraseña PIN";
@@ -5930,6 +6144,8 @@ class $es extends S {
   String get restore_seed_keys_restore => "Restauración de semillas / llaves";
   @override
   String get xmr_hidden => "Oculto";
+  @override
+  String get node_connection_failed => "La conexión falló";
   @override
   String get send_xmr => "Enviar XMR";
   @override
@@ -6008,6 +6224,8 @@ class $es extends S {
   String get seed_share => "Compartir semillas";
   @override
   String get widgets_restore_from_blockheight => "Restaurar desde blockheight";
+  @override
+  String get new_node_testing => "Prueba de nuevos nodos";
   @override
   String get seed_language_chinese => "Chino";
   @override
@@ -6117,6 +6335,8 @@ class $es extends S {
   @override
   String get seed_language_dutch => "Holandés";
   @override
+  String get xmr_to_error => "Error de XMR.TO";
+  @override
   String get restore_description_from_seed_keys => "Recupere su billetera de las semillas/claves que ha guardado en un lugar seguro";
   @override
   String get copy => "Dupdo";
@@ -6140,6 +6360,8 @@ class $es extends S {
   String get new_subaddress_title => "Nueva direccion";
   @override
   String get change => "Cambio";
+  @override
+  String get node_test => "Prueba";
   @override
   String get trade_state_finished => "Terminado";
   @override
@@ -6218,6 +6440,8 @@ class $es extends S {
   String get view_key_public => "View clave (público)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Monto invalido. Límite máximo de 8 dígitos después del punto decimal";
   @override
   String get trade_state_confirming => "Confirmando";
   @override
@@ -6309,6 +6533,8 @@ class $es extends S {
   @override
   String get restore_title_from_seed => "De la semilla";
   @override
+  String get pre_seed_title => "IMPORTANTE";
+  @override
   String get restore_description_from_backup => "Puede restaurar toda la aplicación Cake Wallet desde ysu archivo de respaldo";
   @override
   String get error_text_node_port => "El puerto de nodo solo puede contener números entre 0 y 65535";
@@ -6380,6 +6606,8 @@ class $es extends S {
   String openalias_alert_content(String recipient_name) => "Enviará fondos a\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Error al elimina ${wallet_name} billetera. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} error";
   @override
   String copied_key_to_clipboard(String key) => "Copiado ${key} al portapapeles";
   @override
@@ -6521,19 +6749,27 @@ class $nl extends S {
   @override
   String get receive => "Krijgen";
   @override
-  String get amount_is_guaranteed => "BELANGRIJK:\nAls u een gegarandeerd bedrag aan BTC wilt ontvangen, voert u dat bedrag in het BTC-veld in. Als u in plaats daarvan een XMR-bedrag invoert, is het ontvangen BTC-bedrag een schatting en kan het fluctueren afhankelijk van de tarieven.";
+  String get amount_is_guaranteed => "Om een gegarandeerd BTC-bedrag te ontvangen, voert u in xmr.to het BTC-bedrag in en niet het bovenstaande XMR-bedrag";
   @override
   String get auth_store_banned_for => "Verboden voor ";
   @override
   String get trade_details_pair => "Paar";
   @override
+  String get use_ssl => "Gebruik SSL";
+  @override
   String get choose_wallet_currency => "Kies een portemonnee-valuta:";
+  @override
+  String get pre_seed_description => "Op de volgende pagina ziet u een reeks van 25 woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.";
+  @override
+  String get node_connection_successful => "Verbinding is gelukt";
   @override
   String get confirm => "Bevestigen";
   @override
   String get settings_display_balance_as => "Toon saldo als";
   @override
   String get change_wallet_alert_title => "Wijzig huidige portemonnee";
+  @override
+  String get pre_seed_button_text => "Ik begrijp het. Laat me mijn zaad zien";
   @override
   String get placeholder_transactions => "Uw transacties worden hier weergegeven";
   @override
@@ -6569,6 +6805,8 @@ class $nl extends S {
   @override
   String get contact => "Contact";
   @override
+  String get change_current_node_title => "Wijzig het huidige knooppunt";
+  @override
   String get openalias_alert_title => "XMR-ontvanger gedetecteerd";
   @override
   String get auth_store_incorrect_password => "Incorrect PIN";
@@ -6600,6 +6838,8 @@ class $nl extends S {
   String get restore_seed_keys_restore => "Zaad / sleutels herstellen";
   @override
   String get xmr_hidden => "Verborgen";
+  @override
+  String get node_connection_failed => "De verbinding is mislukt";
   @override
   String get send_xmr => "Sturen XMR";
   @override
@@ -6678,6 +6918,8 @@ class $nl extends S {
   String get seed_share => "Deel zaad";
   @override
   String get widgets_restore_from_blockheight => "Herstel vanaf blockheight";
+  @override
+  String get new_node_testing => "Nieuwe knooppunttest";
   @override
   String get seed_language_chinese => "Chinese";
   @override
@@ -6787,6 +7029,8 @@ class $nl extends S {
   @override
   String get seed_language_dutch => "Nederlands";
   @override
+  String get xmr_to_error => "XMR.TO-fout";
+  @override
   String get restore_description_from_seed_keys => "Ontvang uw portemonnee terug uit seed / keys die u hebt opgeslagen op een veilige plaats";
   @override
   String get copy => "Kopiëren";
@@ -6810,6 +7054,8 @@ class $nl extends S {
   String get new_subaddress_title => "Nieuw adres";
   @override
   String get change => "Verandering";
+  @override
+  String get node_test => "Test";
   @override
   String get trade_state_finished => "Afgewerkt";
   @override
@@ -6888,6 +7134,8 @@ class $nl extends S {
   String get view_key_public => "Bekijk sleutel (openbaar)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "Ongeldige hoeveelheid. Maximaal 8 cijfers achter de komma";
   @override
   String get trade_state_confirming => "Bevestiging";
   @override
@@ -6979,6 +7227,8 @@ class $nl extends S {
   @override
   String get restore_title_from_seed => "Herstel van zaad";
   @override
+  String get pre_seed_title => "BELANGRIJK";
+  @override
   String get restore_description_from_backup => "Je kunt de hele Cake Wallet-app herstellen van uw back-upbestand";
   @override
   String get error_text_node_port => "Knooppuntpoort kan alleen nummers tussen 0 en 65535 bevatten";
@@ -7050,6 +7300,8 @@ class $nl extends S {
   String openalias_alert_content(String recipient_name) => "U stuurt geld naar\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Verwijderen mislukt ${wallet_name} portemonnee. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} fout";
   @override
   String copied_key_to_clipboard(String key) => "Gekopieerd ${key} naar het klembord";
   @override
@@ -7191,19 +7443,27 @@ class $zh extends S {
   @override
   String get receive => "接收";
   @override
-  String get amount_is_guaranteed => "重要：\n如果您想獲得保證的BTC金額，請在BTC字段中輸入該金額。 如果您輸入的是XMR金額，則收到的BTC金額只是估算值，可能會隨匯率而波動。";
+  String get amount_is_guaranteed => "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量";
   @override
   String get auth_store_banned_for => "禁止 ";
   @override
   String get trade_details_pair => "对";
   @override
+  String get use_ssl => "使用SSL";
+  @override
   String get choose_wallet_currency => "請選擇錢包貨幣：";
+  @override
+  String get pre_seed_description => "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。";
+  @override
+  String get node_connection_successful => "連接成功";
   @override
   String get confirm => "确认";
   @override
   String get settings_display_balance_as => "将余额显示为";
   @override
   String get change_wallet_alert_title => "更換當前錢包";
+  @override
+  String get pre_seed_button_text => "我明白。 給我看我的種子";
   @override
   String get placeholder_transactions => "您的交易將顯示在這裡";
   @override
@@ -7239,6 +7499,8 @@ class $zh extends S {
   @override
   String get contact => "联系";
   @override
+  String get change_current_node_title => "更改當前節點";
+  @override
   String get openalias_alert_title => "檢測到XMR收件人";
   @override
   String get auth_store_incorrect_password => "PIN码错误";
@@ -7270,6 +7532,8 @@ class $zh extends S {
   String get restore_seed_keys_restore => "种子/密钥还原";
   @override
   String get xmr_hidden => "隱";
+  @override
+  String get node_connection_failed => "連接失敗";
   @override
   String get send_xmr => "发送 XMR";
   @override
@@ -7348,6 +7612,8 @@ class $zh extends S {
   String get seed_share => "分享种子";
   @override
   String get widgets_restore_from_blockheight => "从块高还原";
+  @override
+  String get new_node_testing => "新節點測試";
   @override
   String get seed_language_chinese => "中文";
   @override
@@ -7457,6 +7723,8 @@ class $zh extends S {
   @override
   String get seed_language_dutch => "荷蘭人";
   @override
+  String get xmr_to_error => "XMR.TO錯誤";
+  @override
   String get restore_description_from_seed_keys => "从保存到安全地方的种子/钥匙取回钱包";
   @override
   String get copy => "复制";
@@ -7480,6 +7748,8 @@ class $zh extends S {
   String get new_subaddress_title => "新地址";
   @override
   String get change => "更改";
+  @override
+  String get node_test => "測試";
   @override
   String get trade_state_finished => "已完成";
   @override
@@ -7558,6 +7828,8 @@ class $zh extends S {
   String get view_key_public => "查看金钥 (public)";
   @override
   String get trade_details_id => "ID";
+  @override
+  String get xmr_to_error_description => "無效的金額。 小數點後最多8位數字";
   @override
   String get trade_state_confirming => "确认中";
   @override
@@ -7649,6 +7921,8 @@ class $zh extends S {
   @override
   String get restore_title_from_seed => "从种子还原";
   @override
+  String get pre_seed_title => "重要";
+  @override
   String get restore_description_from_backup => "您可以从还原整个Cake Wallet应用您的备份文件";
   @override
   String get error_text_node_port => "节点端口只能包含0到65535之间的数字";
@@ -7720,6 +7994,8 @@ class $zh extends S {
   String openalias_alert_content(String recipient_name) => "您將匯款至\n${recipient_name}";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => "删除失败 ${wallet_name} 钱包. ${error}";
+  @override
+  String provider_error(String provider) => "${provider} 錯誤";
   @override
   String copied_key_to_clipboard(String key) => "复制 ${key} 到剪贴板";
   @override

@@ -70,10 +70,11 @@ class SendPage extends BasePage {
 
   @override
   Widget trailing(context) => TrailButton(
-      caption: S.of(context).clear, onPressed: () {
-    _formKey.currentState.reset();
-    sendViewModel.reset();
-  });
+      caption: S.of(context).clear,
+      onPressed: () {
+        _formKey.currentState.reset();
+        sendViewModel.reset();
+      });
 
   @override
   Widget body(BuildContext context) {
@@ -166,72 +167,75 @@ class SendPage extends BasePage {
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
                               ),
-                              Observer(builder: (_) => Padding(
-                                  padding: const EdgeInsets.only(top: 20),
-                                  child: BaseTextFormField(
-                                      focusNode: _cryptoAmountFocus,
-                                      controller: _cryptoAmountController,
-                                      keyboardType:
-                                      TextInputType.numberWithOptions(
-                                          signed: false, decimal: true),
-                                      prefixIcon: Padding(
-                                        padding: EdgeInsets.only(top: 9),
-                                        child: Text(
-                                            sendViewModel.currency.title + ':',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            )),
-                                      ),
-                                      suffixIcon: Container(
-                                        height: 32,
-                                        width: 32,
-                                        margin: EdgeInsets.only(
-                                            left: 14, top: 4, bottom: 10),
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .display1
-                                                .color,
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(6))),
-                                        child: InkWell(
-                                          onTap: () =>
-                                              sendViewModel.setSendAll(),
-                                          child: Center(
-                                            child: Text(S.of(context).all,
-                                                textAlign: TextAlign.center,
+                              Observer(
+                                  builder: (_) => Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: BaseTextFormField(
+                                          focusNode: _cryptoAmountFocus,
+                                          controller: _cryptoAmountController,
+                                          keyboardType:
+                                              TextInputType.numberWithOptions(
+                                                  signed: false, decimal: true),
+                                          prefixIcon: Padding(
+                                            padding: EdgeInsets.only(top: 9),
+                                            child: Text(
+                                                sendViewModel.currency.title +
+                                                    ':',
                                                 style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .display1
-                                                        .decorationColor)),
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white,
+                                                )),
                                           ),
-                                        ),
-                                      ),
-                                      hintText: '0.0000',
-                                      borderColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline
-                                          .color,
-                                      textStyle: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500,
-                                          color: Colors.white),
-                                      placeholderTextStyle: TextStyle(
-                                          color: Theme.of(context)
+                                          suffixIcon: Container(
+                                            height: 32,
+                                            width: 32,
+                                            margin: EdgeInsets.only(
+                                                left: 14, top: 4, bottom: 10),
+                                            decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .display1
+                                                    .color,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(6))),
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  sendViewModel.setSendAll(),
+                                              child: Center(
+                                                child: Text(S.of(context).all,
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Theme.of(context)
+                                                            .primaryTextTheme
+                                                            .display1
+                                                            .decorationColor)),
+                                              ),
+                                            ),
+                                          ),
+                                          hintText: '0.0000',
+                                          borderColor: Theme.of(context)
                                               .primaryTextTheme
                                               .headline
-                                              .decorationColor,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14),
-                                      validator:
-                                      sendViewModel.sendAll
-                                          ? sendViewModel.allAmountValidator
-                                          : sendViewModel.amountValidator))),
+                                              .color,
+                                          textStyle: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white),
+                                          placeholderTextStyle: TextStyle(
+                                              color: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .headline
+                                                  .decorationColor,
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14),
+                                          validator: sendViewModel.sendAll
+                                              ? sendViewModel.allAmountValidator
+                                              : sendViewModel
+                                                  .amountValidator))),
                               Observer(
                                   builder: (_) => Padding(
                                         padding: EdgeInsets.only(top: 10),
@@ -423,53 +427,60 @@ class SendPage extends BasePage {
                                   )),
                             ),
                           ),
-                           Observer(
-                               builder: (_) {
-                                 final templates = sendViewModel.templates;
-                                 final itemCount = templates.length;
+                          Observer(builder: (_) {
+                            final templates = sendViewModel.templates;
+                            final itemCount = templates.length;
 
-                                 return ListView.builder(
-                                     scrollDirection: Axis.horizontal,
-                                     shrinkWrap: true,
-                                     physics: NeverScrollableScrollPhysics(),
-                                     itemCount: itemCount,
-                                     itemBuilder: (context, index) {
-                                       final template = templates[index];
+                            return ListView.builder(
+                                scrollDirection: Axis.horizontal,
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: itemCount,
+                                itemBuilder: (context, index) {
+                                  final template = templates[index];
 
-                                       return TemplateTile(
-                                         key: UniqueKey(),
-                                         to: template.name,
-                                         amount: template.amount,
-                                         from: template.cryptoCurrency,
-                                         onTap: () {
-                                           _addressController.text = template.address;
-                                           _cryptoAmountController.text = template.amount;
-                                           getOpenaliasRecord(context);
-                                         },
-                                         onRemove: () {
-                                           showPopUp<void>(
-                                               context: context,
-                                               builder: (dialogContext) {
-                                                 return AlertWithTwoActions(
-                                                     alertTitle: S.of(context).template,
-                                                     alertContent: S.of(context).confirm_delete_template,
-                                                     rightButtonText: S.of(context).delete,
-                                                     leftButtonText: S.of(context).cancel,
-                                                     actionRightButton: () {
-                                                       Navigator.of(dialogContext).pop();
-                                                       sendViewModel.removeTemplate(template: template);
-                                                       sendViewModel.updateTemplate();
-                                                     },
-                                                     actionLeftButton: () => Navigator.of(dialogContext).pop()
-                                                 );
-                                               }
-                                           );
-                                         },
-                                       );
-                                     }
-                                 );
-                               }
-                           )
+                                  return TemplateTile(
+                                    key: UniqueKey(),
+                                    to: template.name,
+                                    amount: template.amount,
+                                    from: template.cryptoCurrency,
+                                    onTap: () {
+                                      _addressController.text =
+                                          template.address;
+                                      _cryptoAmountController.text =
+                                          template.amount;
+                                      getOpenaliasRecord(context);
+                                    },
+                                    onRemove: () {
+                                      showPopUp<void>(
+                                          context: context,
+                                          builder: (dialogContext) {
+                                            return AlertWithTwoActions(
+                                                alertTitle:
+                                                    S.of(context).template,
+                                                alertContent: S
+                                                    .of(context)
+                                                    .confirm_delete_template,
+                                                rightButtonText:
+                                                    S.of(context).delete,
+                                                leftButtonText:
+                                                    S.of(context).cancel,
+                                                actionRightButton: () {
+                                                  Navigator.of(dialogContext)
+                                                      .pop();
+                                                  sendViewModel.removeTemplate(
+                                                      template: template);
+                                                  sendViewModel
+                                                      .updateTemplate();
+                                                },
+                                                actionLeftButton: () =>
+                                                    Navigator.of(dialogContext)
+                                                        .pop());
+                                          });
+                                    },
+                                  );
+                                });
+                          })
                         ],
                       ),
                     ),
@@ -486,13 +497,11 @@ class SendPage extends BasePage {
                       }
                     },
                     text: S.of(context).send,
-                    color: Theme
-                        .of(context)
+                    color: Theme.of(context)
                         .accentTextTheme
                         .subtitle
                         .decorationColor,
-                    textColor: Theme
-                        .of(context)
+                    textColor: Theme.of(context)
                         .accentTextTheme
                         .headline
                         .decorationColor,
@@ -606,6 +615,10 @@ class SendPage extends BasePage {
                             return Observer(builder: (_) {
                               final state = sendViewModel.state;
 
+                              if (state is FailureState) {
+                                Navigator.of(context).pop();
+                              }
+
                               if (state is TransactionCommitted) {
                                 return Stack(
                                   children: <Widget>[
@@ -652,45 +665,49 @@ class SendPage extends BasePage {
                                 );
                               }
 
-                              return Stack(
-                                children: <Widget>[
-                                  Container(
-                                    color: Theme.of(context).backgroundColor,
-                                    child: Center(
-                                      child: Image.asset(
-                                          'assets/images/birthday_cake.png'),
-                                    ),
-                                  ),
-                                  BackdropFilter(
-                                    filter: ImageFilter.blur(
-                                        sigmaX: 3.0, sigmaY: 3.0),
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .backgroundColor
-                                              .withOpacity(0.25)),
+                              if (state is TransactionCommitting) {
+                                return Stack(
+                                  children: <Widget>[
+                                    Container(
+                                      color: Theme.of(context).backgroundColor,
                                       child: Center(
-                                        child: Padding(
-                                          padding: EdgeInsets.only(top: 220),
-                                          child: Text(
-                                            S.of(context).send_sending,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 22,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .title
-                                                  .color,
-                                              decoration: TextDecoration.none,
+                                        child: Image.asset(
+                                            'assets/images/birthday_cake.png'),
+                                      ),
+                                    ),
+                                    BackdropFilter(
+                                      filter: ImageFilter.blur(
+                                          sigmaX: 3.0, sigmaY: 3.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .backgroundColor
+                                                .withOpacity(0.25)),
+                                        child: Center(
+                                          child: Padding(
+                                            padding: EdgeInsets.only(top: 220),
+                                            child: Text(
+                                              S.of(context).send_sending,
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 22,
+                                                fontWeight: FontWeight.bold,
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .title
+                                                    .color,
+                                                decoration: TextDecoration.none,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  )
-                                ],
-                              );
+                                    )
+                                  ],
+                                );
+                              }
+
+                              return Container();
                             });
                           });
                     },

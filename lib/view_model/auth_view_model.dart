@@ -110,6 +110,8 @@ abstract class AuthViewModelBase with Store {
 
         if (isAuthenticated) {
           state = ExecutedSuccessfullyState();
+        } else {
+          state = FailureState('Failure biometric authentication');
         }
       }
     } catch(e) {

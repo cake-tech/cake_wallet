@@ -4,7 +4,7 @@ import 'palette.dart';
 class Themes {
 
   static final ThemeData lightTheme = ThemeData(
-    fontFamily: 'Poppins',
+    fontFamily: 'Lato',
     brightness: Brightness.light,
     backgroundColor: Colors.white,
     accentColor: Palette.blueCraiola, // first gradient color
@@ -179,7 +179,7 @@ class Themes {
 
 
   static final ThemeData darkTheme = ThemeData(
-    fontFamily: 'Poppins',
+    fontFamily: 'Lato',
     brightness: Brightness.dark,
     backgroundColor: PaletteDark.backgroundColor,
     accentColor: PaletteDark.backgroundColor, // first gradient color

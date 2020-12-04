@@ -11,7 +11,7 @@ description: Cake Wallet.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.5+5
+version: 4.0.8+20
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -31,6 +31,7 @@ dependencies:
     git:
       url: https://github.com/cake-tech/flutter_secure_storage.git
       ref: cake
+      version: 3.3.57
   provider: ^3.1.0
   rxdart: ^0.22.2
   yaml: ^2.1.16
@@ -104,19 +105,9 @@ flutter:
     - family: Lato
       fonts:
         - asset: assets/fonts/Lato-Regular.ttf
+        - asset: assets/fonts/Lato-Medium.ttf
+        - asset: assets/fonts/Lato-SemiBold.ttf
         - asset: assets/fonts/Lato-Bold.ttf
-        - asset: assets/fonts/Lato-Semibold.ttf
-    - family: Montserrat
-      fonts:
-        - asset: assets/fonts/Montserrat-Regular.ttf
-        - asset: assets/fonts/Montserrat-Bold.ttf
-        - asset: assets/fonts/Montserrat-SemiBold.ttf
-    - family: Poppins
-      fonts:
-        - asset: assets/fonts/Poppins-Regular.ttf
-        - asset: assets/fonts/Poppins-Medium.ttf
-        - asset: assets/fonts/Poppins-SemiBold.ttf
-        - asset: assets/fonts/Poppins-Bold.ttf
 
 
   # To add assets to your application, add an assets section, like this:

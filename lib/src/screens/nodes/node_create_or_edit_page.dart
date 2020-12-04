@@ -1,3 +1,7 @@
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -67,6 +71,39 @@ class NodeCreateOrEditPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+
+    reaction((_) => nodeCreateOrEditViewModel.connectionState,
+            (ExecutionState state) {
+          if (state is ExecutedSuccessfullyState) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showPopUp<void>(
+                  context: context,
+                  builder: (BuildContext context) =>
+                      AlertWithOneAction(
+                          alertTitle: S.of(context).new_node_testing,
+                          alertContent: state.payload as bool
+                              ? S.of(context).node_connection_successful
+                              : S.of(context).node_connection_failed,
+                          buttonText: S.of(context).ok,
+                          buttonAction: () => Navigator.of(context).pop()));
+            });
+          }
+
+          if (state is FailureState) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showPopUp<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertWithOneAction(
+                        alertTitle: S.of(context).error,
+                        alertContent: state.error,
+                        buttonText: S.of(context).ok,
+                        buttonAction: () => Navigator.of(context).pop());
+                  });
+            });
+          }
+        });
+
     return Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: ScrollableWithBottomSection(
@@ -122,7 +159,22 @@ class NodeCreateOrEditPage extends BasePage {
                           )
                         )
                       ],
-                    )
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.max,
+                        children: [
+                          Observer(
+                              builder: (_) => StandardCheckbox(
+                                value: nodeCreateOrEditViewModel.useSSL,
+                                onChanged: (value) =>
+                                  nodeCreateOrEditViewModel.useSSL = value,
+                                caption: S.of(context).use_ssl,
+                              ))
+                        ],
+                      ))
                   ]
                 ],
               )),
@@ -133,9 +185,18 @@ class NodeCreateOrEditPage extends BasePage {
                       Flexible(
                           child: Container(
                         padding: EdgeInsets.only(right: 8.0),
-                        child: PrimaryButton(
-                            onPressed: () => nodeCreateOrEditViewModel.reset(),
-                            text: S.of(context).reset,
+                        child: LoadingPrimaryButton(
+                            onPressed: () async {
+                              if (!_formKey.currentState.validate()) {
+                                return;
+                              }
+
+                              await nodeCreateOrEditViewModel.connect();
+                            },
+                            isLoading: nodeCreateOrEditViewModel
+                                .connectionState is IsExecutingState,
+                            text: S.of(context).node_test,
+                            isDisabled: !nodeCreateOrEditViewModel.isReady,
                             color: Colors.orange,
                             textColor: Colors.white),
                       )),
@@ -154,7 +215,9 @@ class NodeCreateOrEditPage extends BasePage {
                           text: S.of(context).save,
                           color: Theme.of(context).accentTextTheme.body2.color,
                           textColor: Colors.white,
-                          isDisabled: !nodeCreateOrEditViewModel.isReady,
+                          isDisabled: (!nodeCreateOrEditViewModel.isReady)||
+                              (nodeCreateOrEditViewModel
+                              .connectionState is IsExecutingState),
                         ),
                       )),
                     ],
