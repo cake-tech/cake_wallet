@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cake_wallet/bitcoin/address_to_output_script.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
@@ -302,7 +303,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       }
     });
 
-    txb.addOutput(transactionCredentials.address, amount);
+    txb.addOutput(
+        addressToOutputScript(transactionCredentials.address), amount);
 
     if (changeValue > 0) {
       txb.addOutput(changeAddress, changeValue);
