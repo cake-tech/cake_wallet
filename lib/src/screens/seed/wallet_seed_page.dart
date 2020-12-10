@@ -1,7 +1,6 @@
-import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/item_from_theme.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,12 +12,18 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
+import 'package:cake_wallet/themes.dart';
 
 class WalletSeedPage extends BasePage {
   WalletSeedPage(this.walletSeedViewModel, {@required this.isNewWalletCreated});
 
   static final imageLight = Image.asset('assets/images/crypto_lock_light.png');
   static final imageDark = Image.asset('assets/images/crypto_lock.png');
+  final Map<Themes, Image> items = {
+    Themes.light: imageLight,
+    Themes.bright: imageLight,
+    Themes.dark: imageDark
+  };
 
   @override
   String get title => S.current.seed_title;
@@ -84,7 +89,8 @@ class WalletSeedPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final image =
-        getIt.get<SettingsStore>().isDarkTheme ? imageDark : imageLight;
+          itemFromTheme(currentTheme: currentTheme, items: items) as Image
+          ?? imageLight;
 
     return WillPopScope(onWillPop: () async => false, child:  Container(
         padding: EdgeInsets.all(24),

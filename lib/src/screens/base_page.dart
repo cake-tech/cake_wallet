@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/item_from_theme.dart';
+import 'package:cake_wallet/themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
@@ -9,13 +11,19 @@ enum AppBarStyle { regular, withShadow, transparent }
 
 abstract class BasePage extends StatelessWidget {
   BasePage()
-      : _scaffoldKey = GlobalKey<ScaffoldState>(),
-        _closeButtonImage = Image.asset('assets/images/close_button.png'),
-        _closeButtonImageDarkTheme =
-            Image.asset('assets/images/close_button_dark_theme.png');
+      : _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldKey;
-  final Image _closeButtonImage;
-  final Image _closeButtonImageDarkTheme;
+
+  static final Image closeButtonImage =
+    Image.asset('assets/images/close_button.png');
+  static final Image closeButtonImageDarkTheme =
+    Image.asset('assets/images/close_button_dark_theme.png');
+
+  final Map<Themes, Image> buttonItems = {
+    Themes.light: closeButtonImage,
+    Themes.bright: closeButtonImage,
+    Themes.dark: closeButtonImageDarkTheme
+  };
 
   String get title => null;
 
@@ -37,7 +45,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget Function(BuildContext, Widget) get rootWrapper => null;
 
-  bool get isDarkTheme => getIt.get<SettingsStore>().isDarkTheme;
+  Themes get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
   void onOpenEndDrawer() => _scaffoldKey.currentState.openEndDrawer();
 
@@ -52,7 +60,8 @@ abstract class BasePage extends StatelessWidget {
       color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
       size: 16,);
     final _closeButton =
-        isDarkTheme ? _closeButtonImageDarkTheme : _closeButtonImage;
+        itemFromTheme(currentTheme: currentTheme, items: buttonItems) as Image
+        ?? closeButtonImage;
 
     return SizedBox(
       height: 37,
@@ -88,8 +97,7 @@ abstract class BasePage extends StatelessWidget {
   Widget floatingActionButton(BuildContext context) => null;
 
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
-    final appBarColor =
-        isDarkTheme ? backgroundDarkColor : backgroundLightColor;
+    final appBarColor = _setBackgroundColor();
 
     switch (appBarStyle) {
       case AppBarStyle.regular:
@@ -131,10 +139,11 @@ abstract class BasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _backgroundColor = _setBackgroundColor();
+
     final root = Scaffold(
         key: _scaffoldKey,
-        backgroundColor:
-            isDarkTheme ? backgroundDarkColor : backgroundLightColor,
+        backgroundColor: _backgroundColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
         extendBodyBehindAppBar: extendBodyBehindAppBar,
         endDrawer: endDrawer,
@@ -143,5 +152,18 @@ abstract class BasePage extends StatelessWidget {
         floatingActionButton: floatingActionButton(context));
 
     return rootWrapper?.call(context, root) ?? root;
+  }
+
+  Color _setBackgroundColor() {
+    switch (currentTheme) {
+      case Themes.light:
+        return backgroundLightColor;
+      case Themes.bright:
+        return backgroundLightColor;
+      case Themes.dark:
+        return backgroundDarkColor;
+      default:
+        return backgroundLightColor;
+    }
   }
 }
