@@ -108,7 +108,7 @@ abstract class SettingsViewModelBase with Store {
               }
             }),
         PickerListItem(
-            title: 'Color theme',
+            title: S.current.color_theme,
             items: Themes.all,
             selectedItem: () => theme,
             onItemSelected: (Themes theme) =>

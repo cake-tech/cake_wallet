@@ -423,5 +423,10 @@
 
   "provider_error" : "${provider} 錯誤",
 
-  "use_ssl" : "使用SSL"
+  "use_ssl" : "使用SSL",
+
+  "color_theme" : "顏色主題",
+  "light_theme" : "光",
+  "bright_theme" : "亮",
+  "dark_theme" : "黑暗"
 }

@@ -423,5 +423,10 @@
 
   "provider_error" : "${provider} pomyłka",
 
-  "use_ssl" : "Użyj SSL"
+  "use_ssl" : "Użyj SSL",
+
+  "color_theme" : "Motyw kolorystyczny",
+  "light_theme" : "Lekki",
+  "bright_theme" : "Jasny",
+  "dark_theme" : "Ciemny"
 }
