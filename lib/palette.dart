@@ -43,6 +43,7 @@ class Palette {
   static const Color alizarinRed = Color.fromRGBO(233, 45, 45, 1.0);
   static const Color moderateSlateBlue = Color.fromRGBO(129, 93, 251, 1.0);
   static const Color brightOrange = Color.fromRGBO(255, 102, 0, 1.0);
+  static const Color dullGray = Color.fromRGBO(98, 98, 98, 1.0);
 
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);
@@ -94,6 +95,7 @@ class PaletteDark {
   static const Color deepVioletBlue = Color.fromRGBO(52, 66, 104, 1.0);
   static const Color lightPurpleBlue = Color.fromRGBO(120, 133, 170, 1.0);
   static const Color indicatorVioletBlue = Color.fromRGBO(59, 72, 119, 1.0);
+  static const Color granite = Color.fromRGBO(48, 51, 60, 1.0);
 
   // FIXME: Rename.
   static const Color eee = Color.fromRGBO(236, 239, 245, 1.0);

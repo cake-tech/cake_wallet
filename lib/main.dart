@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/item_from_theme.dart';
+import 'package:cake_wallet/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -123,16 +125,20 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsStore = getIt.get<AppStore>().settingsStore;
-
-    if (settingsStore.theme == null) {
-      settingsStore.isDarkTheme = false;
-    }
+    final currentTheme = settingsStore.currentTheme ?? Themes.light;
+    final Map<Themes, Brightness> items = {
+      Themes.light: Brightness.dark,
+      Themes.bright: Brightness.dark,
+      Themes.dark: Brightness.light
+    };
 
     final statusBarColor = Colors.transparent;
     final statusBarBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+          itemFromTheme(currentTheme: currentTheme, items: items) as Brightness
+          ?? Brightness.dark;
     final statusBarIconBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
+          itemFromTheme(currentTheme: currentTheme, items: items) as Brightness
+          ?? Brightness.dark;
     final authenticationStore = getIt.get<AuthenticationStore>();
     final initialRoute = authenticationStore.state == AuthenticationState.denied
         ? Routes.disclaimer

@@ -28,7 +28,7 @@ abstract class SettingsStoreBase with Store {
       @required BalanceDisplayMode initialBalanceDisplayMode,
       @required bool initialSaveRecipientAddress,
       @required bool initialAllowBiometricalAuthentication,
-      @required bool initialDarkTheme,
+      @required Themes initialTheme,
       @required int initialPinLength,
       @required String initialLanguageCode,
       // @required String initialCurrentLocale,
@@ -40,7 +40,7 @@ abstract class SettingsStoreBase with Store {
     balanceDisplayMode = initialBalanceDisplayMode;
     shouldSaveRecipientAddress = initialSaveRecipientAddress;
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
-    isDarkTheme = initialDarkTheme;
+    currentTheme = initialTheme;
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
     currentNode = nodes[WalletType.monero];
@@ -65,9 +65,9 @@ abstract class SettingsStoreBase with Store {
             shouldSaveRecipientAddress));
 
     reaction(
-        (_) => isDarkTheme,
-        (bool isDarkTheme) => sharedPreferences.setBool(
-            PreferencesKey.currentDarkTheme, isDarkTheme));
+        (_) => currentTheme,
+        (Themes theme) => sharedPreferences.setInt(
+            PreferencesKey.currentTheme, theme.serialize()));
 
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -111,7 +111,7 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
-  bool isDarkTheme;
+  Themes currentTheme;
 
   @observable
   int pinCodeLength;
@@ -120,7 +120,7 @@ abstract class SettingsStoreBase with Store {
   Node currentNode;
 
   @computed
-  ThemeData get theme => isDarkTheme ? Themes.darkTheme : Themes.lightTheme;
+  ThemeData get theme => currentTheme.themeData;
 
   @observable
   String languageCode;
@@ -154,8 +154,8 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
-    final savedDarkTheme =
-        sharedPreferences.getBool(PreferencesKey.currentDarkTheme) ?? false;
+    final savedTheme = Themes.deserialize(
+      raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? 0);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
@@ -188,7 +188,7 @@ abstract class SettingsStoreBase with Store {
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-        initialDarkTheme: savedDarkTheme,
+        initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
         initialLanguageCode: savedLanguageCode);

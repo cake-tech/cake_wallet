@@ -1,15 +1,21 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/entities/item_from_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/themes.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
-  final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
-  final welcomeImageDark = Image.asset('assets/images/welcome.png');
+  static final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
+  static final welcomeImageDark = Image.asset('assets/images/welcome.png');
+
+  final Map<Themes, Image> items = {
+    Themes.light: welcomeImageLight,
+    Themes.bright: welcomeImageLight,
+    Themes.dark: welcomeImageDark
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +29,9 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final welcomeImage = getIt
-        .get<SettingsStore>()
-        .isDarkTheme
-        ? welcomeImageDark : welcomeImageLight;
+    final welcomeImage =
+        itemFromTheme(currentTheme: currentTheme, items: items) as Image
+        ?? welcomeImageLight;
 
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,

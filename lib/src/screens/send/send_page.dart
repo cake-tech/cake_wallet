@@ -83,9 +83,8 @@ class SendPage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: isDarkTheme
-                ? Color.fromRGBO(48, 51, 60, 1.0)
-                : Color.fromRGBO(98, 98, 98, 1.0),
+            keyboardBarColor: Theme.of(context).accentTextTheme.body2
+                .backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
