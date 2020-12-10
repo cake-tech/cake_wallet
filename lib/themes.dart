@@ -47,11 +47,11 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
   String toString() {
     switch (this) {
       case Themes.light:
-        return 'Light';
+        return S.current.light_theme;
       case Themes.bright:
-        return 'Bright';
+        return S.current.bright_theme;
       case Themes.dark:
-        return 'Dark';
+        return S.current.dark_theme;
       default:
         return '';
     }

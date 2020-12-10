@@ -44,6 +44,7 @@ class S implements WidgetsLocalizations {
   String get authentication => "Authentication";
   String get available_balance => "Available Balance";
   String get biometric_auth_reason => "Scan your fingerprint to authenticate";
+  String get bright_theme => "Bright";
   String get buy => "Buy";
   String get cake_wallet => "Cake Wallet";
   String get cancel => "Cancel";
@@ -57,6 +58,7 @@ class S implements WidgetsLocalizations {
   String get choose_account => "Choose account";
   String get choose_wallet_currency => "Please choose wallet currency:";
   String get clear => "Clear";
+  String get color_theme => "Color theme";
   String get confirm => "Confirm";
   String get confirm_delete_template => "This action will delete this template. Do you wish to continue?";
   String get confirm_delete_wallet => "This action will delete this wallet. Do you wish to continue?";
@@ -71,6 +73,7 @@ class S implements WidgetsLocalizations {
   String get create_new => "Create New Wallet";
   String get create_new_account => "Create new account";
   String get creating_new_wallet => "Creating new wallet";
+  String get dark_theme => "Dark";
   String get delete => "Delete";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
@@ -107,6 +110,7 @@ class S implements WidgetsLocalizations {
   String get id => "ID: ";
   String get incoming => "Incoming";
   String get incorrect_seed => "The text entered is not valid.";
+  String get light_theme => "Light";
   String get loading_your_wallet => "Loading your wallet";
   String get login => "Login";
   String get new_node_testing => "New node testing";
@@ -394,6 +398,8 @@ class $de extends S {
   @override
   String get biometric_auth_reason => "Scannen Sie Ihren Fingerabdruck zur Authentifizierung";
   @override
+  String get dark_theme => "Dunkel";
+  @override
   String get transaction_sent => "Transaktion gesendet!";
   @override
   String get send_fee => "Gebühr:";
@@ -646,6 +652,8 @@ class $de extends S {
   @override
   String get filters => "Filter";
   @override
+  String get color_theme => "Farbthema";
+  @override
   String get settings_current_node => "Aktueller Knoten";
   @override
   String get copy_id => "ID kopieren";
@@ -886,11 +894,15 @@ class $de extends S {
   @override
   String get trade_state_confirming => "Bestätigung";
   @override
+  String get bright_theme => "Hell";
+  @override
   String get send => "Senden";
   @override
   String get send_title => "Senden Sie";
   @override
   String get error_text_keys => "Walletschlüssel können nur 64 hexadezimale Zeichen enthalten";
+  @override
+  String get light_theme => "Licht";
   @override
   String get settings_save_recipient_address => "Empfängeradresse speichern";
   @override
@@ -1085,6 +1097,8 @@ class $hi extends S {
   String get hidden_balance => "छिपा हुआ संतुलन";
   @override
   String get biometric_auth_reason => "प्रमाणित करने के लिए अपने फ़िंगरप्रिंट को स्कैन करें";
+  @override
+  String get dark_theme => "अंधेरा";
   @override
   String get transaction_sent => "भेजा गया लेन-देन";
   @override
@@ -1338,6 +1352,8 @@ class $hi extends S {
   @override
   String get filters => "फ़िल्टर";
   @override
+  String get color_theme => "रंग विषय";
+  @override
   String get settings_current_node => "वर्तमान नोड";
   @override
   String get copy_id => "प्रतिलिपि ID";
@@ -1578,11 +1594,15 @@ class $hi extends S {
   @override
   String get trade_state_confirming => "पुष्टि";
   @override
+  String get bright_theme => "उज्ज्वल";
+  @override
   String get send => "संदेश";
   @override
   String get send_title => "संदेश";
   @override
   String get error_text_keys => "वॉलेट कीज़ में हेक्स में केवल 64 वर्ण हो सकते हैं";
+  @override
+  String get light_theme => "रोशनी";
   @override
   String get settings_save_recipient_address => "प्राप्तकर्ता का पता सहेजें";
   @override
@@ -1777,6 +1797,8 @@ class $ru extends S {
   String get hidden_balance => "Скрытый баланс";
   @override
   String get biometric_auth_reason => "Отсканируйте свой отпечаток пальца для аутентификации";
+  @override
+  String get dark_theme => "Темная";
   @override
   String get transaction_sent => "Tранзакция отправлена!";
   @override
@@ -2030,6 +2052,8 @@ class $ru extends S {
   @override
   String get filters => "Фильтр";
   @override
+  String get color_theme => "Цветовая тема";
+  @override
   String get settings_current_node => "Текущая нода";
   @override
   String get copy_id => "Скопировать ID";
@@ -2270,11 +2294,15 @@ class $ru extends S {
   @override
   String get trade_state_confirming => "Подтверждение";
   @override
+  String get bright_theme => "Яркая";
+  @override
   String get send => "Отправить";
   @override
   String get send_title => "Отправить";
   @override
   String get error_text_keys => "Ключи кошелька могут содержать только 64 символа в hex";
+  @override
+  String get light_theme => "Светлая";
   @override
   String get settings_save_recipient_address => "Сохранять адрес получателя";
   @override
@@ -2469,6 +2497,8 @@ class $ko extends S {
   String get hidden_balance => "숨겨진 균형";
   @override
   String get biometric_auth_reason => "지문을 스캔하여 인증";
+  @override
+  String get dark_theme => "어두운";
   @override
   String get transaction_sent => "거래가 전송되었습니다!";
   @override
@@ -2722,6 +2752,8 @@ class $ko extends S {
   @override
   String get filters => "필터";
   @override
+  String get color_theme => "색상 테마";
+  @override
   String get settings_current_node => "현재 노드";
   @override
   String get copy_id => "부 ID";
@@ -2962,11 +2994,15 @@ class $ko extends S {
   @override
   String get trade_state_confirming => "확인 중";
   @override
+  String get bright_theme => "선명한";
+  @override
   String get send => "보내다";
   @override
   String get send_title => "보내다";
   @override
   String get error_text_keys => "지갑 키는 16 진수로 64 자만 포함 할 수 있습니다";
+  @override
+  String get light_theme => "빛";
   @override
   String get settings_save_recipient_address => "수신자 주소 저장";
   @override
@@ -3161,6 +3197,8 @@ class $pt extends S {
   String get hidden_balance => "Saldo escondido";
   @override
   String get biometric_auth_reason => "Digitalize sua impressão digital para autenticar";
+  @override
+  String get dark_theme => "Sombria";
   @override
   String get transaction_sent => "Transação enviada!";
   @override
@@ -3414,6 +3452,8 @@ class $pt extends S {
   @override
   String get filters => "Filtro";
   @override
+  String get color_theme => "Tema de cor";
+  @override
   String get settings_current_node => "Nó atual";
   @override
   String get copy_id => "Copiar ID";
@@ -3654,11 +3694,15 @@ class $pt extends S {
   @override
   String get trade_state_confirming => "Confirmando";
   @override
+  String get bright_theme => "Brilhante";
+  @override
   String get send => "Enviar";
   @override
   String get send_title => "Enviar";
   @override
   String get error_text_keys => "As chaves da carteira podem conter apenas 64 caracteres em hexadecimal";
+  @override
+  String get light_theme => "Luz";
   @override
   String get settings_save_recipient_address => "Salvar endereço do destinatário";
   @override
@@ -3853,6 +3897,8 @@ class $uk extends S {
   String get hidden_balance => "Прихований баланс";
   @override
   String get biometric_auth_reason => "Відскануйте свій відбиток пальця для аутентифікації";
+  @override
+  String get dark_theme => "Темна";
   @override
   String get transaction_sent => "Tранзакцію відправлено!";
   @override
@@ -4106,6 +4152,8 @@ class $uk extends S {
   @override
   String get filters => "Фільтр";
   @override
+  String get color_theme => "Кольорова тема";
+  @override
   String get settings_current_node => "Поточний вузол";
   @override
   String get copy_id => "Скопіювати ID";
@@ -4346,11 +4394,15 @@ class $uk extends S {
   @override
   String get trade_state_confirming => "Підтвердження";
   @override
+  String get bright_theme => "Яскрава";
+  @override
   String get send => "Відправити";
   @override
   String get send_title => "Відправити";
   @override
   String get error_text_keys => "Ключі гаманця можуть містити тільки 64 символів в hex";
+  @override
+  String get light_theme => "Світла";
   @override
   String get settings_save_recipient_address => "Зберігати адресу отримувача";
   @override
@@ -4545,6 +4597,8 @@ class $ja extends S {
   String get hidden_balance => "隠れたバランス";
   @override
   String get biometric_auth_reason => "प指紋をスキャンして認証する";
+  @override
+  String get dark_theme => "闇";
   @override
   String get transaction_sent => "トランザクションが送信されました！";
   @override
@@ -4798,6 +4852,8 @@ class $ja extends S {
   @override
   String get filters => "フィルタ";
   @override
+  String get color_theme => "カラーテーマ";
+  @override
   String get settings_current_node => "現在のノード";
   @override
   String get copy_id => "IDをコピー";
@@ -5038,11 +5094,15 @@ class $ja extends S {
   @override
   String get trade_state_confirming => "確認中";
   @override
+  String get bright_theme => "明るい";
+  @override
   String get send => "送る";
   @override
   String get send_title => "を送信";
   @override
   String get error_text_keys => "ウォレットキーには、16進数で64文字しか含めることができません";
+  @override
+  String get light_theme => "光";
   @override
   String get settings_save_recipient_address => "受信者のアドレスを保存";
   @override
@@ -5241,6 +5301,8 @@ class $pl extends S {
   String get hidden_balance => "Ukryta równowaga";
   @override
   String get biometric_auth_reason => "Zeskanuj swój odcisk palca, aby go uwierzytelnić";
+  @override
+  String get dark_theme => "Ciemny";
   @override
   String get transaction_sent => "Transakcja wysłana!";
   @override
@@ -5494,6 +5556,8 @@ class $pl extends S {
   @override
   String get filters => "Filtr";
   @override
+  String get color_theme => "Motyw kolorystyczny";
+  @override
   String get settings_current_node => "Bieżący węzeł";
   @override
   String get copy_id => "ID kopii";
@@ -5734,11 +5798,15 @@ class $pl extends S {
   @override
   String get trade_state_confirming => "Potwierdzam";
   @override
+  String get bright_theme => "Jasny";
+  @override
   String get send => "Wysłać";
   @override
   String get send_title => "Wyślij";
   @override
   String get error_text_keys => "Klucze portfela mogą zawierać tylko 64 znaki w systemie szesnastkowym";
+  @override
+  String get light_theme => "Lekki";
   @override
   String get settings_save_recipient_address => "Zapisz adres odbiorcy";
   @override
@@ -5933,6 +6001,8 @@ class $es extends S {
   String get hidden_balance => "Balance oculto";
   @override
   String get biometric_auth_reason => "Escanee su huella digital para autenticar";
+  @override
+  String get dark_theme => "Oscura";
   @override
   String get transaction_sent => "Transacción enviada!";
   @override
@@ -6186,6 +6256,8 @@ class $es extends S {
   @override
   String get filters => "Filtrar";
   @override
+  String get color_theme => "Tema de color";
+  @override
   String get settings_current_node => "Nodo actual";
   @override
   String get copy_id => "Copiar ID";
@@ -6426,11 +6498,15 @@ class $es extends S {
   @override
   String get trade_state_confirming => "Confirmando";
   @override
+  String get bright_theme => "Brillante";
+  @override
   String get send => "Enviar";
   @override
   String get send_title => "Enviar";
   @override
   String get error_text_keys => "Las llaves de billetera solo pueden contener 64 caracteres en hexadecimal";
+  @override
+  String get light_theme => "Ligera";
   @override
   String get settings_save_recipient_address => "Guardar dirección del destinatario";
   @override
@@ -6625,6 +6701,8 @@ class $nl extends S {
   String get hidden_balance => "Verborgen balans";
   @override
   String get biometric_auth_reason => "Scan uw vingerafdruk om te verifiëren";
+  @override
+  String get dark_theme => "Donker";
   @override
   String get transaction_sent => "Transactie verzonden!";
   @override
@@ -6878,6 +6956,8 @@ class $nl extends S {
   @override
   String get filters => "Filter";
   @override
+  String get color_theme => "Kleur thema";
+  @override
   String get settings_current_node => "Huidige knooppunt";
   @override
   String get copy_id => "ID kopiëren";
@@ -7118,11 +7198,15 @@ class $nl extends S {
   @override
   String get trade_state_confirming => "Bevestiging";
   @override
+  String get bright_theme => "Helder";
+  @override
   String get send => "Sturen";
   @override
   String get send_title => "Stuur";
   @override
   String get error_text_keys => "Portefeuillesleutels kunnen maximaal 64 tekens bevatten in hexadecimale volgorde";
+  @override
+  String get light_theme => "Licht";
   @override
   String get settings_save_recipient_address => "Adres ontvanger opslaan";
   @override
@@ -7317,6 +7401,8 @@ class $zh extends S {
   String get hidden_balance => "隐藏余额";
   @override
   String get biometric_auth_reason => "掃描指紋以進行身份驗證";
+  @override
+  String get dark_theme => "黑暗";
   @override
   String get transaction_sent => "交易已发送";
   @override
@@ -7570,6 +7656,8 @@ class $zh extends S {
   @override
   String get filters => "過濾";
   @override
+  String get color_theme => "顏色主題";
+  @override
   String get settings_current_node => "当前节点";
   @override
   String get copy_id => "复印ID";
@@ -7810,11 +7898,15 @@ class $zh extends S {
   @override
   String get trade_state_confirming => "确认中";
   @override
+  String get bright_theme => "亮";
+  @override
   String get send => "发送";
   @override
   String get send_title => "發送";
   @override
   String get error_text_keys => "钱包密钥只能包含16个字符的十六进制字符";
+  @override
+  String get light_theme => "光";
   @override
   String get settings_save_recipient_address => "保存收件人地址";
   @override
