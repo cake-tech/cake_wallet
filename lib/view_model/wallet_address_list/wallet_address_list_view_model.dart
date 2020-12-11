@@ -97,16 +97,28 @@ abstract class WalletAddressListViewModelBase with Store {
     final addressList = ObservableList<ListItem>();
 
     if (wallet is MoneroWallet) {
-      addressList.addAll(wallet.subaddressList.subaddresses.map((subaddress) =>
-          WalletAddressListItem(
-              id: subaddress.id,
-              name: subaddress.label,
-              address: subaddress.address)));
+      final primaryAddress = wallet.subaddressList.subaddresses.first;
+      addressList.addAll(wallet.subaddressList.subaddresses.map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.label,
+            address: subaddress.address);
+      }));
     }
 
     if (wallet is BitcoinWallet) {
-      final bitcoinAddresses = wallet.addresses.map((addr) =>
-          WalletAddressListItem(name: addr.label, address: addr.address));
+      final primaryAddress = wallet.addresses.first;
+      final bitcoinAddresses = wallet.addresses.map((addr) {
+        final isPrimary = addr == primaryAddress;
+
+        return WalletAddressListItem(
+            isPrimary: isPrimary,
+            name: addr.label,
+            address: addr.address);
+      });
       addressList.addAll(bitcoinAddresses);
     }
 

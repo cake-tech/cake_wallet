@@ -12,6 +12,7 @@ import 'package:cake_wallet/exchange/xmrto/xmrto_trade_request.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class XMRTOExchangeProvider extends ExchangeProvider {
   XMRTOExchangeProvider()
@@ -90,12 +91,25 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({TradeRequest request}) async {
     final _request = request as XMRTOTradeRequest;
     final url = originalApiUri + _orderCreateUriSuffix;
+    final _amount = _request.isBTCRequest
+        ? _request.receiveAmount
+        : _request.amount;
+
+    final _amountCurrency = _request.isBTCRequest
+        ? _request.to.toString()
+        : _request.from.toString();
+
+    final pattern = '^([0-9]+([.\,][0-9]{0,8})?|[.\,][0-9]{1,8})\$';
+    final isValid = RegExp(pattern).hasMatch(_amount);
+
+    if (!isValid) {
+      throw TradeNotCreatedException(description,
+          description: S.current.xmr_to_error_description);
+    }
+
     final body = {
-      'amount':
-          _request.isBTCRequest ? _request.receiveAmount : _request.amount,
-      'amount_currency': _request.isBTCRequest
-          ? _request.to.toString()
-          : _request.from.toString(),
+      'amount': _amount,
+      'amount_currency': _amountCurrency,
       'btc_dest_address': _request.address
     };
     final response = await post(url,

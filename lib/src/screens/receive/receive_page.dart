@@ -117,7 +117,7 @@ class ReceivePage extends BasePage {
                                 Icons.arrow_forward_ios,
                                 size: 14,
                                 color:
-                                    Theme.of(context).textTheme.display1.color,
+                                Theme.of(context).textTheme.display1.color,
                               ));
                         }
 
@@ -130,7 +130,7 @@ class ReceivePage extends BasePage {
                                 Icons.add,
                                 size: 20,
                                 color:
-                                    Theme.of(context).textTheme.display1.color,
+                                Theme.of(context).textTheme.display1.color,
                               ));
                         }
 
@@ -140,13 +140,13 @@ class ReceivePage extends BasePage {
                                 addressListViewModel.address.address;
                             final backgroundColor = isCurrent
                                 ? Theme.of(context)
-                                    .textTheme
-                                    .display3
-                                    .decorationColor
+                                .textTheme
+                                .display3
+                                .decorationColor
                                 : Theme.of(context)
-                                    .textTheme
-                                    .display2
-                                    .decorationColor;
+                                .textTheme
+                                .display2
+                                .decorationColor;
                             final textColor = isCurrent
                                 ? Theme.of(context).textTheme.display3.color
                                 : Theme.of(context).textTheme.display2.color;
@@ -155,8 +155,7 @@ class ReceivePage extends BasePage {
                                 isCurrent: isCurrent,
                                 backgroundColor: backgroundColor,
                                 textColor: textColor,
-                                onTap: (_) =>
-                                    addressListViewModel.setAddress(item),
+                                onTap: (_) => addressListViewModel.setAddress(item),
                                 onEdit: () => Navigator.of(context).pushNamed(
                                     Routes.newSubaddress,
                                     arguments: item));
@@ -166,11 +165,11 @@ class ReceivePage extends BasePage {
                         return index != 0
                             ? cell
                             : ClipRRect(
-                                borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(30),
-                                    topRight: Radius.circular(30)),
-                                child: cell,
-                              );
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30)),
+                          child: cell,
+                        );
                       })),
             ],
           ),

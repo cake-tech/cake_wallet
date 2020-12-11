@@ -39,7 +39,7 @@ class AddressPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    S.of(context).addresses,
+                    S.of(context).accounts_subaddresses,
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,

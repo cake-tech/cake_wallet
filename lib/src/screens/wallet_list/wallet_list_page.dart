@@ -243,7 +243,7 @@ class WalletListBodyState extends State<WalletListBody> {
       changeProcessText(S.of(context).creating_new_wallet);
       await widget.walletListViewModel.walletNewVM.create(options: 'English'); // FIXME: Unnamed constant
       hideProgressText();
-      await Navigator.of(context).pushNamed(Routes.seed, arguments: true);
+      await Navigator.of(context).pushNamed(Routes.preSeed);
     } catch(e) {
       changeProcessText(S.of(context).creating_new_wallet_error(e.toString()));
     }
