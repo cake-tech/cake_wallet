@@ -13,6 +13,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       {AccountListItem accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
+        label = accountListItem?.label??'',
         _accountListItem = accountListItem;
 
   final bool isEdit;
