@@ -25,7 +25,8 @@ class BalancePage extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(context).indicatorColor,
+                    color: Theme.of(context).accentTextTheme.display2
+                        .backgroundColor,
                     height: 1),
               );
             }),
@@ -35,7 +36,8 @@ class BalancePage extends StatelessWidget {
                 style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Theme.of(context).indicatorColor,
+                    color: Theme.of(context).accentTextTheme.display2
+                        .backgroundColor,
                     height: 1),
               );
             }),
@@ -45,7 +47,8 @@ class BalancePage extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 54,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Theme.of(context).accentTextTheme.display3
+                          .backgroundColor,
                       height: 1),
                   maxLines: 1,
                   textAlign: TextAlign.center);
@@ -56,7 +59,8 @@ class BalancePage extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
-                      color: Theme.of(context).indicatorColor,
+                      color: Theme.of(context).accentTextTheme.display2
+                          .backgroundColor,
                       height: 1),
                   textAlign: TextAlign.center);
             }),

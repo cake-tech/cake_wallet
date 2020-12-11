@@ -50,7 +50,8 @@ class DashboardPage extends BasePage {
   @override
   Widget trailing(BuildContext context) {
     final menuButton =
-        Image.asset('assets/images/menu.png', color: Colors.white);
+        Image.asset('assets/images/menu.png',
+            color: Theme.of(context).accentTextTheme.display3.backgroundColor);
 
     return Container(
         alignment: Alignment.centerRight,
@@ -65,12 +66,6 @@ class DashboardPage extends BasePage {
 
   final DashboardViewModel walletViewModel;
   final WalletAddressListViewModel addressListViewModel;
-  final sendImage = Image.asset('assets/images/upload.png',
-      height: 22.24, width: 24, color: Colors.white);
-  final exchangeImage = Image.asset('assets/images/transfer.png',
-      height: 24.27, width: 22.25, color: Colors.white);
-  final receiveImage = Image.asset('assets/images/download.png',
-      height: 22.24, width: 24, color: Colors.white);
   final controller = PageController(initialPage: 1);
 
   var pages = <Widget>[];
@@ -78,6 +73,15 @@ class DashboardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final sendImage = Image.asset('assets/images/upload.png',
+        height: 22.24, width: 24,
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final exchangeImage = Image.asset('assets/images/transfer.png',
+        height: 24.27, width: 22.25,
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final receiveImage = Image.asset('assets/images/download.png',
+        height: 22.24, width: 24,
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
     _setEffects();
 
     return SafeArea(
@@ -100,7 +104,8 @@ class DashboardPage extends BasePage {
                   dotWidth: 6.0,
                   dotHeight: 6.0,
                   dotColor: Theme.of(context).indicatorColor,
-                  activeDotColor: Colors.white),
+                  activeDotColor: Theme.of(context).accentTextTheme.display1
+                      .backgroundColor),
             )),
         Container(
           padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),

@@ -166,8 +166,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context)
-                            .textTheme
-                            .subhead
+                            .accentTextTheme
+                            .display4
                             .decorationColor),
                     validator: _isAmountEditable
                         ? widget.currencyValueValidator
@@ -211,8 +211,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                         fontSize: 10,
                         height: 1.2,
                         color: Theme.of(context)
-                            .textTheme
-                            .subhead
+                            .accentTextTheme
+                            .display4
                             .decorationColor),
                   )
                 : Offstage(),
@@ -224,8 +224,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                         fontSize: 10,
                         height: 1.2,
                         color: Theme.of(context)
-                            .textTheme
-                            .subhead
+                            .accentTextTheme
+                            .display4
                             .decorationColor))
                 : Offstage(),
           ]),
@@ -239,7 +239,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color:
-                  Theme.of(context).textTheme.subhead.decorationColor),
+                  Theme.of(context)
+                      .accentTextTheme
+                      .display4
+                      .decorationColor),
             ))
             : Offstage(),
         _isAddressEditable
@@ -263,7 +266,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color:
-                          Theme.of(context).textTheme.subhead.decorationColor),
+                      Theme.of(context)
+                          .accentTextTheme
+                          .display4
+                          .decorationColor),
                   buttonColor: widget.addressButtonsColor,
                   validator: widget.addressTextFieldValidator,
                 ),
