@@ -1,0 +1,411 @@
+{
+{
+  "welcome" : "Welcome to",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Monero için harika cüzdan",
+  "please_make_selection" : "Cüzdan oluşturmak veya geri yüklemek için aşağıdan seçim yapın.",
+  "create_new" : "Yeni cüzdan Oluştur",
+  "restore_wallet" : "Cüzdanı geri yükle",
+
+
+  "accounts" : "Hesaplar",
+  "edit" : "Düzenle",
+  "account" : "Hesap",
+  "add" : "Ekle",
+
+
+  "address_book" : "Adres Defteri",
+  "contact" : "Rehber",
+  "please_select" : "Lütfen seçim yapın:",
+  "cancel" : "İptal",
+  "ok" : "OK",
+  "contact_name" : "Kişi ismi",
+  "reset" : "Reset",
+  "save" : "Kaydet",
+  "address_remove_contact" : "Kişiyi sil",
+  "address_remove_content" : "Seçili kişiyi silmek istediğinizden emin misiniz?",
+
+
+  "authenticated" : "Doğrulandı",
+  "authentication" : "Doğrulama",
+  "failed_authentication" : "Doğrulama başarısız oldu. ${state_error}",
+
+
+  "wallet_menu" : "Menü",
+  "Blocks_remaining" : "${status} blok kaldı",
+  "please_try_to_connect_to_another_node" : "Lütfen farklı düğüme bağlanmayı deneyin",
+  "xmr_hidden" : "Gizli",
+  "xmr_available_balance" : "Kullanılabilir Bakiye",
+  "xmr_full_balance" : "Tüm Bakiye",
+  "send" : "Gönder",
+  "receive" : "Al",
+  "transactions" : "İşlemler",
+  "incoming" : "Gelen",
+  "outgoing" : "Giden",
+  "transactions_by_date" : "Tarihe göre işlemler",
+  "trades" : "Takaslar",
+  "filters" : "Filtreler",
+  "today" : "Bügün",
+  "yesterday" : "Dün",
+  "received" : "Alındı",
+  "sent" : "Gönderildi",
+  "pending" : " (bekleyen)",
+  "rescan" : "Yeniden Tara",
+  "reconnect" : "Yeniden Bağlan",
+  "wallets" : "Cüzdanlar",
+  "show_seed" : "Tohumları göster",
+  "show_keys" : "Tohumları/anahtarları göster",
+  "address_book_menu" : "Adres defteri",
+  "reconnection" : "Yeniden bağlantı",
+  "reconnect_alert_text" : "Yeniden bağlanmak istediğinizden emin misiniz?",
+
+
+  "exchange" : "Takas",
+  "clear" : "Temizle",
+  "refund_address" : "İade adresi",
+  "change_exchange_provider" : "Takas sağlayıcısını değiştir",
+  "you_will_send" : "Biçiminden dönüştür",
+  "you_will_get" : "'e dönüştür",
+  "amount_is_guaranteed" : "IMPORTANT:\nGaranti miktarda BTC almak istiyorsanız, lütfen bu tutarı BTC alanına girin. Bunun yerine bir XMR tutarı girerseniz, alınan BTC tutarı tahminidir ve oranlara bağlı olarak değişebilir.",
+  "powered_by" : "Tarafından desteklenmektedir ${title}",
+  "error" : "Hata",
+  "estimated" : "Tahmini",
+  "min_value" : "En az: ${value} ${currency}",
+  "max_value" : "En fazla: ${value} ${currency}",
+  "change_currency" : "Para Birimini Değiştir",
+
+
+  "copy_id" : "ID'yi kopyala",
+  "exchange_result_write_down_trade_id" : "Lütfen devam etmek için takas ID'nizi bir yere kopyalayın veya not edin.",
+  "trade_id" : "Takas ID'si:",
+  "copied_to_clipboard" : "Panoya Kopyalandı",
+  "saved_the_trade_id" : "Ticaret ID'mi kaydettim",
+  "fetching" : "Getiriliyor",
+  "id" : "ID: ",
+  "amount" : "Miktar: ",
+  "payment_id" : "Ödeme ID'si: ",
+  "status" : "Durum: ",
+  "offer_expires_in" : "Teklifin bitmesine: ",
+  "trade_is_powered_by" : "Bu takas ${provider} tarafından desteklenmektedir.",
+  "copy_address" : "Adresi Kopyala",
+  "exchange_result_confirm" : "Onaylaya basarak, ${fetchingLabel} ${from} miktarında ${walletName} olarak adlandırılan cüzdanınızdan aşağıda gösterilen adrese gönderilecektir. Veya harici cüzdanınızdan aşağıdaki adrese / QR koduna gönderebilirsiniz.\n\nLütfen devam etmek için onayla'ya basın veya tutarı değiştirmek için geri dönün.",
+  "exchange_result_description" : "Lütfen ${fetchingLabel} miktarındaki ${from}'yi aşağıdaki adrese gönderin.",
+  "exchange_result_write_down_ID" : "*Lütfen aşağıda gösterilen ID'yi kopyalayın veya not edin.",
+  "confirm" : "Onayla",
+  "confirm_sending" : "Göndermeyi onayla",
+  "commit_transaction_amount_fee" : "Commit transaction\nAmount: ${amount}\nFee: ${fee}",
+  "sending" : "Gönderiliyor",
+  "transaction_sent" : "İşlem gönderildi!",
+  "expired" : "Zaman aşımına uğradı",
+  "time" : "${minutes}dk ${seconds}sn",
+  "send_xmr" : "XMR Gönder",
+  "exchange_new_template" : "Yeni şablon",
+
+  "faq" : "SSS",
+
+
+  "enter_your_pin" : "PIN'inizi giriniz",
+  "loading_your_wallet" : "Cüzdanınız yükleniyor",
+
+
+  "new_wallet" : "Yeni Cüzdan",
+  "wallet_name" : "Cüzdan ismi",
+  "continue_text" : "Devam et",
+  "choose_wallet_currency" : "Lütfen cüzdanın para birimini seçin:",
+
+
+  "node_new" : "Yeni düğüm",
+  "node_address" : "Düğüm adresi",
+  "node_port" : "Düğüm port'u",
+  "login" : "Login",
+  "password" : "Şifre",
+  "nodes" : "Düğümler",
+  "node_reset_settings_title" : "Ayarları sıfırla",
+  "nodes_list_reset_to_default_message" : "Ayarları varsayılana sıfırlamak istediğinizden emin misiniz??",
+  "change_current_node" : "Şimdiki düğümü ${node} düğümüne değiştirmek istediğinizden emin misiniz?",
+  "change" : "Değiştir",
+  "remove_node" : "Düğümü kaldır",
+  "remove_node_message" : "Seçili düğümü kaldırmak istediğinizden emin misiniz?",
+  "remove" : "Kaldır",
+  "delete" : "Sil",
+  "add_new_node" : "Yeni düğüm ekle",
+
+
+  "use" : "'e değiştir ",
+  "digit_pin" : "haneli PIN",
+
+
+  "share_address" : "Adresi paylaş",
+  "receive_amount" : "Miktar",
+  "subaddresses" : "Alt adres",
+  "addresses" : "Adresler",
+  "scan_qr_code" : "Adresi almak için QR kodunu tarayın",
+  "rename" : "Yeniden adlandır",
+  "choose_account" : "Miktarı seç",
+  "create_new_account" : "Yeni hesap oluştur",
+  "accounts_subaddresses" : "Hesaplar ve alt adresler",
+
+
+  "restore_restore_wallet" : "Cüzdanı Geri Yükle",
+  "restore_title_from_seed_keys" : "Adresi tohumdan/anahtardan geri yükle",
+  "restore_description_from_seed_keys" : "Güvenli bir yere kaydettiğiniz tohumdan/anahtarlardan cüzdanınızı geri yükleyin",
+  "restore_next" : "İleri",
+  "restore_title_from_backup" : "Yedekten geri yükle",
+  "restore_description_from_backup" : "Yedek dosyanızdan tüm Cake Wallet uygulamasını geri yükleyebilirsiniz.",
+  "restore_seed_keys_restore" : "Tohumları/Anahtarları Geri Yükle",
+  "restore_title_from_seed" : "Tohumlardan geri yükle",
+  "restore_description_from_seed" : "Cüzdanınızı 25 veya 13 kelimelik kombinasyon kodundan geri yükleyin",
+  "restore_title_from_keys" : "Anahtarlardan geri yükle",
+  "restore_description_from_keys" : "Restore your wallet from generated keystrokes saved from your private keys",
+  "restore_wallet_name" : "Cüzdan ismi",
+  "restore_address" : "Adresler",
+  "restore_view_key_private" : "İzleme anahtarı (Özel)",
+  "restore_spend_key_private" : "Harcama anahtarı (Özel)",
+  "restore_recover" : "Geri yükle",
+  "restore_wallet_restore_description" : "Cüzdan geri yükleme açıklaması",
+  "restore_new_seed" : "Yeni tohum",
+  "restore_active_seed" : "Tohumu aktifleştir",
+  "restore_bitcoin_description_from_seed" : "Cüzdanınızı 12 kelimelik kombinasyon tohumundan geri yükleyin",
+  "restore_bitcoin_description_from_keys" : "Cüzdanınızı, oluşturulan WIF dizesinden veya özel anahtarlarınızdan geri yükleyin",
+  "restore_bitcoin_title_from_keys" : "WIF'den geri yükle",
+  "restore_from_date_or_blockheight" : "Please enter a date a few days before you created this wallet. Or if you know the blockheight, please enter it instead",
+
+
+  "seed_reminder" : "Telefonunuzu kaybetmeniz veya silinmesi durumunda cüzdanınızı geri getirmek için bunları not edin",
+  "seed_title" : "Tohum",
+  "seed_share" : "Tohumu paylaş",
+  "copy" : "Kopyala",
+
+
+  "seed_language_choose" : "Lütfen tohumun dilini seçin:",
+  "seed_choose" : "Tohumun dilini seçin",
+  "seed_language_next" : "İleri",
+  "seed_language_english" : "İngilizce",
+  "seed_language_chinese" : "Çince",
+  "seed_language_dutch" : "Flemenkçe",
+  "seed_language_german" : "Almanca",
+  "seed_language_japanese" : "Japonca",
+  "seed_language_portuguese" : "Portekizce",
+  "seed_language_russian" : "Rusça",
+  "seed_language_spanish" : "İspanyolca",
+
+
+  "send_title" : "Gönder",
+  "send_your_wallet" : "Cüzdanınız",
+  "send_address" : "${cryptoCurrency} address",
+  "send_payment_id" : "Ödeme ID'si (optional)",
+  "all" : "TÜMÜ",
+  "send_error_minimum_value" : "En düşük miktar 0.01'dir",
+  "send_error_currency" : "Para birimi yalnızca sayı içerebilir",
+  "send_estimated_fee" : "Tahmini komisyon:",
+  "send_priority" : "Şuanki komisyon ${transactionPriority} önceliğinde.\nİşlem önceliği ayarlardan değiştirebilir",
+  "send_creating_transaction" : "İşlem oluşturuluyor",
+  "send_templates" : "Şablonlar",
+  "send_new" : "Yeni",
+  "send_amount" : "Miktar:",
+  "send_fee" : "Komisyon:",
+  "send_name" : "İsim",
+  "send_got_it" : "Got it",
+  "send_sending" : "Gönderiliyor...",
+  "send_success" : "Monero'nuz başarıyla gönderildi",
+
+
+  "settings_title" : "Ayarlar",
+  "settings_nodes" : "Düğümler",
+  "settings_current_node" : "Şuanki düğüm",
+  "settings_wallets" : "Cüzdanlar",
+  "settings_display_balance_as" : "Bakiyeyi olarak göster:",
+  "settings_currency" : "Para birimi",
+  "settings_fee_priority" : "Komsiyon önceliği",
+  "settings_save_recipient_address" : "Gönderilen adresi kaydet",
+  "settings_personal" : "Kişisel",
+  "settings_change_pin" : "PIN'i değiştir",
+  "settings_change_language" : "Dili değiştir",
+  "settings_allow_biometrical_authentication" : "Biyometrik kimlik doğrulamaya izin ver",
+  "settings_dark_mode" : "Gece modu",
+  "settings_transactions" : "İşlemler",
+  "settings_trades" : "Takaslar",
+  "settings_display_on_dashboard_list" : "Gösterge tablosu listesinde görüntüle",
+  "settings_all" : "Hepsi",
+  "settings_only_trades" : "Sadece takaslar",
+  "settings_only_transactions" : "Sadece transferler",
+  "settings_none" : "Hiçbiri",
+  "settings_support" : "Destek",
+  "settings_terms_and_conditions" : "Şartlar ve koşullar",
+  "pin_is_incorrect" : "PIN kodunuz yanlış",
+
+
+  "setup_pin" : "PIN'i ayarla",
+  "enter_your_pin_again" : "PIN'inizi tekrar girin",
+  "setup_successful" : "PIN kodunuz başarıyla ayarlandı!",
+
+
+  "wallet_keys" : "Cüzdan tohumu/anahtarları",
+  "wallet_seed" : "Cüzdan tohumu",
+  "private_key" : "Özel anahtar",
+  "public_key" : "Genel Anahtar",
+  "view_key_private" : "İzleme anahtarı (özel)",
+  "view_key_public" : "İzleme anahtarı (genel)",
+  "spend_key_private" : "Harcama anahtarı (özel)",
+  "spend_key_public" : "Harcama anahtarı (genel)",
+  "copied_key_to_clipboard" : "${key} Panoya Kopyalandı",
+
+
+  "new_subaddress_title" : "Yeni adres",
+  "new_subaddress_label_name" : "Etiket adı",
+  "new_subaddress_create" : "Oluştur",
+
+
+  "subaddress_title" : "Alt adres listesi",
+
+
+  "trade_details_title" : "Takas Detayları",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Durum",
+  "trade_details_fetching" : "Getiriliyor",
+  "trade_details_provider" : "Sağlayıcı",
+  "trade_details_created_at" : "'da oluşturuldu",
+  "trade_details_pair" : "Eşleştirme",
+  "trade_details_copied" : "${title} Panoya Kopyalandı",
+
+
+  "trade_history_title" : "Takas geçmişi",
+
+
+  "transaction_details_title" : "İşlem Detayları",
+  "transaction_details_transaction_id" : "İşem ID'si",
+  "transaction_details_date" : "Tarih",
+  "transaction_details_height" : "Yükseklik",
+  "transaction_details_amount" : "Miktar",
+  "transaction_details_copied" : "${title} Panoya Kopyalandı",
+  "transaction_details_recipient_address" : "Alıcı adres",
+
+
+  "wallet_list_title" : "Monero Cüzdanı",
+  "wallet_list_create_new_wallet" : "Yeni Cüzdan Oluştur",
+  "wallet_list_restore_wallet" : "Cüzdanı Geri Yükle",
+  "wallet_list_load_wallet" : "Cüzdanı Yükle",
+  "wallet_list_loading_wallet" : "${wallet_name} cüzdanı yükleniyor",
+  "wallet_list_failed_to_load" : "${wallet_name} cüzdanı yüklenirken hata oluştu. ${error}",
+  "wallet_list_removing_wallet" : "${wallet_name} cüzdanı kaldırılıyor",
+  "wallet_list_failed_to_remove" : "${wallet_name} cüzdanı kaldırılırken hata oluştu. ${error}",
+
+
+  "widgets_address" : "Adres",
+  "widgets_restore_from_blockheight" : "Blok yüksekliğinden geri yükle",
+  "widgets_restore_from_date" : "Tarihten geri yükle",
+  "widgets_or" : "veya",
+  "widgets_seed" : "Tohum",
+
+
+  "router_no_route" : "${name} için rota tanımlanmadı",
+
+
+  "error_text_account_name" : "Hesap ismi yalnızca harf, rakam \nve 1 ile 15 uzunluğunda karakter içermelidir.",
+  "error_text_contact_name" : "Kişi ismi ` , ' \" sembollerini içeremez \nve 1 ile 15 uzunluğunda karakter içermelidir",
+  "error_text_address" : "Cüzdan adresi kripto para birimine karşılık gelmelidir",
+  "error_text_node_address" : "Lütfen iPv4 adresi girin",
+  "error_text_node_port" : "Düğüm portu yalnızca 0 ve 65535 arasında rakam içerebilir",
+  "error_text_payment_id" : "Ödeme ID'si yalnızca onaltılık (hex) olarak 16 veya 64 karakter içerebilir",
+  "error_text_xmr" : "XMR miktarı kullanılabilir bakiyeyi aşamaz.\nKesir basamaklarının sayısı 12'ye eşit veya daha az olmalıdır",
+  "error_text_fiat" : "Tutarın değeri, mevcut bakiyeyi aşamaz.\nThe number of fraction digits must be less or equal to 2",
+  "error_text_subaddress_name" : "Alt adres ismi ` , ' \" sembolleri içeremez\nve 1 ile 20 karakter arasında olmalıdır",
+  "error_text_amount" : "Miktar sadece sayı içerebilir",
+  "error_text_wallet_name" : "Cüzdan ismi yalnızca harf, rakam \nve 1 ile 15 uzunluğunda karakter içermelidir.",
+  "error_text_keys" : "Cüzdan anahtarları onaltılık (hex) olarak yalnızca 64 karakter içerebilir",
+  "error_text_crypto_currency" : "The number of fraction digits\nmust be less or equal to 12",
+  "error_text_minimal_limit" : "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}",
+  "error_text_maximum_limit" : "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Trade for ${provider} is not created. Limits loading failed",
+  "error_text_template" : "Template name and address can't contain ` , ' \" symbols\nand must be between 1 and 106 characters long",
+
+
+  "auth_store_ban_timeout" : "ban_timeout",
+  "auth_store_banned_for" : "Süreyle yasaklandınız ",
+  "auth_store_banned_minutes" : " dakika",
+  "auth_store_incorrect_password" : "Yanlış PIN",
+  "wallet_store_monero_wallet" : "Monero cüzdanı",
+  "wallet_restoration_store_incorrect_seed_length" : "Yanlış tohum uzunluğu",
+
+
+  "full_balance" : "Tüm Bakiye",
+  "available_balance" : "Kullanılabilir Bakiye",
+  "hidden_balance" : "Gizli Bakiye",
+
+
+  "sync_status_syncronizing" : "SENKRONİZE EDİLİYOR",
+  "sync_status_syncronized" : "SENKRONİZE EDİLDİ",
+  "sync_status_not_connected" : "BAĞLI DEĞİL",
+  "sync_status_starting_sync" : "SENKRONİZE BAŞLATILIYOR",
+  "sync_status_failed_connect" : "DÜĞÜME BAĞLANILAMADI",
+  "sync_status_connecting" : "BAĞLANILIYOR",
+  "sync_status_connected" : "BAĞLANILDI",
+
+
+  "transaction_priority_slow" : "Yavaş",
+  "transaction_priority_regular" : "Normal",
+  "transaction_priority_medium" : "Orta",
+  "transaction_priority_fast" : "Hızlı",
+  "transaction_priority_fastest" : "En Hızlı",
+
+
+  "trade_for_not_created" : "${title} için takas oluşturulmadı.",
+  "trade_not_created" : "Takas oluşturulmadı.",
+  "trade_id_not_found" : "Trade ${tradeId} of ${title} not found.",
+  "trade_not_found" : "Takas bulunamadı.",
+
+
+  "trade_state_pending" : "Beklemede",
+  "trade_state_confirming" : "Onaylanıyor",
+  "trade_state_trading" : "Takas ediliyor",
+  "trade_state_traded" : "Takas edildi",
+  "trade_state_complete" : "Tamamlandı",
+  "trade_state_to_be_created" : "Oluşturulacak",
+  "trade_state_unpaid" : "Ödenmemiş",
+  "trade_state_underpaid" : "Az ödenmiş",
+  "trade_state_paid_unconfirmed" : "Ödeme doğrulanmadı",
+  "trade_state_paid" : "Ödendi",
+  "trade_state_btc_sent" : "Btc gönderildi",
+  "trade_state_timeout" : "Zaman aşımı",
+  "trade_state_created" : "Oluşturuldu",
+  "trade_state_finished" : "Tamamlanmış",
+
+  "change_language" : "Dili değiştir",
+  "change_language_to" : "${language} diline değiştirmek istediğinizden emin misiniz?",
+
+  "paste" : "Yapıştır",
+  "restore_from_seed_placeholder" : "Lütfen tohumu buraya yazın veya yapıştırın",
+  "add_new_word" : "Yeni kelime ekle",
+  "incorrect_seed" : "Girilen tohum geçerli değil.",
+
+  "biometric_auth_reason" : "Kimliğinizi doğrulamak için parmak izinizi taratın.",
+  "version" : "Versiyon ${currentVersion}",
+
+  "openalias_alert_title" : "XMR Alıcısı Algılandı",
+  "openalias_alert_content" : "\n${recipient_name} alıcısına para göndereceksin\n${recipient_name} alıcısına para göndereceksin",
+
+  "card_address" : "Adres:",
+  "buy" : "Satın al",
+
+  "placeholder_transactions" : "İşlemleriniz burada gösterilecek",
+  "placeholder_contacts" : "Kişileriniz burada gösterilecek",
+
+  "template" : "Şablon",
+  "confirm_delete_template" : "Bu eylem bu şablonu silecektir. Devam etmek ister misiniz?",
+  "confirm_delete_wallet" : "Bu eylem bu cüzdanı silecektir. Devam etmek ister misiniz?",
+
+  "picker_description" : "ChangeNOW veya MorphToken'ı seçmek için lütfen önce takas birimini değiştirin",
+
+  "change_wallet_alert_title" : "Şimdiki cüzdanı değiştir",
+  "change_wallet_alert_content" : "Şimdiki cüzdanı ${wallet_name} cüzdanı ile değiştirmek istediğinizden emin misiniz?",
+
+  "creating_new_wallet" : "Cüzdan oluşturuluyor",
+  "creating_new_wallet_error" : "Hata: ${description}",
+
+  "seed_alert_title" : "Dikkat",
+  "seed_alert_content" : "Tohumlar cüzdanınızı kurtarmanın tek yoludur. Yazdığınızdan emin misiniz?",
+  "seed_alert_back" : "Geri dön",
+  "seed_alert_yes" : "Evet yazdım",
+
+  "exchange_sync_alert_content" : "Lütfen cüzdanınız senkronize olana kadar bekleyin"
+}
