@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/item_from_theme.dart';
 import 'package:cake_wallet/themes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,16 +13,10 @@ abstract class BasePage extends StatelessWidget {
       : _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldKey;
 
-  static final Image closeButtonImage =
+  final Image closeButtonImage =
     Image.asset('assets/images/close_button.png');
-  static final Image closeButtonImageDarkTheme =
+  final Image closeButtonImageDarkTheme =
     Image.asset('assets/images/close_button_dark_theme.png');
-
-  final Map<Themes, Image> buttonItems = {
-    Themes.light: closeButtonImage,
-    Themes.bright: closeButtonImage,
-    Themes.dark: closeButtonImageDarkTheme
-  };
 
   String get title => null;
 
@@ -60,8 +53,7 @@ abstract class BasePage extends StatelessWidget {
       color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
       size: 16,);
     final _closeButton =
-        itemFromTheme(currentTheme: currentTheme, items: buttonItems) as Image
-        ?? closeButtonImage;
+        currentTheme.isDarkTheme ? closeButtonImageDarkTheme : closeButtonImage;
 
     return SizedBox(
       height: 37,
@@ -97,7 +89,8 @@ abstract class BasePage extends StatelessWidget {
   Widget floatingActionButton(BuildContext context) => null;
 
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
-    final appBarColor = _setBackgroundColor();
+    final appBarColor =
+      currentTheme.isDarkTheme ? backgroundDarkColor : backgroundLightColor;
 
     switch (appBarStyle) {
       case AppBarStyle.regular:
@@ -139,7 +132,8 @@ abstract class BasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _backgroundColor = _setBackgroundColor();
+    final _backgroundColor =
+      currentTheme.isDarkTheme ? backgroundDarkColor : backgroundLightColor;
 
     final root = Scaffold(
         key: _scaffoldKey,
@@ -152,18 +146,5 @@ abstract class BasePage extends StatelessWidget {
         floatingActionButton: floatingActionButton(context));
 
     return rootWrapper?.call(context, root) ?? root;
-  }
-
-  Color _setBackgroundColor() {
-    switch (currentTheme) {
-      case Themes.light:
-        return backgroundLightColor;
-      case Themes.bright:
-        return backgroundLightColor;
-      case Themes.dark:
-        return backgroundDarkColor;
-      default:
-        return backgroundLightColor;
-    }
   }
 }

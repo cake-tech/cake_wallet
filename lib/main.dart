@@ -1,5 +1,3 @@
-import 'package:cake_wallet/entities/item_from_theme.dart';
-import 'package:cake_wallet/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -125,31 +123,25 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsStore = getIt.get<AppStore>().settingsStore;
-    final currentTheme = settingsStore.currentTheme ?? Themes.light;
-    final Map<Themes, Brightness> items = {
-      Themes.light: Brightness.dark,
-      Themes.bright: Brightness.dark,
-      Themes.dark: Brightness.light
-    };
-
     final statusBarColor = Colors.transparent;
-    final statusBarBrightness =
-          itemFromTheme(currentTheme: currentTheme, items: items) as Brightness
-          ?? Brightness.dark;
-    final statusBarIconBrightness =
-          itemFromTheme(currentTheme: currentTheme, items: items) as Brightness
-          ?? Brightness.dark;
     final authenticationStore = getIt.get<AuthenticationStore>();
     final initialRoute = authenticationStore.state == AuthenticationState.denied
         ? Routes.disclaimer
         : Routes.login;
 
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: statusBarColor,
-        statusBarBrightness: statusBarBrightness,
-        statusBarIconBrightness: statusBarIconBrightness));
-
     return Observer(builder: (BuildContext context) {
+      final currentTheme = settingsStore.currentTheme;
+      final statusBarBrightness = currentTheme.isDarkTheme
+            ? Brightness.dark
+            : Brightness.light;
+      final statusBarIconBrightness = currentTheme.isDarkTheme
+            ? Brightness.light
+            : Brightness.dark;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: statusBarColor,
+          statusBarBrightness: statusBarBrightness,
+          statusBarIconBrightness: statusBarIconBrightness));
+
       return Root(
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,

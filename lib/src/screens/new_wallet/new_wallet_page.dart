@@ -14,30 +14,22 @@ import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_pick
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
-import 'package:cake_wallet/themes.dart';
-import 'package:cake_wallet/entities/item_from_theme.dart';
 
 class NewWalletPage extends BasePage {
   NewWalletPage(this._walletNewVM);
 
   final WalletNewVM _walletNewVM;
 
-  static final walletNameImage = Image.asset('assets/images/wallet_name.png');
-  static final walletNameLightImage =
+  final walletNameImage = Image.asset('assets/images/wallet_name.png');
+  final walletNameLightImage =
     Image.asset('assets/images/wallet_name_light.png');
-  final Map<Themes, Image> items = {
-    Themes.light: walletNameLightImage,
-    Themes.bright: walletNameLightImage,
-    Themes.dark: walletNameImage
-  };
 
   @override
   String get title => S.current.new_wallet;
 
   @override
   Widget body(BuildContext context) => WalletNameForm(_walletNewVM,
-      itemFromTheme(currentTheme: currentTheme, items: items) as Image
-      ?? walletNameLightImage);
+      currentTheme.isDarkTheme ? walletNameImage : walletNameLightImage);
 }
 
 class WalletNameForm extends StatefulWidget {
