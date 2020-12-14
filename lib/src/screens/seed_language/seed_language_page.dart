@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/item_from_theme.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
@@ -8,21 +7,15 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_picker.dart';
-import 'package:cake_wallet/themes.dart';
 
 class SeedLanguage extends BasePage {
   SeedLanguage({this.onConfirm});
 
   final Function(BuildContext, String) onConfirm;
 
-  static final walletNameImage = Image.asset('assets/images/wallet_name.png');
-  static final walletNameLightImage =
+  final walletNameImage = Image.asset('assets/images/wallet_name.png');
+  final walletNameLightImage =
   Image.asset('assets/images/wallet_name_light.png');
-  final Map<Themes, Image> items = {
-    Themes.light: walletNameLightImage,
-    Themes.bright: walletNameLightImage,
-    Themes.dark: walletNameImage
-  };
 
   @override
   String get title => S.current.wallet_list_restore_wallet;
@@ -32,8 +25,7 @@ class SeedLanguage extends BasePage {
       SeedLanguageForm(
           onConfirm: onConfirm,
           walletImage:
-              itemFromTheme(currentTheme: currentTheme, items: items) as Image
-              ?? walletNameLightImage);
+              currentTheme.isDarkTheme ? walletNameImage : walletNameLightImage);
 }
 
 class SeedLanguageForm extends StatefulWidget {

@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/item_from_theme.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +6,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
-import 'package:cake_wallet/themes.dart';
 
 class NewWalletTypePage extends BasePage {
   NewWalletTypePage({this.onTypeSelected, this.isNewWallet = true});
@@ -15,14 +13,9 @@ class NewWalletTypePage extends BasePage {
   final void Function(BuildContext, WalletType) onTypeSelected;
   final bool isNewWallet;
 
-  static final walletTypeImage = Image.asset('assets/images/wallet_type.png');
-  static final walletTypeLightImage =
+  final walletTypeImage = Image.asset('assets/images/wallet_type.png');
+  final walletTypeLightImage =
                Image.asset('assets/images/wallet_type_light.png');
-  final Map<Themes, Image> items = {
-    Themes.light: walletTypeLightImage,
-    Themes.bright: walletTypeLightImage,
-    Themes.dark: walletTypeImage
-  };
 
   @override
   String get title => isNewWallet
@@ -33,9 +26,8 @@ class NewWalletTypePage extends BasePage {
   Widget body(BuildContext context) =>
       WalletTypeForm(
           onTypeSelected: onTypeSelected,
-          walletImage:
-            itemFromTheme(currentTheme: currentTheme, items: items) as Image
-            ?? walletTypeLightImage);
+          walletImage: currentTheme.isDarkTheme
+              ? walletTypeImage : walletTypeLightImage);
 }
 
 class WalletTypeForm extends StatefulWidget {

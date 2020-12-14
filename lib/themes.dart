@@ -43,6 +43,10 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
     }
   }
 
+  bool get isLightTheme => this == Themes.light;
+  bool get isBrightTheme => this == Themes.bright;
+  bool get isDarkTheme => this == Themes.dark;
+
   @override
   String toString() {
     switch (this) {
@@ -65,7 +69,7 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
       scaffoldBackgroundColor: Colors.white, // second gradient color
       primaryColor: Colors.white, // third gradient color
       buttonColor: Palette.blueAlice, // action buttons on dashboard page
-      indicatorColor: PaletteDark.darkCyanBlue, // page indicator
+      indicatorColor: PaletteDark.darkCyanBlue.withOpacity(0.67), // page indicator
       hoverColor: Palette.darkBlueCraiola, // amount hint text (receive page)
       dividerColor: Palette.paleBlue,
       hintColor: Palette.gray,
@@ -165,11 +169,13 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
           ),
           body1: TextStyle(
               color: Palette.blueCraiola.withOpacity(0.7), // first gradient color bottom panel (exchange page)
-              decorationColor: Palette.blueGreyCraiola.withOpacity(0.7) // second gradient color bottom panel (exchange page)
+              decorationColor: Palette.blueGreyCraiola.withOpacity(0.7), // second gradient color bottom panel (exchange page)
+              backgroundColor: Palette.protectiveBlue // alert right button text
           ),
           body2: TextStyle(
             color: Colors.white.withOpacity(0.5), // text field border on top panel (exchange page)
             decorationColor: Colors.white.withOpacity(0.5), // text field border on bottom panel (exchange page)
+            backgroundColor: Palette.brightOrange // alert left button text
           )
       ),
       focusColor: Colors.white.withOpacity(0.2), // text field button (exchange page)
@@ -211,7 +217,7 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
         display2: TextStyle(
             color: Palette.shadowWhite, // action button color (address text field)
             decorationColor: Palette.darkGray, // hint text (seed widget)
-            backgroundColor: Palette.darkBlueCraiola // text on balance page
+            backgroundColor: Palette.darkBlueCraiola.withOpacity(0.67) // text on balance page
         ),
         display3: TextStyle(
             color: Palette.darkGray, // hint text (new wallet page)
@@ -224,11 +230,12 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
         ),
         body1: TextStyle(
             color: Palette.darkGray, // indicators (PIN code)
-            decorationColor: Palette.darkGray // switch (PIN code)
+            decorationColor: Palette.darkGray, // switch (PIN code)
+            backgroundColor: Colors.white // alert right button
         ),
         body2: TextStyle(
-            color: Palette.protectiveBlue, // primary buttons, alert right buttons
-            decorationColor: Palette.brightOrange, // alert left button,
+            color: Palette.protectiveBlue, // primary buttons
+            decorationColor: Colors.white, // alert left button,
             backgroundColor: Palette.dullGray // keyboard bar color
         ),
       ),
@@ -343,11 +350,13 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
           ),
           body1: TextStyle(
               color: Palette.blueCraiola.withOpacity(0.7), // first gradient color bottom panel (exchange page)
-              decorationColor: Palette.pinkFlamingo.withOpacity(0.7) // second gradient color bottom panel (exchange page)
+              decorationColor: Palette.pinkFlamingo.withOpacity(0.7), // second gradient color bottom panel (exchange page)
+              backgroundColor: Colors.white // alert right button text
           ),
           body2: TextStyle(
             color: Colors.white.withOpacity(0.5), // text field border on top panel (exchange page)
             decorationColor: Colors.white.withOpacity(0.5), // text field border on bottom panel (exchange page)
+            backgroundColor: Colors.white // alert left button text
           )
       ),
       focusColor: Colors.white.withOpacity(0.2), // text field button (exchange page)
@@ -403,10 +412,11 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
         ),
         body1: TextStyle(
             color: Palette.darkGray, // indicators (PIN code)
-            decorationColor: Palette.darkGray // switch (PIN code)
+            decorationColor: Palette.darkGray, // switch (PIN code)
+            backgroundColor: Palette.moderateSlateBlue // alert right button
         ),
         body2: TextStyle(
-            color: Palette.moderateSlateBlue, // primary buttons, alert right buttons
+            color: Palette.moderateSlateBlue, // primary buttons
             decorationColor: Palette.brightOrange, // alert left button,
             backgroundColor: Palette.dullGray // keyboard bar color
         ),
@@ -521,11 +531,13 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
           ),
           body1: TextStyle(
               color: PaletteDark.darkNightBlue, // first gradient color bottom panel (exchange page)
-              decorationColor: PaletteDark.darkNightBlue // second gradient color bottom panel (exchange page)
+              decorationColor: PaletteDark.darkNightBlue, // second gradient color bottom panel (exchange page)
+              backgroundColor: Colors.white // alert right button text
           ),
           body2: TextStyle(
             color: PaletteDark.blueGrey, // text field border on top panel (exchange page)
             decorationColor: PaletteDark.moderateVioletBlue, // text field border on bottom panel (exchange page)
+            backgroundColor: Colors.white // alert left button text
           )
       ),
       focusColor: PaletteDark.moderateBlue, // text field button (exchange page)
@@ -581,10 +593,11 @@ class Themes extends EnumerableItem<int> with Serializable<int> {
         ),
         body1: TextStyle(
             color: PaletteDark.indicatorVioletBlue, // indicators (PIN code)
-            decorationColor: PaletteDark.lightPurpleBlue // switch (PIN code)
+            decorationColor: PaletteDark.lightPurpleBlue, // switch (PIN code)
+            backgroundColor: Palette.blueCraiola // alert right button
         ),
         body2: TextStyle(
-            color: Palette.blueCraiola, // primary buttons, alert right buttons
+            color: Palette.blueCraiola, // primary buttons
             decorationColor: Palette.alizarinRed, // alert left button
             backgroundColor: PaletteDark.granite // keyboard bar color
         ),

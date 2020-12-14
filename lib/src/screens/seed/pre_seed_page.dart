@@ -1,21 +1,13 @@
-import 'package:cake_wallet/entities/item_from_theme.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/themes.dart';
 
 class PreSeedPage extends BasePage {
-  static final imageLight = Image.asset('assets/images/pre_seed_light.png');
-  static final imageDark = Image.asset('assets/images/pre_seed_dark.png');
-
-  final Map<Themes, Image> items = {
-    Themes.light: imageLight,
-    Themes.bright: imageLight,
-    Themes.dark: imageDark
-  };
+  final imageLight = Image.asset('assets/images/pre_seed_light.png');
+  final imageDark = Image.asset('assets/images/pre_seed_dark.png');
 
   @override
   Widget leading(BuildContext context) => null;
@@ -25,9 +17,7 @@ class PreSeedPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final image =
-          itemFromTheme(currentTheme: currentTheme, items: items) as Image
-          ?? imageLight;
+    final image = currentTheme.isDarkTheme ? imageDark : imageLight;
 
     return WillPopScope(
         onWillPop: () async => false,

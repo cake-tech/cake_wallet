@@ -1,4 +1,7 @@
 import 'dart:ui';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -10,6 +13,7 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
+  Themes get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
   Widget title(BuildContext context) {
     return Text(
@@ -61,18 +65,26 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.body2
+                            .backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
               ),
             )
         ),
+        currentTheme.isLightTheme
+        ? Container(
+          width: 1,
+          height: 52,
+          color: Colors.grey[300],
+        )
+        : Offstage(),
         Flexible(
             child: Container(
               height: 52,
               padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.body1.backgroundColor,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -86,7 +98,8 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.body1
+                            .backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
@@ -133,6 +146,12 @@ class BaseAlertDialog extends StatelessWidget {
                             ],
                           ),
                         ),
+                        currentTheme.isLightTheme
+                        ? Container(
+                          height: 1,
+                          color: Colors.grey[300],
+                        )
+                        : Offstage(),
                         actionButtons(context)
                       ],
                     ),
