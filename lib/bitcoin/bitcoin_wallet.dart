@@ -262,9 +262,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       final utxs = await unptsFutures;
 
       for (final utx in utxs) {
-        final inAmount = utx.value > totalAmount ? totalAmount : utx.value;
-        leftAmount = leftAmount - inAmount;
-        totalInputAmount += inAmount;
+        leftAmount = leftAmount - utx.value;
+        totalInputAmount += utx.value;
         inputs.add(utx);
 
         if (leftAmount <= 0) {
@@ -346,6 +345,11 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   @override
   Future<void> rescan({int height}) async {
     // FIXME: Unimplemented
+  }
+
+  @override
+  void close() {
+    
   }
 
   void _subscribeForUpdates() {

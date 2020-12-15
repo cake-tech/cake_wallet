@@ -75,7 +75,7 @@ class ElectrumClient {
       try {
         final jsoned =
             json.decode(utf8.decode(event.toList())) as Map<String, Object>;
-        print(jsoned);
+        // print(jsoned);
         final method = jsoned['method'];
         final id = jsoned['id'] as String;
         final result = jsoned['result'];
@@ -92,7 +92,9 @@ class ElectrumClient {
     }, onError: (Object error) {
       print(error.toString());
       _setIsConnected(false);
-    }, onDone: () => _setIsConnected(false));
+    }, onDone: () {
+      _setIsConnected(false);
+    });
     keepAlive();
   }
 
@@ -103,7 +105,7 @@ class ElectrumClient {
 
   Future<void> ping() async {
     try {
-      // await callWithTimeout(method: 'server.ping');
+      await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
       _setIsConnected(false);

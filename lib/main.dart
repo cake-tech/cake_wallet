@@ -83,7 +83,6 @@ void main() async {
                 )))));
   }
 }
-
 Future<void> initialSetup(
     {@required SharedPreferences sharedPreferences,
     @required Box<Node> nodes,

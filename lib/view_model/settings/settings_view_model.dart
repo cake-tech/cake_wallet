@@ -35,12 +35,13 @@ abstract class SettingsViewModelBase with Store {
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
     sections = [
       [
-        PickerListItem(
-            title: S.current.settings_display_balance_as,
-            items: BalanceDisplayMode.all,
-            selectedItem: () => balanceDisplayMode,
-            onItemSelected: (BalanceDisplayMode mode) =>
-                _settingsStore.balanceDisplayMode = mode),
+        if ((wallet.balance.availableModes as List).length > 1)
+          PickerListItem(
+              title: S.current.settings_display_balance_as,
+              items: BalanceDisplayMode.all,
+              selectedItem: () => balanceDisplayMode,
+              onItemSelected: (BalanceDisplayMode mode) =>
+                  _settingsStore.balanceDisplayMode = mode),
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
