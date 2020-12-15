@@ -1,5 +1,5 @@
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';

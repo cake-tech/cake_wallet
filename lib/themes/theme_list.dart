@@ -1,7 +1,7 @@
-import 'package:cake_wallet/src/themes/bright_theme.dart';
-import 'package:cake_wallet/src/themes/dark_theme.dart';
-import 'package:cake_wallet/src/themes/light_theme.dart';
-import 'package:cake_wallet/src/themes/theme_base.dart';
+import 'package:cake_wallet/themes/bright_theme.dart';
+import 'package:cake_wallet/themes/dark_theme.dart';
+import 'package:cake_wallet/themes/light_theme.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 
 class ThemeList {
   static final all = [lightTheme, brightTheme, darkTheme];

@@ -1,4 +1,4 @@
-import 'package:cake_wallet/src/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
