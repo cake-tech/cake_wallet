@@ -113,7 +113,8 @@ class SendTemplatePage extends BasePage {
 
                               if (uri != null) {
                                 address = uri.path;
-                                amount = uri.queryParameters['tx_amount'];
+                                amount = uri.queryParameters['tx_amount'] ??
+                                    uri.queryParameters['amount'];
                               } else {
                                 address = uri.toString();
                               }

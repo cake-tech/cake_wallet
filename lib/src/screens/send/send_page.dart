@@ -133,7 +133,8 @@ class SendPage extends BasePage {
 
                                   if (uri != null) {
                                     address = uri.path;
-                                    amount = uri.queryParameters['tx_amount'];
+                                    amount = uri.queryParameters['tx_amount'] ??
+                                        uri.queryParameters['amount'];
                                   } else {
                                     address = uri.toString();
                                   }
@@ -750,8 +751,7 @@ class SendPage extends BasePage {
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
-    final items =
-        TransactionPriority.forWalletType(sendViewModel.walletType);
+    final items = TransactionPriority.forWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
 
     await showPopUp<void>(
