@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/themes.dart';
+import 'package:cake_wallet/src/themes/theme_base.dart';
+import 'package:cake_wallet/src/themes/theme_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -28,7 +29,7 @@ abstract class SettingsStoreBase with Store {
       @required BalanceDisplayMode initialBalanceDisplayMode,
       @required bool initialSaveRecipientAddress,
       @required bool initialAllowBiometricalAuthentication,
-      @required Themes initialTheme,
+      @required ThemeBase initialTheme,
       @required int initialPinLength,
       @required String initialLanguageCode,
       // @required String initialCurrentLocale,
@@ -66,8 +67,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => currentTheme,
-        (Themes theme) => sharedPreferences.setInt(
-            PreferencesKey.currentTheme, theme.serialize()));
+        (ThemeBase theme) => sharedPreferences.setInt(
+            PreferencesKey.currentTheme, theme.raw));
 
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -111,7 +112,7 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
-  Themes currentTheme;
+  ThemeBase currentTheme;
 
   @observable
   int pinCodeLength;
@@ -154,7 +155,7 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
-    final savedTheme = Themes.deserialize(
+    final savedTheme = ThemeList.deserialize(
       raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? 0);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(

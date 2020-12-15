@@ -1,7 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -13,7 +10,6 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
-  Themes get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
   Widget title(BuildContext context) {
     return Text(
@@ -73,13 +69,11 @@ class BaseAlertDialog extends StatelessWidget {
               ),
             )
         ),
-        currentTheme.isLightTheme
-        ? Container(
+        Container(
           width: 1,
           height: 52,
-          color: Colors.grey[300],
-        )
-        : Offstage(),
+          color: Theme.of(context).dividerColor,
+        ),
         Flexible(
             child: Container(
               height: 52,
@@ -146,12 +140,10 @@ class BaseAlertDialog extends StatelessWidget {
                             ],
                           ),
                         ),
-                        currentTheme.isLightTheme
-                        ? Container(
+                        Container(
                           height: 1,
-                          color: Colors.grey[300],
-                        )
-                        : Offstage(),
+                          color: Theme.of(context).dividerColor,
+                        ),
                         actionButtons(context)
                       ],
                     ),

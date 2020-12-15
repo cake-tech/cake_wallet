@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -131,10 +132,10 @@ class App extends StatelessWidget {
 
     return Observer(builder: (BuildContext context) {
       final currentTheme = settingsStore.currentTheme;
-      final statusBarBrightness = currentTheme.isDarkTheme
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
             ? Brightness.dark
             : Brightness.light;
-      final statusBarIconBrightness = currentTheme.isDarkTheme
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
             ? Brightness.light
             : Brightness.dark;
       SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
