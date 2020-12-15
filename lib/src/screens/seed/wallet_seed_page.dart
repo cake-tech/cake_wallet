@@ -1,4 +1,5 @@
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -81,7 +82,7 @@ class WalletSeedPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final image = currentTheme.isDarkTheme ? imageDark : imageLight;
+    final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
     return WillPopScope(onWillPop: () async => false, child:  Container(
         padding: EdgeInsets.all(24),

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/src/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -26,7 +27,7 @@ class NewWalletTypePage extends BasePage {
   Widget body(BuildContext context) =>
       WalletTypeForm(
           onTypeSelected: onTypeSelected,
-          walletImage: currentTheme.isDarkTheme
+          walletImage: currentTheme.type == ThemeType.dark
               ? walletTypeImage : walletTypeLightImage);
 }
 

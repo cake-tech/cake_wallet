@@ -1,4 +1,5 @@
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/themes/theme_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -17,7 +18,7 @@ class PreSeedPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final image = currentTheme.isDarkTheme ? imageDark : imageLight;
+    final image = currentTheme.type == ThemeType.dark ? imageDark : imageLight;
 
     return WillPopScope(
         onWillPop: () async => false,
