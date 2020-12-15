@@ -227,7 +227,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             final sendingState =
                 widget.exchangeTradeViewModel.sendViewModel.state;
 
-            return trade.from == CryptoCurrency.xmr &&
+            return widget.exchangeTradeViewModel.isSendable &&
                     !(sendingState is TransactionCommitted)
                 ? LoadingPrimaryButton(
                     isDisabled: trade.inputAddress == null ||
@@ -235,9 +235,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     isLoading: sendingState is IsExecutingState,
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
-                    text: trade.provider == ExchangeProviderDescription.xmrto
-                        ? S.of(context).confirm
-                        : S.of(context).send_xmr,
+                    text: S.of(context).confirm,
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Colors.white)
                 : Offstage();
