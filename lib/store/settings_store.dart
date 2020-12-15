@@ -43,7 +43,6 @@ abstract class SettingsStoreBase with Store {
     isDarkTheme = initialDarkTheme;
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
-    currentNode = nodes[WalletType.monero];
     this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
 
@@ -80,13 +79,14 @@ abstract class SettingsStoreBase with Store {
         (int pinLength) => sharedPreferences.setInt(
             PreferencesKey.currentPinLength, pinLength));
 
-    reaction((_) => currentNode,
-        (Node node) => _saveCurrentNode(node, WalletType.monero));
-
     reaction(
         (_) => languageCode,
         (String languageCode) => sharedPreferences.setString(
             PreferencesKey.currentLanguageCode, languageCode));
+
+    this
+        .nodes
+        .observe((change) => _saveCurrentNode(change.newValue, change.key));
   }
 
   static const defaultPinLength = 4;
@@ -115,9 +115,6 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   int pinCodeLength;
-
-  @observable
-  Node currentNode;
 
   @computed
   ThemeData get theme => isDarkTheme ? Themes.darkTheme : Themes.lightTheme;
