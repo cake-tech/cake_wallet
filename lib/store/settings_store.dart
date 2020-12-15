@@ -1,6 +1,6 @@
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/src/themes/theme_base.dart';
-import 'package:cake_wallet/src/themes/theme_list.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';

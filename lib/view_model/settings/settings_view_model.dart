@@ -1,5 +1,5 @@
-import 'package:cake_wallet/src/themes/theme_base.dart';
-import 'package:cake_wallet/src/themes/theme_list.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
