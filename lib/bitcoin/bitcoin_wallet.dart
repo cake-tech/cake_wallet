@@ -348,8 +348,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   }
 
   @override
-  void close() {
-    
+  void close() async{
+    await eclient.close();
   }
 
   void _subscribeForUpdates() {
@@ -357,8 +357,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       await _scripthashesUpdateSubject[sh]?.close();
       _scripthashesUpdateSubject[sh] = eclient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh].listen((event) async {
-        transactionHistory.updateAsync();
         await _updateBalance();
+        transactionHistory.updateAsync();
       });
     });
   }

@@ -186,6 +186,8 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase wallet;
 
+  bool get hasRescan => wallet.type == WalletType.monero;
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
@@ -237,6 +239,21 @@ abstract class DashboardViewModelBase with Store {
               balanceViewModel: balanceViewModel,
               settingsStore: appStore.settingsStore)));
     }
+
+    connectMapToListWithTransform(
+        appStore.wallet.transactionHistory.transactions,
+        transactions,
+            (TransactionInfo val) => TransactionListItem(
+            transaction: val,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore),
+        filter: (TransactionInfo tx) {
+          if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
+            return tx.accountIndex == wallet.account.id;
+          }
+
+          return true;
+        });
   }
 
   @action

@@ -35,16 +35,6 @@ class TransactionDetailsPage extends BasePage {
             value: tx.feeFormatted())
       ];
 
-      if (showRecipientAddress) {
-        final recipientAddress = transactionDescriptionBox.values.firstWhere((val) => val.id == transactionInfo.id, orElse: () => null)?.recipientAddress;
-
-        if (recipientAddress?.isNotEmpty ?? false) {
-          items.add(StandartListItem(
-              title: S.current.transaction_details_recipient_address,
-              value: recipientAddress));
-        }
-      }
-
       if (tx.key?.isNotEmpty ?? null) {
         // FIXME: add translation
         items.add(StandartListItem(title: 'Transaction Key', value: tx.key));
@@ -70,6 +60,16 @@ class TransactionDetailsPage extends BasePage {
       ];
 
       _items.addAll(items);
+    }
+
+    if (showRecipientAddress) {
+      final recipientAddress = transactionDescriptionBox.values.firstWhere((val) => val.id == transactionInfo.id, orElse: () => null)?.recipientAddress;
+
+      if (recipientAddress?.isNotEmpty ?? false) {
+        _items.add(StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: recipientAddress));
+      }
     }
   }
 
