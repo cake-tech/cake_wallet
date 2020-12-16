@@ -1,5 +1,7 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -19,7 +21,22 @@ abstract class BalanceViewModelBase with Store {
     @required this.appStore,
     @required this.settingsStore,
     @required this.fiatConvertationStore
-  }) : isReversing = false;
+  }) {
+    isReversing = false;
+
+    wallet ??= appStore.wallet;
+
+    _reaction = reaction((_) => appStore.wallet, _onWalletChange);
+
+    final _wallet = wallet;
+
+    if (_wallet is MoneroWallet) {
+      moneroBalance = _wallet.balance;
+
+      _onMoneroBalanceChangeReaction = reaction((_) => _wallet.balance,
+              (MoneroBalance balance) => moneroBalance = balance);
+    }
+  }
 
   final AppStore appStore;
   final SettingsStore settingsStore;
@@ -27,6 +44,12 @@ abstract class BalanceViewModelBase with Store {
 
   @observable
   bool isReversing;
+
+  @observable
+  MoneroBalance moneroBalance;
+
+  @observable
+  WalletBase wallet;
 
   @computed
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
@@ -86,12 +109,12 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   WalletBalance get _walletBalance {
-    final _wallet = appStore.wallet;
+    final _wallet = wallet;
 
     if (_wallet is MoneroWallet) {
       return  WalletBalance(
-          unlockedBalance: _wallet.balance.formattedUnlockedBalance,
-          totalBalance: _wallet.balance.formattedFullBalance);
+          unlockedBalance: moneroBalance.formattedUnlockedBalance,
+          totalBalance: moneroBalance.formattedFullBalance);
     }
 
     if (_wallet is BitcoinWallet) {
@@ -105,6 +128,24 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   CryptoCurrency get currency => appStore.wallet.currency;
+
+  @action
+  void _onWalletChange(WalletBase wallet) {
+    this.wallet = wallet;
+
+    if (wallet is MoneroWallet) {
+      moneroBalance = wallet.balance;
+
+      _onMoneroBalanceChangeReaction?.reaction?.dispose();
+
+      _onMoneroBalanceChangeReaction = reaction((_) => wallet.balance,
+              (MoneroBalance balance) => moneroBalance = balance);
+    }
+  }
+
+  ReactionDisposer _onMoneroBalanceChangeReaction;
+
+  ReactionDisposer _reaction;
 
   String _getFiatBalance({double price, String cryptoAmount}) {
     if (cryptoAmount == null) {
