@@ -9,44 +9,53 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 // FIXME: terrible design
 
 class WalletMenu {
-  WalletMenu(this.context, this.reconnect);
+  WalletMenu(this.context, this.reconnect, this.hasRescan) : items = [] {
+    items.addAll([
+      WalletMenuItem(
+          title: S.current.reconnect,
+          image: Image.asset('assets/images/reconnect_menu.png',
+              height: 16, width: 16)),
+      if (hasRescan)
+        WalletMenuItem(
+            title: S.current.rescan,
+            image: Image.asset('assets/images/filter_icon.png',
+                height: 16, width: 16)),
+      WalletMenuItem(
+          title: S.current.wallets,
+          image: Image.asset('assets/images/wallet_menu.png',
+              height: 16, width: 16)),
+      WalletMenuItem(
+          title: S.current.nodes,
+          image: Image.asset('assets/images/nodes_menu.png',
+              height: 16, width: 16)),
+      WalletMenuItem(
+          title: S.current.show_keys,
+          image:
+              Image.asset('assets/images/key_menu.png', height: 16, width: 16)),
+      WalletMenuItem(
+          title: S.current.address_book_menu,
+          image: Image.asset('assets/images/open_book_menu.png',
+              height: 16, width: 16)),
+      WalletMenuItem(
+          title: S.current.settings_title,
+          image: Image.asset('assets/images/settings_menu.png',
+              height: 16, width: 16)),
+    ]);
+  }
 
-  final List<WalletMenuItem> items = [
-    WalletMenuItem(
-        title: S.current.reconnect,
-        image: Image.asset('assets/images/reconnect_menu.png',
-            height: 16, width: 16)),
-    WalletMenuItem(
-        title: S.current.rescan,
-        image: Image.asset('assets/images/filter_icon.png',
-            height: 16, width: 16)),
-    WalletMenuItem(
-        title: S.current.wallets,
-        image: Image.asset('assets/images/wallet_menu.png',
-            height: 16, width: 16)),
-    WalletMenuItem(
-        title: S.current.nodes,
-        image:
-            Image.asset('assets/images/nodes_menu.png', height: 16, width: 16)),
-    WalletMenuItem(
-        title: S.current.show_keys,
-        image:
-            Image.asset('assets/images/key_menu.png', height: 16, width: 16)),
-    WalletMenuItem(
-        title: S.current.address_book_menu,
-        image: Image.asset('assets/images/open_book_menu.png',
-            height: 16, width: 16)),
-    WalletMenuItem(
-        title: S.current.settings_title,
-        image: Image.asset('assets/images/settings_menu.png',
-            height: 16, width: 16)),
-  ];
-
+  final List<WalletMenuItem> items;
   final BuildContext context;
   final Future<void> Function() reconnect;
+  final bool hasRescan;
 
   void action(int index) {
-    switch (index) {
+    var indx = index;
+
+    if (index > 0 && !hasRescan) {
+      indx += 1;
+    }
+
+    switch (indx) {
       case 0:
         _presentReconnectAlert(context);
         break;
