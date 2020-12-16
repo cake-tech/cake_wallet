@@ -133,8 +133,8 @@ class App extends StatelessWidget {
     return Observer(builder: (BuildContext context) {
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness = currentTheme.type == ThemeType.dark
-            ? Brightness.dark
-            : Brightness.light;
+            ? Brightness.light
+            : Brightness.dark;
       final statusBarIconBrightness = currentTheme.type == ThemeType.dark
             ? Brightness.light
             : Brightness.dark;
