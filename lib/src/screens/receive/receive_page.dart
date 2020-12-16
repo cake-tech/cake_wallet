@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,7 +28,8 @@ class ReceivePage extends BasePage {
   String get title => S.current.receive;
 
   @override
-  Color get backgroundLightColor => Colors.transparent;
+  Color get backgroundLightColor => currentTheme.type == ThemeType.bright
+      ? Colors.transparent : Colors.white;
 
   @override
   Color get backgroundDarkColor => Colors.transparent;
