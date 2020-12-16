@@ -1,5 +1,6 @@
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -20,7 +21,8 @@ class DashboardPage extends BasePage {
   });
 
   @override
-  Color get backgroundLightColor => Colors.transparent;
+  Color get backgroundLightColor => currentTheme.type == ThemeType.bright
+      ? Colors.transparent : Colors.white;
 
   @override
   Color get backgroundDarkColor => Colors.transparent;
