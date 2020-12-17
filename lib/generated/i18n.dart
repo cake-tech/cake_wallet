@@ -208,7 +208,7 @@ class S implements WidgetsLocalizations {
   String get send_error_currency => "Currency can only contain numbers";
   String get send_error_minimum_value => "Minimum value of amount is 0.01";
   String get send_estimated_fee => "Estimated fee:";
-  String get send_fee => "Fee:";
+  String get send_fee => "Fee";
   String get send_got_it => "Got it";
   String get send_name => "Name";
   String get send_new => "New";
@@ -396,7 +396,7 @@ class $de extends S {
   @override
   String get transaction_sent => "Transaktion gesendet!";
   @override
-  String get send_fee => "Gebühr:";
+  String get send_fee => "Gebühr";
   @override
   String get password => "Passwort";
   @override
@@ -1780,7 +1780,7 @@ class $ru extends S {
   @override
   String get transaction_sent => "Tранзакция отправлена!";
   @override
-  String get send_fee => "Комиссия:";
+  String get send_fee => "Комиссия";
   @override
   String get password => "Пароль";
   @override
@@ -2472,7 +2472,7 @@ class $ko extends S {
   @override
   String get transaction_sent => "거래가 전송되었습니다!";
   @override
-  String get send_fee => "회비:";
+  String get send_fee => "회비";
   @override
   String get password => "암호";
   @override
@@ -3164,7 +3164,7 @@ class $pt extends S {
   @override
   String get transaction_sent => "Transação enviada!";
   @override
-  String get send_fee => "Taxa:";
+  String get send_fee => "Taxa";
   @override
   String get password => "Senha";
   @override
@@ -3856,7 +3856,7 @@ class $uk extends S {
   @override
   String get transaction_sent => "Tранзакцію відправлено!";
   @override
-  String get send_fee => "Комісія:";
+  String get send_fee => "Комісія";
   @override
   String get password => "Пароль";
   @override
@@ -4548,7 +4548,7 @@ class $ja extends S {
   @override
   String get transaction_sent => "トランザクションが送信されました！";
   @override
-  String get send_fee => "費用：";
+  String get send_fee => "費用";
   @override
   String get password => "パスワード";
   @override
@@ -5244,7 +5244,7 @@ class $pl extends S {
   @override
   String get transaction_sent => "Transakcja wysłana!";
   @override
-  String get send_fee => "Opłata:";
+  String get send_fee => "Opłata";
   @override
   String get password => "Hasło";
   @override
@@ -5936,7 +5936,7 @@ class $es extends S {
   @override
   String get transaction_sent => "Transacción enviada!";
   @override
-  String get send_fee => "Cuota:";
+  String get send_fee => "Cuota";
   @override
   String get password => "Contraseña";
   @override
@@ -6628,7 +6628,7 @@ class $nl extends S {
   @override
   String get transaction_sent => "Transactie verzonden!";
   @override
-  String get send_fee => "Vergoeding:";
+  String get send_fee => "Vergoeding";
   @override
   String get password => "Wachtwoord";
   @override
@@ -7320,7 +7320,7 @@ class $zh extends S {
   @override
   String get transaction_sent => "交易已发送";
   @override
-  String get send_fee => "費用:";
+  String get send_fee => "費用";
   @override
   String get password => "密码";
   @override

@@ -16,10 +16,9 @@ class AddressPage extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Expanded(
-            child: Center(
-              child: QRWidget(addressListViewModel: addressListViewModel),
-            )
-          ),
+              child: Center(
+            child: QRWidget(addressListViewModel: addressListViewModel),
+          )),
           GestureDetector(
             onTap: () => Navigator.of(context).pushNamed(Routes.receive),
             child: Container(
@@ -27,24 +26,23 @@ class AddressPage extends StatelessWidget {
               padding: EdgeInsets.only(left: 24, right: 12),
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(25)),
-                border: Border.all(
-                  color: Theme.of(context).textTheme.subhead.color,
-                  width: 1
-                ),
-                color: Theme.of(context).buttonColor
-              ),
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                  border: Border.all(
+                      color: Theme.of(context).textTheme.subhead.color,
+                      width: 1),
+                  color: Theme.of(context).buttonColor),
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    S.of(context).accounts_subaddresses,
+                    addressListViewModel.hasAccounts
+                        ? S.of(context).accounts_subaddresses
+                        : S.of(context).addresses,
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white
-                    ),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.white),
                   ),
                   Icon(
                     Icons.arrow_forward_ios,

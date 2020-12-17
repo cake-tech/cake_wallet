@@ -95,7 +95,7 @@ abstract class BalanceViewModelBase with Store {
 
     if (_wallet is BitcoinWallet) {
       return WalletBalance(
-          unlockedBalance: _wallet.balance.totalFormatted,
+          unlockedBalance: _wallet.balance.confirmedFormatted,
           totalBalance: _wallet.balance.totalFormatted);
     }
 
