@@ -7,7 +7,10 @@ import 'package:cake_wallet/entities/balance.dart';
 
 class BitcoinBalance extends Balance {
   const BitcoinBalance({@required this.confirmed, @required this.unconfirmed})
-      : super(const [BalanceDisplayMode.availableBalance]);
+      : super(const [
+          BalanceDisplayMode.availableBalance,
+          BalanceDisplayMode.fullBalance
+        ]);
 
   factory BitcoinBalance.fromJSON(String jsonSource) {
     if (jsonSource == null) {
@@ -38,7 +41,7 @@ class BitcoinBalance extends Balance {
       case BalanceDisplayMode.fullBalance:
         return totalFormatted;
       case BalanceDisplayMode.availableBalance:
-        return totalFormatted;
+        return confirmedFormatted;
       default:
         return null;
     }
