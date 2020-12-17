@@ -67,7 +67,7 @@ class QRWidget extends StatelessWidget {
                                     decimal: true),
                                 inputFormatters: [
                                   BlacklistingTextInputFormatter(
-                                      RegExp('[\\-|\\ |\\,]'))
+                                      RegExp('[\\-|\\ ]'))
                                 ],
                                 textAlign: TextAlign.center,
                                 hintText: S.of(context).receive_amount,
