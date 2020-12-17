@@ -27,7 +27,9 @@ class BitcoinBalance extends Balance {
   final int confirmed;
   final int unconfirmed;
 
-  int get total => confirmed + unconfirmed;
+  int get total =>
+      (confirmed < 0 ? confirmed * -1 : confirmed) +
+      (unconfirmed < 0 ? unconfirmed * -1 : unconfirmed);
 
   String get confirmedFormatted => bitcoinAmountToString(amount: confirmed);
 

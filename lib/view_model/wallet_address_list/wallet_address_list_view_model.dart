@@ -57,10 +57,13 @@ class BitcoinURI extends PaymentURI {
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase(
       {@required AppStore appStore}) {
-    hasAccounts = _wallet is MoneroWallet;
     _appStore = appStore;
     _wallet = _appStore.wallet;
-    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase wallet) => _wallet = wallet);
+    hasAccounts = _wallet?.type == WalletType.monero;
+    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase wallet) {
+      _wallet = wallet;
+      hasAccounts = _wallet.type == WalletType.monero;
+    });
     _init();
   }
 
@@ -125,6 +128,7 @@ abstract class WalletAddressListViewModelBase with Store {
     return addressList;
   }
 
+  @observable
   bool hasAccounts;
 
   @observable
