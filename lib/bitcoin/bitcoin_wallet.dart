@@ -389,9 +389,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       case TransactionPriority.slow:
         return 6000;
       case TransactionPriority.regular:
-        return 9000;
+        return 22080;
       case TransactionPriority.fast:
-        return 15000;
+        return 24000;
       default:
         return 0;
     }

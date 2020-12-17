@@ -3,6 +3,7 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_v
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class AddressPage extends StatelessWidget {
   AddressPage({@required this.addressListViewModel});
@@ -35,15 +36,16 @@ class AddressPage extends StatelessWidget {
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Text(
-                    addressListViewModel.hasAccounts
-                        ? S.of(context).accounts_subaddresses
-                        : S.of(context).addresses,
-                    style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white),
-                  ),
+                  Observer(
+                      builder: (_) => Text(
+                            addressListViewModel.hasAccounts
+                                ? S.of(context).accounts_subaddresses
+                                : S.of(context).addresses,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                          )),
                   Icon(
                     Icons.arrow_forward_ios,
                     size: 14,
