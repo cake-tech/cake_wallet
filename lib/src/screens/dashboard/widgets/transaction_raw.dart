@@ -57,12 +57,14 @@ class TransactionRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white)),
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor)),
                             Text(formattedAmount,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white))
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor))
                           ]),
                       SizedBox(height: 5),
                       Row(
