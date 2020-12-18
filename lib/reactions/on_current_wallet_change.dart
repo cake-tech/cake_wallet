@@ -12,6 +12,7 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 
 ReactionDisposer _onCurrentWalletChangeReaction;
+ReactionDisposer _onCurrentWalletChangeFiatRateUpdateReaction;
 
 void startCurrentWalletChangeReaction(AppStore appStore,
     SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
@@ -29,8 +30,16 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await getIt.get<SharedPreferences>().setInt(
           PreferencesKey.currentWalletType, serializeToInt(wallet.type));
       await wallet.connectToNode(node: node);
+    } catch (e) {
+      print(e.toString());
+    }
+  });
 
-      fiatConversionStore.price = await FiatConversionService.fetchPrice(
+  _onCurrentWalletChangeFiatRateUpdateReaction =
+      reaction((_) => appStore.wallet, (WalletBase wallet) async {
+    try {
+      fiatConversionStore.prices[wallet.currency] = 0;
+      fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
           wallet.currency, settingsStore.fiatCurrency);
     } catch (e) {
       print(e.toString());

@@ -26,4 +26,10 @@ abstract class AppStoreBase with Store {
   SettingsStore settingsStore;
 
   NodeListStore nodeListStore;
+
+  @action
+  void changeCurrentWallet(WalletBase wallet) {
+    this.wallet?.close();
+    this.wallet = wallet;
+  }
 }
