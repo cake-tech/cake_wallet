@@ -423,5 +423,10 @@
 
   "provider_error" : "${provider} fout",
 
-  "use_ssl" : "Gebruik SSL"
+  "use_ssl" : "Gebruik SSL",
+
+  "color_theme" : "Kleur thema",
+  "light_theme" : "Licht",
+  "bright_theme" : "Helder",
+  "dark_theme" : "Donker"
 }

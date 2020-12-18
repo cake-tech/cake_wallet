@@ -52,4 +52,6 @@ abstract class WalletBase<BalaceType> {
   Future<void> save();
 
   Future<void> rescan({int height});
+
+  void close();
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -77,19 +78,9 @@ abstract class SendViewModelBase with Store {
   PendingTransaction pendingTransaction;
 
   @computed
-  String get balance {
-    String balance = '0.0';
-
-    if (_wallet is MoneroWallet) {
-      balance = _wallet.balance.formattedUnlockedBalance as String ?? '';
-    }
-
-    if (_wallet is BitcoinWallet) {
-      balance = _wallet.balance.confirmedFormatted as String ?? '';
-    }
-
-    return balance;
-  }
+  String get balance =>
+      _wallet.balance.formattedBalance(BalanceDisplayMode.availableBalance)
+          as String ?? '0.0';
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
@@ -97,6 +88,7 @@ abstract class SendViewModelBase with Store {
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
+  WalletType get walletType => _wallet.type;
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateStore _sendTemplateStore;
@@ -175,7 +167,7 @@ abstract class SendViewModelBase with Store {
   void _updateFiatAmount() {
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.price,
+          price: _fiatConversationStore.prices[_wallet.currency],
           cryptoAmount: cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
@@ -189,7 +181,7 @@ abstract class SendViewModelBase with Store {
   void _updateCryptoAmount() {
     try {
       final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
-          _fiatConversationStore.price;
+          _fiatConversationStore.prices[_wallet.currency];
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
 
       if (cryptoAmount != cryptoAmountTmp) {

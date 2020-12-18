@@ -205,16 +205,15 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             final sendingState =
                 widget.exchangeTradeViewModel.sendViewModel.state;
 
-            return trade.from == CryptoCurrency.xmr && !(sendingState is TransactionCommitted)
+            return widget.exchangeTradeViewModel.isSendable &&
+                    !(sendingState is TransactionCommitted)
                 ? LoadingPrimaryButton(
                     isDisabled: trade.inputAddress == null ||
                         trade.inputAddress.isEmpty,
                     isLoading: sendingState is IsExecutingState,
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
-                    text: trade.provider == ExchangeProviderDescription.xmrto
-                        ? S.of(context).confirm
-                        : S.of(context).send_xmr,
+                    text: S.of(context).confirm,
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Colors.white)
                 : Offstage();
@@ -284,7 +283,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                         padding: EdgeInsets.only(
                                             top: 220, left: 24, right: 24),
                                         child: Text(
-                                          S.of(context).send_success,
+                                          S.of(context).send_success(widget
+                                              .exchangeTradeViewModel
+                                              .wallet
+                                              .currency
+                                              .toString()),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 22,
