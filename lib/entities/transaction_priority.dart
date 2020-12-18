@@ -18,7 +18,7 @@ class TransactionPriority extends EnumerableItem<int> with Serializable<int> {
   static const medium = TransactionPriority(title: 'Medium', raw: 2);
   static const fast = TransactionPriority(title: 'Fast', raw: 3);
   static const fastest = TransactionPriority(title: 'Fastest', raw: 4);
-  static const standart = slow;
+  static const standard = slow;
 
 
   static List<TransactionPriority> forWalletType(WalletType type) {
