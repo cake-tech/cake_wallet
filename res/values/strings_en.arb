@@ -342,7 +342,7 @@
   "sync_status_syncronized" : "SYNCHRONIZED",
   "sync_status_not_connected" : "NOT CONNECTED",
   "sync_status_starting_sync" : "STARTING SYNC",
-  "sync_status_failed_connect" : "FAILED CONNECT TO THE NODE",
+  "sync_status_failed_connect" : "DISCONNECTED",
   "sync_status_connecting" : "CONNECTING",
   "sync_status_connected" : "CONNECTED",
 
