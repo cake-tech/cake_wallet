@@ -46,7 +46,8 @@ class TransactionsPage extends StatelessWidget {
                         if (item is TransactionListItem) {
                           final transaction = item.transaction;
 
-                          return TransactionRow(
+                          return Observer(
+                              builder: (_) => TransactionRow(
                               onTap: () => Navigator.of(context).pushNamed(
                                   Routes.transactionDetails,
                                   arguments: transaction),
@@ -55,7 +56,7 @@ class TransactionsPage extends StatelessWidget {
                                   .format(transaction.date),
                               formattedAmount: item.formattedCryptoAmount,
                               formattedFiatAmount: item.formattedFiatAmount,
-                              isPending: transaction.isPending);
+                              isPending: transaction.isPending));
                         }
 
                         if (item is TradeListItem) {

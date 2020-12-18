@@ -12,12 +12,13 @@ Future<void> startFiatRateUpdate(AppStore appStore, SettingsStore settingsStore,
     return;
   }
 
-  fiatConversionStore.price = await FiatConversionService.fetchPrice(
-      appStore.wallet.currency, settingsStore.fiatCurrency);
+  fiatConversionStore.prices[appStore.wallet.currency] =
+      await FiatConversionService.fetchPrice(
+          appStore.wallet.currency, settingsStore.fiatCurrency);
 
   _timer = Timer.periodic(
       Duration(seconds: 30),
-      (_) async => fiatConversionStore.price =
+      (_) async => fiatConversionStore.prices[appStore.wallet.currency] =
           await FiatConversionService.fetchPrice(
               appStore.wallet.currency, settingsStore.fiatCurrency));
 }

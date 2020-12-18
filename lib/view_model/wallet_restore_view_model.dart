@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -22,10 +23,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, this._walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {@required WalletType type})
-      : super(appStore, walletInfoSource, type: type, isRecovery: true) {
-    isButtonEnabled = false;
+      : availableModes = type == WalletType.monero
+            ? WalletRestoreMode.values
+            : [WalletRestoreMode.seed],
+        hasSeedLanguageSelector = type == WalletType.monero,
+        hasBlockchainHeightLanguageSelector = type == WalletType.monero,
+        super(appStore, walletInfoSource, type: type, isRecovery: true) {
+    isButtonEnabled =
+        !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     mode = WalletRestoreMode.seed;
-    _walletCreationService.changeWalletType(type: WalletType.monero);
+    _walletCreationService.changeWalletType(type: type);
   }
 
   @observable
@@ -33,6 +40,10 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @observable
   bool isButtonEnabled;
+
+  final List<WalletRestoreMode> availableModes;
+  final bool hasSeedLanguageSelector;
+  final bool hasBlockchainHeightLanguageSelector;
 
   final WalletCreationService _walletCreationService;
 
@@ -44,8 +55,16 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
 
-      return MoneroRestoreWalletFromSeedCredentials(
-          name: name, height: height, mnemonic: seed, password: password);
+      switch (type) {
+        case WalletType.monero:
+          return MoneroRestoreWalletFromSeedCredentials(
+              name: name, height: height, mnemonic: seed, password: password);
+        case WalletType.bitcoin:
+          return BitcoinRestoreWalletFromSeedCredentials(
+              name: name, mnemonic: seed, password: password);
+        default:
+          break;
+      }
     }
 
     if (mode == WalletRestoreMode.keys) {

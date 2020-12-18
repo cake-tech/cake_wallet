@@ -27,7 +27,7 @@ abstract class WalletCreationVMBase with Store {
   @observable
   ExecutionState state;
 
-  final WalletType type;
+  WalletType type;
   final bool isRecovery;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
@@ -51,7 +51,7 @@ abstract class WalletCreationVMBase with Store {
       credentials.walletInfo = walletInfo;
       final wallet = await process(credentials);
       await _walletInfoSource.add(walletInfo);
-      _appStore.wallet = wallet;
+      _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowed();
       state = ExecutedSuccessfullyState();
     } catch (e) {

@@ -6,10 +6,9 @@ ReactionDisposer _onCurrentNodeChangeReaction;
 
 void startOnCurrentNodeChangeReaction(AppStore appStore) {
   _onCurrentNodeChangeReaction?.reaction?.dispose();
-  _onCurrentNodeChangeReaction =
-      reaction((_) => appStore.settingsStore.currentNode, (Node node) async {
+  appStore.settingsStore.nodes.observe((change) async {
     try {
-      await appStore.wallet.connectToNode(node: node);
+      await appStore.wallet.connectToNode(node: change.newValue);
     } catch (e) {
       print(e.toString());
     }
