@@ -496,14 +496,8 @@ class SendPage extends BasePage {
                       }
                     },
                     text: S.of(context).send,
-                    color: Theme.of(context)
-                        .accentTextTheme
-                        .subtitle
-                        .decorationColor,
-                    textColor: Theme.of(context)
-                        .accentTextTheme
-                        .headline
-                        .decorationColor,
+                    color: Theme.of(context).accentTextTheme.body2.color,
+                    textColor: Colors.white,
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,
                     isDisabled:
