@@ -246,8 +246,7 @@ class SendTemplatePage extends BasePage {
               },
               text: S.of(context).save,
               color: Colors.green,
-              textColor:
-                  Theme.of(context).accentTextTheme.headline.decorationColor,
+              textColor: Colors.white,
             ),
           ),
         ));
