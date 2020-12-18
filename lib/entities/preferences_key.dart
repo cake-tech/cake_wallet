@@ -9,7 +9,7 @@ class PreferencesKey {
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const allowBiometricalAuthenticationKey =
       'allow_biometrical_authentication';
-  static const currentDarkTheme = 'dark_theme';
+  static const currentTheme = 'current_theme';
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';

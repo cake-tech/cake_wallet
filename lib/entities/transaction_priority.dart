@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/enumerable_item.dart';
 
@@ -17,7 +18,23 @@ class TransactionPriority extends EnumerableItem<int> with Serializable<int> {
   static const medium = TransactionPriority(title: 'Medium', raw: 2);
   static const fast = TransactionPriority(title: 'Fast', raw: 3);
   static const fastest = TransactionPriority(title: 'Fastest', raw: 4);
-  static const standart = slow;
+  static const standard = slow;
+
+
+  static List<TransactionPriority> forWalletType(WalletType type) {
+    switch (type) {
+      case WalletType.monero:
+        return TransactionPriority.all;
+      case WalletType.bitcoin:
+        return [
+          TransactionPriority.slow,
+          TransactionPriority.regular,
+          TransactionPriority.fast
+        ];
+      default:
+        return [];
+    }
+  }
 
   static TransactionPriority deserialize({int raw}) {
     switch (raw) {

@@ -10,59 +10,76 @@ class BalancePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(24),
-      child: GestureDetector(
-        onTapUp: (_) => dashboardViewModel.balanceViewModel.isReversing = false,
-        onTapDown: (_) => dashboardViewModel.balanceViewModel.isReversing = true,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Observer(builder: (_) {
-              return Text(
-                dashboardViewModel.balanceViewModel.currency.toString(),
-                style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).indicatorColor,
-                    height: 1),
-              );
-            }),
-            Observer(builder: (_) {
-              return Text(
-                dashboardViewModel.balanceViewModel.displayMode.toString(),
-                style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).indicatorColor,
-                    height: 1),
-              );
-            }),
-            SizedBox(height: 10),
-            Observer(builder: (_) {
-              return AutoSizeText(dashboardViewModel.balanceViewModel.cryptoBalance,
+    return GestureDetector(
+        onTapUp: (_) {
+          if (dashboardViewModel.balanceViewModel.canReverse) {
+            dashboardViewModel.balanceViewModel.isReversing = false;
+          }
+        },
+        onTapDown: (_) {
+          if (dashboardViewModel.balanceViewModel.canReverse) {
+            dashboardViewModel.balanceViewModel.isReversing = true;
+          }
+        },
+        child: Container(
+          color: Colors.transparent,
+          padding: EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              Observer(builder: (_) {
+                return Text(
+                  dashboardViewModel.balanceViewModel.currency.toString(),
                   style: TextStyle(
-                      fontSize: 54,
+                      fontSize: 40,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .backgroundColor,
                       height: 1),
-                  maxLines: 1,
-                  textAlign: TextAlign.center);
-            }),
-            SizedBox(height: 10),
-            Observer(builder: (_) {
-              return Text(dashboardViewModel.balanceViewModel.fiatBalance,
+                );
+              }),
+              Observer(builder: (_) {
+                return Text(
+                  dashboardViewModel.balanceViewModel.displayMode.toString(),
                   style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).indicatorColor,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .backgroundColor,
                       height: 1),
-                  textAlign: TextAlign.center);
-            }),
-          ],
-        ),
-      )
-    );
+                );
+              }),
+              SizedBox(height: 10),
+              Observer(builder: (_) {
+                return AutoSizeText(
+                  dashboardViewModel.balanceViewModel.cryptoBalance,
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display3
+                          .backgroundColor,
+                      height: 1),
+                );
+              }),
+              SizedBox(height: 10),
+              Observer(builder: (_) {
+                return Text(dashboardViewModel.balanceViewModel.fiatBalance,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).indicatorColor,
+                        height: 1),
+                    textAlign: TextAlign.center);
+              }),
+            ],
+          ),
+        ));
   }
 }

@@ -43,7 +43,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       balance = MoneroBalance(
           fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
           unlockedBalance:
-          monero_wallet.getUnlockedBalance(accountIndex: account.id));
+              monero_wallet.getUnlockedBalance(accountIndex: account.id));
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
@@ -120,6 +120,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     }
   }
 
+  @override
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction?.dispose();
@@ -315,9 +316,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     }
   }
 
-  Future<void> _askForUpdateTransactionHistory() async {
-    await transactionHistory.update();
-  }
+  Future<void> _askForUpdateTransactionHistory() async =>
+      await transactionHistory.update();
 
   int _getFullBalance() =>
       monero_wallet.getFullBalance(accountIndex: account.id);
@@ -326,13 +326,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       monero_wallet.getUnlockedBalance(accountIndex: account.id);
 
   Future<void> _afterSyncSave() async {
-    if (_isSavingAfterSync) {
-      return;
-    }
-
-    _isSavingAfterSync = true;
-
     try {
+      if (_isSavingAfterSync) {
+        return;
+      }
+
+      _isSavingAfterSync = true;
+
       final nowTimestamp = DateTime.now().millisecondsSinceEpoch;
       final sum = _lastAutosaveTimestamp + _autoAfterSyncSaveInterval;
 
@@ -350,13 +350,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   Future<void> _afterNewTransactionSave() async {
-    if (_isSavingAfterNewTransaction) {
-      return;
-    }
-
-    _isSavingAfterNewTransaction = true;
-
     try {
+      if (_isSavingAfterNewTransaction) {
+        return;
+      }
+
+      _isSavingAfterNewTransaction = true;
+
       await save();
     } catch (e) {
       print(e.toString());
@@ -366,30 +366,38 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
-    if (walletInfo.isRecovery) {
-      await _askForUpdateTransactionHistory();
-      _askForUpdateBalance();
-      accountList.update();
-    }
-
-    if (blocksLeft < 100) {
-      await _askForUpdateTransactionHistory();
-      _askForUpdateBalance();
-      accountList.update();
-      syncStatus = SyncedSyncStatus();
-      await _afterSyncSave();
-
+    try {
       if (walletInfo.isRecovery) {
-        await setAsRecovered();
+        await _askForUpdateTransactionHistory();
+        _askForUpdateBalance();
+        accountList.update();
       }
-    } else {
-      syncStatus = SyncingSyncStatus(blocksLeft, ptc);
+
+      if (blocksLeft < 100) {
+        await _askForUpdateTransactionHistory();
+        _askForUpdateBalance();
+        accountList.update();
+        syncStatus = SyncedSyncStatus();
+        await _afterSyncSave();
+
+        if (walletInfo.isRecovery) {
+          await setAsRecovered();
+        }
+      } else {
+        syncStatus = SyncingSyncStatus(blocksLeft, ptc);
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 
   void _onNewTransaction() {
-    _askForUpdateTransactionHistory();
-    _askForUpdateBalance();
-    Timer(Duration(seconds: 1), () => _afterNewTransactionSave());
+    try {
+      _askForUpdateTransactionHistory();
+      _askForUpdateBalance();
+      Timer(Duration(seconds: 1), () => _afterNewTransactionSave());
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }
