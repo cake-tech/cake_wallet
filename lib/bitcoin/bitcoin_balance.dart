@@ -27,9 +27,9 @@ class BitcoinBalance extends Balance {
   final int confirmed;
   final int unconfirmed;
 
-  int get total =>
-      (confirmed < 0 ? confirmed * -1 : confirmed) +
-      (unconfirmed < 0 ? unconfirmed * -1 : unconfirmed);
+  int get total => confirmed + unconfirmed;
+
+  int get availableBalance => confirmed + (unconfirmed < 0 ? unconfirmed : 0);
 
   String get confirmedFormatted => bitcoinAmountToString(amount: confirmed);
 
@@ -37,13 +37,16 @@ class BitcoinBalance extends Balance {
 
   String get totalFormatted => bitcoinAmountToString(amount: total);
 
+  String get availableBalanceFormatted =>
+      bitcoinAmountToString(amount: availableBalance);
+
   @override
   String formattedBalance(BalanceDisplayMode mode) {
     switch (mode) {
       case BalanceDisplayMode.fullBalance:
         return totalFormatted;
       case BalanceDisplayMode.availableBalance:
-        return confirmedFormatted;
+        return availableBalanceFormatted;
       default:
         return null;
     }

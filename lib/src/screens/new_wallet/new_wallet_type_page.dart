@@ -97,7 +97,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   padding: EdgeInsets.only(top: 24),
                   child: SelectButton(
                       image: _iconFor(type),
-                      text: walletTypeToString(type),
+                      text: walletTypeToDisplayName(type),
                       isSelected: selected == type,
                       onTap: () => setState(() => selected = type)),
                 ))
