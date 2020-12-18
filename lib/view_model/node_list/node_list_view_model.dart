@@ -13,16 +13,18 @@ part 'node_list_view_model.g.dart';
 class NodeListViewModel = NodeListViewModelBase with _$NodeListViewModel;
 
 abstract class NodeListViewModelBase with Store {
-  NodeListViewModelBase(this._nodeSource, this._wallet, this.settingsStore)
+  NodeListViewModelBase(this._nodeSource, this.wallet, this.settingsStore)
       : nodes = ObservableList<Node>() {
     _nodeSource.bindToList(nodes,
-        filter: (Node val) => val?.type == _wallet.type, initialFire: true);
+        filter: (Node val) => val?.type == wallet.type, initialFire: true);
   }
+
+  @computed
+  Node get currentNode => settingsStore.nodes[wallet.type];
 
   final ObservableList<Node> nodes;
   final SettingsStore settingsStore;
-
-  final WalletBase _wallet;
+  final WalletBase wallet;
   final Box<Node> _nodeSource;
 
   Future<void> reset() async {
@@ -30,14 +32,12 @@ abstract class NodeListViewModelBase with Store {
 
     Node node;
 
-    switch (_wallet.type) {
+    switch (wallet.type) {
       case WalletType.bitcoin:
         node = getBitcoinDefaultElectrumServer(nodes: _nodeSource);
         break;
       case WalletType.monero:
-        node = getMoneroDefaultNode(
-          nodes: _nodeSource,
-        );
+        node = getMoneroDefaultNode(nodes: _nodeSource);
         break;
       default:
         break;
@@ -50,5 +50,5 @@ abstract class NodeListViewModelBase with Store {
   Future<void> delete(Node node) async => node.delete();
 
   Future<void> setAsCurrent(Node node) async =>
-      settingsStore.currentNode = node;
+      settingsStore.nodes[wallet.type] = node;
 }

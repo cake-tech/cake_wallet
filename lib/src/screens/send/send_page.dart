@@ -83,9 +83,8 @@ class SendPage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: isDarkTheme
-                ? Color.fromRGBO(48, 51, 60, 1.0)
-                : Color.fromRGBO(98, 98, 98, 1.0),
+            keyboardBarColor: Theme.of(context).accentTextTheme.body2
+                .backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -133,7 +132,8 @@ class SendPage extends BasePage {
 
                                   if (uri != null) {
                                     address = uri.path;
-                                    amount = uri.queryParameters['tx_amount'];
+                                    amount = uri.queryParameters['tx_amount'] ??
+                                        uri.queryParameters['amount'];
                                   } else {
                                     address = uri.toString();
                                   }
@@ -497,14 +497,8 @@ class SendPage extends BasePage {
                       }
                     },
                     text: S.of(context).send,
-                    color: Theme.of(context)
-                        .accentTextTheme
-                        .subtitle
-                        .decorationColor,
-                    textColor: Theme.of(context)
-                        .accentTextTheme
-                        .headline
-                        .decorationColor,
+                    color: Theme.of(context).accentTextTheme.body2.color,
+                    textColor: Colors.white,
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,
                     isDisabled:
@@ -634,7 +628,9 @@ class SendPage extends BasePage {
                                         padding: EdgeInsets.only(
                                             top: 220, left: 24, right: 24),
                                         child: Text(
-                                          S.of(context).send_success,
+                                          S.of(context).send_success(
+                                              sendViewModel.currency
+                                                  .toString()),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 22,
@@ -748,7 +744,7 @@ class SendPage extends BasePage {
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
-    final items = TransactionPriority.all;
+    final items = TransactionPriority.forWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
 
     await showPopUp<void>(

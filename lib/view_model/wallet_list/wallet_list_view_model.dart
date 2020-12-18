@@ -32,7 +32,8 @@ abstract class WalletListViewModelBase with Store {
     final password =
         await _keyService.getWalletPassword(walletName: wallet.name);
     final walletService = getIt.get<WalletService>(param1: wallet.type);
-    _appStore.wallet = await walletService.openWallet(wallet.name, password);
+    final loadedWallet = await walletService.openWallet(wallet.name, password);
+    _appStore.changeCurrentWallet(loadedWallet);
     _updateList();
   }
 
