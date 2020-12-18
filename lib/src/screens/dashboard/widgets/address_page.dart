@@ -43,13 +43,15 @@ class AddressPage extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white
+                      color: Theme.of(context).accentTextTheme.display3
+                          .backgroundColor
                     ),
                   ),
                   Icon(
                     Icons.arrow_forward_ios,
                     size: 14,
-                    color: Colors.white,
+                    color: Theme.of(context).accentTextTheme.display3
+                        .backgroundColor,
                   )
                 ],
               ),

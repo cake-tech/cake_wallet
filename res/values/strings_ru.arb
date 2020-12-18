@@ -423,5 +423,10 @@
 
   "provider_error" : "${provider} ошибка",
 
-  "use_ssl" : "Использовать SSL"
+  "use_ssl" : "Использовать SSL",
+
+  "color_theme" : "Цветовая тема",
+  "light_theme" : "Светлая",
+  "bright_theme" : "Яркая",
+  "dark_theme" : "Темная"
 }

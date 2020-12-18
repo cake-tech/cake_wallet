@@ -1,3 +1,5 @@
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
@@ -106,11 +108,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
-        SwitcherListItem(
-            title: S.current.settings_dark_mode,
-            value: () => _settingsStore.isDarkTheme,
-            onValueChange: (_, bool value) =>
-                _settingsStore.isDarkTheme = value)
+        PickerListItem(
+            title: S.current.color_theme,
+            items: ThemeList.all,
+            selectedItem: () => theme,
+            onItemSelected: (ThemeBase theme) =>
+            _settingsStore.currentTheme = theme)
       ],
       [
         LinkListItem(
@@ -185,6 +188,9 @@ abstract class SettingsViewModelBase with Store {
   @computed
   bool get allowBiometricalAuthentication =>
       _settingsStore.allowBiometricalAuthentication;
+
+  @computed
+  ThemeBase get theme => _settingsStore.currentTheme;
 
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;
