@@ -85,14 +85,14 @@ abstract class SettingsStoreBase with Store {
         (String languageCode) => sharedPreferences.setString(
             PreferencesKey.currentLanguageCode, languageCode));
 
+    reaction((_) => balanceDisplayMode,
+            (BalanceDisplayMode mode) => sharedPreferences.setInt(
+            PreferencesKey.currentBalanceDisplayModeKey,
+            mode.serialize()));
+
     this
         .nodes
         .observe((change) => _saveCurrentNode(change.newValue, change.key));
-
-    reaction((_) => balanceDisplayMode,
-        (BalanceDisplayMode mode) => sharedPreferences.setInt(
-            PreferencesKey.currentBalanceDisplayModeKey,
-            mode.serialize()));
   }
 
   static const defaultPinLength = 4;
