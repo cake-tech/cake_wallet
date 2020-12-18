@@ -255,7 +255,7 @@ class S implements WidgetsLocalizations {
   String get subaddresses => "Subaddresses";
   String get sync_status_connected => "CONNECTED";
   String get sync_status_connecting => "CONNECTING";
-  String get sync_status_failed_connect => "FAILED TO CONNECT TO THE NODE";
+  String get sync_status_failed_connect => "DISCONNECTED";
   String get sync_status_not_connected => "NOT CONNECTED";
   String get sync_status_starting_sync => "STARTING SYNC";
   String get sync_status_syncronized => "SYNCHRONIZED";
@@ -594,7 +594,7 @@ class $de extends S {
   @override
   String get exchange => "Austausch";
   @override
-  String get sync_status_failed_connect => "Verbindung zum Knoten fehlgeschlagen";
+  String get sync_status_failed_connect => "GETRENNT";
   @override
   String get send_estimated_fee => "Geschätzte Gebühr:";
   @override
@@ -1286,7 +1286,7 @@ class $hi extends S {
   @override
   String get exchange => "अदला बदली";
   @override
-  String get sync_status_failed_connect => "फेल हुआ कनेक्ट नोड";
+  String get sync_status_failed_connect => "डिस्कनेक्ट किया गया";
   @override
   String get send_estimated_fee => "अनुमानित शुल्क:";
   @override
@@ -1978,7 +1978,7 @@ class $ru extends S {
   @override
   String get exchange => "Обмен";
   @override
-  String get sync_status_failed_connect => "ОШИБКА ПОДКЛЮЧЕНИЯ К НОДЕ";
+  String get sync_status_failed_connect => "ОТКЛЮЧЕНО";
   @override
   String get send_estimated_fee => "Предполагаемая комиссия:";
   @override
@@ -2670,7 +2670,7 @@ class $ko extends S {
   @override
   String get exchange => "교환";
   @override
-  String get sync_status_failed_connect => "노드에 연결하지 못했습니다";
+  String get sync_status_failed_connect => "연결 해제";
   @override
   String get send_estimated_fee => "예상 수수료:";
   @override
@@ -3362,7 +3362,7 @@ class $pt extends S {
   @override
   String get exchange => "Trocar";
   @override
-  String get sync_status_failed_connect => "Erro ao conectar com o nó";
+  String get sync_status_failed_connect => "DESCONECTADO";
   @override
   String get send_estimated_fee => "Taxa estimada:";
   @override
@@ -4054,7 +4054,7 @@ class $uk extends S {
   @override
   String get exchange => "Обмін";
   @override
-  String get sync_status_failed_connect => "ПОМИЛКА ПІДКЛЮЧЕННЯ ДО ВУЗЛУ";
+  String get sync_status_failed_connect => "ВІДКЛЮЧЕНО";
   @override
   String get send_estimated_fee => "Ймовірна комісія:";
   @override
@@ -4746,7 +4746,7 @@ class $ja extends S {
   @override
   String get exchange => "交換する";
   @override
-  String get sync_status_failed_connect => "ノードへの接続に失敗しました";
+  String get sync_status_failed_connect => "切断されました";
   @override
   String get send_estimated_fee => "見積手数料:";
   @override
@@ -5442,7 +5442,7 @@ class $pl extends S {
   @override
   String get exchange => "Wymieniać się";
   @override
-  String get sync_status_failed_connect => "NIE MOŻNA PODŁĄCZYĆ DO WĘZŁA";
+  String get sync_status_failed_connect => "NIEPOWIĄZANY";
   @override
   String get send_estimated_fee => "Szacowana opłata:";
   @override
@@ -6134,7 +6134,7 @@ class $es extends S {
   @override
   String get exchange => "Intercambiar";
   @override
-  String get sync_status_failed_connect => "CONEXIÓN FALLIDA AL NODO";
+  String get sync_status_failed_connect => "DESCONECTADO";
   @override
   String get send_estimated_fee => "Tarifa estimada:";
   @override
@@ -6826,7 +6826,7 @@ class $nl extends S {
   @override
   String get exchange => "Uitwisseling";
   @override
-  String get sync_status_failed_connect => "MISLUKT VERBINDING MET DE NODE";
+  String get sync_status_failed_connect => "LOSGEKOPPELD";
   @override
   String get send_estimated_fee => "Geschatte vergoeding:";
   @override
@@ -7518,7 +7518,7 @@ class $zh extends S {
   @override
   String get exchange => "交换";
   @override
-  String get sync_status_failed_connect => "无法连接到节点";
+  String get sync_status_failed_connect => "斷線";
   @override
   String get send_estimated_fee => "预估费用:";
   @override
