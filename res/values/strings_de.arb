@@ -342,7 +342,7 @@
   "sync_status_syncronized" : "SYNCHRONISIERT",
   "sync_status_not_connected" : "NICHT VERBUNDEN",
   "sync_status_starting_sync" : "STARTEN DER SYNCHRONISIERUNG",
-  "sync_status_failed_connect" : "Verbindung zum Knoten fehlgeschlagen",
+  "sync_status_failed_connect" : "GETRENNT",
   "sync_status_connecting" : "ANSCHLUSS",
   "sync_status_connected" : "IN VERBINDUNG GEBRACHT",
 

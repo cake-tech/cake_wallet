@@ -25,56 +25,53 @@ class TradeRow extends StatelessWidget {
     return InkWell(
         onTap: onTap,
         child: Container(
-          height: 52,
+          padding: EdgeInsets.fromLTRB(24, 8, 24, 8),
           color: Colors.transparent,
-          padding: EdgeInsets.only(left: 24, right: 24),
           child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                _getPoweredImage(provider),
-                Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 12),
-                      child: Container(
-                        height: 46,
-                        child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _getPoweredImage(provider),
+              SizedBox(width: 12),
+              Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.max,
                           children: <Widget>[
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text('${from.toString()} → ${to.toString()}',
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).accentTextTheme.
-                                          display3.backgroundColor
-                                      )),
-                                  formattedAmount != null
-                                      ? Text(formattedAmount + ' ' + amountCrypto,
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).accentTextTheme.
-                                          display3.backgroundColor
-                                      ))
-                                      : Container()
-                                ]),
-                            Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
-                                  Text(createdAtFormattedDate,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Theme.of(context).textTheme
-                                              .overline.backgroundColor))
-                                ]),
-                          ],
-                        ),
-                      ),
-                    ))
-              ]),
+                            Text('${from.toString()} → ${to.toString()}',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor
+                                )),
+                            formattedAmount != null
+                                ? Text(formattedAmount + ' ' + amountCrypto,
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor
+                                ))
+                                : Container()
+                          ]),
+                      SizedBox(height: 5),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(createdAtFormattedDate,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: Theme.of(context).textTheme
+                                        .overline.backgroundColor))
+                          ])
+                    ],
+                  )
+              )
+            ],
+          ),
         ));
   }
 
