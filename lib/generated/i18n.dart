@@ -255,7 +255,7 @@ class S implements WidgetsLocalizations {
   String get subaddresses => "Subaddresses";
   String get sync_status_connected => "CONNECTED";
   String get sync_status_connecting => "CONNECTING";
-  String get sync_status_failed_connect => "FAILED CONNECT TO THE NODE";
+  String get sync_status_failed_connect => "FAILED TO CONNECT TO THE NODE";
   String get sync_status_not_connected => "NOT CONNECTED";
   String get sync_status_starting_sync => "STARTING SYNC";
   String get sync_status_syncronized => "SYNCHRONIZED";
