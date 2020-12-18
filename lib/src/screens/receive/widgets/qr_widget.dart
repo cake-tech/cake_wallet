@@ -47,8 +47,8 @@ class QRWidget extends StatelessWidget {
                           child: QrImage(
                             data: addressListViewModel.uri.toString(),
                             backgroundColor: Colors.transparent,
-                            foregroundColor: Colors.white,
-                            //Theme.of(context).textTheme.headline.color,
+                            foregroundColor: Theme.of(context).accentTextTheme.
+                            display3.backgroundColor,
                           ))))),
           Spacer(flex: 3)
         ]),
@@ -67,11 +67,12 @@ class QRWidget extends StatelessWidget {
                                     decimal: true),
                                 inputFormatters: [
                                   BlacklistingTextInputFormatter(
-                                      RegExp('[\\-|\\ |\\,]'))
+                                      RegExp('[\\-|\\ ]'))
                                 ],
                                 textAlign: TextAlign.center,
                                 hintText: S.of(context).receive_amount,
-                                textColor: Colors.white,
+                                textColor: Theme.of(context).accentTextTheme.
+                                display3.backgroundColor,
                                 borderColor: Theme.of(context)
                                     .textTheme
                                     .headline
@@ -110,7 +111,8 @@ class QRWidget extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white),
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor),
                               ),
                             ),
                             Padding(

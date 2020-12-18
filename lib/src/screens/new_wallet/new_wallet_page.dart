@@ -1,6 +1,5 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -22,17 +21,24 @@ class NewWalletPage extends BasePage {
 
   final WalletNewVM _walletNewVM;
 
+  final walletNameImage = Image.asset('assets/images/wallet_name.png');
+  final walletNameLightImage =
+    Image.asset('assets/images/wallet_name_light.png');
+
   @override
   String get title => S.current.new_wallet;
 
   @override
-  Widget body(BuildContext context) => WalletNameForm(_walletNewVM);
+  Widget body(BuildContext context) => WalletNameForm(_walletNewVM,
+      currentTheme.type == ThemeType.dark
+          ? walletNameImage : walletNameLightImage);
 }
 
 class WalletNameForm extends StatefulWidget {
-  WalletNameForm(this._walletNewVM);
+  WalletNameForm(this._walletNewVM, this.walletImage);
 
   final WalletNewVM _walletNewVM;
+  final Image walletImage;
 
   @override
   _WalletNameFormState createState() => _WalletNameFormState(_walletNewVM);
@@ -43,9 +49,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   static const aspectRatioImage = 1.22;
 
-  final walletNameImage = Image.asset('assets/images/wallet_name.png');
-  final walletNameLightImage =
-      Image.asset('assets/images/wallet_name_light.png');
   final _formKey = GlobalKey<FormState>();
   final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
   ReactionDisposer _stateReaction;
@@ -78,10 +81,6 @@ class _WalletNameFormState extends State<WalletNameForm> {
 
   @override
   Widget build(BuildContext context) {
-    final walletImage = getIt.get<SettingsStore>().isDarkTheme
-        ? walletNameImage
-        : walletNameLightImage;
-
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
@@ -92,7 +91,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: walletImage, fit: BoxFit.fill)),
+                  child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 24),
