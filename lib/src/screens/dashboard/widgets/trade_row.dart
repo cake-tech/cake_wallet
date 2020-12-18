@@ -44,14 +44,16 @@ class TradeRow extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor
                                 )),
                             formattedAmount != null
                                 ? Text(formattedAmount + ' ' + amountCrypto,
                                 style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.white
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor
                                 ))
                                 : Container()
                           ]),
