@@ -20,8 +20,8 @@ abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
       {@required this.appStore,
       @required this.settingsStore,
-      @required this.fiatConvertationStore}){
-
+      @required this.fiatConvertationStore
+  }){
     isReversing = false;
 
     wallet ??= appStore.wallet;
