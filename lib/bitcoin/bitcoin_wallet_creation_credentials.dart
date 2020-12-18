@@ -1,21 +1,23 @@
 import 'package:cake_wallet/core/wallet_credentials.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
 
 class BitcoinNewWalletCredentials extends WalletCredentials {
-  BitcoinNewWalletCredentials({String name}) : super(name: name);
+  BitcoinNewWalletCredentials({String name, WalletInfo walletInfo})
+      : super(name: name, walletInfo: walletInfo);
 }
 
 class BitcoinRestoreWalletFromSeedCredentials extends WalletCredentials {
   BitcoinRestoreWalletFromSeedCredentials(
-      {String name, String password, this.mnemonic})
-      : super(name: name, password: password);
+      {String name, String password, this.mnemonic, WalletInfo walletInfo})
+      : super(name: name, password: password, walletInfo: walletInfo);
 
   final String mnemonic;
 }
 
 class BitcoinRestoreWalletFromWIFCredentials extends WalletCredentials {
   BitcoinRestoreWalletFromWIFCredentials(
-      {String name, String password, this.wif})
-      : super(name: name, password: password);
+      {String name, String password, this.wif, WalletInfo walletInfo})
+      : super(name: name, password: password, walletInfo: walletInfo);
 
   final String wif;
 }

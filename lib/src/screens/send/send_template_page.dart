@@ -49,9 +49,8 @@ class SendTemplatePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: isDarkTheme
-                ? Color.fromRGBO(48, 51, 60, 1.0)
-                : Color.fromRGBO(98, 98, 98, 1.0),
+            keyboardBarColor: Theme.of(context).accentTextTheme.body2
+                .backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -113,7 +112,8 @@ class SendTemplatePage extends BasePage {
 
                               if (uri != null) {
                                 address = uri.path;
-                                amount = uri.queryParameters['tx_amount'];
+                                amount = uri.queryParameters['tx_amount'] ??
+                                    uri.queryParameters['amount'];
                               } else {
                                 address = uri.toString();
                               }
@@ -246,9 +246,8 @@ class SendTemplatePage extends BasePage {
                 }
               },
               text: S.of(context).save,
-              color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
-              textColor:
-                  Theme.of(context).accentTextTheme.headline.decorationColor,
+              color: Colors.green,
+              textColor: Colors.white,
             ),
           ),
         ));

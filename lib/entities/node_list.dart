@@ -39,9 +39,9 @@ Future<List<Node>> loadElectrumServerList() async {
 
 Future resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
-  // final bitcoinElectrumServerList = await loadElectrumServerList();
-  // final nodes = moneroNodes + bitcoinElectrumServerList;
+  final bitcoinElectrumServerList = await loadElectrumServerList();
+  final nodes = moneroNodes + bitcoinElectrumServerList;
 
   await nodeSource.clear();
-  await nodeSource.addAll(moneroNodes);
+  await nodeSource.addAll(nodes);
 }

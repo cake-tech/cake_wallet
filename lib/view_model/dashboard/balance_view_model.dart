@@ -17,11 +17,11 @@ part 'balance_view_model.g.dart';
 class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
 
 abstract class BalanceViewModelBase with Store {
-  BalanceViewModelBase({
-    @required this.appStore,
-    @required this.settingsStore,
-    @required this.fiatConvertationStore
-  }) {
+  BalanceViewModelBase(
+      {@required this.appStore,
+      @required this.settingsStore,
+      @required this.fiatConvertationStore}){
+
     isReversing = false;
 
     wallet ??= appStore.wallet;
@@ -42,6 +42,9 @@ abstract class BalanceViewModelBase with Store {
   final SettingsStore settingsStore;
   final FiatConversionStore fiatConvertationStore;
 
+  bool get canReverse =>
+      (appStore.wallet.balance.availableModes as List).length > 1;
+
   @observable
   bool isReversing;
 
@@ -52,17 +55,17 @@ abstract class BalanceViewModelBase with Store {
   WalletBase wallet;
 
   @computed
+  double get price => fiatConvertationStore.prices[appStore.wallet.currency];
+
+  @computed
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
 
   @computed
   BalanceDisplayMode get displayMode => isReversing
-  ? (savedDisplayMode == BalanceDisplayMode.availableBalance
-    ? BalanceDisplayMode.fullBalance
-    : BalanceDisplayMode.availableBalance)
-  : savedDisplayMode;
-
-  @computed
-  double get price => fiatConvertationStore.price;
+      ? (savedDisplayMode == BalanceDisplayMode.availableBalance
+          ? BalanceDisplayMode.fullBalance
+          : BalanceDisplayMode.availableBalance)
+      : savedDisplayMode;
 
   @computed
   String get cryptoBalance {
@@ -86,15 +89,11 @@ abstract class BalanceViewModelBase with Store {
     final fiatCurrency = settingsStore.fiatCurrency;
     var balance = '---';
 
-    final totalBalance = _getFiatBalance(
-        price: price,
-        cryptoAmount: walletBalance.totalBalance
-    );
+    final totalBalance =
+        _getFiatBalance(price: price, cryptoAmount: walletBalance.totalBalance);
 
     final unlockedBalance = _getFiatBalance(
-        price: price,
-        cryptoAmount: walletBalance.unlockedBalance
-    );
+        price: price, cryptoAmount: walletBalance.unlockedBalance);
 
     if (displayMode == BalanceDisplayMode.availableBalance) {
       balance = fiatCurrency.toString() + ' ' + unlockedBalance ?? '0.00';
@@ -119,7 +118,7 @@ abstract class BalanceViewModelBase with Store {
 
     if (_wallet is BitcoinWallet) {
       return WalletBalance(
-          unlockedBalance: _wallet.balance.totalFormatted,
+          unlockedBalance: _wallet.balance.availableBalanceFormatted,
           totalBalance: _wallet.balance.totalFormatted);
     }
 

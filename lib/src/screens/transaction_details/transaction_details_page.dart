@@ -13,7 +13,8 @@ import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:hive/hive.dart';
 
 class TransactionDetailsPage extends BasePage {
-  TransactionDetailsPage(this.transactionInfo, bool showRecipientAddress, Box<TransactionDescription> transactionDescriptionBox)
+  TransactionDetailsPage(this.transactionInfo, bool showRecipientAddress,
+      Box<TransactionDescription> transactionDescriptionBox)
       : _items = [] {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
@@ -30,20 +31,8 @@ class TransactionDetailsPage extends BasePage {
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
-        StandartListItem(
-            title: S.current.send_fee,
-            value: tx.feeFormatted())
+        StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
       ];
-
-      if (showRecipientAddress) {
-        final recipientAddress = transactionDescriptionBox.values.firstWhere((val) => val.id == transactionInfo.id, orElse: () => null)?.recipientAddress;
-
-        if (recipientAddress?.isNotEmpty ?? false) {
-          items.add(StandartListItem(
-              title: S.current.transaction_details_recipient_address,
-              value: recipientAddress));
-        }
-      }
 
       if (tx.key?.isNotEmpty ?? null) {
         // FIXME: add translation
@@ -66,10 +55,24 @@ class TransactionDetailsPage extends BasePage {
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
             title: S.current.transaction_details_amount,
-            value: tx.amountFormatted())
+            value: tx.amountFormatted()),
+        if (tx.feeFormatted()?.isNotEmpty)
+          StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
       ];
 
       _items.addAll(items);
+    }
+
+    if (showRecipientAddress) {
+      final recipientAddress = transactionDescriptionBox.values
+          .firstWhere((val) => val.id == transactionInfo.id, orElse: () => null)
+          ?.recipientAddress;
+
+      if (recipientAddress?.isNotEmpty ?? false) {
+        _items.add(StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: recipientAddress));
+      }
     }
   }
 

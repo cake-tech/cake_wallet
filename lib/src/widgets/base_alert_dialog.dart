@@ -61,18 +61,24 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.body2
+                            .backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
               ),
             )
         ),
+        Container(
+          width: 1,
+          height: 52,
+          color: Theme.of(context).dividerColor,
+        ),
         Flexible(
             child: Container(
               height: 52,
               padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.body1.backgroundColor,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -86,7 +92,8 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.body1
+                            .backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
@@ -132,6 +139,10 @@ class BaseAlertDialog extends StatelessWidget {
                               )
                             ],
                           ),
+                        ),
+                        Container(
+                          height: 1,
+                          color: Theme.of(context).dividerColor,
                         ),
                         actionButtons(context)
                       ],
