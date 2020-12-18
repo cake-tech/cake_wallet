@@ -66,8 +66,8 @@ abstract class SettingsStoreBase with Store {
 
     reaction(
         (_) => currentTheme,
-        (ThemeBase theme) => sharedPreferences.setInt(
-            PreferencesKey.currentTheme, theme.raw));
+        (ThemeBase theme) =>
+            sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
 
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -152,8 +152,14 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
+    final legacyTheme =
+        sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy)
+            ? ThemeType.dark.index
+            : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
-      raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ?? 0);
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
+            legacyTheme ??
+            0);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
