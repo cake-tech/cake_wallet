@@ -1,5 +1,4 @@
-import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -23,9 +22,7 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final welcomeImage = getIt
-        .get<SettingsStore>()
-        .isDarkTheme
+    final welcomeImage = currentTheme.type == ThemeType.dark
         ? welcomeImageDark : welcomeImageLight;
 
     final newWalletImage = Image.asset('assets/images/new_wallet.png',

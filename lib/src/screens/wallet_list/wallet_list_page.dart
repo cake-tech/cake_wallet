@@ -1,5 +1,4 @@
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/src/screens/wallet_list/widgets/wallet_menu_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -15,7 +14,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/screens/wallet_list/wallet_menu.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class WalletListPage extends BasePage {
@@ -51,7 +49,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).accentTextTheme.headline.decorationColor);
+        color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
@@ -168,9 +166,8 @@ class WalletListBodyState extends State<WalletListBody> {
               onPressed: () => Navigator.of(context).pushNamed(Routes.newWalletType),
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
-              textColor:
-                  Theme.of(context).accentTextTheme.headline.decorationColor,
+              color: Theme.of(context).accentTextTheme.body2.color,
+              textColor: Colors.white,
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(

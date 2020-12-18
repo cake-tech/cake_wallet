@@ -423,5 +423,10 @@
 
   "provider_error" : "${provider} त्रुटि",
 
-  "use_ssl" : "उपयोग SSL"
+  "use_ssl" : "उपयोग SSL",
+
+  "color_theme" : "रंग विषय",
+  "light_theme" : "रोशनी",
+  "bright_theme" : "उज्ज्वल",
+  "dark_theme" : "अंधेरा"
 }

@@ -31,7 +31,7 @@ class MoneroURI extends PaymentURI {
     var base = 'monero:' + address;
 
     if (amount?.isNotEmpty ?? false) {
-      base += '?tx_amount=$amount';
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
     }
 
     return base;
@@ -47,7 +47,7 @@ class BitcoinURI extends PaymentURI {
     var base = 'bitcoin:' + address;
 
     if (amount?.isNotEmpty ?? false) {
-      base += '?amount=$amount';
+      base += '?amount=${amount.replaceAll(',', '.')}';
     }
 
     return base;

@@ -34,7 +34,10 @@ class BalancePage extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 40,
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).indicatorColor,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .backgroundColor,
                       height: 1),
                 );
               }),
@@ -44,21 +47,26 @@ class BalancePage extends StatelessWidget {
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
-                      color: Theme.of(context).indicatorColor,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .backgroundColor,
                       height: 1),
                 );
               }),
               SizedBox(height: 10),
               Observer(builder: (_) {
                 return AutoSizeText(
-                    dashboardViewModel.balanceViewModel.cryptoBalance,
-                    style: TextStyle(
-                        fontSize: 54,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        height: 1),
-                    maxLines: 1,
-                    textAlign: TextAlign.center);
+                  dashboardViewModel.balanceViewModel.cryptoBalance,
+                  style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display3
+                          .backgroundColor,
+                      height: 1),
+                );
               }),
               SizedBox(height: 10),
               Observer(builder: (_) {
