@@ -1,6 +1,5 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -15,6 +14,10 @@ class NewWalletTypePage extends BasePage {
   final void Function(BuildContext, WalletType) onTypeSelected;
   final bool isNewWallet;
 
+  final walletTypeImage = Image.asset('assets/images/wallet_type.png');
+  final walletTypeLightImage =
+               Image.asset('assets/images/wallet_type_light.png');
+
   @override
   String get title => isNewWallet
                       ? S.current.new_wallet
@@ -22,13 +25,17 @@ class NewWalletTypePage extends BasePage {
 
   @override
   Widget body(BuildContext context) =>
-      WalletTypeForm(onTypeSelected: onTypeSelected);
+      WalletTypeForm(
+          onTypeSelected: onTypeSelected,
+          walletImage: currentTheme.type == ThemeType.dark
+              ? walletTypeImage : walletTypeLightImage);
 }
 
 class WalletTypeForm extends StatefulWidget {
-  WalletTypeForm({this.onTypeSelected});
+  WalletTypeForm({this.onTypeSelected, this.walletImage});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
+  final Image walletImage;
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -41,8 +48,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon =
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
-  final walletTypeImage = Image.asset('assets/images/wallet_type.png');
-  final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
 
   WalletType selected;
   List<WalletType> types;
@@ -55,9 +60,6 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   @override
   Widget build(BuildContext context) {
-    final walletImage = getIt.get<SettingsStore>().isDarkTheme
-    ? walletTypeImage : walletTypeLightImage;
-
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
@@ -69,7 +71,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: walletImage, fit: BoxFit.fill)),
+                  child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 48),

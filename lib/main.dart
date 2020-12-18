@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -123,27 +124,25 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsStore = getIt.get<AppStore>().settingsStore;
-
-    if (settingsStore.theme == null) {
-      settingsStore.isDarkTheme = false;
-    }
-
     final statusBarColor = Colors.transparent;
-    final statusBarBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
-    final statusBarIconBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
     final authenticationStore = getIt.get<AuthenticationStore>();
     final initialRoute = authenticationStore.state == AuthenticationState.denied
         ? Routes.disclaimer
         : Routes.login;
 
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: statusBarColor,
-        statusBarBrightness: statusBarBrightness,
-        statusBarIconBrightness: statusBarIconBrightness));
-
     return Observer(builder: (BuildContext context) {
+      final currentTheme = settingsStore.currentTheme;
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
+            ? Brightness.light
+            : Brightness.dark;
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
+            ? Brightness.light
+            : Brightness.dark;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: statusBarColor,
+          statusBarBrightness: statusBarBrightness,
+          statusBarIconBrightness: statusBarIconBrightness));
+
       return Root(
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
