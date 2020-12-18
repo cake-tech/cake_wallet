@@ -342,7 +342,7 @@
   "sync_status_syncronized" : "SYNCHRONIZOWANY",
   "sync_status_not_connected" : "NIE POŁĄCZONY",
   "sync_status_starting_sync" : "ROZPOCZĘCIE SYNCHRONIZACJI",
-  "sync_status_failed_connect" : "NIE MOŻNA PODŁĄCZYĆ DO WĘZŁA",
+  "sync_status_failed_connect" : "NIEPOWIĄZANY",
   "sync_status_connecting" : "ZŁĄCZONY",
   "sync_status_connected" : "POŁĄCZONY",
 
