@@ -426,5 +426,6 @@ Future setup(
       (para1, param2) => NewWalletTypePage(getIt.get<WalletNewVM>(),
           onTypeSelected: para1, isNewWallet: param2));
 
-  getIt.registerFactory(() => PreSeedPage());
+  getIt.registerFactoryParam<PreSeedPage, WalletType, void>(
+      (WalletType type, _) => PreSeedPage(type));
 }
