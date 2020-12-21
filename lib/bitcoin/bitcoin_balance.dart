@@ -27,7 +27,8 @@ class BitcoinBalance extends Balance {
   final int confirmed;
   final int unconfirmed;
 
-  int get total => confirmed + unconfirmed;
+  int get total =>
+      confirmed + (unconfirmed < 0 ? unconfirmed * -1 : unconfirmed);
 
   int get availableBalance => confirmed + (unconfirmed < 0 ? unconfirmed : 0);
 
