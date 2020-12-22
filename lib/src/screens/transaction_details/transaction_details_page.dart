@@ -61,15 +61,10 @@ class TransactionDetailsPage extends BasePage {
               value: recipientAddress));
         }
       }
-      items.add(StandartListItem(
+      _items.addAll(items);
+      _items.add(StandartListItem(
           title: "View in Block Explorer",
           value: "https://xmrchain.net/search?value=${tx.id}"));
-
-      if (tx.key?.isNotEmpty ?? null) {
-        items.add(StandartListItem(title: 'Transaction Key', value: tx.key));
-      }
-
-      _items.addAll(items);
     }
 
     if (tx is BitcoinTransactionInfo) {
@@ -92,6 +87,9 @@ class TransactionDetailsPage extends BasePage {
       ];
 
       _items.addAll(items);
+      _items.add(StandartListItem(
+          title: "View in Block Explorer",
+          value: "https://www.blockchain.com/btc/tx/${tx.id}"));
     }
   }
 
