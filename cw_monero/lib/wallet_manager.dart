@@ -7,6 +7,7 @@ import 'package:cw_monero/signatures.dart';
 import 'package:cw_monero/types.dart';
 import 'package:cw_monero/monero_api.dart';
 import 'package:cw_monero/exceptions/wallet_creation_exception.dart';
+import 'package:cw_monero/exceptions/wallet_loading_exception.dart';
 import 'package:cw_monero/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/exceptions/wallet_restore_from_seed_exception.dart';
 
@@ -31,6 +32,10 @@ final isWalletExistNative = moneroApi
 final loadWalletNative = moneroApi
     .lookup<NativeFunction<load_wallet>>('load_wallet')
     .asFunction<LoadWallet>();
+
+final errorStringNative = moneroApi
+    .lookup<NativeFunction<error_string>>('error_string')
+    .asFunction<ErrorString>();
 
 void createWalletSync(
     {String path, String password, String language, int nettype = 0}) {
@@ -136,10 +141,14 @@ void restoreWalletFromKeysSync(
 void loadWallet({String path, String password, int nettype = 0}) {
   final pathPointer = Utf8.toUtf8(path);
   final passwordPointer = Utf8.toUtf8(password);
-
-  loadWalletNative(pathPointer, passwordPointer, nettype);
+  final loaded = loadWalletNative(pathPointer, passwordPointer, nettype) != 0;
   free(pathPointer);
   free(passwordPointer);
+
+  if (!loaded) {
+    throw WalletLoadingException(
+        message: convertUTF8ToString(pointer: errorStringNative()));
+  }
 }
 
 void _createWallet(Map<String, dynamic> args) {
