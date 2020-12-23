@@ -282,6 +282,7 @@
   "transaction_details_date" : "日付",
   "transaction_details_height" : "高さ",
   "transaction_details_amount" : "量",
+  "transaction_details_fee" : "費用",
   "transaction_details_copied" : "${title} クリップボードにコピーしました",
   "transaction_details_recipient_address" : "受取人の住所",
 

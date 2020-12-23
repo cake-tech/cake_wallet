@@ -282,6 +282,7 @@
   "transaction_details_date" : "날짜",
   "transaction_details_height" : "신장",
   "transaction_details_amount" : "양",
+  "transaction_details_fee" : "회비",
   "transaction_details_copied" : "${title} 클립 보드에 복사",
   "transaction_details_recipient_address" : "받는 사람 주소",
 

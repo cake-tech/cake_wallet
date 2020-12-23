@@ -298,6 +298,7 @@ class S implements WidgetsLocalizations {
   String get trades => "Trades";
   String get transaction_details_amount => "Amount";
   String get transaction_details_date => "Date";
+  String get transaction_details_fee => "Fee";
   String get transaction_details_height => "Height";
   String get transaction_details_recipient_address => "Recipient address";
   String get transaction_details_title => "Transaction Details";
@@ -478,6 +479,8 @@ class $de extends S {
   String get error_text_address => "Die Walletadresse muss dem Typ entsprechen\nder Kryptowährung";
   @override
   String get send_your_wallet => "Deine Geldbörse";
+  @override
+  String get transaction_details_fee => "Gebühr";
   @override
   String get remove_node_message => "Möchten Sie den ausgewählten Knoten wirklich entfernen?";
   @override
@@ -1189,6 +1192,8 @@ class $hi extends S {
   @override
   String get send_your_wallet => "आपका बटुआ";
   @override
+  String get transaction_details_fee => "शुल्क";
+  @override
   String get remove_node_message => "क्या आप वाकई चयनित नोड को निकालना चाहते हैं?";
   @override
   String get error_text_account_name => "खाता नाम में केवल अक्षर, संख्याएं हो सकती हैं\nऔर 1 और 15 वर्णों के बीच लंबा होना चाहिए";
@@ -1898,6 +1903,8 @@ class $ru extends S {
   String get error_text_address => "Адрес кошелька должен соответствовать типу\nкриптовалюты";
   @override
   String get send_your_wallet => "Ваш кошелёк";
+  @override
+  String get transaction_details_fee => "Комиссия";
   @override
   String get remove_node_message => "Вы уверены, что хотите удалить текущую ноду?";
   @override
@@ -2609,6 +2616,8 @@ class $ko extends S {
   @override
   String get send_your_wallet => "지갑";
   @override
+  String get transaction_details_fee => "회비";
+  @override
   String get remove_node_message => "선택한 노드를 제거 하시겠습니까?";
   @override
   String get error_text_account_name => "계정 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다";
@@ -3318,6 +3327,8 @@ class $pt extends S {
   String get error_text_address => "O endereço da carteira deve corresponder à\ncriptomoeda selecionada";
   @override
   String get send_your_wallet => "Sua carteira";
+  @override
+  String get transaction_details_fee => "Taxa";
   @override
   String get remove_node_message => "Você realmente deseja remover o nó selecionado?";
   @override
@@ -4029,6 +4040,8 @@ class $uk extends S {
   @override
   String get send_your_wallet => "Ваш гаманець";
   @override
+  String get transaction_details_fee => "Комісія";
+  @override
   String get remove_node_message => "Ви впевнені, що хочете видалити поточний вузол?";
   @override
   String get error_text_account_name => "Ім'я акаунту може містити тільки букви, цифри\nі повинно бути від 1 до 15 символів в довжину";
@@ -4738,6 +4751,8 @@ class $ja extends S {
   String get error_text_address => "ウォレットアドレスは、\n暗号通貨";
   @override
   String get send_your_wallet => "あなたの財布";
+  @override
+  String get transaction_details_fee => "費用";
   @override
   String get remove_node_message => "選択したノードを削除してもよろしいですか？";
   @override
@@ -5453,6 +5468,8 @@ class $pl extends S {
   @override
   String get send_your_wallet => "Twój portfel";
   @override
+  String get transaction_details_fee => "Opłata";
+  @override
   String get remove_node_message => "Czy na pewno chcesz usunąć wybrany węzeł?";
   @override
   String get error_text_account_name => "Nazwa konta może zawierać tylko litery, cyfry\ni musi mieć od 1 do 15 znaków";
@@ -6162,6 +6179,8 @@ class $es extends S {
   String get error_text_address => "La dirección de la billetera debe corresponder al tipo \nde criptomoneda";
   @override
   String get send_your_wallet => "Tu billetera";
+  @override
+  String get transaction_details_fee => "Cuota";
   @override
   String get remove_node_message => "¿Está seguro de que desea eliminar el nodo seleccionado?";
   @override
@@ -6873,6 +6892,8 @@ class $nl extends S {
   @override
   String get send_your_wallet => "Uw portemonnee";
   @override
+  String get transaction_details_fee => "Vergoeding";
+  @override
   String get remove_node_message => "Weet u zeker dat u het geselecteerde knooppunt wilt verwijderen?";
   @override
   String get error_text_account_name => "Accountnaam mag alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn";
@@ -7582,6 +7603,8 @@ class $zh extends S {
   String get error_text_address => "钱包地址必须与类型对应\n加密货币";
   @override
   String get send_your_wallet => "你的钱包";
+  @override
+  String get transaction_details_fee => "費用";
   @override
   String get remove_node_message => "您确定要删除所选节点吗？";
   @override

@@ -282,6 +282,7 @@
   "transaction_details_date" : "Дата",
   "transaction_details_height" : "Высота",
   "transaction_details_amount" : "Сумма",
+  "transaction_details_fee" : "Комиссия",
   "transaction_details_copied" : "${title} скопировано в буфер обмена",
   "transaction_details_recipient_address" : "Адрес получателя",
 
