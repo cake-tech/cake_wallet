@@ -428,5 +428,11 @@
   "color_theme" : "Color theme",
   "light_theme" : "Light",
   "bright_theme" : "Bright",
-  "dark_theme" : "Dark"
+  "dark_theme" : "Dark",
+
+  "note" : "Note",
+  "note_optional" : "Note (optional)",
+  "note_tap_to_change" : "Note (tap to change)",
+  "transaction_key" : "Transaction Key",
+  "confirmations" : "Confirmations"
 }

@@ -428,5 +428,11 @@
   "color_theme" : "Farbthema",
   "light_theme" : "Licht",
   "bright_theme" : "Hell",
-  "dark_theme" : "Dunkel"
+  "dark_theme" : "Dunkel",
+
+  "note" : "Hinweis",
+  "note_optional" : "Hinweis (optional)",
+  "note_tap_to_change" : "Hinweis (zum Ändern tippen)",
+  "transaction_key" : "Transaktionsschlüssel",
+  "confirmations" : "Bestätigungen"
 }

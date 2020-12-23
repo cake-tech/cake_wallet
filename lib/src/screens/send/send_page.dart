@@ -320,7 +320,7 @@ class SendPage extends BasePage {
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         color: Colors.white),
-                                    hintText: 'Note (optional)',
+                                    hintText: S.of(context).note_optional,
                                     placeholderTextStyle: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
@@ -668,9 +668,7 @@ class SendPage extends BasePage {
                                         padding: EdgeInsets.only(
                                             top: 220, left: 24, right: 24),
                                         child: Text(
-                                          S.of(context).send_success(
-                                              sendViewModel.currency
-                                                  .toString()),
+                                          S.of(context).send_success,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 22,

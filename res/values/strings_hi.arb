@@ -428,5 +428,11 @@
   "color_theme" : "रंग विषय",
   "light_theme" : "रोशनी",
   "bright_theme" : "उज्ज्वल",
-  "dark_theme" : "अंधेरा"
+  "dark_theme" : "अंधेरा",
+
+  "note" : "नोट",
+  "note_optional" : "नोट (वैकल्पिक)",
+  "note_tap_to_change" : "नोट (टैप टू चेंज)",
+  "transaction_key" : "लेन-देन की",
+  "confirmations" : "पुष्टिकरण"
 }

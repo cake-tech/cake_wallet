@@ -428,5 +428,11 @@
   "color_theme" : "색상 테마",
   "light_theme" : "빛",
   "bright_theme" : "선명한",
-  "dark_theme" : "어두운"
+  "dark_theme" : "어두운",
+
+  "note" : "노트",
+  "note_optional" : "참고 (선택 사항)",
+  "note_tap_to_change" : "메모 (변경하려면 탭하세요)",
+  "transaction_key" : "거래 키",
+  "confirmations" : "확인"
 }

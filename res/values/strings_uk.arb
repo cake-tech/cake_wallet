@@ -428,5 +428,11 @@
   "color_theme" : "Кольорова тема",
   "light_theme" : "Світла",
   "bright_theme" : "Яскрава",
-  "dark_theme" : "Темна"
+  "dark_theme" : "Темна",
+
+  "note" : "Примітка",
+  "note_optional" : "Примітка (необов’язково)",
+  "note_tap_to_change" : "Примітка (натисніть для зміни)",
+  "transaction_key" : "Ключ транзакції",
+  "confirmations" : "Підтвердження"
 }

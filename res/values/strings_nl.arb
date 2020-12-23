@@ -428,5 +428,11 @@
   "color_theme" : "Kleur thema",
   "light_theme" : "Licht",
   "bright_theme" : "Helder",
-  "dark_theme" : "Donker"
+  "dark_theme" : "Donker",
+
+  "note" : "Opmerking",
+  "note_optional" : "Opmerking (optioneel)",
+  "note_tap_to_change" : "Opmerking (tik om te wijzigen)",
+  "transaction_key" : "Transactiesleutel",
+  "confirmations" : "Bevestigingen"
 }

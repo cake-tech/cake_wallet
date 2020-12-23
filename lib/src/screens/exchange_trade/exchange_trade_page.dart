@@ -305,11 +305,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                         padding: EdgeInsets.only(
                                             top: 220, left: 24, right: 24),
                                         child: Text(
-                                          S.of(context).send_success(widget
-                                              .exchangeTradeViewModel
-                                              .wallet
-                                              .currency
-                                              .toString()),
+                                          S.of(context).send_success,
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 22,

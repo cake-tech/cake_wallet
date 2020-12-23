@@ -428,5 +428,11 @@
   "color_theme" : "Motyw kolorystyczny",
   "light_theme" : "Lekki",
   "bright_theme" : "Jasny",
-  "dark_theme" : "Ciemny"
+  "dark_theme" : "Ciemny",
+
+  "note" : "Notatka",
+  "note_optional" : "Notatka (opcjonalnie)",
+  "note_tap_to_change" : "Notatka (dotknij, aby zmienić)",
+  "transaction_key" : "Klucz transakcji",
+  "confirmations" : "Potwierdzenia"
 }
