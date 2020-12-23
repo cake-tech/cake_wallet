@@ -431,7 +431,7 @@
   "bright_theme" : "Яркая",
   "dark_theme" : "Темная",
 
-  "note" : "Примечание",
+  "enter_your_note" : "Введите примечание…",
   "note_optional" : "Примечание (необязательно)",
   "note_tap_to_change" : "Примечание (нажмите для изменения)",
   "transaction_key" : "Ключ транзакции",

@@ -431,7 +431,7 @@
   "bright_theme" : "Hell",
   "dark_theme" : "Dunkel",
 
-  "note" : "Hinweis",
+  "enter_your_note" : "Geben Sie Ihre Notiz ein…",
   "note_optional" : "Hinweis (optional)",
   "note_tap_to_change" : "Hinweis (zum Ändern tippen)",
   "transaction_key" : "Transaktionsschlüssel",

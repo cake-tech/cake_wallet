@@ -431,7 +431,7 @@
   "bright_theme" : "선명한",
   "dark_theme" : "어두운",
 
-  "note" : "노트",
+  "enter_your_note" : "메모를 입력하세요…",
   "note_optional" : "참고 (선택 사항)",
   "note_tap_to_change" : "메모 (변경하려면 탭하세요)",
   "transaction_key" : "거래 키",

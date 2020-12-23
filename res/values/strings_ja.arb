@@ -431,7 +431,7 @@
   "bright_theme" : "明るい",
   "dark_theme" : "闇",
 
-  "note" : "注意",
+  "enter_your_note" : "メモを入力してください…",
   "note_optional" : "注（オプション）",
   "note_tap_to_change" : "注（タップして変更）",
   "transaction_key" : "トランザクションキー",
