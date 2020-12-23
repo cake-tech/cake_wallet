@@ -38,7 +38,9 @@ abstract class TransactionDetailsViewModelBase with Store {
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
-        StandartListItem(title: S.current.send_fee, value: tx.feeFormatted()),
+        StandartListItem(
+            title: S.current.transaction_details_fee,
+            value: tx.feeFormatted()),
       ];
 
       if (tx.key?.isNotEmpty ?? null) {
@@ -65,7 +67,9 @@ abstract class TransactionDetailsViewModelBase with Store {
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
         if (tx.feeFormatted()?.isNotEmpty)
-          StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
+          StandartListItem(
+              title: S.current.transaction_details_fee,
+              value: tx.feeFormatted())
       ];
 
       items.addAll(_items);

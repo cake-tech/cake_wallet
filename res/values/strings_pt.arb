@@ -282,6 +282,7 @@
   "transaction_details_date" : "Data",
   "transaction_details_height" : "Altura",
   "transaction_details_amount" : "Quantia",
+  "transaction_details_fee" : "Taxa",
   "transaction_details_copied" : "${title} copiados para a área de transferência",
   "transaction_details_recipient_address" : "Endereço do destinatário",
 

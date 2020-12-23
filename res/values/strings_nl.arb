@@ -282,6 +282,7 @@
   "transaction_details_date" : "Datum",
   "transaction_details_height" : "Hoogte",
   "transaction_details_amount" : "Bedrag",
+  "transaction_details_fee" : "Vergoeding",
   "transaction_details_copied" : "${title} gekopieerd naar het klembord",
   "transaction_details_recipient_address" : "Adres van de ontvanger",
 

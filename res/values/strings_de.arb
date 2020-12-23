@@ -282,6 +282,7 @@
   "transaction_details_date" : "Datum",
   "transaction_details_height" : "Höhe",
   "transaction_details_amount" : "Menge",
+  "transaction_details_fee" : "Gebühr",
   "transaction_details_copied" : "${title} in die Zwischenablage kopiert",
   "transaction_details_recipient_address" : "Empfängeradresse",
 

@@ -282,6 +282,7 @@
   "transaction_details_date" : "Fecha",
   "transaction_details_height" : "Altura",
   "transaction_details_amount" : "Cantidad",
+  "transaction_details_fee" : "Cuota",
   "transaction_details_copied" : "${title} Copiado al portapapeles",
   "transaction_details_recipient_address" : "Dirección del receptor",
 

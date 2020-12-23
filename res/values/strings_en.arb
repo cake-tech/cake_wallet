@@ -282,6 +282,7 @@
   "transaction_details_date" : "Date",
   "transaction_details_height" : "Height",
   "transaction_details_amount" : "Amount",
+  "transaction_details_fee" : "Fee",
   "transaction_details_copied" : "${title} copied to Clipboard",
   "transaction_details_recipient_address" : "Recipient address",
 

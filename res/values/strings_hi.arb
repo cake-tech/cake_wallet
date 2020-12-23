@@ -282,6 +282,7 @@
   "transaction_details_date" : "तारीख",
   "transaction_details_height" : "ऊंचाई",
   "transaction_details_amount" : "रकम",
+  "transaction_details_fee" : "शुल्क",
   "transaction_details_copied" : "${title} क्लिपबोर्ड पर नकल",
   "transaction_details_recipient_address" : "प्राप्तकर्ता का पता",
 

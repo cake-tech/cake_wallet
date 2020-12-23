@@ -282,6 +282,7 @@
   "transaction_details_date" : "日期",
   "transaction_details_height" : "高度",
   "transaction_details_amount" : "量",
+  "transaction_details_fee" : "費用",
   "transaction_details_copied" : "${title} 复制到剪贴板",
   "transaction_details_recipient_address" : "收件人地址",
 
