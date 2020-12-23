@@ -431,7 +431,7 @@
   "bright_theme" : "Brillante",
   "dark_theme" : "Oscura",
 
-  "note" : "Nota",
+  "enter_your_note" : "Ingresa tu nota…",
   "note_optional" : "Nota (opcional)",
   "note_tap_to_change" : "Nota (toque para cambiar)",
   "transaction_key" : "Clave de transacción",

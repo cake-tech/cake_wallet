@@ -431,7 +431,7 @@
   "bright_theme" : "उज्ज्वल",
   "dark_theme" : "अंधेरा",
 
-  "note" : "नोट",
+  "enter_your_note" : "अपना नोट दर्ज करें ...",
   "note_optional" : "नोट (वैकल्पिक)",
   "note_tap_to_change" : "नोट (टैप टू चेंज)",
   "transaction_key" : "लेन-देन की",

@@ -41,8 +41,8 @@ class TextFieldListRow extends StatelessWidget {
                       style: TextStyle(
                           fontSize: titleFontSize,
                           fontWeight: FontWeight.w500,
-                          color:
-                          Theme.of(context).primaryTextTheme.overline.color),
+                          color: Theme.of(context)
+                              .primaryTextTheme.overline.color),
                       textAlign: TextAlign.left),
                   TextField(
                     controller: _textController,
@@ -54,20 +54,16 @@ class TextFieldListRow extends StatelessWidget {
                         fontSize: valueFontSize,
                         fontWeight: FontWeight.w500,
                         color: Theme.of(context)
-                            .primaryTextTheme
-                            .title
-                            .color),
+                            .primaryTextTheme.title.color),
                     decoration: InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.only(top: 12, bottom: 0),
-                        hintText: S.of(context).note,
+                        hintText: S.of(context).enter_your_note,
                         hintStyle: TextStyle(
                             fontSize: valueFontSize,
                             fontWeight: FontWeight.w500,
                             color: Theme.of(context)
-                                .primaryTextTheme
-                                .title
-                                .color),
+                                .primaryTextTheme.overline.color),
                         border: InputBorder.none
                     ),
                     onSubmitted: (value) => onSubmitted.call(value),

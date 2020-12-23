@@ -78,6 +78,7 @@ class S implements WidgetsLocalizations {
   String get delete => "Delete";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
+  String get enter_your_note => "Enter your note…";
   String get enter_your_pin => "Enter your PIN";
   String get enter_your_pin_again => "Enter your pin again";
   String get error => "Error";
@@ -128,7 +129,6 @@ class S implements WidgetsLocalizations {
   String get node_test => "Test";
   String get nodes => "Nodes";
   String get nodes_list_reset_to_default_message => "Are you sure that you want to reset settings to default?";
-  String get note => "Note";
   String get note_optional => "Note (optional)";
   String get note_tap_to_change => "Note (tap to change)";
   String get offer_expires_in => "Offer expires in: ";
@@ -780,6 +780,8 @@ class $de extends S {
   @override
   String get template => "Vorlage";
   @override
+  String get enter_your_note => "Geben Sie Ihre Notiz ein…";
+  @override
   String get transaction_priority_medium => "Mittel";
   @override
   String get transaction_details_transaction_id => "Transaktions-ID";
@@ -921,8 +923,6 @@ class $de extends S {
   String get light_theme => "Licht";
   @override
   String get settings_save_recipient_address => "Empfängeradresse speichern";
-  @override
-  String get note => "Hinweis";
   @override
   String get change_exchange_provider => "Wechseln Sie den Exchange-Anbieter";
   @override
@@ -1492,6 +1492,8 @@ class $hi extends S {
   @override
   String get template => "खाका";
   @override
+  String get enter_your_note => "अपना नोट दर्ज करें ...";
+  @override
   String get transaction_priority_medium => "मध्यम";
   @override
   String get transaction_details_transaction_id => "लेनदेन आईडी";
@@ -1633,8 +1635,6 @@ class $hi extends S {
   String get light_theme => "रोशनी";
   @override
   String get settings_save_recipient_address => "प्राप्तकर्ता का पता सहेजें";
-  @override
-  String get note => "नोट";
   @override
   String get change_exchange_provider => "एक्सचेंज प्रदाता बदलें";
   @override
@@ -2204,6 +2204,8 @@ class $ru extends S {
   @override
   String get template => "Шаблон";
   @override
+  String get enter_your_note => "Введите примечание…";
+  @override
   String get transaction_priority_medium => "Средний";
   @override
   String get transaction_details_transaction_id => "ID транзакции";
@@ -2345,8 +2347,6 @@ class $ru extends S {
   String get light_theme => "Светлая";
   @override
   String get settings_save_recipient_address => "Сохранять адрес получателя";
-  @override
-  String get note => "Примечание";
   @override
   String get change_exchange_provider => "Изменить провайдера обмена";
   @override
@@ -2916,6 +2916,8 @@ class $ko extends S {
   @override
   String get template => "주형";
   @override
+  String get enter_your_note => "메모를 입력하세요…";
+  @override
   String get transaction_priority_medium => "매질";
   @override
   String get transaction_details_transaction_id => "트랜잭션 ID";
@@ -3057,8 +3059,6 @@ class $ko extends S {
   String get light_theme => "빛";
   @override
   String get settings_save_recipient_address => "수신자 주소 저장";
-  @override
-  String get note => "노트";
   @override
   String get change_exchange_provider => "교환 공급자 변경";
   @override
@@ -3628,6 +3628,8 @@ class $pt extends S {
   @override
   String get template => "Modelo";
   @override
+  String get enter_your_note => "Insira sua nota ...";
+  @override
   String get transaction_priority_medium => "Média";
   @override
   String get transaction_details_transaction_id => "ID da transação";
@@ -3769,8 +3771,6 @@ class $pt extends S {
   String get light_theme => "Luz";
   @override
   String get settings_save_recipient_address => "Salvar endereço do destinatário";
-  @override
-  String get note => "Nota";
   @override
   String get change_exchange_provider => "Alterar o provedor de troca";
   @override
@@ -4340,6 +4340,8 @@ class $uk extends S {
   @override
   String get template => "Шаблон";
   @override
+  String get enter_your_note => "Введіть примітку…";
+  @override
   String get transaction_priority_medium => "Середній";
   @override
   String get transaction_details_transaction_id => "ID транзакції";
@@ -4481,8 +4483,6 @@ class $uk extends S {
   String get light_theme => "Світла";
   @override
   String get settings_save_recipient_address => "Зберігати адресу отримувача";
-  @override
-  String get note => "Примітка";
   @override
   String get change_exchange_provider => "Змінити провайдера обміну";
   @override
@@ -5052,6 +5052,8 @@ class $ja extends S {
   @override
   String get template => "テンプレート";
   @override
+  String get enter_your_note => "メモを入力してください…";
+  @override
   String get transaction_priority_medium => "中";
   @override
   String get transaction_details_transaction_id => "トランザクションID";
@@ -5193,8 +5195,6 @@ class $ja extends S {
   String get light_theme => "光";
   @override
   String get settings_save_recipient_address => "受信者のアドレスを保存";
-  @override
-  String get note => "注意";
   @override
   String get change_exchange_provider => "Exchangeプロバイダーの変更";
   @override
@@ -5768,6 +5768,8 @@ class $pl extends S {
   @override
   String get template => "Szablon";
   @override
+  String get enter_your_note => "Wpisz notatkę…";
+  @override
   String get transaction_priority_medium => "Średni";
   @override
   String get transaction_details_transaction_id => "Transakcja ID";
@@ -5909,8 +5911,6 @@ class $pl extends S {
   String get light_theme => "Lekki";
   @override
   String get settings_save_recipient_address => "Zapisz adres odbiorcy";
-  @override
-  String get note => "Notatka";
   @override
   String get change_exchange_provider => "Zmień dostawcę programu Exchange";
   @override
@@ -6480,6 +6480,8 @@ class $es extends S {
   @override
   String get template => "Plantilla";
   @override
+  String get enter_your_note => "Ingresa tu nota…";
+  @override
   String get transaction_priority_medium => "Medio";
   @override
   String get transaction_details_transaction_id => "ID de transacción";
@@ -6621,8 +6623,6 @@ class $es extends S {
   String get light_theme => "Ligera";
   @override
   String get settings_save_recipient_address => "Guardar dirección del destinatario";
-  @override
-  String get note => "Nota";
   @override
   String get change_exchange_provider => "Cambiar proveedor de intercambio";
   @override
@@ -7192,6 +7192,8 @@ class $nl extends S {
   @override
   String get template => "Sjabloon";
   @override
+  String get enter_your_note => "Voer uw notitie in ...";
+  @override
   String get transaction_priority_medium => "Medium";
   @override
   String get transaction_details_transaction_id => "Transactie ID";
@@ -7333,8 +7335,6 @@ class $nl extends S {
   String get light_theme => "Licht";
   @override
   String get settings_save_recipient_address => "Adres ontvanger opslaan";
-  @override
-  String get note => "Opmerking";
   @override
   String get change_exchange_provider => "Wijzig Exchange Provider";
   @override
@@ -7904,6 +7904,8 @@ class $zh extends S {
   @override
   String get template => "模板";
   @override
+  String get enter_your_note => "輸入您的筆記...";
+  @override
   String get transaction_priority_medium => "介质";
   @override
   String get transaction_details_transaction_id => "交易编号";
@@ -8045,8 +8047,6 @@ class $zh extends S {
   String get light_theme => "光";
   @override
   String get settings_save_recipient_address => "保存收件人地址";
-  @override
-  String get note => "注意";
   @override
   String get change_exchange_provider => "更改交易所提供商";
   @override
