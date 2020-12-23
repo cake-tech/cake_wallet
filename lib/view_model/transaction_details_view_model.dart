@@ -42,8 +42,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       ];
 
       if (tx.key?.isNotEmpty ?? null) {
-        // FIXME: add translation
-        _items.add(StandartListItem(title: 'Transaction Key', value: tx.key));
+        _items.add(StandartListItem(
+            title: S.current.transaction_key,
+            value: tx.key));
       }
 
       items.addAll(_items);
@@ -56,9 +57,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         StandartListItem(
             title: S.current.transaction_details_date,
             value: dateFormat.format(tx.date)),
-        // FIXME: add translation
         StandartListItem(
-            title: 'Confirmations', value: tx.confirmations?.toString()),
+            title: S.current.confirmations, value: tx.confirmations?.toString()),
         StandartListItem(
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
@@ -87,9 +87,10 @@ abstract class TransactionDetailsViewModelBase with Store {
             (val) => val.id == transactionInfo.id, orElse: () => null);
 
     if (description != null) {
-      // FIXME: add translation
-      items.add(TextFieldListItem(title: 'Note (tap to change)',
-          value: description.note, onSubmitted: (value) {
+      items.add(TextFieldListItem(
+          title: S.current.note_tap_to_change,
+          value: description.note,
+          onSubmitted: (value) {
             description.transactionNote = value;
             description.save();
           }));

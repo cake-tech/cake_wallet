@@ -428,5 +428,11 @@
   "color_theme" : "カラーテーマ",
   "light_theme" : "光",
   "bright_theme" : "明るい",
-  "dark_theme" : "闇"
+  "dark_theme" : "闇",
+
+  "note" : "注意",
+  "note_optional" : "注（オプション）",
+  "note_tap_to_change" : "注（タップして変更）",
+  "transaction_key" : "トランザクションキー",
+  "confirmations" : "確認"
 }

@@ -63,6 +63,7 @@ class S implements WidgetsLocalizations {
   String get confirm_delete_template => "This action will delete this template. Do you wish to continue?";
   String get confirm_delete_wallet => "This action will delete this wallet. Do you wish to continue?";
   String get confirm_sending => "Confirm sending";
+  String get confirmations => "Confirmations";
   String get contact => "Contact";
   String get contact_name => "Contact Name";
   String get continue_text => "Continue";
@@ -127,6 +128,9 @@ class S implements WidgetsLocalizations {
   String get node_test => "Test";
   String get nodes => "Nodes";
   String get nodes_list_reset_to_default_message => "Are you sure that you want to reset settings to default?";
+  String get note => "Note";
+  String get note_optional => "Note (optional)";
+  String get note_tap_to_change => "Note (tap to change)";
   String get offer_expires_in => "Offer expires in: ";
   String get ok => "OK";
   String get openalias_alert_title => "XMR Recipient Detected";
@@ -212,13 +216,13 @@ class S implements WidgetsLocalizations {
   String get send_error_currency => "Currency can only contain numbers";
   String get send_error_minimum_value => "Minimum value of amount is 0.01";
   String get send_estimated_fee => "Estimated fee:";
-  String get send_fee => "Fee";
+  String get send_fee => "Fee:";
   String get send_got_it => "Got it";
   String get send_name => "Name";
   String get send_new => "New";
   String get send_payment_id => "Payment ID (optional)";
   String get send_sending => "Sending...";
-  String send_success(String crypto) => "Your ${crypto} was successfully sent";
+  String get send_success => "Your Monero was successfully sent";
   String get send_templates => "Templates";
   String get send_title => "Send";
   String get send_xmr => "Send XMR";
@@ -298,6 +302,7 @@ class S implements WidgetsLocalizations {
   String get transaction_details_recipient_address => "Recipient address";
   String get transaction_details_title => "Transaction Details";
   String get transaction_details_transaction_id => "Transaction ID";
+  String get transaction_key => "Transaction Key";
   String get transaction_priority_fast => "Fast";
   String get transaction_priority_fastest => "Fastest";
   String get transaction_priority_medium => "Medium";
@@ -402,7 +407,7 @@ class $de extends S {
   @override
   String get transaction_sent => "Transaktion gesendet!";
   @override
-  String get send_fee => "Gebühr";
+  String get send_fee => "Gebühr:";
   @override
   String get password => "Passwort";
   @override
@@ -445,6 +450,8 @@ class $de extends S {
   String get wallet_list_create_new_wallet => "Neue Wallet erstellen";
   @override
   String get placeholder_contacts => "Ihre Kontakte werden hier angezeigt";
+  @override
+  String get transaction_key => "Transaktionsschlüssel";
   @override
   String get card_address => "Adresse:";
   @override
@@ -518,6 +525,8 @@ class $de extends S {
   @override
   String get node_connection_successful => "Die Verbindung war erfolgreich";
   @override
+  String get confirmations => "Bestätigungen";
+  @override
   String get confirm => "Bestätigen";
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
@@ -553,6 +562,8 @@ class $de extends S {
   String get restore_bitcoin_description_from_seed => "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her";
   @override
   String get address_book_menu => "Adressbuch";
+  @override
+  String get note_optional => "Hinweis (optional)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Falsche Samenlänge";
   @override
@@ -642,7 +653,7 @@ class $de extends S {
   @override
   String get trade_details_created_at => "Hergestellt in";
   @override
-  String send_success(String crypto) => "Ihr ${crypto} wurde erfolgreich gesendet";
+  String get send_success => "Ihr Monero wurde erfolgreich gesendet";
   @override
   String get settings_wallets => "Brieftaschen";
   @override
@@ -683,6 +694,8 @@ class $de extends S {
   String get trade_not_found => "Handel nicht gefunden.";
   @override
   String get transaction_details_date => "Datum";
+  @override
+  String get note_tap_to_change => "Hinweis (zum Ändern tippen)";
   @override
   String get show_seed => "Seed zeigen";
   @override
@@ -905,6 +918,8 @@ class $de extends S {
   String get light_theme => "Licht";
   @override
   String get settings_save_recipient_address => "Empfängeradresse speichern";
+  @override
+  String get note => "Hinweis";
   @override
   String get change_exchange_provider => "Wechseln Sie den Exchange-Anbieter";
   @override
@@ -1146,6 +1161,8 @@ class $hi extends S {
   @override
   String get placeholder_contacts => "आपके संपर्क यहां प्रदर्शित होंगे";
   @override
+  String get transaction_key => "लेन-देन की";
+  @override
   String get card_address => "पता:";
   @override
   String get seed_language_portuguese => "पुर्तगाली";
@@ -1218,6 +1235,8 @@ class $hi extends S {
   @override
   String get node_connection_successful => "कनेक्शन सफल रहा";
   @override
+  String get confirmations => "पुष्टिकरण";
+  @override
   String get confirm => "की पुष्टि करें";
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
@@ -1253,6 +1272,8 @@ class $hi extends S {
   String get restore_bitcoin_description_from_seed => "12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें";
   @override
   String get address_book_menu => "पता पुस्तिका";
+  @override
+  String get note_optional => "नोट (वैकल्पिक)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "गलत बीज की लंबाई";
   @override
@@ -1342,7 +1363,7 @@ class $hi extends S {
   @override
   String get trade_details_created_at => "पर बनाया गया";
   @override
-  String send_success(String crypto) => "आपका ${crypto} सफलतापूर्वक भेजा गया";
+  String get send_success => "आपका Monero सफलतापूर्वक भेजा गया";
   @override
   String get settings_wallets => "पर्स";
   @override
@@ -1383,6 +1404,8 @@ class $hi extends S {
   String get trade_not_found => "व्यापार नहीं मिला";
   @override
   String get transaction_details_date => "तारीख";
+  @override
+  String get note_tap_to_change => "नोट (टैप टू चेंज)";
   @override
   String get show_seed => "बीज दिखाओ";
   @override
@@ -1606,6 +1629,8 @@ class $hi extends S {
   @override
   String get settings_save_recipient_address => "प्राप्तकर्ता का पता सहेजें";
   @override
+  String get note => "नोट";
+  @override
   String get change_exchange_provider => "एक्सचेंज प्रदाता बदलें";
   @override
   String get send_payment_id => "भुगतान ID (ऐच्छिक)";
@@ -1802,7 +1827,7 @@ class $ru extends S {
   @override
   String get transaction_sent => "Tранзакция отправлена!";
   @override
-  String get send_fee => "Комиссия";
+  String get send_fee => "Комиссия:";
   @override
   String get password => "Пароль";
   @override
@@ -1845,6 +1870,8 @@ class $ru extends S {
   String get wallet_list_create_new_wallet => "Создать новый кошелёк";
   @override
   String get placeholder_contacts => "Ваши контакты будут отображаться здесь";
+  @override
+  String get transaction_key => "Ключ транзакции";
   @override
   String get card_address => "Адрес:";
   @override
@@ -1918,6 +1945,8 @@ class $ru extends S {
   @override
   String get node_connection_successful => "Подключение прошло успешно";
   @override
+  String get confirmations => "Подтверждения";
+  @override
   String get confirm => "Подтвердить";
   @override
   String get settings_display_balance_as => "Отображать баланс как";
@@ -1953,6 +1982,8 @@ class $ru extends S {
   String get restore_bitcoin_description_from_seed => "Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу";
   @override
   String get address_book_menu => "Адресная книга";
+  @override
+  String get note_optional => "Примечание (необязательно)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Неверная длина мнемонической фразы";
   @override
@@ -2042,7 +2073,7 @@ class $ru extends S {
   @override
   String get trade_details_created_at => "Создано";
   @override
-  String send_success(String crypto) => "Ваш ${crypto} был успешно отправлен";
+  String get send_success => "Ваш Monero был успешно отправлен";
   @override
   String get settings_wallets => "Кошельки";
   @override
@@ -2083,6 +2114,8 @@ class $ru extends S {
   String get trade_not_found => "Trade not found.";
   @override
   String get transaction_details_date => "Дата";
+  @override
+  String get note_tap_to_change => "Примечание (нажмите для изменения)";
   @override
   String get show_seed => "Показать мнемоническую фразу";
   @override
@@ -2306,6 +2339,8 @@ class $ru extends S {
   @override
   String get settings_save_recipient_address => "Сохранять адрес получателя";
   @override
+  String get note => "Примечание";
+  @override
   String get change_exchange_provider => "Изменить провайдера обмена";
   @override
   String get send_payment_id => "ID платежа (опционально)";
@@ -2502,7 +2537,7 @@ class $ko extends S {
   @override
   String get transaction_sent => "거래가 전송되었습니다!";
   @override
-  String get send_fee => "회비";
+  String get send_fee => "회비:";
   @override
   String get password => "암호";
   @override
@@ -2545,6 +2580,8 @@ class $ko extends S {
   String get wallet_list_create_new_wallet => "새 월렛 만들기";
   @override
   String get placeholder_contacts => "연락처가 여기에 표시됩니다";
+  @override
+  String get transaction_key => "거래 키";
   @override
   String get card_address => "주소:";
   @override
@@ -2618,6 +2655,8 @@ class $ko extends S {
   @override
   String get node_connection_successful => "성공적으로 연결되었습니다.";
   @override
+  String get confirmations => "확인";
+  @override
   String get confirm => "확인";
   @override
   String get settings_display_balance_as => "잔액 표시";
@@ -2653,6 +2692,8 @@ class $ko extends S {
   String get restore_bitcoin_description_from_seed => "12 단어 조합 코드에서 지갑 복원";
   @override
   String get address_book_menu => "주소록";
+  @override
+  String get note_optional => "참고 (선택 사항)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "시드 길이가 잘못되었습니다";
   @override
@@ -2742,7 +2783,7 @@ class $ko extends S {
   @override
   String get trade_details_created_at => "에 작성";
   @override
-  String send_success(String crypto) => "${crypto}가 성공적으로 전송되었습니다";
+  String get send_success => "Monero가 성공적으로 전송되었습니다";
   @override
   String get settings_wallets => "지갑";
   @override
@@ -2783,6 +2824,8 @@ class $ko extends S {
   String get trade_not_found => "거래를 찾을 수 없습니다.";
   @override
   String get transaction_details_date => "날짜";
+  @override
+  String get note_tap_to_change => "메모 (변경하려면 탭하세요)";
   @override
   String get show_seed => "종자 표시";
   @override
@@ -3006,6 +3049,8 @@ class $ko extends S {
   @override
   String get settings_save_recipient_address => "수신자 주소 저장";
   @override
+  String get note => "노트";
+  @override
   String get change_exchange_provider => "교환 공급자 변경";
   @override
   String get send_payment_id => "지불 ID (optional)";
@@ -3202,7 +3247,7 @@ class $pt extends S {
   @override
   String get transaction_sent => "Transação enviada!";
   @override
-  String get send_fee => "Taxa";
+  String get send_fee => "Taxa:";
   @override
   String get password => "Senha";
   @override
@@ -3245,6 +3290,8 @@ class $pt extends S {
   String get wallet_list_create_new_wallet => "Criar nova carteira";
   @override
   String get placeholder_contacts => "Seus contatos serão exibidos aqui";
+  @override
+  String get transaction_key => "Chave de transação";
   @override
   String get card_address => "Endereço:";
   @override
@@ -3318,6 +3365,8 @@ class $pt extends S {
   @override
   String get node_connection_successful => "A conexão foi bem sucedida";
   @override
+  String get confirmations => "Confirmações";
+  @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Saldo a exibir";
@@ -3353,6 +3402,8 @@ class $pt extends S {
   String get restore_bitcoin_description_from_seed => "Restaure sua carteira a partir de um código de combinação de 12 palavras";
   @override
   String get address_book_menu => "Livro de endereços";
+  @override
+  String get note_optional => "Nota (opcional)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Comprimento de semente incorreto";
   @override
@@ -3442,7 +3493,7 @@ class $pt extends S {
   @override
   String get trade_details_created_at => "Criada em";
   @override
-  String send_success(String crypto) => "Seu ${crypto} foi enviado com sucesso";
+  String get send_success => "Seu Monero foi enviado com sucesso";
   @override
   String get settings_wallets => "Carteiras";
   @override
@@ -3483,6 +3534,8 @@ class $pt extends S {
   String get trade_not_found => "Troca não encontrada.";
   @override
   String get transaction_details_date => "Data";
+  @override
+  String get note_tap_to_change => "Nota (toque para alterar)";
   @override
   String get show_seed => "Mostrar semente";
   @override
@@ -3706,6 +3759,8 @@ class $pt extends S {
   @override
   String get settings_save_recipient_address => "Salvar endereço do destinatário";
   @override
+  String get note => "Nota";
+  @override
   String get change_exchange_provider => "Alterar o provedor de troca";
   @override
   String get send_payment_id => "ID de pagamento (opcional)";
@@ -3902,7 +3957,7 @@ class $uk extends S {
   @override
   String get transaction_sent => "Tранзакцію відправлено!";
   @override
-  String get send_fee => "Комісія";
+  String get send_fee => "Комісія:";
   @override
   String get password => "Пароль";
   @override
@@ -3945,6 +4000,8 @@ class $uk extends S {
   String get wallet_list_create_new_wallet => "Створити новий гаманець";
   @override
   String get placeholder_contacts => "Тут будуть показані ваші контакти";
+  @override
+  String get transaction_key => "Ключ транзакції";
   @override
   String get card_address => "Адреса:";
   @override
@@ -4018,6 +4075,8 @@ class $uk extends S {
   @override
   String get node_connection_successful => "З'єднання було успішним";
   @override
+  String get confirmations => "Підтвердження";
+  @override
   String get confirm => "Підтвердити";
   @override
   String get settings_display_balance_as => "Відображати баланс як";
@@ -4053,6 +4112,8 @@ class $uk extends S {
   String get restore_bitcoin_description_from_seed => "Ви можете відновити гаманець використовуючи 12-ти слівну мнемонічну фразу";
   @override
   String get address_book_menu => "Адресна книга";
+  @override
+  String get note_optional => "Примітка (необов’язково)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Невірна довжина мнемонічної фрази";
   @override
@@ -4142,7 +4203,7 @@ class $uk extends S {
   @override
   String get trade_details_created_at => "Створено";
   @override
-  String send_success(String crypto) => "Ваш ${crypto} успішно надісланий";
+  String get send_success => "Ваш Monero успішно надісланий";
   @override
   String get settings_wallets => "Гаманці";
   @override
@@ -4183,6 +4244,8 @@ class $uk extends S {
   String get trade_not_found => "Операція не знайдена.";
   @override
   String get transaction_details_date => "Дата";
+  @override
+  String get note_tap_to_change => "Примітка (натисніть для зміни)";
   @override
   String get show_seed => "Показати мнемонічну фразу";
   @override
@@ -4406,6 +4469,8 @@ class $uk extends S {
   @override
   String get settings_save_recipient_address => "Зберігати адресу отримувача";
   @override
+  String get note => "Примітка";
+  @override
   String get change_exchange_provider => "Змінити провайдера обміну";
   @override
   String get send_payment_id => "ID платежу (опційно)";
@@ -4602,7 +4667,7 @@ class $ja extends S {
   @override
   String get transaction_sent => "トランザクションが送信されました！";
   @override
-  String get send_fee => "費用";
+  String get send_fee => "費用：";
   @override
   String get password => "パスワード";
   @override
@@ -4645,6 +4710,8 @@ class $ja extends S {
   String get wallet_list_create_new_wallet => "新しいウォレットを作成";
   @override
   String get placeholder_contacts => "連絡先はここに表示されます";
+  @override
+  String get transaction_key => "トランザクションキー";
   @override
   String get card_address => "住所:";
   @override
@@ -4718,6 +4785,8 @@ class $ja extends S {
   @override
   String get node_connection_successful => "接続に成功しました";
   @override
+  String get confirmations => "確認";
+  @override
   String get confirm => "確認する";
   @override
   String get settings_display_balance_as => "残高を表示";
@@ -4753,6 +4822,8 @@ class $ja extends S {
   String get restore_bitcoin_description_from_seed => "12ワードの組み合わせコードからウォレットを復元する";
   @override
   String get address_book_menu => "住所録";
+  @override
+  String get note_optional => "注（オプション）";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "誤ったシード長s";
   @override
@@ -4842,7 +4913,7 @@ class $ja extends S {
   @override
   String get trade_details_created_at => "で作成";
   @override
-  String send_success(String crypto) => "${crypto}が送信されました";
+  String get send_success => "Moneroが送信されました";
   @override
   String get settings_wallets => "財布";
   @override
@@ -4883,6 +4954,8 @@ class $ja extends S {
   String get trade_not_found => "取引が見つかりません";
   @override
   String get transaction_details_date => "日付";
+  @override
+  String get note_tap_to_change => "注（タップして変更）";
   @override
   String get show_seed => "シードを表示";
   @override
@@ -5106,6 +5179,8 @@ class $ja extends S {
   @override
   String get settings_save_recipient_address => "受信者のアドレスを保存";
   @override
+  String get note => "注意";
+  @override
   String get change_exchange_provider => "Exchangeプロバイダーの変更";
   @override
   String get send_payment_id => "支払いID (オプショナル)";
@@ -5306,7 +5381,7 @@ class $pl extends S {
   @override
   String get transaction_sent => "Transakcja wysłana!";
   @override
-  String get send_fee => "Opłata";
+  String get send_fee => "Opłata:";
   @override
   String get password => "Hasło";
   @override
@@ -5349,6 +5424,8 @@ class $pl extends S {
   String get wallet_list_create_new_wallet => "Utwórz nowy portfel";
   @override
   String get placeholder_contacts => "Twoje kontakty zostaną wyświetlone tutaj";
+  @override
+  String get transaction_key => "Klucz transakcji";
   @override
   String get card_address => "Adres:";
   @override
@@ -5422,6 +5499,8 @@ class $pl extends S {
   @override
   String get node_connection_successful => "Połączenie powiodło się";
   @override
+  String get confirmations => "Potwierdzenia";
+  @override
   String get confirm => "Potwierdzać";
   @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
@@ -5457,6 +5536,8 @@ class $pl extends S {
   String get restore_bitcoin_description_from_seed => "Przywróć swój portfel z kodu złożonego z 12 słów";
   @override
   String get address_book_menu => "Książka adresowa";
+  @override
+  String get note_optional => "Notatka (opcjonalnie)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Nieprawidłowa długość nasion";
   @override
@@ -5546,7 +5627,7 @@ class $pl extends S {
   @override
   String get trade_details_created_at => "Utworzono w";
   @override
-  String send_success(String crypto) => "Twoje ${crypto} zostało pomyślnie wysłane";
+  String get send_success => "Twoje Monero zostało pomyślnie wysłane";
   @override
   String get settings_wallets => "Portfele";
   @override
@@ -5587,6 +5668,8 @@ class $pl extends S {
   String get trade_not_found => "Nie znaleziono handlu.";
   @override
   String get transaction_details_date => "Data";
+  @override
+  String get note_tap_to_change => "Notatka (dotknij, aby zmienić)";
   @override
   String get show_seed => "Pokaż nasiona";
   @override
@@ -5810,6 +5893,8 @@ class $pl extends S {
   @override
   String get settings_save_recipient_address => "Zapisz adres odbiorcy";
   @override
+  String get note => "Notatka";
+  @override
   String get change_exchange_provider => "Zmień dostawcę programu Exchange";
   @override
   String get send_payment_id => "Identyfikator płatności (opcjonalny)";
@@ -6006,7 +6091,7 @@ class $es extends S {
   @override
   String get transaction_sent => "Transacción enviada!";
   @override
-  String get send_fee => "Cuota";
+  String get send_fee => "Cuota:";
   @override
   String get password => "Contraseña";
   @override
@@ -6049,6 +6134,8 @@ class $es extends S {
   String get wallet_list_create_new_wallet => "Crear nueva billetera";
   @override
   String get placeholder_contacts => "Tus contactos se mostrarán aquí";
+  @override
+  String get transaction_key => "Clave de transacción";
   @override
   String get card_address => "Dirección:";
   @override
@@ -6122,6 +6209,8 @@ class $es extends S {
   @override
   String get node_connection_successful => "La conexión fue exitosa";
   @override
+  String get confirmations => "Confirmaciones";
+  @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Mostrar saldo como";
@@ -6157,6 +6246,8 @@ class $es extends S {
   String get restore_bitcoin_description_from_seed => "Restaure su billetera a partir del código de combinación de 12 palabras";
   @override
   String get address_book_menu => "Libreta de direcciones";
+  @override
+  String get note_optional => "Nota (opcional)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Longitud de semilla incorrecta";
   @override
@@ -6246,7 +6337,7 @@ class $es extends S {
   @override
   String get trade_details_created_at => "Creado en";
   @override
-  String send_success(String crypto) => "Su ${crypto} fue enviado con éxito";
+  String get send_success => "Su Monero fue enviado con éxito";
   @override
   String get settings_wallets => "Carteras";
   @override
@@ -6287,6 +6378,8 @@ class $es extends S {
   String get trade_not_found => "Comercio no encontrado.";
   @override
   String get transaction_details_date => "Fecha";
+  @override
+  String get note_tap_to_change => "Nota (toque para cambiar)";
   @override
   String get show_seed => "Mostrar semilla";
   @override
@@ -6510,6 +6603,8 @@ class $es extends S {
   @override
   String get settings_save_recipient_address => "Guardar dirección del destinatario";
   @override
+  String get note => "Nota";
+  @override
   String get change_exchange_provider => "Cambiar proveedor de intercambio";
   @override
   String get send_payment_id => "ID de pago (opcional)";
@@ -6706,7 +6801,7 @@ class $nl extends S {
   @override
   String get transaction_sent => "Transactie verzonden!";
   @override
-  String get send_fee => "Vergoeding";
+  String get send_fee => "Vergoeding:";
   @override
   String get password => "Wachtwoord";
   @override
@@ -6749,6 +6844,8 @@ class $nl extends S {
   String get wallet_list_create_new_wallet => "Maak een nieuwe portemonnee";
   @override
   String get placeholder_contacts => "Je contacten worden hier weergegeven";
+  @override
+  String get transaction_key => "Transactiesleutel";
   @override
   String get card_address => "Adres:";
   @override
@@ -6822,6 +6919,8 @@ class $nl extends S {
   @override
   String get node_connection_successful => "Verbinding is gelukt";
   @override
+  String get confirmations => "Bevestigingen";
+  @override
   String get confirm => "Bevestigen";
   @override
   String get settings_display_balance_as => "Toon saldo als";
@@ -6857,6 +6956,8 @@ class $nl extends S {
   String get restore_bitcoin_description_from_seed => "Herstel uw portemonnee met een combinatiecode van 12 woorden";
   @override
   String get address_book_menu => "Adresboek";
+  @override
+  String get note_optional => "Opmerking (optioneel)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Onjuiste zaadlengte";
   @override
@@ -6946,7 +7047,7 @@ class $nl extends S {
   @override
   String get trade_details_created_at => "Gemaakt bij";
   @override
-  String send_success(String crypto) => "Uw ${crypto} is succesvol verzonden";
+  String get send_success => "Uw Monero is succesvol verzonden";
   @override
   String get settings_wallets => "Portemonnee";
   @override
@@ -6987,6 +7088,8 @@ class $nl extends S {
   String get trade_not_found => "Handel niet gevonden.";
   @override
   String get transaction_details_date => "Datum";
+  @override
+  String get note_tap_to_change => "Opmerking (tik om te wijzigen)";
   @override
   String get show_seed => "Toon zaad";
   @override
@@ -7210,6 +7313,8 @@ class $nl extends S {
   @override
   String get settings_save_recipient_address => "Adres ontvanger opslaan";
   @override
+  String get note => "Opmerking";
+  @override
   String get change_exchange_provider => "Wijzig Exchange Provider";
   @override
   String get send_payment_id => "Betaling ID (facultatief)";
@@ -7406,7 +7511,7 @@ class $zh extends S {
   @override
   String get transaction_sent => "交易已发送";
   @override
-  String get send_fee => "費用";
+  String get send_fee => "費用:";
   @override
   String get password => "密码";
   @override
@@ -7449,6 +7554,8 @@ class $zh extends S {
   String get wallet_list_create_new_wallet => "创建新钱包";
   @override
   String get placeholder_contacts => "您的聯繫人將顯示在這裡";
+  @override
+  String get transaction_key => "交易密碼";
   @override
   String get card_address => "地址:";
   @override
@@ -7522,6 +7629,8 @@ class $zh extends S {
   @override
   String get node_connection_successful => "連接成功";
   @override
+  String get confirmations => "確認書";
+  @override
   String get confirm => "确认";
   @override
   String get settings_display_balance_as => "将余额显示为";
@@ -7557,6 +7666,8 @@ class $zh extends S {
   String get restore_bitcoin_description_from_seed => "從12個單詞的組合碼恢復您的錢包";
   @override
   String get address_book_menu => "地址簿";
+  @override
+  String get note_optional => "注意（可選）";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "种子长度错误";
   @override
@@ -7646,7 +7757,7 @@ class $zh extends S {
   @override
   String get trade_details_created_at => "创建于";
   @override
-  String send_success(String crypto) => "你${crypto}已成功發送";
+  String get send_success => "你Monero已成功發送";
   @override
   String get settings_wallets => "皮夹";
   @override
@@ -7687,6 +7798,8 @@ class $zh extends S {
   String get trade_not_found => "找不到交易.";
   @override
   String get transaction_details_date => "日期";
+  @override
+  String get note_tap_to_change => "注意（輕按即可更改）";
   @override
   String get show_seed => "显示种子";
   @override
@@ -7909,6 +8022,8 @@ class $zh extends S {
   String get light_theme => "光";
   @override
   String get settings_save_recipient_address => "保存收件人地址";
+  @override
+  String get note => "注意";
   @override
   String get change_exchange_provider => "更改交易所提供商";
   @override

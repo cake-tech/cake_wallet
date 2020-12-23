@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class TextFieldListRow extends StatelessWidget {
   TextFieldListRow(
@@ -59,7 +60,7 @@ class TextFieldListRow extends StatelessWidget {
                     decoration: InputDecoration(
                         isDense: true,
                         contentPadding: EdgeInsets.only(top: 12, bottom: 0),
-                        hintText: 'Note',
+                        hintText: S.of(context).note,
                         hintStyle: TextStyle(
                             fontSize: valueFontSize,
                             fontWeight: FontWeight.w500,

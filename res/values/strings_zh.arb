@@ -428,5 +428,11 @@
   "color_theme" : "顏色主題",
   "light_theme" : "光",
   "bright_theme" : "亮",
-  "dark_theme" : "黑暗"
+  "dark_theme" : "黑暗",
+
+  "note" : "注意",
+  "note_optional" : "注意（可選）",
+  "note_tap_to_change" : "注意（輕按即可更改）",
+  "transaction_key" : "交易密碼",
+  "confirmations" : "確認書"
 }
