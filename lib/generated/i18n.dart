@@ -222,7 +222,6 @@ class S implements WidgetsLocalizations {
   String get send_new => "New";
   String get send_payment_id => "Payment ID (optional)";
   String get send_sending => "Sending...";
-  String get send_success => "Your Monero was successfully sent";
   String get send_templates => "Templates";
   String get send_title => "Send";
   String get send_xmr => "Send XMR";
@@ -362,6 +361,7 @@ class S implements WidgetsLocalizations {
   String router_no_route(String name) => "No route defined for ${name}";
   String send_address(String cryptoCurrency) => "${cryptoCurrency} address";
   String send_priority(String transactionPriority) => "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings";
+  String send_success(String crypto) => "Your ${crypto} was successfully sent";
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   String trade_details_copied(String title) => "${title} copied to Clipboard";
   String trade_for_not_created(String title) => "Trade for ${title} is not created.";
@@ -655,8 +655,6 @@ class $de extends S {
   String get transaction_priority_regular => "Regulär";
   @override
   String get trade_details_created_at => "Hergestellt in";
-  @override
-  String get send_success => "Ihr Monero wurde erfolgreich gesendet";
   @override
   String get settings_wallets => "Brieftaschen";
   @override
@@ -1050,6 +1048,8 @@ class $de extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "Möchten Sie die aktuelle Brieftasche in ändern ${wallet_name}?";
   @override
+  String send_success(String crypto) => "Ihr ${crypto} wurde erfolgreich gesendet";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
@@ -1367,8 +1367,6 @@ class $hi extends S {
   String get transaction_priority_regular => "नियमित";
   @override
   String get trade_details_created_at => "पर बनाया गया";
-  @override
-  String get send_success => "आपका Monero सफलतापूर्वक भेजा गया";
   @override
   String get settings_wallets => "पर्स";
   @override
@@ -1762,6 +1760,8 @@ class $hi extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?";
   @override
+  String send_success(String crypto) => "आपका ${crypto} सफलतापूर्वक भेजा गया";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "मैक्स: ${value} ${currency}";
@@ -2079,8 +2079,6 @@ class $ru extends S {
   String get transaction_priority_regular => "Обычный";
   @override
   String get trade_details_created_at => "Создано";
-  @override
-  String get send_success => "Ваш Monero был успешно отправлен";
   @override
   String get settings_wallets => "Кошельки";
   @override
@@ -2474,6 +2472,8 @@ class $ru extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "Вы хотите изменить текущий кошелек на ${wallet_name}?";
   @override
+  String send_success(String crypto) => "Ваш ${crypto} был успешно отправлен";
+  @override
   String time(String minutes, String seconds) => "${minutes}мин ${seconds}сек";
   @override
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
@@ -2791,8 +2791,6 @@ class $ko extends S {
   String get transaction_priority_regular => "정규병";
   @override
   String get trade_details_created_at => "에 작성";
-  @override
-  String get send_success => "Monero가 성공적으로 전송되었습니다";
   @override
   String get settings_wallets => "지갑";
   @override
@@ -3186,6 +3184,8 @@ class $ko extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?";
   @override
+  String send_success(String crypto) => "${crypto}가 성공적으로 전송되었습니다";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "맥스: ${value} ${currency}";
@@ -3503,8 +3503,6 @@ class $pt extends S {
   String get transaction_priority_regular => "Regular";
   @override
   String get trade_details_created_at => "Criada em";
-  @override
-  String get send_success => "Seu Monero foi enviado com sucesso";
   @override
   String get settings_wallets => "Carteiras";
   @override
@@ -3898,6 +3896,8 @@ class $pt extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "Quer mudar a carteira atual para ${wallet_name}?";
   @override
+  String send_success(String crypto) => "Seu ${crypto} foi enviado com sucesso";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Máx: ${value} ${currency}";
@@ -4215,8 +4215,6 @@ class $uk extends S {
   String get transaction_priority_regular => "Звичайний";
   @override
   String get trade_details_created_at => "Створено";
-  @override
-  String get send_success => "Ваш Monero успішно надісланий";
   @override
   String get settings_wallets => "Гаманці";
   @override
@@ -4610,6 +4608,8 @@ class $uk extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "Ви хочете змінити поточний гаманець на ${wallet_name}?";
   @override
+  String send_success(String crypto) => "Ваш ${crypto} успішно надісланий";
+  @override
   String time(String minutes, String seconds) => "${minutes}хв ${seconds}сек";
   @override
   String max_value(String value, String currency) => "Макс: ${value} ${currency}";
@@ -4927,8 +4927,6 @@ class $ja extends S {
   String get transaction_priority_regular => "レギュラー";
   @override
   String get trade_details_created_at => "で作成";
-  @override
-  String get send_success => "Moneroが送信されました";
   @override
   String get settings_wallets => "財布";
   @override
@@ -5322,6 +5320,8 @@ class $ja extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "現在のウォレットをに変更しますか ${wallet_name}?";
   @override
+  String send_success(String crypto) => "${crypto}が送信されました";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "マックス: ${value} ${currency}";
@@ -5643,8 +5643,6 @@ class $pl extends S {
   String get transaction_priority_regular => "Regularny";
   @override
   String get trade_details_created_at => "Utworzono w";
-  @override
-  String get send_success => "Twoje Monero zostało pomyślnie wysłane";
   @override
   String get settings_wallets => "Portfele";
   @override
@@ -6038,6 +6036,8 @@ class $pl extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "Czy chcesz zmienić obecny portfel na ${wallet_name}?";
   @override
+  String send_success(String crypto) => "Twoje ${crypto} zostało pomyślnie wysłane";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
@@ -6355,8 +6355,6 @@ class $es extends S {
   String get transaction_priority_regular => "Regular";
   @override
   String get trade_details_created_at => "Creado en";
-  @override
-  String get send_success => "Su Monero fue enviado con éxito";
   @override
   String get settings_wallets => "Carteras";
   @override
@@ -6750,6 +6748,8 @@ class $es extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "¿Quieres cambiar la billetera actual a ${wallet_name}?";
   @override
+  String send_success(String crypto) => "Su ${crypto} fue enviado con éxito";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
@@ -7067,8 +7067,6 @@ class $nl extends S {
   String get transaction_priority_regular => "Regelmatig";
   @override
   String get trade_details_created_at => "Gemaakt bij";
-  @override
-  String get send_success => "Uw Monero is succesvol verzonden";
   @override
   String get settings_wallets => "Portemonnee";
   @override
@@ -7462,6 +7460,8 @@ class $nl extends S {
   @override
   String change_wallet_alert_content(String wallet_name) => "Wilt u de huidige portemonnee wijzigen in ${wallet_name}?";
   @override
+  String send_success(String crypto) => "Uw ${crypto} is succesvol verzonden";
+  @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
@@ -7779,8 +7779,6 @@ class $zh extends S {
   String get transaction_priority_regular => "定期";
   @override
   String get trade_details_created_at => "创建于";
-  @override
-  String get send_success => "你Monero已成功發送";
   @override
   String get settings_wallets => "皮夹";
   @override
@@ -8173,6 +8171,8 @@ class $zh extends S {
   String trade_is_powered_by(String provider) => "该交易由 ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "您要將當前的錢包更改為 ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "你${crypto}已成功發送";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override

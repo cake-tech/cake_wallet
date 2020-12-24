@@ -212,7 +212,7 @@
   "send_name" : "Name",
   "send_got_it" : "Got it",
   "send_sending" : "Sending...",
-  "send_success" : "Your Monero was successfully sent",
+  "send_success" : "Your ${crypto} was successfully sent",
 
 
   "settings_title" : "Settings",
