@@ -319,7 +319,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
     return PendingBitcoinTransaction(txb.build(),
         eclient: eclient, amount: amount, fee: fee)
-      ..addListener((transaction) => transactionHistory.addOne(transaction));
+      ..addListener((transaction) async {
+        transactionHistory.addOne(transaction);
+        await _updateBalance();
+      });
   }
 
   String toJSON() => json.encode({
