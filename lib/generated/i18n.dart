@@ -143,7 +143,7 @@ class S implements WidgetsLocalizations {
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
   String get pre_seed_button_text => "I understand. Show me my seed";
-  String get pre_seed_description => "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.";
+  String pre_seed_description(int words) => "On the next page you will see a series of ${words} words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.";
   String get pre_seed_title => "IMPORTANT";
   String get private_key => "Private key";
   String get public_key => "Public key";
@@ -259,7 +259,7 @@ class S implements WidgetsLocalizations {
   String get subaddresses => "Subaddresses";
   String get sync_status_connected => "CONNECTED";
   String get sync_status_connecting => "CONNECTING";
-  String get sync_status_failed_connect => "FAILED CONNECT TO THE NODE";
+  String get sync_status_failed_connect => "DISCONNECTED";
   String get sync_status_not_connected => "NOT CONNECTED";
   String get sync_status_starting_sync => "STARTING SYNC";
   String get sync_status_syncronized => "SYNCHRONIZED";
@@ -514,7 +514,7 @@ class $de extends S {
   @override
   String get choose_wallet_currency => "Bitte wählen Sie die Brieftaschenwährung:";
   @override
-  String get pre_seed_description => "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.";
+  String pre_seed_description(int words) => "Auf der nächsten Seite sehen Sie eine Reihe von ${words} Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.";
   @override
   String get node_connection_successful => "Die Verbindung war erfolgreich";
   @override
@@ -600,7 +600,7 @@ class $de extends S {
   @override
   String get exchange => "Austausch";
   @override
-  String get sync_status_failed_connect => "Verbindung zum Knoten fehlgeschlagen";
+  String get sync_status_failed_connect => "GETRENNT";
   @override
   String get send_estimated_fee => "Geschätzte Gebühr:";
   @override
@@ -1214,7 +1214,7 @@ class $hi extends S {
   @override
   String get choose_wallet_currency => "कृपया बटुआ मुद्रा चुनें:";
   @override
-  String get pre_seed_description => "अगले पेज पर आपको 25 शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।";
+  String pre_seed_description(int words) => "अगले पेज पर आपको ${words} शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।";
   @override
   String get node_connection_successful => "कनेक्शन सफल रहा";
   @override
@@ -1300,7 +1300,7 @@ class $hi extends S {
   @override
   String get exchange => "अदला बदली";
   @override
-  String get sync_status_failed_connect => "फेल हुआ कनेक्ट नोड";
+  String get sync_status_failed_connect => "डिस्कनेक्ट किया गया";
   @override
   String get send_estimated_fee => "अनुमानित शुल्क:";
   @override
@@ -1914,7 +1914,7 @@ class $ru extends S {
   @override
   String get choose_wallet_currency => "Пожалуйста, выберите валюту кошелька:";
   @override
-  String get pre_seed_description => "На следующей странице вы увидите серию из 25 слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.";
+  String pre_seed_description(int words) => "На следующей странице вы увидите серию из ${words} слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.";
   @override
   String get node_connection_successful => "Подключение прошло успешно";
   @override
@@ -2000,7 +2000,7 @@ class $ru extends S {
   @override
   String get exchange => "Обмен";
   @override
-  String get sync_status_failed_connect => "ОШИБКА ПОДКЛЮЧЕНИЯ К НОДЕ";
+  String get sync_status_failed_connect => "ОТКЛЮЧЕНО";
   @override
   String get send_estimated_fee => "Предполагаемая комиссия:";
   @override
@@ -2614,7 +2614,7 @@ class $ko extends S {
   @override
   String get choose_wallet_currency => "지갑 통화를 선택하십시오:";
   @override
-  String get pre_seed_description => "다음 페이지에서 25 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.";
+  String pre_seed_description(int words) => "다음 페이지에서 ${words} 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.";
   @override
   String get node_connection_successful => "성공적으로 연결되었습니다.";
   @override
@@ -2700,7 +2700,7 @@ class $ko extends S {
   @override
   String get exchange => "교환";
   @override
-  String get sync_status_failed_connect => "노드에 연결하지 못했습니다";
+  String get sync_status_failed_connect => "연결 해제";
   @override
   String get send_estimated_fee => "예상 수수료:";
   @override
@@ -3314,7 +3314,7 @@ class $pt extends S {
   @override
   String get choose_wallet_currency => "Escolha a moeda da carteira:";
   @override
-  String get pre_seed_description => "Na próxima página, você verá uma série de 25 palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.";
+  String pre_seed_description(int words) => "Na próxima página, você verá uma série de ${words} palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.";
   @override
   String get node_connection_successful => "A conexão foi bem sucedida";
   @override
@@ -3400,7 +3400,7 @@ class $pt extends S {
   @override
   String get exchange => "Trocar";
   @override
-  String get sync_status_failed_connect => "Erro ao conectar com o nó";
+  String get sync_status_failed_connect => "DESCONECTADO";
   @override
   String get send_estimated_fee => "Taxa estimada:";
   @override
@@ -4014,7 +4014,7 @@ class $uk extends S {
   @override
   String get choose_wallet_currency => "Будь ласка, виберіть валюту гаманця:";
   @override
-  String get pre_seed_description => "На наступній сторінці ви побачите серію з 25 слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.";
+  String pre_seed_description(int words) => "На наступній сторінці ви побачите серію з ${words} слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.";
   @override
   String get node_connection_successful => "З'єднання було успішним";
   @override
@@ -4100,7 +4100,7 @@ class $uk extends S {
   @override
   String get exchange => "Обмін";
   @override
-  String get sync_status_failed_connect => "ПОМИЛКА ПІДКЛЮЧЕННЯ ДО ВУЗЛУ";
+  String get sync_status_failed_connect => "ВІДКЛЮЧЕНО";
   @override
   String get send_estimated_fee => "Ймовірна комісія:";
   @override
@@ -4714,7 +4714,7 @@ class $ja extends S {
   @override
   String get choose_wallet_currency => "ウォレット通貨を選択してください：";
   @override
-  String get pre_seed_description => "次のページでは、一連の25語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。";
+  String pre_seed_description(int words) => "次のページでは、一連の${words}語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。";
   @override
   String get node_connection_successful => "接続に成功しました";
   @override
@@ -4800,7 +4800,7 @@ class $ja extends S {
   @override
   String get exchange => "交換する";
   @override
-  String get sync_status_failed_connect => "ノードへの接続に失敗しました";
+  String get sync_status_failed_connect => "切断されました";
   @override
   String get send_estimated_fee => "見積手数料:";
   @override
@@ -5418,7 +5418,7 @@ class $pl extends S {
   @override
   String get choose_wallet_currency => "Wybierz walutę portfela:";
   @override
-  String get pre_seed_description => "Na następnej stronie zobaczysz serię 25 słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.";
+  String pre_seed_description(int words) => "Na następnej stronie zobaczysz serię ${words} słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.";
   @override
   String get node_connection_successful => "Połączenie powiodło się";
   @override
@@ -5504,7 +5504,7 @@ class $pl extends S {
   @override
   String get exchange => "Wymieniać się";
   @override
-  String get sync_status_failed_connect => "NIE MOŻNA PODŁĄCZYĆ DO WĘZŁA";
+  String get sync_status_failed_connect => "NIEPOWIĄZANY";
   @override
   String get send_estimated_fee => "Szacowana opłata:";
   @override
@@ -6118,7 +6118,7 @@ class $es extends S {
   @override
   String get choose_wallet_currency => "Por favor, elija la moneda de la billetera:";
   @override
-  String get pre_seed_description => "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.";
+  String pre_seed_description(int words) => "En la página siguiente verá una serie de ${words} palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.";
   @override
   String get node_connection_successful => "La conexión fue exitosa";
   @override
@@ -6204,7 +6204,7 @@ class $es extends S {
   @override
   String get exchange => "Intercambiar";
   @override
-  String get sync_status_failed_connect => "CONEXIÓN FALLIDA AL NODO";
+  String get sync_status_failed_connect => "DESCONECTADO";
   @override
   String get send_estimated_fee => "Tarifa estimada:";
   @override
@@ -6818,7 +6818,7 @@ class $nl extends S {
   @override
   String get choose_wallet_currency => "Kies een portemonnee-valuta:";
   @override
-  String get pre_seed_description => "Op de volgende pagina ziet u een reeks van 25 woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.";
+  String pre_seed_description(int words) => "Op de volgende pagina ziet u een reeks van ${words} woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.";
   @override
   String get node_connection_successful => "Verbinding is gelukt";
   @override
@@ -6904,7 +6904,7 @@ class $nl extends S {
   @override
   String get exchange => "Uitwisseling";
   @override
-  String get sync_status_failed_connect => "MISLUKT VERBINDING MET DE NODE";
+  String get sync_status_failed_connect => "LOSGEKOPPELD";
   @override
   String get send_estimated_fee => "Geschatte vergoeding:";
   @override
@@ -7518,7 +7518,7 @@ class $zh extends S {
   @override
   String get choose_wallet_currency => "請選擇錢包貨幣：";
   @override
-  String get pre_seed_description => "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。";
+  String pre_seed_description(int words) => "在下一頁上，您將看到一系列${words}個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。";
   @override
   String get node_connection_successful => "連接成功";
   @override
@@ -7604,7 +7604,7 @@ class $zh extends S {
   @override
   String get exchange => "交换";
   @override
-  String get sync_status_failed_connect => "无法连接到节点";
+  String get sync_status_failed_connect => "斷線";
   @override
   String get send_estimated_fee => "预估费用:";
   @override
