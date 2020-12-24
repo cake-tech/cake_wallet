@@ -130,9 +130,12 @@ abstract class SendViewModelBase with Store {
       await pendingTransaction.commit();
 
       if (pendingTransaction.id?.isNotEmpty ?? false) {
-        await transactionDescriptionBox.add(TransactionDescription(
+        _settingsStore.shouldSaveRecipientAddress
+        ? await transactionDescriptionBox.add(TransactionDescription(
             id: pendingTransaction.id, recipientAddress: address,
-            transactionNote: note));
+            transactionNote: note))
+        : await transactionDescriptionBox.add(TransactionDescription(
+            id: pendingTransaction.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
