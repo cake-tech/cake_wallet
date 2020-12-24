@@ -212,7 +212,7 @@
   "send_name" : "Naam",
   "send_got_it" : "Ik snap het",
   "send_sending" : "Bezig met verzenden...",
-  "send_success" : "Uw Monero is succesvol verzonden",
+  "send_success" : "Uw ${crypto} is succesvol verzonden",
 
 
   "settings_title" : "Instellingen",

@@ -212,7 +212,7 @@
   "send_name" : "名稱",
   "send_got_it" : "得到它了",
   "send_sending" : "正在發送...",
-  "send_success" : "你Monero已成功發送",
+  "send_success" : "你${crypto}已成功發送",
 
 
   "settings_title" : "设定值",

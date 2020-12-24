@@ -212,7 +212,7 @@
   "send_name" : "名前",
   "send_got_it" : "とった",
   "send_sending" : "送信...",
-  "send_success" : "Moneroが送信されました",
+  "send_success" : "${crypto}が送信されました",
 
 
   "settings_title" : "設定",
