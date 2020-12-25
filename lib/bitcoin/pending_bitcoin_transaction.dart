@@ -16,6 +16,7 @@ class PendingBitcoinTransaction with PendingTransaction {
   final int amount;
   final int fee;
 
+  @override
   String get id => _tx.getId();
 
   @override

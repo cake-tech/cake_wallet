@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -7,12 +9,20 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
-  WalletRestoreFromSeedForm({Key key, this.blockHeightFocusNode,
-    this.onHeightOrDateEntered})
+  WalletRestoreFromSeedForm(
+      {Key key,
+      @required this.displayLanguageSelector,
+      @required this.displayBlockHeightSelector,
+      @required this.type,
+      this.blockHeightFocusNode,
+      this.onHeightOrDateEntered})
       : super(key: key);
 
+  final WalletType type;
+  final bool displayLanguageSelector;
+  final bool displayBlockHeightSelector;
   final FocusNode blockHeightFocusNode;
-  final Function (bool) onHeightOrDateEntered;
+  final Function(bool) onHeightOrDateEntered;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -41,32 +51,35 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     return Container(
         padding: EdgeInsets.only(left: 25, right: 25),
         child: Column(children: [
-          SeedWidget(key: seedWidgetStateKey, language: language),
-          GestureDetector(
-              onTap: () async {
-                final selected = await showPopUp<String>(
-                    context: context,
-                    builder: (BuildContext context) =>
-                        SeedLanguagePicker(selected: language));
+          SeedWidget(
+              key: seedWidgetStateKey, language: language, type: widget.type),
+          if (widget.displayLanguageSelector)
+            GestureDetector(
+                onTap: () async {
+                  final selected = await showPopUp<String>(
+                      context: context,
+                      builder: (BuildContext context) =>
+                          SeedLanguagePicker(selected: language));
 
-                if (selected == null || selected.isEmpty) {
-                  return;
-                }
+                  if (selected == null || selected.isEmpty) {
+                    return;
+                  }
 
-                _changeLanguage(selected);
-              },
-              child: Container(
-                  color: Colors.transparent,
-                  padding: EdgeInsets.only(top: 20.0),
-                  child: IgnorePointer(
-                      child: BaseTextFormField(
-                          controller: languageController,
-                          enableInteractiveSelection: false,
-                          readOnly: true)))),
-          BlockchainHeightWidget(
-              focusNode: widget.blockHeightFocusNode,
-              key: blockchainHeightKey,
-              onHeightOrDateEntered: widget.onHeightOrDateEntered)
+                  _changeLanguage(selected);
+                },
+                child: Container(
+                    color: Colors.transparent,
+                    padding: EdgeInsets.only(top: 20.0),
+                    child: IgnorePointer(
+                        child: BaseTextFormField(
+                            controller: languageController,
+                            enableInteractiveSelection: false,
+                            readOnly: true)))),
+          if (widget.displayBlockHeightSelector)
+            BlockchainHeightWidget(
+                focusNode: widget.blockHeightFocusNode,
+                key: blockchainHeightKey,
+                onHeightOrDateEntered: widget.onHeightOrDateEntered)
         ]));
   }
 

@@ -48,3 +48,14 @@ String walletTypeToString(WalletType type) {
       return '';
   }
 }
+
+String walletTypeToDisplayName(WalletType type) {
+  switch (type) {
+    case WalletType.monero:
+      return 'Monero';
+    case WalletType.bitcoin:
+      return 'Bitcoin (Electrum)';
+    default:
+      return '';
+  }
+}

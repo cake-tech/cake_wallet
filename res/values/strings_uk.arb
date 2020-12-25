@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Змінити провайдера обміну",
   "you_will_send" : "Конвертувати з",
   "you_will_get" : "Конвертувати в",
-  "amount_is_guaranteed" : "ВАЖЛИВО:\nЯкщо ви хочете отримати гарантовану суму BTC, введіть цю суму в поле BTC. Якщо замість цього ввести суму XMR, отримана сума BTC є приблизною і може коливатися залежно від курсу.",
+  "amount_is_guaranteed" : "У xmr.to, щоб отримати гарантовану суму BTC, введіть суму BTC, а не XMR вище",
   "amount_is_estimate" : "Отримана сума є приблизною",
   "powered_by" : "Використовуючи ${title}",
   "error" : "Помилка",
@@ -129,6 +129,11 @@
   "remove" : "Видалити",
   "delete" : "Видалити",
   "add_new_node" : "Додати новий вузол",
+  "change_current_node_title" : "Змінити поточний вузол",
+  "node_test" : "Тест",
+  "node_connection_successful" : "З'єднання було успішним",
+  "node_connection_failed" : "Помилка з’єднання",
+  "new_node_testing" : "Тестування нового вузла",
 
 
   "use" : "Використати ",
@@ -337,7 +342,7 @@
   "sync_status_syncronized" : "СИНХРОНІЗОВАНИЙ",
   "sync_status_not_connected" : "НЕ ПІДКЛЮЧЕННИЙ",
   "sync_status_starting_sync" : "ПОЧАТОК СИНХРОНІЗАЦІЇ",
-  "sync_status_failed_connect" : "ПОМИЛКА ПІДКЛЮЧЕННЯ ДО ВУЗЛУ",
+  "sync_status_failed_connect" : "ВІДКЛЮЧЕНО",
   "sync_status_connecting" : "ПІДКЛЮЧЕННЯ",
   "sync_status_connected" : "ПІДКЛЮЧЕНО",
 
@@ -407,5 +412,21 @@
   "seed_alert_back" : "Назад",
   "seed_alert_yes" : "Так",
 
-  "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується"
+  "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується",
+
+  "pre_seed_title" : "ВАЖЛИВО",
+  "pre_seed_description" : "На наступній сторінці ви побачите серію з 25 слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.",
+  "pre_seed_button_text" : "Зрозуміло. Покажіть мнемонічну фразу",
+
+  "xmr_to_error" : "Помилка XMR.TO",
+  "xmr_to_error_description" : "Неприпустима сума. Максимум 8 цифр після десяткової коми",
+
+  "provider_error" : "${provider} помилка",
+
+  "use_ssl" : "Використати SSL",
+
+  "color_theme" : "Кольорова тема",
+  "light_theme" : "Світла",
+  "bright_theme" : "Яскрава",
+  "dark_theme" : "Темна"
 }

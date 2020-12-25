@@ -1,5 +1,10 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/entities/transaction_history.dart';
+import 'package:cake_wallet/monero/account.dart';
+import 'package:cake_wallet/monero/monero_balance.dart';
+import 'package:cake_wallet/monero/monero_transaction_history.dart';
+import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
@@ -74,28 +79,53 @@ abstract class DashboardViewModelBase with Store {
     wallet ??= appStore.wallet;
     type = wallet.type;
 
-    transactions = ObservableList.of(wallet
-        .transactionHistory.transactions.values
-        .map((transaction) => TransactionListItem(
-            transaction: transaction,
-            balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore)));
-
     _reaction = reaction((_) => appStore.wallet, _onWalletChange);
-    // FIXME: fixme
+
+    final _wallet = wallet;
+
+    if (_wallet is MoneroWallet) {
+      subname = _wallet.account?.label;
+
+      _onMoneroAccountChangeReaction = reaction((_) => _wallet.account,
+          (Account account) => _onMoneroAccountChange(_wallet));
+
+      _onMoneroBalanceChangeReaction = reaction((_) => _wallet.balance,
+          (MoneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
+
+      final _accountTransactions = _wallet
+          .transactionHistory.transactions.values
+          .where((tx) => tx.accountIndex == _wallet.account.id)
+          .toList();
+
+      transactions = ObservableList.of(_accountTransactions.map((transaction) =>
+          TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
+    } else {
+      transactions = ObservableList.of(wallet
+          .transactionHistory.transactions.values
+          .map((transaction) => TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
+    }
+
     connectMapToListWithTransform(
         appStore.wallet.transactionHistory.transactions,
         transactions,
         (TransactionInfo val) => TransactionListItem(
             transaction: val,
             balanceViewModel: balanceViewModel,
-            settingsStore: appStore.settingsStore));
+            settingsStore: appStore.settingsStore),
+        filter: (TransactionInfo tx) {
+      final wallet = _wallet;
+      if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
+        return tx.accountIndex == wallet.account.id;
+      }
 
-    final _wallet = wallet;
-
-    if (_wallet is MoneroWallet) {
-      subname = _wallet.account?.label;
-    }
+      return true;
+    });
   }
 
   @observable
@@ -156,6 +186,8 @@ abstract class DashboardViewModelBase with Store {
   @observable
   WalletBase wallet;
 
+  bool get hasRescan => wallet.type == WalletType.monero;
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
@@ -170,6 +202,10 @@ abstract class DashboardViewModelBase with Store {
 
   ReactionDisposer _reaction;
 
+  ReactionDisposer _onMoneroAccountChangeReaction;
+
+  ReactionDisposer _onMoneroBalanceChangeReaction;
+
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
     await wallet.connectToNode(node: node);
@@ -178,10 +214,64 @@ abstract class DashboardViewModelBase with Store {
   @action
   void _onWalletChange(WalletBase wallet) {
     this.wallet = wallet;
+    type = wallet.type;
     name = wallet.name;
+
+    if (wallet is MoneroWallet) {
+      subname = wallet.account?.label;
+
+      _onMoneroAccountChangeReaction?.reaction?.dispose();
+      _onMoneroBalanceChangeReaction?.reaction?.dispose();
+
+      _onMoneroAccountChangeReaction = reaction((_) => wallet.account,
+          (Account account) => _onMoneroAccountChange(wallet));
+
+      _onMoneroBalanceChangeReaction = reaction((_) => wallet.balance,
+          (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
+
+      _onMoneroTransactionsUpdate(wallet);
+    } else {
+      transactions.clear();
+
+      transactions.addAll(wallet.transactionHistory.transactions.values.map(
+          (transaction) => TransactionListItem(
+              transaction: transaction,
+              balanceViewModel: balanceViewModel,
+              settingsStore: appStore.settingsStore)));
+    }
+
+    connectMapToListWithTransform(
+        appStore.wallet.transactionHistory.transactions,
+        transactions,
+            (TransactionInfo val) => TransactionListItem(
+            transaction: val,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore),
+        filter: (TransactionInfo tx) {
+          if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
+            return tx.accountIndex == wallet.account.id;
+          }
+
+          return true;
+        });
+  }
+
+  @action
+  void _onMoneroAccountChange(MoneroWallet wallet) {
+    subname = wallet.account?.label;
+    _onMoneroTransactionsUpdate(wallet);
+  }
+
+  @action
+  void _onMoneroTransactionsUpdate(MoneroWallet wallet) {
     transactions.clear();
-    transactions.addAll(wallet.transactionHistory.transactions.values.map(
-        (transaction) => TransactionListItem(
+
+    final _accountTransactions = wallet.transactionHistory.transactions.values
+        .where((tx) => tx.accountIndex == wallet.account.id)
+        .toList();
+
+    transactions.addAll(_accountTransactions.map((transaction) =>
+        TransactionListItem(
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore)));

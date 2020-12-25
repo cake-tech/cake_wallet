@@ -45,7 +45,7 @@ Future defaultSettingsMigration(
               FiatCurrency.usd.toString());
           await sharedPreferences.setInt(
               PreferencesKey.currentTransactionPriorityKey,
-              TransactionPriority.standart.raw);
+              TransactionPriority.standard.raw);
           await sharedPreferences.setInt(
               PreferencesKey.currentBalanceDisplayModeKey,
               BalanceDisplayMode.availableBalance.raw);

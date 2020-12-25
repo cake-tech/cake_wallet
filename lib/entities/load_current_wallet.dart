@@ -19,5 +19,5 @@ Future<void> loadCurrentWallet() async {
       await getIt.get<KeyService>().getWalletPassword(walletName: name);
   final _service = getIt.get<WalletService>(param1: type);
   final wallet = await _service.openWallet(name, password);
-  appStore.wallet = wallet;
+  appStore.changeCurrentWallet(wallet);
 }

@@ -49,6 +49,7 @@ class TransactionDetailsPage extends BasePage {
             value: tx.amountFormatted()),
         StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
       ];
+
       if (showRecipientAddress) {
         final recipientAddress = transactionDescriptionBox.values
             .firstWhere((val) => val.id == transactionInfo.id,
@@ -61,6 +62,12 @@ class TransactionDetailsPage extends BasePage {
               value: recipientAddress));
         }
       }
+
+      if (tx.key?.isNotEmpty ?? null) {
+        // FIXME: add translation
+        items.add(StandartListItem(title: 'Transaction Key', value: tx.key));
+      }
+
       _items.addAll(items);
       _items.add(StandartListItem(
           title: "View in Block Explorer",
@@ -81,15 +88,26 @@ class TransactionDetailsPage extends BasePage {
         StandartListItem(
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
-        StandartListItem(
-            title: "View in Block Explorer",
-            value: "https://www.blockchain.com/btc/tx/${tx.id}"),
+        if (tx.feeFormatted()?.isNotEmpty)
+          StandartListItem(title: S.current.send_fee, value: tx.feeFormatted())
       ];
 
       _items.addAll(items);
       _items.add(StandartListItem(
           title: "View in Block Explorer",
           value: "https://www.blockchain.com/btc/tx/${tx.id}"));
+    }
+
+    if (showRecipientAddress) {
+      final recipientAddress = transactionDescriptionBox.values
+          .firstWhere((val) => val.id == transactionInfo.id, orElse: () => null)
+          ?.recipientAddress;
+
+      if (recipientAddress?.isNotEmpty ?? false) {
+        _items.add(StandartListItem(
+            title: S.current.transaction_details_recipient_address,
+            value: recipientAddress));
+      }
     }
   }
 
