@@ -1,6 +1,13 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/view_model/wallet_new_vm.dart';
+import 'package:flushbar/flushbar.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -10,25 +17,36 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
 
 class NewWalletTypePage extends BasePage {
-  NewWalletTypePage({this.onTypeSelected, this.isNewWallet = true});
+  NewWalletTypePage(this.walletNewVM, {this.onTypeSelected, this.isNewWallet});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
   final bool isNewWallet;
+  final WalletNewVM walletNewVM;
+
+  final walletTypeImage = Image.asset('assets/images/wallet_type.png');
+  final walletTypeLightImage =
+      Image.asset('assets/images/wallet_type_light.png');
 
   @override
-  String get title => isNewWallet
-                      ? S.current.new_wallet
-                      : S.current.wallet_list_restore_wallet;
+  String get title =>
+      isNewWallet ? S.current.new_wallet : S.current.wallet_list_restore_wallet;
 
   @override
-  Widget body(BuildContext context) =>
-      WalletTypeForm(onTypeSelected: onTypeSelected);
+  Widget body(BuildContext context) => WalletTypeForm(walletNewVM, isNewWallet,
+      onTypeSelected: onTypeSelected,
+      walletImage: currentTheme.type == ThemeType.dark
+          ? walletTypeImage
+          : walletTypeLightImage);
 }
 
 class WalletTypeForm extends StatefulWidget {
-  WalletTypeForm({this.onTypeSelected});
+  WalletTypeForm(this.walletNewVM, this.isNewWallet,
+      {this.onTypeSelected, this.walletImage});
 
   final void Function(BuildContext, WalletType) onTypeSelected;
+  final WalletNewVM walletNewVM;
+  final bool isNewWallet;
+  final Image walletImage;
 
   @override
   WalletTypeFormState createState() => WalletTypeFormState();
@@ -42,10 +60,12 @@ class WalletTypeFormState extends State<WalletTypeForm> {
   final bitcoinIcon =
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
-  final walletTypeLightImage = Image.asset('assets/images/wallet_type_light.png');
+  final walletTypeLightImage =
+      Image.asset('assets/images/wallet_type_light.png');
 
   WalletType selected;
   List<WalletType> types;
+  Flushbar<void> _progressBar;
 
   @override
   void initState() {
@@ -55,11 +75,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   @override
   Widget build(BuildContext context) {
-    final walletImage = getIt.get<SettingsStore>().isDarkTheme
-    ? walletTypeImage : walletTypeLightImage;
-
     return Container(
-      padding: EdgeInsets.only(top: 24),
+      padding: EdgeInsets.only(top: 24, bottom: 24),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         content: Column(
@@ -69,7 +86,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: walletImage, fit: BoxFit.fill)),
+                  child:
+                      FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 48),
@@ -86,7 +104,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
                   padding: EdgeInsets.only(top: 24),
                   child: SelectButton(
                       image: _iconFor(type),
-                      text: walletTypeToString(type),
+                      text: walletTypeToDisplayName(type),
                       isSelected: selected == type,
                       onTap: () => setState(() => selected = type)),
                 ))
@@ -94,9 +112,9 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         ),
         bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
         bottomSection: PrimaryButton(
-          onPressed: () => widget.onTypeSelected(context, selected),
+          onPressed: () => onTypeSelected(),
           text: S.of(context).seed_language_next,
-          color: Colors.green,
+          color: Theme.of(context).accentTextTheme.body2.color,
           textColor: Colors.white,
           isDisabled: selected == null,
         ),
@@ -113,5 +131,36 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       default:
         return null;
     }
+  }
+
+  Future<void> onTypeSelected() async {
+    if (!widget.isNewWallet) {
+      widget.onTypeSelected(context, selected);
+      return;
+    }
+
+    try {
+      _changeProcessText(S.of(context).creating_new_wallet);
+      widget.walletNewVM.type = selected;
+      await widget.walletNewVM
+          .create(options: 'English'); // FIXME: Unnamed constant
+      await _progressBar?.dismiss();
+      final state = widget.walletNewVM.state;
+
+      if (state is ExecutedSuccessfullyState) {
+        widget.onTypeSelected(context, selected);
+      }
+
+      if (state is FailureState) {
+        _changeProcessText(
+            S.of(context).creating_new_wallet_error(state.error));
+      }
+    } catch (e) {
+      _changeProcessText(S.of(context).creating_new_wallet_error(e.toString()));
+    }
+  }
+
+  void _changeProcessText(String text) {
+    _progressBar = createBar<void>(text, duration: null)..show(context);
   }
 }

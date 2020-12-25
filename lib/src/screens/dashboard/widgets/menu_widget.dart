@@ -5,6 +5,7 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 // FIXME: terrible design.
 
@@ -65,8 +66,10 @@ class MenuWidgetState extends State<MenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final walletMenu =
-        WalletMenu(context, () async => widget.dashboardViewModel.reconnect());
+    final walletMenu = WalletMenu(
+        context,
+        () async => widget.dashboardViewModel.reconnect(),
+        widget.dashboardViewModel.hasRescan);
     final itemCount = walletMenu.items.length;
 
     moneroIcon = Image.asset('assets/images/monero_menu.png',
@@ -147,16 +150,19 @@ class MenuWidgetState extends State<MenuWidget> {
                                       ),
                                       if (widget.dashboardViewModel.subname !=
                                           null)
-                                        Text(
-                                          widget.dashboardViewModel.subname,
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .accentTextTheme
-                                                  .overline
-                                                  .decorationColor,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 12),
-                                        )
+                                        Observer(
+                                            builder: (_) => Text(
+                                                  widget.dashboardViewModel
+                                                      .subname,
+                                                  style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .accentTextTheme
+                                                          .overline
+                                                          .decorationColor,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      fontSize: 12),
+                                                ))
                                     ],
                                   ),
                                 ))

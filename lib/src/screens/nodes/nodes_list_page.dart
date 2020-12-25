@@ -65,98 +65,90 @@ class NodeListPage extends BasePage {
       padding: EdgeInsets.only(top: 10),
       child: Observer(
         builder: (BuildContext context) {
-          return nodeListViewModel.nodes.isNotEmpty
-              ? SectionStandardList(
-                  sectionCount: 2,
-                  context: context,
-                  itemCounter: (int sectionIndex) {
-                    if (sectionIndex == 0) {
-                      return 1;
-                    }
+          return SectionStandardList(
+              sectionCount: 2,
+              context: context,
+              itemCounter: (int sectionIndex) {
+                if (sectionIndex == 0) {
+                  return 1;
+                }
 
-                    return nodeListViewModel.nodes.length;
-                  },
-                  itemBuilder: (_, sectionIndex, index) {
-                    if (sectionIndex == 0) {
-                      return NodeHeaderListRow(
-                          title: S.of(context).add_new_node,
-                          onTap: (_) async => await Navigator.of(context)
-                              .pushNamed(Routes.newNode));
-                    }
+                return nodeListViewModel.nodes.length;
+              },
+              itemBuilder: (_, sectionIndex, index) {
+                if (sectionIndex == 0) {
+                  return NodeHeaderListRow(
+                      title: S.of(context).add_new_node,
+                      onTap: (_) async => await Navigator.of(context)
+                          .pushNamed(Routes.newNode));
+                }
 
-                    final node = nodeListViewModel.nodes[index];
-                    final isSelected = node.keyIndex ==
-                        nodeListViewModel.settingsStore.currentNode.keyIndex;
-                    final nodeListRow = NodeListRow(
-                        title: node.uri,
-                        isSelected: isSelected,
-                        isAlive: node.requestNode(),
-                        onTap: (_) async {
-                          if (isSelected) {
-                            return;
+                final node = nodeListViewModel.nodes[index];
+                final isSelected =
+                    node.keyIndex == nodeListViewModel.currentNode?.keyIndex;
+                final nodeListRow = NodeListRow(
+                    title: node.uri,
+                    isSelected: isSelected,
+                    isAlive: node.requestNode(),
+                    onTap: (_) async {
+                      if (isSelected) {
+                        return;
+                      }
+
+                      await showPopUp<void>(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertWithTwoActions(
+                                alertTitle:
+                                    S.of(context).change_current_node_title,
+                                alertContent:
+                                    S.of(context).change_current_node(node.uri),
+                                leftButtonText: S.of(context).cancel,
+                                rightButtonText: S.of(context).change,
+                                actionLeftButton: () =>
+                                    Navigator.of(context).pop(),
+                                actionRightButton: () async {
+                                  await nodeListViewModel.setAsCurrent(node);
+                                  Navigator.of(context).pop();
+                                });
+                          });
+                    });
+
+                final dismissibleRow = Slidable(
+                    key: Key('${node.keyIndex}'),
+                    actionPane: SlidableDrawerActionPane(),
+                    child: nodeListRow,
+                    secondaryActions: <Widget>[
+                      IconSlideAction(
+                        caption: S.of(context).delete,
+                        color: Colors.red,
+                        icon: CupertinoIcons.delete,
+                        onTap: () async {
+                          final confirmed = await showPopUp<bool>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertWithTwoActions(
+                                        alertTitle: S.of(context).remove_node,
+                                        alertContent:
+                                            S.of(context).remove_node_message,
+                                        rightButtonText: S.of(context).remove,
+                                        leftButtonText: S.of(context).cancel,
+                                        actionRightButton: () =>
+                                            Navigator.pop(context, true),
+                                        actionLeftButton: () =>
+                                            Navigator.pop(context, false));
+                                  }) ??
+                              false;
+
+                          if (confirmed) {
+                            await nodeListViewModel.delete(node);
                           }
+                        },
+                      ),
+                    ]);
 
-                          await showPopUp<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                // FIXME: Add translation.
-                                return AlertWithTwoActions(
-                                    alertTitle: 'Change current node',
-                                    alertContent: S
-                                        .of(context)
-                                        .change_current_node(node.uri),
-                                    leftButtonText: S.of(context).cancel,
-                                    rightButtonText: S.of(context).change,
-                                    actionLeftButton: () =>
-                                        Navigator.of(context).pop(),
-                                    actionRightButton: () async {
-                                      await nodeListViewModel
-                                          .setAsCurrent(node);
-                                      Navigator.of(context).pop();
-                                    });
-                              });
-                        });
-
-                    final dismissibleRow = Slidable(
-                        key: Key('${node.keyIndex}'),
-                        actionPane: SlidableDrawerActionPane(),
-                        child: nodeListRow,
-                        secondaryActions: <Widget>[
-                          IconSlideAction(
-                            caption: S.of(context).delete,
-                            color: Colors.red,
-                            icon: CupertinoIcons.delete,
-                            onTap: () async {
-                              final confirmed = await showPopUp<bool>(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertWithTwoActions(
-                                            alertTitle:
-                                                S.of(context).remove_node,
-                                            alertContent: S
-                                                .of(context)
-                                                .remove_node_message,
-                                            rightButtonText:
-                                                S.of(context).remove,
-                                            leftButtonText:
-                                                S.of(context).cancel,
-                                            actionRightButton: () =>
-                                                Navigator.pop(context, true),
-                                            actionLeftButton: () =>
-                                                Navigator.pop(context, false));
-                                      }) ??
-                                  false;
-
-                              if (confirmed) {
-                                await nodeListViewModel.delete(node);
-                              }
-                            },
-                          ),
-                        ]);
-
-                    return isSelected ? nodeListRow : dismissibleRow;
-                  })
-              : Container();
+                return isSelected ? nodeListRow : dismissibleRow;
+              });
         },
       ),
     );

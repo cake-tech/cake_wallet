@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
@@ -9,13 +10,13 @@ enum AppBarStyle { regular, withShadow, transparent }
 
 abstract class BasePage extends StatelessWidget {
   BasePage()
-      : _scaffoldKey = GlobalKey<ScaffoldState>(),
-        _closeButtonImage = Image.asset('assets/images/close_button.png'),
-        _closeButtonImageDarkTheme =
-            Image.asset('assets/images/close_button_dark_theme.png');
+      : _scaffoldKey = GlobalKey<ScaffoldState>();
   final GlobalKey<ScaffoldState> _scaffoldKey;
-  final Image _closeButtonImage;
-  final Image _closeButtonImageDarkTheme;
+
+  final Image closeButtonImage =
+    Image.asset('assets/images/close_button.png');
+  final Image closeButtonImageDarkTheme =
+    Image.asset('assets/images/close_button_dark_theme.png');
 
   String get title => null;
 
@@ -37,7 +38,7 @@ abstract class BasePage extends StatelessWidget {
 
   Widget Function(BuildContext, Widget) get rootWrapper => null;
 
-  bool get isDarkTheme => getIt.get<SettingsStore>().isDarkTheme;
+  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
   void onOpenEndDrawer() => _scaffoldKey.currentState.openEndDrawer();
 
@@ -51,8 +52,8 @@ abstract class BasePage extends StatelessWidget {
     final _backButton = Icon(Icons.arrow_back_ios,
       color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
       size: 16,);
-    final _closeButton =
-        isDarkTheme ? _closeButtonImageDarkTheme : _closeButtonImage;
+    final _closeButton = currentTheme.type == ThemeType.dark
+        ? closeButtonImageDarkTheme : closeButtonImage;
 
     return SizedBox(
       height: 37,
@@ -88,8 +89,8 @@ abstract class BasePage extends StatelessWidget {
   Widget floatingActionButton(BuildContext context) => null;
 
   ObstructingPreferredSizeWidget appBar(BuildContext context) {
-    final appBarColor =
-        isDarkTheme ? backgroundDarkColor : backgroundLightColor;
+    final appBarColor = currentTheme.type == ThemeType.dark
+        ? backgroundDarkColor : backgroundLightColor;
 
     switch (appBarStyle) {
       case AppBarStyle.regular:
@@ -131,10 +132,12 @@ abstract class BasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _backgroundColor = currentTheme.type == ThemeType.dark
+        ? backgroundDarkColor : backgroundLightColor;
+
     final root = Scaffold(
         key: _scaffoldKey,
-        backgroundColor:
-            isDarkTheme ? backgroundDarkColor : backgroundLightColor,
+        backgroundColor: _backgroundColor,
         resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
         extendBodyBehindAppBar: extendBodyBehindAppBar,
         endDrawer: endDrawer,

@@ -65,7 +65,7 @@
   "change_exchange_provider" : "更改交易所提供商",
   "you_will_send" : "從轉換",
   "you_will_get" : "轉換成",
-  "amount_is_guaranteed" : "重要：\n如果您想獲得保證的BTC金額，請在BTC字段中輸入該金額。 如果您輸入的是XMR金額，則收到的BTC金額只是估算值，可能會隨匯率而波動。",
+  "amount_is_guaranteed" : "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量",
   "amount_is_estimate" : "收款金额为估算值",
   "powered_by" : "供电 ${title}",
   "error" : "错误",
@@ -129,6 +129,11 @@
   "remove" : "去掉",
   "delete" : "删除",
   "add_new_node" : "添加新節點",
+  "change_current_node_title" : "更改當前節點",
+  "node_test" : "測試",
+  "node_connection_successful" : "連接成功",
+  "node_connection_failed" : "連接失敗",
+  "new_node_testing" : "新節點測試",
 
 
   "use" : "採用 ",
@@ -337,7 +342,7 @@
   "sync_status_syncronized" : "已同步",
   "sync_status_not_connected" : "未连接",
   "sync_status_starting_sync" : "开始同步",
-  "sync_status_failed_connect" : "无法连接到节点",
+  "sync_status_failed_connect" : "斷線",
   "sync_status_connecting" : "连接中",
   "sync_status_connected" : "连接的",
 
@@ -407,5 +412,21 @@
   "seed_alert_back" : "回去",
   "seed_alert_yes" : "是的，我有",
 
-  "exchange_sync_alert_content" : "請等待，直到您的錢包同步"
+  "exchange_sync_alert_content" : "請等待，直到您的錢包同步",
+
+  "pre_seed_title" : "重要",
+  "pre_seed_description" : "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。",
+  "pre_seed_button_text" : "我明白。 給我看我的種子",
+
+  "xmr_to_error" : "XMR.TO錯誤",
+  "xmr_to_error_description" : "無效的金額。 小數點後最多8位數字",
+
+  "provider_error" : "${provider} 錯誤",
+
+  "use_ssl" : "使用SSL",
+
+  "color_theme" : "顏色主題",
+  "light_theme" : "光",
+  "bright_theme" : "亮",
+  "dark_theme" : "黑暗"
 }

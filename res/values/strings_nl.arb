@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Wijzig Exchange Provider",
   "you_will_send" : "Converteren van",
   "you_will_get" : "Converteren naar",
-  "amount_is_guaranteed" : "BELANGRIJK:\nAls u een gegarandeerd bedrag aan BTC wilt ontvangen, voert u dat bedrag in het BTC-veld in. Als u in plaats daarvan een XMR-bedrag invoert, is het ontvangen BTC-bedrag een schatting en kan het fluctueren afhankelijk van de tarieven.",
+  "amount_is_guaranteed" : "Om een gegarandeerd BTC-bedrag te ontvangen, voert u in xmr.to het BTC-bedrag in en niet het bovenstaande XMR-bedrag",
   "amount_is_estimate" : "Het ontvangen bedrag is een schatting",
   "powered_by" : "Aangedreven door ${title}",
   "error" : "Fout",
@@ -129,6 +129,11 @@
   "remove" : "Verwijderen",
   "delete" : "Delete",
   "add_new_node" : "Voeg een nieuw knooppunt toe",
+  "change_current_node_title" : "Wijzig het huidige knooppunt",
+  "node_test" : "Test",
+  "node_connection_successful" : "Verbinding is gelukt",
+  "node_connection_failed" : "De verbinding is mislukt",
+  "new_node_testing" : "Nieuwe knooppunttest",
 
 
   "use" : "Gebruik ",
@@ -337,7 +342,7 @@
   "sync_status_syncronized" : "SYNCHRONIZED",
   "sync_status_not_connected" : "NIET VERBONDEN",
   "sync_status_starting_sync" : "BEGINNEN MET SYNCHRONISEREN",
-  "sync_status_failed_connect" : "MISLUKT VERBINDING MET DE NODE",
+  "sync_status_failed_connect" : "LOSGEKOPPELD",
   "sync_status_connecting" : "AANSLUITING",
   "sync_status_connected" : "VERBONDEN",
 
@@ -407,5 +412,21 @@
   "seed_alert_back" : "Ga terug",
   "seed_alert_yes" : "Ja ik heb",
 
-  "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd"
+  "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd",
+
+  "pre_seed_title" : "BELANGRIJK",
+  "pre_seed_description" : "Op de volgende pagina ziet u een reeks van 25 woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.",
+  "pre_seed_button_text" : "Ik begrijp het. Laat me mijn zaad zien",
+
+  "xmr_to_error" : "XMR.TO-fout",
+  "xmr_to_error_description" : "Ongeldige hoeveelheid. Maximaal 8 cijfers achter de komma",
+
+  "provider_error" : "${provider} fout",
+
+  "use_ssl" : "Gebruik SSL",
+
+  "color_theme" : "Kleur thema",
+  "light_theme" : "Licht",
+  "bright_theme" : "Helder",
+  "dark_theme" : "Donker"
 }

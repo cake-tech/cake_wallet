@@ -204,7 +204,7 @@ class AddressTextField extends StatelessWidget {
         onURIScanned(uri);
       }
     } catch (e) {
-      print('Error $e');
+      print(e.toString());
     }
   }
 

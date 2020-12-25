@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Wechseln Sie den Exchange-Anbieter",
   "you_will_send" : "Konvertieren von",
   "you_will_get" : "Konvertieren zu",
-  "amount_is_guaranteed" : "WICHTIG:\nWenn Sie einen garantierten BTC-Betrag erhalten möchten, geben Sie diesen Betrag in das Feld BTC ein. Wenn Sie stattdessen einen XMR-Betrag eingeben, handelt es sich bei dem erhaltenen BTC-Betrag um eine Schätzung, die je nach Kurs schwanken kann.",
+  "amount_is_guaranteed" : "Geben Sie in xmr.to den BTC-Betrag und nicht den oben genannten XMR-Betrag ein, um einen garantierten BTC-Betrag zu erhalten",
   "amount_is_estimate" : "Der empfangene Betrag ist eine Schätzung",
   "powered_by" : "Unterstützt von ${title}",
   "error" : "Error",
@@ -129,6 +129,11 @@
   "remove" : "Löschen",
   "delete" : "Löschen",
   "add_new_node" : "Neuen Knoten hinzufügen",
+  "change_current_node_title" : "Ändern Sie den aktuellen Knoten",
+  "node_test" : "Test",
+  "node_connection_successful" : "Die Verbindung war erfolgreich",
+  "node_connection_failed" : "Verbindung fehlgeschlagen",
+  "new_node_testing" : "Neuer Knotentest",
 
 
   "use" : "Verwenden Sie ",
@@ -337,7 +342,7 @@
   "sync_status_syncronized" : "SYNCHRONISIERT",
   "sync_status_not_connected" : "NICHT VERBUNDEN",
   "sync_status_starting_sync" : "STARTEN DER SYNCHRONISIERUNG",
-  "sync_status_failed_connect" : "Verbindung zum Knoten fehlgeschlagen",
+  "sync_status_failed_connect" : "GETRENNT",
   "sync_status_connecting" : "ANSCHLUSS",
   "sync_status_connected" : "IN VERBINDUNG GEBRACHT",
 
@@ -407,5 +412,21 @@
   "seed_alert_back" : "Geh zurück",
   "seed_alert_yes" : "Ja, habe ich",
 
-  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist"
+  "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist",
+
+  "pre_seed_title" : "WICHTIG",
+  "pre_seed_description" : "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.",
+  "pre_seed_button_text" : "Ich verstehe. Zeig mir meinen Samen",
+
+  "xmr_to_error" : "XMR.TO-Fehler",
+  "xmr_to_error_description" : "Ungültiger Betrag. Höchstgrenze 8 Stellen nach dem Dezimalpunkt",
+
+  "provider_error" : "${provider} Error",
+
+  "use_ssl" : "Verwenden Sie SSL",
+
+  "color_theme" : "Farbthema",
+  "light_theme" : "Licht",
+  "bright_theme" : "Hell",
+  "dark_theme" : "Dunkel"
 }

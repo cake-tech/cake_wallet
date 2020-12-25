@@ -60,7 +60,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.bnb:
         return [42];
       case CryptoCurrency.btc:
-        return [33, 34, 42];
+        return [33, 34, 42, 62];
       case CryptoCurrency.dai:
         return [42];
       case CryptoCurrency.dash:

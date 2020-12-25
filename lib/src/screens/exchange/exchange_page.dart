@@ -95,9 +95,8 @@ class ExchangePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: isDarkTheme
-                ? Color.fromRGBO(48, 51, 60, 1.0)
-                : Color.fromRGBO(98, 98, 98, 1.0),
+            keyboardBarColor: Theme.of(context).accentTextTheme.body2
+                .backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -547,7 +546,7 @@ class ExchangePage extends BasePage {
               context: context,
               builder: (BuildContext context) {
                 return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
+                    alertTitle: S.of(context).provider_error(state.title),
                     alertContent: state.error,
                     buttonText: S.of(context).ok,
                     buttonAction: () => Navigator.of(context).pop());
@@ -555,6 +554,7 @@ class ExchangePage extends BasePage {
         });
       }
       if (state is TradeIsCreatedSuccessfully) {
+        exchangeViewModel.reset();
         Navigator.of(context).pushNamed(Routes.exchangeConfirm);
       }
     });

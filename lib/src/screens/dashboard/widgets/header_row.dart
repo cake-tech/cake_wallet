@@ -27,14 +27,15 @@ class HeaderRow extends StatelessWidget {
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.w500,
-              color: Colors.white
+              color: Theme.of(context).accentTextTheme.display3.backgroundColor
             ),
           ),
           GestureDetector(
             onTap: () {
               showPopUp<void>(
                 context: context,
-                builder: (context) => FilterWidget(dashboardViewModel: dashboardViewModel)
+                builder: (context) =>
+                    FilterWidget(dashboardViewModel: dashboardViewModel)
               );
             },
             child: Container(

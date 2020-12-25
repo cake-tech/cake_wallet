@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Cambiar proveedor de intercambio",
   "you_will_send" : "Convertir de",
   "you_will_get" : "Convertir a",
-  "amount_is_guaranteed" : "IMPORTANTE:\nSi desea recibir una cantidad garantizada de BTC, ingrese esa cantidad en el campo BTC. Si ingresa una cantidad de XMR en su lugar, la cantidad de BTC recibida es una estimación y puede variar según las tarifas.",
+  "amount_is_guaranteed" : "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba",
   "amount_is_estimate" : "El monto recibido es un estimado",
   "powered_by" : "Energizado por ${title}",
   "error" : "Error",
@@ -129,6 +129,11 @@
   "remove" : "Retirar",
   "delete" : "Borrar",
   "add_new_node" : "Agregar nuevo nodo",
+  "change_current_node_title" : "Cambiar el nodo actual",
+  "node_test" : "Prueba",
+  "node_connection_successful" : "La conexión fue exitosa",
+  "node_connection_failed" : "La conexión falló",
+  "new_node_testing" : "Prueba de nuevos nodos",
 
 
   "use" : "Utilizar a ",
@@ -337,7 +342,7 @@
   "sync_status_syncronized" : "SINCRONIZADO",
   "sync_status_not_connected" : "NO CONECTADO",
   "sync_status_starting_sync" : "EMPEZANDO A SINCRONIZAR",
-  "sync_status_failed_connect" : "CONEXIÓN FALLIDA AL NODO",
+  "sync_status_failed_connect" : "DESCONECTADO",
   "sync_status_connecting" : "CONECTANDO",
   "sync_status_connected" : "CONECTADO",
 
@@ -407,5 +412,21 @@
   "seed_alert_back" : "Regresa",
   "seed_alert_yes" : "Sí tengo",
 
-  "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada"
+  "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada",
+
+  "pre_seed_title" : "IMPORTANTE",
+  "pre_seed_description" : "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.",
+  "pre_seed_button_text" : "Entiendo. Muéstrame mi semilla",
+
+  "xmr_to_error" : "Error de XMR.TO",
+  "xmr_to_error_description" : "Monto invalido. Límite máximo de 8 dígitos después del punto decimal",
+
+  "provider_error" : "${provider} error",
+
+  "use_ssl" : "Utilice SSL",
+
+  "color_theme" : "Tema de color",
+  "light_theme" : "Ligera",
+  "bright_theme" : "Brillante",
+  "dark_theme" : "Oscura"
 }

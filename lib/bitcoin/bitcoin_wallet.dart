@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cake_wallet/bitcoin/address_to_output_script.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:mobx/mobx.dart';
-import 'package:bip39/bip39.dart' as bip39;
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
@@ -42,8 +43,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       BitcoinBalance initialBalance})
       : balance =
             initialBalance ?? BitcoinBalance(confirmed: 0, unconfirmed: 0),
-        hd = bitcoin.HDWallet.fromSeed(bip39.mnemonicToSeed(mnemonic),
-            network: bitcoin.bitcoin),
+        hd = bitcoin.HDWallet.fromSeed(mnemonicToSeedBytes(mnemonic),
+                network: bitcoin.bitcoin)
+            .derivePath("m/0'/0"),
         addresses = initialAddresses != null
             ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
             : ObservableList<BitcoinAddressRecord>(),
@@ -58,6 +60,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       {@required String password,
       @required String name,
       @required String dirPath,
+      @required WalletInfo walletInfo,
       String jsonSource}) {
     final data = json.decode(jsonSource) as Map;
     final mnemonic = data['mnemonic'] as String;
@@ -83,7 +86,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         name: name,
         accountIndex: accountIndex,
         initialAddresses: addresses,
-        initialBalance: balance);
+        initialBalance: balance,
+        walletInfo: walletInfo);
   }
 
   static BitcoinWallet build(
@@ -91,6 +95,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       @required String password,
       @required String name,
       @required String dirPath,
+      @required WalletInfo walletInfo,
       List<BitcoinAddressRecord> initialAddresses,
       BitcoinBalance initialBalance,
       int accountIndex = 0}) {
@@ -107,7 +112,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         accountIndex: accountIndex,
         initialAddresses: initialAddresses,
         initialBalance: initialBalance,
-        transactionHistory: history);
+        transactionHistory: history,
+        walletInfo: walletInfo);
   }
 
   @override
@@ -170,6 +176,22 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     return address;
   }
 
+  Future<List<BitcoinAddressRecord>> generateNewAddresses(int count) async {
+    final list = <BitcoinAddressRecord>[];
+
+    for (var i = 0; i < count; i++) {
+      _accountIndex += 1;
+      final address = BitcoinAddressRecord(_getAddress(index: _accountIndex),
+          index: _accountIndex, label: null);
+      list.add(address);
+    }
+
+    addresses.addAll(list);
+    await save();
+
+    return list;
+  }
+
   Future<void> updateAddress(String address, {String label}) async {
     for (final addr in addresses) {
       if (addr.address == address) {
@@ -185,8 +207,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> startSync() async {
     try {
       syncStatus = StartingSyncStatus();
-      transactionHistory.updateAsync(
-          onFinished: () => print('transactionHistory update finished!'));
+      transactionHistory.updateAsync(onFinished: () {
+        print('transactionHistory update finished!');
+        transactionHistory.save();
+      });
       _subscribeForUpdates();
       await _updateBalance();
       syncStatus = SyncedSyncStatus();
@@ -238,9 +262,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       final utxs = await unptsFutures;
 
       for (final utx in utxs) {
-        final inAmount = utx.value > totalAmount ? totalAmount : utx.value;
-        leftAmount = leftAmount - inAmount;
-        totalInputAmount += inAmount;
+        leftAmount = leftAmount - utx.value;
+        totalInputAmount += utx.value;
         inputs.add(utx);
 
         if (leftAmount <= 0) {
@@ -279,7 +302,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       }
     });
 
-    txb.addOutput(transactionCredentials.address, amount);
+    txb.addOutput(
+        addressToOutputScript(transactionCredentials.address), amount);
 
     if (changeValue > 0) {
       txb.addOutput(changeAddress, changeValue);
@@ -295,7 +319,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
     return PendingBitcoinTransaction(txb.build(),
         eclient: eclient, amount: amount, fee: fee)
-      ..addListener((transaction) => transactionHistory.addOne(transaction));
+      ..addListener((transaction) async {
+        transactionHistory.addOne(transaction);
+        await _updateBalance();
+      });
   }
 
   String toJSON() => json.encode({
@@ -310,8 +337,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       bitcoinAmountToDouble(amount: _feeMultiplier(priority));
 
   @override
-  Future<void> save() async =>
-      await write(path: path, password: _password, data: toJSON());
+  Future<void> save() async {
+    await write(path: path, password: _password, data: toJSON());
+    await transactionHistory.save();
+  }
 
   bitcoin.ECPair keyPairFor({@required int index}) =>
       generateKeyPair(hd: hd, index: index);
@@ -321,13 +350,18 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     // FIXME: Unimplemented
   }
 
+  @override
+  void close() async{
+    await eclient.close();
+  }
+
   void _subscribeForUpdates() {
     scriptHashes.forEach((sh) async {
       await _scripthashesUpdateSubject[sh]?.close();
       _scripthashesUpdateSubject[sh] = eclient.scripthashUpdate(sh);
       _scripthashesUpdateSubject[sh].listen((event) async {
-        transactionHistory.updateAsync();
         await _updateBalance();
+        transactionHistory.updateAsync();
       });
     });
   }
@@ -358,9 +392,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       case TransactionPriority.slow:
         return 6000;
       case TransactionPriority.regular:
-        return 9000;
+        return 22080;
       case TransactionPriority.fast:
-        return 15000;
+        return 24000;
       default:
         return 0;
     }

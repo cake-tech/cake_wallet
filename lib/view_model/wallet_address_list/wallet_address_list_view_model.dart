@@ -31,7 +31,7 @@ class MoneroURI extends PaymentURI {
     var base = 'monero:' + address;
 
     if (amount?.isNotEmpty ?? false) {
-      base += '?tx_amount=$amount';
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
     }
 
     return base;
@@ -47,7 +47,7 @@ class BitcoinURI extends PaymentURI {
     var base = 'bitcoin:' + address;
 
     if (amount?.isNotEmpty ?? false) {
-      base += '?amount=$amount';
+      base += '?amount=${amount.replaceAll(',', '.')}';
     }
 
     return base;
@@ -57,10 +57,13 @@ class BitcoinURI extends PaymentURI {
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase(
       {@required AppStore appStore}) {
-    hasAccounts = _wallet is MoneroWallet;
     _appStore = appStore;
     _wallet = _appStore.wallet;
-    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase wallet) => _wallet = wallet);
+    hasAccounts = _wallet?.type == WalletType.monero;
+    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase wallet) {
+      _wallet = wallet;
+      hasAccounts = _wallet.type == WalletType.monero;
+    });
     _init();
   }
 
@@ -97,22 +100,35 @@ abstract class WalletAddressListViewModelBase with Store {
     final addressList = ObservableList<ListItem>();
 
     if (wallet is MoneroWallet) {
-      addressList.addAll(wallet.subaddressList.subaddresses.map((subaddress) =>
-          WalletAddressListItem(
-              id: subaddress.id,
-              name: subaddress.label,
-              address: subaddress.address)));
+      final primaryAddress = wallet.subaddressList.subaddresses.first;
+      addressList.addAll(wallet.subaddressList.subaddresses.map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.label,
+            address: subaddress.address);
+      }));
     }
 
     if (wallet is BitcoinWallet) {
-      final bitcoinAddresses = wallet.addresses.map((addr) =>
-          WalletAddressListItem(name: addr.label, address: addr.address));
+      final primaryAddress = wallet.addresses.first;
+      final bitcoinAddresses = wallet.addresses.map((addr) {
+        final isPrimary = addr == primaryAddress;
+
+        return WalletAddressListItem(
+            isPrimary: isPrimary,
+            name: addr.label,
+            address: addr.address);
+      });
       addressList.addAll(bitcoinAddresses);
     }
 
     return addressList;
   }
 
+  @observable
   bool hasAccounts;
 
   @observable
