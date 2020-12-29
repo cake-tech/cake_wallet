@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'package:cw_monero/exceptions/wallet_opening_exception.dart';
 import 'package:cw_monero/wallet.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,6 @@ import 'package:cw_monero/signatures.dart';
 import 'package:cw_monero/types.dart';
 import 'package:cw_monero/monero_api.dart';
 import 'package:cw_monero/exceptions/wallet_creation_exception.dart';
-import 'package:cw_monero/exceptions/wallet_loading_exception.dart';
 import 'package:cw_monero/exceptions/wallet_restore_from_keys_exception.dart';
 import 'package:cw_monero/exceptions/wallet_restore_from_seed_exception.dart';
 
@@ -146,7 +146,7 @@ void loadWallet({String path, String password, int nettype = 0}) {
   free(passwordPointer);
 
   if (!loaded) {
-    throw WalletLoadingException(
+    throw WalletOpeningException(
         message: convertUTF8ToString(pointer: errorStringNative()));
   }
 }
