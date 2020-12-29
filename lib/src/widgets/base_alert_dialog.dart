@@ -7,6 +7,7 @@ class BaseAlertDialog extends StatelessWidget {
   String get contentText => '';
   String get leftActionButtonText => '';
   String get rightActionButtonText => '';
+  bool get isDividerExists => false;
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
@@ -127,18 +128,24 @@ class BaseAlertDialog extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        Container(
-                          padding: EdgeInsets.fromLTRB(24, 32, 24, 32),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              title(context),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8),
-                                child: content(context),
-                              )
-                            ],
-                          ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(24, 32, 24, 16),
+                              child: title(context),
+                            ),
+                            isDividerExists
+                            ? Container(
+                              height: 1,
+                              color: Theme.of(context).dividerColor,
+                            )
+                            : Offstage(),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(24, 16, 24, 32),
+                              child: content(context),
+                            )
+                          ],
                         ),
                         Container(
                           height: 1,

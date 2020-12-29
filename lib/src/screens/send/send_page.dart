@@ -313,6 +313,7 @@ class SendPage extends BasePage {
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Text(
                                                   S
@@ -326,23 +327,50 @@ class SendPage extends BasePage {
                                                       color: Colors.white)),
                                               Container(
                                                 child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: <Widget>[
-                                                    Text(
-                                                        sendViewModel
+                                                    Column(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      children: [
+                                                        Text(
+                                                            sendViewModel
                                                                 .estimatedFee
                                                                 .toString() +
-                                                            ' ' +
-                                                            sendViewModel
+                                                                ' ' +
+                                                                sendViewModel
                                                                 .currency.title,
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            fontWeight:
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                fontWeight:
                                                                 FontWeight.w600,
-                                                            //color: Theme.of(context).primaryTextTheme.display2.color,
-                                                            color:
+                                                                //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                                color:
                                                                 Colors.white)),
+                                                        Padding(
+                                                          padding:
+                                                          EdgeInsets.only(top: 5),
+                                                          child: Text(
+                                                            sendViewModel
+                                                            .estimatedFeeFiatAmount
+                                                            +  ' ' +
+                                                           sendViewModel
+                                                           .fiat.title,
+                                                           style: TextStyle(
+                                                             fontSize: 12,
+                                                             fontWeight:
+                                                             FontWeight.w600,
+                                                             color: Theme
+                                                               .of(context)
+                                                               .primaryTextTheme
+                                                               .headline
+                                                               .decorationColor))
+                                                        ),
+                                                      ],
+                                                    ),
                                                     Padding(
                                                       padding: EdgeInsets.only(
+                                                          top: 2,
                                                           left: 5),
                                                       child: Icon(
                                                         Icons.arrow_forward_ios,
@@ -596,8 +624,14 @@ class SendPage extends BasePage {
                     amount: S.of(context).send_amount,
                     amountValue:
                         sendViewModel.pendingTransaction.amountFormatted,
+                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmount
+                        +  ' ' + sendViewModel.fiat.title,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
+                    transactionPriority: sendViewModel
+                        .transactionPriority.toString(),
+                    recipientTitle: 'Recipient address',
+                    recipientAddress: sendViewModel.address,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
                     actionRightButton: () {
@@ -614,96 +648,17 @@ class SendPage extends BasePage {
                               }
 
                               if (state is TransactionCommitted) {
-                                return Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      color: Theme.of(context).backgroundColor,
-                                      child: Center(
-                                        child: Image.asset(
-                                            'assets/images/birthday_cake.png'),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                            top: 220, left: 24, right: 24),
-                                        child: Text(
-                                          S.of(context).send_success(
-                                              sendViewModel.currency
-                                                  .toString()),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .title
-                                                .color,
-                                            decoration: TextDecoration.none,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                        left: 24,
-                                        right: 24,
-                                        bottom: 24,
-                                        child: PrimaryButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            text: S.of(context).send_got_it,
-                                            color: Theme.of(context)
-                                                .accentTextTheme
-                                                .body2
-                                                .color,
-                                            textColor: Colors.white))
-                                  ],
-                                );
+                                return AlertWithOneAction(
+                                    alertTitle: '',
+                                    alertContent: S.of(context).send_success(
+                                        sendViewModel.currency
+                                            .toString()),
+                                    buttonText: S.of(context).ok,
+                                    buttonAction: () =>
+                                        Navigator.of(context).pop());
                               }
 
-                              if (state is TransactionCommitting) {
-                                return Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      color: Theme.of(context).backgroundColor,
-                                      child: Center(
-                                        child: Image.asset(
-                                            'assets/images/birthday_cake.png'),
-                                      ),
-                                    ),
-                                    BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 3.0, sigmaY: 3.0),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .backgroundColor
-                                                .withOpacity(0.25)),
-                                        child: Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 220),
-                                            child: Text(
-                                              S.of(context).send_sending,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 22,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .title
-                                                    .color,
-                                                decoration: TextDecoration.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                );
-                              }
-
-                              return Container();
+                              return Offstage();
                             });
                           });
                     },

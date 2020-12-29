@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -59,6 +60,34 @@ abstract class SendViewModelBase with Store {
   @computed
   double get estimatedFee =>
       _wallet.calculateEstimatedFee(_settingsStore.transactionPriority);
+
+  @computed
+  String get estimatedFeeFiatAmount {
+    try {
+      final fiat = calculateFiatAmountRaw(
+          price: _fiatConversationStore.prices[_wallet.currency],
+          cryptoAmount: estimatedFee);
+      return fiat;
+    } catch (_) {
+      return '0.00';
+    }
+  }
+
+  @computed
+  String get pendingTransactionFiatAmount {
+    try {
+      if (pendingTransaction != null) {
+        final fiat = calculateFiatAmount(
+            price: _fiatConversationStore.prices[_wallet.currency],
+            cryptoAmount: pendingTransaction.amountFormatted);
+        return fiat;
+      } else {
+        return '0.00';
+      }
+    } catch (_) {
+      return '0.00';
+    }
+  }
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
