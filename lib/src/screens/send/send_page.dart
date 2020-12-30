@@ -630,7 +630,7 @@ class SendPage extends BasePage {
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
                     feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmount
                         +  ' ' + sendViewModel.fiat.title,
-                    recipientTitle: 'Recipient address',
+                    recipientTitle: S.of(context).recipient_address,
                     recipientAddress: sendViewModel.address,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,

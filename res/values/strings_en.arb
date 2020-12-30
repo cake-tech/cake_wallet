@@ -212,7 +212,7 @@
   "send_name" : "Name",
   "send_got_it" : "Got it",
   "send_sending" : "Sending...",
-  "send_success" : "Your Monero was successfully sent",
+  "send_success" : "Your ${crypto} was successfully sent",
 
 
   "settings_title" : "Settings",
@@ -415,7 +415,7 @@
   "exchange_sync_alert_content" : "Please wait until your wallet is synchronized",
 
   "pre_seed_title" : "IMPORTANT",
-  "pre_seed_description" : "On the next page you will see a series of 25 words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.",
+  "pre_seed_description" : "On the next page you will see a series of ${words} words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.",
   "pre_seed_button_text" : "I understand. Show me my seed",
 
   "xmr_to_error" : "XMR.TO error",
@@ -428,5 +428,7 @@
   "color_theme" : "Color theme",
   "light_theme" : "Light",
   "bright_theme" : "Bright",
-  "dark_theme" : "Dark"
+  "dark_theme" : "Dark",
+
+  "recipient_address" : "Recipient address"
 }

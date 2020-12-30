@@ -143,13 +143,13 @@ class S implements WidgetsLocalizations {
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
   String get pre_seed_button_text => "I understand. Show me my seed";
-  String pre_seed_description(int words) => "On the next page you will see a series of ${words} words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.";
   String get pre_seed_title => "IMPORTANT";
   String get private_key => "Private key";
   String get public_key => "Public key";
   String get receive => "Receive";
   String get receive_amount => "Amount";
   String get received => "Received";
+  String get recipient_address => "Recipient address";
   String get reconnect => "Reconnect";
   String get reconnect_alert_text => "Are you sure you want to reconnect?";
   String get reconnection => "Reconnection";
@@ -212,13 +212,12 @@ class S implements WidgetsLocalizations {
   String get send_error_currency => "Currency can only contain numbers";
   String get send_error_minimum_value => "Minimum value of amount is 0.01";
   String get send_estimated_fee => "Estimated fee:";
-  String get send_fee => "Fee";
+  String get send_fee => "Fee:";
   String get send_got_it => "Got it";
   String get send_name => "Name";
   String get send_new => "New";
   String get send_payment_id => "Payment ID (optional)";
   String get send_sending => "Sending...";
-  String send_success(String crypto) => "Your ${crypto} was successfully sent";
   String get send_templates => "Templates";
   String get send_title => "Send";
   String get send_xmr => "Send XMR";
@@ -352,10 +351,12 @@ class S implements WidgetsLocalizations {
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
   String openalias_alert_content(String recipient_name) => "You will be sending funds to\n${recipient_name}";
   String powered_by(String title) => "Powered by ${title}";
+  String pre_seed_description(String words) => "On the next page you will see a series of ${words} words. This is your unique and private seed and it is the ONLY way to recover your wallet in case of loss or malfunction. It is YOUR responsibility to write it down and store it in a safe place outside of the Cake Wallet app.";
   String provider_error(String provider) => "${provider} error";
   String router_no_route(String name) => "No route defined for ${name}";
   String send_address(String cryptoCurrency) => "${cryptoCurrency} address";
   String send_priority(String transactionPriority) => "Currently the fee is set at ${transactionPriority} priority.\nTransaction priority can be adjusted in the settings";
+  String send_success(String crypto) => "Your ${crypto} was successfully sent";
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   String trade_details_copied(String title) => "${title} copied to Clipboard";
   String trade_for_not_created(String title) => "Trade for ${title} is not created.";
@@ -402,7 +403,7 @@ class $de extends S {
   @override
   String get transaction_sent => "Transaktion gesendet!";
   @override
-  String get send_fee => "Gebühr";
+  String get send_fee => "Gebühr:";
   @override
   String get password => "Passwort";
   @override
@@ -513,8 +514,6 @@ class $de extends S {
   String get use_ssl => "Verwenden Sie SSL";
   @override
   String get choose_wallet_currency => "Bitte wählen Sie die Brieftaschenwährung:";
-  @override
-  String pre_seed_description(int words) => "Auf der nächsten Seite sehen Sie eine Reihe von ${words} Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.";
   @override
   String get node_connection_successful => "Die Verbindung war erfolgreich";
   @override
@@ -641,8 +640,6 @@ class $de extends S {
   String get transaction_priority_regular => "Regulär";
   @override
   String get trade_details_created_at => "Hergestellt in";
-  @override
-  String send_success(String crypto) => "Ihr ${crypto} wurde erfolgreich gesendet";
   @override
   String get settings_wallets => "Brieftaschen";
   @override
@@ -976,6 +973,8 @@ class $de extends S {
   @override
   String get trade_state_btc_sent => "geschickt";
   @override
+  String get recipient_address => "Empfängeradresse";
+  @override
   String get address_book => "Adressbuch";
   @override
   String get enter_your_pin => "PIN eingeben";
@@ -1016,6 +1015,8 @@ class $de extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "Handel für ${provider} wird nicht erstellt. Menge ist weniger als minimal: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "Auf der nächsten Seite sehen Sie eine Reihe von ${words} Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} von ${title} nicht gefunden.";
   @override
   String transaction_details_copied(String title) => "${title} in die Zwischenablage kopiert";
@@ -1031,6 +1032,8 @@ class $de extends S {
   String trade_is_powered_by(String provider) => "Dieser Handel wird betrieben von ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "Möchten Sie die aktuelle Brieftasche in ändern ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "Ihr ${crypto} wurde erfolgreich gesendet";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -1214,8 +1217,6 @@ class $hi extends S {
   @override
   String get choose_wallet_currency => "कृपया बटुआ मुद्रा चुनें:";
   @override
-  String pre_seed_description(int words) => "अगले पेज पर आपको ${words} शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।";
-  @override
   String get node_connection_successful => "कनेक्शन सफल रहा";
   @override
   String get confirm => "की पुष्टि करें";
@@ -1341,8 +1342,6 @@ class $hi extends S {
   String get transaction_priority_regular => "नियमित";
   @override
   String get trade_details_created_at => "पर बनाया गया";
-  @override
-  String send_success(String crypto) => "आपका ${crypto} सफलतापूर्वक भेजा गया";
   @override
   String get settings_wallets => "पर्स";
   @override
@@ -1676,6 +1675,8 @@ class $hi extends S {
   @override
   String get trade_state_btc_sent => "भेज दिया";
   @override
+  String get recipient_address => "प्राप्तकर्ता का पता";
+  @override
   String get address_book => "पता पुस्तिका";
   @override
   String get enter_your_pin => "अपना पिन दर्ज करो";
@@ -1716,6 +1717,8 @@ class $hi extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "व्यापार ${provider} के लिए नहीं बनाया गया है। राशि कम है तो न्यूनतम: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "अगले पेज पर आपको ${words} शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।";
+  @override
   String trade_id_not_found(String tradeId, String title) => "व्यापार ${tradeId} of ${title} नहीं मिला.";
   @override
   String transaction_details_copied(String title) => "${title} क्लिपबोर्ड पर नकल";
@@ -1731,6 +1734,8 @@ class $hi extends S {
   String trade_is_powered_by(String provider) => "यह व्यापार द्वारा संचालित है ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "क्या आप करंट वॉलेट को बदलना चाहते हैं ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "आपका ${crypto} सफलतापूर्वक भेजा गया";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -1802,7 +1807,7 @@ class $ru extends S {
   @override
   String get transaction_sent => "Tранзакция отправлена!";
   @override
-  String get send_fee => "Комиссия";
+  String get send_fee => "Комиссия:";
   @override
   String get password => "Пароль";
   @override
@@ -1913,8 +1918,6 @@ class $ru extends S {
   String get use_ssl => "Использовать SSL";
   @override
   String get choose_wallet_currency => "Пожалуйста, выберите валюту кошелька:";
-  @override
-  String pre_seed_description(int words) => "На следующей странице вы увидите серию из ${words} слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.";
   @override
   String get node_connection_successful => "Подключение прошло успешно";
   @override
@@ -2041,8 +2044,6 @@ class $ru extends S {
   String get transaction_priority_regular => "Обычный";
   @override
   String get trade_details_created_at => "Создано";
-  @override
-  String send_success(String crypto) => "Ваш ${crypto} был успешно отправлен";
   @override
   String get settings_wallets => "Кошельки";
   @override
@@ -2376,6 +2377,8 @@ class $ru extends S {
   @override
   String get trade_state_btc_sent => "BTC отправлены";
   @override
+  String get recipient_address => "Адрес получателя";
+  @override
   String get address_book => "Адресная книга";
   @override
   String get enter_your_pin => "Введите ваш PIN";
@@ -2416,6 +2419,8 @@ class $ru extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "Сделка для ${provider} не создана. Сумма меньше минимальной: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "На следующей странице вы увидите серию из ${words} слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Сделка ${tradeId} ${title} не найдена.";
   @override
   String transaction_details_copied(String title) => "${title} скопировано в буфер обмена";
@@ -2431,6 +2436,8 @@ class $ru extends S {
   String trade_is_powered_by(String provider) => "Сделка выполнена через ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "Вы хотите изменить текущий кошелек на ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "Ваш ${crypto} был успешно отправлен";
   @override
   String time(String minutes, String seconds) => "${minutes}мин ${seconds}сек";
   @override
@@ -2502,7 +2509,7 @@ class $ko extends S {
   @override
   String get transaction_sent => "거래가 전송되었습니다!";
   @override
-  String get send_fee => "회비";
+  String get send_fee => "회비:";
   @override
   String get password => "암호";
   @override
@@ -2613,8 +2620,6 @@ class $ko extends S {
   String get use_ssl => "SSL 사용";
   @override
   String get choose_wallet_currency => "지갑 통화를 선택하십시오:";
-  @override
-  String pre_seed_description(int words) => "다음 페이지에서 ${words} 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.";
   @override
   String get node_connection_successful => "성공적으로 연결되었습니다.";
   @override
@@ -2741,8 +2746,6 @@ class $ko extends S {
   String get transaction_priority_regular => "정규병";
   @override
   String get trade_details_created_at => "에 작성";
-  @override
-  String send_success(String crypto) => "${crypto}가 성공적으로 전송되었습니다";
   @override
   String get settings_wallets => "지갑";
   @override
@@ -3076,6 +3079,8 @@ class $ko extends S {
   @override
   String get trade_state_btc_sent => "보냄";
   @override
+  String get recipient_address => "받는 사람 주소";
+  @override
   String get address_book => "주소록";
   @override
   String get enter_your_pin => "PIN을 입력하십시오";
@@ -3116,6 +3121,8 @@ class $ko extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "거래 ${provider} 가 생성되지 않습니다. 금액이 최소보다 적습니다. ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "다음 페이지에서 ${words} 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "무역 ${tradeId} 의 ${title} 찾을 수 없습니다.";
   @override
   String transaction_details_copied(String title) => "${title} 클립 보드에 복사";
@@ -3131,6 +3138,8 @@ class $ko extends S {
   String trade_is_powered_by(String provider) => "이 거래는 ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "현재 지갑을 다음으로 변경 하시겠습니까 ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "${crypto}가 성공적으로 전송되었습니다";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -3202,7 +3211,7 @@ class $pt extends S {
   @override
   String get transaction_sent => "Transação enviada!";
   @override
-  String get send_fee => "Taxa";
+  String get send_fee => "Taxa:";
   @override
   String get password => "Senha";
   @override
@@ -3313,8 +3322,6 @@ class $pt extends S {
   String get use_ssl => "Use SSL";
   @override
   String get choose_wallet_currency => "Escolha a moeda da carteira:";
-  @override
-  String pre_seed_description(int words) => "Na próxima página, você verá uma série de ${words} palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.";
   @override
   String get node_connection_successful => "A conexão foi bem sucedida";
   @override
@@ -3441,8 +3448,6 @@ class $pt extends S {
   String get transaction_priority_regular => "Regular";
   @override
   String get trade_details_created_at => "Criada em";
-  @override
-  String send_success(String crypto) => "Seu ${crypto} foi enviado com sucesso";
   @override
   String get settings_wallets => "Carteiras";
   @override
@@ -3776,6 +3781,8 @@ class $pt extends S {
   @override
   String get trade_state_btc_sent => "BTC enviado";
   @override
+  String get recipient_address => "Endereço do destinatário";
+  @override
   String get address_book => "Livro de endereços";
   @override
   String get enter_your_pin => "Insira seu PIN";
@@ -3816,6 +3823,8 @@ class $pt extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "A troca por ${provider} não é criada. O valor é menor que o mínimo: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "Na próxima página, você verá uma série de ${words} palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "A troca ${tradeId} de ${title} não foi encontrada.";
   @override
   String transaction_details_copied(String title) => "${title} copiados para a área de transferência";
@@ -3831,6 +3840,8 @@ class $pt extends S {
   String trade_is_powered_by(String provider) => "Troca realizada por ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "Quer mudar a carteira atual para ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "Seu ${crypto} foi enviado com sucesso";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -3902,7 +3913,7 @@ class $uk extends S {
   @override
   String get transaction_sent => "Tранзакцію відправлено!";
   @override
-  String get send_fee => "Комісія";
+  String get send_fee => "Комісія:";
   @override
   String get password => "Пароль";
   @override
@@ -4013,8 +4024,6 @@ class $uk extends S {
   String get use_ssl => "Використати SSL";
   @override
   String get choose_wallet_currency => "Будь ласка, виберіть валюту гаманця:";
-  @override
-  String pre_seed_description(int words) => "На наступній сторінці ви побачите серію з ${words} слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.";
   @override
   String get node_connection_successful => "З'єднання було успішним";
   @override
@@ -4141,8 +4150,6 @@ class $uk extends S {
   String get transaction_priority_regular => "Звичайний";
   @override
   String get trade_details_created_at => "Створено";
-  @override
-  String send_success(String crypto) => "Ваш ${crypto} успішно надісланий";
   @override
   String get settings_wallets => "Гаманці";
   @override
@@ -4476,6 +4483,8 @@ class $uk extends S {
   @override
   String get trade_state_btc_sent => "BTC надіслано";
   @override
+  String get recipient_address => "Адреса одержувача";
+  @override
   String get address_book => "Адресна книга";
   @override
   String get enter_your_pin => "Введіть ваш PIN";
@@ -4516,6 +4525,8 @@ class $uk extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "Операція для ${provider} не створена. Сума менша мінімальної: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "На наступній сторінці ви побачите серію з ${words} слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Операція ${tradeId} ${title} не знайдена.";
   @override
   String transaction_details_copied(String title) => "${title} скопійовано в буфер обміну";
@@ -4531,6 +4542,8 @@ class $uk extends S {
   String trade_is_powered_by(String provider) => "Операція виконана через ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "Ви хочете змінити поточний гаманець на ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "Ваш ${crypto} успішно надісланий";
   @override
   String time(String minutes, String seconds) => "${minutes}хв ${seconds}сек";
   @override
@@ -4602,7 +4615,7 @@ class $ja extends S {
   @override
   String get transaction_sent => "トランザクションが送信されました！";
   @override
-  String get send_fee => "費用";
+  String get send_fee => "費用：";
   @override
   String get password => "パスワード";
   @override
@@ -4713,8 +4726,6 @@ class $ja extends S {
   String get use_ssl => "SSLを使用する";
   @override
   String get choose_wallet_currency => "ウォレット通貨を選択してください：";
-  @override
-  String pre_seed_description(int words) => "次のページでは、一連の${words}語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。";
   @override
   String get node_connection_successful => "接続に成功しました";
   @override
@@ -4841,8 +4852,6 @@ class $ja extends S {
   String get transaction_priority_regular => "レギュラー";
   @override
   String get trade_details_created_at => "で作成";
-  @override
-  String send_success(String crypto) => "${crypto}が送信されました";
   @override
   String get settings_wallets => "財布";
   @override
@@ -5176,6 +5185,8 @@ class $ja extends S {
   @override
   String get trade_state_btc_sent => "送った";
   @override
+  String get recipient_address => "受信者のアドレス";
+  @override
   String get address_book => "住所録";
   @override
   String get enter_your_pin => "PINを入力してください";
@@ -5216,6 +5227,8 @@ class $ja extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "${provider} の取引は作成されません。 金額は最小額より少ない： ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "次のページでは、一連の${words}語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。";
+  @override
   String trade_id_not_found(String tradeId, String title) => "トレード ${tradeId} of ${title} 見つかりません";
   @override
   String transaction_details_copied(String title) => "${title} クリップボードにコピーしました";
@@ -5231,6 +5244,8 @@ class $ja extends S {
   String trade_is_powered_by(String provider) => "この取引は ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "現在のウォレットをに変更しますか ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "${crypto}が送信されました";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -5306,7 +5321,7 @@ class $pl extends S {
   @override
   String get transaction_sent => "Transakcja wysłana!";
   @override
-  String get send_fee => "Opłata";
+  String get send_fee => "Opłata:";
   @override
   String get password => "Hasło";
   @override
@@ -5417,8 +5432,6 @@ class $pl extends S {
   String get use_ssl => "Użyj SSL";
   @override
   String get choose_wallet_currency => "Wybierz walutę portfela:";
-  @override
-  String pre_seed_description(int words) => "Na następnej stronie zobaczysz serię ${words} słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.";
   @override
   String get node_connection_successful => "Połączenie powiodło się";
   @override
@@ -5545,8 +5558,6 @@ class $pl extends S {
   String get transaction_priority_regular => "Regularny";
   @override
   String get trade_details_created_at => "Utworzono w";
-  @override
-  String send_success(String crypto) => "Twoje ${crypto} zostało pomyślnie wysłane";
   @override
   String get settings_wallets => "Portfele";
   @override
@@ -5880,6 +5891,8 @@ class $pl extends S {
   @override
   String get trade_state_btc_sent => "Wysłane";
   @override
+  String get recipient_address => "Adres odbiorcy";
+  @override
   String get address_book => "Książka adresowa";
   @override
   String get enter_your_pin => "Wpisz Twój kod PIN";
@@ -5920,6 +5933,8 @@ class $pl extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "Wymiana dla ${provider} nie została utworzona. Kwota jest mniejsza niż minimalna: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "Na następnej stronie zobaczysz serię ${words} słów. To jest Twoje unikalne i prywatne ziarno i jest to JEDYNY sposób na odzyskanie portfela w przypadku utraty lub awarii. Twoim obowiązkiem jest zapisanie go i przechowywanie w bezpiecznym miejscu poza aplikacją Cake Wallet.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} of ${title} nie znaleziono.";
   @override
   String transaction_details_copied(String title) => "${title} skopiowane do schowka";
@@ -5935,6 +5950,8 @@ class $pl extends S {
   String trade_is_powered_by(String provider) => "Ten handel jest zasilany przez ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "Czy chcesz zmienić obecny portfel na ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "Twoje ${crypto} zostało pomyślnie wysłane";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -6006,7 +6023,7 @@ class $es extends S {
   @override
   String get transaction_sent => "Transacción enviada!";
   @override
-  String get send_fee => "Cuota";
+  String get send_fee => "Cuota:";
   @override
   String get password => "Contraseña";
   @override
@@ -6117,8 +6134,6 @@ class $es extends S {
   String get use_ssl => "Utilice SSL";
   @override
   String get choose_wallet_currency => "Por favor, elija la moneda de la billetera:";
-  @override
-  String pre_seed_description(int words) => "En la página siguiente verá una serie de ${words} palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.";
   @override
   String get node_connection_successful => "La conexión fue exitosa";
   @override
@@ -6245,8 +6260,6 @@ class $es extends S {
   String get transaction_priority_regular => "Regular";
   @override
   String get trade_details_created_at => "Creado en";
-  @override
-  String send_success(String crypto) => "Su ${crypto} fue enviado con éxito";
   @override
   String get settings_wallets => "Carteras";
   @override
@@ -6580,6 +6593,8 @@ class $es extends S {
   @override
   String get trade_state_btc_sent => "Btc expedido";
   @override
+  String get recipient_address => "Dirección del receptor";
+  @override
   String get address_book => "Libreta de direcciones";
   @override
   String get enter_your_pin => "Introduce tu PIN";
@@ -6620,6 +6635,8 @@ class $es extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "El comercio por ${provider} no se crea. La cantidad es menos que mínima: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "En la página siguiente verá una serie de ${words} palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Comercio ${tradeId} de ${title} no encontrado.";
   @override
   String transaction_details_copied(String title) => "${title} Copiado al portapapeles";
@@ -6635,6 +6652,8 @@ class $es extends S {
   String trade_is_powered_by(String provider) => "Este comercio es impulsado por ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "¿Quieres cambiar la billetera actual a ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "Su ${crypto} fue enviado con éxito";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -6706,7 +6725,7 @@ class $nl extends S {
   @override
   String get transaction_sent => "Transactie verzonden!";
   @override
-  String get send_fee => "Vergoeding";
+  String get send_fee => "Vergoeding:";
   @override
   String get password => "Wachtwoord";
   @override
@@ -6817,8 +6836,6 @@ class $nl extends S {
   String get use_ssl => "Gebruik SSL";
   @override
   String get choose_wallet_currency => "Kies een portemonnee-valuta:";
-  @override
-  String pre_seed_description(int words) => "Op de volgende pagina ziet u een reeks van ${words} woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.";
   @override
   String get node_connection_successful => "Verbinding is gelukt";
   @override
@@ -6945,8 +6962,6 @@ class $nl extends S {
   String get transaction_priority_regular => "Regelmatig";
   @override
   String get trade_details_created_at => "Gemaakt bij";
-  @override
-  String send_success(String crypto) => "Uw ${crypto} is succesvol verzonden";
   @override
   String get settings_wallets => "Portemonnee";
   @override
@@ -7280,6 +7295,8 @@ class $nl extends S {
   @override
   String get trade_state_btc_sent => "Verzonden";
   @override
+  String get recipient_address => "Adres ontvanger";
+  @override
   String get address_book => "Adresboek";
   @override
   String get enter_your_pin => "Voer uw pincode in";
@@ -7320,6 +7337,8 @@ class $nl extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "Ruil voor ${provider} is niet gemaakt. Bedrag is minder dan minimaal: ${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "Op de volgende pagina ziet u een reeks van ${words} woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.";
+  @override
   String trade_id_not_found(String tradeId, String title) => "Handel ${tradeId} van ${title} niet gevonden.";
   @override
   String transaction_details_copied(String title) => "${title} gekopieerd naar het klembord";
@@ -7335,6 +7354,8 @@ class $nl extends S {
   String trade_is_powered_by(String provider) => "Deze transactie wordt mogelijk gemaakt door ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "Wilt u de huidige portemonnee wijzigen in ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "Uw ${crypto} is succesvol verzonden";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
@@ -7406,7 +7427,7 @@ class $zh extends S {
   @override
   String get transaction_sent => "交易已发送";
   @override
-  String get send_fee => "費用";
+  String get send_fee => "費用:";
   @override
   String get password => "密码";
   @override
@@ -7517,8 +7538,6 @@ class $zh extends S {
   String get use_ssl => "使用SSL";
   @override
   String get choose_wallet_currency => "請選擇錢包貨幣：";
-  @override
-  String pre_seed_description(int words) => "在下一頁上，您將看到一系列${words}個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。";
   @override
   String get node_connection_successful => "連接成功";
   @override
@@ -7645,8 +7664,6 @@ class $zh extends S {
   String get transaction_priority_regular => "定期";
   @override
   String get trade_details_created_at => "创建于";
-  @override
-  String send_success(String crypto) => "你${crypto}已成功發送";
   @override
   String get settings_wallets => "皮夹";
   @override
@@ -7980,6 +7997,8 @@ class $zh extends S {
   @override
   String get trade_state_btc_sent => "已发送";
   @override
+  String get recipient_address => "收件人地址";
+  @override
   String get address_book => "地址簿";
   @override
   String get enter_your_pin => "输入密码";
@@ -8020,6 +8039,8 @@ class $zh extends S {
   @override
   String error_text_minimal_limit(String provider, String min, String currency) => "未創建 ${provider} 交易。 金額少於最小值：${min} ${currency}";
   @override
+  String pre_seed_description(String words) => "在下一頁上，您將看到一系列${words}個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。";
+  @override
   String trade_id_not_found(String tradeId, String title) => "贸易方式 ${tradeId} 的 ${title} 未找到.";
   @override
   String transaction_details_copied(String title) => "${title} 复制到剪贴板";
@@ -8035,6 +8056,8 @@ class $zh extends S {
   String trade_is_powered_by(String provider) => "该交易由 ${provider}";
   @override
   String change_wallet_alert_content(String wallet_name) => "您要將當前的錢包更改為 ${wallet_name}?";
+  @override
+  String send_success(String crypto) => "你${crypto}已成功發送";
   @override
   String time(String minutes, String seconds) => "${minutes}m ${seconds}s";
   @override
