@@ -10,7 +10,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
     @required this.fiatAmountValue,
     @required this.fee,
     @required this.feeValue,
-    @required this.transactionPriority,
+    @required this.feeFiatAmount,
     @required this.recipientTitle,
     @required this.recipientAddress,
     @required this.leftButtonText,
@@ -26,7 +26,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   final String fiatAmountValue;
   final String fee;
   final String feeValue;
-  final String transactionPriority;
+  final String feeFiatAmount;
   final String recipientTitle;
   final String recipientAddress;
   final String leftButtonText;
@@ -133,7 +133,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
                     ),
                   ),
                   Text(
-                    transactionPriority,
+                    feeFiatAmount,
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
