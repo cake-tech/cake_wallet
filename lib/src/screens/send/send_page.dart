@@ -628,8 +628,8 @@ class SendPage extends BasePage {
                         +  ' ' + sendViewModel.fiat.title,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
-                    transactionPriority: sendViewModel
-                        .transactionPriority.toString(),
+                    feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmount
+                        +  ' ' + sendViewModel.fiat.title,
                     recipientTitle: 'Recipient address',
                     recipientAddress: sendViewModel.address,
                     rightButtonText: S.of(context).ok,

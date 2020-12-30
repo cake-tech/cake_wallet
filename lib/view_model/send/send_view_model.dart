@@ -89,6 +89,22 @@ abstract class SendViewModelBase with Store {
     }
   }
 
+  @computed
+  String get pendingTransactionFeeFiatAmount {
+    try {
+      if (pendingTransaction != null) {
+        final fiat = calculateFiatAmount(
+            price: _fiatConversationStore.prices[_wallet.currency],
+            cryptoAmount: pendingTransaction.feeFormatted);
+        return fiat;
+      } else {
+        return '0.00';
+      }
+    } catch (_) {
+      return '0.00';
+    }
+  }
+
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
   TransactionPriority get transactionPriority =>
