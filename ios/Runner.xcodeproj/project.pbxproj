@@ -17,7 +17,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXFileReference section */
+			/* Begin PBXFileReference section */
 		0C44A7192518EF8000B570ED /* decrypt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = decrypt.swift; sourceTree = "<group>"; };
 		0C9986A3251A932F00D566FD /* CryptoSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };

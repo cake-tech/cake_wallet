@@ -14,7 +14,9 @@ typedef restore_wallet_from_keys = Int8 Function(Pointer<Utf8>, Pointer<Utf8>,
 
 typedef is_wallet_exist = Int8 Function(Pointer<Utf8>);
 
-typedef load_wallet = Void Function(Pointer<Utf8>, Pointer<Utf8>, Int8);
+typedef load_wallet = Int8 Function(Pointer<Utf8>, Pointer<Utf8>, Int8);
+
+typedef error_string = Pointer<Utf8> Function();
 
 typedef get_filename = Pointer<Utf8> Function();
 
