@@ -35,6 +35,14 @@ abstract class SettingsViewModelBase with Store {
     currentVersion = '';
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
+
+    final priority = _settingsStore.transactionPriority;
+
+    if (!TransactionPriority.forWalletType(_walletType).contains(priority)) {
+      _settingsStore.transactionPriority =
+          TransactionPriority.forWalletType(_walletType).first;
+    }
+
     sections = [
       [
         if ((wallet.balance.availableModes as List).length > 1)
@@ -55,7 +63,8 @@ abstract class SettingsViewModelBase with Store {
             title: S.current.settings_fee_priority,
             items: TransactionPriority.forWalletType(wallet.type),
             selectedItem: () => transactionPriority,
-            isAlwaysShowScrollThumb: true,
+            isAlwaysShowScrollThumb:
+                   TransactionPriority.forWalletType(wallet.type).length > 3,
             onItemSelected: (TransactionPriority priority) =>
                 _settingsStore.transactionPriority = priority),
         SwitcherListItem(
