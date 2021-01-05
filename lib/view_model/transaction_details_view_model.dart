@@ -13,14 +13,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 part 'transaction_details_view_model.g.dart';
 
-class TransactionDetailsViewModel = TransactionDetailsViewModelBase with _$TransactionDetailsViewModel;
+class TransactionDetailsViewModel = TransactionDetailsViewModelBase
+    with _$TransactionDetailsViewModel;
 
 abstract class TransactionDetailsViewModelBase with Store {
-  TransactionDetailsViewModelBase({
-    this.transactionInfo,
-    this.transactionDescriptionBox,
-    this.settingsStore}) : items = [] {
-
+  TransactionDetailsViewModelBase(
+      {this.transactionInfo,
+      this.transactionDescriptionBox,
+      this.settingsStore})
+      : items = [] {
     showRecipientAddress = settingsStore?.shouldSaveRecipientAddress ?? false;
 
     final dateFormat = DateFormatter.withCurrentLocal();
@@ -39,14 +40,12 @@ abstract class TransactionDetailsViewModelBase with Store {
             title: S.current.transaction_details_amount,
             value: tx.amountFormatted()),
         StandartListItem(
-            title: S.current.transaction_details_fee,
-            value: tx.feeFormatted()),
+            title: S.current.transaction_details_fee, value: tx.feeFormatted()),
       ];
 
       if (tx.key?.isNotEmpty ?? null) {
-        _items.add(StandartListItem(
-            title: S.current.transaction_key,
-            value: tx.key));
+        _items.add(
+            StandartListItem(title: S.current.transaction_key, value: tx.key));
       }
 
       items.addAll(_items);
@@ -60,7 +59,8 @@ abstract class TransactionDetailsViewModelBase with Store {
             title: S.current.transaction_details_date,
             value: dateFormat.format(tx.date)),
         StandartListItem(
-            title: S.current.confirmations, value: tx.confirmations?.toString()),
+            title: S.current.confirmations,
+            value: tx.confirmations?.toString()),
         StandartListItem(
             title: S.current.transaction_details_height, value: '${tx.height}'),
         StandartListItem(
@@ -88,17 +88,21 @@ abstract class TransactionDetailsViewModelBase with Store {
     }
 
     final description = transactionDescriptionBox.values.firstWhere(
-            (val) => val.id == transactionInfo.id, orElse: () => null);
+        (val) => val.id == transactionInfo.id,
+        orElse: () => TransactionDescription(id: transactionInfo.id));
 
-    if (description != null) {
-      items.add(TextFieldListItem(
-          title: S.current.note_tap_to_change,
-          value: description.note,
-          onSubmitted: (value) {
-            description.transactionNote = value;
+    items.add(TextFieldListItem(
+        title: S.current.note_tap_to_change,
+        value: description.note,
+        onSubmitted: (value) {
+          description.transactionNote = value;
+
+          if (description.isInBox) {
             description.save();
-          }));
-    }
+          } else {
+            transactionDescriptionBox.add(description);
+          }
+        }));
   }
 
   final TransactionInfo transactionInfo;
