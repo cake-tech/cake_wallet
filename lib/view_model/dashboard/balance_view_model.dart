@@ -22,8 +22,7 @@ abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
       {@required this.appStore,
       @required this.settingsStore,
-      @required this.fiatConvertationStore
-  }){
+      @required this.fiatConvertationStore}) {
     isReversing = false;
 
     wallet ??= appStore.wallet;
@@ -34,17 +33,18 @@ abstract class BalanceViewModelBase with Store {
 
     if (_wallet is MoneroWallet) {
       balance = _wallet.balance;
-
-      _onMoneroBalanceChangeReaction = reaction((_) => _wallet.balance,
-              (MoneroBalance moneroBalance) => balance = moneroBalance);
     }
 
     if (_wallet is BitcoinWallet) {
       balance = _wallet.balance;
-
-      _onBitcoinBalanceChangeReaction = reaction((_) => _wallet.balance,
-              (BitcoinBalance bitcoinBalance) => balance = bitcoinBalance);
     }
+
+    _onCurrentWalletChangeReaction =
+        reaction<void>((_) => wallet.balance, (dynamic balance) {
+      if (balance is Balance) {
+        this.balance = balance;
+      }
+    });
   }
 
   final AppStore appStore;
@@ -120,7 +120,7 @@ abstract class BalanceViewModelBase with Store {
     final _balance = balance;
 
     if (_balance is MoneroBalance) {
-      return  WalletBalance(
+      return WalletBalance(
           unlockedBalance: _balance.formattedUnlockedBalance,
           totalBalance: _balance.formattedFullBalance);
     }
@@ -137,32 +137,29 @@ abstract class BalanceViewModelBase with Store {
   @computed
   CryptoCurrency get currency => appStore.wallet.currency;
 
+  ReactionDisposer _onCurrentWalletChangeReaction;
+  ReactionDisposer _reaction;
+
   @action
   void _onWalletChange(WalletBase wallet) {
     this.wallet = wallet;
 
     if (wallet is MoneroWallet) {
       balance = wallet.balance;
-
-      _onMoneroBalanceChangeReaction?.reaction?.dispose();
-
-      _onMoneroBalanceChangeReaction = reaction((_) => wallet.balance,
-              (MoneroBalance moneroBalance) => balance = moneroBalance);
     }
 
     if (wallet is BitcoinWallet) {
       balance = wallet.balance;
-
-      _onBitcoinBalanceChangeReaction?.reaction?.dispose();
-
-      _onBitcoinBalanceChangeReaction = reaction((_) => wallet.balance,
-              (BitcoinBalance bitcoinBalance) => balance = bitcoinBalance);
     }
-  }
 
-  ReactionDisposer _onMoneroBalanceChangeReaction;
-  ReactionDisposer _onBitcoinBalanceChangeReaction;
-  ReactionDisposer _reaction;
+    _onCurrentWalletChangeReaction?.reaction?.dispose();
+    _onCurrentWalletChangeReaction =
+        reaction<void>((_) => wallet.balance, (dynamic balance) {
+      if (balance is Balance) {
+        this.balance = balance;
+      }
+    });
+  }
 
   String _getFiatBalance({double price, String cryptoAmount}) {
     if (cryptoAmount == null) {
