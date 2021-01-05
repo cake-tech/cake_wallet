@@ -282,6 +282,7 @@
   "transaction_details_date" : "Data",
   "transaction_details_height" : "Wysokość",
   "transaction_details_amount" : "Ilość",
+  "transaction_details_fee" : "Opłata",
   "transaction_details_copied" : "${title} skopiowane do schowka",
   "transaction_details_recipient_address" : "Adres odbiorcy",
 
@@ -429,6 +430,10 @@
   "light_theme" : "Lekki",
   "bright_theme" : "Jasny",
   "dark_theme" : "Ciemny",
-
+  "enter_your_note" : "Wpisz notatkę…",
+  "note_optional" : "Notatka (opcjonalnie)",
+  "note_tap_to_change" : "Notatka (dotknij, aby zmienić)",
+  "transaction_key" : "Klucz transakcji",
+  "confirmations" : "Potwierdzenia",
   "recipient_address" : "Adres odbiorcy"
 }
