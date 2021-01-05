@@ -47,7 +47,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
       final out = vin['tx']['vout'][vout] as Map;
       final outAddresses =
           (out['scriptPubKey']['addresses'] as List<Object>)?.toSet();
-      inputsAmount += doubleToBitcoinAmount(out['value'] as double ?? 0);
+      inputsAmount += stringDoubleToBitcoinAmount((out['value'] as double ?? 0).toString());
 
       if (outAddresses?.intersection(addressesSet)?.isNotEmpty ?? false) {
         direction = TransactionDirection.outgoing;
@@ -58,7 +58,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
       final outAddresses =
           out['scriptPubKey']['addresses'] as List<Object> ?? [];
       final ntrs = outAddresses.toSet().intersection(addressesSet);
-      final value = doubleToBitcoinAmount(out['value'] as double ?? 0.0);
+      final value = stringDoubleToBitcoinAmount((out['value'] as double ?? 0.0).toString());
       totalOutAmount += value;
 
       if ((direction == TransactionDirection.incoming && ntrs.isNotEmpty) ||

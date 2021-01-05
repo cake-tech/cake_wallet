@@ -153,7 +153,7 @@ abstract class SettingsStoreBase with Store {
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
     final legacyTheme =
-        sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy)
+      (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
             : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
