@@ -282,6 +282,7 @@
   "transaction_details_date" : "날짜",
   "transaction_details_height" : "신장",
   "transaction_details_amount" : "양",
+  "transaction_details_fee" : "회비",
   "transaction_details_copied" : "${title} 클립 보드에 복사",
   "transaction_details_recipient_address" : "받는 사람 주소",
 
@@ -429,6 +430,10 @@
   "light_theme" : "빛",
   "bright_theme" : "선명한",
   "dark_theme" : "어두운",
-
+  "enter_your_note" : "메모를 입력하세요…",
+  "note_optional" : "참고 (선택 사항)",
+  "note_tap_to_change" : "메모 (변경하려면 탭하세요)",
+  "transaction_key" : "거래 키",
+  "confirmations" : "확인",
   "recipient_address" : "받는 사람 주소"
 }

@@ -282,6 +282,7 @@
   "transaction_details_date" : "日期",
   "transaction_details_height" : "高度",
   "transaction_details_amount" : "量",
+  "transaction_details_fee" : "費用",
   "transaction_details_copied" : "${title} 复制到剪贴板",
   "transaction_details_recipient_address" : "收件人地址",
 
@@ -429,6 +430,10 @@
   "light_theme" : "光",
   "bright_theme" : "亮",
   "dark_theme" : "黑暗",
-
+  "enter_your_note" : "輸入您的筆記...",
+  "note_optional" : "注意（可選）",
+  "note_tap_to_change" : "注意（輕按即可更改）",
+  "transaction_key" : "交易密碼",
+  "confirmations" : "確認書",
   "recipient_address" : "收件人地址"
 }
