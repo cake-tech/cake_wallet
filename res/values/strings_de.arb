@@ -212,7 +212,7 @@
   "send_name" : "Name",
   "send_got_it" : "Ich habs",
   "send_sending" : "Senden...",
-  "send_success" : "Ihr Monero wurde erfolgreich gesendet",
+  "send_success" : "Ihr ${crypto} wurde erfolgreich gesendet",
 
 
   "settings_title" : "die Einstellungen",
@@ -415,7 +415,7 @@
   "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist",
 
   "pre_seed_title" : "WICHTIG",
-  "pre_seed_description" : "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.",
+  "pre_seed_description" : "Auf der nächsten Seite sehen Sie eine Reihe von ${words} Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.",
   "pre_seed_button_text" : "Ich verstehe. Zeig mir meinen Samen",
 
   "xmr_to_error" : "XMR.TO-Fehler",
@@ -428,5 +428,7 @@
   "color_theme" : "Farbthema",
   "light_theme" : "Licht",
   "bright_theme" : "Hell",
-  "dark_theme" : "Dunkel"
+  "dark_theme" : "Dunkel",
+
+  "recipient_address" : "Empfängeradresse"
 }

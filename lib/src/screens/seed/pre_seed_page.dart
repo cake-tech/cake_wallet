@@ -49,7 +49,7 @@ class PreSeedPage extends BasePage {
                       Padding(
                         padding: EdgeInsets.only(top: 70, left: 16, right: 16),
                         child: Text(
-                          S.of(context).pre_seed_description(wordsCount),
+                          S.of(context).pre_seed_description(wordsCount.toString()),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 14,
