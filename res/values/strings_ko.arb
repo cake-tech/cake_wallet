@@ -212,7 +212,7 @@
   "send_name" : "이름",
   "send_got_it" : "알았다",
   "send_sending" : "배상...",
-  "send_success" : "Monero가 성공적으로 전송되었습니다",
+  "send_success" : "${crypto}가 성공적으로 전송되었습니다",
 
 
   "settings_title" : "설정",
@@ -415,7 +415,7 @@
   "exchange_sync_alert_content" : "지갑이 동기화 될 때까지 기다리십시오",
 
   "pre_seed_title" : "중대한",
-  "pre_seed_description" : "다음 페이지에서 25 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.",
+  "pre_seed_description" : "다음 페이지에서 ${words} 개의 단어를 볼 수 있습니다. 이것은 귀하의 고유하고 개인적인 시드이며 분실 또는 오작동시 지갑을 복구하는 유일한 방법입니다. 기록해두고 Cake Wallet 앱 외부의 안전한 장소에 보관하는 것은 귀하의 책임입니다.",
   "pre_seed_button_text" : "이해 했어요. 내 씨앗을 보여줘",
 
   "xmr_to_error" : "XMR.TO 오류",
@@ -428,5 +428,7 @@
   "color_theme" : "색상 테마",
   "light_theme" : "빛",
   "bright_theme" : "선명한",
-  "dark_theme" : "어두운"
+  "dark_theme" : "어두운",
+
+  "recipient_address" : "받는 사람 주소"
 }
