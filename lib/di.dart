@@ -356,7 +356,8 @@ Future setup(
       getIt.get<AppStore>().wallet,
       tradesSource,
       getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>()));
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,
@@ -433,5 +434,6 @@ Future setup(
       (para1, param2) => NewWalletTypePage(getIt.get<WalletNewVM>(),
           onTypeSelected: para1, isNewWallet: param2));
 
-  getIt.registerFactory(() => PreSeedPage());
+  getIt.registerFactoryParam<PreSeedPage, WalletType, void>(
+      (WalletType type, _) => PreSeedPage(type));
 }

@@ -59,14 +59,15 @@ class BalancePage extends StatelessWidget {
                 return AutoSizeText(
                   dashboardViewModel.balanceViewModel.cryptoBalance,
                   style: TextStyle(
-                      fontSize: 40,
+                      fontSize: 54,
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context)
                           .accentTextTheme
                           .display3
                           .backgroundColor,
                       height: 1),
-                );
+                    maxLines: 1,
+                    textAlign: TextAlign.center);
               }),
               SizedBox(height: 10),
               Observer(builder: (_) {

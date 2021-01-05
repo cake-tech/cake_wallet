@@ -116,6 +116,19 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         walletInfo: walletInfo);
   }
 
+  static int feeAmountForPriority(TransactionPriority priority) {
+    switch (priority) {
+      case TransactionPriority.slow:
+        return 6000;
+      case TransactionPriority.regular:
+        return 22080;
+      case TransactionPriority.fast:
+        return 24000;
+      default:
+        return 0;
+    }
+  }
+
   @override
   final BitcoinTransactionHistory transactionHistory;
   final String path;
@@ -243,15 +256,19 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       Object credentials) async {
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
-    final fee = _feeMultiplier(transactionCredentials.priority);
+    final fee = feeAmountForPriority(transactionCredentials.priority);
     final amount = transactionCredentials.amount != null
-        ? doubleToBitcoinAmount(transactionCredentials.amount)
-        : balance.total - fee;
+        ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
+        : balance.availableBalance - fee;
     final totalAmount = amount + fee;
     final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
-    var leftAmount = totalAmount;
     final changeAddress = address;
+    var leftAmount = totalAmount;
     var totalInputAmount = 0;
+
+    if (totalAmount > balance.availableBalance) {
+      throw BitcoinTransactionWrongBalanceException();
+    }
 
     final unspent = addresses.map((address) => eclient
         .getListUnspentWithAddress(address.address)
@@ -319,7 +336,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
     return PendingBitcoinTransaction(txb.build(),
         eclient: eclient, amount: amount, fee: fee)
-      ..addListener((transaction) => transactionHistory.addOne(transaction));
+      ..addListener((transaction) async {
+        transactionHistory.addOne(transaction);
+        await _updateBalance();
+      });
   }
 
   String toJSON() => json.encode({
@@ -331,7 +351,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   @override
   double calculateEstimatedFee(TransactionPriority priority) =>
-      bitcoinAmountToDouble(amount: _feeMultiplier(priority));
+      bitcoinAmountToDouble(amount: feeAmountForPriority(priority));
 
   @override
   Future<void> save() async {
@@ -383,17 +403,4 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   String _getAddress({@required int index}) =>
       generateAddress(hd: hd, index: index);
-
-  int _feeMultiplier(TransactionPriority priority) {
-    switch (priority) {
-      case TransactionPriority.slow:
-        return 6000;
-      case TransactionPriority.regular:
-        return 22080;
-      case TransactionPriority.fast:
-        return 24000;
-      default:
-        return 0;
-    }
-  }
 }
