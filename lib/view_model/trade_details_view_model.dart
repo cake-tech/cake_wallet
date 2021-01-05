@@ -1,30 +1,24 @@
 import 'dart:async';
-import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
-import 'package:cake_wallet/store/dashboard/trades_store.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_item.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 
-part 'exchange_trade_view_model.g.dart';
+part 'trade_details_view_model.g.dart';
 
-class ExchangeTradeViewModel = ExchangeTradeViewModelBase
-    with _$ExchangeTradeViewModel;
+class TradeDetailsViewModel = TradeDetailsViewModelBase
+    with _$TradeDetailsViewModel;
 
-abstract class ExchangeTradeViewModelBase with Store {
-  ExchangeTradeViewModelBase(
-      {this.wallet, this.trades, this.tradesStore, this.sendViewModel}) {
-    trade = tradesStore.trade;
-
-    isSendable = trade.from == wallet.currency ||
-        trade.provider == ExchangeProviderDescription.xmrto;
+abstract class TradeDetailsViewModelBase with Store {
+  TradeDetailsViewModelBase({Trade tradeForDetails, this.trades}) {
+    trade = tradeForDetails;
 
     switch (trade.provider) {
       case ExchangeProviderDescription.xmrto:
@@ -38,7 +32,7 @@ abstract class ExchangeTradeViewModelBase with Store {
         break;
     }
 
-    items = ObservableList<ExchangeTradeItem>();
+    items = ObservableList<StandartListItem>();
 
     _updateItems();
 
@@ -47,34 +41,17 @@ abstract class ExchangeTradeViewModelBase with Store {
     _timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
 
-  final WalletBase wallet;
   final Box<Trade> trades;
-  final TradesStore tradesStore;
-  final SendViewModel sendViewModel;
 
   @observable
   Trade trade;
 
   @observable
-  bool isSendable;
-
-  @observable
-  ObservableList<ExchangeTradeItem> items;
+  ObservableList<StandartListItem> items;
 
   ExchangeProvider _provider;
 
   Timer _timer;
-
-  @action
-  Future confirmSending() async {
-    if (!isSendable) {
-      return;
-    }
-
-    sendViewModel.address = trade.inputAddress;
-    sendViewModel.setCryptoAmount(trade.amount);
-    await sendViewModel.createTransaction();
-  }
 
   @action
   Future<void> _updateTrade() async {
@@ -94,19 +71,35 @@ abstract class ExchangeTradeViewModelBase with Store {
   }
 
   void _updateItems() {
+    final dateFormat = DateFormatter.withCurrentLocal();
+
     items?.clear();
 
     items.addAll([
-      ExchangeTradeItem(
-          title: S.current.id, data: '${trade.id}', isCopied: true),
-      ExchangeTradeItem(
-          title: S.current.amount, data: '${trade.amount}', isCopied: false),
-      ExchangeTradeItem(
-          title: S.current.status, data: '${trade.state}', isCopied: false),
-      ExchangeTradeItem(
-          title: S.current.widgets_address + ':',
-          data: trade.inputAddress,
-          isCopied: true),
+      StandartListItem(title: S.current.trade_details_id, value: trade.id),
+      StandartListItem(
+          title: S.current.trade_details_state,
+          value: trade.state != null
+              ? trade.state.toString()
+              : S.current.trade_details_fetching)
     ]);
+
+    if (trade.provider != null) {
+      items.add(StandartListItem(
+          title: S.current.trade_details_provider,
+          value: trade.provider.toString()));
+    }
+
+    if (trade.createdAt != null) {
+      items.add(StandartListItem(
+          title: S.current.trade_details_created_at,
+          value: dateFormat.format(trade.createdAt).toString()));
+    }
+
+    if (trade.from != null && trade.to != null) {
+      items.add(StandartListItem(
+          title: S.current.trade_details_pair,
+          value: '${trade.from.toString()} → ${trade.to.toString()}'));
+    }
   }
 }

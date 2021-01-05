@@ -279,7 +279,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.tradeDetails:
       return MaterialPageRoute<void>(
-          builder: (_) => TradeDetailsPage(settings.arguments as Trade));
+          builder: (_) =>
+              getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
     case Routes.restoreWalletFromSeedDetails:
       final args = settings.arguments as List;
