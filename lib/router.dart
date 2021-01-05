@@ -71,8 +71,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWalletType:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
-              param1: (BuildContext context, WalletType _) =>
-                  Navigator.of(context).pushNamed(Routes.preSeed, arguments: true),
+              param1: (BuildContext context, WalletType type) =>
+                  Navigator.of(context)
+                      .pushNamed(Routes.preSeed, arguments: type),
               param2: true));
 
     case Routes.newWallet:
@@ -137,7 +138,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.pushNamed(context.context, Routes.restoreWalletType)),
+                  Navigator.pushNamed(
+                      context.context, Routes.restoreWalletType)),
           fullscreenDialog: true);
 
     case Routes.seed:
@@ -147,8 +149,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<WalletRestorePage>(param1: settings.arguments as WalletType));
+          builder: (_) => getIt.get<WalletRestorePage>(
+              param1: settings.arguments as WalletType));
 
     case Routes.restoreWalletFromSeed:
       final type = settings.arguments as WalletType;
@@ -248,7 +250,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
           builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
-            param1: settings.arguments as AccountListItem));
+              param1: settings.arguments as AccountListItem));
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
@@ -311,7 +313,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.preSeed:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>());
+          builder: (_) =>
+              getIt.get<PreSeedPage>(param1: settings.arguments as WalletType));
 
     default:
       return MaterialPageRoute<void>(

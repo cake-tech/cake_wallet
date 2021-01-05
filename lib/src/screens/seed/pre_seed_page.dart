@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,8 +8,17 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 
 class PreSeedPage extends BasePage {
-  final imageLight = Image.asset('assets/images/pre_seed_light.png');
-  final imageDark = Image.asset('assets/images/pre_seed_dark.png');
+  PreSeedPage(this.type)
+      : imageLight = Image.asset('assets/images/pre_seed_light.png'),
+        imageDark = Image.asset('assets/images/pre_seed_dark.png'),
+        wordsCount = type == WalletType.monero
+            ? 25
+            : 12; // FIXME: Stupid fast implementation
+
+  final Image imageDark;
+  final Image imageLight;
+  final WalletType type;
+  final int wordsCount;
 
   @override
   Widget leading(BuildContext context) => null;
@@ -39,7 +49,7 @@ class PreSeedPage extends BasePage {
                       Padding(
                         padding: EdgeInsets.only(top: 70, left: 16, right: 16),
                         child: Text(
-                          S.of(context).pre_seed_description,
+                          S.of(context).pre_seed_description(wordsCount.toString()),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 14,

@@ -416,7 +416,7 @@
   "exchange_sync_alert_content" : "請等待，直到您的錢包同步",
 
   "pre_seed_title" : "重要",
-  "pre_seed_description" : "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。",
+  "pre_seed_description" : "在下一頁上，您將看到一系列${words}個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。",
   "pre_seed_button_text" : "我明白。 給我看我的種子",
 
   "xmr_to_error" : "XMR.TO錯誤",
@@ -430,10 +430,10 @@
   "light_theme" : "光",
   "bright_theme" : "亮",
   "dark_theme" : "黑暗",
-
   "enter_your_note" : "輸入您的筆記...",
   "note_optional" : "注意（可選）",
   "note_tap_to_change" : "注意（輕按即可更改）",
   "transaction_key" : "交易密碼",
-  "confirmations" : "確認書"
+  "confirmations" : "確認書",
+  "recipient_address" : "收件人地址"
 }

@@ -416,7 +416,7 @@
   "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada",
 
   "pre_seed_title" : "IMPORTANTE",
-  "pre_seed_description" : "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.",
+  "pre_seed_description" : "En la página siguiente verá una serie de ${words} palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.",
   "pre_seed_button_text" : "Entiendo. Muéstrame mi semilla",
 
   "xmr_to_error" : "Error de XMR.TO",
@@ -430,10 +430,10 @@
   "light_theme" : "Ligera",
   "bright_theme" : "Brillante",
   "dark_theme" : "Oscura",
-
   "enter_your_note" : "Ingresa tu nota…",
   "note_optional" : "Nota (opcional)",
   "note_tap_to_change" : "Nota (toque para cambiar)",
   "transaction_key" : "Clave de transacción",
-  "confirmations" : "Confirmaciones"
+  "confirmations" : "Confirmaciones",
+  "recipient_address" : "Dirección del receptor"
 }
