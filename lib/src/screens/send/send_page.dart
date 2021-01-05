@@ -31,6 +31,7 @@ class SendPage extends BasePage {
       : _addressController = TextEditingController(),
         _cryptoAmountController = TextEditingController(),
         _fiatAmountController = TextEditingController(),
+        _noteController = TextEditingController(),
         _formKey = GlobalKey<FormState>(),
         _cryptoAmountFocus = FocusNode(),
         _fiatAmountFocus = FocusNode(),
@@ -46,6 +47,7 @@ class SendPage extends BasePage {
   final TextEditingController _addressController;
   final TextEditingController _cryptoAmountController;
   final TextEditingController _fiatAmountController;
+  final TextEditingController _noteController;
   final GlobalKey<FormState> _formKey;
   final FocusNode _cryptoAmountFocus;
   final FocusNode _fiatAmountFocus;
@@ -304,6 +306,30 @@ class SendPage extends BasePage {
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14),
                                   )),
+                              Padding(
+                                  padding: EdgeInsets.only(top: 20),
+                                  child: BaseTextFormField(
+                                    controller: _noteController,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                    borderColor: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .color,
+                                    textStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                    hintText: S.of(context).note_optional,
+                                    placeholderTextStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .headline
+                                            .decorationColor),
+                                  ),
+                              ),
                               Observer(
                                   builder: (_) => GestureDetector(
                                         onTap: () =>
@@ -562,6 +588,14 @@ class SendPage extends BasePage {
       }
     });
 
+    _noteController.addListener(() {
+      final note = _noteController.text ?? '';
+
+      if (note != sendViewModel.note) {
+        sendViewModel.note = note;
+      }
+    });
+
     reaction((_) => sendViewModel.sendAll, (bool all) {
       if (all) {
         _cryptoAmountController.text = S.current.all;
@@ -596,6 +630,12 @@ class SendPage extends BasePage {
 
       if (sendViewModel.address != address) {
         sendViewModel.address = address;
+      }
+    });
+
+    reaction((_) => sendViewModel.note, (String note) {
+      if (note != _noteController.text) {
+        _noteController.text = note;
       }
     });
 

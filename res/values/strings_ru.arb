@@ -282,6 +282,7 @@
   "transaction_details_date" : "Дата",
   "transaction_details_height" : "Высота",
   "transaction_details_amount" : "Сумма",
+  "transaction_details_fee" : "Комиссия",
   "transaction_details_copied" : "${title} скопировано в буфер обмена",
   "transaction_details_recipient_address" : "Адрес получателя",
 
@@ -429,6 +430,10 @@
   "light_theme" : "Светлая",
   "bright_theme" : "Яркая",
   "dark_theme" : "Темная",
-
+  "enter_your_note" : "Введите примечание…",
+  "note_optional" : "Примечание (необязательно)",
+  "note_tap_to_change" : "Примечание (нажмите для изменения)",
+  "transaction_key" : "Ключ транзакции",
+  "confirmations" : "Подтверждения",
   "recipient_address" : "Адрес получателя"
 }

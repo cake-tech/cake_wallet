@@ -38,6 +38,7 @@ abstract class SendViewModelBase with Store {
       this._fiatConversationStore, this.transactionDescriptionBox)
       : state = InitialExecutionState(),
         _cryptoNumberFormat = NumberFormat(),
+        note = '',
         sendAll = false {
     _setCryptoNumMaximumFractionDigits();
   }
@@ -53,6 +54,9 @@ abstract class SendViewModelBase with Store {
 
   @observable
   String address;
+
+  @observable
+  String note;
 
   @observable
   bool sendAll;
@@ -150,6 +154,7 @@ abstract class SendViewModelBase with Store {
     cryptoAmount = '';
     fiatAmount = '';
     address = '';
+    note = '';
   }
 
   @action
@@ -169,10 +174,13 @@ abstract class SendViewModelBase with Store {
       state = TransactionCommitting();
       await pendingTransaction.commit();
 
-      if (_settingsStore.shouldSaveRecipientAddress &&
-          (pendingTransaction.id?.isNotEmpty ?? false)) {
-        await transactionDescriptionBox.add(TransactionDescription(
-            id: pendingTransaction.id, recipientAddress: address));
+      if (pendingTransaction.id?.isNotEmpty ?? false) {
+        _settingsStore.shouldSaveRecipientAddress
+        ? await transactionDescriptionBox.add(TransactionDescription(
+            id: pendingTransaction.id, recipientAddress: address,
+            transactionNote: note))
+        : await transactionDescriptionBox.add(TransactionDescription(
+            id: pendingTransaction.id, transactionNote: note));
       }
 
       state = TransactionCommitted();

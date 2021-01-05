@@ -282,6 +282,7 @@
   "transaction_details_date" : "Date",
   "transaction_details_height" : "Height",
   "transaction_details_amount" : "Amount",
+  "transaction_details_fee" : "Fee",
   "transaction_details_copied" : "${title} copied to Clipboard",
   "transaction_details_recipient_address" : "Recipient address",
 
@@ -429,6 +430,10 @@
   "light_theme" : "Light",
   "bright_theme" : "Bright",
   "dark_theme" : "Dark",
-
+  "enter_your_note" : "Enter your note…",
+  "note_optional" : "Note (optional)",
+  "note_tap_to_change" : "Note (tap to change)",
+  "transaction_key" : "Transaction Key",
+  "confirmations" : "Confirmations",
   "recipient_address" : "Recipient address"
 }

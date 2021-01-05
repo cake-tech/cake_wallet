@@ -282,6 +282,7 @@
   "transaction_details_date" : "Data",
   "transaction_details_height" : "Altura",
   "transaction_details_amount" : "Quantia",
+  "transaction_details_fee" : "Taxa",
   "transaction_details_copied" : "${title} copiados para a área de transferência",
   "transaction_details_recipient_address" : "Endereço do destinatário",
 
@@ -429,6 +430,10 @@
   "light_theme" : "Luz",
   "bright_theme" : "Brilhante",
   "dark_theme" : "Sombria",
-
+  "enter_your_note" : "Insira sua nota ...",
+  "note_optional" : "Nota (opcional)",
+  "note_tap_to_change" : "Nota (toque para alterar)",
+  "transaction_key" : "Chave de transação",
+  "confirmations" : "Confirmações",
   "recipient_address" : "Endereço do destinatário"
 }

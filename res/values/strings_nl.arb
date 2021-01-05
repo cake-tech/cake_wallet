@@ -282,6 +282,7 @@
   "transaction_details_date" : "Datum",
   "transaction_details_height" : "Hoogte",
   "transaction_details_amount" : "Bedrag",
+  "transaction_details_fee" : "Vergoeding",
   "transaction_details_copied" : "${title} gekopieerd naar het klembord",
   "transaction_details_recipient_address" : "Adres van de ontvanger",
 
@@ -429,6 +430,10 @@
   "light_theme" : "Licht",
   "bright_theme" : "Helder",
   "dark_theme" : "Donker",
-
+  "enter_your_note" : "Voer uw notitie in ...",
+  "note_optional" : "Opmerking (optioneel)",
+  "note_tap_to_change" : "Opmerking (tik om te wijzigen)",
+  "transaction_key" : "Transactiesleutel",
+  "confirmations" : "Bevestigingen",
   "recipient_address" : "Adres ontvanger"
 }
