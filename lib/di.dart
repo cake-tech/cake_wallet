@@ -355,7 +355,8 @@ Future setup(
       getIt.get<AppStore>().wallet,
       tradesSource,
       getIt.get<ExchangeTemplateStore>(),
-      getIt.get<TradesStore>()));
+      getIt.get<TradesStore>(),
+      getIt.get<AppStore>().settingsStore));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,

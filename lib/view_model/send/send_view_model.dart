@@ -197,7 +197,7 @@ abstract class SendViewModelBase with Store {
 
     switch (_wallet.type) {
       case WalletType.bitcoin:
-        final amount = !sendAll ? double.parse(_amount) : null;
+        final amount = !sendAll ? _amount : null;
 
         return BitcoinTransactionCredentials(
             address, amount, _settingsStore.transactionPriority);
