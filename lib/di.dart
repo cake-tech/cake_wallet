@@ -56,6 +56,7 @@ import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
+import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
@@ -418,11 +419,17 @@ Future setup(
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) =>
       WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
 
+  getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>
+    ((TransactionInfo transactionInfo, _) => TransactionDetailsViewModel(
+    transactionInfo: transactionInfo,
+    transactionDescriptionBox: transactionDescriptionBox,
+    settingsStore: getIt.get<SettingsStore>()
+  ));
+
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
-          transactionInfo,
-          getIt.get<SettingsStore>().shouldSaveRecipientAddress,
-          transactionDescriptionBox));
+          transactionDetailsViewModel: getIt
+              .get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactoryParam<NewWalletTypePage,
           void Function(BuildContext, WalletType), bool>(

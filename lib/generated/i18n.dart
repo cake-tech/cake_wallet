@@ -63,6 +63,7 @@ class S implements WidgetsLocalizations {
   String get confirm_delete_template => "This action will delete this template. Do you wish to continue?";
   String get confirm_delete_wallet => "This action will delete this wallet. Do you wish to continue?";
   String get confirm_sending => "Confirm sending";
+  String get confirmations => "Confirmations";
   String get contact => "Contact";
   String get contact_name => "Contact Name";
   String get continue_text => "Continue";
@@ -77,6 +78,7 @@ class S implements WidgetsLocalizations {
   String get delete => "Delete";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
+  String get enter_your_note => "Enter your note…";
   String get enter_your_pin => "Enter your PIN";
   String get enter_your_pin_again => "Enter your pin again";
   String get error => "Error";
@@ -127,6 +129,8 @@ class S implements WidgetsLocalizations {
   String get node_test => "Test";
   String get nodes => "Nodes";
   String get nodes_list_reset_to_default_message => "Are you sure that you want to reset settings to default?";
+  String get note_optional => "Note (optional)";
+  String get note_tap_to_change => "Note (tap to change)";
   String get offer_expires_in => "Offer expires in: ";
   String get ok => "OK";
   String get openalias_alert_title => "XMR Recipient Detected";
@@ -293,10 +297,12 @@ class S implements WidgetsLocalizations {
   String get trades => "Trades";
   String get transaction_details_amount => "Amount";
   String get transaction_details_date => "Date";
+  String get transaction_details_fee => "Fee";
   String get transaction_details_height => "Height";
   String get transaction_details_recipient_address => "Recipient address";
   String get transaction_details_title => "Transaction Details";
   String get transaction_details_transaction_id => "Transaction ID";
+  String get transaction_key => "Transaction Key";
   String get transaction_priority_fast => "Fast";
   String get transaction_priority_fastest => "Fastest";
   String get transaction_priority_medium => "Medium";
@@ -447,6 +453,8 @@ class $de extends S {
   @override
   String get placeholder_contacts => "Ihre Kontakte werden hier angezeigt";
   @override
+  String get transaction_key => "Transaktionsschlüssel";
+  @override
   String get card_address => "Adresse:";
   @override
   String get seed_language_portuguese => "Portugiesisch";
@@ -472,6 +480,8 @@ class $de extends S {
   String get error_text_address => "Die Walletadresse muss dem Typ entsprechen\nder Kryptowährung";
   @override
   String get send_your_wallet => "Deine Geldbörse";
+  @override
+  String get transaction_details_fee => "Gebühr";
   @override
   String get remove_node_message => "Möchten Sie den ausgewählten Knoten wirklich entfernen?";
   @override
@@ -517,6 +527,8 @@ class $de extends S {
   @override
   String get node_connection_successful => "Die Verbindung war erfolgreich";
   @override
+  String get confirmations => "Bestätigungen";
+  @override
   String get confirm => "Bestätigen";
   @override
   String get settings_display_balance_as => "Kontostand anzeigen als";
@@ -552,6 +564,8 @@ class $de extends S {
   String get restore_bitcoin_description_from_seed => "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her";
   @override
   String get address_book_menu => "Adressbuch";
+  @override
+  String get note_optional => "Hinweis (optional)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Falsche Samenlänge";
   @override
@@ -681,6 +695,8 @@ class $de extends S {
   @override
   String get transaction_details_date => "Datum";
   @override
+  String get note_tap_to_change => "Hinweis (zum Ändern tippen)";
+  @override
   String get show_seed => "Seed zeigen";
   @override
   String get send_error_currency => "Die Währung kann nur Zahlen enthalten";
@@ -760,6 +776,8 @@ class $de extends S {
   String get sync_status_syncronized => "SYNCHRONISIERT";
   @override
   String get template => "Vorlage";
+  @override
+  String get enter_your_note => "Geben Sie Ihre Notiz ein…";
   @override
   String get transaction_priority_medium => "Mittel";
   @override
@@ -1149,6 +1167,8 @@ class $hi extends S {
   @override
   String get placeholder_contacts => "आपके संपर्क यहां प्रदर्शित होंगे";
   @override
+  String get transaction_key => "लेन-देन की";
+  @override
   String get card_address => "पता:";
   @override
   String get seed_language_portuguese => "पुर्तगाली";
@@ -1174,6 +1194,8 @@ class $hi extends S {
   String get error_text_address => "वॉलेट पता प्रकार के अनुरूप होना चाहिए\nक्रिप्टोकरेंसी का";
   @override
   String get send_your_wallet => "आपका बटुआ";
+  @override
+  String get transaction_details_fee => "शुल्क";
   @override
   String get remove_node_message => "क्या आप वाकई चयनित नोड को निकालना चाहते हैं?";
   @override
@@ -1219,6 +1241,8 @@ class $hi extends S {
   @override
   String get node_connection_successful => "कनेक्शन सफल रहा";
   @override
+  String get confirmations => "पुष्टिकरण";
+  @override
   String get confirm => "की पुष्टि करें";
   @override
   String get settings_display_balance_as => "के रूप में संतुलन प्रदर्शित करें";
@@ -1254,6 +1278,8 @@ class $hi extends S {
   String get restore_bitcoin_description_from_seed => "12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें";
   @override
   String get address_book_menu => "पता पुस्तिका";
+  @override
+  String get note_optional => "नोट (वैकल्पिक)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "गलत बीज की लंबाई";
   @override
@@ -1383,6 +1409,8 @@ class $hi extends S {
   @override
   String get transaction_details_date => "तारीख";
   @override
+  String get note_tap_to_change => "नोट (टैप टू चेंज)";
+  @override
   String get show_seed => "बीज दिखाओ";
   @override
   String get send_error_currency => "मुद्रा में केवल संख्याएँ हो सकती हैं";
@@ -1462,6 +1490,8 @@ class $hi extends S {
   String get sync_status_syncronized => "सिंक्रनाइज़";
   @override
   String get template => "खाका";
+  @override
+  String get enter_your_note => "अपना नोट दर्ज करें ...";
   @override
   String get transaction_priority_medium => "मध्यम";
   @override
@@ -1851,6 +1881,8 @@ class $ru extends S {
   @override
   String get placeholder_contacts => "Ваши контакты будут отображаться здесь";
   @override
+  String get transaction_key => "Ключ транзакции";
+  @override
   String get card_address => "Адрес:";
   @override
   String get seed_language_portuguese => "Португальский";
@@ -1876,6 +1908,8 @@ class $ru extends S {
   String get error_text_address => "Адрес кошелька должен соответствовать типу\nкриптовалюты";
   @override
   String get send_your_wallet => "Ваш кошелёк";
+  @override
+  String get transaction_details_fee => "Комиссия";
   @override
   String get remove_node_message => "Вы уверены, что хотите удалить текущую ноду?";
   @override
@@ -1921,6 +1955,8 @@ class $ru extends S {
   @override
   String get node_connection_successful => "Подключение прошло успешно";
   @override
+  String get confirmations => "Подтверждения";
+  @override
   String get confirm => "Подтвердить";
   @override
   String get settings_display_balance_as => "Отображать баланс как";
@@ -1956,6 +1992,8 @@ class $ru extends S {
   String get restore_bitcoin_description_from_seed => "Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу";
   @override
   String get address_book_menu => "Адресная книга";
+  @override
+  String get note_optional => "Примечание (необязательно)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Неверная длина мнемонической фразы";
   @override
@@ -2085,6 +2123,8 @@ class $ru extends S {
   @override
   String get transaction_details_date => "Дата";
   @override
+  String get note_tap_to_change => "Примечание (нажмите для изменения)";
+  @override
   String get show_seed => "Показать мнемоническую фразу";
   @override
   String get send_error_currency => "Валюта может содержать только цифры";
@@ -2164,6 +2204,8 @@ class $ru extends S {
   String get sync_status_syncronized => "СИНХРОНИЗИРОВАН";
   @override
   String get template => "Шаблон";
+  @override
+  String get enter_your_note => "Введите примечание…";
   @override
   String get transaction_priority_medium => "Средний";
   @override
@@ -2553,6 +2595,8 @@ class $ko extends S {
   @override
   String get placeholder_contacts => "연락처가 여기에 표시됩니다";
   @override
+  String get transaction_key => "거래 키";
+  @override
   String get card_address => "주소:";
   @override
   String get seed_language_portuguese => "포르투갈 인";
@@ -2578,6 +2622,8 @@ class $ko extends S {
   String get error_text_address => "지갑 주소는 유형과 일치해야합니다\n암호 화폐";
   @override
   String get send_your_wallet => "지갑";
+  @override
+  String get transaction_details_fee => "회비";
   @override
   String get remove_node_message => "선택한 노드를 제거 하시겠습니까?";
   @override
@@ -2623,6 +2669,8 @@ class $ko extends S {
   @override
   String get node_connection_successful => "성공적으로 연결되었습니다.";
   @override
+  String get confirmations => "확인";
+  @override
   String get confirm => "확인";
   @override
   String get settings_display_balance_as => "잔액 표시";
@@ -2658,6 +2706,8 @@ class $ko extends S {
   String get restore_bitcoin_description_from_seed => "12 단어 조합 코드에서 지갑 복원";
   @override
   String get address_book_menu => "주소록";
+  @override
+  String get note_optional => "참고 (선택 사항)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "시드 길이가 잘못되었습니다";
   @override
@@ -2787,6 +2837,8 @@ class $ko extends S {
   @override
   String get transaction_details_date => "날짜";
   @override
+  String get note_tap_to_change => "메모 (변경하려면 탭하세요)";
+  @override
   String get show_seed => "종자 표시";
   @override
   String get send_error_currency => "통화는 숫자 만 포함 할 수 있습니다";
@@ -2866,6 +2918,8 @@ class $ko extends S {
   String get sync_status_syncronized => "동기화";
   @override
   String get template => "주형";
+  @override
+  String get enter_your_note => "메모를 입력하세요…";
   @override
   String get transaction_priority_medium => "매질";
   @override
@@ -3255,6 +3309,8 @@ class $pt extends S {
   @override
   String get placeholder_contacts => "Seus contatos serão exibidos aqui";
   @override
+  String get transaction_key => "Chave de transação";
+  @override
   String get card_address => "Endereço:";
   @override
   String get seed_language_portuguese => "Português";
@@ -3280,6 +3336,8 @@ class $pt extends S {
   String get error_text_address => "O endereço da carteira deve corresponder à\ncriptomoeda selecionada";
   @override
   String get send_your_wallet => "Sua carteira";
+  @override
+  String get transaction_details_fee => "Taxa";
   @override
   String get remove_node_message => "Você realmente deseja remover o nó selecionado?";
   @override
@@ -3325,6 +3383,8 @@ class $pt extends S {
   @override
   String get node_connection_successful => "A conexão foi bem sucedida";
   @override
+  String get confirmations => "Confirmações";
+  @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Saldo a exibir";
@@ -3360,6 +3420,8 @@ class $pt extends S {
   String get restore_bitcoin_description_from_seed => "Restaure sua carteira a partir de um código de combinação de 12 palavras";
   @override
   String get address_book_menu => "Livro de endereços";
+  @override
+  String get note_optional => "Nota (opcional)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Comprimento de semente incorreto";
   @override
@@ -3489,6 +3551,8 @@ class $pt extends S {
   @override
   String get transaction_details_date => "Data";
   @override
+  String get note_tap_to_change => "Nota (toque para alterar)";
+  @override
   String get show_seed => "Mostrar semente";
   @override
   String get send_error_currency => "A moeda só pode conter números";
@@ -3568,6 +3632,8 @@ class $pt extends S {
   String get sync_status_syncronized => "SINCRONIZADO";
   @override
   String get template => "Modelo";
+  @override
+  String get enter_your_note => "Insira sua nota ...";
   @override
   String get transaction_priority_medium => "Média";
   @override
@@ -3957,6 +4023,8 @@ class $uk extends S {
   @override
   String get placeholder_contacts => "Тут будуть показані ваші контакти";
   @override
+  String get transaction_key => "Ключ транзакції";
+  @override
   String get card_address => "Адреса:";
   @override
   String get seed_language_portuguese => "Португальська";
@@ -3982,6 +4050,8 @@ class $uk extends S {
   String get error_text_address => "Адреса гаманця повинна відповідати типу\nкриптовалюти";
   @override
   String get send_your_wallet => "Ваш гаманець";
+  @override
+  String get transaction_details_fee => "Комісія";
   @override
   String get remove_node_message => "Ви впевнені, що хочете видалити поточний вузол?";
   @override
@@ -4027,6 +4097,8 @@ class $uk extends S {
   @override
   String get node_connection_successful => "З'єднання було успішним";
   @override
+  String get confirmations => "Підтвердження";
+  @override
   String get confirm => "Підтвердити";
   @override
   String get settings_display_balance_as => "Відображати баланс як";
@@ -4062,6 +4134,8 @@ class $uk extends S {
   String get restore_bitcoin_description_from_seed => "Ви можете відновити гаманець використовуючи 12-ти слівну мнемонічну фразу";
   @override
   String get address_book_menu => "Адресна книга";
+  @override
+  String get note_optional => "Примітка (необов’язково)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Невірна довжина мнемонічної фрази";
   @override
@@ -4191,6 +4265,8 @@ class $uk extends S {
   @override
   String get transaction_details_date => "Дата";
   @override
+  String get note_tap_to_change => "Примітка (натисніть для зміни)";
+  @override
   String get show_seed => "Показати мнемонічну фразу";
   @override
   String get send_error_currency => "Валюта може містити тільки цифри";
@@ -4270,6 +4346,8 @@ class $uk extends S {
   String get sync_status_syncronized => "СИНХРОНІЗОВАНИЙ";
   @override
   String get template => "Шаблон";
+  @override
+  String get enter_your_note => "Введіть примітку…";
   @override
   String get transaction_priority_medium => "Середній";
   @override
@@ -4659,6 +4737,8 @@ class $ja extends S {
   @override
   String get placeholder_contacts => "連絡先はここに表示されます";
   @override
+  String get transaction_key => "トランザクションキー";
+  @override
   String get card_address => "住所:";
   @override
   String get seed_language_portuguese => "ポルトガル語";
@@ -4684,6 +4764,8 @@ class $ja extends S {
   String get error_text_address => "ウォレットアドレスは、\n暗号通貨";
   @override
   String get send_your_wallet => "あなたの財布";
+  @override
+  String get transaction_details_fee => "費用";
   @override
   String get remove_node_message => "選択したノードを削除してもよろしいですか？";
   @override
@@ -4729,6 +4811,8 @@ class $ja extends S {
   @override
   String get node_connection_successful => "接続に成功しました";
   @override
+  String get confirmations => "確認";
+  @override
   String get confirm => "確認する";
   @override
   String get settings_display_balance_as => "残高を表示";
@@ -4764,6 +4848,8 @@ class $ja extends S {
   String get restore_bitcoin_description_from_seed => "12ワードの組み合わせコードからウォレットを復元する";
   @override
   String get address_book_menu => "住所録";
+  @override
+  String get note_optional => "注（オプション）";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "誤ったシード長s";
   @override
@@ -4893,6 +4979,8 @@ class $ja extends S {
   @override
   String get transaction_details_date => "日付";
   @override
+  String get note_tap_to_change => "注（タップして変更）";
+  @override
   String get show_seed => "シードを表示";
   @override
   String get send_error_currency => "通貨には数字のみを含めることができます";
@@ -4972,6 +5060,8 @@ class $ja extends S {
   String get sync_status_syncronized => "同期された";
   @override
   String get template => "テンプレート";
+  @override
+  String get enter_your_note => "メモを入力してください…";
   @override
   String get transaction_priority_medium => "中";
   @override
@@ -5365,6 +5455,8 @@ class $pl extends S {
   @override
   String get placeholder_contacts => "Twoje kontakty zostaną wyświetlone tutaj";
   @override
+  String get transaction_key => "Klucz transakcji";
+  @override
   String get card_address => "Adres:";
   @override
   String get seed_language_portuguese => "Portugalski";
@@ -5390,6 +5482,8 @@ class $pl extends S {
   String get error_text_address => "Wallet address must correspond to the type\nof cryptocurrency";
   @override
   String get send_your_wallet => "Twój portfel";
+  @override
+  String get transaction_details_fee => "Opłata";
   @override
   String get remove_node_message => "Czy na pewno chcesz usunąć wybrany węzeł?";
   @override
@@ -5435,6 +5529,8 @@ class $pl extends S {
   @override
   String get node_connection_successful => "Połączenie powiodło się";
   @override
+  String get confirmations => "Potwierdzenia";
+  @override
   String get confirm => "Potwierdzać";
   @override
   String get settings_display_balance_as => "Wyświetl saldo jako";
@@ -5470,6 +5566,8 @@ class $pl extends S {
   String get restore_bitcoin_description_from_seed => "Przywróć swój portfel z kodu złożonego z 12 słów";
   @override
   String get address_book_menu => "Książka adresowa";
+  @override
+  String get note_optional => "Notatka (opcjonalnie)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Nieprawidłowa długość nasion";
   @override
@@ -5599,6 +5697,8 @@ class $pl extends S {
   @override
   String get transaction_details_date => "Data";
   @override
+  String get note_tap_to_change => "Notatka (dotknij, aby zmienić)";
+  @override
   String get show_seed => "Pokaż nasiona";
   @override
   String get send_error_currency => "Waluta może zawierać tylko cyfry";
@@ -5678,6 +5778,8 @@ class $pl extends S {
   String get sync_status_syncronized => "SYNCHRONIZOWANY";
   @override
   String get template => "Szablon";
+  @override
+  String get enter_your_note => "Wpisz notatkę…";
   @override
   String get transaction_priority_medium => "Średni";
   @override
@@ -6067,6 +6169,8 @@ class $es extends S {
   @override
   String get placeholder_contacts => "Tus contactos se mostrarán aquí";
   @override
+  String get transaction_key => "Clave de transacción";
+  @override
   String get card_address => "Dirección:";
   @override
   String get seed_language_portuguese => "Portugués";
@@ -6092,6 +6196,8 @@ class $es extends S {
   String get error_text_address => "La dirección de la billetera debe corresponder al tipo \nde criptomoneda";
   @override
   String get send_your_wallet => "Tu billetera";
+  @override
+  String get transaction_details_fee => "Cuota";
   @override
   String get remove_node_message => "¿Está seguro de que desea eliminar el nodo seleccionado?";
   @override
@@ -6137,6 +6243,8 @@ class $es extends S {
   @override
   String get node_connection_successful => "La conexión fue exitosa";
   @override
+  String get confirmations => "Confirmaciones";
+  @override
   String get confirm => "Confirmar";
   @override
   String get settings_display_balance_as => "Mostrar saldo como";
@@ -6172,6 +6280,8 @@ class $es extends S {
   String get restore_bitcoin_description_from_seed => "Restaure su billetera a partir del código de combinación de 12 palabras";
   @override
   String get address_book_menu => "Libreta de direcciones";
+  @override
+  String get note_optional => "Nota (opcional)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Longitud de semilla incorrecta";
   @override
@@ -6301,6 +6411,8 @@ class $es extends S {
   @override
   String get transaction_details_date => "Fecha";
   @override
+  String get note_tap_to_change => "Nota (toque para cambiar)";
+  @override
   String get show_seed => "Mostrar semilla";
   @override
   String get send_error_currency => "La moneda solo puede contener números";
@@ -6380,6 +6492,8 @@ class $es extends S {
   String get sync_status_syncronized => "SINCRONIZADO";
   @override
   String get template => "Plantilla";
+  @override
+  String get enter_your_note => "Ingresa tu nota…";
   @override
   String get transaction_priority_medium => "Medio";
   @override
@@ -6769,6 +6883,8 @@ class $nl extends S {
   @override
   String get placeholder_contacts => "Je contacten worden hier weergegeven";
   @override
+  String get transaction_key => "Transactiesleutel";
+  @override
   String get card_address => "Adres:";
   @override
   String get seed_language_portuguese => "Portugees";
@@ -6794,6 +6910,8 @@ class $nl extends S {
   String get error_text_address => "Portemonnee-adres moet overeenkomen met het type\nvan cryptocurrency";
   @override
   String get send_your_wallet => "Uw portemonnee";
+  @override
+  String get transaction_details_fee => "Vergoeding";
   @override
   String get remove_node_message => "Weet u zeker dat u het geselecteerde knooppunt wilt verwijderen?";
   @override
@@ -6839,6 +6957,8 @@ class $nl extends S {
   @override
   String get node_connection_successful => "Verbinding is gelukt";
   @override
+  String get confirmations => "Bevestigingen";
+  @override
   String get confirm => "Bevestigen";
   @override
   String get settings_display_balance_as => "Toon saldo als";
@@ -6874,6 +6994,8 @@ class $nl extends S {
   String get restore_bitcoin_description_from_seed => "Herstel uw portemonnee met een combinatiecode van 12 woorden";
   @override
   String get address_book_menu => "Adresboek";
+  @override
+  String get note_optional => "Opmerking (optioneel)";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "Onjuiste zaadlengte";
   @override
@@ -7003,6 +7125,8 @@ class $nl extends S {
   @override
   String get transaction_details_date => "Datum";
   @override
+  String get note_tap_to_change => "Opmerking (tik om te wijzigen)";
+  @override
   String get show_seed => "Toon zaad";
   @override
   String get send_error_currency => "Valuta kan alleen cijfers bevatten";
@@ -7082,6 +7206,8 @@ class $nl extends S {
   String get sync_status_syncronized => "SYNCHRONIZED";
   @override
   String get template => "Sjabloon";
+  @override
+  String get enter_your_note => "Voer uw notitie in ...";
   @override
   String get transaction_priority_medium => "Medium";
   @override
@@ -7471,6 +7597,8 @@ class $zh extends S {
   @override
   String get placeholder_contacts => "您的聯繫人將顯示在這裡";
   @override
+  String get transaction_key => "交易密碼";
+  @override
   String get card_address => "地址:";
   @override
   String get seed_language_portuguese => "葡萄牙語";
@@ -7496,6 +7624,8 @@ class $zh extends S {
   String get error_text_address => "钱包地址必须与类型对应\n加密货币";
   @override
   String get send_your_wallet => "你的钱包";
+  @override
+  String get transaction_details_fee => "費用";
   @override
   String get remove_node_message => "您确定要删除所选节点吗？";
   @override
@@ -7541,6 +7671,8 @@ class $zh extends S {
   @override
   String get node_connection_successful => "連接成功";
   @override
+  String get confirmations => "確認書";
+  @override
   String get confirm => "确认";
   @override
   String get settings_display_balance_as => "将余额显示为";
@@ -7576,6 +7708,8 @@ class $zh extends S {
   String get restore_bitcoin_description_from_seed => "從12個單詞的組合碼恢復您的錢包";
   @override
   String get address_book_menu => "地址簿";
+  @override
+  String get note_optional => "注意（可選）";
   @override
   String get wallet_restoration_store_incorrect_seed_length => "种子长度错误";
   @override
@@ -7705,6 +7839,8 @@ class $zh extends S {
   @override
   String get transaction_details_date => "日期";
   @override
+  String get note_tap_to_change => "注意（輕按即可更改）";
+  @override
   String get show_seed => "显示种子";
   @override
   String get send_error_currency => "货币只能包含数字";
@@ -7784,6 +7920,8 @@ class $zh extends S {
   String get sync_status_syncronized => "已同步";
   @override
   String get template => "模板";
+  @override
+  String get enter_your_note => "輸入您的筆記...";
   @override
   String get transaction_priority_medium => "介质";
   @override

@@ -282,6 +282,7 @@
   "transaction_details_date" : "Fecha",
   "transaction_details_height" : "Altura",
   "transaction_details_amount" : "Cantidad",
+  "transaction_details_fee" : "Cuota",
   "transaction_details_copied" : "${title} Copiado al portapapeles",
   "transaction_details_recipient_address" : "Dirección del receptor",
 
@@ -429,6 +430,10 @@
   "light_theme" : "Ligera",
   "bright_theme" : "Brillante",
   "dark_theme" : "Oscura",
-
+  "enter_your_note" : "Ingresa tu nota…",
+  "note_optional" : "Nota (opcional)",
+  "note_tap_to_change" : "Nota (toque para cambiar)",
+  "transaction_key" : "Clave de transacción",
+  "confirmations" : "Confirmaciones",
   "recipient_address" : "Dirección del receptor"
 }

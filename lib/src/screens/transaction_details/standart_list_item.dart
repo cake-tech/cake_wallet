@@ -1,6 +1,6 @@
-class StandartListItem {
-  StandartListItem({this.title, this.value});
+import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 
-  final String title;
-  final String value;
+class StandartListItem extends TransactionDetailsListItem {
+  StandartListItem({String title, String value})
+      : super(title: title, value: value);
 }
