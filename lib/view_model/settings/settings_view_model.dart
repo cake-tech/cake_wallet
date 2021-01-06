@@ -36,9 +36,9 @@ abstract class SettingsViewModelBase with Store {
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
-    final priority = _settingsStore.transactionPriority;
+    final _priority = _settingsStore.transactionPriority;
 
-    if (!TransactionPriority.forWalletType(_walletType).contains(priority)) {
+    if (!TransactionPriority.forWalletType(_walletType).contains(_priority)) {
       _settingsStore.transactionPriority =
           TransactionPriority.forWalletType(_walletType).first;
     }
