@@ -106,7 +106,7 @@ class S implements WidgetsLocalizations {
   String get faq => "FAQ";
   String get fetching => "Fetching";
   String get filters => "Filter";
-  String get first_wallet_text => "Awesome wallet for Monero";
+  String get first_wallet_text => "Awesome wallet for Monero and Bitcoin";
   String get full_balance => "Full Balance";
   String get hidden_balance => "Hidden Balance";
   String get id => "ID: ";
@@ -143,7 +143,7 @@ class S implements WidgetsLocalizations {
   String get pin_is_incorrect => "PIN is incorrect";
   String get placeholder_contacts => "Your contacts will be displayed here";
   String get placeholder_transactions => "Your transactions will be displayed here";
-  String get please_make_selection => "Please make selection below to create or recover your wallet.";
+  String get please_make_selection => "Please make a selection below to create or recover your wallet.";
   String get please_select => "Please select:";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
   String get pre_seed_button_text => "I understand. Show me my seed";
@@ -1015,7 +1015,7 @@ class $de extends S {
   @override
   String get digit_pin => "-stelliger PIN";
   @override
-  String get first_wallet_text => "tolle Brieftasche zum Monero";
+  String get first_wallet_text => "tolle Brieftasche zum Monero und Bitcoin";
   @override
   String get settings_trades => "Handel";
   @override
@@ -1729,7 +1729,7 @@ class $hi extends S {
   @override
   String get digit_pin => "-अंक पिन";
   @override
-  String get first_wallet_text => "बहुत बढ़िया बटुआ के लिये Monero";
+  String get first_wallet_text => "Monero और Bitcoin के लिए बहुत बढ़िया बटुआ";
   @override
   String get settings_trades => "ट्रेडों";
   @override
@@ -2443,7 +2443,7 @@ class $ru extends S {
   @override
   String get digit_pin => "-значный PIN";
   @override
-  String get first_wallet_text => "В самом удобном кошельке для Monero";
+  String get first_wallet_text => "В самом удобном кошельке для Monero и Bitcoin";
   @override
   String get settings_trades => "Сделки";
   @override
@@ -3157,7 +3157,7 @@ class $ko extends S {
   @override
   String get digit_pin => "숫자 PIN";
   @override
-  String get first_wallet_text => "멋진 지갑 에 대한 Monero";
+  String get first_wallet_text => "Monero 및 Bitcoin을위한 멋진 지갑";
   @override
   String get settings_trades => "거래";
   @override
@@ -3871,7 +3871,7 @@ class $pt extends S {
   @override
   String get digit_pin => "dígitos";
   @override
-  String get first_wallet_text => "Uma fantástica carteira para Monero";
+  String get first_wallet_text => "Uma fantástica carteira para Monero e Bitcoin";
   @override
   String get settings_trades => "Trocas";
   @override
@@ -4585,7 +4585,7 @@ class $uk extends S {
   @override
   String get digit_pin => "-значний PIN";
   @override
-  String get first_wallet_text => "В самому зручному гаманці для Monero";
+  String get first_wallet_text => "В самому зручному гаманці для Monero та Bitcoin";
   @override
   String get settings_trades => "Операції";
   @override
@@ -5299,7 +5299,7 @@ class $ja extends S {
   @override
   String get digit_pin => "桁ピン";
   @override
-  String get first_wallet_text => "素晴らしい財布 ために Monero";
+  String get first_wallet_text => "Moneroとビットコインのための素晴らしい財布";
   @override
   String get settings_trades => "取引";
   @override
@@ -6017,7 +6017,7 @@ class $pl extends S {
   @override
   String get digit_pin => "-znak PIN";
   @override
-  String get first_wallet_text => "Niesamowity portfel dla Monero";
+  String get first_wallet_text => "Niesamowity portfel dla Monero i Bitcoin";
   @override
   String get settings_trades => "Transakcje";
   @override
@@ -6731,7 +6731,7 @@ class $es extends S {
   @override
   String get digit_pin => "-dígito PIN";
   @override
-  String get first_wallet_text => "Impresionante billetera para Monero";
+  String get first_wallet_text => "Impresionante billetera para Monero y Bitcoin";
   @override
   String get settings_trades => "Comercia";
   @override
@@ -7445,7 +7445,7 @@ class $nl extends S {
   @override
   String get digit_pin => "-cijferige PIN";
   @override
-  String get first_wallet_text => "Geweldige portemonnee fvoor Monero";
+  String get first_wallet_text => "Geweldige portemonnee voor Monero en Bitcoin";
   @override
   String get settings_trades => "Trades";
   @override
@@ -8159,7 +8159,7 @@ class $zh extends S {
   @override
   String get digit_pin => "数字别针";
   @override
-  String get first_wallet_text => "很棒的钱包 对于 Monero";
+  String get first_wallet_text => "很棒的Monero和比特幣錢包";
   @override
   String get settings_trades => "交易";
   @override

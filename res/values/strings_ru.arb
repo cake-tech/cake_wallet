@@ -1,7 +1,7 @@
 {
   "welcome" : "Приветствуем в",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "В самом удобном кошельке для Monero",
+  "first_wallet_text" : "В самом удобном кошельке для Monero и Bitcoin",
   "please_make_selection" : "Выберите способ создания кошелька: создать новый или восстановить ваш существующий.",
   "create_new" : "Создать новый кошелёк",
   "restore_wallet" : "Восстановить кошелёк",
