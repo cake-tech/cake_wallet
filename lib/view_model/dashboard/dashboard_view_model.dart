@@ -231,6 +231,8 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroTransactionsUpdate(wallet);
     } else {
+      subname = null;
+
       transactions.clear();
 
       transactions.addAll(wallet.transactionHistory.transactions.values.map(
