@@ -310,7 +310,7 @@ abstract class ExchangeViewModelBase with Store {
       }
 
       final amount = availableBalance - fee;
-      depositAmount = bitcoinAmountToString(amount: amount);
+      changeDepositAmount(amount: bitcoinAmountToString(amount: amount));
     }
   }
 
