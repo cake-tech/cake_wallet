@@ -167,21 +167,31 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
 
   Future<void> init() async {
-    if (addresses.isEmpty) {
-      final index = 0;
-      addresses
-          .add(BitcoinAddressRecord(_getAddress(index: index), index: index));
+    if (addresses.isEmpty || addresses.length < 33) {
+      final addressesCount = 33 - addresses.length;
+      await generateNewAddresses(addressesCount, startIndex: _accountIndex);
     }
 
-    address = addresses.first.address;
+    address = addresses[_accountIndex].address;
     transactionHistory.wallet = this;
     await transactionHistory.init();
   }
 
-  Future<BitcoinAddressRecord> generateNewAddress({String label}) async {
+  @action
+  void nextAddress() {
+    _accountIndex += 1;
+
+    if (_accountIndex >= addresses.length) {
+      _accountIndex = 0;
+    }
+
+    address = addresses[_accountIndex].address;
+  }
+
+  Future<BitcoinAddressRecord> generateNewAddress() async {
     _accountIndex += 1;
     final address = BitcoinAddressRecord(_getAddress(index: _accountIndex),
-        index: _accountIndex, label: label);
+        index: _accountIndex);
     addresses.add(address);
 
     await save();
@@ -189,13 +199,12 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     return address;
   }
 
-  Future<List<BitcoinAddressRecord>> generateNewAddresses(int count) async {
+  Future<List<BitcoinAddressRecord>> generateNewAddresses(int count,
+      {int startIndex = 0}) async {
     final list = <BitcoinAddressRecord>[];
 
-    for (var i = 0; i < count; i++) {
-      _accountIndex += 1;
-      final address = BitcoinAddressRecord(_getAddress(index: _accountIndex),
-          index: _accountIndex, label: null);
+    for (var i = startIndex; i < count + startIndex; i++) {
+      final address = BitcoinAddressRecord(_getAddress(index: i), index: i);
       list.add(address);
     }
 
@@ -205,10 +214,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     return list;
   }
 
-  Future<void> updateAddress(String address, {String label}) async {
+  Future<void> updateAddress(String address) async {
     for (final addr in addresses) {
       if (addr.address == address) {
-        addr.label = label;
         await save();
         break;
       }
@@ -368,7 +376,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   }
 
   @override
-  void close() async{
+  void close() async {
     await eclient.close();
   }
 
