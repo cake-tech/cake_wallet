@@ -35,6 +35,14 @@ abstract class SettingsViewModelBase with Store {
     currentVersion = '';
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
+
+    final _priority = _settingsStore.transactionPriority;
+
+    if (!TransactionPriority.forWalletType(_walletType).contains(_priority)) {
+      _settingsStore.transactionPriority =
+          TransactionPriority.forWalletType(_walletType).first;
+    }
+
     sections = [
       [
         if ((wallet.balance.availableModes as List).length > 1)
@@ -47,7 +55,6 @@ abstract class SettingsViewModelBase with Store {
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
-            isAlwaysShowScrollThumb: true,
             selectedItem: () => fiatCurrency,
             onItemSelected: (FiatCurrency currency) =>
                 setFiatCurrency(currency)),
@@ -55,7 +62,6 @@ abstract class SettingsViewModelBase with Store {
             title: S.current.settings_fee_priority,
             items: TransactionPriority.forWalletType(wallet.type),
             selectedItem: () => transactionPriority,
-            isAlwaysShowScrollThumb: true,
             onItemSelected: (TransactionPriority priority) =>
                 _settingsStore.transactionPriority = priority),
         SwitcherListItem(

@@ -40,6 +40,13 @@ abstract class SendViewModelBase with Store {
         _cryptoNumberFormat = NumberFormat(),
         note = '',
         sendAll = false {
+    final _priority = _settingsStore.transactionPriority;
+
+    if (!TransactionPriority.forWalletType(walletType).contains(_priority)) {
+      _settingsStore.transactionPriority =
+          TransactionPriority.forWalletType(walletType).first;
+    }
+
     _setCryptoNumMaximumFractionDigits();
   }
 
