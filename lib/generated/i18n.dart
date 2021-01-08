@@ -351,7 +351,7 @@ class S implements WidgetsLocalizations {
   String error_text_maximum_limit(String provider, String max, String currency) => "Trade for ${provider} is not created. Amount is more then maximum: ${max} ${currency}";
   String error_text_minimal_limit(String provider, String min, String currency) => "Trade for ${provider} is not created. Amount is less then minimal: ${min} ${currency}";
   String exchange_result_confirm(String fetchingLabel, String from, String walletName) => "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown below. Or you can send from your external wallet to the below address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.";
-  String exchange_result_description(String fetchingLabel, String from) => "Please send ${fetchingLabel} ${from} to the address shown below.";
+  String exchange_result_description(String fetchingLabel, String from) => "Please send ${fetchingLabel} ${from} to the address shown on the next page.";
   String failed_authentication(String state_error) => "Failed authentication. ${state_error}";
   String max_value(String value, String currency) => "Max: ${value} ${currency}";
   String min_value(String value, String currency) => "Min: ${value} ${currency}";
@@ -1073,7 +1073,7 @@ class $de extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "Handel für ${provider} wird nicht erstellt. Das Laden der Limits ist fehlgeschlagen";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Bitte senden ${fetchingLabel} ${from} an die unten angegebene Adresse.'";
+  String exchange_result_description(String fetchingLabel, String from) => "Bitte senden ${fetchingLabel} ${from} an die auf der nächsten Seite angegebene Adresse.'";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Transaktion festschreiben\nMenge: ${amount}\nGebühr: ${fee}";
   @override
@@ -1787,7 +1787,7 @@ class $hi extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "व्यापार ${provider} के लिए नहीं बनाया गया है। लोडिंग की सीमाएं विफल रहीं";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "कृपया भेजें ${fetchingLabel} ${from} नीचे दिखाए गए पते पर";
+  String exchange_result_description(String fetchingLabel, String from) => "कृपया भेजें ${fetchingLabel} ${from} अगले पृष्ठ पर दिखाए गए पते पर";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "लेन-देन करें\nरकम: ${amount}\nशुल्क: ${fee}";
   @override
@@ -2501,7 +2501,7 @@ class $ru extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "Сделка для ${provider} не создана. Ошибка загрузки лимитов";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный ниже.";
+  String exchange_result_description(String fetchingLabel, String from) => "Пожалуйста отправьте ${fetchingLabel} ${from} на адрес, указанный на следующей странице.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Подтвердить транзакцию \nСумма: ${amount}\nКомиссия: ${fee}";
   @override
@@ -3215,7 +3215,7 @@ class $ko extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "거래 ${provider} 가 생성되지 않습니다. 로딩 실패";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "보내주세요 ${fetchingLabel} ${from} 아래 주소로.";
+  String exchange_result_description(String fetchingLabel, String from) => "보내주세요 ${fetchingLabel} ${from} 다음 페이지에 표시된 주소로.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "커밋 거래\n양: ${amount}\n보수: ${fee}";
   @override
@@ -3929,7 +3929,7 @@ class $pt extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "A troca por ${provider} não é criada. Falha no carregamento dos limites";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado abaixo.";
+  String exchange_result_description(String fetchingLabel, String from) => "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado na próxima página.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transação\nQuantia: ${amount}\nTaxa: ${fee}";
   @override
@@ -4643,7 +4643,7 @@ class $uk extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "Операція для ${provider} не створена. Помилка завантаження лімітів";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану нижче.";
+  String exchange_result_description(String fetchingLabel, String from) => "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану на наступній сторінці.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Підтвердити транзакцію \nСума: ${amount}\nКомісія: ${fee}";
   @override
@@ -5357,7 +5357,7 @@ class $ja extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "${provider} の取引は作成されません。 制限の読み込みに失敗しました";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "送信してください ${fetchingLabel} ${from} 下記の住所へ.";
+  String exchange_result_description(String fetchingLabel, String from) => "送信してください ${fetchingLabel} ${from} 次のページに表示されているアドレスに.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "トランザクションをコミット\n量: ${amount}\n費用: ${fee}";
   @override
@@ -6075,7 +6075,7 @@ class $pl extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "Wymiana dla ${provider} nie została utworzona. Ładowanie limitów nie powiodło się";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Proszę wyślij ${fetchingLabel} ${from} na adres podany poniżej.";
+  String exchange_result_description(String fetchingLabel, String from) => "Proszę wyślij ${fetchingLabel} ${from} pod adres podany na następnej stronie.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Zatwierdź transakcję\nIlość: ${amount}\nOpłata: ${fee}";
   @override
@@ -6789,7 +6789,7 @@ class $es extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "El comercio por ${provider} no se crea. Límites de carga fallidos";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Envíe ${fetchingLabel} ${from} a la dirección que se muestra a continuación.";
+  String exchange_result_description(String fetchingLabel, String from) => "Envíe ${fetchingLabel} ${from} a la dirección que se muestra en la página siguiente.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Confirmar transacción\nCantidad: ${amount}\nCuota: ${fee}";
   @override
@@ -7503,7 +7503,7 @@ class $nl extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "Ruil voor ${provider} is niet gemaakt. Beperkingen laden mislukt";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "Zend alstublieft ${fetchingLabel} ${from} naar het onderstaande adres.";
+  String exchange_result_description(String fetchingLabel, String from) => "Zend alstublieft ${fetchingLabel} ${from} naar het adres op de volgende pagina.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "Verricht transactie\nBedrag: ${amount}\nhonorarium: ${fee}";
   @override
@@ -8217,7 +8217,7 @@ class $zh extends S {
   @override
   String error_text_limits_loading_failed(String provider) => "未創建 ${provider} 交易。 限制加載失敗";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到下面顯示的地址.";
+  String exchange_result_description(String fetchingLabel, String from) => "请发送 ${fetchingLabel} ${from} 到下一頁顯示的地址.";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => "提交交易\n量: ${amount}\nFee: ${fee}";
   @override

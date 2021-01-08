@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "This trade is powered by ${provider}",
   "copy_address" : "Copy Address",
   "exchange_result_confirm" : "By pressing confirm, you will be sending ${fetchingLabel} ${from} from your wallet called ${walletName} to the address shown below. Or you can send from your external wallet to the below address/QR code.\n\nPlease press confirm to continue or go back to change the amounts.",
-  "exchange_result_description" : "Please send ${fetchingLabel} ${from} to the address shown below.",
+  "exchange_result_description" : "Please send ${fetchingLabel} ${from} to the address shown on the next page.",
   "exchange_result_write_down_ID" : "*Please copy or write down your ID shown above.",
   "confirm" : "Confirm",
   "confirm_sending" : "Confirm sending",
