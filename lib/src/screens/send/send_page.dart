@@ -741,6 +741,7 @@ class SendPage extends BasePage {
   Future<void> _setTransactionPriority(BuildContext context) async {
     final items = TransactionPriority.forWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
+    final isShowScrollThumb = items.length > 3;
 
     await showPopUp<void>(
         builder: (_) => Picker(
@@ -750,7 +751,6 @@ class SendPage extends BasePage {
               mainAxisAlignment: MainAxisAlignment.center,
               onItemSelected: (TransactionPriority priority) =>
                   sendViewModel.setTransactionPriority(priority),
-              isAlwaysShowScrollThumb: true,
             ),
         context: context);
   }

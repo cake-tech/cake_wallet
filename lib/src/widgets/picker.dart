@@ -15,7 +15,6 @@ class Picker<Item extends Object> extends StatefulWidget {
     this.description,
     @required this.onItemSelected,
     this.mainAxisAlignment = MainAxisAlignment.start,
-    this.isAlwaysShowScrollThumb = false
   });
 
   final int selectedAtIndex;
@@ -25,7 +24,6 @@ class Picker<Item extends Object> extends StatefulWidget {
   final String description;
   final Function(Item) onItemSelected;
   final MainAxisAlignment mainAxisAlignment;
-  final bool isAlwaysShowScrollThumb;
 
   @override
   PickerState createState() => PickerState<Item>(items, images, onItemSelected);
@@ -55,6 +53,8 @@ class PickerState<Item> extends State<Picker> {
           : 0;
       setState(() {});
     });
+
+    final isShowScrollThumb = items != null ? items.length > 3 : false;
 
     return AlertBackground(
         child: Stack(
@@ -168,13 +168,13 @@ class PickerState<Item> extends State<Picker> {
                                 )
                               )
                               : Offstage(),
-                              widget.isAlwaysShowScrollThumb
-                                  ? CakeScrollbar(
+                              isShowScrollThumb
+                              ? CakeScrollbar(
                                   backgroundHeight: backgroundHeight,
                                   thumbHeight: thumbHeight,
                                   fromTop: fromTop
                               )
-                                  : Offstage(),
+                              : Offstage(),
                             ],
                           )
                       ),
