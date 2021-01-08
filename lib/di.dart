@@ -330,7 +330,8 @@ Future setup(
       (ContactRecord contact, _) =>
           ContactViewModel(contactSource, contact: contact));
 
-  getIt.registerFactory(() => ContactListViewModel(contactSource));
+  getIt.registerFactory(
+      () => ContactListViewModel(contactSource, walletInfoSource));
 
   getIt.registerFactoryParam<ContactListPage, bool, void>(
       (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
@@ -419,17 +420,17 @@ Future setup(
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) =>
       WalletRestorePage(getIt.get<WalletRestoreViewModel>(param1: type)));
 
-  getIt.registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>
-    ((TransactionInfo transactionInfo, _) => TransactionDetailsViewModel(
-    transactionInfo: transactionInfo,
-    transactionDescriptionBox: transactionDescriptionBox,
-    settingsStore: getIt.get<SettingsStore>()
-  ));
+  getIt
+      .registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
+          (TransactionInfo transactionInfo, _) => TransactionDetailsViewModel(
+              transactionInfo: transactionInfo,
+              transactionDescriptionBox: transactionDescriptionBox,
+              settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
-          transactionDetailsViewModel: getIt
-              .get<TransactionDetailsViewModel>(param1: transactionInfo)));
+          transactionDetailsViewModel:
+              getIt.get<TransactionDetailsViewModel>(param1: transactionInfo)));
 
   getIt.registerFactoryParam<NewWalletTypePage,
           void Function(BuildContext, WalletType), bool>(

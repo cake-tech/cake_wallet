@@ -30,6 +30,14 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await getIt.get<SharedPreferences>().setInt(
           PreferencesKey.currentWalletType, serializeToInt(wallet.type));
       await wallet.connectToNode(node: node);
+
+      if (wallet.walletInfo.address?.isEmpty ?? true) {
+        wallet.walletInfo.address = wallet.address;
+
+        if (wallet.walletInfo.isInBox) {
+          await wallet.walletInfo.save();
+        }
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -39,8 +47,9 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       reaction((_) => appStore.wallet, (WalletBase wallet) async {
     try {
       fiatConversionStore.prices[wallet.currency] = 0;
-      fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          wallet.currency, settingsStore.fiatCurrency);
+      fiatConversionStore.prices[wallet.currency] =
+          await FiatConversionService.fetchPrice(
+              wallet.currency, settingsStore.fiatCurrency);
     } catch (e) {
       print(e.toString());
     }

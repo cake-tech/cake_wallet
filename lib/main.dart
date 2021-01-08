@@ -69,7 +69,7 @@ void main() async {
         templates: templates,
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
-        initialMigrationVersion: 4);
+        initialMigrationVersion: 5);
     runApp(App());
   } catch (e) {
     runApp(MaterialApp(

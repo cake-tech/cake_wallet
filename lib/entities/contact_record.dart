@@ -3,21 +3,27 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/record.dart';
+import 'package:cake_wallet/entities/contact_base.dart';
 
 part 'contact_record.g.dart';
 
 class ContactRecord = ContactRecordBase with _$ContactRecord;
 
-abstract class ContactRecordBase extends Record<Contact> with Store {
+abstract class ContactRecordBase extends Record<Contact>
+    with Store
+    implements ContactBase {
   ContactRecordBase(Box<Contact> source, Contact original)
       : super(source, original);
 
+  @override
   @observable
   String name;
 
+  @override
   @observable
   String address;
 
+  @override
   @observable
   CryptoCurrency type;
 
