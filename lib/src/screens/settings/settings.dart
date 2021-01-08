@@ -43,7 +43,6 @@ class SettingsPage extends BasePage {
               return SettingsPickerCell<dynamic>(
                 title: item.title,
                 selectedItem: item.selectedItem(),
-                isAlwaysShowScrollThumb: item.isAlwaysShowScrollThumb,
                 items: item.items,
                 onItemSelected: (dynamic value) => item.onItemSelected(value),
               );

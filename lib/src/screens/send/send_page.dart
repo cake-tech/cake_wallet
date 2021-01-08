@@ -751,7 +751,6 @@ class SendPage extends BasePage {
               mainAxisAlignment: MainAxisAlignment.center,
               onItemSelected: (TransactionPriority priority) =>
                   sendViewModel.setTransactionPriority(priority),
-              isAlwaysShowScrollThumb: isShowScrollThumb,
             ),
         context: context);
   }
