@@ -212,7 +212,7 @@
   "send_name" : "Naam",
   "send_got_it" : "Ik snap het",
   "send_sending" : "Bezig met verzenden...",
-  "send_success" : "Uw Monero is succesvol verzonden",
+  "send_success" : "Uw ${crypto} is succesvol verzonden",
 
 
   "settings_title" : "Instellingen",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "Datum",
   "transaction_details_height" : "Hoogte",
   "transaction_details_amount" : "Bedrag",
+  "transaction_details_fee" : "Vergoeding",
   "transaction_details_copied" : "${title} gekopieerd naar het klembord",
   "transaction_details_recipient_address" : "Adres van de ontvanger",
 
@@ -415,7 +416,7 @@
   "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd",
 
   "pre_seed_title" : "BELANGRIJK",
-  "pre_seed_description" : "Op de volgende pagina ziet u een reeks van 25 woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.",
+  "pre_seed_description" : "Op de volgende pagina ziet u een reeks van ${words} woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.",
   "pre_seed_button_text" : "Ik begrijp het. Laat me mijn zaad zien",
 
   "xmr_to_error" : "XMR.TO-fout",
@@ -428,5 +429,11 @@
   "color_theme" : "Kleur thema",
   "light_theme" : "Licht",
   "bright_theme" : "Helder",
-  "dark_theme" : "Donker"
+  "dark_theme" : "Donker",
+  "enter_your_note" : "Voer uw notitie in ...",
+  "note_optional" : "Opmerking (optioneel)",
+  "note_tap_to_change" : "Opmerking (tik om te wijzigen)",
+  "transaction_key" : "Transactiesleutel",
+  "confirmations" : "Bevestigingen",
+  "recipient_address" : "Adres ontvanger"
 }

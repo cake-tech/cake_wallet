@@ -1,5 +1,9 @@
+import 'package:cake_wallet/bitcoin/bitcoin_balance.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
@@ -18,8 +22,30 @@ abstract class BalanceViewModelBase with Store {
   BalanceViewModelBase(
       {@required this.appStore,
       @required this.settingsStore,
-      @required this.fiatConvertationStore})
-      : isReversing = false;
+      @required this.fiatConvertationStore}) {
+    isReversing = false;
+
+    wallet ??= appStore.wallet;
+
+    _reaction = reaction((_) => appStore.wallet, _onWalletChange);
+
+    final _wallet = wallet;
+
+    if (_wallet is MoneroWallet) {
+      balance = _wallet.balance;
+    }
+
+    if (_wallet is BitcoinWallet) {
+      balance = _wallet.balance;
+    }
+
+    _onCurrentWalletChangeReaction =
+        reaction<void>((_) => wallet.balance, (dynamic balance) {
+      if (balance is Balance) {
+        this.balance = balance;
+      }
+    });
+  }
 
   final AppStore appStore;
   final SettingsStore settingsStore;
@@ -30,6 +56,12 @@ abstract class BalanceViewModelBase with Store {
 
   @observable
   bool isReversing;
+
+  @observable
+  Balance balance;
+
+  @observable
+  WalletBase wallet;
 
   @computed
   double get price => fiatConvertationStore.prices[appStore.wallet.currency];
@@ -47,24 +79,24 @@ abstract class BalanceViewModelBase with Store {
   @computed
   String get cryptoBalance {
     final walletBalance = _walletBalance;
-    var balance = '---';
+    var _balance = '---';
 
     if (displayMode == BalanceDisplayMode.availableBalance) {
-      balance = walletBalance.unlockedBalance ?? '0.0';
+      _balance = walletBalance.unlockedBalance ?? '0.0';
     }
 
     if (displayMode == BalanceDisplayMode.fullBalance) {
-      balance = walletBalance.totalBalance ?? '0.0';
+      _balance = walletBalance.totalBalance ?? '0.0';
     }
 
-    return balance;
+    return _balance;
   }
 
   @computed
   String get fiatBalance {
     final walletBalance = _walletBalance;
     final fiatCurrency = settingsStore.fiatCurrency;
-    var balance = '---';
+    var _balance = '---';
 
     final totalBalance =
         _getFiatBalance(price: price, cryptoAmount: walletBalance.totalBalance);
@@ -73,30 +105,30 @@ abstract class BalanceViewModelBase with Store {
         price: price, cryptoAmount: walletBalance.unlockedBalance);
 
     if (displayMode == BalanceDisplayMode.availableBalance) {
-      balance = fiatCurrency.toString() + ' ' + unlockedBalance ?? '0.00';
+      _balance = fiatCurrency.toString() + ' ' + unlockedBalance ?? '0.00';
     }
 
     if (displayMode == BalanceDisplayMode.fullBalance) {
-      balance = fiatCurrency.toString() + ' ' + totalBalance ?? '0.00';
+      _balance = fiatCurrency.toString() + ' ' + totalBalance ?? '0.00';
     }
 
-    return balance;
+    return _balance;
   }
 
   @computed
   WalletBalance get _walletBalance {
-    final _wallet = appStore.wallet;
+    final _balance = balance;
 
-    if (_wallet is MoneroWallet) {
+    if (_balance is MoneroBalance) {
       return WalletBalance(
-          unlockedBalance: _wallet.balance.formattedUnlockedBalance,
-          totalBalance: _wallet.balance.formattedFullBalance);
+          unlockedBalance: _balance.formattedUnlockedBalance,
+          totalBalance: _balance.formattedFullBalance);
     }
 
-    if (_wallet is BitcoinWallet) {
+    if (_balance is BitcoinBalance) {
       return WalletBalance(
-          unlockedBalance: _wallet.balance.availableBalanceFormatted,
-          totalBalance: _wallet.balance.totalFormatted);
+          unlockedBalance: _balance.availableBalanceFormatted,
+          totalBalance: _balance.totalFormatted);
     }
 
     return null;
@@ -104,6 +136,30 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   CryptoCurrency get currency => appStore.wallet.currency;
+
+  ReactionDisposer _onCurrentWalletChangeReaction;
+  ReactionDisposer _reaction;
+
+  @action
+  void _onWalletChange(WalletBase wallet) {
+    this.wallet = wallet;
+
+    if (wallet is MoneroWallet) {
+      balance = wallet.balance;
+    }
+
+    if (wallet is BitcoinWallet) {
+      balance = wallet.balance;
+    }
+
+    _onCurrentWalletChangeReaction?.reaction?.dispose();
+    _onCurrentWalletChangeReaction =
+        reaction<void>((_) => wallet.balance, (dynamic balance) {
+      if (balance is Balance) {
+        this.balance = balance;
+      }
+    });
+  }
 
   String _getFiatBalance({double price, String cryptoAmount}) {
     if (cryptoAmount == null) {
