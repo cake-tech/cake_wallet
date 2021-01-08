@@ -51,7 +51,7 @@ class BaseTextFormField extends StatelessWidget {
   final FocusNode focusNode;
   final bool readOnly;
   final bool enableInteractiveSelection;
-  String initialValue;
+  final String initialValue;
 
   @override
   Widget build(BuildContext context) {

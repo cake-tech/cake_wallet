@@ -62,10 +62,11 @@ class ExchangePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
-      caption: S.of(context).reset, onPressed: () {
+      caption: S.of(context).reset,
+      onPressed: () {
         _formKey.currentState.reset();
         exchangeViewModel.reset();
-  });
+      });
 
   @override
   Widget body(BuildContext context) {
@@ -95,8 +96,8 @@ class ExchangePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
+            keyboardBarColor:
+                Theme.of(context).accentTextTheme.body2.backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -160,6 +161,11 @@ class ExchangePage extends BasePage {
                             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                             child: Observer(
                               builder: (_) => ExchangeCard(
+                                hasAllAmount: exchangeViewModel.hasAllAmount,
+                                allAmount: exchangeViewModel.hasAllAmount
+                                    ? () => exchangeViewModel
+                                        .calculateDepositAllAmount()
+                                    : null,
                                 amountFocusNode: _depositAmountFocus,
                                 key: depositKey,
                                 title: S.of(context).you_will_send,
@@ -394,30 +400,35 @@ class ExchangePage extends BasePage {
                     }),
                   ),
                   Observer(
-                    builder: (_) => LoadingPrimaryButton(
-                      text: S.of(context).exchange,
-                      onPressed: () {
-                        if (_formKey.currentState.validate()) {
-                          if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr)
-                          &&(!(exchangeViewModel.status is SyncedSyncStatus))) {
-                            showPopUp<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertWithOneAction(
-                                  alertTitle: S.of(context).exchange,
-                                  alertContent: S.of(context).exchange_sync_alert_content,
-                                  buttonText: S.of(context).ok,
-                                  buttonAction: () => Navigator.of(context).pop());
-                              });
-                          } else {
-                            exchangeViewModel.createTrade();
-                          }
-                        }
-                      },
-                      color: Theme.of(context).accentTextTheme.body2.color,
-                      textColor: Colors.white,
-                      isLoading: exchangeViewModel.tradeState
-                                 is TradeIsCreating)),
+                      builder: (_) => LoadingPrimaryButton(
+                          text: S.of(context).exchange,
+                          onPressed: () {
+                            if (_formKey.currentState.validate()) {
+                              if ((exchangeViewModel.depositCurrency ==
+                                      CryptoCurrency.xmr) &&
+                                  (!(exchangeViewModel.status
+                                      is SyncedSyncStatus))) {
+                                showPopUp<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertWithOneAction(
+                                          alertTitle: S.of(context).exchange,
+                                          alertContent: S
+                                              .of(context)
+                                              .exchange_sync_alert_content,
+                                          buttonText: S.of(context).ok,
+                                          buttonAction: () =>
+                                              Navigator.of(context).pop());
+                                    });
+                              } else {
+                                exchangeViewModel.createTrade();
+                              }
+                            }
+                          },
+                          color: Theme.of(context).accentTextTheme.body2.color,
+                          textColor: Colors.white,
+                          isLoading:
+                              exchangeViewModel.tradeState is TradeIsCreating)),
                 ]),
               )),
         ));

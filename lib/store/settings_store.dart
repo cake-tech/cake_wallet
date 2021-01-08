@@ -85,6 +85,11 @@ abstract class SettingsStoreBase with Store {
         (String languageCode) => sharedPreferences.setString(
             PreferencesKey.currentLanguageCode, languageCode));
 
+    reaction((_) => balanceDisplayMode,
+            (BalanceDisplayMode mode) => sharedPreferences.setInt(
+            PreferencesKey.currentBalanceDisplayModeKey,
+            mode.serialize()));
+
     this
         .nodes
         .observe((change) => _saveCurrentNode(change.newValue, change.key));
@@ -153,7 +158,7 @@ abstract class SettingsStoreBase with Store {
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
     final legacyTheme =
-        sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy)
+      (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
             : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
