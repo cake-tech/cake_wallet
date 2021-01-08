@@ -1,7 +1,7 @@
 {
   "welcome" : "Вітаємо в",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "В самому зручному гаманці для Monero",
+  "first_wallet_text" : "В самому зручному гаманці для Monero та Bitcoin",
   "please_make_selection" : "Оберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.",
   "create_new" : "Створити новий гаманець",
   "restore_wallet" : "Відновити гаманець",
