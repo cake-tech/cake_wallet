@@ -1,4 +1,8 @@
-import 'dart:io' show Platform;
+import 'dart:io' show File, Platform;
+import 'package:cake_wallet/core/key_service.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/pathForWallet.dart';
+import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,6 +77,9 @@ Future defaultSettingsMigration(
               sharedPreferences: sharedPreferences, nodes: nodes);
           break;
 
+        case 5:
+          await addAddressesForMoneroWallets(walletInfoSource);
+          break;
         default:
           break;
       }
@@ -188,4 +195,28 @@ Future<void> updateNodeTypes({@required Box<Node> nodes}) async {
 Future<void> addBitcoinElectrumServerList({@required Box<Node> nodes}) async {
   final serverList = await loadElectrumServerList();
   await nodes.addAll(serverList);
+}
+
+Future<void> addAddressesForMoneroWallets(
+    Box<WalletInfo> walletInfoSource) async {
+  final moneroWalletsInfo =
+      walletInfoSource.values.where((info) => info.type == WalletType.monero);
+  moneroWalletsInfo.forEach((info) async {
+    try {
+      final walletPath =
+          await pathForWallet(name: info.name, type: WalletType.monero);
+      final addressFilePath = '$walletPath.address.txt';
+      final addressFile = File(addressFilePath);
+
+      if (!addressFile.existsSync()) {
+        return;
+      }
+
+      final addressText = await addressFile.readAsString();
+      info.address = addressText;
+      await info.save();
+    } catch (e) {
+      print(e.toString());
+    }
+  });
 }
