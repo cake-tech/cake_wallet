@@ -55,7 +55,6 @@ abstract class SettingsViewModelBase with Store {
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
-            isAlwaysShowScrollThumb: true,
             selectedItem: () => fiatCurrency,
             onItemSelected: (FiatCurrency currency) =>
                 setFiatCurrency(currency)),
@@ -63,8 +62,6 @@ abstract class SettingsViewModelBase with Store {
             title: S.current.settings_fee_priority,
             items: TransactionPriority.forWalletType(wallet.type),
             selectedItem: () => transactionPriority,
-            isAlwaysShowScrollThumb:
-                   TransactionPriority.forWalletType(wallet.type).length > 3,
             onItemSelected: (TransactionPriority priority) =>
                 _settingsStore.transactionPriority = priority),
         SwitcherListItem(
