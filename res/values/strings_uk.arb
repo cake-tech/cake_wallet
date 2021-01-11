@@ -435,5 +435,7 @@
   "note_tap_to_change" : "Примітка (натисніть для зміни)",
   "transaction_key" : "Ключ транзакції",
   "confirmations" : "Підтвердження",
-  "recipient_address" : "Адреса одержувача"
+  "recipient_address" : "Адреса одержувача",
+
+  "extra_id" : "Додатковий ID:"
 }

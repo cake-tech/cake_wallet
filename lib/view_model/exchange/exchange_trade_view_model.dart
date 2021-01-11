@@ -96,9 +96,15 @@ abstract class ExchangeTradeViewModelBase with Store {
   void _updateItems() {
     items?.clear();
 
+    items.add(ExchangeTradeItem(
+        title: S.current.id, data: '${trade.id}', isCopied: true));
+
+    if (trade.extraId != null) {
+      items.add(ExchangeTradeItem(
+          title: S.current.extra_id, data: '${trade.extraId}', isCopied: false));
+    }
+
     items.addAll([
-      ExchangeTradeItem(
-          title: S.current.id, data: '${trade.id}', isCopied: true),
       ExchangeTradeItem(
           title: S.current.amount, data: '${trade.amount}', isCopied: false),
       ExchangeTradeItem(

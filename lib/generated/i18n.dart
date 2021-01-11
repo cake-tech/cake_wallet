@@ -103,6 +103,7 @@ class S implements WidgetsLocalizations {
   String get exchange_result_write_down_trade_id => "Please copy or write down the trade ID to continue.";
   String get exchange_sync_alert_content => "Please wait until your wallet is synchronized";
   String get expired => "Expired";
+  String get extra_id => "Extra ID:";
   String get faq => "FAQ";
   String get fetching => "Fetching";
   String get filters => "Filter";
@@ -650,6 +651,8 @@ class $de extends S {
   String get send_amount => "Menge:";
   @override
   String get expired => "Abgelaufen";
+  @override
+  String get extra_id => "Zusätzliche ID:";
   @override
   String get transaction_priority_regular => "Regulär";
   @override
@@ -1365,6 +1368,8 @@ class $hi extends S {
   @override
   String get expired => "समय सीमा समाप्त";
   @override
+  String get extra_id => "अतिरिक्त आईडी:";
+  @override
   String get transaction_priority_regular => "नियमित";
   @override
   String get trade_details_created_at => "पर बनाया गया";
@@ -2078,6 +2083,8 @@ class $ru extends S {
   String get send_amount => "Сумма:";
   @override
   String get expired => "Истекает";
+  @override
+  String get extra_id => "Дополнительный ID:";
   @override
   String get transaction_priority_regular => "Обычный";
   @override
@@ -2793,6 +2800,8 @@ class $ko extends S {
   @override
   String get expired => "만료";
   @override
+  String get extra_id => "추가 ID:";
+  @override
   String get transaction_priority_regular => "정규병";
   @override
   String get trade_details_created_at => "에 작성";
@@ -3506,6 +3515,8 @@ class $pt extends S {
   String get send_amount => "Montante:";
   @override
   String get expired => "Expirada";
+  @override
+  String get extra_id => "ID extra:";
   @override
   String get transaction_priority_regular => "Regular";
   @override
@@ -4221,6 +4232,8 @@ class $uk extends S {
   @override
   String get expired => "Закінчується";
   @override
+  String get extra_id => "Додатковий ID:";
+  @override
   String get transaction_priority_regular => "Звичайний";
   @override
   String get trade_details_created_at => "Створено";
@@ -4934,6 +4947,8 @@ class $ja extends S {
   String get send_amount => "量：";
   @override
   String get expired => "期限切れ";
+  @override
+  String get extra_id => "追加ID:";
   @override
   String get transaction_priority_regular => "レギュラー";
   @override
@@ -5653,6 +5668,8 @@ class $pl extends S {
   @override
   String get expired => "Przedawniony";
   @override
+  String get extra_id => "Dodatkowy ID:";
+  @override
   String get transaction_priority_regular => "Regularny";
   @override
   String get trade_details_created_at => "Utworzono w";
@@ -6366,6 +6383,8 @@ class $es extends S {
   String get send_amount => "Cantidad:";
   @override
   String get expired => "Muerto";
+  @override
+  String get extra_id => "ID adicional:";
   @override
   String get transaction_priority_regular => "Regular";
   @override
@@ -7081,6 +7100,8 @@ class $nl extends S {
   @override
   String get expired => "Verlopen";
   @override
+  String get extra_id => "Extra ID:";
+  @override
   String get transaction_priority_regular => "Regelmatig";
   @override
   String get trade_details_created_at => "Gemaakt bij";
@@ -7794,6 +7815,8 @@ class $zh extends S {
   String get send_amount => "量:";
   @override
   String get expired => "已过期";
+  @override
+  String get extra_id => "額外編號:";
   @override
   String get transaction_priority_regular => "定期";
   @override

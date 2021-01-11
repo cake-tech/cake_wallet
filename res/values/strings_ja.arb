@@ -435,5 +435,7 @@
   "note_tap_to_change" : "注（タップして変更）",
   "transaction_key" : "トランザクションキー",
   "confirmations" : "確認",
-  "recipient_address" : "受信者のアドレス"
+  "recipient_address" : "受信者のアドレス",
+
+  "extra_id" : "追加ID:"
 }
