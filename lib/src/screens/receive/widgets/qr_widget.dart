@@ -54,7 +54,7 @@ class QRWidget extends StatelessWidget {
         ]),
         isAmountFieldShow
             ? Padding(
-                padding: EdgeInsets.only(top: 60),
+                padding: EdgeInsets.only(top: 40),
                 child: Row(
                   children: <Widget>[
                     Expanded(

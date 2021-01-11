@@ -19,6 +19,9 @@ class AddressPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return KeyboardActions(
+        autoScroll: false,
+        disableScroll: true,
+        tapOutsideToDismiss: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor:

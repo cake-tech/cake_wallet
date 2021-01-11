@@ -47,7 +47,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
                 network: bitcoin.bitcoin)
             .derivePath("m/0'/0"),
         addresses = initialAddresses != null
-            ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
+            ? ObservableList<BitcoinAddressRecord>.of(initialAddresses.toSet())
             : ObservableList<BitcoinAddressRecord>(),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
@@ -267,14 +267,14 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     final fee = feeAmountForPriority(transactionCredentials.priority);
     final amount = transactionCredentials.amount != null
         ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
-        : balance.availableBalance - fee;
+        : balance.confirmed - fee;
     final totalAmount = amount + fee;
     final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
     final changeAddress = address;
     var leftAmount = totalAmount;
     var totalInputAmount = 0;
 
-    if (totalAmount > balance.availableBalance) {
+    if (totalAmount > balance.confirmed) {
       throw BitcoinTransactionWrongBalanceException();
     }
 

@@ -374,6 +374,10 @@ class S implements WidgetsLocalizations {
   String wallet_list_failed_to_remove(String wallet_name, String error) => "Failed to remove ${wallet_name} wallet. ${error}";
   String wallet_list_loading_wallet(String wallet_name) => "Loading ${wallet_name} wallet";
   String wallet_list_removing_wallet(String wallet_name) => "Removing ${wallet_name} wallet";
+  String get exchange_incorrect_current_wallet_for_xmr => "If you want to exchange XMR from your Cake Wallet Monero balance, please switch to your Monero wallet first.";
+  String get confirmed => 'Confirmed';
+  String get unconfirmed => 'Unconfirmed';
+  String get displayable => 'Displayable';
 }
 
 class $de extends S {
@@ -1088,6 +1092,14 @@ class $de extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden fehlgeschlagen ${wallet_name} Wallet. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Entfernen ${wallet_name} Wallet";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Wenn Sie XMR von Ihrem Cake Wallet Monero-Guthaben austauschen möchten, wechseln Sie bitte zuerst zu Ihrem Monero Wallet.";
+  @override
+  String get confirmed => 'Bestätigt';
+  @override
+  String get unconfirmed => 'Unbestätigt';
+  @override
+  String get displayable => 'Anzeigebar';
 }
 
 class $hi extends S {
@@ -1802,6 +1814,14 @@ class $hi extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "लोड करने में विफल ${wallet_name} बटुआ. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "निकाला जा रहा है ${wallet_name} बटुआ";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "यदि आप अपने केक वॉलेट मोनेरो बैलेंस से एक्सएमआर का आदान-प्रदान करना चाहते हैं, तो कृपया अपने मोनेरो वॉलेट में जाएं।";
+  @override
+  String get confirmed => 'की पुष्टि की';
+  @override
+  String get unconfirmed => 'अपुष्ट';
+  @override
+  String get displayable => 'प्रदर्शन योग्य';
 }
 
 class $ru extends S {
@@ -2516,6 +2536,14 @@ class $ru extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Ошибка при загрузке ${wallet_name} кошелька. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Удаление ${wallet_name} кошелька";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Если вы хотите обменять XMR со своего баланса Monero в Cake Wallet, сначала переключитесь на свой кошелек Monero.";
+  @override
+  String get confirmed => 'Подтверждено';
+  @override
+  String get unconfirmed => 'Неподтвержденный';
+  @override
+  String get displayable => 'Отображаемый';
 }
 
 class $ko extends S {
@@ -3230,6 +3258,14 @@ class $ko extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "불러 오지 못했습니다 ${wallet_name} 지갑. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "풀이 ${wallet_name} 지갑";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Cake Wallet Monero 잔액에서 XMR을 교환하려면 먼저 Monero 지갑으로 전환하십시오.";
+  @override
+  String get confirmed => '확인';
+  @override
+  String get unconfirmed => '미확인';
+  @override
+  String get displayable => '표시 가능';
 }
 
 class $pt extends S {
@@ -3944,6 +3980,14 @@ class $pt extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Falha ao abrir a carteira ${wallet_name}. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Removendo a carteira ${wallet_name}";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Se você deseja trocar o XMR de seu saldo da Carteira Monero Cake, troque primeiro para sua carteira Monero.";
+  @override
+  String get confirmed => 'Confirmada';
+  @override
+  String get unconfirmed => 'Não confirmado';
+  @override
+  String get displayable => 'Exibível';
 }
 
 class $uk extends S {
@@ -4658,6 +4702,14 @@ class $uk extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Помилка при завантаженні ${wallet_name} гаманця. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Видалення ${wallet_name} гаманця";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Якщо ви хочете обміняти XMR із вашого балансу Cake Wallet Monero, спочатку перейдіть на свій гаманець Monero.";
+  @override
+  String get confirmed => 'Підтверджено';
+  @override
+  String get unconfirmed => 'Непідтверджений';
+  @override
+  String get displayable => 'Відображуваний';
 }
 
 class $ja extends S {
@@ -5372,6 +5424,14 @@ class $ja extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "読み込みに失敗しました ${wallet_name} 財布. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "取りはずし ${wallet_name} 財布";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Cake Wallet Moneroの残高からXMRを交換する場合は、最初にMoneroウォレットに切り替えてください。";
+  @override
+  String get confirmed => '確認済み';
+  @override
+  String get unconfirmed => '未確認';
+  @override
+  String get displayable => '表示可能';
 }
 
 class $en extends S {
@@ -6090,6 +6150,14 @@ class $pl extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Nie udało się załadować ${wallet_name} portfel. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Usuwanie ${wallet_name} portfel";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Jeśli chcesz wymienić XMR z salda Cake Wallet Monero, najpierw przełącz się na portfel Monero.";
+  @override
+  String get confirmed => 'Potwierdzony';
+  @override
+  String get unconfirmed => 'niepotwierdzony';
+  @override
+  String get displayable => 'Wyświetlane';
 }
 
 class $es extends S {
@@ -6804,6 +6872,14 @@ class $es extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "No se pudo cargar  ${wallet_name} la billetera. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Retirar ${wallet_name} billetera";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Si desea intercambiar XMR de su saldo de Cake Wallet Monero, primero cambie a su billetera Monero.";
+  @override
+  String get confirmed => 'Confirmada';
+  @override
+  String get unconfirmed => 'inconfirmado';
+  @override
+  String get displayable => 'Visualizable';
 }
 
 class $nl extends S {
@@ -7518,6 +7594,14 @@ class $nl extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "Laden mislukt ${wallet_name} portemonnee. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "Verwijderen ${wallet_name} portemonnee";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "Als u XMR wilt omwisselen van uw Cake Wallet Monero-saldo, moet u eerst overschakelen naar uw Monero-portemonnee.";
+  @override
+  String get confirmed => 'bevestigd';
+  @override
+  String get unconfirmed => 'niet bevestigd';
+  @override
+  String get displayable => 'Weer te geven';
 }
 
 class $zh extends S {
@@ -8232,6 +8316,14 @@ class $zh extends S {
   String wallet_list_failed_to_load(String wallet_name, String error) => "加载失败 ${wallet_name} 钱包. ${error}";
   @override
   String wallet_list_removing_wallet(String wallet_name) => "拆下 ${wallet_name} 钱包";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => "如果要从Cake Wallet Monero余额中兑换XMR，请先切换到Monero钱包。";
+  @override
+  String get confirmed => '已确认';
+  @override
+  String get unconfirmed => '未经证实';
+  @override
+  String get displayable => '可显示';
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
