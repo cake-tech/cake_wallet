@@ -301,7 +301,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void calculateDepositAllAmount() {
     if (wallet is BitcoinWallet) {
-      final availableBalance = wallet.balance.availableBalance as int;
+      final availableBalance = wallet.balance.available;
       final fee = BitcoinWalletBase.feeAmountForPriority(
           _settingsStore.transactionPriority);
 

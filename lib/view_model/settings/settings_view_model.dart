@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -28,7 +29,7 @@ part 'settings_view_model.g.dart';
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
 abstract class SettingsViewModelBase with Store {
-  SettingsViewModelBase(this._settingsStore, WalletBase wallet)
+  SettingsViewModelBase(this._settingsStore, WalletBase<Balance> wallet)
       : itemHeaders = {},
         _walletType = wallet.type,
         _biometricAuth = BiometricAuth() {
@@ -45,13 +46,12 @@ abstract class SettingsViewModelBase with Store {
 
     sections = [
       [
-        if ((wallet.balance.availableModes as List).length > 1)
-          PickerListItem(
-              title: S.current.settings_display_balance_as,
-              items: BalanceDisplayMode.all,
-              selectedItem: () => balanceDisplayMode,
-              onItemSelected: (BalanceDisplayMode mode) =>
-                  _settingsStore.balanceDisplayMode = mode),
+        PickerListItem(
+            title: S.current.settings_display_balance_as,
+            items: BalanceDisplayMode.all,
+            selectedItem: () => balanceDisplayMode,
+            onItemSelected: (BalanceDisplayMode mode) =>
+                _settingsStore.balanceDisplayMode = mode),
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
@@ -120,7 +120,7 @@ abstract class SettingsViewModelBase with Store {
             items: ThemeList.all,
             selectedItem: () => theme,
             onItemSelected: (ThemeBase theme) =>
-            _settingsStore.currentTheme = theme)
+                _settingsStore.currentTheme = theme)
       ],
       [
         LinkListItem(

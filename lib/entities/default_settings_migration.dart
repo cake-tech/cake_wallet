@@ -80,6 +80,11 @@ Future defaultSettingsMigration(
         case 5:
           await addAddressesForMoneroWallets(walletInfoSource);
           break;
+
+        case 6:
+          await updateDisplayModes(sharedPreferences);
+          break;
+
         default:
           break;
       }
@@ -219,4 +224,11 @@ Future<void> addAddressesForMoneroWallets(
       print(e.toString());
     }
   });
+}
+
+Future<void> updateDisplayModes(SharedPreferences sharedPreferences) async {
+  final currentBalanceDisplayMode =
+      sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey);
+  final balanceDisplayMode = currentBalanceDisplayMode < 2 ? 3 : 2;
+  await sharedPreferences.setInt(PreferencesKey.currentBalanceDisplayModeKey, balanceDisplayMode);
 }

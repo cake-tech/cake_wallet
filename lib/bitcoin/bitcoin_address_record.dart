@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:quiver/core.dart';
 
 class BitcoinAddressRecord {
   BitcoinAddressRecord(this.address, {this.index});
@@ -10,8 +11,15 @@ class BitcoinAddressRecord {
         index: decoded['index'] as int);
   }
 
+  @override
+  bool operator ==(Object o) =>
+      o is BitcoinAddressRecord && address == o.address;
+
   final String address;
   int index;
+
+  @override
+  int get hashCode => address.hashCode;
 
   String toJSON() => json.encode({'address': address, 'index': index});
 }

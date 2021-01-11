@@ -134,9 +134,7 @@ abstract class SendViewModelBase with Store {
   PendingTransaction pendingTransaction;
 
   @computed
-  String get balance =>
-      _wallet.balance.formattedBalance(BalanceDisplayMode.availableBalance)
-          as String ?? '0.0';
+  String get balance => _wallet.balance.formattedAvailableBalance ?? '0.0';
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
@@ -183,11 +181,12 @@ abstract class SendViewModelBase with Store {
 
       if (pendingTransaction.id?.isNotEmpty ?? false) {
         _settingsStore.shouldSaveRecipientAddress
-        ? await transactionDescriptionBox.add(TransactionDescription(
-            id: pendingTransaction.id, recipientAddress: address,
-            transactionNote: note))
-        : await transactionDescriptionBox.add(TransactionDescription(
-            id: pendingTransaction.id, transactionNote: note));
+            ? await transactionDescriptionBox.add(TransactionDescription(
+                id: pendingTransaction.id,
+                recipientAddress: address,
+                transactionNote: note))
+            : await transactionDescriptionBox.add(TransactionDescription(
+                id: pendingTransaction.id, transactionNote: note));
       }
 
       state = TransactionCommitted();

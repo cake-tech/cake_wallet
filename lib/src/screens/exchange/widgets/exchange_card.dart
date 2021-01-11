@@ -235,33 +235,40 @@ class ExchangeCardState extends State<ExchangeCard> {
             )),
         Padding(
           padding: EdgeInsets.only(top: 5),
-          child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <
-              Widget>[
-            _min != null
-                ? Text(
-                    S.of(context).min_value(_min, _selectedCurrency.toString()),
-                    style: TextStyle(
-                        fontSize: 10,
-                        height: 1.2,
-                        color: Theme.of(context)
-                            .accentTextTheme
-                            .display4
-                            .decorationColor),
-                  )
-                : Offstage(),
-            _min != null ? SizedBox(width: 10) : Offstage(),
-            _max != null
-                ? Text(
-                    S.of(context).max_value(_max, _selectedCurrency.toString()),
-                    style: TextStyle(
-                        fontSize: 10,
-                        height: 1.2,
-                        color: Theme.of(context)
-                            .accentTextTheme
-                            .display4
-                            .decorationColor))
-                : Offstage(),
-          ]),
+          child: Container(
+              height: 15,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    _min != null
+                        ? Text(
+                            S
+                                .of(context)
+                                .min_value(_min, _selectedCurrency.toString()),
+                            style: TextStyle(
+                                fontSize: 10,
+                                height: 1.2,
+                                color: Theme.of(context)
+                                    .accentTextTheme
+                                    .display4
+                                    .decorationColor),
+                          )
+                        : Offstage(),
+                    _min != null ? SizedBox(width: 10) : Offstage(),
+                    _max != null
+                        ? Text(
+                            S
+                                .of(context)
+                                .max_value(_max, _selectedCurrency.toString()),
+                            style: TextStyle(
+                                fontSize: 10,
+                                height: 1.2,
+                                color: Theme.of(context)
+                                    .accentTextTheme
+                                    .display4
+                                    .decorationColor))
+                        : Offstage(),
+                  ])),
         ),
         !_isAddressEditable && widget.hasRefundAddress
             ? Padding(
