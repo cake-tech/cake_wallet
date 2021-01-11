@@ -435,5 +435,7 @@
   "note_tap_to_change" : "注意（輕按即可更改）",
   "transaction_key" : "交易密碼",
   "confirmations" : "確認書",
-  "recipient_address" : "收件人地址"
+  "recipient_address" : "收件人地址",
+
+  "extra_id" : "額外編號:"
 }

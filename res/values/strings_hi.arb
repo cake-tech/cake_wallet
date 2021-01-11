@@ -435,5 +435,7 @@
   "note_tap_to_change" : "नोट (टैप टू चेंज)",
   "transaction_key" : "लेन-देन की",
   "confirmations" : "पुष्टिकरण",
-  "recipient_address" : "प्राप्तकर्ता का पता"
+  "recipient_address" : "प्राप्तकर्ता का पता",
+
+  "extra_id" : "अतिरिक्त आईडी:"
 }

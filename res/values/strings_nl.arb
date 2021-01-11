@@ -435,5 +435,7 @@
   "note_tap_to_change" : "Opmerking (tik om te wijzigen)",
   "transaction_key" : "Transactiesleutel",
   "confirmations" : "Bevestigingen",
-  "recipient_address" : "Adres ontvanger"
+  "recipient_address" : "Adres ontvanger",
+
+  "extra_id" : "Extra ID:"
 }
