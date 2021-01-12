@@ -143,6 +143,7 @@ abstract class WalletAddressListViewModelBase with Store {
     return null;
   }
 
+  @computed
   bool get hasAddressList => _wallet.type == WalletType.monero;
 
   @observable
