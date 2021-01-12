@@ -109,7 +109,7 @@ class QRWidget extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                    fontSize: 16,
+                                    fontSize: 15,
                                     fontWeight: FontWeight.w500,
                                     color: Theme.of(context).accentTextTheme.
                                     display3.backgroundColor),

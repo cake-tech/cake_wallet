@@ -132,7 +132,7 @@ class BaseAlertDialog extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget>[
                             Padding(
-                              padding: EdgeInsets.fromLTRB(24, 32, 24, 0),
+                              padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
                               child: title(context),
                             ),
                             isDividerExists

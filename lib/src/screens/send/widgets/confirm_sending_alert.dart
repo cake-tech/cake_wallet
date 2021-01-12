@@ -148,12 +148,12 @@ class ConfirmSendingAlert extends BaseAlertDialog {
           )
         ),
         Padding(
-          padding: EdgeInsets.fromLTRB(8, 16, 8, 0),
+          padding: EdgeInsets.fromLTRB(0, 16, 0, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                recipientTitle,
+                '$recipientTitle:',
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.normal,

@@ -169,7 +169,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Future<void> init() async {
     if (addresses.isEmpty || addresses.length < 33) {
       final addressesCount = 33 - addresses.length;
-      await generateNewAddresses(addressesCount, startIndex: _accountIndex);
+      await generateNewAddresses(addressesCount, startIndex: addresses.length);
     }
 
     address = addresses[_accountIndex].address;
