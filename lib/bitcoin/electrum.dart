@@ -37,7 +37,8 @@ class ElectrumClient {
   ElectrumClient()
       : _id = 0,
         _isConnected = false,
-        _tasks = {};
+        _tasks = {},
+        unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 2);
@@ -80,11 +81,7 @@ class ElectrumClient {
       } on FormatException catch (e) {
         final msg = e.message.toLowerCase();
 
-        if (msg == 'Unterminated string'.toLowerCase()) {
-          unterminatedString = e.source as String;
-        }
-
-        if (msg == 'Unexpected character'.toLowerCase()) {
+        if (e.source is String) {
           unterminatedString += e.source as String;
         }
 
@@ -97,7 +94,7 @@ class ElectrumClient {
           final response =
               json.decode(unterminatedString) as Map<String, Object>;
           _handleResponse(response);
-          unterminatedString = null;
+          unterminatedString = '';
         }
       } on TypeError catch (e) {
         if (!e.toString().contains('Map<String, Object>')) {
