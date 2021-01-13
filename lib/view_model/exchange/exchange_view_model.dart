@@ -1,3 +1,5 @@
+import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
@@ -7,6 +9,7 @@ import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -27,8 +30,8 @@ part 'exchange_view_model.g.dart';
 class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
-  ExchangeViewModelBase(
-      this.wallet, this.trades, this._exchangeTemplateStore, this.tradesStore) {
+  ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
+      this.tradesStore, this._settingsStore) {
     providerList = [
       XMRTOExchangeProvider(),
       ChangeNowExchangeProvider(),
@@ -104,16 +107,21 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isReceiveAmountEntered;
 
-  Limits limits;
-
-  NumberFormat _cryptoNumberFormat;
-
   @computed
   SyncStatus get status => wallet.syncStatus;
 
   @computed
   ObservableList<ExchangeTemplate> get templates =>
       _exchangeTemplateStore.templates;
+
+  bool get hasAllAmount =>
+      wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
+
+  Limits limits;
+
+  NumberFormat _cryptoNumberFormat;
+
+  SettingsStore _settingsStore;
 
   @action
   void changeProvider({ExchangeProvider provider}) {
@@ -264,9 +272,8 @@ abstract class ExchangeViewModelBase with Store {
           await trades.add(trade);
           tradeState = TradeIsCreatedSuccessfully(trade: trade);
         } catch (e) {
-          tradeState = TradeIsCreatedFailure(
-              title: provider.title,
-              error: e.toString());
+          tradeState =
+              TradeIsCreatedFailure(title: provider.title, error: e.toString());
         }
       }
     } else {
@@ -289,6 +296,22 @@ abstract class ExchangeViewModelBase with Store {
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     _onPairChange();
+  }
+
+  @action
+  void calculateDepositAllAmount() {
+    if (wallet is BitcoinWallet) {
+      final availableBalance = wallet.balance.available;
+      final fee = BitcoinWalletBase.feeAmountForPriority(
+          _settingsStore.transactionPriority);
+
+      if (availableBalance < fee || availableBalance == 0) {
+        return;
+      }
+
+      final amount = availableBalance - fee;
+      changeDepositAmount(amount: bitcoinAmountToString(amount: amount));
+    }
   }
 
   void updateTemplate() => _exchangeTemplateStore.update();

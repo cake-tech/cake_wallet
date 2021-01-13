@@ -31,6 +31,7 @@ class SendPage extends BasePage {
       : _addressController = TextEditingController(),
         _cryptoAmountController = TextEditingController(),
         _fiatAmountController = TextEditingController(),
+        _noteController = TextEditingController(),
         _formKey = GlobalKey<FormState>(),
         _cryptoAmountFocus = FocusNode(),
         _fiatAmountFocus = FocusNode(),
@@ -46,6 +47,7 @@ class SendPage extends BasePage {
   final TextEditingController _addressController;
   final TextEditingController _cryptoAmountController;
   final TextEditingController _fiatAmountController;
+  final TextEditingController _noteController;
   final GlobalKey<FormState> _formKey;
   final FocusNode _cryptoAmountFocus;
   final FocusNode _fiatAmountFocus;
@@ -304,6 +306,30 @@ class SendPage extends BasePage {
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14),
                                   )),
+                              Padding(
+                                  padding: EdgeInsets.only(top: 20),
+                                  child: BaseTextFormField(
+                                    controller: _noteController,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                    borderColor: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .color,
+                                    textStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                    hintText: S.of(context).note_optional,
+                                    placeholderTextStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .headline
+                                            .decorationColor),
+                                  ),
+                              ),
                               Observer(
                                   builder: (_) => GestureDetector(
                                         onTap: () =>
@@ -313,6 +339,7 @@ class SendPage extends BasePage {
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: <Widget>[
                                               Text(
                                                   S
@@ -326,23 +353,50 @@ class SendPage extends BasePage {
                                                       color: Colors.white)),
                                               Container(
                                                 child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: <Widget>[
-                                                    Text(
-                                                        sendViewModel
+                                                    Column(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      children: [
+                                                        Text(
+                                                            sendViewModel
                                                                 .estimatedFee
                                                                 .toString() +
-                                                            ' ' +
-                                                            sendViewModel
+                                                                ' ' +
+                                                                sendViewModel
                                                                 .currency.title,
-                                                        style: TextStyle(
-                                                            fontSize: 12,
-                                                            fontWeight:
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                fontWeight:
                                                                 FontWeight.w600,
-                                                            //color: Theme.of(context).primaryTextTheme.display2.color,
-                                                            color:
+                                                                //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                                color:
                                                                 Colors.white)),
+                                                        Padding(
+                                                          padding:
+                                                          EdgeInsets.only(top: 5),
+                                                          child: Text(
+                                                            sendViewModel
+                                                            .estimatedFeeFiatAmount
+                                                            +  ' ' +
+                                                           sendViewModel
+                                                           .fiat.title,
+                                                           style: TextStyle(
+                                                             fontSize: 12,
+                                                             fontWeight:
+                                                             FontWeight.w600,
+                                                             color: Theme
+                                                               .of(context)
+                                                               .primaryTextTheme
+                                                               .headline
+                                                               .decorationColor))
+                                                        ),
+                                                      ],
+                                                    ),
                                                     Padding(
                                                       padding: EdgeInsets.only(
+                                                          top: 2,
                                                           left: 5),
                                                       child: Icon(
                                                         Icons.arrow_forward_ios,
@@ -534,6 +588,14 @@ class SendPage extends BasePage {
       }
     });
 
+    _noteController.addListener(() {
+      final note = _noteController.text ?? '';
+
+      if (note != sendViewModel.note) {
+        sendViewModel.note = note;
+      }
+    });
+
     reaction((_) => sendViewModel.sendAll, (bool all) {
       if (all) {
         _cryptoAmountController.text = S.current.all;
@@ -571,6 +633,12 @@ class SendPage extends BasePage {
       }
     });
 
+    reaction((_) => sendViewModel.note, (String note) {
+      if (note != _noteController.text) {
+        _noteController.text = note;
+      }
+    });
+
     reaction((_) => sendViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -596,8 +664,14 @@ class SendPage extends BasePage {
                     amount: S.of(context).send_amount,
                     amountValue:
                         sendViewModel.pendingTransaction.amountFormatted,
+                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmount
+                        +  ' ' + sendViewModel.fiat.title,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
+                    feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmount
+                        +  ' ' + sendViewModel.fiat.title,
+                    recipientTitle: S.of(context).recipient_address,
+                    recipientAddress: sendViewModel.address,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
                     actionRightButton: () {
@@ -614,96 +688,17 @@ class SendPage extends BasePage {
                               }
 
                               if (state is TransactionCommitted) {
-                                return Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      color: Theme.of(context).backgroundColor,
-                                      child: Center(
-                                        child: Image.asset(
-                                            'assets/images/birthday_cake.png'),
-                                      ),
-                                    ),
-                                    Center(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                            top: 220, left: 24, right: 24),
-                                        child: Text(
-                                          S.of(context).send_success(
-                                              sendViewModel.currency
-                                                  .toString()),
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .title
-                                                .color,
-                                            decoration: TextDecoration.none,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                        left: 24,
-                                        right: 24,
-                                        bottom: 24,
-                                        child: PrimaryButton(
-                                            onPressed: () =>
-                                                Navigator.of(context).pop(),
-                                            text: S.of(context).send_got_it,
-                                            color: Theme.of(context)
-                                                .accentTextTheme
-                                                .body2
-                                                .color,
-                                            textColor: Colors.white))
-                                  ],
-                                );
+                                return AlertWithOneAction(
+                                    alertTitle: '',
+                                    alertContent: S.of(context).send_success(
+                                        sendViewModel.currency
+                                            .toString()),
+                                    buttonText: S.of(context).ok,
+                                    buttonAction: () =>
+                                        Navigator.of(context).pop());
                               }
 
-                              if (state is TransactionCommitting) {
-                                return Stack(
-                                  children: <Widget>[
-                                    Container(
-                                      color: Theme.of(context).backgroundColor,
-                                      child: Center(
-                                        child: Image.asset(
-                                            'assets/images/birthday_cake.png'),
-                                      ),
-                                    ),
-                                    BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 3.0, sigmaY: 3.0),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .backgroundColor
-                                                .withOpacity(0.25)),
-                                        child: Center(
-                                          child: Padding(
-                                            padding: EdgeInsets.only(top: 220),
-                                            child: Text(
-                                              S.of(context).send_sending,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontSize: 22,
-                                                fontWeight: FontWeight.bold,
-                                                color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .title
-                                                    .color,
-                                                decoration: TextDecoration.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                );
-                              }
-
-                              return Container();
+                              return Offstage();
                             });
                           });
                     },
@@ -746,6 +741,7 @@ class SendPage extends BasePage {
   Future<void> _setTransactionPriority(BuildContext context) async {
     final items = TransactionPriority.forWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
+    final isShowScrollThumb = items.length > 3;
 
     await showPopUp<void>(
         builder: (_) => Picker(
@@ -755,7 +751,6 @@ class SendPage extends BasePage {
               mainAxisAlignment: MainAxisAlignment.center,
               onItemSelected: (TransactionPriority priority) =>
                   sendViewModel.setTransactionPriority(priority),
-              isAlwaysShowScrollThumb: true,
             ),
         context: context);
   }

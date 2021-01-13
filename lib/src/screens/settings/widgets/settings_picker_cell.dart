@@ -9,8 +9,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
       {@required String title,
       this.selectedItem,
       this.items,
-      this.onItemSelected,
-      this.isAlwaysShowScrollThumb})
+      this.onItemSelected})
       : super(
             title: title,
             isSelected: false,
@@ -24,7 +23,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
                       selectedAtIndex: selectedAtIndex,
                       title: S.current.please_select,
                       mainAxisAlignment: MainAxisAlignment.center,
-                      isAlwaysShowScrollThumb: isAlwaysShowScrollThumb,
                       onItemSelected: (ItemType item) =>
                           onItemSelected?.call(item)));
             });
@@ -32,7 +30,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final ItemType selectedItem;
   final List<ItemType> items;
   final void Function(ItemType item) onItemSelected;
-  final bool isAlwaysShowScrollThumb;
 
   @override
   Widget buildTrailing(BuildContext context) {

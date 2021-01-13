@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
@@ -37,7 +38,15 @@ abstract class SendViewModelBase with Store {
       this._fiatConversationStore, this.transactionDescriptionBox)
       : state = InitialExecutionState(),
         _cryptoNumberFormat = NumberFormat(),
+        note = '',
         sendAll = false {
+    final _priority = _settingsStore.transactionPriority;
+
+    if (!TransactionPriority.forWalletType(walletType).contains(_priority)) {
+      _settingsStore.transactionPriority =
+          TransactionPriority.forWalletType(walletType).first;
+    }
+
     _setCryptoNumMaximumFractionDigits();
   }
 
@@ -54,11 +63,58 @@ abstract class SendViewModelBase with Store {
   String address;
 
   @observable
+  String note;
+
+  @observable
   bool sendAll;
 
   @computed
   double get estimatedFee =>
       _wallet.calculateEstimatedFee(_settingsStore.transactionPriority);
+
+  @computed
+  String get estimatedFeeFiatAmount {
+    try {
+      final fiat = calculateFiatAmountRaw(
+          price: _fiatConversationStore.prices[_wallet.currency],
+          cryptoAmount: estimatedFee);
+      return fiat;
+    } catch (_) {
+      return '0.00';
+    }
+  }
+
+  @computed
+  String get pendingTransactionFiatAmount {
+    try {
+      if (pendingTransaction != null) {
+        final fiat = calculateFiatAmount(
+            price: _fiatConversationStore.prices[_wallet.currency],
+            cryptoAmount: pendingTransaction.amountFormatted);
+        return fiat;
+      } else {
+        return '0.00';
+      }
+    } catch (_) {
+      return '0.00';
+    }
+  }
+
+  @computed
+  String get pendingTransactionFeeFiatAmount {
+    try {
+      if (pendingTransaction != null) {
+        final fiat = calculateFiatAmount(
+            price: _fiatConversationStore.prices[_wallet.currency],
+            cryptoAmount: pendingTransaction.feeFormatted);
+        return fiat;
+      } else {
+        return '0.00';
+      }
+    } catch (_) {
+      return '0.00';
+    }
+  }
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
@@ -78,9 +134,7 @@ abstract class SendViewModelBase with Store {
   PendingTransaction pendingTransaction;
 
   @computed
-  String get balance =>
-      _wallet.balance.formattedBalance(BalanceDisplayMode.availableBalance)
-          as String ?? '0.0';
+  String get balance => _wallet.balance.formattedAvailableBalance ?? '0.0';
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
@@ -105,6 +159,7 @@ abstract class SendViewModelBase with Store {
     cryptoAmount = '';
     fiatAmount = '';
     address = '';
+    note = '';
   }
 
   @action
@@ -124,10 +179,14 @@ abstract class SendViewModelBase with Store {
       state = TransactionCommitting();
       await pendingTransaction.commit();
 
-      if (_settingsStore.shouldSaveRecipientAddress &&
-          (pendingTransaction.id?.isNotEmpty ?? false)) {
-        await transactionDescriptionBox.add(TransactionDescription(
-            id: pendingTransaction.id, recipientAddress: address));
+      if (pendingTransaction.id?.isNotEmpty ?? false) {
+        _settingsStore.shouldSaveRecipientAddress
+            ? await transactionDescriptionBox.add(TransactionDescription(
+                id: pendingTransaction.id,
+                recipientAddress: address,
+                transactionNote: note))
+            : await transactionDescriptionBox.add(TransactionDescription(
+                id: pendingTransaction.id, transactionNote: note));
       }
 
       state = TransactionCommitted();
@@ -197,7 +256,7 @@ abstract class SendViewModelBase with Store {
 
     switch (_wallet.type) {
       case WalletType.bitcoin:
-        final amount = !sendAll ? double.parse(_amount) : null;
+        final amount = !sendAll ? _amount : null;
 
         return BitcoinTransactionCredentials(
             address, amount, _settingsStore.transactionPriority);

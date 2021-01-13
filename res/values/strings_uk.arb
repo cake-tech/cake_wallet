@@ -1,7 +1,7 @@
 {
   "welcome" : "Вітаємо в",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "В самому зручному гаманці для Monero",
+  "first_wallet_text" : "В самому зручному гаманці для Monero та Bitcoin",
   "please_make_selection" : "Оберіть спосіб створення гаманця: створити новий чи відновити ваш існуючий.",
   "create_new" : "Створити новий гаманець",
   "restore_wallet" : "Відновити гаманець",
@@ -212,7 +212,7 @@
   "send_name" : "Ім'я",
   "send_got_it" : "Зрозумів",
   "send_sending" : "Відправлення...",
-  "send_success" : "Ваш Monero успішно надісланий",
+  "send_success" : "Ваш ${crypto} успішно надісланий",
 
 
   "settings_title" : "Налаштування",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "Дата",
   "transaction_details_height" : "Висота",
   "transaction_details_amount" : "Сума",
+  "transaction_details_fee" : "Комісія",
   "transaction_details_copied" : "${title} скопійовано в буфер обміну",
   "transaction_details_recipient_address" : "Адреса отримувача",
 
@@ -415,7 +416,7 @@
   "exchange_sync_alert_content" : "Зачекайте, поки ваш гаманець не синхронізується",
 
   "pre_seed_title" : "ВАЖЛИВО",
-  "pre_seed_description" : "На наступній сторінці ви побачите серію з 25 слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.",
+  "pre_seed_description" : "На наступній сторінці ви побачите серію з ${words} слів. Це ваша унікальна та приватна мнемонічна фраза, і це ЄДИНИЙ спосіб відновити ваш гаманець на випадок втрати або несправності. ВАМ необхідно записати її та зберігати в безпечному місці поза програмою Cake Wallet.",
   "pre_seed_button_text" : "Зрозуміло. Покажіть мнемонічну фразу",
 
   "xmr_to_error" : "Помилка XMR.TO",
@@ -428,5 +429,11 @@
   "color_theme" : "Кольорова тема",
   "light_theme" : "Світла",
   "bright_theme" : "Яскрава",
-  "dark_theme" : "Темна"
+  "dark_theme" : "Темна",
+  "enter_your_note" : "Введіть примітку…",
+  "note_optional" : "Примітка (необов’язково)",
+  "note_tap_to_change" : "Примітка (натисніть для зміни)",
+  "transaction_key" : "Ключ транзакції",
+  "confirmations" : "Підтвердження",
+  "recipient_address" : "Адреса одержувача"
 }

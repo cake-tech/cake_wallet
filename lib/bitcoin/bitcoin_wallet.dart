@@ -47,7 +47,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
                 network: bitcoin.bitcoin)
             .derivePath("m/0'/0"),
         addresses = initialAddresses != null
-            ? ObservableList<BitcoinAddressRecord>.of(initialAddresses)
+            ? ObservableList<BitcoinAddressRecord>.of(initialAddresses.toSet())
             : ObservableList<BitcoinAddressRecord>(),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
@@ -116,6 +116,19 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         walletInfo: walletInfo);
   }
 
+  static int feeAmountForPriority(TransactionPriority priority) {
+    switch (priority) {
+      case TransactionPriority.slow:
+        return 6000;
+      case TransactionPriority.regular:
+        return 22080;
+      case TransactionPriority.fast:
+        return 24000;
+      default:
+        return 0;
+    }
+  }
+
   @override
   final BitcoinTransactionHistory transactionHistory;
   final String path;
@@ -154,21 +167,31 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
 
   Future<void> init() async {
-    if (addresses.isEmpty) {
-      final index = 0;
-      addresses
-          .add(BitcoinAddressRecord(_getAddress(index: index), index: index));
+    if (addresses.isEmpty || addresses.length < 33) {
+      final addressesCount = 33 - addresses.length;
+      await generateNewAddresses(addressesCount, startIndex: addresses.length);
     }
 
-    address = addresses.first.address;
+    address = addresses[_accountIndex].address;
     transactionHistory.wallet = this;
     await transactionHistory.init();
   }
 
-  Future<BitcoinAddressRecord> generateNewAddress({String label}) async {
+  @action
+  void nextAddress() {
+    _accountIndex += 1;
+
+    if (_accountIndex >= addresses.length) {
+      _accountIndex = 0;
+    }
+
+    address = addresses[_accountIndex].address;
+  }
+
+  Future<BitcoinAddressRecord> generateNewAddress() async {
     _accountIndex += 1;
     final address = BitcoinAddressRecord(_getAddress(index: _accountIndex),
-        index: _accountIndex, label: label);
+        index: _accountIndex);
     addresses.add(address);
 
     await save();
@@ -176,13 +199,12 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     return address;
   }
 
-  Future<List<BitcoinAddressRecord>> generateNewAddresses(int count) async {
+  Future<List<BitcoinAddressRecord>> generateNewAddresses(int count,
+      {int startIndex = 0}) async {
     final list = <BitcoinAddressRecord>[];
 
-    for (var i = 0; i < count; i++) {
-      _accountIndex += 1;
-      final address = BitcoinAddressRecord(_getAddress(index: _accountIndex),
-          index: _accountIndex, label: null);
+    for (var i = startIndex; i < count + startIndex; i++) {
+      final address = BitcoinAddressRecord(_getAddress(index: i), index: i);
       list.add(address);
     }
 
@@ -192,10 +214,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     return list;
   }
 
-  Future<void> updateAddress(String address, {String label}) async {
+  Future<void> updateAddress(String address) async {
     for (final addr in addresses) {
       if (addr.address == address) {
-        addr.label = label;
         await save();
         break;
       }
@@ -243,15 +264,19 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       Object credentials) async {
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
-    final fee = _feeMultiplier(transactionCredentials.priority);
+    final fee = feeAmountForPriority(transactionCredentials.priority);
     final amount = transactionCredentials.amount != null
-        ? doubleToBitcoinAmount(transactionCredentials.amount)
-        : balance.total - fee;
+        ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
+        : balance.confirmed - fee;
     final totalAmount = amount + fee;
     final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
-    var leftAmount = totalAmount;
     final changeAddress = address;
+    var leftAmount = totalAmount;
     var totalInputAmount = 0;
+
+    if (totalAmount > balance.confirmed) {
+      throw BitcoinTransactionWrongBalanceException();
+    }
 
     final unspent = addresses.map((address) => eclient
         .getListUnspentWithAddress(address.address)
@@ -334,7 +359,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   @override
   double calculateEstimatedFee(TransactionPriority priority) =>
-      bitcoinAmountToDouble(amount: _feeMultiplier(priority));
+      bitcoinAmountToDouble(amount: feeAmountForPriority(priority));
 
   @override
   Future<void> save() async {
@@ -351,7 +376,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   }
 
   @override
-  void close() async{
+  void close() async {
     await eclient.close();
   }
 
@@ -386,17 +411,4 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
   String _getAddress({@required int index}) =>
       generateAddress(hd: hd, index: index);
-
-  int _feeMultiplier(TransactionPriority priority) {
-    switch (priority) {
-      case TransactionPriority.slow:
-        return 6000;
-      case TransactionPriority.regular:
-        return 22080;
-      case TransactionPriority.fast:
-        return 24000;
-      default:
-        return 0;
-    }
-  }
 }

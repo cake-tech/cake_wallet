@@ -4,6 +4,6 @@ class BitcoinTransactionCredentials {
   BitcoinTransactionCredentials(this.address, this.amount, this.priority);
 
   final String address;
-  final double amount;
+  final String amount;
   TransactionPriority priority;
 }

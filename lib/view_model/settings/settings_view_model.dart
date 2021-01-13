@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -28,26 +29,32 @@ part 'settings_view_model.g.dart';
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
 abstract class SettingsViewModelBase with Store {
-  SettingsViewModelBase(this._settingsStore, WalletBase wallet)
+  SettingsViewModelBase(this._settingsStore, WalletBase<Balance> wallet)
       : itemHeaders = {},
         _walletType = wallet.type,
         _biometricAuth = BiometricAuth() {
     currentVersion = '';
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
+
+    final _priority = _settingsStore.transactionPriority;
+
+    if (!TransactionPriority.forWalletType(_walletType).contains(_priority)) {
+      _settingsStore.transactionPriority =
+          TransactionPriority.forWalletType(_walletType).first;
+    }
+
     sections = [
       [
-        if ((wallet.balance.availableModes as List).length > 1)
-          PickerListItem(
-              title: S.current.settings_display_balance_as,
-              items: BalanceDisplayMode.all,
-              selectedItem: () => balanceDisplayMode,
-              onItemSelected: (BalanceDisplayMode mode) =>
-                  _settingsStore.balanceDisplayMode = mode),
+        PickerListItem(
+            title: S.current.settings_display_balance_as,
+            items: BalanceDisplayMode.all,
+            selectedItem: () => balanceDisplayMode,
+            onItemSelected: (BalanceDisplayMode mode) =>
+                _settingsStore.balanceDisplayMode = mode),
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
-            isAlwaysShowScrollThumb: true,
             selectedItem: () => fiatCurrency,
             onItemSelected: (FiatCurrency currency) =>
                 setFiatCurrency(currency)),
@@ -55,7 +62,6 @@ abstract class SettingsViewModelBase with Store {
             title: S.current.settings_fee_priority,
             items: TransactionPriority.forWalletType(wallet.type),
             selectedItem: () => transactionPriority,
-            isAlwaysShowScrollThumb: true,
             onItemSelected: (TransactionPriority priority) =>
                 _settingsStore.transactionPriority = priority),
         SwitcherListItem(
@@ -114,7 +120,7 @@ abstract class SettingsViewModelBase with Store {
             items: ThemeList.all,
             selectedItem: () => theme,
             onItemSelected: (ThemeBase theme) =>
-            _settingsStore.currentTheme = theme)
+                _settingsStore.currentTheme = theme)
       ],
       [
         LinkListItem(
