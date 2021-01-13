@@ -1,5 +1,7 @@
 import 'package:cake_wallet/core/backup.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -55,11 +57,11 @@ void main() async {
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
     final trades =
-        await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+    await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
     final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
     final templates = await Hive.openBox<Template>(Template.boxName);
     final exchangeTemplates =
-        await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+    await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
         nodes: nodes,
@@ -70,7 +72,7 @@ void main() async {
         templates: templates,
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
-        initialMigrationVersion: 4);
+        initialMigrationVersion: 5);
     runApp(App());
   } catch (e) {
     runApp(MaterialApp(
@@ -78,7 +80,7 @@ void main() async {
         home: Scaffold(
             body: Container(
                 margin:
-                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+                EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
                 child: Text(
                   'Error:\n${e.toString()}',
                   style: TextStyle(fontSize: 22),
@@ -86,17 +88,16 @@ void main() async {
   }
 }
 
-Future<void> initialSetup(
-    {@required SharedPreferences sharedPreferences,
-    @required Box<Node> nodes,
-    @required Box<WalletInfo> walletInfoSource,
-    @required Box<Contact> contactSource,
-    @required Box<Trade> tradesSource,
-    // @required FiatConvertationService fiatConvertationService,
-    @required Box<Template> templates,
-    @required Box<ExchangeTemplate> exchangeTemplates,
-    @required Box<TransactionDescription> transactionDescriptions,
-    int initialMigrationVersion = 5}) async {
+Future<void> initialSetup({@required SharedPreferences sharedPreferences,
+  @required Box<Node> nodes,
+  @required Box<WalletInfo> walletInfoSource,
+  @required Box<Contact> contactSource,
+  @required Box<Trade> tradesSource,
+  // @required FiatConvertationService fiatConvertationService,
+  @required Box<Template> templates,
+  @required Box<ExchangeTemplate> exchangeTemplates,
+  @required Box<TransactionDescription> transactionDescriptions,
+  int initialMigrationVersion = 6}) async {
   await defaultSettingsMigration(
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,
@@ -124,28 +125,28 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsStore = getIt.get<AppStore>().settingsStore;
-
-    if (settingsStore.theme == null) {
-      settingsStore.isDarkTheme = false;
-    }
-
+    final settingsStore = getIt
+        .get<AppStore>()
+        .settingsStore;
     final statusBarColor = Colors.transparent;
-    final statusBarBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
-    final statusBarIconBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
     final authenticationStore = getIt.get<AuthenticationStore>();
     final initialRoute = authenticationStore.state == AuthenticationState.denied
         ? Routes.disclaimer
         : Routes.login;
 
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: statusBarColor,
-        statusBarBrightness: statusBarBrightness,
-        statusBarIconBrightness: statusBarIconBrightness));
-
     return Observer(builder: (BuildContext context) {
+      final currentTheme = settingsStore.currentTheme;
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: statusBarColor,
+          statusBarBrightness: statusBarBrightness,
+          statusBarIconBrightness: statusBarIconBrightness));
+
       return Root(
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,

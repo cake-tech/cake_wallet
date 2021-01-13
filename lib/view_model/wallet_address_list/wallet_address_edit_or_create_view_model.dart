@@ -63,7 +63,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     final wallet = _wallet;
 
     if (wallet is BitcoinWallet) {
-      await wallet.generateNewAddress(label: label);
+      await wallet.generateNewAddress();
     }
 
     if (wallet is MoneroWallet) {
@@ -77,7 +77,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     final wallet = _wallet;
 
     if (wallet is BitcoinWallet) {
-      await wallet.updateAddress(_item.address as String, label: label);
+      await wallet.updateAddress(_item.address as String);
     }
 
     if (wallet is MoneroWallet) {

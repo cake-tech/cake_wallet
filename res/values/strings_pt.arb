@@ -1,7 +1,7 @@
 {
   "welcome" : "Bem-vindo ao",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Uma fantástica carteira para Monero",
+  "first_wallet_text" : "Uma fantástica carteira para Monero e Bitcoin",
   "please_make_selection" : "Escolha se quer criar uma carteira nova ou restaurar uma antiga.",
   "create_new" : "Criar nova carteira",
   "restore_wallet" : "Restaurar carteira",
@@ -212,7 +212,7 @@
   "send_name" : "Nome",
   "send_got_it" : "Entendi",
   "send_sending" : "Enviando...",
-  "send_success" : "Seu Monero foi enviado com sucesso",
+  "send_success" : "Seu ${crypto} foi enviado com sucesso",
 
 
   "settings_title" : "Configurações",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "Data",
   "transaction_details_height" : "Altura",
   "transaction_details_amount" : "Quantia",
+  "transaction_details_fee" : "Taxa",
   "transaction_details_copied" : "${title} copiados para a área de transferência",
   "transaction_details_recipient_address" : "Endereço do destinatário",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "SINCRONIZADO",
   "sync_status_not_connected" : "DESCONECTADO",
   "sync_status_starting_sync" : "INICIANDO SINCRONIZAÇÃO",
-  "sync_status_failed_connect" : "Erro ao conectar com o nó",
+  "sync_status_failed_connect" : "DESCONECTADO",
   "sync_status_connecting" : "CONECTANDO",
   "sync_status_connected" : "CONECTADO",
 
@@ -415,7 +416,7 @@
   "exchange_sync_alert_content" : "Por favor, espere até que sua carteira seja sincronizada",
 
   "pre_seed_title" : "IMPORTANTE",
-  "pre_seed_description" : "Na próxima página, você verá uma série de 25 palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.",
+  "pre_seed_description" : "Na próxima página, você verá uma série de ${words} palavras. Esta é a sua semente única e privada e é a ÚNICA maneira de recuperar sua carteira em caso de perda ou mau funcionamento. É SUA responsabilidade anotá-lo e armazená-lo em um local seguro fora do aplicativo Cake Wallet.",
   "pre_seed_button_text" : "Compreendo. Me mostre minha semente",
 
   "xmr_to_error" : "Erro XMR.TO",
@@ -423,5 +424,16 @@
 
   "provider_error" : "${provider} erro",
 
-  "use_ssl" : "Use SSL"
+  "use_ssl" : "Use SSL",
+
+  "color_theme" : "Tema de cor",
+  "light_theme" : "Luz",
+  "bright_theme" : "Brilhante",
+  "dark_theme" : "Sombria",
+  "enter_your_note" : "Insira sua nota ...",
+  "note_optional" : "Nota (opcional)",
+  "note_tap_to_change" : "Nota (toque para alterar)",
+  "transaction_key" : "Chave de transação",
+  "confirmations" : "Confirmações",
+  "recipient_address" : "Endereço do destinatário"
 }

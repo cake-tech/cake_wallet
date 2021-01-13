@@ -113,16 +113,19 @@ class SectionStandardList extends StatelessWidget {
       {@required this.itemCounter,
       @required this.itemBuilder,
       @required this.sectionCount,
+      this.sectionTitleBuilder,
       this.hasTopSeparator = false,
       BuildContext context})
       : totalRows = transform(hasTopSeparator, context, sectionCount,
-      itemCounter, itemBuilder);
+            itemCounter, itemBuilder, sectionTitleBuilder);
 
   final int sectionCount;
   final bool hasTopSeparator;
   final int Function(int sectionIndex) itemCounter;
   final Widget Function(BuildContext context, int sectionIndex, int itemIndex)
       itemBuilder;
+  final Widget Function(BuildContext context, int sectionIndex)
+      sectionTitleBuilder;
   final List<Widget> totalRows;
 
   static List<Widget> transform(
@@ -131,12 +134,18 @@ class SectionStandardList extends StatelessWidget {
       int sectionCount,
       int Function(int sectionIndex) itemCounter,
       Widget Function(BuildContext context, int sectionIndex, int itemIndex)
-          itemBuilder) {
+          itemBuilder,
+      Widget Function(BuildContext context, int sectionIndex)
+          sectionTitleBuilder) {
     final items = <Widget>[];
 
     for (var sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
-      if ((sectionIndex == 0)&&(hasTopSeparator)) {
+      if ((sectionIndex == 0) && (hasTopSeparator)) {
         items.add(StandardListSeparator(padding: EdgeInsets.only(left: 24)));
+      }
+
+      if (sectionTitleBuilder != null) {
+        items.add(sectionTitleBuilder(context, sectionIndex));
       }
 
       final itemCount = itemCounter(sectionIndex);

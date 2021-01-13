@@ -1,3 +1,6 @@
+import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
@@ -26,13 +29,21 @@ part 'settings_view_model.g.dart';
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
 abstract class SettingsViewModelBase with Store {
-  SettingsViewModelBase(this._settingsStore, WalletBase wallet)
+  SettingsViewModelBase(this._settingsStore, WalletBase<Balance> wallet)
       : itemHeaders = {},
         _walletType = wallet.type,
         _biometricAuth = BiometricAuth() {
     currentVersion = '';
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
+
+    final _priority = _settingsStore.transactionPriority;
+
+    if (!TransactionPriority.forWalletType(_walletType).contains(_priority)) {
+      _settingsStore.transactionPriority =
+          TransactionPriority.forWalletType(_walletType).first;
+    }
+
     sections = [
       [
         PickerListItem(
@@ -44,15 +55,13 @@ abstract class SettingsViewModelBase with Store {
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
-            isAlwaysShowScrollThumb: true,
             selectedItem: () => fiatCurrency,
             onItemSelected: (FiatCurrency currency) =>
                 setFiatCurrency(currency)),
         PickerListItem(
             title: S.current.settings_fee_priority,
-            items: _transactionPriorities(wallet.type),
+            items: TransactionPriority.forWalletType(wallet.type),
             selectedItem: () => transactionPriority,
-            isAlwaysShowScrollThumb: true,
             onItemSelected: (TransactionPriority priority) =>
                 _settingsStore.transactionPriority = priority),
         SwitcherListItem(
@@ -106,11 +115,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
-        SwitcherListItem(
-            title: S.current.settings_dark_mode,
-            value: () => _settingsStore.isDarkTheme,
-            onValueChange: (_, bool value) =>
-                _settingsStore.isDarkTheme = value)
+        PickerListItem(
+            title: S.current.color_theme,
+            items: ThemeList.all,
+            selectedItem: () => theme,
+            onItemSelected: (ThemeBase theme) =>
+                _settingsStore.currentTheme = theme)
       ],
       [
         LinkListItem(
@@ -186,6 +196,9 @@ abstract class SettingsViewModelBase with Store {
   bool get allowBiometricalAuthentication =>
       _settingsStore.allowBiometricalAuthentication;
 
+  @computed
+  ThemeBase get theme => _settingsStore.currentTheme;
+
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;
@@ -234,19 +247,4 @@ abstract class SettingsViewModelBase with Store {
 
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
-
-  static List<TransactionPriority> _transactionPriorities(WalletType type) {
-    switch (type) {
-      case WalletType.monero:
-        return TransactionPriority.all;
-      case WalletType.bitcoin:
-        return [
-          TransactionPriority.slow,
-          TransactionPriority.regular,
-          TransactionPriority.fast
-        ];
-      default:
-        return [];
-    }
-  }
 }

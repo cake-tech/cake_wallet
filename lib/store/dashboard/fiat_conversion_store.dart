@@ -1,13 +1,13 @@
+import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:mobx/mobx.dart';
 
 part 'fiat_conversion_store.g.dart';
 
-class FiatConversionStore = FiatConversionStoreBase
-    with _$FiatConversionStore;
+class FiatConversionStore = FiatConversionStoreBase with _$FiatConversionStore;
 
 abstract class FiatConversionStoreBase with Store {
-  FiatConversionStoreBase() : price = 0.0;
+  FiatConversionStoreBase() : prices = ObservableMap<CryptoCurrency, double>();
 
   @observable
-  double price;
+  ObservableMap<CryptoCurrency, double> prices;
 }

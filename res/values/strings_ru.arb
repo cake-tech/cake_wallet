@@ -1,7 +1,7 @@
 {
   "welcome" : "Приветствуем в",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "В самом удобном кошельке для Monero",
+  "first_wallet_text" : "В самом удобном кошельке для Monero и Bitcoin",
   "please_make_selection" : "Выберите способ создания кошелька: создать новый или восстановить ваш существующий.",
   "create_new" : "Создать новый кошелёк",
   "restore_wallet" : "Восстановить кошелёк",
@@ -212,7 +212,7 @@
   "send_name" : "Имя",
   "send_got_it" : "Понял",
   "send_sending" : "Отправка...",
-  "send_success" : "Ваш Monero был успешно отправлен",
+  "send_success" : "Ваш ${crypto} был успешно отправлен",
 
 
   "settings_title" : "Настройки",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "Дата",
   "transaction_details_height" : "Высота",
   "transaction_details_amount" : "Сумма",
+  "transaction_details_fee" : "Комиссия",
   "transaction_details_copied" : "${title} скопировано в буфер обмена",
   "transaction_details_recipient_address" : "Адрес получателя",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "СИНХРОНИЗИРОВАН",
   "sync_status_not_connected" : "НЕ ПОДКЛЮЧЁН",
   "sync_status_starting_sync" : "НАЧАЛО СИНХРОНИЗАЦИИ",
-  "sync_status_failed_connect" : "ОШИБКА ПОДКЛЮЧЕНИЯ К НОДЕ",
+  "sync_status_failed_connect" : "ОТКЛЮЧЕНО",
   "sync_status_connecting" : "ПОДКЛЮЧЕНИЕ",
   "sync_status_connected" : "ПОДКЛЮЧЕНО",
 
@@ -415,7 +416,7 @@
   "exchange_sync_alert_content" : "Подождите, пока ваш кошелек синхронизируется",
 
   "pre_seed_title" : "ВАЖНО",
-  "pre_seed_description" : "На следующей странице вы увидите серию из 25 слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.",
+  "pre_seed_description" : "На следующей странице вы увидите серию из ${words} слов. Это ваша уникальная и личная мнемоническая фраза, и это ЕДИНСТВЕННЫЙ способ восстановить свой кошелек в случае потери или неисправности. ВАМ необходимо записать ее и хранить в надежном месте вне приложения Cake Wallet.",
   "pre_seed_button_text" : "Понятно. Покажите мнемоническую фразу",
 
   "xmr_to_error" : "Ошибка XMR.TO",
@@ -423,5 +424,16 @@
 
   "provider_error" : "${provider} ошибка",
 
-  "use_ssl" : "Использовать SSL"
+  "use_ssl" : "Использовать SSL",
+
+  "color_theme" : "Цветовая тема",
+  "light_theme" : "Светлая",
+  "bright_theme" : "Яркая",
+  "dark_theme" : "Темная",
+  "enter_your_note" : "Введите примечание…",
+  "note_optional" : "Примечание (необязательно)",
+  "note_tap_to_change" : "Примечание (нажмите для изменения)",
+  "transaction_key" : "Ключ транзакции",
+  "confirmations" : "Подтверждения",
+  "recipient_address" : "Адрес получателя"
 }

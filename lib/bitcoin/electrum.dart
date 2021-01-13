@@ -37,7 +37,8 @@ class ElectrumClient {
   ElectrumClient()
       : _id = 0,
         _isConnected = false,
-        _tasks = {};
+        _tasks = {},
+        unterminatedString = '';
 
   static const connectionTimeout = Duration(seconds: 5);
   static const aliveTimerDuration = Duration(seconds: 2);
@@ -49,6 +50,7 @@ class ElectrumClient {
   final Map<String, SocketTask> _tasks;
   bool _isConnected;
   Timer _aliveTimer;
+  String unterminatedString;
 
   Future<void> connectToUri(String uri) async {
     final splittedUri = uri.split(':');
@@ -73,26 +75,50 @@ class ElectrumClient {
 
     socket.listen((Uint8List event) {
       try {
-        final jsoned =
+        final response =
             json.decode(utf8.decode(event.toList())) as Map<String, Object>;
-        print(jsoned);
-        final method = jsoned['method'];
-        final id = jsoned['id'] as String;
-        final params = jsoned['result'];
+        _handleResponse(response);
+      } on FormatException catch (e) {
+        final msg = e.message.toLowerCase();
 
-        if (method is String) {
-          _methodHandler(method: method, request: jsoned);
+        if (e.source is String) {
+          unterminatedString += e.source as String;
+        }
+
+        if (msg.contains("not a subtype of type")) {
+          unterminatedString += e.source as String;
           return;
         }
 
-        _finish(id, params);
+        if (isJSONStringCorrect(unterminatedString)) {
+          final response =
+              json.decode(unterminatedString) as Map<String, Object>;
+          _handleResponse(response);
+          unterminatedString = '';
+        }
+      } on TypeError catch (e) {
+        if (!e.toString().contains('Map<String, Object>')) {
+          return;
+        }
+
+        final source = utf8.decode(event.toList());
+        unterminatedString += source;
+
+        if (isJSONStringCorrect(unterminatedString)) {
+          final response =
+              json.decode(unterminatedString) as Map<String, Object>;
+          _handleResponse(response);
+          unterminatedString = null;
+        }
       } catch (e) {
-        print(e);
+        print(e.toString());
       }
     }, onError: (Object error) {
       print(error.toString());
       _setIsConnected(false);
-    }, onDone: () => _setIsConnected(false));
+    }, onDone: () {
+      _setIsConnected(false);
+    });
     keepAlive();
   }
 
@@ -103,7 +129,7 @@ class ElectrumClient {
 
   Future<void> ping() async {
     try {
-      // await callWithTimeout(method: 'server.ping');
+      await callWithTimeout(method: 'server.ping');
       _setIsConnected(true);
     } on RequestFailedTimeoutException catch (_) {
       _setIsConnected(false);
@@ -209,16 +235,20 @@ class ElectrumClient {
 
   Future<Map<String, Object>> getTransactionExpanded(
       {@required String hash}) async {
-    final originalTx = await getTransactionRaw(hash: hash);
-    final vins = originalTx['vin'] as List<Object>;
+    try {
+      final originalTx = await getTransactionRaw(hash: hash);
+      final vins = originalTx['vin'] as List<Object>;
 
-    for (dynamic vin in vins) {
-      if (vin is Map<String, Object>) {
-        vin['tx'] = await getTransactionRaw(hash: vin['txid'] as String);
+      for (dynamic vin in vins) {
+        if (vin is Map<String, Object>) {
+          vin['tx'] = await getTransactionRaw(hash: vin['txid'] as String);
+        }
       }
-    }
 
-    return originalTx;
+      return originalTx;
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<String> broadcastTransaction(
@@ -228,7 +258,7 @@ class ElectrumClient {
         if (result is String) {
           return result;
         }
-
+        print(result);
         return '';
       });
 
@@ -256,11 +286,13 @@ class ElectrumClient {
         return 0;
       });
 
-  BehaviorSubject<Object> scripthashUpdate(String scripthash) =>
-      subscribe<Object>(
-          id: 'blockchain.scripthash.subscribe:$scripthash',
-          method: 'blockchain.scripthash.subscribe',
-          params: [scripthash]);
+  BehaviorSubject<Object> scripthashUpdate(String scripthash) {
+    _id += 1;
+    return subscribe<Object>(
+        id: 'blockchain.scripthash.subscribe:$scripthash',
+        method: 'blockchain.scripthash.subscribe',
+        params: [scripthash]);
+  }
 
   BehaviorSubject<T> subscribe<T>(
       {@required String id,
@@ -273,7 +305,8 @@ class ElectrumClient {
     return subscription;
   }
 
-  Future<dynamic> call({String method, List<Object> params = const []}) {
+  Future<dynamic> call({String method, List<Object> params = const []}) async {
+    await Future<void>.delayed(Duration(milliseconds: 100));
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
@@ -305,6 +338,12 @@ class ElectrumClient {
   void request({String method, List<Object> params = const []}) {
     _id += 1;
     socket.write(jsonrpc(method: method, id: _id, params: params));
+  }
+
+  Future<void> close() async {
+    _aliveTimer.cancel();
+    await socket.close();
+    onConnectionStatusChange = null;
   }
 
   void _regisryTask(int id, Completer completer) => _tasks[id.toString()] =
@@ -350,6 +389,29 @@ class ElectrumClient {
     }
 
     _isConnected = isConnected;
+  }
+
+  void _handleResponse(Map<String, Object> response) {
+    final method = response['method'];
+    final id = response['id'] as String;
+    final result = response['result'];
+
+    if (method is String) {
+      _methodHandler(method: method, request: response);
+      return;
+    }
+
+    _finish(id, result);
+  }
+}
+
+// FIXME: move me
+bool isJSONStringCorrect(String source) {
+  try {
+    json.decode(source);
+    return true;
+  } catch (_) {
+    return false;
   }
 }
 

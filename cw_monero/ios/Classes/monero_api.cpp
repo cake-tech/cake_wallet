@@ -294,13 +294,25 @@ extern "C"
         return true;
     }
 
-    void load_wallet(char *path, char *password, int32_t nettype)
+    bool load_wallet(char *path, char *password, int32_t nettype)
     {
         nice(19);
         Monero::NetworkType networkType = static_cast<Monero::NetworkType>(nettype);
-        Monero::Wallet *wallet = Monero::WalletManagerFactory::getWalletManager()->openWallet(std::string(path), std::string(password), networkType);
+        Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
+        Monero::Wallet *wallet = walletManager->openWallet(std::string(path), std::string(password), networkType);
+        int status;
+        std::string errorString;
+
+        wallet->statusWithErrorString(status, errorString);
         change_current_wallet(wallet);
+
+        return !(status != Monero::Wallet::Status_Ok || !errorString.empty());
     }
+
+    char *error_string() {
+        return strdup(get_current_wallet()->errorString().c_str());
+    }
+
 
     bool is_wallet_exist(char *path)
     {
