@@ -43,6 +43,9 @@ class SendPage extends BasePage {
     });
   }
 
+  static const prefixIconWidth = 34.0;
+  static const prefixIconHeight = 34.0;
+
   final SendViewModel sendViewModel;
   final TextEditingController _addressController;
   final TextEditingController _cryptoAmountController;
@@ -172,72 +175,82 @@ class SendPage extends BasePage {
                               Observer(
                                   builder: (_) => Padding(
                                       padding: const EdgeInsets.only(top: 20),
-                                      child: BaseTextFormField(
-                                          focusNode: _cryptoAmountFocus,
-                                          controller: _cryptoAmountController,
-                                          keyboardType:
-                                              TextInputType.numberWithOptions(
-                                                  signed: false, decimal: true),
-                                          prefixIcon: Padding(
-                                            padding: EdgeInsets.only(top: 9),
-                                            child: Text(
-                                                sendViewModel.currency.title +
-                                                    ':',
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.white,
-                                                )),
-                                          ),
-                                          suffixIcon: Container(
-                                            height: 32,
-                                            width: 32,
-                                            margin: EdgeInsets.only(
-                                                left: 14, top: 4, bottom: 10),
-                                            decoration: BoxDecoration(
-                                                color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .display1
-                                                    .color,
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(6))),
-                                            child: InkWell(
-                                              onTap: () =>
-                                                  sendViewModel.setSendAll(),
-                                              child: Center(
-                                                child: Text(S.of(context).all,
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color: Theme.of(context)
-                                                            .primaryTextTheme
-                                                            .display1
-                                                            .decorationColor)),
-                                              ),
+                                      child: Stack(
+                                        children: [
+                                          BaseTextFormField(
+                                            focusNode: _cryptoAmountFocus,
+                                            controller: _cryptoAmountController,
+                                            keyboardType:
+                                            TextInputType.numberWithOptions(
+                                                signed: false, decimal: true),
+                                            prefixIcon: Padding(
+                                              padding: EdgeInsets.only(top: 9),
+                                              child: Text(
+                                                  sendViewModel.currency.title +
+                                                      ':',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  )),
                                             ),
-                                          ),
-                                          hintText: '0.0000',
-                                          borderColor: Theme.of(context)
-                                              .primaryTextTheme
-                                              .headline
-                                              .color,
-                                          textStyle: TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Colors.white),
-                                          placeholderTextStyle: TextStyle(
-                                              color: Theme.of(context)
+                                            suffixIcon: SizedBox(
+                                              width: prefixIconWidth,
+                                            ),
+                                            hintText: '0.0000',
+                                            borderColor: Theme.of(context)
                                                   .primaryTextTheme
                                                   .headline
-                                                  .decorationColor,
-                                              fontWeight: FontWeight.w500,
-                                              fontSize: 14),
-                                          validator: sendViewModel.sendAll
+                                                  .color,
+                                            textStyle: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.white),
+                                            placeholderTextStyle: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .headline
+                                                      .decorationColor,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 14),
+                                            validator: sendViewModel.sendAll
                                               ? sendViewModel.allAmountValidator
                                               : sendViewModel
-                                                  .amountValidator))),
+                                              .amountValidator),
+                                          Positioned(
+                                            top: 2,
+                                            right: 0,
+                                            child: Container(
+                                              width: prefixIconWidth,
+                                              height: prefixIconHeight,
+                                              child: InkWell(
+                                                onTap: () async =>
+                                                    sendViewModel.setSendAll(),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                           .primaryTextTheme
+                                                           .display1
+                                                           .color,
+                                                    borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(6))),
+                                                    child: Center(
+                                                      child: Text(
+                                                        S.of(context).all,
+                                                        textAlign:
+                                                          TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                          FontWeight.bold,
+                                                          color:
+                                                            Theme.of(context)
+                                                            .primaryTextTheme
+                                                            .display1
+                                                            .decorationColor))),
+                                                ))))])
+                                  )),
                               Observer(
                                   builder: (_) => Padding(
                                         padding: EdgeInsets.only(top: 10),
