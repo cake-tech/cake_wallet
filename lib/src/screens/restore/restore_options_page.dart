@@ -1,6 +1,5 @@
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/restore/widgets/restore_button.dart';
@@ -39,7 +38,8 @@ class RestoreOptionsPage extends BasePage {
             Padding(
               padding: EdgeInsets.only(top: 24),
               child: RestoreButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.pushNamed(
+                      context, Routes.restoreFromBackup),
                   image: imageBackup,
                   title: S.of(context).restore_title_from_backup,
                   description: S.of(context).restore_description_from_backup

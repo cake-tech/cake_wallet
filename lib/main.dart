@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/backup.dart';
+import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';

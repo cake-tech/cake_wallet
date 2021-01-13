@@ -26,7 +26,41 @@ PODS:
     - Flutter
   - devicelocale (0.0.1):
     - Flutter
+  - DKImagePickerController/Core (4.3.2):
+    - DKImagePickerController/ImageDataManager
+    - DKImagePickerController/Resource
+  - DKImagePickerController/ImageDataManager (4.3.2)
+  - DKImagePickerController/PhotoGallery (4.3.2):
+    - DKImagePickerController/Core
+    - DKPhotoGallery
+  - DKImagePickerController/Resource (4.3.2)
+  - DKPhotoGallery (0.0.17):
+    - DKPhotoGallery/Core (= 0.0.17)
+    - DKPhotoGallery/Model (= 0.0.17)
+    - DKPhotoGallery/Preview (= 0.0.17)
+    - DKPhotoGallery/Resource (= 0.0.17)
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Core (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Preview
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Model (0.0.17):
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Preview (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Resource
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Resource (0.0.17):
+    - SDWebImage
+    - SwiftyGif
   - esys_flutter_share (0.0.1):
+    - Flutter
+  - file_picker (0.0.1):
+    - DKImagePickerController/PhotoGallery
     - Flutter
   - Flutter (1.0.0)
   - flutter_secure_storage (3.3.1):
@@ -39,11 +73,15 @@ PODS:
   - path_provider (0.0.1):
     - Flutter
   - Reachability (3.2)
+  - SDWebImage (5.9.1):
+    - SDWebImage/Core (= 5.9.1)
+  - SDWebImage/Core (5.9.1)
   - share (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
     - Flutter
   - SwiftProtobuf (1.12.0)
+  - SwiftyGif (5.3.0)
   - url_launcher (0.0.1):
     - Flutter
 
@@ -54,6 +92,7 @@ DEPENDENCIES:
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - esys_flutter_share (from `.symlinks/plugins/esys_flutter_share/ios`)
+  - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - local_auth (from `.symlinks/plugins/local_auth/ios`)
@@ -66,9 +105,13 @@ DEPENDENCIES:
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - CryptoSwift
+    - DKImagePickerController
+    - DKPhotoGallery
     - MTBBarcodeScanner
     - Reachability
+    - SDWebImage
     - SwiftProtobuf
+    - SwiftyGif
 
 EXTERNAL SOURCES:
   barcode_scan:
@@ -81,6 +124,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/devicelocale/ios"
   esys_flutter_share:
     :path: ".symlinks/plugins/esys_flutter_share/ios"
+  file_picker:
+    :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
     :path: Flutter
   flutter_secure_storage:
@@ -104,7 +149,10 @@ SPEC CHECKSUMS:
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   cw_monero: 2e1f79929880cc2293b5bc1b25e28152e4d84649
   devicelocale: feebbe5e7a30adb8c4f83185de1b50ff19b44f00
+  DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
+  DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   esys_flutter_share: 403498dab005b36ce1f8d7aff377e81f0621b0b4
+  file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   local_auth: 25938960984c3a7f6e3253e3f8d962fdd16852bd
@@ -112,9 +160,11 @@ SPEC CHECKSUMS:
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  SDWebImage: a990c053fff71e388a10f3357edb0be17929c9c5
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   SwiftProtobuf: 4ef85479c18ca85b5482b343df9c319c62bda699
+  SwiftyGif: e466e86c660d343357ab944a819a101c4127cb40
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
 PODFILE CHECKSUM: ba3d2157523e2f4dc333b987efdac6635da8125d

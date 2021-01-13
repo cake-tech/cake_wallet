@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
+import 'package:cake_wallet/core/backup.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -10,6 +11,8 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
+import 'package:cake_wallet/src/screens/backup/backup_page.dart';
+import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -20,6 +23,8 @@ import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
+import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
+import 'package:cake_wallet/src/screens/restore/restore_options_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
@@ -32,6 +37,7 @@ import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
+import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
@@ -46,13 +52,16 @@ import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
+import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
+import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
+import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
@@ -126,6 +135,11 @@ Future setup(
       SendTemplateStore(templateSource: templates));
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: exchangeTemplates));
+
+  final secretStore =
+      await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
+
+  getIt.registerSingleton<SecretStore>(secretStore);
 
   getIt.registerFactory<KeyService>(
       () => KeyService(getIt.get<FlutterSecureStorage>()));
@@ -291,17 +305,16 @@ Future setup(
           getIt.get<MoneroAccountEditOrCreateViewModel>()));*/
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel,
-      AccountListItem, void>(
-          (AccountListItem account, _) =>
-          MoneroAccountEditOrCreateViewModel((
-              getIt.get<AppStore>().wallet as MoneroWallet).accountList,
-              accountListItem: account));
+          AccountListItem, void>(
+      (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
+          (getIt.get<AppStore>().wallet as MoneroWallet).accountList,
+          accountListItem: account));
 
-  getIt.registerFactoryParam<MoneroAccountEditOrCreatePage,
-      AccountListItem, void>((AccountListItem account, _) =>
-      MoneroAccountEditOrCreatePage(
+  getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem,
+          void>(
+      (AccountListItem account, _) => MoneroAccountEditOrCreatePage(
           moneroAccountCreationViewModel:
-          getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
+              getIt.get<MoneroAccountEditOrCreateViewModel>(param1: account)));
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
@@ -422,4 +435,32 @@ Future setup(
           transactionDescriptionBox));
 
   getIt.registerFactory(() => PreSeedPage());
+
+  getIt.registerFactory(() => BackupService(
+      getIt.get<FlutterSecureStorage>(),
+      getIt.get<AuthService>(),
+      walletInfoSource,
+      getIt.get<KeyService>(),
+      getIt.get<SharedPreferences>()));
+
+  getIt.registerFactory(() => BackupViewModel(getIt.get<FlutterSecureStorage>(),
+      getIt.get<SecretStore>(), getIt.get<BackupService>()));
+
+  getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
+
+  getIt.registerFactory(() => EditBackupPasswordViewModel(
+      getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>())
+    ..init());
+
+  getIt.registerFactory(
+      () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
+
+  getIt.registerFactoryParam<RestoreOptionsPage, WalletType, void>(
+      (WalletType type, _) => RestoreOptionsPage(type: type));
+
+  getIt.registerFactory(
+      () => RestoreFromBackupViewModel(getIt.get<BackupService>()));
+
+  getIt.registerFactory(
+      () => RestoreFromBackupPage(getIt.get<RestoreFromBackupViewModel>()));
 }

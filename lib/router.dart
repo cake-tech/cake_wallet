@@ -1,6 +1,9 @@
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/src/screens/backup/backup_page.dart';
+import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
+import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -65,15 +68,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<SetupPinCodePage>(param1:
                   (PinCodeState<PinCodeWidget> context, dynamic _) async {
                 try {
-                  context.changeProcessText(
-                      S.current.creating_new_wallet);
+                  context.changeProcessText(S.current.creating_new_wallet);
                   final newWalletVM =
                       getIt.get<WalletNewVM>(param1: WalletType.monero);
                   await newWalletVM.create(
                       options: 'English'); // FIXME: Unnamed constant
                   context.hideProgressText();
-                  await Navigator.of(context.context)
-                      .pushNamed(Routes.preSeed);
+                  await Navigator.of(context.context).pushNamed(Routes.preSeed);
                 } catch (e) {
                   context.changeProcessText('Error: ${e.toString()}');
                 }
@@ -115,7 +116,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreOptions:
       final type = settings.arguments as WalletType;
       return CupertinoPageRoute<void>(
-          builder: (_) => RestoreOptionsPage(type: type));
+          builder: (_) => getIt.get<RestoreOptionsPage>(param1: type));
 
     case Routes.restoreWalletOptions:
       final type = WalletType.monero; //settings.arguments as WalletType;
@@ -264,7 +265,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
           builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
-            param1: settings.arguments as AccountListItem));
+              param1: settings.arguments as AccountListItem));
 
     case Routes.addressBook:
       return MaterialPageRoute<void>(
@@ -326,8 +327,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<LanguageListPage>());
 
     case Routes.preSeed:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<PreSeedPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<PreSeedPage>());
+
+    case Routes.backup:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<BackupPage>());
+
+    case Routes.editBackupPassword:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<EditBackupPasswordPage>());
+
+    case Routes.restoreFromBackup:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     default:
       return MaterialPageRoute<void>(
