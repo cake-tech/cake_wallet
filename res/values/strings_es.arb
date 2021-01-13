@@ -437,5 +437,7 @@
   "confirmations" : "Confirmaciones",
   "recipient_address" : "Dirección del receptor",
 
-  "extra_id" : "ID adicional:"
+  "extra_id" : "ID adicional:",
+  "destination_tag" : "Etiqueta de destino:",
+  "memo" : "Memorándum:"
 }

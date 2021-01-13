@@ -437,5 +437,7 @@
   "confirmations" : "Bestätigungen",
   "recipient_address" : "Empfängeradresse",
 
-  "extra_id" : "Zusätzliche ID:"
+  "extra_id" : "Zusätzliche ID:",
+  "destination_tag" : "Ziel-Tag:",
+  "memo" : "Memo:"
 }

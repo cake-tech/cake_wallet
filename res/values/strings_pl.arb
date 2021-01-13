@@ -437,5 +437,7 @@
   "confirmations" : "Potwierdzenia",
   "recipient_address" : "Adres odbiorcy",
 
-  "extra_id" : "Dodatkowy ID:"
+  "extra_id" : "Dodatkowy ID:",
+  "destination_tag" : "Tag docelowy:",
+  "memo" : "Notatka:"
 }

@@ -437,5 +437,7 @@
   "confirmations" : "Bevestigingen",
   "recipient_address" : "Adres ontvanger",
 
-  "extra_id" : "Extra ID:"
+  "extra_id" : "Extra ID:",
+  "destination_tag" : "Bestemmingstag:",
+  "memo" : "Memo:"
 }
