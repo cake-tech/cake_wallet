@@ -1,7 +1,7 @@
 {
   "welcome" : "ようこそ に",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "素晴らしい財布 ために Monero",
+  "first_wallet_text" : "Moneroとビットコインのための素晴らしい財布",
   "please_make_selection" : "以下を選択してください ウォレットを作成または回復する.",
   "create_new" : "新しいウォレットを作成",
   "restore_wallet" : "ウォレットを復元",
@@ -212,7 +212,7 @@
   "send_name" : "名前",
   "send_got_it" : "とった",
   "send_sending" : "送信...",
-  "send_success" : "Moneroが送信されました",
+  "send_success" : "${crypto}が送信されました",
 
 
   "settings_title" : "設定",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "日付",
   "transaction_details_height" : "高さ",
   "transaction_details_amount" : "量",
+  "transaction_details_fee" : "費用",
   "transaction_details_copied" : "${title} クリップボードにコピーしました",
   "transaction_details_recipient_address" : "受取人の住所",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "同期された",
   "sync_status_not_connected" : "接続されていません",
   "sync_status_starting_sync" : "同期の開始",
-  "sync_status_failed_connect" : "ノードへの接続に失敗しました",
+  "sync_status_failed_connect" : "切断されました",
   "sync_status_connecting" : "接続中",
   "sync_status_connected" : "接続済み",
 
@@ -415,7 +416,7 @@
   "exchange_sync_alert_content" : "ウォレットが同期されるまでお待ちください",
 
   "pre_seed_title" : "重要",
-  "pre_seed_description" : "次のページでは、一連の25語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。",
+  "pre_seed_description" : "次のページでは、一連の${words}語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。",
   "pre_seed_button_text" : "わかります。 種を見せて",
 
   "xmr_to_error" : "XMR.TOエラー",
@@ -423,5 +424,16 @@
 
   "provider_error" : "${provider} エラー",
 
-  "use_ssl" : "SSLを使用する"
+  "use_ssl" : "SSLを使用する",
+
+  "color_theme" : "カラーテーマ",
+  "light_theme" : "光",
+  "bright_theme" : "明るい",
+  "dark_theme" : "闇",
+  "enter_your_note" : "メモを入力してください…",
+  "note_optional" : "注（オプション）",
+  "note_tap_to_change" : "注（タップして変更）",
+  "transaction_key" : "トランザクションキー",
+  "confirmations" : "確認",
+  "recipient_address" : "受信者のアドレス"
 }

@@ -27,11 +27,14 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   static const _orderParameterUriSuffix = '/order_parameter_query';
   static const _orderStatusUriSuffix = '/order_status_query/';
   static const _orderCreateUriSuffix = '/order_create/';
+  static const _headers = {
+    'Content-Type': 'application/json',
+    'User-Agent': userAgent
+  };
 
   static Future<bool> _checkIsAvailable() async {
     const url = originalApiUri + _orderParameterUriSuffix;
-    final response =
-        await get(url, headers: {'Content-Type': 'application/json'});
+    final response = await get(url, headers: _headers);
     return !(response.statusCode == 403);
   }
 
@@ -91,9 +94,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade({TradeRequest request}) async {
     final _request = request as XMRTOTradeRequest;
     final url = originalApiUri + _orderCreateUriSuffix;
-    final _amount = _request.isBTCRequest
-        ? _request.receiveAmount
-        : _request.amount;
+    final _amount =
+        _request.isBTCRequest ? _request.receiveAmount : _request.amount;
 
     final _amountCurrency = _request.isBTCRequest
         ? _request.to.toString()
@@ -112,8 +114,8 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       'amount_currency': _amountCurrency,
       'btc_dest_address': _request.address
     };
-    final response = await post(url,
-        headers: {'Content-Type': 'application/json'}, body: json.encode(body));
+    final response =
+        await post(url, headers: _headers, body: json.encode(body));
 
     if (response.statusCode != 201) {
       if (response.statusCode == 400) {
@@ -141,13 +143,10 @@ class XMRTOExchangeProvider extends ExchangeProvider {
 
   @override
   Future<Trade> findTradeById({@required String id}) async {
-    const headers = {
-      'Content-Type': 'application/json',
-      'User-Agent': userAgent
-    };
     final url = originalApiUri + _orderStatusUriSuffix;
     final body = {'uuid': id};
-    final response = await post(url, headers: headers, body: json.encode(body));
+    final response =
+        await post(url, headers: _headers, body: json.encode(body));
 
     if (response.statusCode != 200) {
       if (response.statusCode == 400) {
@@ -210,8 +209,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   Future<double> _fetchRates() async {
     try {
       final url = originalApiUri + _orderParameterUriSuffix;
-      final response =
-          await get(url, headers: {'Content-Type': 'application/json'});
+      final response = await get(url, headers: _headers);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final price = double.parse(responseJSON['price'] as String);
 

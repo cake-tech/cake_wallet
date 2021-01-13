@@ -57,7 +57,8 @@ extension MobxBindable<T extends Keyable> on Box<T> {
     Filter<T> filter,
   }) {
     if (initialFire) {
-      dest.addAll(values);
+      final res = filter != null ? values.where(filter) : values;
+      dest.addAll(res);
     }
 
     return watch().listen((event) {

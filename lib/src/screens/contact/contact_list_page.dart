@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -61,105 +62,111 @@ class ContactListPage extends BasePage {
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
           builder: (_) {
-            return contactListViewModel.contacts.isNotEmpty
-                ? SectionStandardList(
-                    sectionCount: 1,
-                    context: context,
-                    itemCounter: (int sectionIndex) =>
-                        contactListViewModel.contacts.length,
-                    itemBuilder: (_, sectionIndex, index) {
-                      final contact = contactListViewModel.contacts[index];
-                      final image = _getCurrencyImage(contact.type);
-                      final content = GestureDetector(
-                        onTap: () async {
-                          if (!isEditable) {
-                            Navigator.of(context).pop(contact);
-                            return;
-                          }
+            return SectionStandardList(
+              context: context,
+              sectionCount: 2,
+              sectionTitleBuilder: (_, int sectionIndex) {
+                var title = 'Contacts';
 
-                          final isCopied = await showNameAndAddressDialog(
-                              context, contact.name, contact.address);
+                if (sectionIndex == 0) {
+                  title = 'My wallets';
+                }
 
-                          if (isCopied != null && isCopied) {
-                            await Clipboard.setData(
-                                ClipboardData(text: contact.address));
-                            await showBar<void>(
-                                context, S.of(context).copied_to_clipboard);
-                          }
-                        },
-                        child: Container(
-                          color: Colors.transparent,
-                          padding: const EdgeInsets.only(
-                              left: 24, top: 16, bottom: 16, right: 24),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              image ?? Offstage(),
-                              Padding(
-                                padding: image != null
-                                    ? EdgeInsets.only(left: 12)
-                                    : EdgeInsets.only(left: 0),
-                                child: Text(
-                                  contact.name,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.normal,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .title
-                                          .color),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      );
+                return Container(
+                    padding: EdgeInsets.only(left: 24, bottom: 20),
+                    child: Text(title, style: TextStyle(fontSize: 36)));
+              },
+              itemCounter: (int sectionIndex) => sectionIndex == 0
+                  ? contactListViewModel.walletContacts.length
+                  : contactListViewModel.contacts.length,
+              itemBuilder: (_, sectionIndex, index) {
+                if (sectionIndex == 0) {
+                  final walletInfo = contactListViewModel.walletContacts[index];
+                  return generateRaw(context, walletInfo);
+                }
 
-                      return !isEditable
-                          ? content
-                          : Slidable(
-                              key: Key('${contact.key}'),
-                              actionPane: SlidableDrawerActionPane(),
-                              child: content,
-                              secondaryActions: <Widget>[
-                                  IconSlideAction(
-                                    caption: S.of(context).edit,
-                                    color: Colors.blue,
-                                    icon: Icons.edit,
-                                    onTap: () async =>
-                                        await Navigator.of(context).pushNamed(
-                                            Routes.addressBookAddContact,
-                                            arguments: contact),
-                                  ),
-                                  IconSlideAction(
-                                    caption: S.of(context).delete,
-                                    color: Colors.red,
-                                    icon: CupertinoIcons.delete,
-                                    onTap: () async {
-                                      final isDelete =
-                                          await showAlertDialog(context) ??
-                                              false;
+                final contact = contactListViewModel.contacts[index];
+                final content = generateRaw(context, contact);
 
-                                      if (isDelete) {
-                                        await contactListViewModel
-                                            .delete(contact);
-                                      }
-                                    },
-                                  ),
-                                ]);
-                    },
-                  )
-                : Center(
-                    child: Text(
-                      S.of(context).placeholder_contacts,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey, fontSize: 14),
-                    ),
-                  );
+                return !isEditable
+                    ? content
+                    : Slidable(
+                        key: Key('${contact.key}'),
+                        actionPane: SlidableDrawerActionPane(),
+                        child: content,
+                        secondaryActions: <Widget>[
+                            IconSlideAction(
+                              caption: S.of(context).edit,
+                              color: Colors.blue,
+                              icon: Icons.edit,
+                              onTap: () async => await Navigator.of(context)
+                                  .pushNamed(Routes.addressBookAddContact,
+                                      arguments: contact),
+                            ),
+                            IconSlideAction(
+                              caption: S.of(context).delete,
+                              color: Colors.red,
+                              icon: CupertinoIcons.delete,
+                              onTap: () async {
+                                final isDelete =
+                                    await showAlertDialog(context) ?? false;
+
+                                if (isDelete) {
+                                  await contactListViewModel.delete(contact);
+                                }
+                              },
+                            ),
+                          ]);
+              },
+            );
           },
         ));
+  }
+
+  Widget generateRaw(BuildContext context, ContactBase contact) {
+    final image = _getCurrencyImage(contact.type);
+
+    return GestureDetector(
+      onTap: () async {
+        if (!isEditable) {
+          Navigator.of(context).pop(contact);
+          return;
+        }
+
+        final isCopied = await showNameAndAddressDialog(
+            context, contact.name, contact.address);
+
+        if (isCopied != null && isCopied) {
+          await Clipboard.setData(ClipboardData(text: contact.address));
+          await showBar<void>(context, S.of(context).copied_to_clipboard);
+        }
+      },
+      child: Container(
+        color: Colors.transparent,
+        padding:
+            const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            image ?? Offstage(),
+            Padding(
+              padding: image != null
+                  ? EdgeInsets.only(left: 12)
+                  : EdgeInsets.only(left: 0),
+              child: Text(
+                contact.name,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).primaryTextTheme.title.color),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Image _getCurrencyImage(CryptoCurrency currency) {

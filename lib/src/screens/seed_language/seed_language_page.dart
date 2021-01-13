@@ -1,6 +1,5 @@
-import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,17 +14,26 @@ class SeedLanguage extends BasePage {
 
   final Function(BuildContext, String) onConfirm;
 
+  final walletNameImage = Image.asset('assets/images/wallet_name.png');
+  final walletNameLightImage =
+  Image.asset('assets/images/wallet_name_light.png');
+
   @override
   String get title => S.current.wallet_list_restore_wallet;
 
   @override
-  Widget body(BuildContext context) => SeedLanguageForm(onConfirm: onConfirm);
+  Widget body(BuildContext context) =>
+      SeedLanguageForm(
+          onConfirm: onConfirm,
+          walletImage: currentTheme.type == ThemeType.dark
+              ? walletNameImage : walletNameLightImage);
 }
 
 class SeedLanguageForm extends StatefulWidget {
-  SeedLanguageForm({this.onConfirm});
+  SeedLanguageForm({this.onConfirm, this.walletImage});
 
   final Function(BuildContext, String) onConfirm;
+  final Image walletImage;
 
   @override
   SeedLanguageFormState createState() => SeedLanguageFormState();
@@ -33,18 +41,10 @@ class SeedLanguageForm extends StatefulWidget {
 
 class SeedLanguageFormState extends State<SeedLanguageForm> {
   static const aspectRatioImage = 1.22;
-
-  final walletNameImage = Image.asset('assets/images/wallet_name.png');
-  final walletNameLightImage =
-      Image.asset('assets/images/wallet_name_light.png');
   final _languageSelectorKey = GlobalKey<SeedLanguageSelectorState>();
 
   @override
   Widget build(BuildContext context) {
-    final walletImage = getIt.get<SettingsStore>().isDarkTheme
-        ? walletNameImage
-        : walletNameLightImage;
-
     return Container(
       padding: EdgeInsets.only(top: 24),
       child: ScrollableWithBottomSection(
@@ -55,7 +55,8 @@ class SeedLanguageFormState extends State<SeedLanguageForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: walletImage, fit: BoxFit.fill)),
+                  child: FittedBox(child: widget.walletImage,
+                      fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 40),

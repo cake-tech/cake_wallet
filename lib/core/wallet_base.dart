@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
@@ -9,7 +10,7 @@ import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 
-abstract class WalletBase<BalaceType> {
+abstract class WalletBase<BalaceType extends Balance> {
   WalletBase(this.walletInfo);
 
   static String idFor(String name, WalletType type) =>
@@ -52,4 +53,6 @@ abstract class WalletBase<BalaceType> {
   Future<void> save();
 
   Future<void> rescan({int height});
+
+  void close();
 }

@@ -1,7 +1,7 @@
 {
   "welcome" : "Willkommen zu",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "tolle Brieftasche zum Monero",
+  "first_wallet_text" : "tolle Brieftasche zum Monero und Bitcoin",
   "please_make_selection" : "Bitte treffen Sie unten eine Auswahl zu Erstellen oder Wiederherstellen Ihrer Brieftasche.",
   "create_new" : "Neue Wallet erstellen",
   "restore_wallet" : "Wallet wiederherstellen",
@@ -212,7 +212,7 @@
   "send_name" : "Name",
   "send_got_it" : "Ich habs",
   "send_sending" : "Senden...",
-  "send_success" : "Ihr Monero wurde erfolgreich gesendet",
+  "send_success" : "Ihr ${crypto} wurde erfolgreich gesendet",
 
 
   "settings_title" : "die Einstellungen",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "Datum",
   "transaction_details_height" : "Höhe",
   "transaction_details_amount" : "Menge",
+  "transaction_details_fee" : "Gebühr",
   "transaction_details_copied" : "${title} in die Zwischenablage kopiert",
   "transaction_details_recipient_address" : "Empfängeradresse",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "SYNCHRONISIERT",
   "sync_status_not_connected" : "NICHT VERBUNDEN",
   "sync_status_starting_sync" : "STARTEN DER SYNCHRONISIERUNG",
-  "sync_status_failed_connect" : "Verbindung zum Knoten fehlgeschlagen",
+  "sync_status_failed_connect" : "GETRENNT",
   "sync_status_connecting" : "ANSCHLUSS",
   "sync_status_connected" : "IN VERBINDUNG GEBRACHT",
 
@@ -415,7 +416,7 @@
   "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Brieftasche synchronisiert ist",
 
   "pre_seed_title" : "WICHTIG",
-  "pre_seed_description" : "Auf der nächsten Seite sehen Sie eine Reihe von 25 Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.",
+  "pre_seed_description" : "Auf der nächsten Seite sehen Sie eine Reihe von ${words} Wörtern. Dies ist Ihr einzigartiger und privater Samen und der EINZIGE Weg, um Ihren Geldbeutel im Falle eines Verlusts oder einer Fehlfunktion wiederherzustellen. Es liegt in IHRER Verantwortung, es aufzuschreiben und an einem sicheren Ort außerhalb der Cake Wallet App aufzubewahren.",
   "pre_seed_button_text" : "Ich verstehe. Zeig mir meinen Samen",
 
   "xmr_to_error" : "XMR.TO-Fehler",
@@ -423,5 +424,16 @@
 
   "provider_error" : "${provider} Error",
 
-  "use_ssl" : "Verwenden Sie SSL"
+  "use_ssl" : "Verwenden Sie SSL",
+
+  "color_theme" : "Farbthema",
+  "light_theme" : "Licht",
+  "bright_theme" : "Hell",
+  "dark_theme" : "Dunkel",
+  "enter_your_note" : "Geben Sie Ihre Notiz ein…",
+  "note_optional" : "Hinweis (optional)",
+  "note_tap_to_change" : "Hinweis (zum Ändern tippen)",
+  "transaction_key" : "Transaktionsschlüssel",
+  "confirmations" : "Bestätigungen",
+  "recipient_address" : "Empfängeradresse"
 }

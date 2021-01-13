@@ -27,7 +27,9 @@ class ExchangeCard extends StatefulWidget {
       this.borderColor = Colors.transparent,
       this.currencyValueValidator,
       this.addressTextFieldValidator,
-      this.amountFocusNode})
+      this.amountFocusNode,
+      this.hasAllAmount = false,
+      this.allAmount})
       : super(key: key);
 
   final List<CryptoCurrency> currencies;
@@ -47,6 +49,8 @@ class ExchangeCard extends StatefulWidget {
   final FormFieldValidator<String> currencyValueValidator;
   final FormFieldValidator<String> addressTextFieldValidator;
   final FocusNode amountFocusNode;
+  final bool hasAllAmount;
+  Function allAmount;
 
   @override
   ExchangeCardState createState() => ExchangeCardState();
@@ -166,8 +170,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context)
-                            .textTheme
-                            .subhead
+                            .accentTextTheme
+                            .display4
                             .decorationColor),
                     validator: _isAmountEditable
                         ? widget.currencyValueValidator
@@ -197,50 +201,88 @@ class ExchangeCardState extends State<ExchangeCard> {
                           ]),
                     ),
                   ),
-                )
+                ),
+                if (widget.hasAllAmount)
+                  Positioned(
+                      top: 5,
+                      right: 55,
+                      child: Container(
+                        height: 32,
+                        width: 32,
+                        margin: EdgeInsets.only(left: 14, top: 4, bottom: 10),
+                        decoration: BoxDecoration(
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .display1
+                                .color,
+                            borderRadius: BorderRadius.all(Radius.circular(6))),
+                        child: InkWell(
+                          onTap: () => widget.allAmount?.call(),
+                          child: Center(
+                            child: Text(S.of(context).all,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context)
+                                        .primaryTextTheme
+                                        .display1
+                                        .decorationColor)),
+                          ),
+                        ),
+                      ))
               ],
             )),
         Padding(
           padding: EdgeInsets.only(top: 5),
-          child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <
-              Widget>[
-            _min != null
-                ? Text(
-                    S.of(context).min_value(_min, _selectedCurrency.toString()),
-                    style: TextStyle(
-                        fontSize: 10,
-                        height: 1.2,
-                        color: Theme.of(context)
-                            .textTheme
-                            .subhead
-                            .decorationColor),
-                  )
-                : Offstage(),
-            _min != null ? SizedBox(width: 10) : Offstage(),
-            _max != null
-                ? Text(
-                    S.of(context).max_value(_max, _selectedCurrency.toString()),
-                    style: TextStyle(
-                        fontSize: 10,
-                        height: 1.2,
-                        color: Theme.of(context)
-                            .textTheme
-                            .subhead
-                            .decorationColor))
-                : Offstage(),
-          ]),
+          child: Container(
+              height: 15,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    _min != null
+                        ? Text(
+                            S
+                                .of(context)
+                                .min_value(_min, _selectedCurrency.toString()),
+                            style: TextStyle(
+                                fontSize: 10,
+                                height: 1.2,
+                                color: Theme.of(context)
+                                    .accentTextTheme
+                                    .display4
+                                    .decorationColor),
+                          )
+                        : Offstage(),
+                    _min != null ? SizedBox(width: 10) : Offstage(),
+                    _max != null
+                        ? Text(
+                            S
+                                .of(context)
+                                .max_value(_max, _selectedCurrency.toString()),
+                            style: TextStyle(
+                                fontSize: 10,
+                                height: 1.2,
+                                color: Theme.of(context)
+                                    .accentTextTheme
+                                    .display4
+                                    .decorationColor))
+                        : Offstage(),
+                  ])),
         ),
         !_isAddressEditable && widget.hasRefundAddress
             ? Padding(
-            padding: EdgeInsets.only(top: 20),
-            child: Text(
-              S.of(context).refund_address,
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color:
-                  Theme.of(context).textTheme.subhead.decorationColor),
-            ))
+                padding: EdgeInsets.only(top: 20),
+                child: Text(
+                  S.of(context).refund_address,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display4
+                          .decorationColor),
+                ))
             : Offstage(),
         _isAddressEditable
             ? Padding(
@@ -248,7 +290,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                 child: AddressTextField(
                   controller: addressController,
                   placeholder: widget.hasRefundAddress
-                      ? S.of(context).refund_address : null,
+                      ? S.of(context).refund_address
+                      : null,
                   options: [
                     AddressTextFieldOption.paste,
                     AddressTextFieldOption.qrCode,
@@ -262,8 +305,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                   hintStyle: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color:
-                          Theme.of(context).textTheme.subhead.decorationColor),
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display4
+                          .decorationColor),
                   buttonColor: widget.addressButtonsColor,
                   validator: widget.addressTextFieldValidator,
                 ),
@@ -275,8 +320,8 @@ class ExchangeCardState extends State<ExchangeCard> {
                           onTap: () {
                             Clipboard.setData(
                                 ClipboardData(text: addressController.text));
-                            showBar<void>(context,
-                                S.of(context).copied_to_clipboard);
+                            showBar<void>(
+                                context, S.of(context).copied_to_clipboard);
                           },
                           child: Row(
                             mainAxisSize: MainAxisSize.max,

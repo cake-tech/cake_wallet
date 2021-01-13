@@ -7,6 +7,7 @@ class BaseAlertDialog extends StatelessWidget {
   String get contentText => '';
   String get leftActionButtonText => '';
   String get rightActionButtonText => '';
+  bool get isDividerExists => false;
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
@@ -61,18 +62,24 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.body2
+                            .backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
               ),
             )
         ),
+        Container(
+          width: 1,
+          height: 52,
+          color: Theme.of(context).dividerColor,
+        ),
         Flexible(
             child: Container(
               height: 52,
               padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body2.color,
+              color: Theme.of(context).accentTextTheme.body1.backgroundColor,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -86,7 +93,8 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: Theme.of(context).primaryTextTheme.body1
+                            .backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
@@ -120,18 +128,31 @@ class BaseAlertDialog extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+                              child: title(context),
+                            ),
+                            isDividerExists
+                            ? Padding(
+                                padding: EdgeInsets.only(top: 16, bottom: 8),
+                                child: Container(
+                                  height: 1,
+                                  color: Theme.of(context).dividerColor,
+                                ),
+                            )
+                            : Offstage(),
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
+                              child: content(context),
+                            )
+                          ],
+                        ),
                         Container(
-                          padding: EdgeInsets.fromLTRB(24, 32, 24, 32),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: <Widget>[
-                              title(context),
-                              Padding(
-                                padding: EdgeInsets.only(top: 8),
-                                child: content(context),
-                              )
-                            ],
-                          ),
+                          height: 1,
+                          color: Theme.of(context).dividerColor,
                         ),
                         actionButtons(context)
                       ],

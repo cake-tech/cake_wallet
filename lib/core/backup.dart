@@ -205,8 +205,8 @@ class BackupService {
           _sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey),
       PreferencesKey.shouldSaveRecipientAddressKey: _sharedPreferences
           .getBool(PreferencesKey.shouldSaveRecipientAddressKey),
-      PreferencesKey.currentDarkTheme:
-          _sharedPreferences.getBool(PreferencesKey.currentDarkTheme),
+      PreferencesKey.isDarkThemeLegacy:
+          _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
       PreferencesKey.currentPinLength:
           _sharedPreferences.getInt(PreferencesKey.currentPinLength),
       PreferencesKey.currentTransactionPriorityKey: _sharedPreferences
@@ -219,7 +219,7 @@ class BackupService {
           _sharedPreferences.getString(PreferencesKey.currentLanguageCode),
       PreferencesKey.displayActionListModeKey:
           _sharedPreferences.getInt(PreferencesKey.displayActionListModeKey),
-      'currentTheme': _sharedPreferences.getInt('current_theme')
+      PreferencesKey.currentTheme: _sharedPreferences.getInt(PreferencesKey.currentTheme)
       // FIX-ME: Unnamed constant.
     };
 
