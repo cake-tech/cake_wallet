@@ -437,5 +437,7 @@
   "confirmations" : "確認書",
   "recipient_address" : "收件人地址",
 
-  "extra_id" : "額外編號:"
+  "extra_id" : "額外編號:",
+  "destination_tag" : "目標標籤:",
+  "memo" : "備忘錄:"
 }

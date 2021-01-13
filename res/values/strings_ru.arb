@@ -437,5 +437,7 @@
   "confirmations" : "Подтверждения",
   "recipient_address" : "Адрес получателя",
 
-  "extra_id" : "Дополнительный ID:"
+  "extra_id" : "Дополнительный ID:",
+  "destination_tag" : "Целевой тег:",
+  "memo" : "Памятка:"
 }

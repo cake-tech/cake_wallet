@@ -437,5 +437,7 @@
   "confirmations" : "확인",
   "recipient_address" : "받는 사람 주소",
 
-  "extra_id" : "추가 ID:"
+  "extra_id" : "추가 ID:",
+  "destination_tag" : "목적지 태그:",
+  "memo" : "메모:"
 }

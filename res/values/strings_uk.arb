@@ -437,5 +437,7 @@
   "confirmations" : "Підтвердження",
   "recipient_address" : "Адреса одержувача",
 
-  "extra_id" : "Додатковий ID:"
+  "extra_id" : "Додатковий ID:",
+  "destination_tag" : "Тег призначення:",
+  "memo" : "Пам’ятка:"
 }

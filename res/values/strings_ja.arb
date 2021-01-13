@@ -437,5 +437,7 @@
   "confirmations" : "確認",
   "recipient_address" : "受信者のアドレス",
 
-  "extra_id" : "追加ID:"
+  "extra_id" : "追加ID:",
+  "destination_tag" : "宛先タグ:",
+  "memo" : "メモ:"
 }

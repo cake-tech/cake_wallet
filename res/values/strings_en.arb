@@ -437,5 +437,7 @@
   "confirmations" : "Confirmations",
   "recipient_address" : "Recipient address",
 
-  "extra_id" : "Extra ID:"
+  "extra_id" : "Extra ID:",
+  "destination_tag" : "Destination tag:",
+  "memo" : "Memo:"
 }

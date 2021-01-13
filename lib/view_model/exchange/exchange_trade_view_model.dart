@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -100,8 +101,14 @@ abstract class ExchangeTradeViewModelBase with Store {
         title: S.current.id, data: '${trade.id}', isCopied: true));
 
     if (trade.extraId != null) {
+      final title = trade.from == CryptoCurrency.xrp
+          ? S.current.destination_tag
+          : trade.from == CryptoCurrency.xlm
+                ? S.current.memo
+                : S.current.extra_id;
+
       items.add(ExchangeTradeItem(
-          title: S.current.extra_id, data: '${trade.extraId}', isCopied: false));
+          title: title, data: '${trade.extraId}', isCopied: false));
     }
 
     items.addAll([
