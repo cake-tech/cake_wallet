@@ -8,20 +8,15 @@ class MoneroBalance extends Balance {
       : formattedFullBalance = moneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
             moneroAmountToString(amount: unlockedBalance),
-        super(const [
-          BalanceDisplayMode.availableBalance,
-          BalanceDisplayMode.fullBalance
-        ]);
+        super(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
       {@required this.formattedFullBalance,
       @required this.formattedUnlockedBalance})
       : fullBalance = moneroParseAmount(amount: formattedFullBalance),
         unlockedBalance = moneroParseAmount(amount: formattedUnlockedBalance),
-        super(const [
-          BalanceDisplayMode.availableBalance,
-          BalanceDisplayMode.fullBalance
-        ]);
+        super(moneroParseAmount(amount: formattedUnlockedBalance),
+            moneroParseAmount(amount: formattedFullBalance));
 
   final int fullBalance;
   final int unlockedBalance;
@@ -29,14 +24,8 @@ class MoneroBalance extends Balance {
   final String formattedUnlockedBalance;
 
   @override
-  String formattedBalance(BalanceDisplayMode mode) {
-    switch (mode) {
-      case BalanceDisplayMode.fullBalance:
-        return formattedFullBalance;
-      case BalanceDisplayMode.availableBalance:
-        return formattedUnlockedBalance;
-      default:
-        return null;
-    }
-  }
+  String get formattedAvailableBalance => formattedUnlockedBalance;
+
+  @override
+  String get formattedAdditionalBalance => formattedFullBalance;
 }

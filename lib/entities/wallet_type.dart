@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:hive/hive.dart';
 
 part 'wallet_type.g.dart';
@@ -57,5 +58,16 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Bitcoin (Electrum)';
     default:
       return '';
+  }
+}
+
+CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
+  switch (type) {
+    case WalletType.monero:
+      return CryptoCurrency.xmr;
+    case WalletType.bitcoin:
+      return CryptoCurrency.btc;
+    default:
+      return null;
   }
 }

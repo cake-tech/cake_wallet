@@ -1,9 +1,11 @@
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-
 abstract class Balance {
-  const Balance(this.availableModes);
+  const Balance(this.available, this.additional);
 
-  final List<BalanceDisplayMode> availableModes;
+  final int available;
 
-  String formattedBalance(BalanceDisplayMode mode);
+  final int additional;
+
+  String get formattedAvailableBalance;
+
+  String get formattedAdditionalBalance;
 }

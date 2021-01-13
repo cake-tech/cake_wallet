@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
@@ -19,7 +20,7 @@ void startCurrentWalletChangeReaction(AppStore appStore,
   _onCurrentWalletChangeReaction?.reaction?.dispose();
 
   _onCurrentWalletChangeReaction =
-      reaction((_) => appStore.wallet, (WalletBase wallet) async {
+      reaction((_) => appStore.wallet, (WalletBase<Balance> wallet) async {
     try {
       final node = settingsStore.getCurrentNode(wallet.type);
       startWalletSyncStatusChangeReaction(wallet);
@@ -30,17 +31,26 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await getIt.get<SharedPreferences>().setInt(
           PreferencesKey.currentWalletType, serializeToInt(wallet.type));
       await wallet.connectToNode(node: node);
+
+      if (wallet.walletInfo.address?.isEmpty ?? true) {
+        wallet.walletInfo.address = wallet.address;
+
+        if (wallet.walletInfo.isInBox) {
+          await wallet.walletInfo.save();
+        }
+      }
     } catch (e) {
       print(e.toString());
     }
   });
 
   _onCurrentWalletChangeFiatRateUpdateReaction =
-      reaction((_) => appStore.wallet, (WalletBase wallet) async {
+      reaction((_) => appStore.wallet, (WalletBase<Balance> wallet) async {
     try {
       fiatConversionStore.prices[wallet.currency] = 0;
-      fiatConversionStore.prices[wallet.currency] = await FiatConversionService.fetchPrice(
-          wallet.currency, settingsStore.fiatCurrency);
+      fiatConversionStore.prices[wallet.currency] =
+          await FiatConversionService.fetchPrice(
+              wallet.currency, settingsStore.fiatCurrency);
     } catch (e) {
       print(e.toString());
     }

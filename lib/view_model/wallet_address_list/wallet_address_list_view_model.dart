@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -60,7 +61,7 @@ abstract class WalletAddressListViewModelBase with Store {
     _appStore = appStore;
     _wallet = _appStore.wallet;
     hasAccounts = _wallet?.type == WalletType.monero;
-    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase wallet) {
+    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<Balance> wallet) {
       _wallet = wallet;
       hasAccounts = _wallet.type == WalletType.monero;
     });
@@ -119,7 +120,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
         return WalletAddressListItem(
             isPrimary: isPrimary,
-            name: addr.label,
+            name: null,
             address: addr.address);
       });
       addressList.addAll(bitcoinAddresses);
@@ -131,15 +132,6 @@ abstract class WalletAddressListViewModelBase with Store {
   @observable
   bool hasAccounts;
 
-  @observable
-  WalletBase _wallet;
-
-  List<ListItem> _baseItems;
-
-  AppStore _appStore;
-
-  ReactionDisposer _onWalletChangeReaction;
-
   @computed
   String get accountLabel {
     final wallet = _wallet;
@@ -150,6 +142,19 @@ abstract class WalletAddressListViewModelBase with Store {
 
     return null;
   }
+
+  @computed
+  bool get hasAddressList => _wallet.type == WalletType.monero;
+
+  @observable
+  WalletBase<Balance> _wallet;
+
+  List<ListItem> _baseItems;
+
+  AppStore _appStore;
+
+  ReactionDisposer _onWalletChangeReaction;
+
 
   @action
   void setAddress(WalletAddressListItem address) =>
@@ -163,5 +168,14 @@ abstract class WalletAddressListViewModelBase with Store {
     }
 
     _baseItems.add(WalletAddressListHeader());
+  }
+
+  @action
+  void nextAddress() {
+    final wallet = _wallet;
+
+    if (wallet is BitcoinWallet) {
+      wallet.nextAddress();
+    }
   }
 }

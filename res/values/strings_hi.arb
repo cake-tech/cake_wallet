@@ -1,7 +1,7 @@
 {
   "welcome" : "स्वागत हे सेवा मेरे",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "बहुत बढ़िया बटुआ के लिये Monero",
+  "first_wallet_text" : "Monero और Bitcoin के लिए बहुत बढ़िया बटुआ",
   "please_make_selection" : "कृपया नीचे चयन करें अपना बटुआ बनाएं या पुनर्प्राप्त करें.",
   "create_new" : "नया बटुआ बनाएँ",
   "restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
@@ -212,7 +212,7 @@
   "send_name" : "नाम",
   "send_got_it" : "समझ गया",
   "send_sending" : "भेजना...",
-  "send_success" : "आपका Monero सफलतापूर्वक भेजा गया",
+  "send_success" : "आपका ${crypto} सफलतापूर्वक भेजा गया",
 
 
   "settings_title" : "सेटिंग्स",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "तारीख",
   "transaction_details_height" : "ऊंचाई",
   "transaction_details_amount" : "रकम",
+  "transaction_details_fee" : "शुल्क",
   "transaction_details_copied" : "${title} क्लिपबोर्ड पर नकल",
   "transaction_details_recipient_address" : "प्राप्तकर्ता का पता",
 
@@ -415,7 +416,7 @@
   "exchange_sync_alert_content" : "कृपया प्रतीक्षा करें जब तक आपका बटुआ सिंक्रनाइज़ नहीं किया जाता है",
 
   "pre_seed_title" : "महत्वपूर्ण",
-  "pre_seed_description" : "अगले पेज पर आपको 25 शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।",
+  "pre_seed_description" : "अगले पेज पर आपको ${words} शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।",
   "pre_seed_button_text" : "मै समझता हुँ। मुझे अपना बीज दिखाओ",
 
   "xmr_to_error" : "XMR.TO त्रुटि",
@@ -428,5 +429,11 @@
   "color_theme" : "रंग विषय",
   "light_theme" : "रोशनी",
   "bright_theme" : "उज्ज्वल",
-  "dark_theme" : "अंधेरा"
+  "dark_theme" : "अंधेरा",
+  "enter_your_note" : "अपना नोट दर्ज करें ...",
+  "note_optional" : "नोट (वैकल्पिक)",
+  "note_tap_to_change" : "नोट (टैप टू चेंज)",
+  "transaction_key" : "लेन-देन की",
+  "confirmations" : "पुष्टिकरण",
+  "recipient_address" : "प्राप्तकर्ता का पता"
 }
