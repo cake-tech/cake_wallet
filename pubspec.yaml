@@ -67,6 +67,9 @@ dependencies:
   connectivity: ^0.4.9+2
   keyboard_actions: ^3.3.0
   flushbar: ^1.10.4
+  archive: ^2.0.13
+  cryptography: ^1.4.0
+  file_picker: ^2.1.4
 
 dev_dependencies:
   flutter_test:
