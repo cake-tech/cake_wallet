@@ -435,5 +435,9 @@
   "note_tap_to_change" : "Примечание (нажмите для изменения)",
   "transaction_key" : "Ключ транзакции",
   "confirmations" : "Подтверждения",
-  "recipient_address" : "Адрес получателя"
+  "recipient_address" : "Адрес получателя",
+
+  "extra_id" : "Дополнительный ID:",
+  "destination_tag" : "Целевой тег:",
+  "memo" : "Памятка:"
 }

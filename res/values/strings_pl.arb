@@ -435,5 +435,9 @@
   "note_tap_to_change" : "Notatka (dotknij, aby zmienić)",
   "transaction_key" : "Klucz transakcji",
   "confirmations" : "Potwierdzenia",
-  "recipient_address" : "Adres odbiorcy"
+  "recipient_address" : "Adres odbiorcy",
+
+  "extra_id" : "Dodatkowy ID:",
+  "destination_tag" : "Tag docelowy:",
+  "memo" : "Notatka:"
 }

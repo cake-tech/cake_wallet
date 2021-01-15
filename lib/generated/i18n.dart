@@ -76,6 +76,7 @@ class S implements WidgetsLocalizations {
   String get creating_new_wallet => "Creating new wallet";
   String get dark_theme => "Dark";
   String get delete => "Delete";
+  String get destination_tag => "Destination tag:";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
   String get enter_your_note => "Enter your note…";
@@ -103,6 +104,7 @@ class S implements WidgetsLocalizations {
   String get exchange_result_write_down_trade_id => "Please copy or write down the trade ID to continue.";
   String get exchange_sync_alert_content => "Please wait until your wallet is synchronized";
   String get expired => "Expired";
+  String get extra_id => "Extra ID:";
   String get faq => "FAQ";
   String get fetching => "Fetching";
   String get filters => "Filter";
@@ -115,6 +117,7 @@ class S implements WidgetsLocalizations {
   String get light_theme => "Light";
   String get loading_your_wallet => "Loading your wallet";
   String get login => "Login";
+  String get memo => "Memo:";
   String get new_node_testing => "New node testing";
   String get new_subaddress_create => "Create";
   String get new_subaddress_label_name => "Label name";
@@ -655,6 +658,8 @@ class $de extends S {
   @override
   String get expired => "Abgelaufen";
   @override
+  String get extra_id => "Zusätzliche ID:";
+  @override
   String get transaction_priority_regular => "Regulär";
   @override
   String get trade_details_created_at => "Hergestellt in";
@@ -1025,6 +1030,10 @@ class $de extends S {
   @override
   String get account => "Konto";
   @override
+  String get destination_tag => "Ziel-Tag:";
+  @override
+  String get memo => "Memo:";
+  @override
   String change_language_to(String language) => "Ändern Sie die Sprache in ${language}?";
   @override
   String change_current_node(String node) => "Möchten Sie den aktuellen Knoten wirklich auf ändern? ${node}?";
@@ -1376,6 +1385,8 @@ class $hi extends S {
   String get send_amount => "रकम:";
   @override
   String get expired => "समय सीमा समाप्त";
+  @override
+  String get extra_id => "अतिरिक्त आईडी:";
   @override
   String get transaction_priority_regular => "नियमित";
   @override
@@ -1747,6 +1758,10 @@ class $hi extends S {
   @override
   String get account => "लेखा";
   @override
+  String get destination_tag => "गंतव्य टैग:";
+  @override
+  String get memo => "ज्ञापन:";
+  @override
   String change_language_to(String language) => "को भाषा बदलें ${language}?";
   @override
   String change_current_node(String node) => "क्या आप वर्तमान नोड को बदलना सुनिश्चित करते हैं ${node}?";
@@ -2098,6 +2113,8 @@ class $ru extends S {
   String get send_amount => "Сумма:";
   @override
   String get expired => "Истекает";
+  @override
+  String get extra_id => "Дополнительный ID:";
   @override
   String get transaction_priority_regular => "Обычный";
   @override
@@ -2469,6 +2486,10 @@ class $ru extends S {
   @override
   String get account => "Аккаунт";
   @override
+  String get destination_tag => "Целевой тег:";
+  @override
+  String get memo => "Памятка:";
+  @override
   String change_language_to(String language) => "Изменить язык на ${language}?";
   @override
   String change_current_node(String node) => "Вы уверены, что хотите изменить текущую ноду на ${node}?";
@@ -2820,6 +2841,8 @@ class $ko extends S {
   String get send_amount => "양:";
   @override
   String get expired => "만료";
+  @override
+  String get extra_id => "추가 ID:";
   @override
   String get transaction_priority_regular => "정규병";
   @override
@@ -3191,6 +3214,10 @@ class $ko extends S {
   @override
   String get account => "계정";
   @override
+  String get destination_tag => "목적지 태그:";
+  @override
+  String get memo => "메모:";
+  @override
   String change_language_to(String language) => "언어를로 변경 ${language}?";
   @override
   String change_current_node(String node) => "현재 노드를 다음으로 변경 하시겠습니까 ${node}?";
@@ -3542,6 +3569,8 @@ class $pt extends S {
   String get send_amount => "Montante:";
   @override
   String get expired => "Expirada";
+  @override
+  String get extra_id => "ID extra:";
   @override
   String get transaction_priority_regular => "Regular";
   @override
@@ -3913,6 +3942,10 @@ class $pt extends S {
   @override
   String get account => "Conta";
   @override
+  String get destination_tag => "Tag de destino:";
+  @override
+  String get memo => "Memorando:";
+  @override
   String change_language_to(String language) => "Alterar idioma para ${language}?";
   @override
   String change_current_node(String node) => "Você realmente deseja alterar o nó atual para ${node}?";
@@ -4264,6 +4297,8 @@ class $uk extends S {
   String get send_amount => "Сума:";
   @override
   String get expired => "Закінчується";
+  @override
+  String get extra_id => "Додатковий ID:";
   @override
   String get transaction_priority_regular => "Звичайний";
   @override
@@ -4635,6 +4670,10 @@ class $uk extends S {
   @override
   String get account => "Акаунт";
   @override
+  String get destination_tag => "Тег призначення:";
+  @override
+  String get memo => "Пам’ятка:";
+  @override
   String change_language_to(String language) => "Змінити мову на ${language}?";
   @override
   String change_current_node(String node) => "Ви впевнені, що хочете змінити поточний вузол на ${node}?";
@@ -4986,6 +5025,8 @@ class $ja extends S {
   String get send_amount => "量：";
   @override
   String get expired => "期限切れ";
+  @override
+  String get extra_id => "追加ID:";
   @override
   String get transaction_priority_regular => "レギュラー";
   @override
@@ -5357,6 +5398,10 @@ class $ja extends S {
   @override
   String get account => "アカウント";
   @override
+  String get destination_tag => "宛先タグ:";
+  @override
+  String get memo => "メモ:";
+  @override
   String change_language_to(String language) => "言語を変更 ${language}?";
   @override
   String change_current_node(String node) => "現在のノードを変更してよろしいですか ${node}?";
@@ -5712,6 +5757,8 @@ class $pl extends S {
   String get send_amount => "Ilość:";
   @override
   String get expired => "Przedawniony";
+  @override
+  String get extra_id => "Dodatkowy ID:";
   @override
   String get transaction_priority_regular => "Regularny";
   @override
@@ -6083,6 +6130,10 @@ class $pl extends S {
   @override
   String get account => "Konto";
   @override
+  String get destination_tag => "Tag docelowy:";
+  @override
+  String get memo => "Notatka:";
+  @override
   String change_language_to(String language) => "Zmień język na ${language}?";
   @override
   String change_current_node(String node) => "Czy na pewno chcesz przywrócić ustawienia domyślne? ${node}?";
@@ -6434,6 +6485,8 @@ class $es extends S {
   String get send_amount => "Cantidad:";
   @override
   String get expired => "Muerto";
+  @override
+  String get extra_id => "ID adicional:";
   @override
   String get transaction_priority_regular => "Regular";
   @override
@@ -6805,6 +6858,10 @@ class $es extends S {
   @override
   String get account => "Cuenta";
   @override
+  String get destination_tag => "Etiqueta de destino:";
+  @override
+  String get memo => "Memorándum:";
+  @override
   String change_language_to(String language) => "Cambiar el idioma a ${language}?";
   @override
   String change_current_node(String node) => "¿Está seguro de cambiar el nodo actual a ${node}?";
@@ -7156,6 +7213,8 @@ class $nl extends S {
   String get send_amount => "Bedrag:";
   @override
   String get expired => "Verlopen";
+  @override
+  String get extra_id => "Extra ID:";
   @override
   String get transaction_priority_regular => "Regelmatig";
   @override
@@ -7527,6 +7586,10 @@ class $nl extends S {
   @override
   String get account => "Account";
   @override
+  String get destination_tag => "Bestemmingstag:";
+  @override
+  String get memo => "Memo:";
+  @override
   String change_language_to(String language) => "Verander de taal in ${language}?";
   @override
   String change_current_node(String node) => "Weet u zeker dat u het huidige knooppunt wilt wijzigen in ${node}?";
@@ -7878,6 +7941,8 @@ class $zh extends S {
   String get send_amount => "量:";
   @override
   String get expired => "已过期";
+  @override
+  String get extra_id => "額外編號:";
   @override
   String get transaction_priority_regular => "定期";
   @override
@@ -8248,6 +8313,10 @@ class $zh extends S {
   String get settings_trades => "交易";
   @override
   String get account => "帐户";
+  @override
+  String get destination_tag => "目標標籤:";
+  @override
+  String get memo => "備忘錄:";
   @override
   String change_language_to(String language) => "將語言更改為 ${language}?";
   @override
