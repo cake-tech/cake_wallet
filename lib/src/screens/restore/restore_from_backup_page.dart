@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -7,6 +8,8 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class RestoreFromBackupPage extends BasePage {
   RestoreFromBackupPage(this.restoreFromBackupViewModel)
@@ -20,6 +23,22 @@ class RestoreFromBackupPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    reaction((_) => restoreFromBackupViewModel.state, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        });
+      }
+    });
+
     return Container(
         padding: EdgeInsets.only(bottom: 30, left: 25, right: 25),
         child: Column(children: [
@@ -46,12 +65,15 @@ class RestoreFromBackupPage extends BasePage {
                     color: Colors.grey,
                     textColor: Colors.white)),
             SizedBox(width: 20),
-            Expanded(
-                child: PrimaryButton(
-                    onPressed: () => onImportHandler(context),
-                    text: 'Import',
-                    color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Colors.white))
+            Expanded(child: Observer(builder: (_) {
+              return LoadingPrimaryButton(
+                  isLoading:
+                      restoreFromBackupViewModel.state is IsExecutingState,
+                  onPressed: () => onImportHandler(context),
+                  text: 'Import',
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white);
+            }))
           ])),
         ]));
   }

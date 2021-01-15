@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/main.dart';
@@ -19,15 +20,21 @@ abstract class RestoreFromBackupViewModelBase with Store {
   @observable
   String filePath;
 
+  @observable
+  ExecutionState state;
+
   final BackupService backupService;
 
   @action
   void reset() => filePath = '';
 
+  @action
   Future<void> import(String password) async {
     try {
+      state = IsExecutingState();
+
       if (filePath?.isEmpty ?? true) {
-        // FIXME: throw exception;
+        state = FailureState('Backup file is not selected.');
         return;
       }
 
@@ -49,8 +56,16 @@ abstract class RestoreFromBackupViewModelBase with Store {
           reaction?.reaction?.dispose();
         }
       });
+
+      state = ExecutedSuccessfullyState();
     } catch (e) {
-      print(e.toString());
+      var msg = e.toString();
+
+      if (msg == 'Message authentication code (MAC) is invalid') {
+        msg = 'Incorrect backup password';
+      }
+
+      state = FailureState(msg);
     }
   }
 }
