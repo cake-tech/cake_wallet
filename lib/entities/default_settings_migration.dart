@@ -1,9 +1,12 @@
 import 'dart:io' show File, Platform;
+import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/pathForWallet.dart';
+import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
@@ -17,10 +20,12 @@ import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 
 Future defaultSettingsMigration(
     {@required int version,
     @required SharedPreferences sharedPreferences,
+    @required FlutterSecureStorage secureStorage,
     @required Box<Node> nodes,
     @required Box<WalletInfo> walletInfoSource,
     @required Box<Trade> tradeSource,
@@ -29,9 +34,9 @@ Future defaultSettingsMigration(
     await ios_migrate_v1(walletInfoSource, tradeSource, contactSource);
   }
 
-  final currentVersion =
-      sharedPreferences.getInt('current_default_settings_migration_version') ??
-          0;
+  final currentVersion = sharedPreferences
+          .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion) ??
+      0;
   if (currentVersion >= version) {
     return;
   }
@@ -83,6 +88,10 @@ Future defaultSettingsMigration(
 
         case 6:
           await updateDisplayModes(sharedPreferences);
+          break;
+
+        case 9:
+          await generateBackupPassword(secureStorage);
           break;
 
         default:
@@ -230,5 +239,17 @@ Future<void> updateDisplayModes(SharedPreferences sharedPreferences) async {
   final currentBalanceDisplayMode =
       sharedPreferences.getInt(PreferencesKey.currentBalanceDisplayModeKey);
   final balanceDisplayMode = currentBalanceDisplayMode < 2 ? 3 : 2;
-  await sharedPreferences.setInt(PreferencesKey.currentBalanceDisplayModeKey, balanceDisplayMode);
+  await sharedPreferences.setInt(
+      PreferencesKey.currentBalanceDisplayModeKey, balanceDisplayMode);
+}
+
+Future<void> generateBackupPassword(FlutterSecureStorage secureStorage) async {
+  final key = generateStoreKeyFor(key: SecretStoreKey.backupPassword);
+
+  if ((await secureStorage.read(key: key))?.isNotEmpty ?? false) {
+    return;
+  }
+
+  final password = encrypt.Key.fromSecureRandom(32).base16;
+  await secureStorage.write(key: key, value: password);
 }

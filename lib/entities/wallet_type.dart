@@ -4,8 +4,9 @@ import 'package:hive/hive.dart';
 part 'wallet_type.g.dart';
 
 const walletTypes = [WalletType.monero, WalletType.bitcoin];
+const walletTypeTypeId = 5;
 
-@HiveType(typeId: 5)
+@HiveType(typeId: walletTypeTypeId)
 enum WalletType {
   @HiveField(0)
   monero,

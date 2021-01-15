@@ -85,10 +85,10 @@ abstract class SettingsStoreBase with Store {
         (String languageCode) => sharedPreferences.setString(
             PreferencesKey.currentLanguageCode, languageCode));
 
-    reaction((_) => balanceDisplayMode,
-            (BalanceDisplayMode mode) => sharedPreferences.setInt(
-            PreferencesKey.currentBalanceDisplayModeKey,
-            mode.serialize()));
+    reaction(
+        (_) => balanceDisplayMode,
+        (BalanceDisplayMode mode) => sharedPreferences.setInt(
+            PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
 
     this
         .nodes
@@ -158,7 +158,7 @@ abstract class SettingsStoreBase with Store {
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
     final legacyTheme =
-      (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
+        (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
             ? ThemeType.dark.index
             : ThemeType.bright.index;
     final savedTheme = ThemeList.deserialize(
@@ -201,6 +201,29 @@ abstract class SettingsStoreBase with Store {
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
         initialLanguageCode: savedLanguageCode);
+  }
+
+  Future<void> reload(
+      {@required Box<Node> nodeSource,
+      FiatCurrency initialFiatCurrency = FiatCurrency.usd,
+      TransactionPriority initialTransactionPriority = TransactionPriority.slow,
+      BalanceDisplayMode initialBalanceDisplayMode =
+          BalanceDisplayMode.availableBalance}) async {
+    final settings = await SettingsStoreBase.load(
+        nodeSource: nodeSource,
+        initialBalanceDisplayMode: initialBalanceDisplayMode,
+        initialFiatCurrency: initialFiatCurrency,
+        initialTransactionPriority: initialTransactionPriority);
+    fiatCurrency = settings.fiatCurrency;
+    actionlistDisplayMode = settings.actionlistDisplayMode;
+    transactionPriority = settings.transactionPriority;
+    balanceDisplayMode = settings.balanceDisplayMode;
+    shouldSaveRecipientAddress = settings.shouldSaveRecipientAddress;
+    allowBiometricalAuthentication = settings.allowBiometricalAuthentication;
+    currentTheme = settings.currentTheme;
+    pinCodeLength = settings.pinCodeLength;
+    languageCode = settings.languageCode;
+    appVersion = settings.appVersion;
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {

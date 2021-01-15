@@ -1,6 +1,9 @@
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/src/screens/backup/backup_page.dart';
+import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
+import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -103,9 +106,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param2: false));
 
     case Routes.restoreOptions:
-      final type = settings.arguments as WalletType;
       return CupertinoPageRoute<void>(
-          builder: (_) => RestoreOptionsPage(type: type));
+          builder: (_) => getIt.get<RestoreOptionsPage>());
 
     case Routes.restoreWalletOptions:
       final type = WalletType.monero; //settings.arguments as WalletType;
@@ -316,6 +318,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) =>
               getIt.get<PreSeedPage>(param1: settings.arguments as WalletType));
+
+    case Routes.backup:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<BackupPage>());
+
+    case Routes.editBackupPassword:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<EditBackupPasswordPage>());
+
+    case Routes.restoreFromBackup:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     default:
       return MaterialPageRoute<void>(
