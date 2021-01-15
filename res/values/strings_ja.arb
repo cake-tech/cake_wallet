@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "この取引は ${provider}",
   "copy_address" : "住所をコピー",
   "exchange_result_confirm" : "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 下記の住所へ。 または、外部ウォレットから以下のアドレスに送信することもできます/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.",
-  "exchange_result_description" : "送信してください ${fetchingLabel} ${from} 下記の住所へ.",
+  "exchange_result_description" : "送信してください ${fetchingLabel} ${from} 次のページに表示されているアドレスに.",
   "exchange_result_write_down_ID" : "*上記のIDをコピーまたは書き留めてください.",
   "confirm" : "確認する",
   "confirm_sending" : "送信を確認",
