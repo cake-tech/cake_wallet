@@ -54,7 +54,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xmr:
         return [95, 106];
       case CryptoCurrency.ada:
-        return [59, 92, 105];
+        return [59, 92, 104, 105];
       case CryptoCurrency.bch:
         return [42];
       case CryptoCurrency.bnb:
