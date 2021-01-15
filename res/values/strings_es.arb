@@ -435,5 +435,9 @@
   "note_tap_to_change" : "Nota (toque para cambiar)",
   "transaction_key" : "Clave de transacción",
   "confirmations" : "Confirmaciones",
-  "recipient_address" : "Dirección del receptor"
+  "recipient_address" : "Dirección del receptor",
+
+  "extra_id" : "ID adicional:",
+  "destination_tag" : "Etiqueta de destino:",
+  "memo" : "Memorándum:"
 }

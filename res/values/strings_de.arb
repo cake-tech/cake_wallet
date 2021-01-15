@@ -435,5 +435,9 @@
   "note_tap_to_change" : "Hinweis (zum Ändern tippen)",
   "transaction_key" : "Transaktionsschlüssel",
   "confirmations" : "Bestätigungen",
-  "recipient_address" : "Empfängeradresse"
+  "recipient_address" : "Empfängeradresse",
+
+  "extra_id" : "Zusätzliche ID:",
+  "destination_tag" : "Ziel-Tag:",
+  "memo" : "Memo:"
 }
