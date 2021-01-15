@@ -43,7 +43,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xlm:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.xrp:
-        return '[0-9a-zA-Z]';
+        return '^[0-9a-zA-Z]{34}\$|^X[0-9a-zA-Z]{46}\$';
       default:
         return '[0-9a-zA-Z]';
     }
@@ -82,7 +82,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xlm:
         return [56];
       case CryptoCurrency.xrp:
-        return [34];
+        return null;
       default:
         return [];
     }
