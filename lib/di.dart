@@ -1,5 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
-import 'package:cake_wallet/core/backup.dart';
+import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
@@ -105,6 +105,15 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 
 final getIt = GetIt.instance;
 
+var _isSetupFinished = false;
+Box<WalletInfo> _walletInfoSource;
+Box<Node> _nodeSource;
+Box<Contact> _contactSource;
+Box<Trade> _tradesSource;
+Box<Template> _templates;
+Box<ExchangeTemplate> _exchangeTemplates;
+Box<TransactionDescription> _transactionDescriptionBox;
+
 Future setup(
     {Box<WalletInfo> walletInfoSource,
     Box<Node> nodeSource,
@@ -113,12 +122,26 @@ Future setup(
     Box<Template> templates,
     Box<ExchangeTemplate> exchangeTemplates,
     Box<TransactionDescription> transactionDescriptionBox}) async {
-  getIt.registerSingletonAsync<SharedPreferences>(
-      () => SharedPreferences.getInstance());
+  _walletInfoSource = walletInfoSource;
+  _nodeSource = nodeSource;
+  _contactSource = contactSource;
+  _tradesSource = tradesSource;
+  _templates = templates;
+  _exchangeTemplates = exchangeTemplates;
+  _transactionDescriptionBox = transactionDescriptionBox;
 
-  final settingsStore = await SettingsStoreBase.load(nodeSource: nodeSource);
+  if (!_isSetupFinished) {
+    getIt.registerSingletonAsync<SharedPreferences>(
+            () => SharedPreferences.getInstance());
+  }
 
-  getIt.registerSingleton<Box<Node>>(nodeSource);
+  final settingsStore = await SettingsStoreBase.load(nodeSource: _nodeSource);
+
+  if (_isSetupFinished) {
+    return;
+  }
+
+  getIt.registerFactory<Box<Node>>(() => _nodeSource);
 
   getIt.registerSingleton<FlutterSecureStorage>(FlutterSecureStorage());
   getIt.registerSingleton(AuthenticationStore());
@@ -131,14 +154,14 @@ Future setup(
       settingsStore: getIt.get<SettingsStore>(),
       nodeListStore: getIt.get<NodeListStore>()));
   getIt.registerSingleton<TradesStore>(TradesStore(
-      tradesSource: tradesSource, settingsStore: getIt.get<SettingsStore>()));
+      tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
   getIt.registerSingleton<SendTemplateStore>(
-      SendTemplateStore(templateSource: templates));
+      SendTemplateStore(templateSource: _templates));
   getIt.registerSingleton<ExchangeTemplateStore>(
-      ExchangeTemplateStore(templateSource: exchangeTemplates));
+      ExchangeTemplateStore(templateSource: _exchangeTemplates));
 
   final secretStore =
       await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
@@ -157,7 +180,7 @@ Future setup(
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
       WalletNewVM(getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
           type: type));
 
   getIt
@@ -167,7 +190,7 @@ Future setup(
     final mnemonic = args[2] as String;
 
     return WalletRestorationFromSeedVM(getIt.get<AppStore>(),
-        getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+        getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
         type: type, language: language, seed: mnemonic);
   });
 
@@ -177,7 +200,7 @@ Future setup(
     final language = args[1] as String;
 
     return WalletRestorationFromKeysVM(getIt.get<AppStore>(),
-        getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+        getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
         type: type, language: language);
   });
 
@@ -262,7 +285,7 @@ Future setup(
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateStore>(),
       getIt.get<FiatConversionStore>(),
-      transactionDescriptionBox));
+      _transactionDescriptionBox));
 
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
@@ -271,7 +294,7 @@ Future setup(
       () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
-      walletInfoSource,
+      _walletInfoSource,
       getIt.get<AppStore>(),
       getIt.get<KeyService>(),
       getIt.get<WalletNewVM>(param1: WalletType.monero)));
@@ -342,10 +365,10 @@ Future setup(
 
   getIt.registerFactoryParam<ContactViewModel, ContactRecord, void>(
       (ContactRecord contact, _) =>
-          ContactViewModel(contactSource, contact: contact));
+          ContactViewModel(_contactSource, contact: contact));
 
   getIt.registerFactory(
-      () => ContactListViewModel(contactSource, walletInfoSource));
+      () => ContactListViewModel(_contactSource, _walletInfoSource));
 
   getIt.registerFactoryParam<ContactListPage, bool, void>(
       (bool isEditable, _) => ContactListPage(getIt.get<ContactListViewModel>(),
@@ -358,27 +381,27 @@ Future setup(
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
     return NodeListViewModel(
-        nodeSource, appStore.wallet, appStore.settingsStore);
+        _nodeSource, appStore.wallet, appStore.settingsStore);
   });
 
   getIt.registerFactory(() => NodeListPage(getIt.get<NodeListViewModel>()));
 
   getIt.registerFactory(() =>
-      NodeCreateOrEditViewModel(nodeSource, getIt.get<AppStore>().wallet));
+      NodeCreateOrEditViewModel(_nodeSource, getIt.get<AppStore>().wallet));
 
   getIt.registerFactory(
       () => NodeCreateOrEditPage(getIt.get<NodeCreateOrEditViewModel>()));
 
   getIt.registerFactory(() => ExchangeViewModel(
       getIt.get<AppStore>().wallet,
-      tradesSource,
+      _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
       getIt.get<AppStore>().settingsStore));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,
-      trades: tradesSource,
+      trades: _tradesSource,
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>()));
 
@@ -393,9 +416,9 @@ Future setup(
   getIt.registerFactory(
       () => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
 
-  getIt.registerFactory(() => MoneroWalletService(walletInfoSource));
+  getIt.registerFactory(() => MoneroWalletService(_walletInfoSource));
 
-  getIt.registerFactory(() => BitcoinWalletService(walletInfoSource));
+  getIt.registerFactory(() => BitcoinWalletService(_walletInfoSource));
 
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
@@ -428,7 +451,7 @@ Future setup(
 
   getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>(
       (type, _) => WalletRestoreViewModel(getIt.get<AppStore>(),
-          getIt.get<WalletCreationService>(param1: type), walletInfoSource,
+          getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
           type: type));
 
   getIt.registerFactoryParam<WalletRestorePage, WalletType, void>((type, _) =>
@@ -438,7 +461,7 @@ Future setup(
       .registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
           (TransactionInfo transactionInfo, _) => TransactionDetailsViewModel(
               transactionInfo: transactionInfo,
-              transactionDescriptionBox: transactionDescriptionBox,
+              transactionDescriptionBox: _transactionDescriptionBox,
               settingsStore: getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
@@ -455,12 +478,11 @@ Future setup(
       (WalletType type, _) => PreSeedPage(type));
 
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
-      TradeDetailsViewModel(tradeForDetails: trade, trades: tradesSource));
+      TradeDetailsViewModel(tradeForDetails: trade, trades: _tradesSource));
 
   getIt.registerFactory(() => BackupService(
       getIt.get<FlutterSecureStorage>(),
-      getIt.get<AuthService>(),
-      walletInfoSource,
+      _walletInfoSource,
       getIt.get<KeyService>(),
       getIt.get<SharedPreferences>()));
 
@@ -476,8 +498,7 @@ Future setup(
   getIt.registerFactory(
       () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
-  getIt.registerFactoryParam<RestoreOptionsPage, WalletType, void>(
-      (WalletType type, _) => RestoreOptionsPage(type: type));
+  getIt.registerFactory(() => RestoreOptionsPage());
 
   getIt.registerFactory(
       () => RestoreFromBackupViewModel(getIt.get<BackupService>()));
@@ -487,4 +508,6 @@ Future setup(
 
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>((Trade trade, _) =>
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
+
+  _isSetupFinished = true;
 }

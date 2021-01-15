@@ -8,7 +8,7 @@ import 'package:cake_wallet/entities/digest_request.dart';
 
 part 'node.g.dart';
 
-@HiveType(typeId: 1)
+@HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node(
       {@required this.uri,
@@ -26,6 +26,7 @@ class Node extends HiveObject with Keyable {
         typeRaw = map['typeRaw'] as int,
         useSSL = map['useSSL'] as bool;
 
+  static const typeId = 1;
   static const boxName = 'Nodes';
 
   @HiveField(0)

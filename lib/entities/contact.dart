@@ -5,11 +5,12 @@ import 'package:cake_wallet/utils/mobx.dart';
 
 part 'contact.g.dart';
 
-@HiveType(typeId: 0)
+@HiveType(typeId: Contact.typeId)
 class Contact extends HiveObject with Keyable {
   Contact({@required this.name, @required this.address, CryptoCurrency type})
       : raw = type?.raw;
 
+  static const typeId = 0;
   static const boxName = 'Contacts';
 
   @HiveField(0)

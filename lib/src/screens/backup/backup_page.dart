@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:esys_flutter_share/esys_flutter_share.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -34,7 +36,7 @@ class BackupPage extends BasePage {
         Center(
             child: Container(
                 padding: EdgeInsets.only(left: 20, right: 20),
-                height: 225,
+                height: 300,
                 child: Column(children: [
                   Text(
                     'Backup password:',
@@ -43,9 +45,21 @@ class BackupPage extends BasePage {
                   Padding(
                       padding: EdgeInsets.only(top: 20, bottom: 10),
                       child: Observer(
-                          builder: (_) => Text(
-                                backupViewModelBase.backupPassword,
-                                style: TextStyle(fontSize: 26),
+                          builder: (_) => GestureDetector(
+                                onTap: () {
+                                  Clipboard.setData(ClipboardData(
+                                      text:
+                                          backupViewModelBase.backupPassword));
+                                  showBar<void>(
+                                      context,
+                                      S.of(context).transaction_details_copied(
+                                          'Backup password'));
+                                },
+                                child: Text(
+                                  backupViewModelBase.backupPassword,
+                                  style: TextStyle(fontSize: 26),
+                                  textAlign: TextAlign.center,
+                                ),
                               ))),
                   Padding(
                       padding: EdgeInsets.all(20),

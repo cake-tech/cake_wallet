@@ -84,5 +84,6 @@ class RestoreFromBackupPage extends BasePage {
     }
 
     await restoreFromBackupViewModel.import(textEditingController.text);
+    textEditingController.text = '';
   }
 }
