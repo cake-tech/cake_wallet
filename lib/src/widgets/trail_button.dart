@@ -18,7 +18,7 @@ class TrailButton extends StatelessWidget {
             caption,
             style: TextStyle(
                 color:
-                    Theme.of(context).accentTextTheme.display4.decorationColor,
+                    Theme.of(context).accentTextTheme.bodyText2.color,
                 fontWeight: FontWeight.w500,
                 fontSize: 14),
           ),

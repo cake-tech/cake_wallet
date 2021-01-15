@@ -106,9 +106,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
               param2: false));
 
     case Routes.restoreOptions:
-      final type = settings.arguments as WalletType;
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<RestoreOptionsPage>(param1: type));
+          builder: (_) => getIt.get<RestoreOptionsPage>());
 
     case Routes.restoreWalletOptions:
       final type = WalletType.monero; //settings.arguments as WalletType;

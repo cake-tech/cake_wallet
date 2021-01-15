@@ -160,7 +160,7 @@ class WelcomePage extends BasePage {
                           child: PrimaryImageButton(
                               onPressed: () =>
                                   Navigator.pushNamed(context,
-                                      Routes.restoreWalletOptionsFromWelcome),
+                                      Routes.restoreOptions),
                               image: restoreWalletImage,
                               text: S
                                   .of(context)

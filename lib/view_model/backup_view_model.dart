@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/backup.dart';
+import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cake_wallet/store/secret_store.dart';
@@ -52,7 +52,7 @@ abstract class BackupViewModelBase with Store {
   Future<BackupExportFile> exportBackup() async {
     try {
       state = IsExecutingState();
-      final backupContent = await backupService.exportBackup('', nonce: '');
+      final backupContent = await backupService.exportBackup(backupPassword);
       state = ExecutedSuccessfullyState();
 
       return BackupExportFile(backupContent.toList(),
@@ -60,6 +60,7 @@ abstract class BackupViewModelBase with Store {
     } catch (e) {
       print(e.toString());
       state = FailureState(e.toString());
+      return null;
     }
   }
 
