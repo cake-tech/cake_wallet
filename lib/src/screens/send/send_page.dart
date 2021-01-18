@@ -39,6 +39,7 @@ class SendPage extends BasePage {
     _addressFocusNode.addListener(() {
       if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
         getOpenaliasRecord(_addressFocusNode.context);
+        getUnstoppableDomainAddress();
       }
     });
   }
@@ -504,6 +505,7 @@ class SendPage extends BasePage {
                                       _cryptoAmountController.text =
                                           template.amount;
                                       getOpenaliasRecord(context);
+                                      getUnstoppableDomainAddress();
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -735,6 +737,15 @@ class SendPage extends BasePage {
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });
+    }
+  }
+
+  Future<void> getUnstoppableDomainAddress() async {
+    final address =
+      await sendViewModel.getUnstoppableDomainAddress(_addressController.text);
+
+    if ((address != null)&&(address.isNotEmpty)) {
+      _addressController.text = address;
     }
   }
 

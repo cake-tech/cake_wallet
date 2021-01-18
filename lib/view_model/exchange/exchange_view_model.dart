@@ -3,6 +3,7 @@ import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
@@ -389,5 +390,9 @@ abstract class ExchangeViewModelBase with Store {
       default:
         break;
     }
+  }
+
+  Future<String> getUnstoppableDomainAddress(String domain, String ticker) async {
+    return await fetchUnstoppableDomainAddress(domain, ticker.toLowerCase());
   }
 }

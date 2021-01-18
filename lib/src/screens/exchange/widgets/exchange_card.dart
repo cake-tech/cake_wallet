@@ -28,6 +28,7 @@ class ExchangeCard extends StatefulWidget {
       this.currencyValueValidator,
       this.addressTextFieldValidator,
       this.amountFocusNode,
+      this.addressFocusNode,
       this.hasAllAmount = false,
       this.allAmount})
       : super(key: key);
@@ -49,6 +50,7 @@ class ExchangeCard extends StatefulWidget {
   final FormFieldValidator<String> currencyValueValidator;
   final FormFieldValidator<String> addressTextFieldValidator;
   final FocusNode amountFocusNode;
+  final FocusNode addressFocusNode;
   final bool hasAllAmount;
   Function allAmount;
 
@@ -288,6 +290,7 @@ class ExchangeCardState extends State<ExchangeCard> {
             ? Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: AddressTextField(
+                  focusNode: widget.addressFocusNode,
                   controller: addressController,
                   placeholder: widget.hasRefundAddress
                       ? S.of(context).refund_address

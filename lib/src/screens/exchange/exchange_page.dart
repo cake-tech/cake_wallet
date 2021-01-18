@@ -39,7 +39,9 @@ class ExchangePage extends BasePage {
   final receiveKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
   final _depositAmountFocus = FocusNode();
+  final _depositAddressFocus = FocusNode();
   final _receiveAmountFocus = FocusNode();
+  final _receiveAddressFocus = FocusNode();
   var _isReactionsSet = false;
 
   @override
@@ -168,6 +170,7 @@ class ExchangePage extends BasePage {
                                         .calculateDepositAllAmount()
                                     : null,
                                 amountFocusNode: _depositAmountFocus,
+                                addressFocusNode: _depositAddressFocus,
                                 key: depositKey,
                                 title: S.of(context).you_will_send,
                                 initialCurrency:
@@ -229,6 +232,7 @@ class ExchangePage extends BasePage {
                             child: Observer(
                                 builder: (_) => ExchangeCard(
                                       amountFocusNode: _receiveAmountFocus,
+                                      addressFocusNode: _receiveAddressFocus,
                                       key: receiveKey,
                                       title: S.of(context).you_will_get,
                                       initialCurrency:
@@ -457,7 +461,7 @@ class ExchangePage extends BasePage {
   }
 
   void applyTemplate(
-      ExchangeViewModel exchangeViewModel, ExchangeTemplate template) {
+      ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
     exchangeViewModel.changeDepositCurrency(
         currency: CryptoCurrency.fromString(template.depositCurrency));
     exchangeViewModel.changeReceiveCurrency(
@@ -482,6 +486,22 @@ class ExchangePage extends BasePage {
     exchangeViewModel.depositAddress = template.depositAddress;
     exchangeViewModel.receiveAddress = template.receiveAddress;
     exchangeViewModel.isReceiveAmountEntered = false;
+
+    var domain = template.depositAddress;
+    var ticker = template.depositCurrency;
+    var address = await exchangeViewModel
+        .getUnstoppableDomainAddress(domain, ticker);
+    if ((address != null)&&(address.isNotEmpty)){
+      exchangeViewModel.depositAddress = address;
+    }
+
+    domain = template.receiveAddress;
+    ticker = template.receiveCurrency;
+    address = await exchangeViewModel
+        .getUnstoppableDomainAddress(domain, ticker);
+    if ((address != null)&&(address.isNotEmpty)){
+      exchangeViewModel.receiveAddress = address;
+    }
   }
 
   void _setReactions(
@@ -644,6 +664,32 @@ class ExchangePage extends BasePage {
 
       if (exchangeViewModel.receiveCurrency == CryptoCurrency.xmr) {
         receiveKey.currentState.changeAddress(address: address);
+      }
+    });
+
+    _depositAddressFocus.addListener(() async {
+      if (!_depositAddressFocus.hasFocus &&
+          depositAddressController.text.isNotEmpty) {
+        final domain = depositAddressController.text;
+        final ticker = exchangeViewModel.depositCurrency.title;
+        final address = await exchangeViewModel
+            .getUnstoppableDomainAddress(domain, ticker);
+        if ((address != null)&&(address.isNotEmpty)){
+          exchangeViewModel.depositAddress = address;
+        }
+      }
+    });
+
+    _receiveAddressFocus.addListener(() async {
+      if (!_receiveAddressFocus.hasFocus &&
+          receiveAddressController.text.isNotEmpty) {
+        final domain = receiveAddressController.text;
+        final ticker = exchangeViewModel.receiveCurrency.title;
+        final address = await exchangeViewModel
+            .getUnstoppableDomainAddress(domain, ticker);
+        if ((address != null)&&(address.isNotEmpty)){
+          exchangeViewModel.receiveAddress = address;
+        }
       }
     });
 
