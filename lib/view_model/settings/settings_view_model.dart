@@ -123,19 +123,6 @@ abstract class SettingsViewModelBase with Store {
                 _settingsStore.currentTheme = theme)
       ],
       [
-        RegularListItem(
-            title: 'Backup',
-            handler: (BuildContext context) {
-              Navigator.of(context).pushNamed(Routes.auth, arguments:
-                  (bool isAuthenticatedSuccessfully, AuthPageState auth) {
-                auth.close();
-                if (isAuthenticatedSuccessfully) {
-                  Navigator.of(context).pushNamed(Routes.backup);
-                }
-              });
-            }),
-      ],
-      [
         LinkListItem(
             title: 'Email',
             linkTitle: 'support@cakewallet.com',
