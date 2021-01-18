@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Deze transactie wordt mogelijk gemaakt door ${provider}",
   "copy_address" : "Adres kopiëren",
   "exchange_result_confirm" : "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar het onderstaande adres. Of u kunt vanuit uw externe portemonnee naar het onderstaande adres verzenden / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.",
-  "exchange_result_description" : "Zend alstublieft ${fetchingLabel} ${from} naar het onderstaande adres.",
+  "exchange_result_description" : "Zend alstublieft ${fetchingLabel} ${from} naar het adres op de volgende pagina.",
   "exchange_result_write_down_ID" : "*Kopieer of noteer uw hierboven getoonde ID.",
   "confirm" : "Bevestigen",
   "confirm_sending" : "Bevestig verzending",
@@ -435,5 +435,9 @@
   "note_tap_to_change" : "Opmerking (tik om te wijzigen)",
   "transaction_key" : "Transactiesleutel",
   "confirmations" : "Bevestigingen",
-  "recipient_address" : "Adres ontvanger"
+  "recipient_address" : "Adres ontvanger",
+
+  "extra_id" : "Extra ID:",
+  "destination_tag" : "Bestemmingstag:",
+  "memo" : "Memo:"
 }
