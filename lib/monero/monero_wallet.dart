@@ -39,6 +39,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
         unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
+    _lastAutosaveTimestamp = 0;
+    _isSavingAfterSync = false;
+    _isSavingAfterNewTransaction = false;
     _onAccountChangeReaction = reaction((_) => account, (Account account) {
       balance = MoneroBalance(
           fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
@@ -47,9 +50,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
-      _lastAutosaveTimestamp = 0;
-      _isSavingAfterSync = false;
-      _isSavingAfterNewTransaction = false;
     });
   }
 

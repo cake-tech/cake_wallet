@@ -37,7 +37,7 @@ class EditBackupPasswordPage extends BasePage {
                         autocorrect: false,
                         keyboardType: TextInputType.visiblePassword,
                         controller: textEditingController,
-                        style: TextStyle(fontSize: 26, color: Colors.black)))),
+                        style: TextStyle(fontSize: 26, color: Theme.of(context).primaryTextTheme.title.color)))),
             Positioned(
                 child: Observer(
                     builder: (_) => PrimaryButton(

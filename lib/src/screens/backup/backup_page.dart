@@ -24,7 +24,7 @@ class BackupPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
-      caption: S.of(context).edit,
+      caption: 'Change password',
       onPressed: () =>
           Navigator.of(context).pushNamed(Routes.editBackupPassword));
 
