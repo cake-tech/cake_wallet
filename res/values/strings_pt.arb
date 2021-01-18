@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Troca realizada por ${provider}",
   "copy_address" : "Copiar endereço",
   "exchange_result_confirm" : "Ao confirmar, você enviará ${fetchingLabel} ${from} da sua carteira  ${walletName} para o endereço mostrado abaixo. Ou você pode enviar de sua carteira externa para o endereço abaixo/código QR acima.\n\nPressione Confirmar para continuar ou volte para alterar os valores.",
-  "exchange_result_description" : "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado abaixo.",
+  "exchange_result_description" : "Por favor, envie ${fetchingLabel} ${from} para o endereço mostrado na próxima página.",
   "exchange_result_write_down_ID" : "*Copie ou anote seu ID mostrado acima.",
   "confirm" : "Confirmar",
   "confirm_sending" : "Confirmar o envio",
@@ -435,5 +435,9 @@
   "note_tap_to_change" : "Nota (toque para alterar)",
   "transaction_key" : "Chave de transação",
   "confirmations" : "Confirmações",
-  "recipient_address" : "Endereço do destinatário"
+  "recipient_address" : "Endereço do destinatário",
+
+  "extra_id" : "ID extra:",
+  "destination_tag" : "Tag de destino:",
+  "memo" : "Memorando:"
 }
