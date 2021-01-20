@@ -439,5 +439,22 @@
 
   "extra_id" : "追加ID:",
   "destination_tag" : "宛先タグ:",
-  "memo" : "メモ:"
+  "memo" : "メモ:",
+
+  "backup" : "バックアップ",
+  "change_password" : "パスワードを変更する",
+  "backup_password" : "バックアップパスワード",
+  "write_down_backup_password" : "バックアップファイルのインポートに使用されるバックアップパスワードを書き留めてください。",
+  "export_backup" : "バックアップのエクスポート",
+  "save_backup_password" : "バックアップパスワードが保存されていることを確認してください。 それなしではバックアップファイルをインポートすることはできません。",
+  "backup_file" : "バックアップファイル",
+
+  "edit_backup_password" : "バックアップパスワードの編集",
+  "save_backup_password_alert" : "バックアップパスワードを保存する",
+  "change_backup_password_alert" : "以前のバックアップファイルは、新しいバックアップパスワードでインポートできなくなります。 新しいバックアップパスワードは、新しいバックアップファイルにのみ使用されます。 バックアップパスワードを変更してもよろしいですか？",
+
+  "enter_backup_password" : "ここにバックアップパスワードを入力してください",
+  "select_backup_file" : "バックアップファイルを選択",
+  "import" : "インポート",
+  "please_select_backup_file" : "バックアップファイルを選択し、バックアップパスワードを入力してください。"
 }

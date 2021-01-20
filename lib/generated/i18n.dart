@@ -43,6 +43,9 @@ class S implements WidgetsLocalizations {
   String get authenticated => "Authenticated";
   String get authentication => "Authentication";
   String get available_balance => "Available Balance";
+  String get backup => "Backup";
+  String get backup_file => "Backup file";
+  String get backup_password => "Backup password";
   String get biometric_auth_reason => "Scan your fingerprint to authenticate";
   String get bright_theme => "Bright";
   String get buy => "Buy";
@@ -50,10 +53,12 @@ class S implements WidgetsLocalizations {
   String get cancel => "Cancel";
   String get card_address => "Address:";
   String get change => "Change";
+  String get change_backup_password_alert => "Your previous backup files will be not available to import with new backup password. New backup password will be used only for new backup files. Are you sure that you want to change backup password?";
   String get change_currency => "Change Currency";
   String get change_current_node_title => "Change current node";
   String get change_exchange_provider => "Change Exchange Provider";
   String get change_language => "Change language";
+  String get change_password => "Change password";
   String get change_wallet_alert_title => "Change current wallet";
   String get choose_account => "Choose account";
   String get choose_wallet_currency => "Please choose wallet currency:";
@@ -79,6 +84,8 @@ class S implements WidgetsLocalizations {
   String get destination_tag => "Destination tag:";
   String get digit_pin => "-digit PIN";
   String get edit => "Edit";
+  String get edit_backup_password => "Edit Backup Password";
+  String get enter_backup_password => "Enter backup password here";
   String get enter_your_note => "Enter your note…";
   String get enter_your_pin => "Enter your PIN";
   String get enter_your_pin_again => "Enter your pin again";
@@ -104,6 +111,7 @@ class S implements WidgetsLocalizations {
   String get exchange_result_write_down_trade_id => "Please copy or write down the trade ID to continue.";
   String get exchange_sync_alert_content => "Please wait until your wallet is synchronized";
   String get expired => "Expired";
+  String get export_backup => "Export backup";
   String get extra_id => "Extra ID:";
   String get faq => "FAQ";
   String get fetching => "Fetching";
@@ -112,6 +120,7 @@ class S implements WidgetsLocalizations {
   String get full_balance => "Full Balance";
   String get hidden_balance => "Hidden Balance";
   String get id => "ID: ";
+  String get import => "Import";
   String get incoming => "Incoming";
   String get incorrect_seed => "The text entered is not valid.";
   String get light_theme => "Light";
@@ -148,6 +157,7 @@ class S implements WidgetsLocalizations {
   String get placeholder_transactions => "Your transactions will be displayed here";
   String get please_make_selection => "Please make a selection below to create or recover your wallet.";
   String get please_select => "Please select:";
+  String get please_select_backup_file => "Please select backup file and enter backup password.";
   String get please_try_to_connect_to_another_node => "Please try to connect to another node";
   String get pre_seed_button_text => "I understand. Show me my seed";
   String get pre_seed_title => "IMPORTANT";
@@ -184,7 +194,7 @@ class S implements WidgetsLocalizations {
   String get restore_restore_wallet => "Restore Wallet";
   String get restore_seed_keys_restore => "Seed/Keys Restore";
   String get restore_spend_key_private => "Spend key (private)";
-  String get restore_title_from_backup => "Restore from back-up";
+  String get restore_title_from_backup => "Restore from backup";
   String get restore_title_from_keys => "Restore from keys";
   String get restore_title_from_seed => "Restore from seed";
   String get restore_title_from_seed_keys => "Restore from seed/keys";
@@ -193,6 +203,8 @@ class S implements WidgetsLocalizations {
   String get restore_wallet_name => "Wallet name";
   String get restore_wallet_restore_description => "Wallet restore description";
   String get save => "Save";
+  String get save_backup_password => "Please make sure that you have saved your backup password. You will not be able to import your backup files without it.";
+  String get save_backup_password_alert => "Save backup password";
   String get saved_the_trade_id => "I've saved the trade ID";
   String get scan_qr_code => "Scan the QR code to get the address";
   String get seed_alert_back => "Go back";
@@ -213,6 +225,7 @@ class S implements WidgetsLocalizations {
   String get seed_reminder => "Please write these down in case you lose or wipe your phone";
   String get seed_share => "Share seed";
   String get seed_title => "Seed";
+  String get select_backup_file => "Select backup file";
   String get send => "Send";
   String get send_amount => "Amount:";
   String get send_creating_transaction => "Creating transaction";
@@ -335,6 +348,7 @@ class S implements WidgetsLocalizations {
   String get widgets_restore_from_blockheight => "Restore from blockheight";
   String get widgets_restore_from_date => "Restore from date";
   String get widgets_seed => "Seed";
+  String get write_down_backup_password => "Please write down your backup password, which is used for the import of your backup files.";
   String get xmr_available_balance => "Available Balance";
   String get xmr_full_balance => "Full Balance";
   String get xmr_hidden => "Hidden";
@@ -1033,6 +1047,34 @@ class $de extends S {
   String get destination_tag => "Ziel-Tag:";
   @override
   String get memo => "Memo:";
+  @override
+  String get backup => "Backup";
+  @override
+  String get change_password => "Passwort ändern";
+  @override
+  String get backup_password => "Passwort sichern";
+  @override
+  String get write_down_backup_password => "Bitte notieren Sie sich Ihr Sicherungskennwort, das für den Import Ihrer Sicherungsdateien verwendet wird.";
+  @override
+  String get export_backup => "Backup exportieren";
+  @override
+  String get save_backup_password => "Bitte stellen Sie sicher, dass Sie Ihr Sicherungskennwort gespeichert haben. Ohne diese können Sie Ihre Sicherungsdateien nicht importieren.";
+  @override
+  String get backup_file => "Sicherungskopie";
+  @override
+  String get edit_backup_password => "Sicherungskennwort bearbeiten";
+  @override
+  String get save_backup_password_alert => "Sicherungskennwort speichern";
+  @override
+  String get change_backup_password_alert => "Ihre vorherigen Sicherungsdateien können nicht mit einem neuen Sicherungskennwort importiert werden. Das neue Sicherungskennwort wird nur für neue Sicherungsdateien verwendet. Sind Sie sicher, dass Sie das Sicherungskennwort ändern möchten?";
+  @override
+  String get enter_backup_password => "Geben Sie hier das Sicherungskennwort ein";
+  @override
+  String get select_backup_file => "Wählen Sie die Sicherungsdatei";
+  @override
+  String get import => "Importieren";
+  @override
+  String get please_select_backup_file => "Bitte wählen Sie die Sicherungsdatei und geben Sie das Sicherungskennwort ein.";
   @override
   String change_language_to(String language) => "Ändern Sie die Sprache in ${language}?";
   @override
@@ -1762,6 +1804,34 @@ class $hi extends S {
   @override
   String get memo => "ज्ञापन:";
   @override
+  String get backup => "बैकअप";
+  @override
+  String get change_password => "पासवर्ड बदलें";
+  @override
+  String get backup_password => "बैकअप पासवर्ड";
+  @override
+  String get write_down_backup_password => "कृपया अपना बैकअप पासवर्ड लिखें, जिसका उपयोग आपकी बैकअप फ़ाइलों के आयात के लिए किया जाता है।";
+  @override
+  String get export_backup => "िर्यात बैकअप";
+  @override
+  String get save_backup_password => "कृपया सुनिश्चित करें कि आपने अपना बैकअप पासवर्ड सहेज लिया है। आप इसके बिना अपनी बैकअप फ़ाइलों को आयात नहीं कर पाएंगे।";
+  @override
+  String get backup_file => "बैकअपफ़ाइल";
+  @override
+  String get edit_backup_password => "बैकअप पासवर्ड संपादित करें";
+  @override
+  String get save_backup_password_alert => "बैकअप पासवर्ड सेव करें";
+  @override
+  String get change_backup_password_alert => "आपकी पिछली बैकअप फाइलें नए बैकअप पासवर्ड के साथ आयात करने के लिए उपलब्ध नहीं होंगी। नए बैकअप पासवर्ड का उपयोग केवल नई बैकअप फ़ाइलों के लिए किया जाएगा। क्या आप वाकई बैकअप पासवर्ड बदलना चाहते हैं?";
+  @override
+  String get enter_backup_password => "यहां बैकअप पासवर्ड डालें";
+  @override
+  String get select_backup_file => "बैकअप फ़ाइल का चयन करें";
+  @override
+  String get import => "आयात";
+  @override
+  String get please_select_backup_file => "कृपया बैकअप फ़ाइल चुनें और बैकअप पासवर्ड डालें।";
+  @override
   String change_language_to(String language) => "को भाषा बदलें ${language}?";
   @override
   String change_current_node(String node) => "क्या आप वर्तमान नोड को बदलना सुनिश्चित करते हैं ${node}?";
@@ -2489,6 +2559,34 @@ class $ru extends S {
   String get destination_tag => "Целевой тег:";
   @override
   String get memo => "Памятка:";
+  @override
+  String get backup => "Резервная копия";
+  @override
+  String get change_password => "Изменить пароль";
+  @override
+  String get backup_password => "Пароль резервной копии";
+  @override
+  String get write_down_backup_password => "Запишите пароль резервной копии, который используется для импорта файлов резервных копий.";
+  @override
+  String get export_backup => "Экспорт резервной копии";
+  @override
+  String get save_backup_password => "Убедитесь, что вы сохранили пароль резервной копии. Без него вы не сможете импортировать файлы резервных копий.";
+  @override
+  String get backup_file => "Файл резервной копии";
+  @override
+  String get edit_backup_password => "Изменить пароль резервной копии";
+  @override
+  String get save_backup_password_alert => "Сохранить пароль резервной копии";
+  @override
+  String get change_backup_password_alert => "Ваши предыдущие файлы резервных копий будут недоступны для импорта с новым паролем резервной копии. Новый пароль резервной копии будет использоваться только для новых файлов резервных копий. Вы уверены, что хотите изменить пароль резервной копии?";
+  @override
+  String get enter_backup_password => "Введите пароль резервной копии";
+  @override
+  String get select_backup_file => "Выберите файл резервной копии";
+  @override
+  String get import => "Импортировать";
+  @override
+  String get please_select_backup_file => "Выберите файл резервной копии и введите пароль резервной копии.";
   @override
   String change_language_to(String language) => "Изменить язык на ${language}?";
   @override
@@ -3218,6 +3316,34 @@ class $ko extends S {
   @override
   String get memo => "메모:";
   @override
+  String get backup => "지원";
+  @override
+  String get change_password => "비밀번호 변경";
+  @override
+  String get backup_password => "백업 비밀번호";
+  @override
+  String get write_down_backup_password => "백업 파일 가져 오기에 사용되는 백업 암호를 적어 두십시오.";
+  @override
+  String get export_backup => "백업 내보내기";
+  @override
+  String get save_backup_password => "백업 암호를 저장했는지 확인하십시오. 그것 없이는 백업 파일을 가져올 수 없습니다.";
+  @override
+  String get backup_file => "백업 파일";
+  @override
+  String get edit_backup_password => "편집 백업 암호";
+  @override
+  String get save_backup_password_alert => "백업 비밀번호 저장";
+  @override
+  String get change_backup_password_alert => "이전 백업 파일은 새 백업 암호로 가져올 수 없습니다. 새 백업 암호는 새 백업 파일에만 사용됩니다. 백업 비밀번호를 변경 하시겠습니까?";
+  @override
+  String get enter_backup_password => "여기에 백업 비밀번호를 입력하세요.";
+  @override
+  String get select_backup_file => "백업 파일 선택";
+  @override
+  String get import => "수입";
+  @override
+  String get please_select_backup_file => "백업 파일을 선택하고 백업 암호를 입력하십시오.";
+  @override
   String change_language_to(String language) => "언어를로 변경 ${language}?";
   @override
   String change_current_node(String node) => "현재 노드를 다음으로 변경 하시겠습니까 ${node}?";
@@ -3945,6 +4071,34 @@ class $pt extends S {
   String get destination_tag => "Tag de destino:";
   @override
   String get memo => "Memorando:";
+  @override
+  String get backup => "Cópia de segurança";
+  @override
+  String get change_password => "Mudar senha";
+  @override
+  String get backup_password => "Senha de backup";
+  @override
+  String get write_down_backup_password => "Anote sua senha de backup, que será usada para importar seus arquivos de backup.";
+  @override
+  String get export_backup => "Backup de exportação";
+  @override
+  String get save_backup_password => "Certifique-se de que salvou sua senha de backup. Você não poderá importar seus arquivos de backup sem ele.";
+  @override
+  String get backup_file => "Arquivo de backup";
+  @override
+  String get edit_backup_password => "Editar senha de backup";
+  @override
+  String get save_backup_password_alert => "Salvar senha de backup";
+  @override
+  String get change_backup_password_alert => "Seus arquivos de backup anteriores não estarão disponíveis para importação com a nova senha de backup. A nova senha de backup será usada apenas para novos arquivos de backup. Tem certeza que deseja alterar a senha de backup?";
+  @override
+  String get enter_backup_password => "Digite a senha de backup aqui";
+  @override
+  String get select_backup_file => "Selecione o arquivo de backup";
+  @override
+  String get import => "Importar";
+  @override
+  String get please_select_backup_file => "Selecione o arquivo de backup e insira a senha de backup.";
   @override
   String change_language_to(String language) => "Alterar idioma para ${language}?";
   @override
@@ -4674,6 +4828,34 @@ class $uk extends S {
   @override
   String get memo => "Пам’ятка:";
   @override
+  String get backup => "Резервна копія";
+  @override
+  String get change_password => "Змінити пароль";
+  @override
+  String get backup_password => "Пароль резервної копії";
+  @override
+  String get write_down_backup_password => "Запишіть пароль резервної копії, який використовується для імпорту файлів резервних копій.";
+  @override
+  String get export_backup => "Експортувати резервну копію";
+  @override
+  String get save_backup_password => "Переконайтеся, що ви зберегли свій пароль резервної копії. Без нього ви не зможете імпортувати файли резервних копій.";
+  @override
+  String get backup_file => "Файл резервної копії";
+  @override
+  String get edit_backup_password => "Змінити пароль резервної копії";
+  @override
+  String get save_backup_password_alert => "Зберегти пароль резервної копії";
+  @override
+  String get change_backup_password_alert => "Ваші попередні файли резервних копій будуть недоступні для імпорту з новим паролем резервної копії. Новий пароль резервної копії буде використовуватися тільки для нових файлів резервних копій. Ви впевнені, що хочете змінити пароль резервної копії?";
+  @override
+  String get enter_backup_password => "Введіть пароль резервної копії";
+  @override
+  String get select_backup_file => "Виберіть файл резервної копії";
+  @override
+  String get import => "Імпортувати";
+  @override
+  String get please_select_backup_file => "Виберіть файл резервної копії та введіть пароль резервної копії.";
+  @override
   String change_language_to(String language) => "Змінити мову на ${language}?";
   @override
   String change_current_node(String node) => "Ви впевнені, що хочете змінити поточний вузол на ${node}?";
@@ -5401,6 +5583,34 @@ class $ja extends S {
   String get destination_tag => "宛先タグ:";
   @override
   String get memo => "メモ:";
+  @override
+  String get backup => "バックアップ";
+  @override
+  String get change_password => "パスワードを変更する";
+  @override
+  String get backup_password => "バックアップパスワード";
+  @override
+  String get write_down_backup_password => "バックアップファイルのインポートに使用されるバックアップパスワードを書き留めてください。";
+  @override
+  String get export_backup => "バックアップのエクスポート";
+  @override
+  String get save_backup_password => "バックアップパスワードが保存されていることを確認してください。 それなしではバックアップファイルをインポートすることはできません。";
+  @override
+  String get backup_file => "バックアップファイル";
+  @override
+  String get edit_backup_password => "バックアップパスワードの編集";
+  @override
+  String get save_backup_password_alert => "バックアップパスワードを保存する";
+  @override
+  String get change_backup_password_alert => "以前のバックアップファイルは、新しいバックアップパスワードでインポートできなくなります。 新しいバックアップパスワードは、新しいバックアップファイルにのみ使用されます。 バックアップパスワードを変更してもよろしいですか？";
+  @override
+  String get enter_backup_password => "ここにバックアップパスワードを入力してください";
+  @override
+  String get select_backup_file => "バックアップファイルを選択";
+  @override
+  String get import => "インポート";
+  @override
+  String get please_select_backup_file => "バックアップファイルを選択し、バックアップパスワードを入力してください。";
   @override
   String change_language_to(String language) => "言語を変更 ${language}?";
   @override
@@ -6134,6 +6344,34 @@ class $pl extends S {
   @override
   String get memo => "Notatka:";
   @override
+  String get backup => "Kopię zapasową";
+  @override
+  String get change_password => "Zmień hasło";
+  @override
+  String get backup_password => "Hasło zapasowe";
+  @override
+  String get write_down_backup_password => "Zapisz swoje hasło zapasowe, które jest używane do importowania plików kopii zapasowych.";
+  @override
+  String get export_backup => "Eksportuj kopię zapasową";
+  @override
+  String get save_backup_password => "Upewnij się, że zapisałeś swoje zapasowe hasło. Bez tego nie będziesz mógł importować plików kopii zapasowej.";
+  @override
+  String get backup_file => "Plik kopii zapasowej";
+  @override
+  String get edit_backup_password => "Edytuj hasło kopii zapasowej";
+  @override
+  String get save_backup_password_alert => "Zapisz hasło zapasowe";
+  @override
+  String get change_backup_password_alert => "Twoje poprzednie pliki kopii zapasowej nie będą dostępne do zaimportowania z nowym hasłem kopii zapasowej. Nowe hasło zapasowe będzie używane tylko dla nowych plików kopii zapasowych. Czy na pewno chcesz zmienić hasło zapasowe?";
+  @override
+  String get enter_backup_password => "Wprowadź tutaj hasło zapasowe";
+  @override
+  String get select_backup_file => "Wybierz plik kopii zapasowej";
+  @override
+  String get import => "Import";
+  @override
+  String get please_select_backup_file => "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe.";
+  @override
   String change_language_to(String language) => "Zmień język na ${language}?";
   @override
   String change_current_node(String node) => "Czy na pewno chcesz przywrócić ustawienia domyślne? ${node}?";
@@ -6861,6 +7099,34 @@ class $es extends S {
   String get destination_tag => "Etiqueta de destino:";
   @override
   String get memo => "Memorándum:";
+  @override
+  String get backup => "Apoyo";
+  @override
+  String get change_password => "Cambia la contraseña";
+  @override
+  String get backup_password => "Contraseña de respaldo";
+  @override
+  String get write_down_backup_password => "Escriba su contraseña de respaldo, que se utiliza para la importación de sus archivos de respaldo.";
+  @override
+  String get export_backup => "Exportar copia de seguridad";
+  @override
+  String get save_backup_password => "Asegúrese de haber guardado su contraseña de respaldo. No podrá importar sus archivos de respaldo sin él.";
+  @override
+  String get backup_file => "Archivo de respaldo";
+  @override
+  String get edit_backup_password => "Editar contraseña de respaldo";
+  @override
+  String get save_backup_password_alert => "Guardar contraseña de respaldo";
+  @override
+  String get change_backup_password_alert => "Sus archivos de respaldo anteriores no estarán disponibles para importar con la nueva contraseña de respaldo. La nueva contraseña de respaldo se utilizará solo para los nuevos archivos de respaldo. ¿Está seguro de que desea cambiar la contraseña de respaldo?";
+  @override
+  String get enter_backup_password => "Ingrese la contraseña de respaldo aquí";
+  @override
+  String get select_backup_file => "Seleccionar archivo de respaldo";
+  @override
+  String get import => "Importar";
+  @override
+  String get please_select_backup_file => "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo.";
   @override
   String change_language_to(String language) => "Cambiar el idioma a ${language}?";
   @override
@@ -7590,6 +7856,34 @@ class $nl extends S {
   @override
   String get memo => "Memo:";
   @override
+  String get backup => "Back-up";
+  @override
+  String get change_password => "Wachtwoord wijzigen";
+  @override
+  String get backup_password => "Reservewachtwoord";
+  @override
+  String get write_down_backup_password => "Noteer uw back-upwachtwoord, dat wordt gebruikt voor het importeren van uw back-upbestanden.";
+  @override
+  String get export_backup => "Back-up exporteren";
+  @override
+  String get save_backup_password => "Zorg ervoor dat u uw reservewachtwoord heeft opgeslagen. Zonder dit kunt u uw back-upbestanden niet importeren.";
+  @override
+  String get backup_file => "Backup bestand";
+  @override
+  String get edit_backup_password => "Bewerk back-upwachtwoord";
+  @override
+  String get save_backup_password_alert => "Bewaar back-upwachtwoord";
+  @override
+  String get change_backup_password_alert => "Uw vorige back-upbestanden kunnen niet worden geïmporteerd met een nieuw back-upwachtwoord. Het nieuwe back-upwachtwoord wordt alleen gebruikt voor nieuwe back-upbestanden. Weet u zeker dat u het back-upwachtwoord wilt wijzigen?";
+  @override
+  String get enter_backup_password => "Voer hier een back-upwachtwoord in";
+  @override
+  String get select_backup_file => "Selecteer een back-upbestand";
+  @override
+  String get import => "Importeren";
+  @override
+  String get please_select_backup_file => "Selecteer een back-upbestand en voer een back-upwachtwoord in.";
+  @override
   String change_language_to(String language) => "Verander de taal in ${language}?";
   @override
   String change_current_node(String node) => "Weet u zeker dat u het huidige knooppunt wilt wijzigen in ${node}?";
@@ -8317,6 +8611,34 @@ class $zh extends S {
   String get destination_tag => "目標標籤:";
   @override
   String get memo => "備忘錄:";
+  @override
+  String get backup => "後備";
+  @override
+  String get change_password => "更改密碼";
+  @override
+  String get backup_password => "備用密碼";
+  @override
+  String get write_down_backup_password => "請寫下您的備份密碼，該密碼用於導入備份文件。";
+  @override
+  String get export_backup => "導出備份";
+  @override
+  String get save_backup_password => "請確保您已保存備份密碼。 沒有它，您將無法導入備份文件。";
+  @override
+  String get backup_file => "備份檔案";
+  @override
+  String get edit_backup_password => "編輯備份密碼";
+  @override
+  String get save_backup_password_alert => "保存備份密碼";
+  @override
+  String get change_backup_password_alert => "您以前的備份文件將無法使用新的備份密碼導入。 新的備份密碼將僅用於新的備份文件。 您確定要更改備份密碼嗎？";
+  @override
+  String get enter_backup_password => "在此處輸入備用密碼";
+  @override
+  String get select_backup_file => "選擇備份文件";
+  @override
+  String get import => "進口";
+  @override
+  String get please_select_backup_file => "請選擇備份文件，然後輸入備份密碼。";
   @override
   String change_language_to(String language) => "將語言更改為 ${language}?";
   @override
