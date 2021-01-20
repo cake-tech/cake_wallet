@@ -19,7 +19,7 @@ class RestoreFromBackupPage extends BasePage {
   final TextEditingController textEditingController;
 
   @override
-  String get title => 'Restore from backup';
+  String get title => S.current.restore_title_from_backup;
 
   @override
   Widget body(BuildContext context) {
@@ -50,7 +50,7 @@ class RestoreFromBackupPage extends BasePage {
                       enableSuggestions: false,
                       autocorrect: false,
                       decoration: InputDecoration(
-                          hintText: 'Enter backup password here'),
+                          hintText: S.of(context).enter_backup_password),
                       keyboardType: TextInputType.visiblePassword,
                       controller: textEditingController,
                       style: TextStyle(fontSize: 26, color: Colors.black))),
@@ -61,7 +61,7 @@ class RestoreFromBackupPage extends BasePage {
             Expanded(
                 child: PrimaryButton(
                     onPressed: () => presentFilePicker(),
-                    text: 'Select backup file',
+                    text: S.of(context).select_backup_file,
                     color: Colors.grey,
                     textColor: Colors.white)),
             SizedBox(width: 20),
@@ -70,7 +70,7 @@ class RestoreFromBackupPage extends BasePage {
                   isLoading:
                       restoreFromBackupViewModel.state is IsExecutingState,
                   onPressed: () => onImportHandler(context),
-                  text: 'Import',
+                  text: S.of(context).import,
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white);
             }))
@@ -96,8 +96,7 @@ class RestoreFromBackupPage extends BasePage {
           builder: (_) {
             return AlertWithOneAction(
                 alertTitle: S.current.error,
-                alertContent:
-                    'Please select backup file and enter backup password.',
+                alertContent: S.of(context).please_select_backup_file,
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });

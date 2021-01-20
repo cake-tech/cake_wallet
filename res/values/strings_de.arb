@@ -439,5 +439,22 @@
 
   "extra_id" : "Zusätzliche ID:",
   "destination_tag" : "Ziel-Tag:",
-  "memo" : "Memo:"
+  "memo" : "Memo:",
+
+  "backup" : "Backup",
+  "change_password" : "Passwort ändern",
+  "backup_password" : "Passwort sichern",
+  "write_down_backup_password" : "Bitte notieren Sie sich Ihr Sicherungskennwort, das für den Import Ihrer Sicherungsdateien verwendet wird.",
+  "export_backup" : "Backup exportieren",
+  "save_backup_password" : "Bitte stellen Sie sicher, dass Sie Ihr Sicherungskennwort gespeichert haben. Ohne diese können Sie Ihre Sicherungsdateien nicht importieren.",
+  "backup_file" : "Sicherungskopie",
+
+  "edit_backup_password" : "Sicherungskennwort bearbeiten",
+  "save_backup_password_alert" : "Sicherungskennwort speichern",
+  "change_backup_password_alert" : "Ihre vorherigen Sicherungsdateien können nicht mit einem neuen Sicherungskennwort importiert werden. Das neue Sicherungskennwort wird nur für neue Sicherungsdateien verwendet. Sind Sie sicher, dass Sie das Sicherungskennwort ändern möchten?",
+
+  "enter_backup_password" : "Geben Sie hier das Sicherungskennwort ein",
+  "select_backup_file" : "Wählen Sie die Sicherungsdatei",
+  "import" : "Importieren",
+  "please_select_backup_file" : "Bitte wählen Sie die Sicherungsdatei und geben Sie das Sicherungskennwort ein."
 }
