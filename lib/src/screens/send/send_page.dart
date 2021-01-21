@@ -39,7 +39,7 @@ class SendPage extends BasePage {
     _addressFocusNode.addListener(() {
       if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
         getOpenaliasRecord(_addressFocusNode.context);
-        getUnstoppableDomainAddress();
+        getUnstoppableDomainAddress(_addressFocusNode.context);
       }
     });
   }
@@ -169,6 +169,10 @@ class SendPage extends BasePage {
                                         .headline
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
+                                onPushPasteButton: (context) {
+                                  getOpenaliasRecord(context);
+                                  getUnstoppableDomainAddress(context);
+                                },
                               ),
                               Observer(
                                   builder: (_) => Padding(
@@ -505,7 +509,7 @@ class SendPage extends BasePage {
                                       _cryptoAmountController.text =
                                           template.amount;
                                       getOpenaliasRecord(context);
-                                      getUnstoppableDomainAddress();
+                                      getUnstoppableDomainAddress(context);
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -740,11 +744,22 @@ class SendPage extends BasePage {
     }
   }
 
-  Future<void> getUnstoppableDomainAddress() async {
+  Future<void> getUnstoppableDomainAddress(BuildContext context) async {
     final address =
       await sendViewModel.getUnstoppableDomainAddress(_addressController.text);
 
     if ((address != null)&&(address.isNotEmpty)) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: 'Address detected',
+                alertContent:
+                'You got address from unstoppable domain ${_addressController.text}',
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+
       _addressController.text = address;
     }
   }

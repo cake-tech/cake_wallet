@@ -223,6 +223,15 @@ class ExchangePage extends BasePage {
                                     type: exchangeViewModel.wallet.type),
                                 addressTextFieldValidator: AddressValidator(
                                     type: exchangeViewModel.depositCurrency),
+                                onPushPasteButton: (context) async {
+                                  final domain = exchangeViewModel.depositAddress;
+                                  final ticker = exchangeViewModel.depositCurrency.title;
+                                  final address =
+                                    await getUnstoppableDomainAddress(context, domain, ticker);
+                                  if ((address != null)&&(address.isNotEmpty)){
+                                    exchangeViewModel.depositAddress = address;
+                                  }
+                                },
                               ),
                             ),
                           ),
@@ -270,6 +279,15 @@ class ExchangePage extends BasePage {
                                           AddressValidator(
                                               type: exchangeViewModel
                                                   .receiveCurrency),
+                                      onPushPasteButton: (context) async {
+                                        final domain = exchangeViewModel.receiveAddress;
+                                        final ticker = exchangeViewModel.receiveCurrency.title;
+                                        final address =
+                                          await getUnstoppableDomainAddress(context, domain, ticker);
+                                        if ((address != null)&&(address.isNotEmpty)){
+                                          exchangeViewModel.receiveAddress = address;
+                                        }
+                                      },
                                     )),
                           )
                         ],
@@ -358,7 +376,7 @@ class ExchangePage extends BasePage {
                                           from: template.depositCurrency,
                                           to: template.receiveCurrency,
                                           onTap: () {
-                                            applyTemplate(
+                                            applyTemplate(context,
                                                 exchangeViewModel, template);
                                           },
                                           onRemove: () {
@@ -460,7 +478,7 @@ class ExchangePage extends BasePage {
         ));
   }
 
-  void applyTemplate(
+  void applyTemplate(BuildContext context,
       ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
     exchangeViewModel.changeDepositCurrency(
         currency: CryptoCurrency.fromString(template.depositCurrency));
@@ -489,16 +507,14 @@ class ExchangePage extends BasePage {
 
     var domain = template.depositAddress;
     var ticker = template.depositCurrency;
-    var address = await exchangeViewModel
-        .getUnstoppableDomainAddress(domain, ticker);
+    var address = await getUnstoppableDomainAddress(context, domain, ticker);
     if ((address != null)&&(address.isNotEmpty)){
       exchangeViewModel.depositAddress = address;
     }
 
     domain = template.receiveAddress;
     ticker = template.receiveCurrency;
-    address = await exchangeViewModel
-        .getUnstoppableDomainAddress(domain, ticker);
+    address = await getUnstoppableDomainAddress(context, domain, ticker);
     if ((address != null)&&(address.isNotEmpty)){
       exchangeViewModel.receiveAddress = address;
     }
@@ -672,8 +688,7 @@ class ExchangePage extends BasePage {
           depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
         final ticker = exchangeViewModel.depositCurrency.title;
-        final address = await exchangeViewModel
-            .getUnstoppableDomainAddress(domain, ticker);
+        final address = await getUnstoppableDomainAddress(context, domain, ticker);
         if ((address != null)&&(address.isNotEmpty)){
           exchangeViewModel.depositAddress = address;
         }
@@ -685,8 +700,7 @@ class ExchangePage extends BasePage {
           receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
         final ticker = exchangeViewModel.receiveCurrency.title;
-        final address = await exchangeViewModel
-            .getUnstoppableDomainAddress(domain, ticker);
+        final address = await getUnstoppableDomainAddress(context, domain, ticker);
         if ((address != null)&&(address.isNotEmpty)){
           exchangeViewModel.receiveAddress = address;
         }
@@ -723,5 +737,25 @@ class ExchangePage extends BasePage {
       key.currentState.changeWalletName(null);
       key.currentState.addressController.text = null;
     }
+  }
+
+  Future<String> getUnstoppableDomainAddress(BuildContext context, 
+      String domain, String ticker) async {
+    final address =
+      await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
+
+    if ((address != null)&&(address.isNotEmpty)) {
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: 'Address detected',
+                alertContent: 'You got address from unstoppable domain $domain',
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    }
+    
+    return address;
   }
 }

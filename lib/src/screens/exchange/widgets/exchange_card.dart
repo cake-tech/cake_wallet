@@ -30,7 +30,8 @@ class ExchangeCard extends StatefulWidget {
       this.amountFocusNode,
       this.addressFocusNode,
       this.hasAllAmount = false,
-      this.allAmount})
+      this.allAmount,
+      this.onPushPasteButton})
       : super(key: key);
 
   final List<CryptoCurrency> currencies;
@@ -52,6 +53,7 @@ class ExchangeCard extends StatefulWidget {
   final FocusNode amountFocusNode;
   final FocusNode addressFocusNode;
   final bool hasAllAmount;
+  final Function(BuildContext context) onPushPasteButton;
   Function allAmount;
 
   @override
@@ -314,6 +316,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                           .decorationColor),
                   buttonColor: widget.addressButtonsColor,
                   validator: widget.addressTextFieldValidator,
+                  onPushPasteButton: widget.onPushPasteButton,
                 ),
               )
             : Padding(
