@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import UnstoppableDomainsResolution
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -10,6 +11,8 @@ import Flutter
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
         let batteryChannel = FlutterMethodChannel(name: "com.cakewallet.cakewallet/legacy_wallet_migration",
                                                   binaryMessenger: controller.binaryMessenger)
+        let unstoppableDomainChannel = FlutterMethodChannel(name: "com.cakewallet.cake_wallet/unstoppable-domain", binaryMessenger: controller.binaryMessenger)
+        
         batteryChannel.setMethodCallHandler({
             (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             
@@ -47,6 +50,40 @@ import Flutter
                 }
                 
                 result(value)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        })
+        
+        unstoppableDomainChannel.setMethodCallHandler({
+            (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+            switch call.method {
+            case "getUnstoppableDomainAddress":
+                guard let args = call.arguments as? Dictionary<String, String>,
+                      let domain = args["domain"],
+                      let ticker = args["ticker"] else {
+                    result(nil)
+                    return
+                }
+                
+                guard let resolution = try? Resolution() else {
+                    print ("Init of Resolution instance with default parameters failed...")
+                    result(nil)
+                    return
+                }
+                
+                var address : String = ""
+                
+                resolution.addr(domain: domain, ticker: ticker) { result in
+                  switch result {
+                  case .success(let returnValue):
+                    address = returnValue
+                  case .failure(let error):
+                    print("Expected Address, but got \(error)")
+                }
+                }
+                
+                result(address)
             default:
                 result(FlutterMethodNotImplemented)
             }
