@@ -30,6 +30,37 @@ PODS:
     - Flutter
   - devicelocale (0.0.1):
     - Flutter
+  - DKImagePickerController/Core (4.3.2):
+    - DKImagePickerController/ImageDataManager
+    - DKImagePickerController/Resource
+  - DKImagePickerController/ImageDataManager (4.3.2)
+  - DKImagePickerController/PhotoGallery (4.3.2):
+    - DKImagePickerController/Core
+    - DKPhotoGallery
+  - DKImagePickerController/Resource (4.3.2)
+  - DKPhotoGallery (0.0.17):
+    - DKPhotoGallery/Core (= 0.0.17)
+    - DKPhotoGallery/Model (= 0.0.17)
+    - DKPhotoGallery/Preview (= 0.0.17)
+    - DKPhotoGallery/Resource (= 0.0.17)
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Core (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Preview
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Model (0.0.17):
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Preview (0.0.17):
+    - DKPhotoGallery/Model
+    - DKPhotoGallery/Resource
+    - SDWebImage
+    - SwiftyGif
+  - DKPhotoGallery/Resource (0.0.17):
+    - SDWebImage
+    - SwiftyGif
   - esys_flutter_share (0.0.1):
     - Flutter
   - EthereumABI (1.3.0):
@@ -38,6 +69,9 @@ PODS:
     - EthereumAddress (~> 1.3)
   - EthereumAddress (1.3.0):
     - CryptoSwift (~> 1.0)
+  - file_picker (0.0.1):
+    - DKImagePickerController/PhotoGallery
+    - Flutter
   - Flutter (1.0.0)
   - flutter_secure_storage (3.3.1):
     - Flutter
@@ -49,12 +83,16 @@ PODS:
   - path_provider (0.0.1):
     - Flutter
   - Reachability (3.2)
+  - SDWebImage (5.10.2):
+    - SDWebImage/Core (= 5.10.2)
+  - SDWebImage/Core (5.10.2)
   - share (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
     - Flutter
   - SipHash (1.2.2)
   - SwiftProtobuf (1.12.0)
+  - SwiftyGif (5.3.0)
   - UnstoppableDomainsResolution (0.2.0):
     - Base58Swift (~> 2.1)
     - EthereumABI (~> 1.3)
@@ -68,6 +106,7 @@ DEPENDENCIES:
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - esys_flutter_share (from `.symlinks/plugins/esys_flutter_share/ios`)
+  - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
   - local_auth (from `.symlinks/plugins/local_auth/ios`)
@@ -83,12 +122,16 @@ SPEC REPOS:
     - Base58Swift
     - BigInt
     - CryptoSwift
+    - DKImagePickerController
+    - DKPhotoGallery
     - EthereumABI
     - EthereumAddress
     - MTBBarcodeScanner
     - Reachability
+    - SDWebImage
     - SipHash
     - SwiftProtobuf
+    - SwiftyGif
     - UnstoppableDomainsResolution
 
 EXTERNAL SOURCES:
@@ -102,6 +145,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/devicelocale/ios"
   esys_flutter_share:
     :path: ".symlinks/plugins/esys_flutter_share/ios"
+  file_picker:
+    :path: ".symlinks/plugins/file_picker/ios"
   Flutter:
     :path: Flutter
   flutter_secure_storage:
@@ -127,9 +172,12 @@ SPEC CHECKSUMS:
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   cw_monero: 2e1f79929880cc2293b5bc1b25e28152e4d84649
   devicelocale: feebbe5e7a30adb8c4f83185de1b50ff19b44f00
+  DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
+  DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   esys_flutter_share: 403498dab005b36ce1f8d7aff377e81f0621b0b4
   EthereumABI: c021720744d260b87def6aa45d94554d260cb5a9
   EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
+  file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_secure_storage: 7953c38a04c3fdbb00571bcd87d8e3b5ceb9daec
   local_auth: 25938960984c3a7f6e3253e3f8d962fdd16852bd
@@ -137,10 +185,12 @@ SPEC CHECKSUMS:
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
+  SDWebImage: b969dcfc02c40a5da71eac0b03b8f1a0c794a86f
   share: 0b2c3e82132f5888bccca3351c504d0003b3b410
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   SipHash: fad90a4683e420c52ef28063063dbbce248ea6d4
   SwiftProtobuf: 4ef85479c18ca85b5482b343df9c319c62bda699
+  SwiftyGif: e466e86c660d343357ab944a819a101c4127cb40
   UnstoppableDomainsResolution: 2e5b9de4370aaed9feec504fa5b4e5cfc3ab8a4d
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
