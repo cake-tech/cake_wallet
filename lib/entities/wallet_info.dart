@@ -4,7 +4,7 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 
 part 'wallet_info.g.dart';
 
-@HiveType(typeId: 4)
+@HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
       this.timestamp, this.dirPath, this.path, this.address);
@@ -23,6 +23,7 @@ class WalletInfo extends HiveObject {
         date.millisecondsSinceEpoch ?? 0, dirPath, path, address);
   }
 
+  static const typeId = 4;
   static const boxName = 'WalletInfo';
 
   @HiveField(0)

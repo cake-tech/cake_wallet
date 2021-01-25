@@ -2,7 +2,7 @@ import 'package:hive/hive.dart';
 
 part 'exchange_template.g.dart';
 
-@HiveType(typeId: 7)
+@HiveType(typeId: ExchangeTemplate.typeId)
 class ExchangeTemplate extends HiveObject {
   ExchangeTemplate({
     this.amount,
@@ -13,6 +13,7 @@ class ExchangeTemplate extends HiveObject {
     this.receiveAddress
   });
 
+  static const typeId = 7;
   static const boxName = 'ExchangeTemplate';
 
   @HiveField(0)

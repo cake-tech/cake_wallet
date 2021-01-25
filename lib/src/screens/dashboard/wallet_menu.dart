@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/dashboard/wallet_menu_item.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,12 @@ class WalletMenu {
           title: S.current.address_book_menu,
           image: Image.asset('assets/images/open_book_menu.png',
               height: 16, width: 16)),
+      WalletMenuItem(
+          title: 'Backup',
+          image: Image.asset('assets/images/restore_wallet.png',
+              height: 16,
+              width: 16,
+              color: Palette.darkBlue)),
       WalletMenuItem(
           title: S.current.settings_title,
           image: Image.asset('assets/images/settings_menu.png',
@@ -81,6 +88,15 @@ class WalletMenu {
         Navigator.of(context).pushNamed(Routes.addressBook);
         break;
       case 6:
+        Navigator.of(context).pushNamed(Routes.auth,
+            arguments: (bool isAuthenticatedSuccessfully, AuthPageState auth) {
+          if (isAuthenticatedSuccessfully) {
+            auth.close();
+            Navigator.of(auth.context).pushNamed(Routes.backup);
+          }
+        });
+        break;
+      case 7:
         Navigator.of(context).pushNamed(Routes.settings);
         break;
       default:

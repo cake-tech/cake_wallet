@@ -14,4 +14,5 @@ class PreferencesKey {
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
+  static const currentDefaultSettingsMigrationVersion = 'current_default_settings_migration_version';
 }

@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Операція виконана через ${provider}",
   "copy_address" : "Cкопіювати адресу",
   "exchange_result_confirm" : "Натиснувши підтвердити, ви відправите ${fetchingLabel} ${from} з вашого гаманця ${walletName} на адресу вказану нижче. Або ви можете відправити зі свого зовнішнього гаманця на нижчевказану адресу/QR-код.\n\nБудь ласка, натисніть підтвердити для продовження або поверніться назад щоб змінити суму.",
-  "exchange_result_description" : "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану нижче.",
+  "exchange_result_description" : "Будь ласка, відправте ${fetchingLabel} ${from} на адресу, вказану на наступній сторінці.",
   "exchange_result_write_down_ID" : "*Будь ласка, скопіюйте або запишіть ID, вказаний вище.",
   "confirm" : "Підтвердити",
   "confirm_sending" : "Підтвердити відправлення",
@@ -435,5 +435,9 @@
   "note_tap_to_change" : "Примітка (натисніть для зміни)",
   "transaction_key" : "Ключ транзакції",
   "confirmations" : "Підтвердження",
-  "recipient_address" : "Адреса одержувача"
+  "recipient_address" : "Адреса одержувача",
+
+  "extra_id" : "Додатковий ID:",
+  "destination_tag" : "Тег призначення:",
+  "memo" : "Пам’ятка:"
 }

@@ -6,7 +6,7 @@ import 'package:cake_wallet/entities/format_amount.dart';
 
 part 'trade.g.dart';
 
-@HiveType(typeId: 3)
+@HiveType(typeId: Trade.typeId)
 class Trade extends HiveObject {
   Trade(
       {this.id,
@@ -27,6 +27,7 @@ class Trade extends HiveObject {
         toRaw = to?.raw,
         stateRaw = state?.raw;
 
+  static const typeId = 3;
   static const boxName = 'Trades';
   static const boxKey = 'tradesBoxKey';
 

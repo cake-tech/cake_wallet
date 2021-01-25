@@ -2,10 +2,11 @@ import 'package:hive/hive.dart';
 
 part 'transaction_description.g.dart';
 
-@HiveType(typeId: 2)
+@HiveType(typeId: TransactionDescription.typeId)
 class TransactionDescription extends HiveObject {
   TransactionDescription({this.id, this.recipientAddress, this.transactionNote});
 
+  static const typeId = 2;
   static const boxName = 'TransactionDescriptions';
   static const boxKey = 'transactionDescriptionsBoxKey';
 
