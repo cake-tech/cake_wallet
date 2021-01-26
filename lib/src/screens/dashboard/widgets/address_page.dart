@@ -39,12 +39,11 @@ class AddressPage extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Expanded(
-                  child: Center(
-                child: Observer(builder: (_) => QRWidget(
-                    addressListViewModel: addressListViewModel,
-                    amountTextFieldFocusNode: _cryptoAmountFocus,
-                    isAmountFieldShow: !addressListViewModel.hasAccounts)),
-              )),
+                  child: Observer(builder: (_) => QRWidget(
+                      addressListViewModel: addressListViewModel,
+                      amountTextFieldFocusNode: _cryptoAmountFocus,
+                      isAmountFieldShow: !addressListViewModel.hasAccounts))
+              ),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
                     ? GestureDetector(

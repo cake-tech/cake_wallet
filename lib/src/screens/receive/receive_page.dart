@@ -120,7 +120,7 @@ class ReceivePage extends BasePage {
           child: Column(
             children: <Widget>[
               Padding(
-                padding: EdgeInsets.fromLTRB(24, 80, 24, 40),
+                padding: EdgeInsets.fromLTRB(24, 80, 24, 24),
                 child: QRWidget(
                     addressListViewModel: addressListViewModel,
                     isAmountFieldShow: true,

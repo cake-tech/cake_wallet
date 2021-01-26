@@ -33,6 +33,7 @@ class QRWidget extends StatelessWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
         Row(children: <Widget>[
@@ -51,8 +52,8 @@ class QRWidget extends StatelessWidget {
                           ))))),
           Spacer(flex: 3)
         ]),
-        isAmountFieldShow
-            ? Padding(
+        if (isAmountFieldShow)
+            Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: Row(
                   children: <Widget>[
@@ -86,10 +87,9 @@ class QRWidget extends StatelessWidget {
                                     fontWeight: FontWeight.w500))))
                   ],
                 ),
-              )
-            : Offstage(),
+              ),
         Padding(
-          padding: EdgeInsets.only(top: 20),
+          padding: EdgeInsets.only(top: 20, bottom: 20),
           child: Builder(
               builder: (context) => Observer(
                   builder: (context) => GestureDetector(
@@ -106,7 +106,7 @@ class QRWidget extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 addressListViewModel.address.address,
-                                textAlign: TextAlign.justify,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
