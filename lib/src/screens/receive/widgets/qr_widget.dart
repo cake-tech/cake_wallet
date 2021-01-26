@@ -30,7 +30,6 @@ class QRWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_address.png',
         color: Theme.of(context).textTheme.subhead.decorationColor);
-    final addressTopOffset = isAmountFieldShow ? 60.0 : 40.0;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -54,7 +53,7 @@ class QRWidget extends StatelessWidget {
         ]),
         isAmountFieldShow
             ? Padding(
-                padding: EdgeInsets.only(top: 40),
+                padding: EdgeInsets.only(top: 20),
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -90,7 +89,7 @@ class QRWidget extends StatelessWidget {
               )
             : Offstage(),
         Padding(
-          padding: EdgeInsets.only(top: addressTopOffset),
+          padding: EdgeInsets.only(top: 20),
           child: Builder(
               builder: (context) => Observer(
                   builder: (context) => GestureDetector(
@@ -102,12 +101,12 @@ class QRWidget extends StatelessWidget {
                         },
                         child: Row(
                           mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Expanded(
                               child: Text(
                                 addressListViewModel.address.address,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.justify,
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
