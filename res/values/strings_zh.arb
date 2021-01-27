@@ -456,5 +456,8 @@
   "enter_backup_password" : "在此處輸入備用密碼",
   "select_backup_file" : "選擇備份文件",
   "import" : "進口",
-  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。"
+  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。",
+
+  "address_detected" : "檢測到地址",
+  "address_from_domain" : "您有以下地址 unstoppable domain ${domain}"
 }

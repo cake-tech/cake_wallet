@@ -456,5 +456,8 @@
   "enter_backup_password" : "여기에 백업 비밀번호를 입력하세요.",
   "select_backup_file" : "백업 파일 선택",
   "import" : "수입",
-  "please_select_backup_file" : "백업 파일을 선택하고 백업 암호를 입력하십시오."
+  "please_select_backup_file" : "백업 파일을 선택하고 백업 암호를 입력하십시오.",
+
+  "address_detected" : "주소 감지",
+  "address_from_domain" : "주소는 unstoppable domain ${domain}"
 }

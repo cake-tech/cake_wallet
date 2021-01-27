@@ -456,5 +456,8 @@
   "enter_backup_password" : "Geben Sie hier das Sicherungskennwort ein",
   "select_backup_file" : "Wählen Sie die Sicherungsdatei",
   "import" : "Importieren",
-  "please_select_backup_file" : "Bitte wählen Sie die Sicherungsdatei und geben Sie das Sicherungskennwort ein."
+  "please_select_backup_file" : "Bitte wählen Sie die Sicherungsdatei und geben Sie das Sicherungskennwort ein.",
+
+  "address_detected" : "Adresse erkannt",
+  "address_from_domain" : "Sie haben die Adresse von der unaufhaltsamen Domain ${domain} erhalten"
 }

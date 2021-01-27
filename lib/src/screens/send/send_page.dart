@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/src/screens/send/widgets/unstoppable_domain_address_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -37,14 +38,7 @@ class SendPage extends BasePage {
         _formKey = GlobalKey<FormState>(),
         _cryptoAmountFocus = FocusNode(),
         _fiatAmountFocus = FocusNode(),
-        _addressFocusNode = FocusNode() {
-    _addressFocusNode.addListener(() {
-      if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
-        getOpenaliasRecord(_addressFocusNode.context);
-        getUnstoppableDomainAddress(_addressFocusNode.context);
-      }
-    });
-  }
+        _addressFocusNode = FocusNode();
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -174,9 +168,17 @@ class SendPage extends BasePage {
                                         .headline
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
-                                onPushPasteButton: (context) {
-                                  getOpenaliasRecord(context);
-                                  getUnstoppableDomainAddress(context);
+                                onPushPasteButton: (context) async {
+                                  await getOpenaliasRecord(context);
+                                  final address = await sendViewModel
+                                      .getUnstoppableDomainAddress(
+                                      _addressController.text);
+
+                                  if ((address != null)&&(address.isNotEmpty)) {
+                                    unstoppable_domain_address_alert(
+                                        context, _addressController.text);
+                                    _addressController.text = address;
+                                  }
                                 },
                               ),
                               Observer(
@@ -518,13 +520,22 @@ class SendPage extends BasePage {
                                     to: template.name,
                                     amount: template.amount,
                                     from: template.cryptoCurrency,
-                                    onTap: () {
+                                    onTap: () async {
                                       _addressController.text =
                                           template.address;
                                       _cryptoAmountController.text =
                                           template.amount;
-                                      getOpenaliasRecord(context);
-                                      getUnstoppableDomainAddress(context);
+                                      await getOpenaliasRecord(context);
+
+                                      final address = await sendViewModel
+                                          .getUnstoppableDomainAddress(
+                                          _addressController.text);
+
+                                      if ((address != null)&&(address.isNotEmpty)) {
+                                        unstoppable_domain_address_alert(
+                                            context, _addressController.text);
+                                        _addressController.text = address;
+                                      }
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -587,6 +598,20 @@ class SendPage extends BasePage {
     if (_effectsInstalled) {
       return;
     }
+    _addressFocusNode.addListener(() async {
+      if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
+        await getOpenaliasRecord(_addressFocusNode.context);
+        final address = await sendViewModel
+            .getUnstoppableDomainAddress(
+            _addressController.text);
+
+        if ((address != null)&&(address.isNotEmpty)) {
+          unstoppable_domain_address_alert(
+              context, _addressController.text);
+          _addressController.text = address;
+        }
+      }
+    });
 
     _cryptoAmountController.addListener(() {
       final amount = _cryptoAmountController.text;
@@ -756,26 +781,6 @@ class SendPage extends BasePage {
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });
-    }
-  }
-
-  Future<void> getUnstoppableDomainAddress(BuildContext context) async {
-    final address =
-      await sendViewModel.getUnstoppableDomainAddress(_addressController.text);
-
-    if ((address != null)&&(address.isNotEmpty)) {
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: 'Address detected',
-                alertContent:
-                'You got address from unstoppable domain ${_addressController.text}',
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-
-      _addressController.text = address;
     }
   }
 

@@ -456,5 +456,8 @@
   "enter_backup_password" : "Ingrese la contraseña de respaldo aquí",
   "select_backup_file" : "Seleccionar archivo de respaldo",
   "import" : "Importar",
-  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo."
+  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo.",
+
+  "address_detected" : "Dirección detectada",
+  "address_from_domain" : "Tienes la dirección de unstoppable domain ${domain}"
 }

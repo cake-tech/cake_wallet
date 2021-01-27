@@ -456,5 +456,8 @@
   "enter_backup_password" : "Enter backup password here",
   "select_backup_file" : "Select backup file",
   "import" : "Import",
-  "please_select_backup_file" : "Please select backup file and enter backup password."
+  "please_select_backup_file" : "Please select backup file and enter backup password.",
+
+  "address_detected" : "Address detected",
+  "address_from_domain" : "You got address from unstoppable domain ${domain}"
 }

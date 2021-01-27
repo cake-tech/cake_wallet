@@ -29,6 +29,7 @@ class S implements WidgetsLocalizations {
   String get add_new_word => "Add new word";
   String get address_book => "Address Book";
   String get address_book_menu => "Address book";
+  String get address_detected => "Address detected";
   String get address_remove_contact => "Remove contact";
   String get address_remove_content => "Are you sure that you want to remove selected contact?";
   String get addresses => "Addresses";
@@ -357,6 +358,7 @@ class S implements WidgetsLocalizations {
   String get yesterday => "Yesterday";
   String get you_will_get => "Convert to";
   String get you_will_send => "Convert from";
+  String address_from_domain(String domain) => "You got address from unstoppable domain ${domain}";
   String Blocks_remaining(String status) => "${status} Blocks Remaining";
   String change_current_node(String node) => "Are you sure to change current node to ${node}?";
   String change_language_to(String language) => "Change language to ${language}?";
@@ -1075,6 +1077,10 @@ class $de extends S {
   String get import => "Importieren";
   @override
   String get please_select_backup_file => "Bitte wählen Sie die Sicherungsdatei und geben Sie das Sicherungskennwort ein.";
+  @override
+  String get address_detected => "Adresse erkannt";
+  @override
+  String address_from_domain(String domain) => "Du hast eine Adresse von unstoppable domain ${domain}";
   @override
   String change_language_to(String language) => "Ändern Sie die Sprache in ${language}?";
   @override
@@ -1832,6 +1838,10 @@ class $hi extends S {
   @override
   String get please_select_backup_file => "कृपया बैकअप फ़ाइल चुनें और बैकअप पासवर्ड डालें।";
   @override
+  String get address_detected => "पता लग गया";
+  @override
+  String address_from_domain(String domain) => "से आपको पता मिला unstoppable domain ${domain}";
+  @override
   String change_language_to(String language) => "को भाषा बदलें ${language}?";
   @override
   String change_current_node(String node) => "क्या आप वर्तमान नोड को बदलना सुनिश्चित करते हैं ${node}?";
@@ -2585,6 +2595,10 @@ class $ru extends S {
   String get select_backup_file => "Выберите файл резервной копии";
   @override
   String get import => "Импортировать";
+  @override
+  String get address_detected => "Обнаружен адрес";
+  @override
+  String address_from_domain(String domain) => "Вы получили адрес из unstoppable domain ${domain}";
   @override
   String get please_select_backup_file => "Выберите файл резервной копии и введите пароль резервной копии.";
   @override
@@ -3344,6 +3358,10 @@ class $ko extends S {
   @override
   String get please_select_backup_file => "백업 파일을 선택하고 백업 암호를 입력하십시오.";
   @override
+  String get address_detected => "주소 감지";
+  @override
+  String address_from_domain(String domain) => "주소는 unstoppable domain ${domain}";
+  @override
   String change_language_to(String language) => "언어를로 변경 ${language}?";
   @override
   String change_current_node(String node) => "현재 노드를 다음으로 변경 하시겠습니까 ${node}?";
@@ -4099,6 +4117,10 @@ class $pt extends S {
   String get import => "Importar";
   @override
   String get please_select_backup_file => "Selecione o arquivo de backup e insira a senha de backup.";
+  @override
+  String get address_detected => "Endereço detectado";
+  @override
+  String address_from_domain(String domain) => "Você obteve o endereço de unstoppable domain ${domain}";
   @override
   String change_language_to(String language) => "Alterar idioma para ${language}?";
   @override
@@ -4856,6 +4878,10 @@ class $uk extends S {
   @override
   String get please_select_backup_file => "Виберіть файл резервної копії та введіть пароль резервної копії.";
   @override
+  String get address_detected => "Виявлено адресу";
+  @override
+  String address_from_domain(String domain) => "Ви отримали адресу від unstoppable domain ${domain}";
+  @override
   String change_language_to(String language) => "Змінити мову на ${language}?";
   @override
   String change_current_node(String node) => "Ви впевнені, що хочете змінити поточний вузол на ${node}?";
@@ -5611,6 +5637,10 @@ class $ja extends S {
   String get import => "インポート";
   @override
   String get please_select_backup_file => "バックアップファイルを選択し、バックアップパスワードを入力してください。";
+  @override
+  String get address_detected => "アドレスが検出されました";
+  @override
+  String address_from_domain(String domain) => "あなたはからアドレスを得ました unstoppable domain ${domain}";
   @override
   String change_language_to(String language) => "言語を変更 ${language}?";
   @override
@@ -6372,6 +6402,10 @@ class $pl extends S {
   @override
   String get please_select_backup_file => "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe.";
   @override
+  String get address_detected => "Wykryto adres";
+  @override
+  String address_from_domain(String domain) => "Dostałeś adres od unstoppable domain ${domain}";
+  @override
   String change_language_to(String language) => "Zmień język na ${language}?";
   @override
   String change_current_node(String node) => "Czy na pewno chcesz przywrócić ustawienia domyślne? ${node}?";
@@ -7127,6 +7161,10 @@ class $es extends S {
   String get import => "Importar";
   @override
   String get please_select_backup_file => "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo.";
+  @override
+  String get address_detected => "Dirección detectada";
+  @override
+  String address_from_domain(String domain) => "Tienes la dirección de unstoppable domain ${domain}";
   @override
   String change_language_to(String language) => "Cambiar el idioma a ${language}?";
   @override
@@ -7884,6 +7922,10 @@ class $nl extends S {
   @override
   String get please_select_backup_file => "Selecteer een back-upbestand en voer een back-upwachtwoord in.";
   @override
+  String get address_detected => "Adres gedetecteerd";
+  @override
+  String address_from_domain(String domain) => "Je adres is van unstoppable domain ${domain}";
+  @override
   String change_language_to(String language) => "Verander de taal in ${language}?";
   @override
   String change_current_node(String node) => "Weet u zeker dat u het huidige knooppunt wilt wijzigen in ${node}?";
@@ -8639,6 +8681,10 @@ class $zh extends S {
   String get import => "進口";
   @override
   String get please_select_backup_file => "請選擇備份文件，然後輸入備份密碼。";
+  @override
+  String get address_detected => "檢測到地址";
+  @override
+  String address_from_domain(String domain) => "您有以下地址 unstoppable domain ${domain}";
   @override
   String change_language_to(String language) => "將語言更改為 ${language}?";
   @override
