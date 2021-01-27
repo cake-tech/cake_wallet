@@ -4,6 +4,10 @@ import UnstoppableDomainsResolution
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
+    lazy var resolution : Resolution? =  {
+       return  try? Resolution()
+    }()
+    
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -12,6 +16,7 @@ import UnstoppableDomainsResolution
         let batteryChannel = FlutterMethodChannel(name: "com.cakewallet.cakewallet/legacy_wallet_migration",
                                                   binaryMessenger: controller.binaryMessenger)
         let unstoppableDomainChannel = FlutterMethodChannel(name: "com.cakewallet.cake_wallet/unstoppable-domain", binaryMessenger: controller.binaryMessenger)
+    
         
         batteryChannel.setMethodCallHandler({
             (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
@@ -55,7 +60,7 @@ import UnstoppableDomainsResolution
             }
         })
         
-        unstoppableDomainChannel.setMethodCallHandler({
+        unstoppableDomainChannel.setMethodCallHandler({ [weak self]
             (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             switch call.method {
             case "getUnstoppableDomainAddress":
@@ -66,24 +71,23 @@ import UnstoppableDomainsResolution
                     return
                 }
                 
-                guard let resolution = try? Resolution() else {
-                    print ("Init of Resolution instance with default parameters failed...")
+                guard let resolution = self?.resolution else {
                     result(nil)
                     return
                 }
-                
-                var address : String = ""
-                
-                resolution.addr(domain: domain, ticker: ticker) { result in
-                  switch result {
-                  case .success(let returnValue):
-                    address = returnValue
-                  case .failure(let error):
-                    print("Expected Address, but got \(error)")
+                        
+                resolution.addr(domain: domain, ticker: ticker) { addrResult in
+                  var address : String = ""
+                    
+                  switch addrResult {
+                      case .success(let returnValue):
+                        address = returnValue
+                      case .failure(let error):
+                        print("Expected Address, but got \(error)")
+                    }
+                    
+                    result(address)
                 }
-                }
-                
-                result(address)
             default:
                 result(FlutterMethodNotImplemented)
             }
