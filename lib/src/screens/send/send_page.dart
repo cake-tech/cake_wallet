@@ -1,9 +1,11 @@
 import 'dart:ui';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
+import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -752,7 +754,7 @@ class SendPage extends BasePage {
   }
 
   Future<void> _setTransactionPriority(BuildContext context) async {
-    final items = TransactionPriority.forWalletType(sendViewModel.walletType);
+    final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
     final isShowScrollThumb = items.length > 3;
 

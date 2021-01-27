@@ -1,4 +1,5 @@
 import 'dart:io' show File, Platform;
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/di.dart';
@@ -15,7 +16,7 @@ import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node_list.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
@@ -53,8 +54,8 @@ Future defaultSettingsMigration(
               PreferencesKey.currentFiatCurrencyKey,
               FiatCurrency.usd.toString());
           await sharedPreferences.setInt(
-              PreferencesKey.currentTransactionPriorityKey,
-              TransactionPriority.standard.raw);
+              PreferencesKey.currentTransactionPriorityKeyLegacy,
+              MoneroTransactionPriority.standard.raw);
           await sharedPreferences.setInt(
               PreferencesKey.currentBalanceDisplayModeKey,
               BalanceDisplayMode.availableBalance.raw);
@@ -92,6 +93,13 @@ Future defaultSettingsMigration(
 
         case 9:
           await generateBackupPassword(secureStorage);
+          break;
+        case 10:
+          await changeTransactionPriorityAndFeeRateKeys(sharedPreferences);
+          break;
+
+        case 11:
+          await changeDefaultMoneroNode(nodes, sharedPreferences);
           break;
 
         default:
@@ -252,4 +260,37 @@ Future<void> generateBackupPassword(FlutterSecureStorage secureStorage) async {
 
   final password = encrypt.Key.fromSecureRandom(32).base16;
   await secureStorage.write(key: key, value: password);
+}
+
+Future<void> changeTransactionPriorityAndFeeRateKeys(
+    SharedPreferences sharedPreferences) async {
+  final legacyTransactionPriority = sharedPreferences
+      .getInt(PreferencesKey.currentTransactionPriorityKeyLegacy);
+  await sharedPreferences.setInt(
+      PreferencesKey.moneroTransactionPriority, legacyTransactionPriority);
+  await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
+      BitcoinTransactionPriority.medium.serialize());
+}
+
+Future<void> changeDefaultMoneroNode(
+    Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  const cakeWalletMoneroNodeUriPattern = '.cakewallet.com';
+  const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
+  final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
+  final currentMoneroNode = nodeSource.values.firstWhere((node) => node.key == currentMoneroNodeId);
+  final needToReplaceCurrentMoneroNode = currentMoneroNode.uri.contains(cakeWalletMoneroNodeUriPattern);
+
+  nodeSource.values.forEach((node) async {
+    if (node.type == WalletType.monero && node.uri.contains(cakeWalletMoneroNodeUriPattern)) {
+      await node.delete();
+    }
+  });
+
+  final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
+
+  await nodeSource.add(newCakeWalletNode);
+
+  if (needToReplaceCurrentMoneroNode) {
+    await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
+  }
 }
