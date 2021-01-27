@@ -7,8 +7,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/utils/date_formatter.dart';
+
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:hive/hive.dart';
 
 class TransactionDetailsPage extends BasePage {
   TransactionDetailsPage({this.transactionDetailsViewModel});
@@ -33,9 +39,16 @@ class TransactionDetailsPage extends BasePage {
                 showBar<void>(context,
                     S.of(context).transaction_details_copied(item.title));
               },
-              child: StandartListRow(
-                  title: '${item.title}:',
-                  value: item.value),
+              child:
+                  StandartListRow(title: '${item.title}:', value: item.value),
+            );
+          }
+
+          if (item is BlockExplorerListItem) {
+            return GestureDetector(
+              onTap: item.onTap,
+              child:
+                  StandartListRow(title: '${item.title}:', value: item.value),
             );
           }
 
