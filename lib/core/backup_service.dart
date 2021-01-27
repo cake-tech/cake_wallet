@@ -149,8 +149,8 @@ class BackupService {
         PreferencesKey.shouldSaveRecipientAddressKey,
         data[PreferencesKey.shouldSaveRecipientAddressKey] as bool);
     await _sharedPreferences.setInt(
-        PreferencesKey.currentTransactionPriorityKey,
-        data[PreferencesKey.currentTransactionPriorityKey] as int);
+        PreferencesKey.currentTransactionPriorityKeyLegacy,
+        data[PreferencesKey.currentTransactionPriorityKeyLegacy] as int);
     await _sharedPreferences.setBool(
         PreferencesKey.allowBiometricalAuthenticationKey,
         data[PreferencesKey.allowBiometricalAuthenticationKey] as bool);
@@ -257,8 +257,8 @@ class BackupService {
           _sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy),
       PreferencesKey.currentPinLength:
           _sharedPreferences.getInt(PreferencesKey.currentPinLength),
-      PreferencesKey.currentTransactionPriorityKey: _sharedPreferences
-          .getInt(PreferencesKey.currentTransactionPriorityKey),
+      PreferencesKey.currentTransactionPriorityKeyLegacy: _sharedPreferences
+          .getInt(PreferencesKey.currentTransactionPriorityKeyLegacy),
       PreferencesKey.allowBiometricalAuthenticationKey: _sharedPreferences
           .getBool(PreferencesKey.allowBiometricalAuthenticationKey),
       PreferencesKey.currentBitcoinElectrumSererIdKey: _sharedPreferences
