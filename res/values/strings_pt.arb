@@ -439,5 +439,22 @@
 
   "extra_id" : "ID extra:",
   "destination_tag" : "Tag de destino:",
-  "memo" : "Memorando:"
+  "memo" : "Memorando:",
+
+  "backup" : "Cópia de segurança",
+  "change_password" : "Mudar senha",
+  "backup_password" : "Senha de backup",
+  "write_down_backup_password" : "Anote sua senha de backup, que será usada para importar seus arquivos de backup.",
+  "export_backup" : "Backup de exportação",
+  "save_backup_password" : "Certifique-se de que salvou sua senha de backup. Você não poderá importar seus arquivos de backup sem ele.",
+  "backup_file" : "Arquivo de backup",
+
+  "edit_backup_password" : "Editar senha de backup",
+  "save_backup_password_alert" : "Salvar senha de backup",
+  "change_backup_password_alert" : "Seus arquivos de backup anteriores não estarão disponíveis para importação com a nova senha de backup. A nova senha de backup será usada apenas para novos arquivos de backup. Tem certeza que deseja alterar a senha de backup?",
+
+  "enter_backup_password" : "Digite a senha de backup aqui",
+  "select_backup_file" : "Selecione o arquivo de backup",
+  "import" : "Importar",
+  "please_select_backup_file" : "Selecione o arquivo de backup e insira a senha de backup."
 }

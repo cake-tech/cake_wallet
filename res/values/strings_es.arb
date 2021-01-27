@@ -439,5 +439,22 @@
 
   "extra_id" : "ID adicional:",
   "destination_tag" : "Etiqueta de destino:",
-  "memo" : "Memorándum:"
+  "memo" : "Memorándum:",
+
+  "backup" : "Apoyo",
+  "change_password" : "Cambia la contraseña",
+  "backup_password" : "Contraseña de respaldo",
+  "write_down_backup_password" : "Escriba su contraseña de respaldo, que se utiliza para la importación de sus archivos de respaldo.",
+  "export_backup" : "Exportar copia de seguridad",
+  "save_backup_password" : "Asegúrese de haber guardado su contraseña de respaldo. No podrá importar sus archivos de respaldo sin él.",
+  "backup_file" : "Archivo de respaldo",
+
+  "edit_backup_password" : "Editar contraseña de respaldo",
+  "save_backup_password_alert" : "Guardar contraseña de respaldo",
+  "change_backup_password_alert" : "Sus archivos de respaldo anteriores no estarán disponibles para importar con la nueva contraseña de respaldo. La nueva contraseña de respaldo se utilizará solo para los nuevos archivos de respaldo. ¿Está seguro de que desea cambiar la contraseña de respaldo?",
+
+  "enter_backup_password" : "Ingrese la contraseña de respaldo aquí",
+  "select_backup_file" : "Seleccionar archivo de respaldo",
+  "import" : "Importar",
+  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo."
 }

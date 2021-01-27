@@ -439,5 +439,22 @@
 
   "extra_id" : "Dodatkowy ID:",
   "destination_tag" : "Tag docelowy:",
-  "memo" : "Notatka:"
+  "memo" : "Notatka:",
+
+  "backup" : "Kopię zapasową",
+  "change_password" : "Zmień hasło",
+  "backup_password" : "Hasło zapasowe",
+  "write_down_backup_password" : "Zapisz swoje hasło zapasowe, które jest używane do importowania plików kopii zapasowych.",
+  "export_backup" : "Eksportuj kopię zapasową",
+  "save_backup_password" : "Upewnij się, że zapisałeś swoje zapasowe hasło. Bez tego nie będziesz mógł importować plików kopii zapasowej.",
+  "backup_file" : "Plik kopii zapasowej",
+
+  "edit_backup_password" : "Edytuj hasło kopii zapasowej",
+  "save_backup_password_alert" : "Zapisz hasło zapasowe",
+  "change_backup_password_alert" : "Twoje poprzednie pliki kopii zapasowej nie będą dostępne do zaimportowania z nowym hasłem kopii zapasowej. Nowe hasło zapasowe będzie używane tylko dla nowych plików kopii zapasowych. Czy na pewno chcesz zmienić hasło zapasowe?",
+
+  "enter_backup_password" : "Wprowadź tutaj hasło zapasowe",
+  "select_backup_file" : "Wybierz plik kopii zapasowej",
+  "import" : "Import",
+  "please_select_backup_file" : "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe."
 }

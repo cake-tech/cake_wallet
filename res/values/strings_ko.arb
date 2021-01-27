@@ -439,5 +439,22 @@
 
   "extra_id" : "추가 ID:",
   "destination_tag" : "목적지 태그:",
-  "memo" : "메모:"
+  "memo" : "메모:",
+
+  "backup" : "지원",
+  "change_password" : "비밀번호 변경",
+  "backup_password" : "백업 비밀번호",
+  "write_down_backup_password" : "백업 파일 가져 오기에 사용되는 백업 암호를 적어 두십시오.",
+  "export_backup" : "백업 내보내기",
+  "save_backup_password" : "백업 암호를 저장했는지 확인하십시오. 그것 없이는 백업 파일을 가져올 수 없습니다.",
+  "backup_file" : "백업 파일",
+
+  "edit_backup_password" : "편집 백업 암호",
+  "save_backup_password_alert" : "백업 비밀번호 저장",
+  "change_backup_password_alert" : "이전 백업 파일은 새 백업 암호로 가져올 수 없습니다. 새 백업 암호는 새 백업 파일에만 사용됩니다. 백업 비밀번호를 변경 하시겠습니까?",
+
+  "enter_backup_password" : "여기에 백업 비밀번호를 입력하세요.",
+  "select_backup_file" : "백업 파일 선택",
+  "import" : "수입",
+  "please_select_backup_file" : "백업 파일을 선택하고 백업 암호를 입력하십시오."
 }
