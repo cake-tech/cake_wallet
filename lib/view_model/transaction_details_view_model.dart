@@ -4,12 +4,14 @@ import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
+import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -41,6 +43,12 @@ abstract class TransactionDetailsViewModelBase with Store {
             value: tx.amountFormatted()),
         StandartListItem(
             title: S.current.transaction_details_fee, value: tx.feeFormatted()),
+        BlockExplorerListItem(
+            title: "View in Block Explorer",
+            value: "View Transaction on XMRChain.net",
+            onTap: () {
+              launch("https://xmrchain.net/search?value=${tx.id}");
+            })
       ];
 
       if (tx.key?.isNotEmpty ?? null) {
@@ -69,7 +77,13 @@ abstract class TransactionDetailsViewModelBase with Store {
         if (tx.feeFormatted()?.isNotEmpty)
           StandartListItem(
               title: S.current.transaction_details_fee,
-              value: tx.feeFormatted())
+              value: tx.feeFormatted()),
+        BlockExplorerListItem(
+            title: "View in Block Explorer",
+            value: "View Transaction on Blockchain.com",
+            onTap: () {
+              launch("https://www.blockchain.com/btc/tx/${tx.id}");
+            })
       ];
 
       items.addAll(_items);
