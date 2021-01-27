@@ -102,8 +102,12 @@ abstract class BitcoinTransactionHistoryBase
   BitcoinTransactionInfo get(String id) => transactions[id];
 
   Future<void> save() async {
-    final data = json.encode({'height': _height, 'transactions': transactions});
-    await writeData(path: path, password: _password, data: data);
+    try {
+      final data = json.encode({'height': _height, 'transactions': transactions});
+      await writeData(path: path, password: _password, data: data);
+    } catch(e) {
+      print('Error while save bitcoin transaction history: ${e.toString()}');
+    }
   }
 
   @override
@@ -170,6 +174,10 @@ abstract class BitcoinTransactionHistoryBase
   }
 
   void _updateOrInsert(BitcoinTransactionInfo transaction) {
+    if (transaction.id == null) {
+      return;
+    }
+
     if (transactions[transaction.id] == null) {
       transactions[transaction.id] = transaction;
     } else {

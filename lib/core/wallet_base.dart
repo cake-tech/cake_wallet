@@ -1,16 +1,17 @@
 import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/currency_for_wallet_type.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 
-abstract class WalletBase<BalaceType extends Balance> {
+abstract class WalletBase<BalanceType extends Balance> {
   WalletBase(this.walletInfo);
 
   static String idFor(String name, WalletType type) =>
@@ -30,7 +31,7 @@ abstract class WalletBase<BalaceType extends Balance> {
 
   set address(String address);
 
-  BalaceType get balance;
+  BalanceType get balance;
 
   SyncStatus get syncStatus;
 
@@ -48,7 +49,7 @@ abstract class WalletBase<BalaceType extends Balance> {
 
   Future<PendingTransaction> createTransaction(Object credentials);
 
-  double calculateEstimatedFee(TransactionPriority priority);
+  int calculateEstimatedFee(TransactionPriority priority, int amount);
 
   Future<void> save();
 

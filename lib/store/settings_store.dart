@@ -1,4 +1,6 @@
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:flutter/foundation.dart';
@@ -14,7 +16,7 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 
 part 'settings_store.g.dart';
@@ -25,7 +27,6 @@ abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {@required SharedPreferences sharedPreferences,
       @required FiatCurrency initialFiatCurrency,
-      @required TransactionPriority initialTransactionPriority,
       @required BalanceDisplayMode initialBalanceDisplayMode,
       @required bool initialSaveRecipientAddress,
       @required bool initialAllowBiometricalAuthentication,
@@ -35,15 +36,20 @@ abstract class SettingsStoreBase with Store {
       // @required String initialCurrentLocale,
       @required this.appVersion,
       @required Map<WalletType, Node> nodes,
+      @required TransactionPriority initialBitcoinTransactionPriority,
+      @required TransactionPriority initialMoneroTransactionPriority,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
-    transactionPriority = initialTransactionPriority;
     balanceDisplayMode = initialBalanceDisplayMode;
     shouldSaveRecipientAddress = initialSaveRecipientAddress;
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
     currentTheme = initialTheme;
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
+    priority = ObservableMap<WalletType, TransactionPriority>.of({
+      WalletType.monero: initialMoneroTransactionPriority,
+      WalletType.bitcoin: initialBitcoinTransactionPriority
+    });
     this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
 
@@ -52,11 +58,13 @@ abstract class SettingsStoreBase with Store {
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
             PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
 
-    reaction(
-        (_) => transactionPriority,
-        (TransactionPriority priority) => sharedPreferences.setInt(
-            PreferencesKey.currentTransactionPriorityKey,
-            priority.serialize()));
+    priority.observe((change) {
+      final key = change.key == WalletType.monero
+          ? PreferencesKey.moneroTransactionPriority
+          : PreferencesKey.bitcoinTransactionPriority;
+
+      sharedPreferences.setInt(key, change.newValue.serialize());
+    });
 
     reaction(
         (_) => shouldSaveRecipientAddress,
@@ -105,9 +113,6 @@ abstract class SettingsStoreBase with Store {
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
 
   @observable
-  TransactionPriority transactionPriority;
-
-  @observable
   BalanceDisplayMode balanceDisplayMode;
 
   @observable
@@ -128,6 +133,9 @@ abstract class SettingsStoreBase with Store {
   @observable
   String languageCode;
 
+  @observable
+  ObservableMap<WalletType, TransactionPriority> priority;
+
   String appVersion;
 
   SharedPreferences _sharedPreferences;
@@ -139,16 +147,28 @@ abstract class SettingsStoreBase with Store {
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      TransactionPriority initialTransactionPriority = TransactionPriority.slow,
+      MoneroTransactionPriority initialMoneroTransactionPriority =
+          MoneroTransactionPriority.slow,
+      BitcoinTransactionPriority initialBitcoinTransactionPriority =
+          BitcoinTransactionPriority.medium,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final currentFiatCurrency = FiatCurrency(
         symbol:
             sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey));
-    final currentTransactionPriority = TransactionPriority.deserialize(
-        raw: sharedPreferences
-            .getInt(PreferencesKey.currentTransactionPriorityKey));
+    final savedMoneroTransactionPriority =
+        MoneroTransactionPriority.deserialize(
+            raw: sharedPreferences
+                .getInt(PreferencesKey.moneroTransactionPriority));
+    final savedBitcoinTransactionPriority =
+        BitcoinTransactionPriority.deserialize(
+            raw: sharedPreferences
+                .getInt(PreferencesKey.bitcoinTransactionPriority));
+    final moneroTransactionPriority =
+        savedMoneroTransactionPriority ?? initialMoneroTransactionPriority;
+    final bitcoinTransactionPriority =
+        savedBitcoinTransactionPriority ?? initialBitcoinTransactionPriority;
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences
             .getInt(PreferencesKey.currentBalanceDisplayModeKey));
@@ -193,30 +213,36 @@ abstract class SettingsStoreBase with Store {
         },
         appVersion: packageInfo.version,
         initialFiatCurrency: currentFiatCurrency,
-        initialTransactionPriority: currentTransactionPriority,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
         initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
-        initialLanguageCode: savedLanguageCode);
+        initialLanguageCode: savedLanguageCode,
+        initialMoneroTransactionPriority: moneroTransactionPriority,
+        initialBitcoinTransactionPriority: bitcoinTransactionPriority);
   }
 
   Future<void> reload(
       {@required Box<Node> nodeSource,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      TransactionPriority initialTransactionPriority = TransactionPriority.slow,
+      MoneroTransactionPriority initialMoneroTransactionPriority =
+          MoneroTransactionPriority.slow,
+      BitcoinTransactionPriority initialBitcoinTransactionPriority =
+          BitcoinTransactionPriority.medium,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
     final settings = await SettingsStoreBase.load(
         nodeSource: nodeSource,
         initialBalanceDisplayMode: initialBalanceDisplayMode,
         initialFiatCurrency: initialFiatCurrency,
-        initialTransactionPriority: initialTransactionPriority);
+        initialMoneroTransactionPriority: initialMoneroTransactionPriority,
+        initialBitcoinTransactionPriority: initialBitcoinTransactionPriority);
     fiatCurrency = settings.fiatCurrency;
     actionlistDisplayMode = settings.actionlistDisplayMode;
-    transactionPriority = settings.transactionPriority;
+    priority[WalletType.monero] = initialMoneroTransactionPriority;
+    priority[WalletType.bitcoin] = initialBitcoinTransactionPriority;
     balanceDisplayMode = settings.balanceDisplayMode;
     shouldSaveRecipientAddress = settings.shouldSaveRecipientAddress;
     allowBiometricalAuthentication = settings.allowBiometricalAuthentication;

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:flutter/foundation.dart';
@@ -21,7 +22,7 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -212,27 +213,22 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   @override
-  double calculateEstimatedFee(TransactionPriority priority) {
+  int calculateEstimatedFee(TransactionPriority priority, int amount) {
     // FIXME: hardcoded value;
 
-    if (priority == TransactionPriority.slow) {
-      return 0.00002459;
-    }
-
-    if (priority == TransactionPriority.regular) {
-      return 0.00012305;
-    }
-
-    if (priority == TransactionPriority.medium) {
-      return 0.00024503;
-    }
-
-    if (priority == TransactionPriority.fast) {
-      return 0.00061453;
-    }
-
-    if (priority == TransactionPriority.fastest) {
-      return 0.0260216;
+    if (priority is MoneroTransactionPriority) {
+      switch (priority) {
+        case MoneroTransactionPriority.slow:
+          return 24590000;
+        case MoneroTransactionPriority.regular:
+          return 123050000;
+        case MoneroTransactionPriority.medium:
+          return 245029999;
+        case MoneroTransactionPriority.fast:
+          return 614530000;
+        case MoneroTransactionPriority.fastest:
+          return 26021600000;
+      }
     }
 
     return 0;
