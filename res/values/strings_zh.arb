@@ -439,5 +439,22 @@
 
   "extra_id" : "額外編號:",
   "destination_tag" : "目標標籤:",
-  "memo" : "備忘錄:"
+  "memo" : "備忘錄:",
+
+  "backup" : "後備",
+  "change_password" : "更改密碼",
+  "backup_password" : "備用密碼",
+  "write_down_backup_password" : "請寫下您的備份密碼，該密碼用於導入備份文件。",
+  "export_backup" : "導出備份",
+  "save_backup_password" : "請確保您已保存備份密碼。 沒有它，您將無法導入備份文件。",
+  "backup_file" : "備份檔案",
+
+  "edit_backup_password" : "編輯備份密碼",
+  "save_backup_password_alert" : "保存備份密碼",
+  "change_backup_password_alert" : "您以前的備份文件將無法使用新的備份密碼導入。 新的備份密碼將僅用於新的備份文件。 您確定要更改備份密碼嗎？",
+
+  "enter_backup_password" : "在此處輸入備用密碼",
+  "select_backup_file" : "選擇備份文件",
+  "import" : "進口",
+  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。"
 }

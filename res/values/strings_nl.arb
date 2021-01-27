@@ -439,5 +439,22 @@
 
   "extra_id" : "Extra ID:",
   "destination_tag" : "Bestemmingstag:",
-  "memo" : "Memo:"
+  "memo" : "Memo:",
+
+  "backup" : "Back-up",
+  "change_password" : "Wachtwoord wijzigen",
+  "backup_password" : "Reservewachtwoord",
+  "write_down_backup_password" : "Noteer uw back-upwachtwoord, dat wordt gebruikt voor het importeren van uw back-upbestanden.",
+  "export_backup" : "Back-up exporteren",
+  "save_backup_password" : "Zorg ervoor dat u uw reservewachtwoord heeft opgeslagen. Zonder dit kunt u uw back-upbestanden niet importeren.",
+  "backup_file" : "Backup bestand",
+
+  "edit_backup_password" : "Bewerk back-upwachtwoord",
+  "save_backup_password_alert" : "Bewaar back-upwachtwoord",
+  "change_backup_password_alert" : "Uw vorige back-upbestanden kunnen niet worden geïmporteerd met een nieuw back-upwachtwoord. Het nieuwe back-upwachtwoord wordt alleen gebruikt voor nieuwe back-upbestanden. Weet u zeker dat u het back-upwachtwoord wilt wijzigen?",
+
+  "enter_backup_password" : "Voer hier een back-upwachtwoord in",
+  "select_backup_file" : "Selecteer een back-upbestand",
+  "import" : "Importeren",
+  "please_select_backup_file" : "Selecteer een back-upbestand en voer een back-upwachtwoord in."
 }

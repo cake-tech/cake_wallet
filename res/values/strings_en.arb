@@ -155,7 +155,7 @@
   "restore_title_from_seed_keys" : "Restore from seed/keys",
   "restore_description_from_seed_keys" : "Get back your wallet from seed/keys that you've saved to secure place",
   "restore_next" : "Next",
-  "restore_title_from_backup" : "Restore from back-up",
+  "restore_title_from_backup" : "Restore from backup",
   "restore_description_from_backup" : "You can restore the whole Cake Wallet app from your back-up file",
   "restore_seed_keys_restore" : "Seed/Keys Restore",
   "restore_title_from_seed" : "Restore from seed",
@@ -439,5 +439,22 @@
 
   "extra_id" : "Extra ID:",
   "destination_tag" : "Destination tag:",
-  "memo" : "Memo:"
+  "memo" : "Memo:",
+
+  "backup" : "Backup",
+  "change_password" : "Change password",
+  "backup_password" : "Backup password",
+  "write_down_backup_password" : "Please write down your backup password, which is used for the import of your backup files.",
+  "export_backup" : "Export backup",
+  "save_backup_password" : "Please make sure that you have saved your backup password.  You will not be able to import your backup files without it.",
+  "backup_file" : "Backup file",
+
+  "edit_backup_password" : "Edit Backup Password",
+  "save_backup_password_alert" : "Save backup password",
+  "change_backup_password_alert" : "Your previous backup files will be not available to import with new backup password. New backup password will be used only for new backup files. Are you sure that you want to change backup password?",
+
+  "enter_backup_password" : "Enter backup password here",
+  "select_backup_file" : "Select backup file",
+  "import" : "Import",
+  "please_select_backup_file" : "Please select backup file and enter backup password."
 }

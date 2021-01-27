@@ -4,7 +4,7 @@ class PreferencesKey {
   static const currentNodeIdKey = 'current_node_id';
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
-  static const currentTransactionPriorityKey = 'current_fee_priority';
+  static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
   static const shouldSaveRecipientAddressKey = 'save_recipient_address';
   static const allowBiometricalAuthenticationKey =
@@ -15,4 +15,6 @@ class PreferencesKey {
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
   static const currentDefaultSettingsMigrationVersion = 'current_default_settings_migration_version';
+  static const moneroTransactionPriority = 'current_fee_priority_monero';
+  static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
 }
