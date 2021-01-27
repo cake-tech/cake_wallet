@@ -1,6 +1,11 @@
+import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/monero/monero_amount_format.dart';
+import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -21,7 +26,7 @@ import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart'
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
@@ -40,11 +45,11 @@ abstract class SendViewModelBase with Store {
         _cryptoNumberFormat = NumberFormat(),
         note = '',
         sendAll = false {
-    final _priority = _settingsStore.transactionPriority;
+    final priority = _settingsStore.priority[_wallet.type];
+    final priorities = priorityForWalletType(_wallet.type);
 
-    if (!TransactionPriority.forWalletType(walletType).contains(_priority)) {
-      _settingsStore.transactionPriority =
-          TransactionPriority.forWalletType(walletType).first;
+    if (!priorityForWalletType(_wallet.type).contains(priority)) {
+      _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
     _setCryptoNumMaximumFractionDigits();
@@ -69,8 +74,39 @@ abstract class SendViewModelBase with Store {
   bool sendAll;
 
   @computed
-  double get estimatedFee =>
-      _wallet.calculateEstimatedFee(_settingsStore.transactionPriority);
+  double get estimatedFee {
+    int amount;
+
+    if (cryptoAmount?.isNotEmpty ?? false) {
+      int _amount = 0;
+      switch (walletType) {
+        case WalletType.monero:
+          _amount = moneroParseAmount(amount: cryptoAmount);
+          break;
+        case WalletType.bitcoin:
+          _amount = stringDoubleToBitcoinAmount(cryptoAmount);
+          break;
+        default:
+          break;
+      }
+
+      if (_amount > 0) {
+        amount = _amount;
+      }
+    }
+
+    final fee = _wallet.calculateEstimatedFee(_settingsStore.priority[_wallet.type], amount);
+
+    if (_wallet is BitcoinWallet) {
+      return bitcoinAmountToDouble(amount: fee);
+    }
+
+    if (_wallet is MoneroWallet) {
+      return moneroAmountToDouble(amount: fee);
+    }
+
+    return 0;
+  }
 
   @computed
   String get estimatedFeeFiatAmount {
@@ -119,7 +155,7 @@ abstract class SendViewModelBase with Store {
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
   TransactionPriority get transactionPriority =>
-      _settingsStore.transactionPriority;
+      _settingsStore.priority[_wallet.type];
 
   CryptoCurrency get currency => _wallet.currency;
 
@@ -213,7 +249,7 @@ abstract class SendViewModelBase with Store {
 
   @action
   void setTransactionPriority(TransactionPriority priority) =>
-      _settingsStore.transactionPriority = priority;
+      _settingsStore.priority[_wallet.type] = priority;
 
   Future<OpenaliasRecord> decodeOpenaliasRecord(String name) async {
     final record = await OpenaliasRecord.fetchAddressAndName(
@@ -257,16 +293,17 @@ abstract class SendViewModelBase with Store {
     switch (_wallet.type) {
       case WalletType.bitcoin:
         final amount = !sendAll ? _amount : null;
+        final priority = _settingsStore.priority[_wallet.type];
 
-        return BitcoinTransactionCredentials(
-            address, amount, _settingsStore.transactionPriority);
+        return BitcoinTransactionCredentials(address, amount, priority as BitcoinTransactionPriority);
       case WalletType.monero:
         final amount = !sendAll ? _amount : null;
+        final priority = _settingsStore.priority[_wallet.type];
 
         return MoneroTransactionCreationCredentials(
             address: address,
             paymentId: '',
-            priority: _settingsStore.transactionPriority,
+            priority: priority as MoneroTransactionPriority,
             amount: amount);
       default:
         return null;

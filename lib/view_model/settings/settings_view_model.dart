@@ -1,4 +1,6 @@
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -14,7 +16,7 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
@@ -28,6 +30,17 @@ part 'settings_view_model.g.dart';
 
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
+List<TransactionPriority> priorityForWalletType(WalletType type) {
+  switch (type) {
+    case WalletType.monero:
+      return MoneroTransactionPriority.all;
+    case WalletType.bitcoin:
+      return BitcoinTransactionPriority.all;
+    default:
+      return [];
+  }
+}
+
 abstract class SettingsViewModelBase with Store {
   SettingsViewModelBase(this._settingsStore, WalletBase<Balance> wallet)
       : itemHeaders = {},
@@ -37,11 +50,11 @@ abstract class SettingsViewModelBase with Store {
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
 
-    final _priority = _settingsStore.transactionPriority;
+    final priority = _settingsStore.priority[wallet.type];
+    final priorities = priorityForWalletType(wallet.type);
 
-    if (!TransactionPriority.forWalletType(_walletType).contains(_priority)) {
-      _settingsStore.transactionPriority =
-          TransactionPriority.forWalletType(_walletType).first;
+    if (!priorities.contains(priority)) {
+      _settingsStore.priority[wallet.type] = priorities.first;
     }
 
     sections = [
@@ -60,10 +73,10 @@ abstract class SettingsViewModelBase with Store {
                 setFiatCurrency(currency)),
         PickerListItem(
             title: S.current.settings_fee_priority,
-            items: TransactionPriority.forWalletType(wallet.type),
+            items: priorityForWalletType(wallet.type),
             selectedItem: () => transactionPriority,
             onItemSelected: (TransactionPriority priority) =>
-                _settingsStore.transactionPriority = priority),
+                _settingsStore.priority[wallet.type] = priority),
         SwitcherListItem(
             title: S.current.settings_save_recipient_address,
             value: () => shouldSaveRecipientAddress,
@@ -182,7 +195,7 @@ abstract class SettingsViewModelBase with Store {
 
   @computed
   TransactionPriority get transactionPriority =>
-      _settingsStore.transactionPriority;
+      _settingsStore.priority[_walletType];
 
   @computed
   BalanceDisplayMode get balanceDisplayMode =>

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
@@ -302,8 +303,8 @@ abstract class ExchangeViewModelBase with Store {
   void calculateDepositAllAmount() {
     if (wallet is BitcoinWallet) {
       final availableBalance = wallet.balance.available;
-      final fee = BitcoinWalletBase.feeAmountForPriority(
-          _settingsStore.transactionPriority);
+      final priority = _settingsStore.priority[wallet.type] as BitcoinTransactionPriority;
+      final fee = wallet.calculateEstimatedFee(priority, null);
 
       if (availableBalance < fee || availableBalance == 0) {
         return;
