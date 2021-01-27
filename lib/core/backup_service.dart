@@ -126,7 +126,6 @@ class BackupService {
   Future<void> _importPreferencesDump() async {
     final appDir = await getApplicationDocumentsDirectory();
     final preferencesFile = File('${appDir.path}/~_preferences_dump');
-    const defaultSettingsMigrationVersionKey = PreferencesKey.currentDefaultSettingsMigrationVersion;
 
     if (!preferencesFile.existsSync()) {
       return;
@@ -157,14 +156,21 @@ class BackupService {
     await _sharedPreferences.setInt(
         PreferencesKey.currentBitcoinElectrumSererIdKey,
         data[PreferencesKey.currentBitcoinElectrumSererIdKey] as int);
-    await _sharedPreferences.setInt(PreferencesKey.currentLanguageCode,
-        data[PreferencesKey.currentLanguageCode] as int);
+    await _sharedPreferences.setString(PreferencesKey.currentLanguageCode,
+        data[PreferencesKey.currentLanguageCode] as String);
     await _sharedPreferences.setInt(PreferencesKey.displayActionListModeKey,
         data[PreferencesKey.displayActionListModeKey] as int);
+    await _sharedPreferences.setInt(PreferencesKey.currentPinLength,
+        data[PreferencesKey.currentPinLength] as int);
     await _sharedPreferences.setInt(
-        'current_theme', data['current_theme'] as int);
-    await _sharedPreferences.setInt(defaultSettingsMigrationVersionKey,
-        data[defaultSettingsMigrationVersionKey] as int);
+        PreferencesKey.currentTheme, data[PreferencesKey.currentTheme] as int);
+    await _sharedPreferences.setInt(
+        PreferencesKey.currentDefaultSettingsMigrationVersion,
+        data[PreferencesKey.currentDefaultSettingsMigrationVersion] as int);
+    await _sharedPreferences.setInt(PreferencesKey.moneroTransactionPriority,
+        data[PreferencesKey.moneroTransactionPriority] as int);
+    await _sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
+        data[PreferencesKey.bitcoinTransactionPriority] as int);
 
     await preferencesFile.delete();
   }
@@ -237,9 +243,6 @@ class BackupService {
   }
 
   Future<String> _exportPreferencesJSON() async {
-    const defaultSettingsMigrationVersionKey =
-        'current_default_settings_migration_version';
-
     final preferences = <String, Object>{
       PreferencesKey.currentWalletName:
           _sharedPreferences.getString(PreferencesKey.currentWalletName),
@@ -269,8 +272,12 @@ class BackupService {
           _sharedPreferences.getInt(PreferencesKey.displayActionListModeKey),
       PreferencesKey.currentTheme:
           _sharedPreferences.getInt(PreferencesKey.currentTheme),
-      defaultSettingsMigrationVersionKey:
-          _sharedPreferences.getInt(defaultSettingsMigrationVersionKey)
+      PreferencesKey.currentDefaultSettingsMigrationVersion: _sharedPreferences
+          .getInt(PreferencesKey.currentDefaultSettingsMigrationVersion),
+      PreferencesKey.bitcoinTransactionPriority:
+          _sharedPreferences.getInt(PreferencesKey.bitcoinTransactionPriority),
+      PreferencesKey.moneroTransactionPriority:
+          _sharedPreferences.getInt(PreferencesKey.moneroTransactionPriority),
     };
 
     return json.encode(preferences);
