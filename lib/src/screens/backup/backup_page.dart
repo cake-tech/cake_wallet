@@ -20,11 +20,11 @@ class BackupPage extends BasePage {
   final BackupViewModelBase backupViewModelBase;
 
   @override
-  String get title => 'Backup';
+  String get title => S.current.backup;
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
-      caption: 'Change password',
+      caption: S.of(context).change_password,
       onPressed: () =>
           Navigator.of(context).pushNamed(Routes.editBackupPassword));
 
@@ -39,7 +39,8 @@ class BackupPage extends BasePage {
                 height: 300,
                 child: Column(children: [
                   Text(
-                    'Backup password:',
+                    S.of(context).backup_password + ':',
+                    textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 30),
                   ),
                   Padding(
@@ -53,7 +54,7 @@ class BackupPage extends BasePage {
                                   showBar<void>(
                                       context,
                                       S.of(context).transaction_details_copied(
-                                          'Backup password'));
+                                          S.of(context).backup_password));
                                 },
                                 child: Text(
                                   backupViewModelBase.backupPassword,
@@ -64,7 +65,7 @@ class BackupPage extends BasePage {
                   Padding(
                       padding: EdgeInsets.all(20),
                       child: Text(
-                        'Please write down your Backup Password. Backup Password uses for import of backup files.',
+                        S.of(context).write_down_backup_password,
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                         textAlign: TextAlign.center,
                       ))
@@ -74,7 +75,7 @@ class BackupPage extends BasePage {
               builder: (_) => LoadingPrimaryButton(
                   isLoading: backupViewModelBase.state is IsExecutingState,
                   onPressed: () => onExportBackup(context),
-                  text: 'Export backup',
+                  text: S.of(context).export_backup,
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white)),
           bottom: 30,
@@ -90,18 +91,17 @@ class BackupPage extends BasePage {
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-              alertTitle: 'Export backup',
-              alertContent:
-                  'Please be sure that you have saved your Backup Password.You will be no available to import backup files without Backup Password.\n\nHave you written it down?',
-              rightButtonText: S.of(context).seed_alert_yes,
-              leftButtonText: S.of(context).seed_alert_back,
-              actionRightButton: () async {
-                Navigator.of(dialogContext).pop();
-                final backup = await backupViewModelBase.exportBackup();
-                await Share.file(
-                    'Backup file', backup.name, backup.content, 'text');
-              },
-              actionLeftButton: () => Navigator.of(dialogContext).pop());
+            alertTitle: S.of(context).export_backup,
+            alertContent: S.of(context).save_backup_password,
+            rightButtonText: S.of(context).seed_alert_yes,
+            leftButtonText: S.of(context).seed_alert_back,
+            actionRightButton: () async {
+              Navigator.of(dialogContext).pop();
+              final backup = await backupViewModelBase.exportBackup();
+              await Share.file(
+                S.of(context).backup_file, backup.name, backup.content, 'text');
+            },
+            actionLeftButton: () => Navigator.of(dialogContext).pop());
         });
   }
 }

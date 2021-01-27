@@ -20,7 +20,7 @@ class EditBackupPasswordPage extends BasePage {
   final TextEditingController textEditingController;
 
   @override
-  String get title => 'Edit Backup Password';
+  String get title => S.current.edit_backup_password;
 
   @override
   Widget body(BuildContext context) {
@@ -37,12 +37,14 @@ class EditBackupPasswordPage extends BasePage {
                         autocorrect: false,
                         keyboardType: TextInputType.visiblePassword,
                         controller: textEditingController,
-                        style: TextStyle(fontSize: 26, color: Theme.of(context).primaryTextTheme.title.color)))),
+                        style: TextStyle(
+                          fontSize: 26,
+                          color: Theme.of(context).primaryTextTheme.title.color)))),
             Positioned(
                 child: Observer(
                     builder: (_) => PrimaryButton(
                         onPressed: () => onSave(context),
-                        text: 'Save',
+                        text: S.of(context).save,
                         color: Theme.of(context).accentTextTheme.body2.color,
                         textColor: Colors.white,
                         isDisabled: !editBackupPasswordViewModel.canSave)),
@@ -58,9 +60,8 @@ class EditBackupPasswordPage extends BasePage {
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-              alertTitle: 'Save backup password',
-              alertContent:
-                  'Your previous backup files will be not available to import with new backup password. New backup password will be used only for new backup files. Are you sure that you want to change backup password ?',
+              alertTitle: S.of(context).save_backup_password_alert,
+              alertContent: S.of(context).change_backup_password_alert,
               rightButtonText: S.of(context).ok,
               leftButtonText: S.of(context).cancel,
               actionRightButton: () async {
