@@ -696,7 +696,7 @@ extern "C"
     void on_startup()
     {
         Monero::Utils::onStartup();
-        Monero::WalletManagerFactory::setLogLevel(4);
+        Monero::WalletManagerFactory::setLogLevel(0);
     }
 
     void rescan_blockchain()

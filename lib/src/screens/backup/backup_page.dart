@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -91,17 +92,46 @@ class BackupPage extends BasePage {
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-            alertTitle: S.of(context).export_backup,
-            alertContent: S.of(context).save_backup_password,
-            rightButtonText: S.of(context).seed_alert_yes,
-            leftButtonText: S.of(context).seed_alert_back,
-            actionRightButton: () async {
-              Navigator.of(dialogContext).pop();
-              final backup = await backupViewModelBase.exportBackup();
-              await Share.file(
-                S.of(context).backup_file, backup.name, backup.content, 'text');
-            },
-            actionLeftButton: () => Navigator.of(dialogContext).pop());
+              alertTitle: S.of(context).export_backup,
+              alertContent: S.of(context).save_backup_password,
+              rightButtonText: S.of(context).seed_alert_yes,
+              leftButtonText: S.of(context).seed_alert_back,
+              actionRightButton: () async {
+                Navigator.of(dialogContext).pop();
+                final backup = await backupViewModelBase.exportBackup();
+                await backupViewModelBase.saveToDownload(
+                    backup.name, backup.content);
+
+                if (Platform.isAndroid) {
+                  onExportAndroid(context, backup);
+                } else {
+                  await Share.file(S.of(context).backup_file, backup.name,
+                      backup.content, 'application/*');
+                }
+              },
+              actionLeftButton: () => Navigator.of(dialogContext).pop());
+        });
+  }
+
+  void onExportAndroid(BuildContext context, BackupExportFile backup) {
+    showPopUp<void>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).export_backup,
+              alertContent: 'Please select destination for the backup file.',
+              rightButtonText: 'Save to Downloads',
+              leftButtonText: 'Share',
+              actionRightButton: () async {
+                Navigator.of(dialogContext).pop();
+                await backupViewModelBase.saveToDownload(
+                    backup.name, backup.content);
+              },
+              actionLeftButton: () {
+                Navigator.of(dialogContext).pop();
+                Share.file(S.of(context).backup_file, backup.name,
+                    backup.content, 'application/*');
+              });
         });
   }
 }
