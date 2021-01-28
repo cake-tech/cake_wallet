@@ -174,7 +174,7 @@ class SendPage extends BasePage {
                                       .getUnstoppableDomainAddress(
                                       _addressController.text);
 
-                                  if ((address != null)&&(address.isNotEmpty)) {
+                                  if ((address != null)&&address.isNotEmpty) {
                                     unstoppable_domain_address_alert(
                                         context, _addressController.text);
                                     _addressController.text = address;
@@ -531,7 +531,7 @@ class SendPage extends BasePage {
                                           .getUnstoppableDomainAddress(
                                           _addressController.text);
 
-                                      if ((address != null)&&(address.isNotEmpty)) {
+                                      if ((address != null)&&address.isNotEmpty) {
                                         unstoppable_domain_address_alert(
                                             context, _addressController.text);
                                         _addressController.text = address;
@@ -598,14 +598,15 @@ class SendPage extends BasePage {
     if (_effectsInstalled) {
       return;
     }
+
     _addressFocusNode.addListener(() async {
       if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
-        await getOpenaliasRecord(_addressFocusNode.context);
+        await getOpenaliasRecord(context);
         final address = await sendViewModel
             .getUnstoppableDomainAddress(
             _addressController.text);
 
-        if ((address != null)&&(address.isNotEmpty)) {
+        if ((address != null)&&address.isNotEmpty) {
           unstoppable_domain_address_alert(
               context, _addressController.text);
           _addressController.text = address;

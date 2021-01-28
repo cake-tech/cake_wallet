@@ -229,7 +229,7 @@ class ExchangePage extends BasePage {
                                   final ticker = exchangeViewModel.depositCurrency.title;
                                   final address =
                                     await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-                                  if ((address != null)&&(address.isNotEmpty)) {
+                                  if ((address != null)&&address.isNotEmpty) {
                                     unstoppable_domain_address_alert(context, domain);
                                     exchangeViewModel.depositAddress = address;
                                   }
@@ -286,7 +286,7 @@ class ExchangePage extends BasePage {
                                         final ticker = exchangeViewModel.receiveCurrency.title;
                                         final address =
                                           await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-                                        if ((address != null)&&(address.isNotEmpty)) {
+                                        if ((address != null)&&address.isNotEmpty) {
                                           unstoppable_domain_address_alert(context, domain);
                                           exchangeViewModel.receiveAddress = address;
                                         }
@@ -512,7 +512,7 @@ class ExchangePage extends BasePage {
     var ticker = template.depositCurrency;
     var address =
       await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-    if ((address != null)&&(address.isNotEmpty)){
+    if ((address != null)&&address.isNotEmpty){
       unstoppable_domain_address_alert(context, domain);
       exchangeViewModel.depositAddress = address;
     }
@@ -521,7 +521,7 @@ class ExchangePage extends BasePage {
     ticker = template.receiveCurrency;
     address =
       await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-    if ((address != null)&&(address.isNotEmpty)) {
+    if ((address != null)&&address.isNotEmpty) {
       unstoppable_domain_address_alert(context, domain);
       exchangeViewModel.receiveAddress = address;
     }
@@ -697,7 +697,7 @@ class ExchangePage extends BasePage {
         final ticker = exchangeViewModel.depositCurrency.title;
         final address =
         await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-        if ((address != null)&&(address.isNotEmpty)) {
+        if ((address != null)&&address.isNotEmpty) {
           unstoppable_domain_address_alert(context, domain);
           exchangeViewModel.depositAddress = address;
         }
@@ -711,7 +711,7 @@ class ExchangePage extends BasePage {
         final ticker = exchangeViewModel.receiveCurrency.title;
         final address =
           await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-        if ((address != null)&&(address.isNotEmpty)) {
+        if ((address != null)&&address.isNotEmpty) {
           unstoppable_domain_address_alert(context, domain);
           exchangeViewModel.receiveAddress = address;
         }
