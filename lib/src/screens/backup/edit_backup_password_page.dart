@@ -25,7 +25,7 @@ class EditBackupPasswordPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Padding(
-        padding: EdgeInsets.only(left: 20, right: 20),
+        padding: EdgeInsets.only(left: 24, right: 24),
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -48,7 +48,7 @@ class EditBackupPasswordPage extends BasePage {
                         color: Theme.of(context).accentTextTheme.body2.color,
                         textColor: Colors.white,
                         isDisabled: !editBackupPasswordViewModel.canSave)),
-                bottom: 30,
+                bottom: 24,
                 left: 0,
                 right: 0)
           ],
