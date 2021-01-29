@@ -261,14 +261,20 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   @override
   Future<PendingBitcoinTransaction> createTransaction(
       Object credentials) async {
+    const minAmount = 546;
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
     final allAmountFee =
         calculateEstimatedFee(transactionCredentials.priority, null);
+    final allAmount = balance.confirmed - allAmountFee;
     var fee = 0;
-    final amount = transactionCredentials.amount != null
+    final credentialsAmount = transactionCredentials.amount != null
         ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
-        : balance.confirmed - allAmountFee;
+        : 0;
+    final amount = transactionCredentials.amount == null ||
+            allAmount - credentialsAmount < minAmount
+        ? allAmount
+        : credentialsAmount;
     final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
     final changeAddress = address;
     var leftAmount = amount;
@@ -294,8 +300,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
     final totalAmount = amount + fee;
     fee = transactionCredentials.amount != null
-        ? feeAmountForPriority(
-            transactionCredentials.priority, inputs.length, 2)
+        ? feeAmountForPriority(transactionCredentials.priority, inputs.length,
+            amount == allAmount ? 1 : 2)
         : allAmountFee;
 
     if (totalAmount > balance.confirmed) {
@@ -329,7 +335,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     final feeAmount = transactionCredentials.priority.rate * estimatedSize;
     final changeValue = totalInputAmount - amount - feeAmount;
 
-    if (changeValue > 0) {
+    if (changeValue > minAmount) {
       txb.addOutput(changeAddress, changeValue);
     }
 
@@ -375,8 +381,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       } else {
         inputsCount = _unspent.length;
       }
-
-      return feeAmountForPriority(priority, inputsCount, 2);
+      // If send all, then we have no change value
+      return feeAmountForPriority(
+          priority, inputsCount, amount != null ? 2 : 1);
     }
 
     return 0;

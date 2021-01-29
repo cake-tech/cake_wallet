@@ -14,6 +14,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BackupPage extends BasePage {
   BackupPage(this.backupViewModelBase);
@@ -99,8 +100,6 @@ class BackupPage extends BasePage {
               actionRightButton: () async {
                 Navigator.of(dialogContext).pop();
                 final backup = await backupViewModelBase.exportBackup();
-                await backupViewModelBase.saveToDownload(
-                    backup.name, backup.content);
 
                 if (Platform.isAndroid) {
                   onExportAndroid(context, backup);
@@ -123,9 +122,16 @@ class BackupPage extends BasePage {
               rightButtonText: 'Save to Downloads',
               leftButtonText: 'Share',
               actionRightButton: () async {
-                Navigator.of(dialogContext).pop();
+                final permission = await Permission.storage.request();
+
+                if (permission.isDenied) {
+                  Navigator.of(dialogContext).pop();
+                  return;
+                }
+
                 await backupViewModelBase.saveToDownload(
                     backup.name, backup.content);
+                Navigator.of(dialogContext).pop();
               },
               actionLeftButton: () {
                 Navigator.of(dialogContext).pop();
