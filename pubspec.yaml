@@ -11,7 +11,7 @@ description: Cake Wallet.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 4.1.0+37
+version: 4.1.0+38
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -72,6 +72,7 @@ dependencies:
   cryptography: ^1.4.0
   file_picker: ^2.1.4
   unorm_dart: ^0.1.2
+  permission_handler: ^5.0.1+1
 
 dev_dependencies:
   flutter_test:

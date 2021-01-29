@@ -167,6 +167,7 @@ abstract class SendViewModelBase with Store {
 
   Validator get templateValidator => TemplateValidator();
 
+  @observable
   PendingTransaction pendingTransaction;
 
   @computed

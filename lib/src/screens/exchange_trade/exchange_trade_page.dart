@@ -255,11 +255,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         .pendingTransaction.feeFormatted,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
-                    actionRightButton: () {
+                    actionRightButton: () async {
                       Navigator.of(context).pop();
-                      widget.exchangeTradeViewModel.sendViewModel
+                      await widget.exchangeTradeViewModel.sendViewModel
                           .commitTransaction();
-                      showPopUp<void>(
+                      await showPopUp<void>(
                           context: context,
                           builder: (BuildContext context) {
                             return Observer(builder: (_) {
@@ -359,10 +359,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           });
                     },
                     actionLeftButton: () => Navigator.of(context).pop(),
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransaction.feeFormatted,
+                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmount
+                        +  ' ' + widget.exchangeTradeViewModel.sendViewModel.fiat.title,
                     fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel
-                            .pendingTransactionFeeFiatAmount +
+                            .pendingTransactionFiatAmount +
                         ' ' +
                         widget.exchangeTradeViewModel.sendViewModel.fiat.title,
                     recipientTitle: S.of(context).recipient_address,
