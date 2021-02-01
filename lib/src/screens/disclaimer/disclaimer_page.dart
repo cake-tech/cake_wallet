@@ -38,7 +38,6 @@ class DisclaimerPageBody extends StatefulWidget {
 }
 
 class DisclaimerBodyState extends State<DisclaimerPageBody> {
-  static const xmrtoUrl = 'https://xmr.to/terms-of-service';
   static const changenowUrl = 'https://changenow.io/terms-of-use';
   static const morphUrl = 'http://morphtoken.com/terms';
 
@@ -150,27 +149,6 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                                         .color),
                               ),
                             )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 16.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                                child: GestureDetector(
-                              onTap: () => launchUrl(xmrtoUrl),
-                              child: Text(
-                                xmrtoUrl,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    color: Palette.blueCraiola,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.underline),
-                              ),
-                            ))
                           ],
                         ),
                         SizedBox(

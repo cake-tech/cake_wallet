@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -28,7 +29,8 @@ class BackupPage extends BasePage {
   Widget trailing(BuildContext context) => TrailButton(
       caption: S.of(context).change_password,
       onPressed: () =>
-          Navigator.of(context).pushNamed(Routes.editBackupPassword));
+          Navigator.of(context).pushNamed(Routes.editBackupPassword),
+      textColor: Palette.blueCraiola);
 
   @override
   Widget body(BuildContext context) {

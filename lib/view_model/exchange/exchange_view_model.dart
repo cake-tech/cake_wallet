@@ -34,7 +34,6 @@ abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore) {
     providerList = [
-      XMRTOExchangeProvider(),
       ChangeNowExchangeProvider(),
       MorphTokenExchangeProvider(trades: trades)
     ];
