@@ -160,11 +160,6 @@ abstract class SettingsViewModelBase with Store {
             icon: 'assets/images/morph_icon.png',
             linkTitle: 'support@morphtoken.com',
             link: 'mailto:support@morphtoken.com'),
-        LinkListItem(
-            title: 'XMR.to',
-            icon: 'assets/images/xmr_btc.png',
-            linkTitle: 'support@xmr.to',
-            link: 'mailto:support@xmr.to'),
         RegularListItem(
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>

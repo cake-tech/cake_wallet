@@ -96,7 +96,7 @@ Future<void> main() async {
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 11);
+        initialMigrationVersion: 13);
     runApp(App());
   } catch (e) {
     runApp(MaterialApp(
@@ -123,7 +123,7 @@ Future<void> initialSetup(
     @required Box<ExchangeTemplate> exchangeTemplates,
     @required Box<TransactionDescription> transactionDescriptions,
     FlutterSecureStorage secureStorage,
-    int initialMigrationVersion = 11}) async {
+    int initialMigrationVersion = 13}) async {
   await defaultSettingsMigration(
       secureStorage: secureStorage,
       version: initialMigrationVersion,

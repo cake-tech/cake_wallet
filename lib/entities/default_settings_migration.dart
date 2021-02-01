@@ -23,6 +23,9 @@ import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
+const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
+const cakeWalletElectrumUri = 'electrum.cakewallet.com:50002';
+
 Future defaultSettingsMigration(
     {@required int version,
     @required SharedPreferences sharedPreferences,
@@ -102,6 +105,14 @@ Future defaultSettingsMigration(
           await changeDefaultMoneroNode(nodes, sharedPreferences);
           break;
 
+        case 12:
+          await checkCurrentNodes(nodes, sharedPreferences);
+          break;
+
+        case 13:
+          await resetElectrumServer(nodes, sharedPreferences);
+          break;
+
         default:
           break;
       }
@@ -149,10 +160,8 @@ Future<void> changeMoneroCurrentNodeToDefault(
 }
 
 Node getBitcoinDefaultElectrumServer({@required Box<Node> nodes}) {
-  final uri = 'electrum.cakewallet.com:50002';
-
   return nodes.values
-          .firstWhere((Node node) => node.uri == uri, orElse: () => null) ??
+          .firstWhere((Node node) => node.uri == cakeWalletElectrumUri, orElse: () => null) ??
       nodes.values.firstWhere((node) => node.type == WalletType.bitcoin,
           orElse: () => null);
 }
@@ -275,7 +284,6 @@ Future<void> changeTransactionPriorityAndFeeRateKeys(
 Future<void> changeDefaultMoneroNode(
     Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
   const cakeWalletMoneroNodeUriPattern = '.cakewallet.com';
-  const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
   final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhere((node) => node.key == currentMoneroNodeId);
   final needToReplaceCurrentMoneroNode = currentMoneroNode.uri.contains(cakeWalletMoneroNodeUriPattern);
@@ -293,4 +301,41 @@ Future<void> changeDefaultMoneroNode(
   if (needToReplaceCurrentMoneroNode) {
     await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
   }
+}
+
+Future<void> checkCurrentNodes(Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  final currentMoneroNodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
+  final currentElectrumSeverId = await sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+  final currentMoneroNode = nodeSource.values.firstWhere((node) => node.key == currentMoneroNodeId, orElse: () => null);
+  final currentElectrumServer = nodeSource.values.firstWhere((node) => node.key == currentElectrumSeverId, orElse: () => null);
+
+  if (currentMoneroNode == null) {
+    final newCakeWalletNode = Node(uri: newCakeWalletMoneroUri, type: WalletType.monero);
+    await nodeSource.add(newCakeWalletNode);
+    await sharedPreferences.setInt(PreferencesKey.currentNodeIdKey, newCakeWalletNode.key as int);
+  }
+
+  if (currentElectrumServer == null) {
+    final cakeWalletElectrum = Node(uri: cakeWalletElectrumUri, type: WalletType.bitcoin);
+    await nodeSource.add(cakeWalletElectrum);
+    await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletElectrum.key as int);
+  }
+}
+
+
+Future<void> resetElectrumServer(Box<Node> nodeSource, SharedPreferences sharedPreferences) async {
+  final currentElectrumSeverId = sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+  final oldElectrumServer = nodeSource.values.firstWhere((node) => node.uri.contains('electrumx.cakewallet.com'), orElse: () => null);
+  var cakeWalletNode = nodeSource.values.firstWhere((node) => node.uri == cakeWalletElectrumUri, orElse: () => null);
+
+  if (cakeWalletNode == null) {
+    cakeWalletNode = Node(uri: cakeWalletElectrumUri, type: WalletType.bitcoin);
+    await nodeSource.add(cakeWalletNode);
+  }
+
+  if (currentElectrumSeverId == oldElectrumServer?.key) {
+    await sharedPreferences.setInt(PreferencesKey.currentBitcoinElectrumSererIdKey, cakeWalletNode.key as int);
+  }
+
+  await oldElectrumServer?.delete();
 }
