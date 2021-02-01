@@ -161,6 +161,7 @@ class WalletListBodyState extends State<WalletListBody> {
                   }),
             ),
           ),
+          bottomSectionPadding: EdgeInsets.only(bottom: 24, right: 24, left: 24),
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
               onPressed: () => Navigator.of(context).pushNamed(Routes.newWalletType),
