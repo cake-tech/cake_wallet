@@ -8,6 +8,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
+import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 
 class TradeDetailsPage extends BasePage {
   TradeDetailsPage(this.tradeDetailsViewModel);
@@ -26,6 +27,16 @@ class TradeDetailsPage extends BasePage {
           itemBuilder: (_, __, index) {
             final item = tradeDetailsViewModel.items[index];
 
+          if (item is TrackTradeListItem) {
+            return GestureDetector(
+                onTap: item.onTap,
+                child: StandartListRow(
+                    title: '${item.title}',
+                    value: '${item.value}'
+                ));
+          }
+
+          if (item is SectionStandardListItem) { 
             return GestureDetector(
                 onTap: () {
                   Clipboard.setData(ClipboardData(text: '${item.value}'));
@@ -37,7 +48,7 @@ class TradeDetailsPage extends BasePage {
                     title: '${item.title}',
                     value: '${item.value}'
                 ));
-          });
+          }
     });
   }
 }
