@@ -10,7 +10,8 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
-
+import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
+import 'package:url_launcher/url_launcher.dart';
 part 'trade_details_view_model.g.dart';
 
 class TradeDetailsViewModel = TradeDetailsViewModelBase
@@ -88,6 +89,15 @@ abstract class TradeDetailsViewModelBase with Store {
       items.add(StandartListItem(
           title: S.current.trade_details_provider,
           value: trade.provider.toString()));
+    }
+
+    if (trade.provider.title == "ChangeNOW") {
+      items.add(TrackTradeListItem(
+          title: "Track",
+          value: "https://changenow.io/exchange/txs/${trade.id.toString()}",
+          onTap: () {
+            launch("https://www.blockchain.com/btc/tx/${tx.id}");
+          }));
     }
 
     if (trade.createdAt != null) {
