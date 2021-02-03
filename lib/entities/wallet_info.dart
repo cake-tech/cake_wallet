@@ -6,7 +6,7 @@ part 'wallet_info.g.dart';
 
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
-  WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
+  WalletInfo(this.id, this.name, this.displayName, this.type, this.isRecovery, this.restoreHeight,
       this.timestamp, this.dirPath, this.path, this.address);
 
   factory WalletInfo.external(
