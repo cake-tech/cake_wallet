@@ -96,7 +96,7 @@ abstract class TradeDetailsViewModelBase with Store {
           title: "Track",
           value: "https://changenow.io/exchange/txs/${trade.id.toString()}",
           onTap: () {
-            launch("https://www.blockchain.com/btc/tx/${tx.id}");
+            launch("https://changenow.io/exchange/txs/${trade.id.toString()}");
           }));
     }
 
