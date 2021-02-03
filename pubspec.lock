@@ -16,7 +16,7 @@ packages:
     source: hosted
     version: "0.40.6"
   archive:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: archive
       url: "https://pub.dartlang.org"
@@ -247,12 +247,19 @@ packages:
     source: hosted
     version: "2.1.1"
   crypto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: crypto
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.5"
+  cryptography:
+    dependency: "direct main"
+    description:
+      name: cryptography
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.4.1"
   cupertino_icons:
     dependency: "direct main"
     description:
@@ -344,6 +351,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "5.2.1"
+  file_picker:
+    dependency: "direct main"
+    description:
+      name: file_picker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.4"
   fixnum:
     dependency: transitive
     description:
@@ -924,6 +938,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0-nullsafety.3"
+  unorm_dart:
+    dependency: "direct main"
+    description:
+      name: unorm_dart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.2"
   url_launcher:
     dependency: "direct main"
     description:

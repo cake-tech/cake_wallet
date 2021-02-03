@@ -1,3 +1,8 @@
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
@@ -11,7 +16,7 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
@@ -25,14 +30,33 @@ part 'settings_view_model.g.dart';
 
 class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 
+List<TransactionPriority> priorityForWalletType(WalletType type) {
+  switch (type) {
+    case WalletType.monero:
+      return MoneroTransactionPriority.all;
+    case WalletType.bitcoin:
+      return BitcoinTransactionPriority.all;
+    default:
+      return [];
+  }
+}
+
 abstract class SettingsViewModelBase with Store {
-  SettingsViewModelBase(this._settingsStore, WalletBase wallet)
+  SettingsViewModelBase(this._settingsStore, WalletBase<Balance> wallet)
       : itemHeaders = {},
         _walletType = wallet.type,
         _biometricAuth = BiometricAuth() {
     currentVersion = '';
     PackageInfo.fromPlatform().then(
         (PackageInfo packageInfo) => currentVersion = packageInfo.version);
+
+    final priority = _settingsStore.priority[wallet.type];
+    final priorities = priorityForWalletType(wallet.type);
+
+    if (!priorities.contains(priority)) {
+      _settingsStore.priority[wallet.type] = priorities.first;
+    }
+
     sections = [
       [
         PickerListItem(
@@ -44,17 +68,15 @@ abstract class SettingsViewModelBase with Store {
         PickerListItem(
             title: S.current.settings_currency,
             items: FiatCurrency.all,
-            isAlwaysShowScrollThumb: true,
             selectedItem: () => fiatCurrency,
             onItemSelected: (FiatCurrency currency) =>
                 setFiatCurrency(currency)),
         PickerListItem(
             title: S.current.settings_fee_priority,
-            items: _transactionPriorities(wallet.type),
+            items: priorityForWalletType(wallet.type),
             selectedItem: () => transactionPriority,
-            isAlwaysShowScrollThumb: true,
             onItemSelected: (TransactionPriority priority) =>
-                _settingsStore.transactionPriority = priority),
+                _settingsStore.priority[wallet.type] = priority),
         SwitcherListItem(
             title: S.current.settings_save_recipient_address,
             value: () => shouldSaveRecipientAddress,
@@ -106,11 +128,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
-        SwitcherListItem(
-            title: S.current.settings_dark_mode,
-            value: () => _settingsStore.isDarkTheme,
-            onValueChange: (_, bool value) =>
-                _settingsStore.isDarkTheme = value)
+        PickerListItem(
+            title: S.current.color_theme,
+            items: ThemeList.all,
+            selectedItem: () => theme,
+            onItemSelected: (ThemeBase theme) =>
+                _settingsStore.currentTheme = theme)
       ],
       [
         LinkListItem(
@@ -172,7 +195,7 @@ abstract class SettingsViewModelBase with Store {
 
   @computed
   TransactionPriority get transactionPriority =>
-      _settingsStore.transactionPriority;
+      _settingsStore.priority[_walletType];
 
   @computed
   BalanceDisplayMode get balanceDisplayMode =>
@@ -185,6 +208,9 @@ abstract class SettingsViewModelBase with Store {
   @computed
   bool get allowBiometricalAuthentication =>
       _settingsStore.allowBiometricalAuthentication;
+
+  @computed
+  ThemeBase get theme => _settingsStore.currentTheme;
 
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;
@@ -234,19 +260,4 @@ abstract class SettingsViewModelBase with Store {
 
   @action
   void _showTrades() => actionlistDisplayMode.add(ActionListDisplayMode.trades);
-
-  static List<TransactionPriority> _transactionPriorities(WalletType type) {
-    switch (type) {
-      case WalletType.monero:
-        return TransactionPriority.all;
-      case WalletType.bitcoin:
-        return [
-          TransactionPriority.slow,
-          TransactionPriority.regular,
-          TransactionPriority.fast
-        ];
-      default:
-        return [];
-    }
-  }
 }

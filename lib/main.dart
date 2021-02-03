@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cw_monero/wallet.dart' as monero_wallet;
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -28,20 +29,46 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
-void main() async {
+Future<void> main() async {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
     final appDir = await getApplicationDocumentsDirectory();
+    await Hive.close();
     Hive.init(appDir.path);
-    Hive.registerAdapter(ContactAdapter());
-    Hive.registerAdapter(NodeAdapter());
-    Hive.registerAdapter(TransactionDescriptionAdapter());
-    Hive.registerAdapter(TradeAdapter());
-    Hive.registerAdapter(WalletInfoAdapter());
-    Hive.registerAdapter(WalletTypeAdapter());
-    Hive.registerAdapter(TemplateAdapter());
-    Hive.registerAdapter(ExchangeTemplateAdapter());
+
+    if (!Hive.isAdapterRegistered(Contact.typeId)) {
+      Hive.registerAdapter(ContactAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(Node.typeId)) {
+      Hive.registerAdapter(NodeAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(TransactionDescription.typeId)) {
+      Hive.registerAdapter(TransactionDescriptionAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(Trade.typeId)) {
+      Hive.registerAdapter(TradeAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
+      Hive.registerAdapter(WalletInfoAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(walletTypeTypeId)) {
+      Hive.registerAdapter(WalletTypeAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(Template.typeId)) {
+      Hive.registerAdapter(TemplateAdapter());
+    }
+
+    if (!Hive.isAdapterRegistered(ExchangeTemplate.typeId)) {
+      Hive.registerAdapter(ExchangeTemplateAdapter());
+    }
+
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -68,7 +95,8 @@ void main() async {
         templates: templates,
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
-        initialMigrationVersion: 4);
+        secureStorage: secureStorage,
+        initialMigrationVersion: 11);
     runApp(App());
   } catch (e) {
     runApp(MaterialApp(
@@ -94,8 +122,10 @@ Future<void> initialSetup(
     @required Box<Template> templates,
     @required Box<ExchangeTemplate> exchangeTemplates,
     @required Box<TransactionDescription> transactionDescriptions,
-    int initialMigrationVersion = 5}) async {
+    FlutterSecureStorage secureStorage,
+    int initialMigrationVersion = 11}) async {
   await defaultSettingsMigration(
+      secureStorage: secureStorage,
       version: initialMigrationVersion,
       sharedPreferences: sharedPreferences,
       walletInfoSource: walletInfoSource,
@@ -110,7 +140,7 @@ Future<void> initialSetup(
       templates: templates,
       exchangeTemplates: exchangeTemplates,
       transactionDescriptionBox: transactionDescriptions);
-  bootstrap(navigatorKey);
+  await bootstrap(navigatorKey);
   monero_wallet.onStartup();
 }
 
@@ -122,28 +152,26 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settingsStore = getIt.get<AppStore>().settingsStore;
-
-    if (settingsStore.theme == null) {
-      settingsStore.isDarkTheme = false;
-    }
-
-    final statusBarColor = Colors.transparent;
-    final statusBarBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
-    final statusBarIconBrightness =
-        settingsStore.isDarkTheme ? Brightness.light : Brightness.dark;
-    final authenticationStore = getIt.get<AuthenticationStore>();
-    final initialRoute = authenticationStore.state == AuthenticationState.denied
-        ? Routes.disclaimer
-        : Routes.login;
-
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        statusBarColor: statusBarColor,
-        statusBarBrightness: statusBarBrightness,
-        statusBarIconBrightness: statusBarIconBrightness));
-
     return Observer(builder: (BuildContext context) {
+      final settingsStore = getIt.get<AppStore>().settingsStore;
+      final statusBarColor = Colors.transparent;
+      final authenticationStore = getIt.get<AuthenticationStore>();
+      final initialRoute =
+          authenticationStore.state == AuthenticationState.denied
+              ? Routes.disclaimer
+              : Routes.login;
+      final currentTheme = settingsStore.currentTheme;
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: statusBarColor,
+          statusBarBrightness: statusBarBrightness,
+          statusBarIconBrightness: statusBarIconBrightness));
+
       return Root(
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,

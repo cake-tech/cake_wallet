@@ -25,16 +25,30 @@ class WalletRestorePage extends BasePage {
         _pages = [],
         _blockHeightFocusNode = FocusNode(),
         _controller = PageController(initialPage: 0) {
-    _pages.addAll([
-      WalletRestoreFromSeedForm(
-          key: walletRestoreFromSeedFormKey,
-          blockHeightFocusNode: _blockHeightFocusNode,
-          onHeightOrDateEntered: (value)
-          => walletRestoreViewModel.isButtonEnabled = value),
-      WalletRestoreFromKeysFrom(key: walletRestoreFromKeysFormKey,
-          onHeightOrDateEntered: (value)
-          => walletRestoreViewModel.isButtonEnabled = value)
-    ]);
+    walletRestoreViewModel.availableModes.forEach((mode) {
+      switch (mode) {
+        case WalletRestoreMode.seed:
+          _pages.add(WalletRestoreFromSeedForm(
+              displayBlockHeightSelector:
+                  walletRestoreViewModel.hasBlockchainHeightLanguageSelector,
+              displayLanguageSelector:
+                  walletRestoreViewModel.hasSeedLanguageSelector,
+              type: walletRestoreViewModel.type,
+              key: walletRestoreFromSeedFormKey,
+              blockHeightFocusNode: _blockHeightFocusNode,
+              onHeightOrDateEntered: (value) =>
+                  walletRestoreViewModel.isButtonEnabled = value));
+          break;
+        case WalletRestoreMode.keys:
+          _pages.add(WalletRestoreFromKeysFrom(
+              key: walletRestoreFromKeysFormKey,
+              onHeightOrDateEntered: (value) =>
+                  walletRestoreViewModel.isButtonEnabled = value));
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   @override
@@ -76,20 +90,19 @@ class WalletRestorePage extends BasePage {
       }
     });
 
-    reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode)
-      {
-        walletRestoreViewModel.isButtonEnabled = false;
+    reaction((_) => walletRestoreViewModel.mode, (WalletRestoreMode mode) {
+      walletRestoreViewModel.isButtonEnabled = false;
 
-        walletRestoreFromSeedFormKey.currentState.blockchainHeightKey
-            .currentState.restoreHeightController.text = '';
-        walletRestoreFromSeedFormKey.currentState.blockchainHeightKey
-            .currentState.dateController.text = '';
+      walletRestoreFromSeedFormKey.currentState.blockchainHeightKey.currentState
+          .restoreHeightController.text = '';
+      walletRestoreFromSeedFormKey.currentState.blockchainHeightKey.currentState
+          .dateController.text = '';
 
-        walletRestoreFromKeysFormKey.currentState.blockchainHeightKey
-            .currentState.restoreHeightController.text = '';
-        walletRestoreFromKeysFormKey.currentState.blockchainHeightKey
-            .currentState.dateController.text = '';
-      });
+      walletRestoreFromKeysFormKey.currentState.blockchainHeightKey.currentState
+          .restoreHeightController.text = '';
+      walletRestoreFromKeysFormKey.currentState.blockchainHeightKey.currentState
+          .dateController.text = '';
+    });
 
     return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Expanded(
@@ -100,40 +113,37 @@ class WalletRestorePage extends BasePage {
               },
               controller: _controller,
               itemCount: _pages.length,
-              itemBuilder: (_, index) => SingleChildScrollView(child:  _pages[index]))),
-      Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: SmoothPageIndicator(
-            controller: _controller,
-            count: _pages.length,
-            effect: ColorTransitionEffect(
-                spacing: 6.0,
-                radius: 6.0,
-                dotWidth: 6.0,
-                dotHeight: 6.0,
-                dotColor: Theme.of(context).hintColor.withOpacity(0.5),
-                activeDotColor: Theme.of(context).hintColor),
-          )),
+              itemBuilder: (_, index) =>
+                  SingleChildScrollView(child: _pages[index]))),
+      if (_pages.length > 1)
+        Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: SmoothPageIndicator(
+              controller: _controller,
+              count: _pages.length,
+              effect: ColorTransitionEffect(
+                  spacing: 6.0,
+                  radius: 6.0,
+                  dotWidth: 6.0,
+                  dotHeight: 6.0,
+                  dotColor: Theme.of(context).hintColor.withOpacity(0.5),
+                  activeDotColor: Theme.of(context).hintColor),
+            )),
       Padding(
           padding: EdgeInsets.only(top: 20, bottom: 40, left: 25, right: 25),
           child: Observer(
             builder: (context) {
               return LoadingPrimaryButton(
-                  onPressed: () =>
-                      walletRestoreViewModel.create(options: _credentials()),
-                  text: S.of(context).restore_recover,
-                  color: Theme
-                      .of(context)
-                      .accentTextTheme
-                      .subtitle
-                      .decorationColor,
-                  textColor: Theme
-                      .of(context)
-                      .accentTextTheme
-                      .headline
-                      .decorationColor,
-                  isLoading: walletRestoreViewModel.state is IsExecutingState,
-                  isDisabled: !walletRestoreViewModel.isButtonEnabled,);
+                onPressed: () =>
+                    walletRestoreViewModel.create(options: _credentials()),
+                text: S.of(context).restore_recover,
+                color:
+                    Theme.of(context).accentTextTheme.subtitle.decorationColor,
+                textColor:
+                    Theme.of(context).accentTextTheme.headline.decorationColor,
+                isLoading: walletRestoreViewModel.state is IsExecutingState,
+                isDisabled: !walletRestoreViewModel.isButtonEnabled,
+              );
             },
           ))
     ]);
@@ -145,8 +155,11 @@ class WalletRestorePage extends BasePage {
     if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
       credentials['seed'] = walletRestoreFromSeedFormKey
           .currentState.seedWidgetStateKey.currentState.text;
-      credentials['height'] = walletRestoreFromSeedFormKey
-          .currentState.blockchainHeightKey.currentState.height;
+
+      if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+        credentials['height'] = walletRestoreFromSeedFormKey
+            .currentState.blockchainHeightKey.currentState.height;
+      }
     } else {
       credentials['address'] =
           walletRestoreFromKeysFormKey.currentState.addressController.text;

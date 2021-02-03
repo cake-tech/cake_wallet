@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
@@ -55,7 +56,6 @@ abstract class DashboardViewModelBase with Store {
             value: () => transactionFilterStore.displayOutgoing,
             caption: S.current.outgoing,
             onChanged: (value) => transactionFilterStore.toggleOutgoing()),
-
         // FilterItem(
         //     value: () => false,
         //     caption: S.current.transactions_by_date,
@@ -195,7 +195,9 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  WalletBase wallet;
+  WalletBase<Balance> wallet;
+
+  bool get hasRescan => wallet.type == WalletType.monero;
 
   BalanceViewModel balanceViewModel;
 
@@ -225,8 +227,9 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
-  void _onWalletChange(WalletBase wallet) {
+  void _onWalletChange(WalletBase<Balance> wallet) {
     this.wallet = wallet;
+    type = wallet.type;
     final info = walletInfoSource.values.firstWhere((element) =>
     element.name == wallet.name);
 
@@ -246,6 +249,8 @@ abstract class DashboardViewModelBase with Store {
 
       _onMoneroTransactionsUpdate(wallet);
     } else {
+      subname = null;
+
       transactions.clear();
 
       transactions.addAll(wallet.transactionHistory.transactions.values.map(
@@ -254,6 +259,21 @@ abstract class DashboardViewModelBase with Store {
               balanceViewModel: balanceViewModel,
               settingsStore: appStore.settingsStore)));
     }
+
+    connectMapToListWithTransform(
+        appStore.wallet.transactionHistory.transactions,
+        transactions,
+            (TransactionInfo val) => TransactionListItem(
+            transaction: val,
+            balanceViewModel: balanceViewModel,
+            settingsStore: appStore.settingsStore),
+        filter: (TransactionInfo tx) {
+          if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
+            return tx.accountIndex == wallet.account.id;
+          }
+
+          return true;
+        });
   }
 
   @action

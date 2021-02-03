@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
@@ -19,11 +20,17 @@ abstract class AppStoreBase with Store {
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase wallet;
+  WalletBase<Balance> wallet;
 
   WalletListStore walletList;
 
   SettingsStore settingsStore;
 
   NodeListStore nodeListStore;
+
+  @action
+  void changeCurrentWallet(WalletBase wallet) {
+    this.wallet?.close();
+    this.wallet = wallet;
+  }
 }

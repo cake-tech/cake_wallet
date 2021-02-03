@@ -49,4 +49,7 @@ class Routes {
   static const restoreWallet = '/restore_wallet';
   static const editWalletName = '/edit_wallet_name';
   static const preSeed = '/pre_seed';
+  static const backup = '/backup';
+  static const editBackupPassword = '/edit_backup_passowrd';
+  static const restoreFromBackup = '/restore_from_backup';
 }

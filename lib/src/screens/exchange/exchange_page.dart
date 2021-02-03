@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -62,10 +63,11 @@ class ExchangePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
-      caption: S.of(context).reset, onPressed: () {
+      caption: S.of(context).reset,
+      onPressed: () {
         _formKey.currentState.reset();
         exchangeViewModel.reset();
-  });
+      });
 
   @override
   Widget body(BuildContext context) {
@@ -95,9 +97,8 @@ class ExchangePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: isDarkTheme
-                ? Color.fromRGBO(48, 51, 60, 1.0)
-                : Color.fromRGBO(98, 98, 98, 1.0),
+            keyboardBarColor:
+                Theme.of(context).accentTextTheme.body2.backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -161,6 +162,11 @@ class ExchangePage extends BasePage {
                             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
                             child: Observer(
                               builder: (_) => ExchangeCard(
+                                hasAllAmount: exchangeViewModel.hasAllAmount,
+                                allAmount: exchangeViewModel.hasAllAmount
+                                    ? () => exchangeViewModel
+                                        .calculateDepositAllAmount()
+                                    : null,
                                 amountFocusNode: _depositAmountFocus,
                                 key: depositKey,
                                 title: S.of(context).you_will_send,
@@ -178,9 +184,30 @@ class ExchangePage extends BasePage {
                                 isAmountEstimated: false,
                                 hasRefundAddress: true,
                                 currencies: CryptoCurrency.all,
-                                onCurrencySelected: (currency) =>
-                                    exchangeViewModel.changeDepositCurrency(
-                                        currency: currency),
+                                onCurrencySelected: (currency) {
+                                  // FIXME: need to move it into view model
+                                  if (currency == CryptoCurrency.xmr &&
+                                      exchangeViewModel.wallet.type ==
+                                          WalletType.bitcoin) {
+                                    showPopUp<void>(
+                                        context: context,
+                                        builder: (dialogContext) {
+                                          return AlertWithOneAction(
+                                              alertTitle: S.of(context).error,
+                                              alertContent: S
+                                                  .of(context)
+                                                  .exchange_incorrect_current_wallet_for_xmr,
+                                              buttonText: S.of(context).ok,
+                                              buttonAction: () =>
+                                                  Navigator.of(dialogContext)
+                                                      .pop());
+                                        });
+                                    return;
+                                  }
+
+                                  exchangeViewModel.changeDepositCurrency(
+                                      currency: currency);
+                                },
                                 imageArrow: arrowBottomPurple,
                                 currencyButtonColor: Colors.transparent,
                                 addressButtonsColor:
@@ -395,30 +422,35 @@ class ExchangePage extends BasePage {
                     }),
                   ),
                   Observer(
-                    builder: (_) => LoadingPrimaryButton(
-                      text: S.of(context).exchange,
-                      onPressed: () {
-                        if (_formKey.currentState.validate()) {
-                          if ((exchangeViewModel.depositCurrency == CryptoCurrency.xmr)
-                          &&(!(exchangeViewModel.status is SyncedSyncStatus))) {
-                            showPopUp<void>(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return AlertWithOneAction(
-                                  alertTitle: S.of(context).exchange,
-                                  alertContent: S.of(context).exchange_sync_alert_content,
-                                  buttonText: S.of(context).ok,
-                                  buttonAction: () => Navigator.of(context).pop());
-                              });
-                          } else {
-                            exchangeViewModel.createTrade();
-                          }
-                        }
-                      },
-                      color: Theme.of(context).accentTextTheme.body2.color,
-                      textColor: Colors.white,
-                      isLoading: exchangeViewModel.tradeState
-                                 is TradeIsCreating)),
+                      builder: (_) => LoadingPrimaryButton(
+                          text: S.of(context).exchange,
+                          onPressed: () {
+                            if (_formKey.currentState.validate()) {
+                              if ((exchangeViewModel.depositCurrency ==
+                                      CryptoCurrency.xmr) &&
+                                  (!(exchangeViewModel.status
+                                      is SyncedSyncStatus))) {
+                                showPopUp<void>(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertWithOneAction(
+                                          alertTitle: S.of(context).exchange,
+                                          alertContent: S
+                                              .of(context)
+                                              .exchange_sync_alert_content,
+                                          buttonText: S.of(context).ok,
+                                          buttonAction: () =>
+                                              Navigator.of(context).pop());
+                                    });
+                              } else {
+                                exchangeViewModel.createTrade();
+                              }
+                            }
+                          },
+                          color: Theme.of(context).accentTextTheme.body2.color,
+                          textColor: Colors.white,
+                          isLoading:
+                              exchangeViewModel.tradeState is TradeIsCreating)),
                 ]),
               )),
         ));

@@ -1,4 +1,4 @@
-import 'package:bip39/src/wordlists/english.dart' as bitcoin_english;
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart' as bitcoin_electrum;
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/mnemonic_item.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
@@ -64,7 +64,7 @@ class SeedValidator extends Validator<MnemonicItem> {
 
   static List<String> getBitcoinWordList(String language) {
     assert(language.toLowerCase() == LanguageList.english.toLowerCase());
-    return bitcoin_english.WORDLIST;
+    return bitcoin_electrum.englishWordlist;
   }
 
   @override

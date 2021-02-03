@@ -10,14 +10,14 @@ ReactionDisposer _onAuthenticationStateChange;
 dynamic loginError;
 
 void startAuthenticationStateChange(AuthenticationStore authenticationStore,
-    @required GlobalKey<NavigatorState> navigatorKey) {
+    GlobalKey<NavigatorState> navigatorKey) {
   _onAuthenticationStateChange ??= autorun((_) async {
     final state = authenticationStore.state;
 
     if (state == AuthenticationState.installed) {
       try {
         await loadCurrentWallet();
-      } catch(e) {
+      } catch (e) {
         loginError = e;
       }
       return;

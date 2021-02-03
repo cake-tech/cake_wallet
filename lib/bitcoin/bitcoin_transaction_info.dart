@@ -12,6 +12,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
       {@required String id,
       @required int height,
       @required int amount,
+      @required int fee,
       @required TransactionDirection direction,
       @required bool isPending,
       @required DateTime date,
@@ -19,6 +20,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
     this.id = id;
     this.height = height;
     this.amount = amount;
+    this.fee = fee;
     this.direction = direction;
     this.date = date;
     this.isPending = isPending;
@@ -36,37 +38,42 @@ class BitcoinTransactionInfo extends TransactionInfo {
         : DateTime.now();
     final confirmations = obj['confirmations'] as int ?? 0;
     var direction = TransactionDirection.incoming;
+    var inputsAmount = 0;
+    var amount = 0;
+    var totalOutAmount = 0;
 
     for (dynamic vin in vins) {
       final vout = vin['vout'] as int;
       final out = vin['tx']['vout'][vout] as Map;
       final outAddresses =
           (out['scriptPubKey']['addresses'] as List<Object>)?.toSet();
+      inputsAmount += stringDoubleToBitcoinAmount((out['value'] as double ?? 0).toString());
 
       if (outAddresses?.intersection(addressesSet)?.isNotEmpty ?? false) {
         direction = TransactionDirection.outgoing;
-        break;
       }
     }
 
-    final amount = vout.fold(0, (int acc, dynamic out) {
+    for (dynamic out in vout) {
       final outAddresses =
           out['scriptPubKey']['addresses'] as List<Object> ?? [];
       final ntrs = outAddresses.toSet().intersection(addressesSet);
-      var amount = acc;
+      final value = stringDoubleToBitcoinAmount((out['value'] as double ?? 0.0).toString());
+      totalOutAmount += value;
 
       if ((direction == TransactionDirection.incoming && ntrs.isNotEmpty) ||
           (direction == TransactionDirection.outgoing && ntrs.isEmpty)) {
-        amount += doubleToBitcoinAmount(out['value'] as double ?? 0.0);
+        amount += value;
       }
+    }
 
-      return amount;
-    });
+    final fee = inputsAmount - totalOutAmount;
 
     return BitcoinTransactionInfo(
         id: id,
         height: height,
         isPending: false,
+        fee: fee,
         direction: direction,
         amount: amount,
         date: date,
@@ -101,6 +108,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
         id: tx.getId(),
         height: height,
         isPending: false,
+        fee: null,
         direction: TransactionDirection.incoming,
         amount: amount,
         date: date,
@@ -112,6 +120,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
         id: data['id'] as String,
         height: data['height'] as int,
         amount: data['amount'] as int,
+        fee: data['fee'] as int,
         direction: parseTransactionDirectionFromInt(data['direction'] as int),
         date: DateTime.fromMillisecondsSinceEpoch(data['date'] as int),
         isPending: data['isPending'] as bool,
@@ -125,10 +134,27 @@ class BitcoinTransactionInfo extends TransactionInfo {
       '${formatAmount(bitcoinAmountToString(amount: amount))} BTC';
 
   @override
+  String feeFormatted() => fee != null
+      ? '${formatAmount(bitcoinAmountToString(amount: fee))} BTC'
+      : '';
+
+  @override
   String fiatAmount() => _fiatAmount ?? '';
 
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
+
+  BitcoinTransactionInfo updated(BitcoinTransactionInfo info) {
+    return BitcoinTransactionInfo(
+        id: id,
+        height: info.height,
+        amount: info.amount,
+        fee: info.fee,
+        direction: direction ?? info.direction,
+        date: date ?? info.date,
+        isPending: isPending ?? info.isPending,
+        confirmations: info.confirmations);
+  }
 
   Map<String, dynamic> toJson() {
     final m = <String, dynamic>{};
@@ -139,6 +165,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
     m['date'] = date.millisecondsSinceEpoch;
     m['isPending'] = isPending;
     m['confirmations'] = confirmations;
+    m['fee'] = fee;
     return m;
   }
 }

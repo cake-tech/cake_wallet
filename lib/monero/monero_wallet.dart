@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:flutter/foundation.dart';
@@ -21,7 +22,7 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -39,17 +40,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
         unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
+    _lastAutosaveTimestamp = 0;
+    _isSavingAfterSync = false;
+    _isSavingAfterNewTransaction = false;
     _onAccountChangeReaction = reaction((_) => account, (Account account) {
       balance = MoneroBalance(
           fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
           unlockedBalance:
-          monero_wallet.getUnlockedBalance(accountIndex: account.id));
+              monero_wallet.getUnlockedBalance(accountIndex: account.id));
       subaddressList.update(accountIndex: account.id);
       subaddress = subaddressList.subaddresses.first;
       address = subaddress.address;
-      _lastAutosaveTimestamp = 0;
-      _isSavingAfterSync = false;
-      _isSavingAfterNewTransaction = false;
     });
   }
 
@@ -120,6 +121,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     }
   }
 
+  @override
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction?.dispose();
@@ -211,27 +213,22 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   @override
-  double calculateEstimatedFee(TransactionPriority priority) {
+  int calculateEstimatedFee(TransactionPriority priority, int amount) {
     // FIXME: hardcoded value;
 
-    if (priority == TransactionPriority.slow) {
-      return 0.00002459;
-    }
-
-    if (priority == TransactionPriority.regular) {
-      return 0.00012305;
-    }
-
-    if (priority == TransactionPriority.medium) {
-      return 0.00024503;
-    }
-
-    if (priority == TransactionPriority.fast) {
-      return 0.00061453;
-    }
-
-    if (priority == TransactionPriority.fastest) {
-      return 0.0260216;
+    if (priority is MoneroTransactionPriority) {
+      switch (priority) {
+        case MoneroTransactionPriority.slow:
+          return 24590000;
+        case MoneroTransactionPriority.regular:
+          return 123050000;
+        case MoneroTransactionPriority.medium:
+          return 245029999;
+        case MoneroTransactionPriority.fast:
+          return 614530000;
+        case MoneroTransactionPriority.fastest:
+          return 26021600000;
+      }
     }
 
     return 0;
@@ -315,9 +312,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     }
   }
 
-  Future<void> _askForUpdateTransactionHistory() async {
-    await transactionHistory.update();
-  }
+  Future<void> _askForUpdateTransactionHistory() async =>
+      await transactionHistory.update();
 
   int _getFullBalance() =>
       monero_wallet.getFullBalance(accountIndex: account.id);
@@ -326,13 +322,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
       monero_wallet.getUnlockedBalance(accountIndex: account.id);
 
   Future<void> _afterSyncSave() async {
-    if (_isSavingAfterSync) {
-      return;
-    }
-
-    _isSavingAfterSync = true;
-
     try {
+      if (_isSavingAfterSync) {
+        return;
+      }
+
+      _isSavingAfterSync = true;
+
       final nowTimestamp = DateTime.now().millisecondsSinceEpoch;
       final sum = _lastAutosaveTimestamp + _autoAfterSyncSaveInterval;
 
@@ -350,13 +346,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   Future<void> _afterNewTransactionSave() async {
-    if (_isSavingAfterNewTransaction) {
-      return;
-    }
-
-    _isSavingAfterNewTransaction = true;
-
     try {
+      if (_isSavingAfterNewTransaction) {
+        return;
+      }
+
+      _isSavingAfterNewTransaction = true;
+
       await save();
     } catch (e) {
       print(e.toString());
@@ -366,30 +362,38 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
   }
 
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
-    if (walletInfo.isRecovery) {
-      await _askForUpdateTransactionHistory();
-      _askForUpdateBalance();
-      accountList.update();
-    }
-
-    if (blocksLeft < 100) {
-      await _askForUpdateTransactionHistory();
-      _askForUpdateBalance();
-      accountList.update();
-      syncStatus = SyncedSyncStatus();
-      await _afterSyncSave();
-
+    try {
       if (walletInfo.isRecovery) {
-        await setAsRecovered();
+        await _askForUpdateTransactionHistory();
+        _askForUpdateBalance();
+        accountList.update();
       }
-    } else {
-      syncStatus = SyncingSyncStatus(blocksLeft, ptc);
+
+      if (blocksLeft < 100) {
+        await _askForUpdateTransactionHistory();
+        _askForUpdateBalance();
+        accountList.update();
+        syncStatus = SyncedSyncStatus();
+        await _afterSyncSave();
+
+        if (walletInfo.isRecovery) {
+          await setAsRecovered();
+        }
+      } else {
+        syncStatus = SyncingSyncStatus(blocksLeft, ptc);
+      }
+    } catch (e) {
+      print(e.toString());
     }
   }
 
   void _onNewTransaction() {
-    _askForUpdateTransactionHistory();
-    _askForUpdateBalance();
-    Timer(Duration(seconds: 1), () => _afterNewTransactionSave());
+    try {
+      _askForUpdateTransactionHistory();
+      _askForUpdateBalance();
+      Timer(Duration(seconds: 1), () => _afterNewTransactionSave());
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }

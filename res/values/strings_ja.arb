@@ -1,7 +1,7 @@
 {
   "welcome" : "ようこそ に",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "素晴らしい財布 ために Monero",
+  "first_wallet_text" : "Moneroとビットコインのための素晴らしい財布",
   "please_make_selection" : "以下を選択してください ウォレットを作成または回復する.",
   "create_new" : "新しいウォレットを作成",
   "restore_wallet" : "ウォレットを復元",
@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "この取引は ${provider}",
   "copy_address" : "住所をコピー",
   "exchange_result_confirm" : "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 下記の住所へ。 または、外部ウォレットから以下のアドレスに送信することもできます/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.",
-  "exchange_result_description" : "送信してください ${fetchingLabel} ${from} 下記の住所へ.",
+  "exchange_result_description" : "送信してください ${fetchingLabel} ${from} 次のページに表示されているアドレスに.",
   "exchange_result_write_down_ID" : "*上記のIDをコピーまたは書き留めてください.",
   "confirm" : "確認する",
   "confirm_sending" : "送信を確認",
@@ -212,7 +212,7 @@
   "send_name" : "名前",
   "send_got_it" : "とった",
   "send_sending" : "送信...",
-  "send_success" : "Moneroが送信されました",
+  "send_success" : "${crypto}が送信されました",
 
 
   "settings_title" : "設定",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "日付",
   "transaction_details_height" : "高さ",
   "transaction_details_amount" : "量",
+  "transaction_details_fee" : "費用",
   "transaction_details_copied" : "${title} クリップボードにコピーしました",
   "transaction_details_recipient_address" : "受取人の住所",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "同期された",
   "sync_status_not_connected" : "接続されていません",
   "sync_status_starting_sync" : "同期の開始",
-  "sync_status_failed_connect" : "ノードへの接続に失敗しました",
+  "sync_status_failed_connect" : "切断されました",
   "sync_status_connecting" : "接続中",
   "sync_status_connected" : "接続済み",
 
@@ -417,7 +418,7 @@
   "exchange_sync_alert_content" : "ウォレットが同期されるまでお待ちください",
 
   "pre_seed_title" : "重要",
-  "pre_seed_description" : "次のページでは、一連の25語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。",
+  "pre_seed_description" : "次のページでは、一連の${words}語が表示されます。 これはあなたのユニークでプライベートなシードであり、紛失や誤動作が発生した場合にウォレットを回復する唯一の方法です。 それを書き留めて、Cake Wallet アプリの外の安全な場所に保管するのはあなたの責任です。",
   "pre_seed_button_text" : "わかります。 種を見せて",
 
   "xmr_to_error" : "XMR.TOエラー",
@@ -425,5 +426,37 @@
 
   "provider_error" : "${provider} エラー",
 
-  "use_ssl" : "SSLを使用する"
+  "use_ssl" : "SSLを使用する",
+
+  "color_theme" : "カラーテーマ",
+  "light_theme" : "光",
+  "bright_theme" : "明るい",
+  "dark_theme" : "闇",
+  "enter_your_note" : "メモを入力してください…",
+  "note_optional" : "注（オプション）",
+  "note_tap_to_change" : "注（タップして変更）",
+  "transaction_key" : "トランザクションキー",
+  "confirmations" : "確認",
+  "recipient_address" : "受信者のアドレス",
+
+  "extra_id" : "追加ID:",
+  "destination_tag" : "宛先タグ:",
+  "memo" : "メモ:",
+
+  "backup" : "バックアップ",
+  "change_password" : "パスワードを変更する",
+  "backup_password" : "バックアップパスワード",
+  "write_down_backup_password" : "バックアップファイルのインポートに使用されるバックアップパスワードを書き留めてください。",
+  "export_backup" : "バックアップのエクスポート",
+  "save_backup_password" : "バックアップパスワードが保存されていることを確認してください。 それなしではバックアップファイルをインポートすることはできません。",
+  "backup_file" : "バックアップファイル",
+
+  "edit_backup_password" : "バックアップパスワードの編集",
+  "save_backup_password_alert" : "バックアップパスワードを保存する",
+  "change_backup_password_alert" : "以前のバックアップファイルは、新しいバックアップパスワードでインポートできなくなります。 新しいバックアップパスワードは、新しいバックアップファイルにのみ使用されます。 バックアップパスワードを変更してもよろしいですか？",
+
+  "enter_backup_password" : "ここにバックアップパスワードを入力してください",
+  "select_backup_file" : "バックアップファイルを選択",
+  "import" : "インポート",
+  "please_select_backup_file" : "バックアップファイルを選択し、バックアップパスワードを入力してください。"
 }

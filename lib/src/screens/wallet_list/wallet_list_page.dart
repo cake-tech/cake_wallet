@@ -49,7 +49,7 @@ class WalletListBodyState extends State<WalletListBody> {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
         height: 12,
         width: 12,
-        color: Theme.of(context).accentTextTheme.headline.decorationColor);
+        color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
@@ -172,17 +172,16 @@ class WalletListBodyState extends State<WalletListBody> {
           ),
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
-              onPressed: () => _generateNewWallet(),
+              onPressed: () => Navigator.of(context).pushNamed(Routes.newWalletType),
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
-              color: Theme.of(context).accentTextTheme.subtitle.decorationColor,
-              textColor:
-                  Theme.of(context).accentTextTheme.headline.decorationColor,
+              color: Theme.of(context).accentTextTheme.body2.color,
+              textColor: Colors.white,
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () =>
-                    Navigator.of(context).pushNamed(Routes.restoreWallet),
+                    Navigator.of(context).pushNamed(Routes.restoreWalletType),
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).accentTextTheme.caption.color,

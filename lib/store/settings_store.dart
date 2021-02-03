@@ -1,5 +1,8 @@
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/themes.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -13,7 +16,7 @@ import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 
 part 'settings_store.g.dart';
@@ -24,26 +27,29 @@ abstract class SettingsStoreBase with Store {
   SettingsStoreBase(
       {@required SharedPreferences sharedPreferences,
       @required FiatCurrency initialFiatCurrency,
-      @required TransactionPriority initialTransactionPriority,
       @required BalanceDisplayMode initialBalanceDisplayMode,
       @required bool initialSaveRecipientAddress,
       @required bool initialAllowBiometricalAuthentication,
-      @required bool initialDarkTheme,
+      @required ThemeBase initialTheme,
       @required int initialPinLength,
       @required String initialLanguageCode,
       // @required String initialCurrentLocale,
       @required this.appVersion,
       @required Map<WalletType, Node> nodes,
+      @required TransactionPriority initialBitcoinTransactionPriority,
+      @required TransactionPriority initialMoneroTransactionPriority,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
-    transactionPriority = initialTransactionPriority;
     balanceDisplayMode = initialBalanceDisplayMode;
     shouldSaveRecipientAddress = initialSaveRecipientAddress;
     allowBiometricalAuthentication = initialAllowBiometricalAuthentication;
-    isDarkTheme = initialDarkTheme;
+    currentTheme = initialTheme;
     pinCodeLength = initialPinLength;
     languageCode = initialLanguageCode;
-    currentNode = nodes[WalletType.monero];
+    priority = ObservableMap<WalletType, TransactionPriority>.of({
+      WalletType.monero: initialMoneroTransactionPriority,
+      WalletType.bitcoin: initialBitcoinTransactionPriority
+    });
     this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
 
@@ -52,11 +58,13 @@ abstract class SettingsStoreBase with Store {
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
             PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
 
-    reaction(
-        (_) => transactionPriority,
-        (TransactionPriority priority) => sharedPreferences.setInt(
-            PreferencesKey.currentTransactionPriorityKey,
-            priority.serialize()));
+    priority.observe((change) {
+      final key = change.key == WalletType.monero
+          ? PreferencesKey.moneroTransactionPriority
+          : PreferencesKey.bitcoinTransactionPriority;
+
+      sharedPreferences.setInt(key, change.newValue.serialize());
+    });
 
     reaction(
         (_) => shouldSaveRecipientAddress,
@@ -65,9 +73,9 @@ abstract class SettingsStoreBase with Store {
             shouldSaveRecipientAddress));
 
     reaction(
-        (_) => isDarkTheme,
-        (bool isDarkTheme) => sharedPreferences.setBool(
-            PreferencesKey.currentDarkTheme, isDarkTheme));
+        (_) => currentTheme,
+        (ThemeBase theme) =>
+            sharedPreferences.setInt(PreferencesKey.currentTheme, theme.raw));
 
     reaction(
         (_) => allowBiometricalAuthentication,
@@ -80,13 +88,19 @@ abstract class SettingsStoreBase with Store {
         (int pinLength) => sharedPreferences.setInt(
             PreferencesKey.currentPinLength, pinLength));
 
-    reaction((_) => currentNode,
-        (Node node) => _saveCurrentNode(node, WalletType.monero));
-
     reaction(
         (_) => languageCode,
         (String languageCode) => sharedPreferences.setString(
             PreferencesKey.currentLanguageCode, languageCode));
+
+    reaction(
+        (_) => balanceDisplayMode,
+        (BalanceDisplayMode mode) => sharedPreferences.setInt(
+            PreferencesKey.currentBalanceDisplayModeKey, mode.serialize()));
+
+    this
+        .nodes
+        .observe((change) => _saveCurrentNode(change.newValue, change.key));
   }
 
   static const defaultPinLength = 4;
@@ -99,9 +113,6 @@ abstract class SettingsStoreBase with Store {
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
 
   @observable
-  TransactionPriority transactionPriority;
-
-  @observable
   BalanceDisplayMode balanceDisplayMode;
 
   @observable
@@ -111,19 +122,19 @@ abstract class SettingsStoreBase with Store {
   bool allowBiometricalAuthentication;
 
   @observable
-  bool isDarkTheme;
+  ThemeBase currentTheme;
 
   @observable
   int pinCodeLength;
 
-  @observable
-  Node currentNode;
-
   @computed
-  ThemeData get theme => isDarkTheme ? Themes.darkTheme : Themes.lightTheme;
+  ThemeData get theme => currentTheme.themeData;
 
   @observable
   String languageCode;
+
+  @observable
+  ObservableMap<WalletType, TransactionPriority> priority;
 
   String appVersion;
 
@@ -136,16 +147,28 @@ abstract class SettingsStoreBase with Store {
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      TransactionPriority initialTransactionPriority = TransactionPriority.slow,
+      MoneroTransactionPriority initialMoneroTransactionPriority =
+          MoneroTransactionPriority.slow,
+      BitcoinTransactionPriority initialBitcoinTransactionPriority =
+          BitcoinTransactionPriority.medium,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final currentFiatCurrency = FiatCurrency(
         symbol:
             sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey));
-    final currentTransactionPriority = TransactionPriority.deserialize(
-        raw: sharedPreferences
-            .getInt(PreferencesKey.currentTransactionPriorityKey));
+    final savedMoneroTransactionPriority =
+        MoneroTransactionPriority.deserialize(
+            raw: sharedPreferences
+                .getInt(PreferencesKey.moneroTransactionPriority));
+    final savedBitcoinTransactionPriority =
+        BitcoinTransactionPriority.deserialize(
+            raw: sharedPreferences
+                .getInt(PreferencesKey.bitcoinTransactionPriority));
+    final moneroTransactionPriority =
+        savedMoneroTransactionPriority ?? initialMoneroTransactionPriority;
+    final bitcoinTransactionPriority =
+        savedBitcoinTransactionPriority ?? initialBitcoinTransactionPriority;
     final currentBalanceDisplayMode = BalanceDisplayMode.deserialize(
         raw: sharedPreferences
             .getInt(PreferencesKey.currentBalanceDisplayModeKey));
@@ -154,8 +177,14 @@ abstract class SettingsStoreBase with Store {
     final allowBiometricalAuthentication = sharedPreferences
             .getBool(PreferencesKey.allowBiometricalAuthenticationKey) ??
         false;
-    final savedDarkTheme =
-        sharedPreferences.getBool(PreferencesKey.currentDarkTheme) ?? false;
+    final legacyTheme =
+        (sharedPreferences.getBool(PreferencesKey.isDarkThemeLegacy) ?? false)
+            ? ThemeType.dark.index
+            : ThemeType.bright.index;
+    final savedTheme = ThemeList.deserialize(
+        raw: sharedPreferences.getInt(PreferencesKey.currentTheme) ??
+            legacyTheme ??
+            0);
     final actionListDisplayMode = ObservableList<ActionListDisplayMode>();
     actionListDisplayMode.addAll(deserializeActionlistDisplayModes(
         sharedPreferences.getInt(PreferencesKey.displayActionListModeKey) ??
@@ -184,14 +213,43 @@ abstract class SettingsStoreBase with Store {
         },
         appVersion: packageInfo.version,
         initialFiatCurrency: currentFiatCurrency,
-        initialTransactionPriority: currentTransactionPriority,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
         initialAllowBiometricalAuthentication: allowBiometricalAuthentication,
-        initialDarkTheme: savedDarkTheme,
+        initialTheme: savedTheme,
         actionlistDisplayMode: actionListDisplayMode,
         initialPinLength: pinLength,
-        initialLanguageCode: savedLanguageCode);
+        initialLanguageCode: savedLanguageCode,
+        initialMoneroTransactionPriority: moneroTransactionPriority,
+        initialBitcoinTransactionPriority: bitcoinTransactionPriority);
+  }
+
+  Future<void> reload(
+      {@required Box<Node> nodeSource,
+      FiatCurrency initialFiatCurrency = FiatCurrency.usd,
+      MoneroTransactionPriority initialMoneroTransactionPriority =
+          MoneroTransactionPriority.slow,
+      BitcoinTransactionPriority initialBitcoinTransactionPriority =
+          BitcoinTransactionPriority.medium,
+      BalanceDisplayMode initialBalanceDisplayMode =
+          BalanceDisplayMode.availableBalance}) async {
+    final settings = await SettingsStoreBase.load(
+        nodeSource: nodeSource,
+        initialBalanceDisplayMode: initialBalanceDisplayMode,
+        initialFiatCurrency: initialFiatCurrency,
+        initialMoneroTransactionPriority: initialMoneroTransactionPriority,
+        initialBitcoinTransactionPriority: initialBitcoinTransactionPriority);
+    fiatCurrency = settings.fiatCurrency;
+    actionlistDisplayMode = settings.actionlistDisplayMode;
+    priority[WalletType.monero] = initialMoneroTransactionPriority;
+    priority[WalletType.bitcoin] = initialBitcoinTransactionPriority;
+    balanceDisplayMode = settings.balanceDisplayMode;
+    shouldSaveRecipientAddress = settings.shouldSaveRecipientAddress;
+    allowBiometricalAuthentication = settings.allowBiometricalAuthentication;
+    currentTheme = settings.currentTheme;
+    pinCodeLength = settings.pinCodeLength;
+    languageCode = settings.languageCode;
+    appVersion = settings.appVersion;
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {

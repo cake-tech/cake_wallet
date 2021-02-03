@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -39,20 +40,11 @@ abstract class ExchangeTradeViewModelBase with Store {
     }
 
     items = ObservableList<ExchangeTradeItem>();
-    items.addAll([
-      ExchangeTradeItem(
-          title: S.current.id, data: '${trade.id}', isCopied: true),
-      ExchangeTradeItem(
-          title: S.current.amount, data: '${trade.amount}', isCopied: false),
-      ExchangeTradeItem(
-          title: S.current.status, data: '${trade.state}', isCopied: false),
-      ExchangeTradeItem(
-          title: S.current.widgets_address + ':',
-          data: trade.inputAddress,
-          isCopied: true),
-    ]);
+
+    _updateItems();
 
     _updateTrade();
+
     _timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
 
@@ -95,8 +87,39 @@ abstract class ExchangeTradeViewModelBase with Store {
       }
 
       trade = updatedTrade;
+
+      _updateItems();
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void _updateItems() {
+    items?.clear();
+
+    items.add(ExchangeTradeItem(
+        title: S.current.id, data: '${trade.id}', isCopied: true));
+
+    if (trade.extraId != null) {
+      final title = trade.from == CryptoCurrency.xrp
+          ? S.current.destination_tag
+          : trade.from == CryptoCurrency.xlm
+                ? S.current.memo
+                : S.current.extra_id;
+
+      items.add(ExchangeTradeItem(
+          title: title, data: '${trade.extraId}', isCopied: false));
+    }
+
+    items.addAll([
+      ExchangeTradeItem(
+          title: S.current.amount, data: '${trade.amount}', isCopied: false),
+      ExchangeTradeItem(
+          title: S.current.status, data: '${trade.state}', isCopied: false),
+      ExchangeTradeItem(
+          title: S.current.widgets_address + ':',
+          data: trade.inputAddress,
+          isCopied: true),
+    ]);
   }
 }

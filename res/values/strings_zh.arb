@@ -1,7 +1,7 @@
 {
   "welcome" : "歡迎來到",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "很棒的钱包 对于 Monero",
+  "first_wallet_text" : "很棒的Monero和比特幣錢包",
   "please_make_selection" : "请在下面进行选择 创建或恢复您的钱包.",
   "create_new" : "创建新钱包",
   "restore_wallet" : "恢复钱包",
@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "该交易由 ${provider}",
   "copy_address" : "复制地址",
   "exchange_result_confirm" : "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到下面顯示的地址。 或者您可以從外部錢包發送到以下地址/ QR码。\n\n请按确认继续或返回以更改金额",
-  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到下面顯示的地址.",
+  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到下一頁顯示的地址.",
   "exchange_result_write_down_ID" : "*请复制或写下您上面显示的ID.",
   "confirm" : "确认",
   "confirm_sending" : "确认发送",
@@ -212,7 +212,7 @@
   "send_name" : "名稱",
   "send_got_it" : "得到它了",
   "send_sending" : "正在發送...",
-  "send_success" : "你Monero已成功發送",
+  "send_success" : "你${crypto}已成功發送",
 
 
   "settings_title" : "设定值",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "日期",
   "transaction_details_height" : "高度",
   "transaction_details_amount" : "量",
+  "transaction_details_fee" : "費用",
   "transaction_details_copied" : "${title} 复制到剪贴板",
   "transaction_details_recipient_address" : "收件人地址",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "已同步",
   "sync_status_not_connected" : "未连接",
   "sync_status_starting_sync" : "开始同步",
-  "sync_status_failed_connect" : "无法连接到节点",
+  "sync_status_failed_connect" : "斷線",
   "sync_status_connecting" : "连接中",
   "sync_status_connected" : "连接的",
 
@@ -417,7 +418,7 @@
   "exchange_sync_alert_content" : "請等待，直到您的錢包同步",
 
   "pre_seed_title" : "重要",
-  "pre_seed_description" : "在下一頁上，您將看到一系列25個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。",
+  "pre_seed_description" : "在下一頁上，您將看到一系列${words}個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。",
   "pre_seed_button_text" : "我明白。 給我看我的種子",
 
   "xmr_to_error" : "XMR.TO錯誤",
@@ -425,5 +426,37 @@
 
   "provider_error" : "${provider} 錯誤",
 
-  "use_ssl" : "使用SSL"
+  "use_ssl" : "使用SSL",
+
+  "color_theme" : "顏色主題",
+  "light_theme" : "光",
+  "bright_theme" : "亮",
+  "dark_theme" : "黑暗",
+  "enter_your_note" : "輸入您的筆記...",
+  "note_optional" : "注意（可選）",
+  "note_tap_to_change" : "注意（輕按即可更改）",
+  "transaction_key" : "交易密碼",
+  "confirmations" : "確認書",
+  "recipient_address" : "收件人地址",
+
+  "extra_id" : "額外編號:",
+  "destination_tag" : "目標標籤:",
+  "memo" : "備忘錄:",
+
+  "backup" : "後備",
+  "change_password" : "更改密碼",
+  "backup_password" : "備用密碼",
+  "write_down_backup_password" : "請寫下您的備份密碼，該密碼用於導入備份文件。",
+  "export_backup" : "導出備份",
+  "save_backup_password" : "請確保您已保存備份密碼。 沒有它，您將無法導入備份文件。",
+  "backup_file" : "備份檔案",
+
+  "edit_backup_password" : "編輯備份密碼",
+  "save_backup_password_alert" : "保存備份密碼",
+  "change_backup_password_alert" : "您以前的備份文件將無法使用新的備份密碼導入。 新的備份密碼將僅用於新的備份文件。 您確定要更改備份密碼嗎？",
+
+  "enter_backup_password" : "在此處輸入備用密碼",
+  "select_backup_file" : "選擇備份文件",
+  "import" : "進口",
+  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。"
 }

@@ -3,6 +3,7 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_monero/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/wallet.dart' as monero_wallet;
+import 'package:cw_monero/exceptions/wallet_opening_exception.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/core/wallet_credentials.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
@@ -55,6 +56,18 @@ class MoneroWalletService extends WalletService<
 
   final Box<WalletInfo> walletInfoSource;
 
+  static Future<void> _removeCache(String name) async {
+    final path = await pathForWallet(name: name, type: WalletType.monero);
+    final cacheFile = File(path);
+
+    if (cacheFile.existsSync()) {
+      cacheFile.deleteSync();
+    }
+  }
+
+  static bool walletFilesExist(String path) =>
+      !File(path).existsSync() && !File('$path.keys').existsSync();
+
   @override
   Future<MoneroWallet> create(MoneroNewWalletCredentials credentials) async {
     try {
@@ -94,7 +107,7 @@ class MoneroWalletService extends WalletService<
     try {
       final path = await pathForWallet(name: name, type: WalletType.monero);
 
-      if (!File(path).existsSync()) {
+      if (walletFilesExist(path)) {
         await repairOldAndroidWallet(name);
       }
 
@@ -108,17 +121,9 @@ class MoneroWalletService extends WalletService<
       final isValid = wallet.validate();
 
       if (!isValid) {
-        // if (wallet.seed?.isNotEmpty ?? false) {
-        // let restore from seed in this case;
-        // final seed = wallet.seed;
-        // final credentials = MoneroRestoreWalletFromSeedCredentials(
-        //     name: name, password: password, mnemonic: seed, height: 2000000)
-        //   ..walletInfo = walletInfo;
-        // await remove(name);
-        // return restoreFromSeed(credentials);
-        // }
-
-        throw MoneroWalletLoadingException();
+        await _removeCache(name);
+        wallet.close();
+        return openWallet(name, password);
       }
 
       await wallet.init();
@@ -126,7 +131,15 @@ class MoneroWalletService extends WalletService<
       return wallet;
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
-      print('MoneroWalletsManager Error: $e');
+
+      if (e.toString().contains('bad_alloc') ||
+          (e is WalletOpeningException &&
+              (e.message == 'std::bad_alloc' ||
+                  e.message.contains('bad_alloc')))) {
+        await _removeCache(name);
+        return openWallet(name, password);
+      }
+
       rethrow;
     }
   }
@@ -204,7 +217,7 @@ class MoneroWalletService extends WalletService<
       final dir = Directory(oldAndroidWalletDirPath);
 
       if (!dir.existsSync()) {
-        throw MoneroWalletLoadingException();
+        return;
       }
 
       final newWalletDirPath =
@@ -223,7 +236,6 @@ class MoneroWalletService extends WalletService<
       });
     } catch (e) {
       print(e.toString());
-      throw MoneroWalletLoadingException();
     }
   }
 }

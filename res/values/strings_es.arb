@@ -1,7 +1,7 @@
 {
   "welcome" : "Bienvenido",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Impresionante billetera para Monero",
+  "first_wallet_text" : "Impresionante billetera para Monero y Bitcoin",
   "please_make_selection" : "Seleccione a continuación para crear o recuperar su billetera.",
   "create_new" : "Crear nueva billetera",
   "restore_wallet" : "Restaurar billetera",
@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Este comercio es impulsado por ${provider}",
   "copy_address" : "Copiar dirección ",
   "exchange_result_confirm" : "Al presionar confirmar, enviará ${fetchingLabel} ${from} desde su billetera llamada ${walletName} a la dirección que se muestra a continuación. O puede enviar desde su billetera externa a la siguiente dirección / código QR anterior.\n\nPresione confirmar para continuar o regrese para cambiar los montos.",
-  "exchange_result_description" : "Envíe ${fetchingLabel} ${from} a la dirección que se muestra a continuación.",
+  "exchange_result_description" : "Envíe ${fetchingLabel} ${from} a la dirección que se muestra en la página siguiente.",
   "exchange_result_write_down_ID" : "*Copie o escriba su identificación que se muestra arriba.",
   "confirm" : "Confirmar",
   "confirm_sending" : "Confirmar envío",
@@ -212,7 +212,7 @@
   "send_name" : "Nombre",
   "send_got_it" : "Entendido",
   "send_sending" : "Enviando...",
-  "send_success" : "Su Monero fue enviado con éxito",
+  "send_success" : "Su ${crypto} fue enviado con éxito",
 
 
   "settings_title" : "Configuraciones",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "Fecha",
   "transaction_details_height" : "Altura",
   "transaction_details_amount" : "Cantidad",
+  "transaction_details_fee" : "Cuota",
   "transaction_details_copied" : "${title} Copiado al portapapeles",
   "transaction_details_recipient_address" : "Dirección del receptor",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "SINCRONIZADO",
   "sync_status_not_connected" : "NO CONECTADO",
   "sync_status_starting_sync" : "EMPEZANDO A SINCRONIZAR",
-  "sync_status_failed_connect" : "CONEXIÓN FALLIDA AL NODO",
+  "sync_status_failed_connect" : "DESCONECTADO",
   "sync_status_connecting" : "CONECTANDO",
   "sync_status_connected" : "CONECTADO",
 
@@ -417,7 +418,7 @@
   "exchange_sync_alert_content" : "Espere hasta que su billetera esté sincronizada",
 
   "pre_seed_title" : "IMPORTANTE",
-  "pre_seed_description" : "En la página siguiente verá una serie de 25 palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.",
+  "pre_seed_description" : "En la página siguiente verá una serie de ${words} palabras. Esta es su semilla única y privada y es la ÚNICA forma de recuperar su billetera en caso de pérdida o mal funcionamiento. Es SU responsabilidad escribirlo y guardarlo en un lugar seguro fuera de la aplicación Cake Wallet.",
   "pre_seed_button_text" : "Entiendo. Muéstrame mi semilla",
 
   "xmr_to_error" : "Error de XMR.TO",
@@ -425,5 +426,37 @@
 
   "provider_error" : "${provider} error",
 
-  "use_ssl" : "Utilice SSL"
+  "use_ssl" : "Utilice SSL",
+
+  "color_theme" : "Tema de color",
+  "light_theme" : "Ligera",
+  "bright_theme" : "Brillante",
+  "dark_theme" : "Oscura",
+  "enter_your_note" : "Ingresa tu nota…",
+  "note_optional" : "Nota (opcional)",
+  "note_tap_to_change" : "Nota (toque para cambiar)",
+  "transaction_key" : "Clave de transacción",
+  "confirmations" : "Confirmaciones",
+  "recipient_address" : "Dirección del receptor",
+
+  "extra_id" : "ID adicional:",
+  "destination_tag" : "Etiqueta de destino:",
+  "memo" : "Memorándum:",
+
+  "backup" : "Apoyo",
+  "change_password" : "Cambia la contraseña",
+  "backup_password" : "Contraseña de respaldo",
+  "write_down_backup_password" : "Escriba su contraseña de respaldo, que se utiliza para la importación de sus archivos de respaldo.",
+  "export_backup" : "Exportar copia de seguridad",
+  "save_backup_password" : "Asegúrese de haber guardado su contraseña de respaldo. No podrá importar sus archivos de respaldo sin él.",
+  "backup_file" : "Archivo de respaldo",
+
+  "edit_backup_password" : "Editar contraseña de respaldo",
+  "save_backup_password_alert" : "Guardar contraseña de respaldo",
+  "change_backup_password_alert" : "Sus archivos de respaldo anteriores no estarán disponibles para importar con la nueva contraseña de respaldo. La nueva contraseña de respaldo se utilizará solo para los nuevos archivos de respaldo. ¿Está seguro de que desea cambiar la contraseña de respaldo?",
+
+  "enter_backup_password" : "Ingrese la contraseña de respaldo aquí",
+  "select_backup_file" : "Seleccionar archivo de respaldo",
+  "import" : "Importar",
+  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo."
 }

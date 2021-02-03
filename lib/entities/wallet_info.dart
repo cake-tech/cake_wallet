@@ -4,10 +4,10 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 
 part 'wallet_info.g.dart';
 
-@HiveType(typeId: 4)
+@HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
-  WalletInfo(this.id, this.name, this.displayName, this.type, this.isRecovery,
-      this.restoreHeight, this.timestamp, this.dirPath, this.path);
+  WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
+      this.timestamp, this.dirPath, this.path, this.address);
 
   factory WalletInfo.external(
       {@required String id,
@@ -18,11 +18,13 @@ class WalletInfo extends HiveObject {
       @required int restoreHeight,
       @required DateTime date,
       @required String dirPath,
-      @required String path}) {
+      @required String path,
+      @required String address}) {
     return WalletInfo(id, name, displayName, type, isRecovery, restoreHeight,
-        date.millisecondsSinceEpoch ?? 0, dirPath, path);
+        date.millisecondsSinceEpoch ?? 0, dirPath, path, address);
   }
 
+  static const typeId = 4;
   static const boxName = 'WalletInfo';
 
   @HiveField(0)
@@ -50,6 +52,9 @@ class WalletInfo extends HiveObject {
   String path;
 
   @HiveField(8)
+  String address;
+
+  @HiveField(9)
   String displayName;
 
   String get displayedName => displayName ?? name;

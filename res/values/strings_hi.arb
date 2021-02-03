@@ -1,7 +1,7 @@
 {
   "welcome" : "स्वागत हे सेवा मेरे",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "बहुत बढ़िया बटुआ के लिये Monero",
+  "first_wallet_text" : "Monero और Bitcoin के लिए बहुत बढ़िया बटुआ",
   "please_make_selection" : "कृपया नीचे चयन करें अपना बटुआ बनाएं या पुनर्प्राप्त करें.",
   "create_new" : "नया बटुआ बनाएँ",
   "restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "यह व्यापार द्वारा संचालित है ${provider}",
   "copy_address" : "पता कॉपी करें",
   "exchange_result_confirm" : "पुष्टि दबाकर, आप भेज रहे होंगे ${fetchingLabel} ${from} अपने बटुए से ${walletName} नीचे दिखाए गए पते पर। या आप अपने बाहरी वॉलेट से नीचे के पते पर भेज सकते हैं / क्यूआर कोड पर भेज सकते हैं।\n\nकृपया जारी रखने या राशि बदलने के लिए वापस जाने के लिए पुष्टि करें दबाएं.",
-  "exchange_result_description" : "कृपया भेजें ${fetchingLabel} ${from} नीचे दिखाए गए पते पर",
+  "exchange_result_description" : "कृपया भेजें ${fetchingLabel} ${from} अगले पृष्ठ पर दिखाए गए पते पर",
   "exchange_result_write_down_ID" : "*कृपया ऊपर दिखाए गए अपने ID को कॉपी या लिख लें.",
   "confirm" : "की पुष्टि करें",
   "confirm_sending" : "भेजने की पुष्टि करें",
@@ -212,7 +212,7 @@
   "send_name" : "नाम",
   "send_got_it" : "समझ गया",
   "send_sending" : "भेजना...",
-  "send_success" : "आपका Monero सफलतापूर्वक भेजा गया",
+  "send_success" : "आपका ${crypto} सफलतापूर्वक भेजा गया",
 
 
   "settings_title" : "सेटिंग्स",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "तारीख",
   "transaction_details_height" : "ऊंचाई",
   "transaction_details_amount" : "रकम",
+  "transaction_details_fee" : "शुल्क",
   "transaction_details_copied" : "${title} क्लिपबोर्ड पर नकल",
   "transaction_details_recipient_address" : "प्राप्तकर्ता का पता",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "सिंक्रनाइज़",
   "sync_status_not_connected" : "जुड़े नहीं हैं",
   "sync_status_starting_sync" : "सिताज़ा करना",
-  "sync_status_failed_connect" : "फेल हुआ कनेक्ट नोड",
+  "sync_status_failed_connect" : "डिस्कनेक्ट किया गया",
   "sync_status_connecting" : "कनेक्ट",
   "sync_status_connected" : "जुड़े हुए",
 
@@ -417,7 +418,7 @@
   "exchange_sync_alert_content" : "कृपया प्रतीक्षा करें जब तक आपका बटुआ सिंक्रनाइज़ नहीं किया जाता है",
 
   "pre_seed_title" : "महत्वपूर्ण",
-  "pre_seed_description" : "अगले पेज पर आपको 25 शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।",
+  "pre_seed_description" : "अगले पेज पर आपको ${words} शब्दों की एक श्रृंखला दिखाई देगी। यह आपका अद्वितीय और निजी बीज है और नुकसान या खराबी के मामले में अपने बटुए को पुनर्प्राप्त करने का एकमात्र तरीका है। यह आपकी जिम्मेदारी है कि इसे नीचे लिखें और इसे Cake Wallet ऐप के बाहर सुरक्षित स्थान पर संग्रहीत करें।",
   "pre_seed_button_text" : "मै समझता हुँ। मुझे अपना बीज दिखाओ",
 
   "xmr_to_error" : "XMR.TO त्रुटि",
@@ -425,5 +426,37 @@
 
   "provider_error" : "${provider} त्रुटि",
 
-  "use_ssl" : "उपयोग SSL"
+  "use_ssl" : "उपयोग SSL",
+
+  "color_theme" : "रंग विषय",
+  "light_theme" : "रोशनी",
+  "bright_theme" : "उज्ज्वल",
+  "dark_theme" : "अंधेरा",
+  "enter_your_note" : "अपना नोट दर्ज करें ...",
+  "note_optional" : "नोट (वैकल्पिक)",
+  "note_tap_to_change" : "नोट (टैप टू चेंज)",
+  "transaction_key" : "लेन-देन की",
+  "confirmations" : "पुष्टिकरण",
+  "recipient_address" : "प्राप्तकर्ता का पता",
+
+  "extra_id" : "अतिरिक्त आईडी:",
+  "destination_tag" : "गंतव्य टैग:",
+  "memo" : "ज्ञापन:",
+
+  "backup" : "बैकअप",
+  "change_password" : "पासवर्ड बदलें",
+  "backup_password" : "बैकअप पासवर्ड",
+  "write_down_backup_password" : "कृपया अपना बैकअप पासवर्ड लिखें, जिसका उपयोग आपकी बैकअप फ़ाइलों के आयात के लिए किया जाता है।",
+  "export_backup" : "निर्यात बैकअप",
+  "save_backup_password" : "कृपया सुनिश्चित करें कि आपने अपना बैकअप पासवर्ड सहेज लिया है। आप इसके बिना अपनी बैकअप फ़ाइलों को आयात नहीं कर पाएंगे।",
+  "backup_file" : "बैकअपफ़ाइल",
+
+  "edit_backup_password" : "बैकअप पासवर्ड संपादित करें",
+  "save_backup_password_alert" : "बैकअप पासवर्ड सेव करें",
+  "change_backup_password_alert" : "आपकी पिछली बैकअप फाइलें नए बैकअप पासवर्ड के साथ आयात करने के लिए उपलब्ध नहीं होंगी। नए बैकअप पासवर्ड का उपयोग केवल नई बैकअप फ़ाइलों के लिए किया जाएगा। क्या आप वाकई बैकअप पासवर्ड बदलना चाहते हैं?",
+
+  "enter_backup_password" : "यहां बैकअप पासवर्ड डालें",
+  "select_backup_file" : "बैकअप फ़ाइल का चयन करें",
+  "import" : "आयात",
+  "please_select_backup_file" : "कृपया बैकअप फ़ाइल चुनें और बैकअप पासवर्ड डालें।"
 }

@@ -6,8 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/information_page.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
@@ -172,36 +170,14 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     ),
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
-                      String value;
+                      final value = item.data ?? fetchingLabel;
 
-                      final content = Observer(builder: (_) {
-                        switch (index) {
-                          case 0:
-                            value =
-                                '${widget.exchangeTradeViewModel.trade.id ?? fetchingLabel}';
-                            break;
-                          case 1:
-                            value =
-                                '${widget.exchangeTradeViewModel.trade.amount ?? fetchingLabel}';
-                            break;
-                          case 2:
-                            value =
-                                '${widget.exchangeTradeViewModel.trade.state ?? fetchingLabel}';
-                            break;
-                          case 3:
-                            value = widget.exchangeTradeViewModel.trade
-                                    .inputAddress ??
-                                fetchingLabel;
-                            break;
-                        }
-
-                        return StandartListRow(
-                          title: item.title,
-                          value: value,
-                          valueFontSize: 14,
-                          image: item.isCopied ? copyImage : null,
-                        );
-                      });
+                      final content = StandartListRow(
+                        title: item.title,
+                        value: value,
+                        valueFontSize: 14,
+                        image: item.isCopied ? copyImage : null,
+                      );
 
                       return item.isCopied
                           ? Builder(
@@ -227,16 +203,15 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
             final sendingState =
                 widget.exchangeTradeViewModel.sendViewModel.state;
 
-            return trade.from == CryptoCurrency.xmr && !(sendingState is TransactionCommitted)
+            return widget.exchangeTradeViewModel.isSendable &&
+                    !(sendingState is TransactionCommitted)
                 ? LoadingPrimaryButton(
                     isDisabled: trade.inputAddress == null ||
                         trade.inputAddress.isEmpty,
                     isLoading: sendingState is IsExecutingState,
                     onPressed: () =>
                         widget.exchangeTradeViewModel.confirmSending(),
-                    text: trade.provider == ExchangeProviderDescription.xmrto
-                        ? S.of(context).confirm
-                        : S.of(context).send_xmr,
+                    text: S.of(context).confirm,
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Colors.white)
                 : Offstage();
@@ -306,7 +281,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                         padding: EdgeInsets.only(
                                             top: 220, left: 24, right: 24),
                                         child: Text(
-                                          S.of(context).send_success,
+                                          S.of(context).send_success(widget
+                                              .exchangeTradeViewModel
+                                              .wallet
+                                              .currency
+                                              .toString()),
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontSize: 22,
@@ -379,7 +358,16 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             });
                           });
                     },
-                    actionLeftButton: () => Navigator.of(context).pop());
+                    actionLeftButton: () => Navigator.of(context).pop(),
+                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
+                        .pendingTransaction.feeFormatted,
+                    fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel
+                            .pendingTransactionFeeFiatAmount +
+                        ' ' +
+                        widget.exchangeTradeViewModel.sendViewModel.fiat.title,
+                    recipientTitle: S.of(context).recipient_address,
+                    recipientAddress:
+                        widget.exchangeTradeViewModel.sendViewModel.address);
               });
         });
       }

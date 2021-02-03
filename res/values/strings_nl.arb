@@ -1,7 +1,7 @@
 {
   "welcome" : "Welkom bij",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Geweldige portemonnee fvoor Monero",
+  "first_wallet_text" : "Geweldige portemonnee voor Monero en Bitcoin",
   "please_make_selection" : "Maak hieronder uw keuze tot maak of herstel je portemonnee.",
   "create_new" : "Maak een nieuwe portemonnee",
   "restore_wallet" : "Portemonnee herstellen",
@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Deze transactie wordt mogelijk gemaakt door ${provider}",
   "copy_address" : "Adres kopiëren",
   "exchange_result_confirm" : "Door op bevestigen te drukken, wordt u verzonden ${fetchingLabel} ${from} uit je portemonnee genoemd ${walletName} naar het onderstaande adres. Of u kunt vanuit uw externe portemonnee naar het onderstaande adres verzenden / QR-code sturen.\n\nDruk op bevestigen om door te gaan of terug te gaan om de bedragen te wijzigen.",
-  "exchange_result_description" : "Zend alstublieft ${fetchingLabel} ${from} naar het onderstaande adres.",
+  "exchange_result_description" : "Zend alstublieft ${fetchingLabel} ${from} naar het adres op de volgende pagina.",
   "exchange_result_write_down_ID" : "*Kopieer of noteer uw hierboven getoonde ID.",
   "confirm" : "Bevestigen",
   "confirm_sending" : "Bevestig verzending",
@@ -212,7 +212,7 @@
   "send_name" : "Naam",
   "send_got_it" : "Ik snap het",
   "send_sending" : "Bezig met verzenden...",
-  "send_success" : "Uw Monero is succesvol verzonden",
+  "send_success" : "Uw ${crypto} is succesvol verzonden",
 
 
   "settings_title" : "Instellingen",
@@ -282,6 +282,7 @@
   "transaction_details_date" : "Datum",
   "transaction_details_height" : "Hoogte",
   "transaction_details_amount" : "Bedrag",
+  "transaction_details_fee" : "Vergoeding",
   "transaction_details_copied" : "${title} gekopieerd naar het klembord",
   "transaction_details_recipient_address" : "Adres van de ontvanger",
 
@@ -342,7 +343,7 @@
   "sync_status_syncronized" : "SYNCHRONIZED",
   "sync_status_not_connected" : "NIET VERBONDEN",
   "sync_status_starting_sync" : "BEGINNEN MET SYNCHRONISEREN",
-  "sync_status_failed_connect" : "MISLUKT VERBINDING MET DE NODE",
+  "sync_status_failed_connect" : "LOSGEKOPPELD",
   "sync_status_connecting" : "AANSLUITING",
   "sync_status_connected" : "VERBONDEN",
 
@@ -417,7 +418,7 @@
   "exchange_sync_alert_content" : "Wacht tot uw portemonnee is gesynchroniseerd",
 
   "pre_seed_title" : "BELANGRIJK",
-  "pre_seed_description" : "Op de volgende pagina ziet u een reeks van 25 woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.",
+  "pre_seed_description" : "Op de volgende pagina ziet u een reeks van ${words} woorden. Dit is uw unieke en persoonlijke zaadje en het is de ENIGE manier om uw portemonnee te herstellen in geval van verlies of storing. Het is JOUW verantwoordelijkheid om het op te schrijven en op een veilige plaats op te slaan buiten de Cake Wallet app.",
   "pre_seed_button_text" : "Ik begrijp het. Laat me mijn zaad zien",
 
   "xmr_to_error" : "XMR.TO-fout",
@@ -425,5 +426,37 @@
 
   "provider_error" : "${provider} fout",
 
-  "use_ssl" : "Gebruik SSL"
+  "use_ssl" : "Gebruik SSL",
+
+  "color_theme" : "Kleur thema",
+  "light_theme" : "Licht",
+  "bright_theme" : "Helder",
+  "dark_theme" : "Donker",
+  "enter_your_note" : "Voer uw notitie in ...",
+  "note_optional" : "Opmerking (optioneel)",
+  "note_tap_to_change" : "Opmerking (tik om te wijzigen)",
+  "transaction_key" : "Transactiesleutel",
+  "confirmations" : "Bevestigingen",
+  "recipient_address" : "Adres ontvanger",
+
+  "extra_id" : "Extra ID:",
+  "destination_tag" : "Bestemmingstag:",
+  "memo" : "Memo:",
+
+  "backup" : "Back-up",
+  "change_password" : "Wachtwoord wijzigen",
+  "backup_password" : "Reservewachtwoord",
+  "write_down_backup_password" : "Noteer uw back-upwachtwoord, dat wordt gebruikt voor het importeren van uw back-upbestanden.",
+  "export_backup" : "Back-up exporteren",
+  "save_backup_password" : "Zorg ervoor dat u uw reservewachtwoord heeft opgeslagen. Zonder dit kunt u uw back-upbestanden niet importeren.",
+  "backup_file" : "Backup bestand",
+
+  "edit_backup_password" : "Bewerk back-upwachtwoord",
+  "save_backup_password_alert" : "Bewaar back-upwachtwoord",
+  "change_backup_password_alert" : "Uw vorige back-upbestanden kunnen niet worden geïmporteerd met een nieuw back-upwachtwoord. Het nieuwe back-upwachtwoord wordt alleen gebruikt voor nieuwe back-upbestanden. Weet u zeker dat u het back-upwachtwoord wilt wijzigen?",
+
+  "enter_backup_password" : "Voer hier een back-upwachtwoord in",
+  "select_backup_file" : "Selecteer een back-upbestand",
+  "import" : "Importeren",
+  "please_select_backup_file" : "Selecteer een back-upbestand en voer een back-upwachtwoord in."
 }
