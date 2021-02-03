@@ -7,6 +7,7 @@ void unstoppable_domain_address_alert(BuildContext context, String domain) async
   await showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
+
         return AlertWithOneAction(
             alertTitle: S.of(context).address_detected,
             alertContent: S.of(context).address_from_domain(domain),
