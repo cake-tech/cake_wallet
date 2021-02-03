@@ -27,28 +27,23 @@ class TradeDetailsPage extends BasePage {
           itemBuilder: (_, __, index) {
             final item = tradeDetailsViewModel.items[index];
 
-          if (item is TrackTradeListItem) {
-            return GestureDetector(
-                onTap: item.onTap,
-                child: StandartListRow(
-                    title: '${item.title}',
-                    value: '${item.value}'
-                ));
-          }
+            if (item is TrackTradeListItem) {
+              return GestureDetector(
+                  onTap: item.onTap,
+                  child: StandartListRow(
+                      title: '${item.title}', value: '${item.value}'));
+            }
 
-          if (item is SectionStandardListItem) { 
-            return GestureDetector(
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: '${item.value}'));
-                  showBar<void>(context, S
-                      .of(context)
-                      .copied_to_clipboard);
-                },
-                child: StandartListRow(
-                    title: '${item.title}',
-                    value: '${item.value}'
-                ));
-          }
+            if (item is SectionStandardListItem) {
+              return GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(text: '${item.value}'));
+                    showBar<void>(context, S.of(context).copied_to_clipboard);
+                  },
+                  child: StandartListRow(
+                      title: '${item.title}', value: '${item.value}'));
+            }
+          });
     });
   }
 }
