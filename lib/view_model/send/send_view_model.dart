@@ -36,13 +36,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 part 'send_view_model.g.dart';
 
+const String cryptoNumberPattern = '0.0';
+
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
   SendViewModelBase(this._wallet, this._settingsStore, this._sendTemplateStore,
       this._fiatConversationStore, this.transactionDescriptionBox)
       : state = InitialExecutionState(),
-        _cryptoNumberFormat = NumberFormat(),
+        _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
         note = '',
         sendAll = false {
     final priority = _settingsStore.priority[_wallet.type];
