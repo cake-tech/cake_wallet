@@ -32,9 +32,7 @@ class TradeDetailsPage extends BasePage {
                   onTap: item.onTap,
                   child: StandartListRow(
                       title: '${item.title}', value: '${item.value}'));
-            }
-
-            if (item is SectionStandardListItem) {
+            } else {
               return GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(text: '${item.value}'));
