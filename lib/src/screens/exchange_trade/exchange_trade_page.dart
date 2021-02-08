@@ -144,13 +144,17 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         child: Center(
                             child: AspectRatio(
                                 aspectRatio: 1.0,
-                                child: QrImage(
-                                  data: trade.inputAddress ?? fetchingLabel,
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: Theme.of(context)
-                                      .accentTextTheme
-                                      .subtitle
-                                      .color,
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                  color: Colors.white,
+                                  child: QrImage(
+                                    data: trade.inputAddress ?? fetchingLabel,
+                                    backgroundColor: Colors.white,
+                                    /*foregroundColor: Theme.of(context)
+                                        .accentTextTheme
+                                        .subtitle
+                                        .color,*/
+                                  ),
                                 )))),
                     Spacer(flex: 3)
                   ]),
