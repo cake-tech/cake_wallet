@@ -91,7 +91,7 @@ abstract class TradeDetailsViewModelBase with Store {
           value: trade.provider.toString()));
     }
 
-    if (trade.provider is ChangeNowExchangeProvider) {
+    if (trade.provider == ExchangeProviderDescription.changeNow) {
       final buildURL =
           'https://changenow.io/exchange/txs/${trade.id.toString()}';
       items.add(TrackTradeListItem(
