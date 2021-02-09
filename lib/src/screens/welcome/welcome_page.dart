@@ -17,7 +17,7 @@ class WelcomePage extends BasePage {
             .of(context)
             .backgroundColor,
         resizeToAvoidBottomPadding: false,
-        body: SafeArea(child: body(context)));
+        body: body(context));
   }
 
   @override
@@ -43,8 +43,9 @@ class WelcomePage extends BasePage {
             .color);
 
     return WillPopScope(onWillPop: () async => false, child: Container(
-        padding: EdgeInsets.all(24),
+        padding: EdgeInsets.only(top: 64, bottom: 24, left: 24, right: 24),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
             Flexible(
                 flex: 2,
