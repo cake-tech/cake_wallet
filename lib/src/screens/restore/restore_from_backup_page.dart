@@ -40,7 +40,7 @@ class RestoreFromBackupPage extends BasePage {
     });
 
     return Container(
-        padding: EdgeInsets.only(bottom: 30, left: 25, right: 25),
+        padding: EdgeInsets.only(bottom: 24, left: 24, right: 24),
         child: Column(children: [
           Expanded(
             child: Container(

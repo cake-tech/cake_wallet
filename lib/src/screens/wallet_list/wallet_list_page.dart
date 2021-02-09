@@ -47,16 +47,13 @@ class WalletListBodyState extends State<WalletListBody> {
   @override
   Widget build(BuildContext context) {
     final newWalletImage = Image.asset('assets/images/new_wallet.png',
-        height: 12,
-        width: 12,
-        color: Colors.white);
+        height: 12, width: 12, color: Colors.white);
     final restoreWalletImage = Image.asset('assets/images/restore_wallet.png',
         height: 12,
         width: 12,
         color: Theme.of(context).primaryTextTheme.title.color);
 
-    return SafeArea(
-        child: Container(
+    return Container(
       padding: EdgeInsets.only(top: 16),
       child: ScrollableWithBottomSection(
           contentPadding: EdgeInsets.only(bottom: 20),
@@ -83,18 +80,24 @@ class WalletListBodyState extends State<WalletListBody> {
                           }
 
                           final confirmed = await showPopUp<bool>(
-                              context: context,
-                              builder: (dialogContext) {
-                                return AlertWithTwoActions(
-                                    alertTitle: S.of(context).change_wallet_alert_title,
-                                    alertContent: S.of(context).change_wallet_alert_content(wallet.name),
-                                    leftButtonText: S.of(context).cancel,
-                                    rightButtonText: S.of(context).change,
-                                    actionLeftButton: () =>
-                                        Navigator.of(context).pop(false),
-                                    actionRightButton: () =>
-                                        Navigator.of(context).pop(true));
-                              }) ?? false;
+                                  context: context,
+                                  builder: (dialogContext) {
+                                    return AlertWithTwoActions(
+                                        alertTitle: S
+                                            .of(context)
+                                            .change_wallet_alert_title,
+                                        alertContent: S
+                                            .of(context)
+                                            .change_wallet_alert_content(
+                                                wallet.name),
+                                        leftButtonText: S.of(context).cancel,
+                                        rightButtonText: S.of(context).change,
+                                        actionLeftButton: () =>
+                                            Navigator.of(context).pop(false),
+                                        actionRightButton: () =>
+                                            Navigator.of(context).pop(true));
+                                  }) ??
+                              false;
 
                           if (confirmed) {
                             await _loadWallet(wallet);
@@ -161,9 +164,12 @@ class WalletListBodyState extends State<WalletListBody> {
                   }),
             ),
           ),
+          bottomSectionPadding:
+              EdgeInsets.only(bottom: 24, right: 24, left: 24),
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
-              onPressed: () => Navigator.of(context).pushNamed(Routes.newWalletType),
+              onPressed: () =>
+                  Navigator.of(context).pushNamed(Routes.newWalletType),
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.body2.color,
@@ -178,7 +184,7 @@ class WalletListBodyState extends State<WalletListBody> {
                 color: Theme.of(context).accentTextTheme.caption.color,
                 textColor: Theme.of(context).primaryTextTheme.title.color)
           ])),
-    ));
+    );
   }
 
   Image _imageFor({WalletType type}) {
@@ -238,17 +244,17 @@ class WalletListBodyState extends State<WalletListBody> {
   Future<void> _generateNewWallet() async {
     try {
       changeProcessText(S.of(context).creating_new_wallet);
-      await widget.walletListViewModel.walletNewVM.create(options: 'English'); // FIXME: Unnamed constant
+      await widget.walletListViewModel.walletNewVM
+          .create(options: 'English'); // FIXME: Unnamed constant
       hideProgressText();
       await Navigator.of(context).pushNamed(Routes.preSeed);
-    } catch(e) {
+    } catch (e) {
       changeProcessText(S.of(context).creating_new_wallet_error(e.toString()));
     }
   }
 
   void changeProcessText(String text) {
-    _progressBar = createBar<void>(text, duration: null)
-      ..show(context);
+    _progressBar = createBar<void>(text, duration: null)..show(context);
   }
 
   void hideProgressText() {
