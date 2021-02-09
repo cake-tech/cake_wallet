@@ -44,7 +44,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(left: 25, right: 25),
+        padding: EdgeInsets.only(left: 24, right: 24),
         child: Form(
           key: formKey,
           child: Column(children: <Widget>[

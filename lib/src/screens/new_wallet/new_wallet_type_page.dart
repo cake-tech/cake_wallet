@@ -75,49 +75,46 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 24, bottom: 24),
-      child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(left: 12, right: 12),
-              child: AspectRatio(
-                  aspectRatio: aspectRatioImage,
-                  child:
-                      FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+    return ScrollableWithBottomSection(
+      contentPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+      content: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(left: 12, right: 12),
+            child: AspectRatio(
+                aspectRatio: aspectRatioImage,
+                child:
+                FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 48),
+            child: Text(
+              S.of(context).choose_wallet_currency,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).primaryTextTheme.title.color),
             ),
-            Padding(
-              padding: EdgeInsets.only(top: 48),
-              child: Text(
-                S.of(context).choose_wallet_currency,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Theme.of(context).primaryTextTheme.title.color),
-              ),
-            ),
-            ...types.map((type) => Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: SelectButton(
-                      image: _iconFor(type),
-                      text: walletTypeToDisplayName(type),
-                      isSelected: selected == type,
-                      onTap: () => setState(() => selected = type)),
-                ))
-          ],
-        ),
-        bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-        bottomSection: PrimaryButton(
-          onPressed: () => onTypeSelected(),
-          text: S.of(context).seed_language_next,
-          color: Theme.of(context).accentTextTheme.body2.color,
-          textColor: Colors.white,
-          isDisabled: selected == null,
-        ),
+          ),
+          ...types.map((type) => Padding(
+            padding: EdgeInsets.only(top: 24),
+            child: SelectButton(
+                image: _iconFor(type),
+                text: walletTypeToDisplayName(type),
+                isSelected: selected == type,
+                onTap: () => setState(() => selected = type)),
+          ))
+        ],
+      ),
+      bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+      bottomSection: PrimaryButton(
+        onPressed: () => onTypeSelected(),
+        text: S.of(context).seed_language_next,
+        color: Theme.of(context).accentTextTheme.body2.color,
+        textColor: Colors.white,
+        isDisabled: selected == null,
       ),
     );
   }

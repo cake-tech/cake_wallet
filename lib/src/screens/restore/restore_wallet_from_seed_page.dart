@@ -82,7 +82,7 @@ class RestoreWalletFromSeedPage extends BasePage {
                 activeDotColor: Theme.of(context).hintColor),
           )),
       Padding(
-          padding: EdgeInsets.only(top: 20, bottom: 40, left: 25, right: 25),
+          padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
           child: PrimaryButton(
               text: S.of(context).restore_recover,
               isDisabled: false,
@@ -158,7 +158,7 @@ class _RestoreFromSeedFormState extends State<RestoreFromSeedForm> {
       onTap: () =>
           SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
       child: Container(
-          padding: EdgeInsets.only(left: 25, right: 25),
+          padding: EdgeInsets.only(left: 24, right: 24),
           // color: Colors.blue,
           // height: 300,
           child: Column(children: [

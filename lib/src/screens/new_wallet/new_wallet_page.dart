@@ -22,6 +22,7 @@ class NewWalletPage extends BasePage {
   final WalletNewVM _walletNewVM;
 
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
+
   final walletNameLightImage =
     Image.asset('assets/images/wallet_name_light.png');
 

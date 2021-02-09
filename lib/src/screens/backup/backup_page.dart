@@ -39,7 +39,7 @@ class BackupPage extends BasePage {
       children: [
         Center(
             child: Container(
-                padding: EdgeInsets.only(left: 20, right: 20),
+                padding: EdgeInsets.only(left: 24, right: 24),
                 height: 300,
                 child: Column(children: [
                   Text(
@@ -82,9 +82,9 @@ class BackupPage extends BasePage {
                   text: S.of(context).export_backup,
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white)),
-          bottom: 30,
-          left: 20,
-          right: 20,
+          bottom: 24,
+          left: 24,
+          right: 24,
         )
       ],
     );
