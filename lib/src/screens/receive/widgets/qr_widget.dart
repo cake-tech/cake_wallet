@@ -44,11 +44,20 @@ class QRWidget extends StatelessWidget {
                   child: Center(
                       child: AspectRatio(
                           aspectRatio: 1.0,
-                          child: QrImage(
-                            data: addressListViewModel.uri.toString(),
-                            backgroundColor: Colors.transparent,
-                            foregroundColor: Theme.of(context).accentTextTheme.
-                            display3.backgroundColor,
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                    color: Theme.of(context).accentTextTheme.
+                                    display3.backgroundColor
+                                )
+                            ),
+                            child: QrImage(
+                              data: addressListViewModel.uri.toString(),
+                              backgroundColor: Colors.transparent,
+                              foregroundColor: Theme.of(context).accentTextTheme.
+                              display3.backgroundColor,
+                            ),
                           ))))),
           Spacer(flex: 3)
         ]),
