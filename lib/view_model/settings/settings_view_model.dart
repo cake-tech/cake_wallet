@@ -155,11 +155,6 @@ abstract class SettingsViewModelBase with Store {
             icon: 'assets/images/change_now.png',
             linkTitle: 'support@changenow.io',
             link: 'mailto:support@changenow.io'),
-        LinkListItem(
-            title: 'Morph',
-            icon: 'assets/images/morph_icon.png',
-            linkTitle: 'support@morphtoken.com',
-            link: 'mailto:support@morphtoken.com'),
         RegularListItem(
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>
