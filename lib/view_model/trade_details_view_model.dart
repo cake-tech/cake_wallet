@@ -91,12 +91,14 @@ abstract class TradeDetailsViewModelBase with Store {
           value: trade.provider.toString()));
     }
 
-    if (trade.provider.title == "ChangeNOW") {
+    if (trade.provider is ChangeNowExchangeProvider) {
+      final buildURL =
+          'https://changenow.io/exchange/txs/${trade.id.toString()}';
       items.add(TrackTradeListItem(
-          title: "Track",
-          value: "https://changenow.io/exchange/txs/${trade.id.toString()}",
+          title: 'Track',
+          value: buildURL,
           onTap: () {
-            launch("https://changenow.io/exchange/txs/${trade.id.toString()}");
+            launch(buildURL);
           }));
     }
 
