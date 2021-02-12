@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -74,6 +75,16 @@ abstract class SettingsViewModelBase with Store {
         PickerListItem(
             title: S.current.settings_fee_priority,
             items: priorityForWalletType(wallet.type),
+            displayItem: (dynamic priority) {
+              final _priority = priority as TransactionPriority;
+
+              if (wallet is BitcoinWallet) {
+                final rate = wallet.feeRate(_priority);
+                return '${priority.toString()} ($rate sat/byte)';
+              }
+
+              return priority.toString();
+            },
             selectedItem: () => transactionPriority,
             onItemSelected: (TransactionPriority priority) =>
                 _settingsStore.priority[wallet.type] = priority),

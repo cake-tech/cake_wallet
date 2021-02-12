@@ -761,6 +761,7 @@ class SendPage extends BasePage {
     await showPopUp<void>(
         builder: (_) => Picker(
               items: items,
+              displayItem: sendViewModel.displayFeeRate,
               selectedAtIndex: selectedItem,
               title: S.of(context).please_select,
               mainAxisAlignment: MainAxisAlignment.center,

@@ -53,6 +53,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _accountIndex = accountIndex,
+        _feeRates = <int>[],
         super(walletInfo) {
     _unspent = [];
     _scripthashesUpdateSubject = {};
@@ -118,10 +119,6 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         walletInfo: walletInfo);
   }
 
-  static int feeAmountForPriority(BitcoinTransactionPriority priority,
-          int inputsCount, int outputsCount) =>
-      priority.rate * estimatedTransactionSize(inputsCount, outputsCount);
-
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 146 + outputsCounts * 33 + 8;
 
@@ -161,6 +158,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       wif: hd.wif, privateKey: hd.privKey, publicKey: hd.pubKey);
 
   final String _password;
+  List<int> _feeRates;
   int _accountIndex;
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
 
@@ -233,6 +231,11 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       _subscribeForUpdates();
       await _updateBalance();
       await _updateUnspent();
+      _feeRates = await eclient.feeRates();
+
+      Timer.periodic(const Duration(minutes: 1),
+          (timer) async => _feeRates = await eclient.feeRates());
+
       syncStatus = SyncedSyncStatus();
     } catch (e) {
       print(e.toString());
@@ -332,7 +335,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         addressToOutputScript(transactionCredentials.address), amount);
 
     final estimatedSize = estimatedTransactionSize(inputs.length, 2);
-    final feeAmount = transactionCredentials.priority.rate * estimatedSize;
+    final feeAmount = feeRate(transactionCredentials.priority) * estimatedSize;
     final changeValue = totalInputAmount - amount - feeAmount;
 
     if (changeValue > minAmount) {
@@ -361,6 +364,18 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         'addresses': addresses.map((addr) => addr.toJSON()).toList(),
         'balance': balance?.toJSON()
       });
+
+  int feeRate(TransactionPriority priority) {
+    if (priority is BitcoinTransactionPriority) {
+      return _feeRates[priority.raw];
+    }
+
+    return 0;
+  }
+
+  int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount,
+          int outputsCount) =>
+      feeRate(priority) * estimatedTransactionSize(inputsCount, outputsCount);
 
   @override
   int calculateEstimatedFee(TransactionPriority priority, int amount) {

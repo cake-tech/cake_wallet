@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
@@ -22,9 +23,8 @@ String jsonrpcparams(List<Object> params) {
 }
 
 String jsonrpc(
-    {String method, List<Object> params, int id, double version = 2.0}) =>
-    '{"jsonrpc": "$version", "method": "$method", "id": "$id",  "params": ${json
-        .encode(params)}}\n';
+        {String method, List<Object> params, int id, double version = 2.0}) =>
+    '{"jsonrpc": "$version", "method": "$method", "id": "$id",  "params": ${json.encode(params)}}\n';
 
 class SocketTask {
   SocketTask({this.completer, this.isSubscription, this.subject});
@@ -77,7 +77,7 @@ class ElectrumClient {
     socket.listen((Uint8List event) {
       try {
         final response =
-        json.decode(utf8.decode(event.toList())) as Map<String, Object>;
+            json.decode(utf8.decode(event.toList())) as Map<String, Object>;
         _handleResponse(response);
       } on FormatException catch (e) {
         final msg = e.message.toLowerCase();
@@ -93,7 +93,7 @@ class ElectrumClient {
 
         if (isJSONStringCorrect(unterminatedString)) {
           final response =
-          json.decode(unterminatedString) as Map<String, Object>;
+              json.decode(unterminatedString) as Map<String, Object>;
           _handleResponse(response);
           unterminatedString = '';
         }
@@ -107,7 +107,7 @@ class ElectrumClient {
 
         if (isJSONStringCorrect(unterminatedString)) {
           final response =
-          json.decode(unterminatedString) as Map<String, Object>;
+              json.decode(unterminatedString) as Map<String, Object>;
           _handleResponse(response);
           unterminatedString = null;
         }
@@ -173,7 +173,7 @@ class ElectrumClient {
       });
 
   Future<List<Map<String, dynamic>>> getListUnspentWithAddress(
-      String address) =>
+          String address) =>
       call(
           method: 'blockchain.scripthash.listunspent',
           params: [scriptHash(address)]).then((dynamic result) {
@@ -253,7 +253,7 @@ class ElectrumClient {
   }
 
   Future<String> broadcastTransaction(
-      {@required String transactionRaw}) async =>
+          {@required String transactionRaw}) async =>
       call(method: 'blockchain.transaction.broadcast', params: [transactionRaw])
           .then((dynamic result) {
         if (result is String) {
@@ -264,14 +264,14 @@ class ElectrumClient {
       });
 
   Future<Map<String, dynamic>> getMerkle(
-      {@required String hash, @required int height}) async =>
+          {@required String hash, @required int height}) async =>
       await call(
           method: 'blockchain.transaction.get_merkle',
           params: [hash, height]) as Map<String, dynamic>;
 
   Future<Map<String, dynamic>> getHeader({@required int height}) async =>
       await call(method: 'blockchain.block.get_header', params: [height])
-      as Map<String, dynamic>;
+          as Map<String, dynamic>;
 
   Future<double> estimatefee({@required int p}) =>
       call(method: 'blockchain.estimatefee', params: [p])
@@ -287,6 +287,32 @@ class ElectrumClient {
         return 0;
       });
 
+  Future<List<List<int>>> feeHistogram() =>
+      call(method: 'mempool.get_fee_histogram').then((dynamic result) {
+        if (result is List) {
+          return result.map((dynamic e) {
+            if (e is List) {
+              return e.map((dynamic ee) => ee is int ? ee : null).toList();
+            }
+
+            return null;
+          }).toList();
+        }
+
+        return [];
+      });
+
+  Future<List<int>> feeRates() async {
+    final topDoubleString = await estimatefee(p: 1);
+    final middleDoubleString = await estimatefee(p: 20);
+    final bottomDoubleString = await estimatefee(p: 150);
+    final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
+    final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
+    final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
+
+    return [bottom, middle, top];
+  }
+
   BehaviorSubject<Object> scripthashUpdate(String scripthash) {
     _id += 1;
     return subscribe<Object>(
@@ -295,9 +321,10 @@ class ElectrumClient {
         params: [scripthash]);
   }
 
-  BehaviorSubject<T> subscribe<T>({@required String id,
-    @required String method,
-    List<Object> params = const []}) {
+  BehaviorSubject<T> subscribe<T>(
+      {@required String id,
+      @required String method,
+      List<Object> params = const []}) {
     final subscription = BehaviorSubject<T>();
     _regisrySubscription(id, subscription);
     socket.write(jsonrpc(method: method, id: _id, params: params));
@@ -315,9 +342,10 @@ class ElectrumClient {
     return completer.future;
   }
 
-  Future<dynamic> callWithTimeout({String method,
-    List<Object> params = const [],
-    int timeout = 2000}) async {
+  Future<dynamic> callWithTimeout(
+      {String method,
+      List<Object> params = const [],
+      int timeout = 2000}) async {
     final completer = Completer<dynamic>();
     _id += 1;
     final id = _id;
@@ -329,7 +357,6 @@ class ElectrumClient {
       }
     });
 
-
     return completer.future;
   }
 
@@ -339,9 +366,8 @@ class ElectrumClient {
     onConnectionStatusChange = null;
   }
 
-  void _registryTask(int id, Completer completer) =>
-      _tasks[id.toString()] =
-          SocketTask(completer: completer, isSubscription: false);
+  void _registryTask(int id, Completer completer) => _tasks[id.toString()] =
+      SocketTask(completer: completer, isSubscription: false);
 
   void _regisrySubscription(String id, BehaviorSubject subject) =>
       _tasks[id] = SocketTask(subject: subject, isSubscription: true);

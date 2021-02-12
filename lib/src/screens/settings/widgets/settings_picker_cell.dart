@@ -7,6 +7,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 class SettingsPickerCell<ItemType> extends StandardListRow {
   SettingsPickerCell(
       {@required String title,
+      @required this.displayItem,
       this.selectedItem,
       this.items,
       this.onItemSelected})
@@ -20,6 +21,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
                   context: context,
                   builder: (_) => Picker(
                       items: items,
+                      displayItem: displayItem,
                       selectedAtIndex: selectedAtIndex,
                       title: S.current.please_select,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -30,11 +32,12 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final ItemType selectedItem;
   final List<ItemType> items;
   final void Function(ItemType item) onItemSelected;
+  final String Function(ItemType item) displayItem;
 
   @override
   Widget buildTrailing(BuildContext context) {
     return Text(
-      selectedItem.toString(),
+      displayItem?.call(selectedItem) ?? selectedItem.toString(),
       textAlign: TextAlign.right,
       style: TextStyle(
           fontSize: 14.0,
