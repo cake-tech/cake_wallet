@@ -58,6 +58,9 @@ abstract class ExchangeViewModelBase with Store {
       }
     });
 
+    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
+    isFixedRateMode = false;
+
     isReceiveAmountEntered = false;
     loadLimits();
   }
@@ -106,6 +109,12 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isReceiveAmountEntered;
 
+  @observable
+  bool isReceiveAmountEditable;
+
+  @observable
+  bool isFixedRateMode;
+
   @computed
   SyncStatus get status => wallet.syncStatus;
 
@@ -127,6 +136,7 @@ abstract class ExchangeViewModelBase with Store {
     this.provider = provider;
     depositAmount = '';
     receiveAmount = '';
+    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
     loadLimits();
   }
 
@@ -160,8 +170,8 @@ abstract class ExchangeViewModelBase with Store {
 
     provider
         .calculateAmount(
-            from: depositCurrency,
-            to: receiveCurrency,
+            from: receiveCurrency,
+            to: depositCurrency,
             amount: _amount,
             isReceiveAmount: true)
         .then((amount) => _cryptoNumberFormat

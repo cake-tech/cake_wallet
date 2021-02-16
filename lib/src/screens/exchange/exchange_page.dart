@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
+import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +39,7 @@ class ExchangePage extends BasePage {
   final ExchangeViewModel exchangeViewModel;
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
+  final checkBoxKey = GlobalKey<StandardCheckboxState>();
   final _formKey = GlobalKey<FormState>();
   final _depositAmountFocus = FocusNode();
   final _receiveAmountFocus = FocusNode();
@@ -240,9 +243,7 @@ class ExchangePage extends BasePage {
                                           ? exchangeViewModel.wallet.address
                                           : exchangeViewModel.receiveAddress,
                                       initialIsAmountEditable: exchangeViewModel
-                                              .provider is XMRTOExchangeProvider
-                                          ? true
-                                          : false,
+                                          .isReceiveAmountEditable,
                                       initialIsAddressEditable:
                                           exchangeViewModel
                                               .isReceiveAddressEnabled,
@@ -270,6 +271,21 @@ class ExchangePage extends BasePage {
                           )
                         ],
                       ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 12, left: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          StandardCheckbox(
+                            key: checkBoxKey,
+                            value: exchangeViewModel.isFixedRateMode,
+                            caption: 'Fixed rate', // FIXME
+                            onChanged: (value) =>
+                            exchangeViewModel.isFixedRateMode = value,
+                          ),
+                        ],
+                      )
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
@@ -567,7 +583,7 @@ class ExchangePage extends BasePage {
     });
 
     reaction((_) => exchangeViewModel.provider, (ExchangeProvider provider) {
-      provider is XMRTOExchangeProvider
+      provider is ChangeNowExchangeProvider
           ? receiveKey.currentState.isAmountEditable(isEditable: true)
           : receiveKey.currentState.isAmountEditable(isEditable: false);
     });
@@ -644,6 +660,39 @@ class ExchangePage extends BasePage {
 
       if (exchangeViewModel.receiveCurrency == CryptoCurrency.xmr) {
         receiveKey.currentState.changeAddress(address: address);
+      }
+    });
+
+    _receiveAmountFocus.addListener(() {
+      if (_receiveAmountFocus.hasFocus && !exchangeViewModel.isFixedRateMode) {
+        showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithTwoActions(
+                  alertTitle: S.of(context).exchange,
+                  alertContent: 'You will be able to enter receive amount when fixed rate is checked. Do you want to check fixed rate?', //FIXME
+                  leftButtonText: S.of(context).cancel,
+                  rightButtonText: S.of(context).ok,
+                  actionLeftButton: () {
+                    FocusScope.of(context).unfocus();
+                    receiveAmountController.text = '';
+                    Navigator.of(context).pop();
+                  },
+                  actionRightButton: () {
+                    exchangeViewModel.isFixedRateMode = true;
+                    checkBoxKey.currentState
+                        .changeValue(exchangeViewModel.isFixedRateMode);
+                    Navigator.of(context).pop();
+                  });
+            });
+      }
+    });
+
+    reaction((_) => exchangeViewModel.isFixedRateMode, (bool isFixedRateMode) {
+      if ((_receiveAmountFocus.hasFocus ||
+           exchangeViewModel.isReceiveAmountEntered) && !isFixedRateMode) {
+        FocusScope.of(context).unfocus();
+        receiveAmountController.text = '';
       }
     });
 
