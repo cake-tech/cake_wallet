@@ -17,10 +17,11 @@ abstract class ExchangeProvider {
   @override
   String toString() => title;
 
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to});
-  Future<Trade> createTrade({TradeRequest request});
+  Future<Limits> fetchLimits(
+      {CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode});
+  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode});
   Future<Trade> findTradeById({@required String id});
-  Future<double> calculateAmount(
-    {CryptoCurrency from, CryptoCurrency to, double amount, bool isReceiveAmount});
+  Future<double> calculateAmount({CryptoCurrency from, CryptoCurrency to,
+    double amount, bool isFixedRateMode, bool isReceiveAmount});
   Future<bool> checkIsAvailable();
 }

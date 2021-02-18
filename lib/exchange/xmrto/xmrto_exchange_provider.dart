@@ -58,7 +58,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
+  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
     final url = originalApiUri + _orderParameterUriSuffix;
     final response = await get(url);
     final correction = 0.001;
@@ -91,7 +91,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request}) async {
+  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
     final _request = request as XMRTOTradeRequest;
     final url = originalApiUri + _orderCreateUriSuffix;
     final _amount =
@@ -188,6 +188,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
       {CryptoCurrency from,
       CryptoCurrency to,
       double amount,
+      bool isFixedRateMode,
       bool isReceiveAmount}) async {
     if (from != CryptoCurrency.xmr && to != CryptoCurrency.btc) {
       return 0;
