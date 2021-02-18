@@ -137,12 +137,14 @@ abstract class ExchangeViewModelBase with Store {
     depositAmount = '';
     receiveAmount = '';
     isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
+    isFixedRateMode = false;
     loadLimits();
   }
 
   @action
   void changeDepositCurrency({CryptoCurrency currency}) {
     depositCurrency = currency;
+    isFixedRateMode = false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -151,6 +153,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void changeReceiveCurrency({CryptoCurrency currency}) {
     receiveCurrency = currency;
+    isFixedRateMode = false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -173,6 +176,7 @@ abstract class ExchangeViewModelBase with Store {
             from: receiveCurrency,
             to: depositCurrency,
             amount: _amount,
+            isFixedRateMode: isFixedRateMode,
             isReceiveAmount: true)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
@@ -197,6 +201,7 @@ abstract class ExchangeViewModelBase with Store {
             from: depositCurrency,
             to: receiveCurrency,
             amount: _amount,
+            isFixedRateMode: isFixedRateMode,
             isReceiveAmount: false)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
@@ -210,8 +215,8 @@ abstract class ExchangeViewModelBase with Store {
     limitsState = LimitsIsLoading();
 
     try {
-      limits = await provider.fetchLimits(
-          from: depositCurrency, to: receiveCurrency);
+      limits = await provider.fetchLimits(from: depositCurrency,
+          to: receiveCurrency, isFixedRateMode: isFixedRateMode);
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
       limitsState = LimitsLoadedFailure(error: e.toString());
@@ -275,7 +280,8 @@ abstract class ExchangeViewModelBase with Store {
       } else {
         try {
           tradeState = TradeIsCreating();
-          final trade = await provider.createTrade(request: request);
+          final trade = await provider.createTrade(request: request,
+              isFixedRateMode: isFixedRateMode);
           trade.walletId = wallet.id;
           tradesStore.setTrade(trade);
           await trades.add(trade);
@@ -304,6 +310,7 @@ abstract class ExchangeViewModelBase with Store {
     receiveAddress = receiveCurrency == wallet.currency ? wallet.address : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
+    isFixedRateMode = false;
     _onPairChange();
   }
 

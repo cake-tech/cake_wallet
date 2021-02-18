@@ -693,7 +693,14 @@ class ExchangePage extends BasePage {
            exchangeViewModel.isReceiveAmountEntered) && !isFixedRateMode) {
         FocusScope.of(context).unfocus();
         receiveAmountController.text = '';
+      } else {
+        exchangeViewModel.changeDepositAmount(
+            amount: depositAmountController.text);
       }
+
+      checkBoxKey.currentState
+          .changeValue(exchangeViewModel.isFixedRateMode);
+      exchangeViewModel.loadLimits();
     });
 
     _isReactionsSet = true;
