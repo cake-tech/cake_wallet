@@ -173,8 +173,32 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       double amount,
       bool isFixedRateMode,
       bool isReceiveAmount}) async {
-    final url = isFixedRateMode
-        ? apiUri +
+    if (isReceiveAmount && isFixedRateMode) {
+      final url = apiUri + _marketInfoUriSufix + _fixedRateUriSufix + apiKey;
+      final response = await get(url);
+      final responseJSON = json.decode(response.body) as List<dynamic>;
+      var rate = 0.0;
+      var fee = 0.0;
+
+      for (var elem in responseJSON) {
+        final elemFrom = elem["from"] as String;
+        final elemTo = elem["to"] as String;
+
+        if ((elemFrom == to.toString().toLowerCase()) &&
+            (elemTo == from.toString().toLowerCase())) {
+          rate = elem["rate"] as double;
+          fee = elem["minerFee"] as double;
+          break;
+        }
+      }
+
+      final estimatedAmount = (amount == 0.0)||(rate == 0.0) ? 0.0
+          : (amount + fee)/rate;
+
+      return estimatedAmount;
+    } else {
+      final url = isFixedRateMode
+          ? apiUri +
           _exchangeAmountUriSufix +
           _fixedRateUriSufix +
           amount.toString() +
@@ -183,17 +207,18 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
           '_' +
           to.toString() +
           '?api_key=' + apiKey
-        : apiUri +
+          : apiUri +
           _exchangeAmountUriSufix +
           amount.toString() +
           '/' +
           from.toString() +
           '_' +
           to.toString();
-    final response = await get(url);
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final estimatedAmount = responseJSON['estimatedAmount'] as double;
+      final response = await get(url);
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final estimatedAmount = responseJSON['estimatedAmount'] as double;
 
-    return estimatedAmount;
+      return estimatedAmount;
+    }
   }
 }
