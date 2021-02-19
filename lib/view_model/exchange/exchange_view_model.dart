@@ -301,11 +301,10 @@ abstract class ExchangeViewModelBase with Store {
 
   @action
   void reset() {
+    _initialPairBasedOnWallet();
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositCurrency = CryptoCurrency.xmr;
-    receiveCurrency = CryptoCurrency.btc;
     depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
     receiveAddress = receiveCurrency == wallet.currency ? wallet.address : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);

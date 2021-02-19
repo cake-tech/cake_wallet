@@ -480,17 +480,9 @@ class ExchangePage extends BasePage {
         currency: CryptoCurrency.fromString(template.receiveCurrency));
 
     switch (template.provider) {
-      case 'XMR.TO':
-        exchangeViewModel.changeProvider(
-            provider: exchangeViewModel.providerList[0]);
-        break;
       case 'ChangeNOW':
         exchangeViewModel.changeProvider(
-            provider: exchangeViewModel.providerList[1]);
-        break;
-      case 'MorphToken':
-        exchangeViewModel.changeProvider(
-            provider: exchangeViewModel.providerList[2]);
+            provider: exchangeViewModel.providerList[0]);
         break;
     }
 
@@ -498,6 +490,7 @@ class ExchangePage extends BasePage {
     exchangeViewModel.depositAddress = template.depositAddress;
     exchangeViewModel.receiveAddress = template.receiveAddress;
     exchangeViewModel.isReceiveAmountEntered = false;
+    exchangeViewModel.isFixedRateMode = false;
   }
 
   void _setReactions(
@@ -670,12 +663,11 @@ class ExchangePage extends BasePage {
             builder: (BuildContext context) {
               return AlertWithTwoActions(
                   alertTitle: S.of(context).exchange,
-                  alertContent: 'You will be able to enter receive amount when fixed rate is checked. Do you want to check fixed rate?', //FIXME
+                  alertContent: 'You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?', //FIXME
                   leftButtonText: S.of(context).cancel,
                   rightButtonText: S.of(context).ok,
                   actionLeftButton: () {
                     FocusScope.of(context).unfocus();
-                    receiveAmountController.text = '';
                     Navigator.of(context).pop();
                   },
                   actionRightButton: () {
