@@ -153,17 +153,35 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final state = TradeState.deserialize(raw: status);
     final extraId = responseJSON['payinExtraId'] as String;
     final outputTransaction = responseJSON['payoutHash'] as String;
+    final expiredAtRaw = responseJSON['validUntil'] as String;
+    final expiredAt = expiredAtRaw != null
+        ? DateTime.parse(expiredAtRaw).toLocal()
+        : null;
 
-    return Trade(
-        id: id,
-        from: from,
-        to: to,
-        provider: description,
-        inputAddress: inputAddress,
-        amount: expectedSendAmount,
-        state: state,
-        extraId: extraId,
-        outputTransaction: outputTransaction);
+    if (expiredAt != null) {
+      return Trade(
+          id: id,
+          from: from,
+          to: to,
+          provider: description,
+          inputAddress: inputAddress,
+          amount: expectedSendAmount,
+          state: state,
+          extraId: extraId,
+          expiredAt: expiredAt,
+          outputTransaction: outputTransaction);
+    } else {
+      return Trade(
+          id: id,
+          from: from,
+          to: to,
+          provider: description,
+          inputAddress: inputAddress,
+          amount: expectedSendAmount,
+          state: state,
+          extraId: extraId,
+          outputTransaction: outputTransaction);
+    }
   }
 
   @override
