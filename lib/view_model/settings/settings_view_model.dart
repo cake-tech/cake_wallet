@@ -26,6 +26,7 @@ import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'settings_view_model.g.dart';
 
@@ -173,8 +174,10 @@ abstract class SettingsViewModelBase with Store {
         ),
         RegularListItem(
           title: S.current.faq,
-          handler: (BuildContext context) =>
-              Navigator.pushNamed(context, Routes.faq),
+          handler: (BuildContext context) async {
+            final url = 'https://cakewallet.com/guide/';
+            if (await canLaunch(url)) await launch(url);
+          },
         )
       ],
       [VersionListItem(title: currentVersion)]
