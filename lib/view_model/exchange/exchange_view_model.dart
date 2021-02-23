@@ -57,10 +57,8 @@ abstract class ExchangeViewModelBase with Store {
         _onPairChange();
       }
     });
-
-    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
+    _defineIsReceiveAmountEditable();
     isFixedRateMode = false;
-
     isReceiveAmountEntered = false;
     loadLimits();
   }
@@ -136,8 +134,8 @@ abstract class ExchangeViewModelBase with Store {
     this.provider = provider;
     depositAmount = '';
     receiveAmount = '';
-    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
     isFixedRateMode = false;
+    _defineIsReceiveAmountEditable();
     loadLimits();
   }
 
@@ -380,7 +378,7 @@ abstract class ExchangeViewModelBase with Store {
       }
     }
 
-    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
+    _defineIsReceiveAmountEditable();
     depositAmount = '';
     receiveAmount = '';
     loadLimits();
@@ -403,6 +401,16 @@ abstract class ExchangeViewModelBase with Store {
         break;
       default:
         break;
+    }
+  }
+
+  void _defineIsReceiveAmountEditable() {
+    if ((provider is ChangeNowExchangeProvider)
+        &&(depositCurrency == CryptoCurrency.xmr)
+        &&(receiveCurrency == CryptoCurrency.btc)) {
+      isReceiveAmountEditable = true;
+    } else {
+      isReceiveAmountEditable = false;
     }
   }
 }
