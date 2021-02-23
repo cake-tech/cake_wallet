@@ -118,7 +118,7 @@ class ExchangePage extends BasePage {
               key: _formKey,
               child: ScrollableWithBottomSection(
                 contentPadding: EdgeInsets.only(bottom: 24),
-                content: Column(
+                content: Observer(builder: (_) => Column(
                   children: <Widget>[
                     Container(
                       padding: EdgeInsets.only(bottom: 32),
@@ -168,22 +168,22 @@ class ExchangePage extends BasePage {
                                 hasAllAmount: exchangeViewModel.hasAllAmount,
                                 allAmount: exchangeViewModel.hasAllAmount
                                     ? () => exchangeViewModel
-                                        .calculateDepositAllAmount()
+                                    .calculateDepositAllAmount()
                                     : null,
                                 amountFocusNode: _depositAmountFocus,
                                 key: depositKey,
                                 title: S.of(context).you_will_send,
                                 initialCurrency:
-                                    exchangeViewModel.depositCurrency,
+                                exchangeViewModel.depositCurrency,
                                 initialWalletName: depositWalletName,
                                 initialAddress:
-                                    exchangeViewModel.depositCurrency ==
-                                            exchangeViewModel.wallet.currency
-                                        ? exchangeViewModel.wallet.address
-                                        : exchangeViewModel.depositAddress,
+                                exchangeViewModel.depositCurrency ==
+                                    exchangeViewModel.wallet.currency
+                                    ? exchangeViewModel.wallet.address
+                                    : exchangeViewModel.depositAddress,
                                 initialIsAmountEditable: true,
                                 initialIsAddressEditable:
-                                    exchangeViewModel.isDepositAddressEnabled,
+                                exchangeViewModel.isDepositAddressEnabled,
                                 isAmountEstimated: false,
                                 hasRefundAddress: true,
                                 currencies: CryptoCurrency.all,
@@ -214,7 +214,7 @@ class ExchangePage extends BasePage {
                                 imageArrow: arrowBottomPurple,
                                 currencyButtonColor: Colors.transparent,
                                 addressButtonsColor:
-                                    Theme.of(context).focusColor,
+                                Theme.of(context).focusColor,
                                 borderColor: Theme.of(context)
                                     .primaryTextTheme
                                     .body2
@@ -228,64 +228,64 @@ class ExchangePage extends BasePage {
                           ),
                           Padding(
                             padding:
-                                EdgeInsets.only(top: 29, left: 24, right: 24),
+                            EdgeInsets.only(top: 29, left: 24, right: 24),
                             child: Observer(
                                 builder: (_) => ExchangeCard(
-                                      amountFocusNode: _receiveAmountFocus,
-                                      key: receiveKey,
-                                      title: S.of(context).you_will_get,
-                                      initialCurrency:
-                                          exchangeViewModel.receiveCurrency,
-                                      initialWalletName: receiveWalletName,
-                                      initialAddress: exchangeViewModel
-                                                  .receiveCurrency ==
-                                              exchangeViewModel.wallet.currency
-                                          ? exchangeViewModel.wallet.address
-                                          : exchangeViewModel.receiveAddress,
-                                      initialIsAmountEditable: exchangeViewModel
-                                          .isReceiveAmountEditable,
-                                      initialIsAddressEditable:
-                                          exchangeViewModel
-                                              .isReceiveAddressEnabled,
-                                      isAmountEstimated: true,
-                                      currencies: CryptoCurrency.all,
-                                      onCurrencySelected: (currency) =>
-                                          exchangeViewModel
-                                              .changeReceiveCurrency(
-                                                  currency: currency),
-                                      imageArrow: arrowBottomCakeGreen,
-                                      currencyButtonColor: Colors.transparent,
-                                      addressButtonsColor:
-                                          Theme.of(context).focusColor,
-                                      borderColor: Theme.of(context)
-                                          .primaryTextTheme
-                                          .body2
-                                          .decorationColor,
-                                      currencyValueValidator: AmountValidator(
-                                          type: exchangeViewModel.wallet.type),
-                                      addressTextFieldValidator:
-                                          AddressValidator(
-                                              type: exchangeViewModel
-                                                  .receiveCurrency),
-                                    )),
+                                  amountFocusNode: _receiveAmountFocus,
+                                  key: receiveKey,
+                                  title: S.of(context).you_will_get,
+                                  initialCurrency:
+                                  exchangeViewModel.receiveCurrency,
+                                  initialWalletName: receiveWalletName,
+                                  initialAddress: exchangeViewModel
+                                      .receiveCurrency ==
+                                      exchangeViewModel.wallet.currency
+                                      ? exchangeViewModel.wallet.address
+                                      : exchangeViewModel.receiveAddress,
+                                  initialIsAmountEditable: exchangeViewModel
+                                      .isReceiveAmountEditable,
+                                  initialIsAddressEditable:
+                                  exchangeViewModel
+                                      .isReceiveAddressEnabled,
+                                  isAmountEstimated: true,
+                                  currencies: CryptoCurrency.all,
+                                  onCurrencySelected: (currency) =>
+                                      exchangeViewModel
+                                          .changeReceiveCurrency(
+                                          currency: currency),
+                                  imageArrow: arrowBottomCakeGreen,
+                                  currencyButtonColor: Colors.transparent,
+                                  addressButtonsColor:
+                                  Theme.of(context).focusColor,
+                                  borderColor: Theme.of(context)
+                                      .primaryTextTheme
+                                      .body2
+                                      .decorationColor,
+                                  currencyValueValidator: AmountValidator(
+                                      type: exchangeViewModel.wallet.type),
+                                  addressTextFieldValidator:
+                                  AddressValidator(
+                                      type: exchangeViewModel
+                                          .receiveCurrency),
+                                )),
                           )
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 12, left: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          StandardCheckbox(
-                            key: checkBoxKey,
-                            value: exchangeViewModel.isFixedRateMode,
-                            caption: 'Fixed rate', // FIXME
-                            onChanged: (value) =>
-                            exchangeViewModel.isFixedRateMode = value,
-                          ),
-                        ],
-                      )
+                    if (exchangeViewModel.isReceiveAmountEditable) Padding(
+                        padding: EdgeInsets.only(top: 12, left: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            StandardCheckbox(
+                              key: checkBoxKey,
+                              value: exchangeViewModel.isFixedRateMode,
+                              caption: 'Fixed rate', // FIXME
+                              onChanged: (value) =>
+                              exchangeViewModel.isFixedRateMode = value,
+                            ),
+                          ],
+                        )
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
@@ -318,7 +318,7 @@ class ExchangePage extends BasePage {
                                       .pushNamed(Routes.exchangeTemplate),
                                   child: Container(
                                     padding:
-                                        EdgeInsets.only(left: 1, right: 10),
+                                    EdgeInsets.only(left: 1, right: 10),
                                     child: DottedBorder(
                                         borderType: BorderType.RRect,
                                         dashPattern: [6, 4],
@@ -385,23 +385,23 @@ class ExchangePage extends BasePage {
                                                           .of(context)
                                                           .confirm_delete_template,
                                                       rightButtonText:
-                                                          S.of(context).delete,
+                                                      S.of(context).delete,
                                                       leftButtonText:
-                                                          S.of(context).cancel,
+                                                      S.of(context).cancel,
                                                       actionRightButton: () {
                                                         Navigator.of(
-                                                                dialogContext)
+                                                            dialogContext)
                                                             .pop();
                                                         exchangeViewModel
                                                             .removeTemplate(
-                                                                template:
-                                                                    template);
+                                                            template:
+                                                            template);
                                                         exchangeViewModel
                                                             .updateTemplate();
                                                       },
                                                       actionLeftButton: () =>
                                                           Navigator.of(
-                                                                  dialogContext)
+                                                              dialogContext)
                                                               .pop());
                                                 });
                                           },
@@ -411,7 +411,7 @@ class ExchangePage extends BasePage {
                               ],
                             )))
                   ],
-                ),
+                )),
                 bottomSectionPadding:
                     EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: Column(children: <Widget>[
@@ -575,10 +575,10 @@ class ExchangePage extends BasePage {
       receiveKey.currentState.isAddressEditable(isEditable: isEnabled);
     });
 
-    reaction((_) => exchangeViewModel.provider, (ExchangeProvider provider) {
-      provider is ChangeNowExchangeProvider
-          ? receiveKey.currentState.isAmountEditable(isEditable: true)
-          : receiveKey.currentState.isAmountEditable(isEditable: false);
+    reaction((_) => exchangeViewModel.isReceiveAmountEditable,
+        (bool isReceiveAmountEditable) {
+      receiveKey.currentState
+          .isAmountEditable(isEditable: isReceiveAmountEditable);
     });
 
     reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
