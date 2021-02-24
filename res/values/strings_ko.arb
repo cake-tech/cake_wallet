@@ -65,7 +65,7 @@
   "change_exchange_provider" : "교환 공급자 변경",
   "you_will_send" : "다음에서 변환",
   "you_will_get" : "로 변환하다",
-  "amount_is_guaranteed" : "xmr.to에서 보장 된 BTC 금액을 받으려면 위의 XMR 금액이 아닌 BTC 금액을 입력하십시오.",
+  "amount_is_guaranteed" : "수령 금액이 보장됩니다.",
   "amount_is_estimate" : "수신 금액은 견적입니다",
   "powered_by" : "에 의해 구동 ${title}",
   "error" : "오류",
@@ -456,5 +456,8 @@
   "enter_backup_password" : "여기에 백업 비밀번호를 입력하세요.",
   "select_backup_file" : "백업 파일 선택",
   "import" : "수입",
-  "please_select_backup_file" : "백업 파일을 선택하고 백업 암호를 입력하십시오."
+  "please_select_backup_file" : "백업 파일을 선택하고 백업 암호를 입력하십시오.",
+
+  "fixed_rate" : "고정 비율",
+  "fixed_rate_alert" : "고정 금리 모드 체크시 수취 금액 입력이 가능합니다. 고정 속도 모드로 전환 하시겠습니까?"
 }

@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Change Exchange Provider",
   "you_will_send" : "Convert from",
   "you_will_get" : "Convert to",
-  "amount_is_guaranteed" : "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above",
+  "amount_is_guaranteed" : "The receive amount is guaranteed",
   "amount_is_estimate" : "The receive amount is an estimate",
   "powered_by" : "Powered by ${title}",
   "error" : "Error",
@@ -456,5 +456,8 @@
   "enter_backup_password" : "Enter backup password here",
   "select_backup_file" : "Select backup file",
   "import" : "Import",
-  "please_select_backup_file" : "Please select backup file and enter backup password."
+  "please_select_backup_file" : "Please select backup file and enter backup password.",
+
+  "fixed_rate" : "Fixed rate",
+  "fixed_rate_alert" : "You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?"
 }
