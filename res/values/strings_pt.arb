@@ -456,5 +456,8 @@
   "enter_backup_password" : "Digite a senha de backup aqui",
   "select_backup_file" : "Selecione o arquivo de backup",
   "import" : "Importar",
-  "please_select_backup_file" : "Selecione o arquivo de backup e insira a senha de backup."
+  "please_select_backup_file" : "Selecione o arquivo de backup e insira a senha de backup.",
+
+  "xlm_extra_info" : "Não se esqueça de especificar o Memo ID ao enviar a transação XLM para a troca",
+  "xrp_extra_info" : "Não se esqueça de especificar a etiqueta de destino ao enviar a transação XRP para a troca"
 }

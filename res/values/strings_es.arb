@@ -456,5 +456,8 @@
   "enter_backup_password" : "Ingrese la contraseña de respaldo aquí",
   "select_backup_file" : "Seleccionar archivo de respaldo",
   "import" : "Importar",
-  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo."
+  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo.",
+
+  "xlm_extra_info" : "No olvide especificar el ID de nota al enviar la transacción XLM para el intercambio",
+  "xrp_extra_info" : "No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio"
 }
