@@ -175,7 +175,6 @@ abstract class SettingsViewModelBase with Store {
         RegularListItem(
           title: S.current.faq,
           handler: (BuildContext context) async {
-            final url = 'https://cakewallet.com/guide/';
             if (await canLaunch(url)) await launch(url);
           },
         )
@@ -183,6 +182,8 @@ abstract class SettingsViewModelBase with Store {
       [VersionListItem(title: currentVersion)]
     ];
   }
+
+  static const url = 'https://cakewallet.com/guide/';
 
   @observable
   String currentVersion;
