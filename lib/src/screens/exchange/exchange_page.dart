@@ -280,7 +280,7 @@ class ExchangePage extends BasePage {
                             StandardCheckbox(
                               key: checkBoxKey,
                               value: exchangeViewModel.isFixedRateMode,
-                              caption: 'Fixed rate', // FIXME
+                              caption: S.of(context).fixed_rate,
                               onChanged: (value) =>
                               exchangeViewModel.isFixedRateMode = value,
                             ),
@@ -418,8 +418,7 @@ class ExchangePage extends BasePage {
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                     child: Observer(builder: (_) {
-                      final description =
-                          exchangeViewModel.provider is XMRTOExchangeProvider
+                      final description = exchangeViewModel.isFixedRateMode
                               ? S.of(context).amount_is_guaranteed
                               : S.of(context).amount_is_estimate;
                       return Center(
@@ -663,7 +662,7 @@ class ExchangePage extends BasePage {
             builder: (BuildContext context) {
               return AlertWithTwoActions(
                   alertTitle: S.of(context).exchange,
-                  alertContent: 'You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?', //FIXME
+                  alertContent: S.of(context).fixed_rate_alert,
                   leftButtonText: S.of(context).cancel,
                   rightButtonText: S.of(context).ok,
                   actionLeftButton: () {

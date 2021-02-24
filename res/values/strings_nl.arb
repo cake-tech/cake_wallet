@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Wijzig Exchange Provider",
   "you_will_send" : "Converteren van",
   "you_will_get" : "Converteren naar",
-  "amount_is_guaranteed" : "Om een gegarandeerd BTC-bedrag te ontvangen, voert u in xmr.to het BTC-bedrag in en niet het bovenstaande XMR-bedrag",
+  "amount_is_guaranteed" : "Het ontvangen bedrag is gegarandeerd",
   "amount_is_estimate" : "Het ontvangen bedrag is een schatting",
   "powered_by" : "Aangedreven door ${title}",
   "error" : "Fout",
@@ -456,5 +456,8 @@
   "enter_backup_password" : "Voer hier een back-upwachtwoord in",
   "select_backup_file" : "Selecteer een back-upbestand",
   "import" : "Importeren",
-  "please_select_backup_file" : "Selecteer een back-upbestand en voer een back-upwachtwoord in."
+  "please_select_backup_file" : "Selecteer een back-upbestand en voer een back-upwachtwoord in.",
+
+  "fixed_rate" : "Vast tarief",
+  "fixed_rate_alert" : "U kunt het ontvangen bedrag invoeren wanneer de modus voor vaste tarieven is aangevinkt. Wilt u overschakelen naar de vaste-tariefmodus?"
 }

@@ -65,7 +65,7 @@
   "change_exchange_provider" : "एक्सचेंज प्रदाता बदलें",
   "you_will_send" : "से रूपांतरित करें",
   "you_will_get" : "में बदलें",
-  "amount_is_guaranteed" : "Xmr.to में, गारंटीशुदा BTC राशि प्राप्त करने के लिए, BTC राशि दर्ज करें और ऊपर XMR राशि नहीं",
+  "amount_is_guaranteed" : "प्राप्त राशि की गारंटी है",
   "amount_is_estimate" : "प्राप्त राशि एक अनुमान है",
   "powered_by" : "द्वारा संचालित ${title}",
   "error" : "त्रुटि",
@@ -456,5 +456,8 @@
   "enter_backup_password" : "यहां बैकअप पासवर्ड डालें",
   "select_backup_file" : "बैकअप फ़ाइल का चयन करें",
   "import" : "आयात",
-  "please_select_backup_file" : "कृपया बैकअप फ़ाइल चुनें और बैकअप पासवर्ड डालें।"
+  "please_select_backup_file" : "कृपया बैकअप फ़ाइल चुनें और बैकअप पासवर्ड डालें।",
+
+  "fixed_rate" : "निर्धारित दर",
+  "fixed_rate_alert" : "फिक्स्ड रेट मोड की जांच करने पर आप प्राप्त राशि दर्ज कर पाएंगे। क्या आप निश्चित दर मोड पर स्विच करना चाहते हैं?"
 }
