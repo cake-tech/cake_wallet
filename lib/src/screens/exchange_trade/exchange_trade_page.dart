@@ -28,9 +28,11 @@ void showInformation(
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_result_confirm(
-          trade.amount ?? fetchingLabel, trade.from.toString(), walletName)
+          trade.amount ?? fetchingLabel, trade.from.toString(), walletName) +
+        exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
-          trade.amount ?? fetchingLabel, trade.from.toString());
+          trade.amount ?? fetchingLabel, trade.from.toString()) +
+        exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
       context: context,

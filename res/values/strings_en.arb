@@ -456,5 +456,8 @@
   "enter_backup_password" : "Enter backup password here",
   "select_backup_file" : "Select backup file",
   "import" : "Import",
-  "please_select_backup_file" : "Please select backup file and enter backup password."
+  "please_select_backup_file" : "Please select backup file and enter backup password.",
+
+  "xlm_extra_info" : "Please don’t forget to specify the Memo ID while sending the XLM transaction for the exchange",
+  "xrp_extra_info" : "Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange"
 }

@@ -456,5 +456,8 @@
   "enter_backup_password" : "ここにバックアップパスワードを入力してください",
   "select_backup_file" : "バックアップファイルを選択",
   "import" : "インポート",
-  "please_select_backup_file" : "バックアップファイルを選択し、バックアップパスワードを入力してください。"
+  "please_select_backup_file" : "バックアップファイルを選択し、バックアップパスワードを入力してください。",
+
+  "xlm_extra_info" : "交換用のXLMトランザクションを送信するときに、メモIDを指定することを忘れないでください",
+  "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください"
 }

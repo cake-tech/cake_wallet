@@ -456,5 +456,8 @@
   "enter_backup_password" : "Wprowadź tutaj hasło zapasowe",
   "select_backup_file" : "Wybierz plik kopii zapasowej",
   "import" : "Import",
-  "please_select_backup_file" : "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe."
+  "please_select_backup_file" : "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe.",
+
+  "xlm_extra_info" : "Nie zapomnij podać identyfikatora notatki podczas wysyłania transakcji XLM do wymiany",
+  "xrp_extra_info" : "Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany"
 }
