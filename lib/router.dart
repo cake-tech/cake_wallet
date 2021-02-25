@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
@@ -330,6 +331,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreFromBackup:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<RestoreFromBackupPage>());
+
+    case Routes.support:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SupportPage>());
 
     default:
       return MaterialPageRoute<void>(

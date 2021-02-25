@@ -147,34 +147,10 @@ abstract class SettingsViewModelBase with Store {
                 _settingsStore.currentTheme = theme)
       ],
       [
-        LinkListItem(
-            title: 'Email',
-            linkTitle: 'support@cakewallet.com',
-            link: 'mailto:support@cakewallet.com'),
-        LinkListItem(
-            title: 'Telegram',
-            icon: 'assets/images/Telegram.png',
-            linkTitle: '@cakewallet_bot',
-            link: 'https:t.me/cakewallet_bot'),
-        LinkListItem(
-            title: 'Twitter',
-            icon: 'assets/images/Twitter.png',
-            linkTitle: '@cakewallet',
-            link: 'https://twitter.com/cakewallet'),
-        LinkListItem(
-            title: 'ChangeNow',
-            icon: 'assets/images/change_now.png',
-            linkTitle: 'support@changenow.io',
-            link: 'mailto:support@changenow.io'),
         RegularListItem(
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>
               Navigator.of(context).pushNamed(Routes.readDisclaimer),
-        ),
-        RegularListItem(
-          title: S.current.faq,
-          handler: (BuildContext context) =>
-              Navigator.pushNamed(context, Routes.faq),
         )
       ],
       [VersionListItem(title: currentVersion)]
