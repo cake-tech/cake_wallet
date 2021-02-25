@@ -47,6 +47,10 @@ class WalletMenu {
           title: S.current.settings_title,
           image: Image.asset('assets/images/settings_menu.png',
               height: 16, width: 16)),
+      WalletMenuItem(
+          title: S.current.settings_support,
+          image: Image.asset('assets/images/question_mark.png',
+              height: 16, width: 16)),
     ]);
   }
 
@@ -98,6 +102,9 @@ class WalletMenu {
         break;
       case 7:
         Navigator.of(context).pushNamed(Routes.settings);
+        break;
+      case 8:
+        Navigator.of(context).pushNamed(Routes.support);
         break;
       default:
         break;
