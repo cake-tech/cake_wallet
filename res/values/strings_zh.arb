@@ -459,5 +459,8 @@
   "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。",
 
   "fixed_rate" : "固定利率",
-  "fixed_rate_alert" : "選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？"
+  "fixed_rate_alert" : "選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？",
+
+  "xlm_extra_info" : "發送用於交換的XLM交易時，請不要忘記指定備忘錄ID",
+  "xrp_extra_info" : "發送用於交換的XRP交易時，請不要忘記指定目標標記"
 }

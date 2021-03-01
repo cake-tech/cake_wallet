@@ -459,5 +459,8 @@
   "please_select_backup_file" : "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe.",
 
   "fixed_rate" : "Stała stawka",
-  "fixed_rate_alert" : "Będziesz mógł wprowadzić kwotę otrzymaną, gdy zaznaczony jest tryb stałej stawki. Czy chcesz przejść do trybu stałej stawki?"
+  "fixed_rate_alert" : "Będziesz mógł wprowadzić kwotę otrzymaną, gdy zaznaczony jest tryb stałej stawki. Czy chcesz przejść do trybu stałej stawki?",
+
+  "xlm_extra_info" : "Nie zapomnij podać identyfikatora notatki podczas wysyłania transakcji XLM do wymiany",
+  "xrp_extra_info" : "Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany"
 }

@@ -459,5 +459,8 @@
   "please_select_backup_file" : "Bitte wählen Sie die Sicherungsdatei und geben Sie das Sicherungskennwort ein.",
 
   "fixed_rate" : "Fester Zinssatz",
-  "fixed_rate_alert" : "Sie können den Empfangsbetrag eingeben, wenn der Festpreismodus aktiviert ist. Möchten Sie in den Festpreismodus wechseln?"
+  "fixed_rate_alert" : "Sie können den Empfangsbetrag eingeben, wenn der Festpreismodus aktiviert ist. Möchten Sie in den Festpreismodus wechseln?",
+  
+  "xlm_extra_info" : "Bitte vergessen Sie nicht, die Memo-ID anzugeben, während Sie die XLM-Transaktion für den Austausch senden",
+  "xrp_extra_info" : "Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden"
 }
