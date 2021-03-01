@@ -65,7 +65,7 @@
   "change_exchange_provider" : "更改交易所提供商",
   "you_will_send" : "從轉換",
   "you_will_get" : "轉換成",
-  "amount_is_guaranteed" : "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量",
+  "amount_is_guaranteed" : "接收金額有保證",
   "amount_is_estimate" : "收款金额为估算值",
   "powered_by" : "供电 ${title}",
   "error" : "错误",
@@ -456,5 +456,11 @@
   "enter_backup_password" : "在此處輸入備用密碼",
   "select_backup_file" : "選擇備份文件",
   "import" : "進口",
-  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。"
+  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。",
+
+  "fixed_rate" : "固定利率",
+  "fixed_rate_alert" : "選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？",
+
+  "xlm_extra_info" : "發送用於交換的XLM交易時，請不要忘記指定備忘錄ID",
+  "xrp_extra_info" : "發送用於交換的XRP交易時，請不要忘記指定目標標記"
 }

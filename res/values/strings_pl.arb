@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Zmień dostawcę programu Exchange",
   "you_will_send" : "Konwertuj z",
   "you_will_get" : "Konwertuj na",
-  "amount_is_guaranteed" : "W xmr.to, aby otrzymać gwarantowaną kwotę BTC, wprowadź kwotę BTC, a nie kwotę XMR powyżej",
+  "amount_is_guaranteed" : "Otrzymana kwota jest gwarantowana",
   "amount_is_estimate" : "Otrzymana kwota jest wartością szacunkową",
   "powered_by" : "Zasilany przez ${title}",
   "error" : "Błąd",
@@ -456,5 +456,11 @@
   "enter_backup_password" : "Wprowadź tutaj hasło zapasowe",
   "select_backup_file" : "Wybierz plik kopii zapasowej",
   "import" : "Import",
-  "please_select_backup_file" : "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe."
+  "please_select_backup_file" : "Wybierz plik kopii zapasowej i wprowadź hasło zapasowe.",
+
+  "fixed_rate" : "Stała stawka",
+  "fixed_rate_alert" : "Będziesz mógł wprowadzić kwotę otrzymaną, gdy zaznaczony jest tryb stałej stawki. Czy chcesz przejść do trybu stałej stawki?",
+
+  "xlm_extra_info" : "Nie zapomnij podać identyfikatora notatki podczas wysyłania transakcji XLM do wymiany",
+  "xrp_extra_info" : "Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany"
 }
