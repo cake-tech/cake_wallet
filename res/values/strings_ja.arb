@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Exchangeプロバイダーの変更",
   "you_will_send" : "から変換",
   "you_will_get" : "に変換",
-  "amount_is_guaranteed" : "xmr.toで、保証されたBTC金額を受け取るには、上記のXMR金額ではなく、BTC金額を入力します",
+  "amount_is_guaranteed" : "受け取り金額は保証されています",
   "amount_is_estimate" : "受け取り金額は見積もりです",
   "powered_by" : "搭載 ${title}",
   "error" : "エラー",
@@ -456,5 +456,11 @@
   "enter_backup_password" : "ここにバックアップパスワードを入力してください",
   "select_backup_file" : "バックアップファイルを選択",
   "import" : "インポート",
-  "please_select_backup_file" : "バックアップファイルを選択し、バックアップパスワードを入力してください。"
+  "please_select_backup_file" : "バックアップファイルを選択し、バックアップパスワードを入力してください。",
+
+  "fixed_rate" : "固定金利",
+  "fixed_rate_alert" : "固定金利モードにチェックを入れると、受取額を入力できるようになります。 固定金利モードに切り替えますか？",
+
+  "xlm_extra_info" : "交換用のXLMトランザクションを送信するときに、メモIDを指定することを忘れないでください",
+  "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください"
 }

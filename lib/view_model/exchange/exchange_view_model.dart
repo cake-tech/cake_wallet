@@ -57,7 +57,8 @@ abstract class ExchangeViewModelBase with Store {
         _onPairChange();
       }
     });
-
+    _defineIsReceiveAmountEditable();
+    isFixedRateMode = false;
     isReceiveAmountEntered = false;
     loadLimits();
   }
@@ -106,6 +107,12 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isReceiveAmountEntered;
 
+  @observable
+  bool isReceiveAmountEditable;
+
+  @observable
+  bool isFixedRateMode;
+
   @computed
   SyncStatus get status => wallet.syncStatus;
 
@@ -127,12 +134,15 @@ abstract class ExchangeViewModelBase with Store {
     this.provider = provider;
     depositAmount = '';
     receiveAmount = '';
+    isFixedRateMode = false;
+    _defineIsReceiveAmountEditable();
     loadLimits();
   }
 
   @action
   void changeDepositCurrency({CryptoCurrency currency}) {
     depositCurrency = currency;
+    isFixedRateMode = false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -141,6 +151,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void changeReceiveCurrency({CryptoCurrency currency}) {
     receiveCurrency = currency;
+    isFixedRateMode = false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -160,9 +171,10 @@ abstract class ExchangeViewModelBase with Store {
 
     provider
         .calculateAmount(
-            from: depositCurrency,
-            to: receiveCurrency,
+            from: receiveCurrency,
+            to: depositCurrency,
             amount: _amount,
+            isFixedRateMode: isFixedRateMode,
             isReceiveAmount: true)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
@@ -187,6 +199,7 @@ abstract class ExchangeViewModelBase with Store {
             from: depositCurrency,
             to: receiveCurrency,
             amount: _amount,
+            isFixedRateMode: isFixedRateMode,
             isReceiveAmount: false)
         .then((amount) => _cryptoNumberFormat
             .format(amount)
@@ -200,8 +213,8 @@ abstract class ExchangeViewModelBase with Store {
     limitsState = LimitsIsLoading();
 
     try {
-      limits = await provider.fetchLimits(
-          from: depositCurrency, to: receiveCurrency);
+      limits = await provider.fetchLimits(from: depositCurrency,
+          to: receiveCurrency, isFixedRateMode: isFixedRateMode);
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
       limitsState = LimitsLoadedFailure(error: e.toString());
@@ -265,7 +278,8 @@ abstract class ExchangeViewModelBase with Store {
       } else {
         try {
           tradeState = TradeIsCreating();
-          final trade = await provider.createTrade(request: request);
+          final trade = await provider.createTrade(request: request,
+              isFixedRateMode: isFixedRateMode);
           trade.walletId = wallet.id;
           tradesStore.setTrade(trade);
           await trades.add(trade);
@@ -285,15 +299,15 @@ abstract class ExchangeViewModelBase with Store {
 
   @action
   void reset() {
+    _initialPairBasedOnWallet();
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositCurrency = CryptoCurrency.xmr;
-    receiveCurrency = CryptoCurrency.btc;
     depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
     receiveAddress = receiveCurrency == wallet.currency ? wallet.address : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
+    isFixedRateMode = false;
     _onPairChange();
   }
 
@@ -364,7 +378,7 @@ abstract class ExchangeViewModelBase with Store {
       }
     }
 
-    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
+    _defineIsReceiveAmountEditable();
     depositAmount = '';
     receiveAmount = '';
     loadLimits();
@@ -387,6 +401,16 @@ abstract class ExchangeViewModelBase with Store {
         break;
       default:
         break;
+    }
+  }
+
+  void _defineIsReceiveAmountEditable() {
+    if ((provider is ChangeNowExchangeProvider)
+        &&(depositCurrency == CryptoCurrency.xmr)
+        &&(receiveCurrency == CryptoCurrency.btc)) {
+      isReceiveAmountEditable = true;
+    } else {
+      isReceiveAmountEditable = false;
     }
   }
 }
