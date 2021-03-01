@@ -395,6 +395,8 @@ class S implements WidgetsLocalizations {
   String get confirmed => 'Confirmed';
   String get unconfirmed => 'Unconfirmed';
   String get displayable => 'Displayable';
+  String get xlm_extra_info => 'Please don’t forget to specify the Memo ID while sending the XLM transaction for the exchange';
+  String get xrp_extra_info => 'Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange';
 }
 
 class $de extends S {
@@ -1151,6 +1153,10 @@ class $de extends S {
   String get unconfirmed => 'Unbestätigt';
   @override
   String get displayable => 'Anzeigebar';
+  @override
+  String get xlm_extra_info => 'Bitte vergessen Sie nicht, die Memo-ID anzugeben, während Sie die XLM-Transaktion für den Austausch senden';
+  @override
+  String get xrp_extra_info => 'Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden';
 }
 
 class $hi extends S {
@@ -1907,6 +1913,10 @@ class $hi extends S {
   String get unconfirmed => 'अपुष्ट';
   @override
   String get displayable => 'प्रदर्शन योग्य';
+  @override
+  String get xlm_extra_info => 'एक्सचेंज के लिए XLM ट्रांजेक्शन भेजते समय मेमो आईडी निर्दिष्ट करना न भूलें';
+  @override
+  String get xrp_extra_info => 'एक्सचेंज के लिए एक्सआरपी लेनदेन भेजते समय कृपया गंतव्य टैग निर्दिष्ट करना न भूलें';
 }
 
 class $ru extends S {
@@ -2663,6 +2673,10 @@ class $ru extends S {
   String get unconfirmed => 'Неподтвержденный';
   @override
   String get displayable => 'Отображаемый';
+  @override
+  String get xlm_extra_info => 'Не забудьте указать Memo ID (памятка) при отправке транзакции XLM для обмена';
+  @override
+  String get xrp_extra_info => 'Не забудьте указать целевой тег при отправке транзакции XRP для обмена';
 }
 
 class $ko extends S {
@@ -3419,6 +3433,10 @@ class $ko extends S {
   String get unconfirmed => '미확인';
   @override
   String get displayable => '표시 가능';
+  @override
+  String get xlm_extra_info => '교환을 위해 XLM 거래를 보낼 때 메모 ID를 지정하는 것을 잊지 마십시오';
+  @override
+  String get xrp_extra_info => '교환을 위해 XRP 트랜잭션을 보내는 동안 대상 태그를 지정하는 것을 잊지 마십시오';
 }
 
 class $pt extends S {
@@ -4175,6 +4193,10 @@ class $pt extends S {
   String get unconfirmed => 'Não confirmado';
   @override
   String get displayable => 'Exibível';
+  @override
+  String get xlm_extra_info => 'Não se esqueça de especificar o Memo ID ao enviar a transação XLM para a troca';
+  @override
+  String get xrp_extra_info => 'Não se esqueça de especificar a etiqueta de destino ao enviar a transação XRP para a troca';
 }
 
 class $uk extends S {
@@ -4931,6 +4953,10 @@ class $uk extends S {
   String get unconfirmed => 'Непідтверджений';
   @override
   String get displayable => 'Відображуваний';
+  @override
+  String get xlm_extra_info => "Будь ласка, не забудьте вказати ідентифікатор пам'ятки під час надсилання транзакції XLM для обміну";
+  @override
+  String get xrp_extra_info => 'Будь ласка, не забудьте вказати тег призначення під час надсилання XRP-транзакції для обміну';
 }
 
 class $ja extends S {
@@ -5687,6 +5713,10 @@ class $ja extends S {
   String get unconfirmed => '未確認';
   @override
   String get displayable => '表示可能';
+  @override
+  String get xlm_extra_info => '交換用のXLMトランザクションを送信するときに、メモIDを指定することを忘れないでください';
+  @override
+  String get xrp_extra_info => '取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください';
 }
 
 class $en extends S {
@@ -6447,6 +6477,10 @@ class $pl extends S {
   String get unconfirmed => 'niepotwierdzony';
   @override
   String get displayable => 'Wyświetlane';
+  @override
+  String get xlm_extra_info => 'Nie zapomnij podać identyfikatora notatki podczas wysyłania transakcji XLM do wymiany';
+  @override
+  String get xrp_extra_info => 'Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany';
 }
 
 class $es extends S {
@@ -7203,6 +7237,10 @@ class $es extends S {
   String get unconfirmed => 'inconfirmado';
   @override
   String get displayable => 'Visualizable';
+  @override
+  String get xlm_extra_info => 'No olvide especificar el ID de nota al enviar la transacción XLM para el intercambio';
+  @override
+  String get xrp_extra_info => 'No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio';
 }
 
 class $nl extends S {
@@ -7959,6 +7997,10 @@ class $nl extends S {
   String get unconfirmed => 'niet bevestigd';
   @override
   String get displayable => 'Weer te geven';
+  @override
+  String get xlm_extra_info => 'Vergeet niet om de Memo-ID op te geven tijdens het verzenden van de XLM-transactie voor de uitwisseling';
+  @override
+  String get xrp_extra_info => 'Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling';
 }
 
 class $zh extends S {
@@ -8715,6 +8757,10 @@ class $zh extends S {
   String get unconfirmed => '未经证实';
   @override
   String get displayable => '可显示';
+  @override
+  String get xlm_extra_info => '發送用於交換的XLM交易時，請不要忘記指定備忘錄ID';
+  @override
+  String get xrp_extra_info => '發送用於交換的XRP交易時，請不要忘記指定目標標記';
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {

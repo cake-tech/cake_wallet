@@ -456,5 +456,8 @@
   "enter_backup_password" : "Voer hier een back-upwachtwoord in",
   "select_backup_file" : "Selecteer een back-upbestand",
   "import" : "Importeren",
-  "please_select_backup_file" : "Selecteer een back-upbestand en voer een back-upwachtwoord in."
+  "please_select_backup_file" : "Selecteer een back-upbestand en voer een back-upwachtwoord in.",
+
+  "xlm_extra_info" : "Vergeet niet om de Memo-ID op te geven tijdens het verzenden van de XLM-transactie voor de uitwisseling",
+  "xrp_extra_info" : "Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling"
 }
