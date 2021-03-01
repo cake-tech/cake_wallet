@@ -150,6 +150,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                                   padding: EdgeInsets.all(5),
                                   decoration: BoxDecoration(
                                       border: Border.all(
+                                          width: 3,
                                           color: Theme.of(context)
                                               .accentTextTheme
                                               .subtitle
