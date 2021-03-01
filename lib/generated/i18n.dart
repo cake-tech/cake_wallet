@@ -397,6 +397,8 @@ class S implements WidgetsLocalizations {
   String get displayable => 'Displayable';
   String get fixed_rate => 'Fixed rate';
   String get fixed_rate_alert => 'You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?';
+  String get xlm_extra_info => 'Please don’t forget to specify the Memo ID while sending the XLM transaction for the exchange';
+  String get xrp_extra_info => 'Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange';
 }
 
 class $de extends S {
@@ -1157,6 +1159,10 @@ class $de extends S {
   String get fixed_rate => 'Fester Zinssatz';
   @override
   String get fixed_rate_alert => 'Sie können den Empfangsbetrag eingeben, wenn der Festpreismodus aktiviert ist. Möchten Sie in den Festpreismodus wechseln?';
+  @override
+  String get xlm_extra_info => 'Bitte vergessen Sie nicht, die Memo-ID anzugeben, während Sie die XLM-Transaktion für den Austausch senden';
+  @override
+  String get xrp_extra_info => 'Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden';
 }
 
 class $hi extends S {
@@ -1917,6 +1923,10 @@ class $hi extends S {
   String get fixed_rate => 'निर्धारित दर';
   @override
   String get fixed_rate_alert => 'फिक्स्ड रेट मोड की जांच करने पर आप प्राप्त राशि दर्ज कर पाएंगे। क्या आप निश्चित दर मोड पर स्विच करना चाहते हैं?';
+  @override
+  String get xlm_extra_info => 'एक्सचेंज के लिए XLM ट्रांजेक्शन भेजते समय मेमो आईडी निर्दिष्ट करना न भूलें';
+  @override
+  String get xrp_extra_info => 'एक्सचेंज के लिए एक्सआरपी लेनदेन भेजते समय कृपया गंतव्य टैग निर्दिष्ट करना न भूलें';
 }
 
 class $ru extends S {
@@ -2677,6 +2687,10 @@ class $ru extends S {
   String get fixed_rate => 'Фиксированная ставка';
   @override
   String get fixed_rate_alert => 'Вы сможете ввести сумму получения тогда, когда будет установлен режим фиксированной ставки. Вы хотите перейти в режим фиксированной ставки?';
+  @override
+  String get xlm_extra_info => 'Не забудьте указать Memo ID (памятка) при отправке транзакции XLM для обмена';
+  @override
+  String get xrp_extra_info => 'Не забудьте указать целевой тег при отправке транзакции XRP для обмена';
 }
 
 class $ko extends S {
@@ -3437,6 +3451,10 @@ class $ko extends S {
   String get fixed_rate => '고정 비율';
   @override
   String get fixed_rate_alert => '고정 금리 모드 체크시 수취 금액 입력이 가능합니다. 고정 속도 모드로 전환 하시겠습니까?';
+  @override
+  String get xlm_extra_info => '교환을 위해 XLM 거래를 보낼 때 메모 ID를 지정하는 것을 잊지 마십시오';
+  @override
+  String get xrp_extra_info => '교환을 위해 XRP 트랜잭션을 보내는 동안 대상 태그를 지정하는 것을 잊지 마십시오';
 }
 
 class $pt extends S {
@@ -4197,6 +4215,10 @@ class $pt extends S {
   String get fixed_rate => 'Taxa fixa';
   @override
   String get fixed_rate_alert => 'Você poderá inserir a quantia recebida quando o modo de taxa fixa estiver marcado. Quer mudar para o modo de taxa fixa?';
+  @override
+  String get xlm_extra_info => 'Não se esqueça de especificar o Memo ID ao enviar a transação XLM para a troca';
+  @override
+  String get xrp_extra_info => 'Não se esqueça de especificar a etiqueta de destino ao enviar a transação XRP para a troca';
 }
 
 class $uk extends S {
@@ -4957,6 +4979,10 @@ class $uk extends S {
   String get fixed_rate => 'Фіксована ставка';
   @override
   String get fixed_rate_alert => 'Ви зможете ввести суму отримання тоді, коли буде встановлений режим фіксованої ставки. Ви хочете перейти в режим фіксованої ставки?';
+  @override
+  String get xlm_extra_info => "Будь ласка, не забудьте вказати ідентифікатор пам'ятки під час надсилання транзакції XLM для обміну";
+  @override
+  String get xrp_extra_info => 'Будь ласка, не забудьте вказати тег призначення під час надсилання XRP-транзакції для обміну';
 }
 
 class $ja extends S {
@@ -5717,6 +5743,10 @@ class $ja extends S {
   String get fixed_rate => '固定金利';
   @override
   String get fixed_rate_alert => '固定金利モードにチェックを入れると、受取額を入力できるようになります。 固定金利モードに切り替えますか？';
+  @override
+  String get xlm_extra_info => '交換用のXLMトランザクションを送信するときに、メモIDを指定することを忘れないでください';
+  @override
+  String get xrp_extra_info => '取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください';
 }
 
 class $en extends S {
@@ -6481,6 +6511,10 @@ class $pl extends S {
   String get fixed_rate => 'Stała stawka';
   @override
   String get fixed_rate_alert => 'Będziesz mógł wprowadzić kwotę otrzymaną, gdy zaznaczony jest tryb stałej stawki. Czy chcesz przejść do trybu stałej stawki?';
+  @override
+  String get xlm_extra_info => 'Nie zapomnij podać identyfikatora notatki podczas wysyłania transakcji XLM do wymiany';
+  @override
+  String get xrp_extra_info => 'Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany';
 }
 
 class $es extends S {
@@ -7241,6 +7275,10 @@ class $es extends S {
   String get fixed_rate => 'Tipo de interés fijo';
   @override
   String get fixed_rate_alert => 'Podrá ingresar la cantidad recibida cuando el modo de tarifa fija esté marcado. ¿Quieres cambiar al modo de tarifa fija?';
+  @override
+  String get xlm_extra_info => 'No olvide especificar el ID de nota al enviar la transacción XLM para el intercambio';
+  @override
+  String get xrp_extra_info => 'No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio';
 }
 
 class $nl extends S {
@@ -8001,6 +8039,10 @@ class $nl extends S {
   String get fixed_rate => 'Vast tarief';
   @override
   String get fixed_rate_alert => 'U kunt het ontvangen bedrag invoeren wanneer de modus voor vaste tarieven is aangevinkt. Wilt u overschakelen naar de vaste-tariefmodus?';
+  @override
+  String get xlm_extra_info => 'Vergeet niet om de Memo-ID op te geven tijdens het verzenden van de XLM-transactie voor de uitwisseling';
+  @override
+  String get xrp_extra_info => 'Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling';
 }
 
 class $zh extends S {
@@ -8761,6 +8803,10 @@ class $zh extends S {
   String get fixed_rate => '固定利率';
   @override
   String get fixed_rate_alert => '選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？';
+  @override
+  String get xlm_extra_info => '發送用於交換的XLM交易時，請不要忘記指定備忘錄ID';
+  @override
+  String get xrp_extra_info => '發送用於交換的XRP交易時，請不要忘記指定目標標記';
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {

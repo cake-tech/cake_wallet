@@ -459,5 +459,8 @@
   "please_select_backup_file" : "Selecteer een back-upbestand en voer een back-upwachtwoord in.",
 
   "fixed_rate" : "Vast tarief",
-  "fixed_rate_alert" : "U kunt het ontvangen bedrag invoeren wanneer de modus voor vaste tarieven is aangevinkt. Wilt u overschakelen naar de vaste-tariefmodus?"
+  "fixed_rate_alert" : "U kunt het ontvangen bedrag invoeren wanneer de modus voor vaste tarieven is aangevinkt. Wilt u overschakelen naar de vaste-tariefmodus?",
+
+  "xlm_extra_info" : "Vergeet niet om de Memo-ID op te geven tijdens het verzenden van de XLM-transactie voor de uitwisseling",
+  "xrp_extra_info" : "Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling"
 }

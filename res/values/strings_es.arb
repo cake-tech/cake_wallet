@@ -459,5 +459,8 @@
   "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo.",
 
   "fixed_rate" : "Tipo de interés fijo",
-  "fixed_rate_alert" : "Podrá ingresar la cantidad recibida cuando el modo de tarifa fija esté marcado. ¿Quieres cambiar al modo de tarifa fija?"
+  "fixed_rate_alert" : "Podrá ingresar la cantidad recibida cuando el modo de tarifa fija esté marcado. ¿Quieres cambiar al modo de tarifa fija?",
+
+  "xlm_extra_info" : "No olvide especificar el ID de nota al enviar la transacción XLM para el intercambio",
+  "xrp_extra_info" : "No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio"
 }

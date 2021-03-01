@@ -459,5 +459,8 @@
   "please_select_backup_file" : "Please select backup file and enter backup password.",
 
   "fixed_rate" : "Fixed rate",
-  "fixed_rate_alert" : "You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?"
+  "fixed_rate_alert" : "You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?",
+
+  "xlm_extra_info" : "Please don’t forget to specify the Memo ID while sending the XLM transaction for the exchange",
+  "xrp_extra_info" : "Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange"
 }
