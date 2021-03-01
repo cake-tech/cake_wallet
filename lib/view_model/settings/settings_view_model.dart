@@ -20,7 +20,6 @@ import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
-import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';

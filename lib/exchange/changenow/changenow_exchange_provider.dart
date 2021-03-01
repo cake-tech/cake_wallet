@@ -158,30 +158,17 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         ? DateTime.parse(expiredAtRaw).toLocal()
         : null;
 
-    if (expiredAt != null) {
-      return Trade(
-          id: id,
-          from: from,
-          to: to,
-          provider: description,
-          inputAddress: inputAddress,
-          amount: expectedSendAmount,
-          state: state,
-          extraId: extraId,
-          expiredAt: expiredAt,
-          outputTransaction: outputTransaction);
-    } else {
-      return Trade(
-          id: id,
-          from: from,
-          to: to,
-          provider: description,
-          inputAddress: inputAddress,
-          amount: expectedSendAmount,
-          state: state,
-          extraId: extraId,
-          outputTransaction: outputTransaction);
-    }
+    return Trade(
+        id: id,
+        from: from,
+        to: to,
+        provider: description,
+        inputAddress: inputAddress,
+        amount: expectedSendAmount,
+        state: state,
+        extraId: extraId,
+        expiredAt: expiredAt,
+        outputTransaction: outputTransaction);
   }
 
   @override
@@ -215,28 +202,36 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
       return estimatedAmount;
     } else {
-      final url = isFixedRateMode
-          ? apiUri +
-          _exchangeAmountUriSufix +
-          _fixedRateUriSufix +
-          amount.toString() +
-          '/' +
-          from.toString() +
-          '_' +
-          to.toString() +
-          '?api_key=' + apiKey
-          : apiUri +
-          _exchangeAmountUriSufix +
-          amount.toString() +
-          '/' +
-          from.toString() +
-          '_' +
-          to.toString();
+      final url = defineUrlForCalculatingAmount(from, to, amount, isFixedRateMode);
       final response = await get(url);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final estimatedAmount = responseJSON['estimatedAmount'] as double;
 
       return estimatedAmount;
     }
+  }
+
+  static String defineUrlForCalculatingAmount(
+      CryptoCurrency from,
+      CryptoCurrency to,
+      double amount,
+      bool isFixedRateMode) {
+    return isFixedRateMode
+        ? apiUri +
+        _exchangeAmountUriSufix +
+        _fixedRateUriSufix +
+        amount.toString() +
+        '/' +
+        from.toString() +
+        '_' +
+        to.toString() +
+        '?api_key=' + apiKey
+        : apiUri +
+        _exchangeAmountUriSufix +
+        amount.toString() +
+        '/' +
+        from.toString() +
+        '_' +
+        to.toString();
   }
 }
