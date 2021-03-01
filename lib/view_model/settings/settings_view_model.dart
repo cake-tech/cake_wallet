@@ -20,13 +20,11 @@ import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
-import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 part 'settings_view_model.g.dart';
 
@@ -152,19 +150,11 @@ abstract class SettingsViewModelBase with Store {
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>
               Navigator.of(context).pushNamed(Routes.readDisclaimer),
-        ),
-        RegularListItem(
-          title: S.current.faq,
-          handler: (BuildContext context) async {
-            if (await canLaunch(url)) await launch(url);
-          },
         )
       ],
       [VersionListItem(title: currentVersion)]
     ];
   }
-
-  static const url = 'https://cakewallet.com/guide/';
 
   @observable
   String currentVersion;
