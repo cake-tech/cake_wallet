@@ -35,7 +35,7 @@ class S implements WidgetsLocalizations {
   String get all => "ALL";
   String get amount => "Amount: ";
   String get amount_is_estimate => "The receive amount is an estimate";
-  String get amount_is_guaranteed => "In xmr.to, to receive a guaranteed BTC amount, enter the BTC amount and not the XMR amount above";
+  String get amount_is_guaranteed => "The receive amount is guaranteed";
   String get auth_store_ban_timeout => "ban_timeout";
   String get auth_store_banned_for => "Banned for ";
   String get auth_store_banned_minutes => " minutes";
@@ -395,6 +395,8 @@ class S implements WidgetsLocalizations {
   String get confirmed => 'Confirmed';
   String get unconfirmed => 'Unconfirmed';
   String get displayable => 'Displayable';
+  String get fixed_rate => 'Fixed rate';
+  String get fixed_rate_alert => 'You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?';
   String get xlm_extra_info => 'Please don’t forget to specify the Memo ID while sending the XLM transaction for the exchange';
   String get xrp_extra_info => 'Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange';
 }
@@ -538,7 +540,7 @@ class $de extends S {
   @override
   String get receive => "Erhalten";
   @override
-  String get amount_is_guaranteed => "Geben Sie in xmr.to den BTC-Betrag und nicht den oben genannten XMR-Betrag ein, um einen garantierten BTC-Betrag zu erhalten";
+  String get amount_is_guaranteed => "Der Empfangsbetrag ist garantiert";
   @override
   String get auth_store_banned_for => "Gebannt für ";
   @override
@@ -1154,6 +1156,10 @@ class $de extends S {
   @override
   String get displayable => 'Anzeigebar';
   @override
+  String get fixed_rate => 'Fester Zinssatz';
+  @override
+  String get fixed_rate_alert => 'Sie können den Empfangsbetrag eingeben, wenn der Festpreismodus aktiviert ist. Möchten Sie in den Festpreismodus wechseln?';
+  @override
   String get xlm_extra_info => 'Bitte vergessen Sie nicht, die Memo-ID anzugeben, während Sie die XLM-Transaktion für den Austausch senden';
   @override
   String get xrp_extra_info => 'Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden';
@@ -1298,7 +1304,7 @@ class $hi extends S {
   @override
   String get receive => "प्राप्त करना";
   @override
-  String get amount_is_guaranteed => "Xmr.to में, गारंटीशुदा BTC राशि प्राप्त करने के लिए, BTC राशि दर्ज करें और ऊपर XMR राशि नहीं";
+  String get amount_is_guaranteed => "प्राप्त राशि की गारंटी हैं";
   @override
   String get auth_store_banned_for => "के लिए प्रतिबंधित है ";
   @override
@@ -1914,6 +1920,10 @@ class $hi extends S {
   @override
   String get displayable => 'प्रदर्शन योग्य';
   @override
+  String get fixed_rate => 'निर्धारित दर';
+  @override
+  String get fixed_rate_alert => 'फिक्स्ड रेट मोड की जांच करने पर आप प्राप्त राशि दर्ज कर पाएंगे। क्या आप निश्चित दर मोड पर स्विच करना चाहते हैं?';
+  @override
   String get xlm_extra_info => 'एक्सचेंज के लिए XLM ट्रांजेक्शन भेजते समय मेमो आईडी निर्दिष्ट करना न भूलें';
   @override
   String get xrp_extra_info => 'एक्सचेंज के लिए एक्सआरपी लेनदेन भेजते समय कृपया गंतव्य टैग निर्दिष्ट करना न भूलें';
@@ -2058,7 +2068,7 @@ class $ru extends S {
   @override
   String get receive => "Получить";
   @override
-  String get amount_is_guaranteed => "В xmr.to, чтобы получить гарантированную сумму BTC, введите сумму BTC, а не сумму XMR выше";
+  String get amount_is_guaranteed => "Полученная сумма гарантирована";
   @override
   String get auth_store_banned_for => "Заблокировано на ";
   @override
@@ -2674,6 +2684,10 @@ class $ru extends S {
   @override
   String get displayable => 'Отображаемый';
   @override
+  String get fixed_rate => 'Фиксированная ставка';
+  @override
+  String get fixed_rate_alert => 'Вы сможете ввести сумму получения тогда, когда будет установлен режим фиксированной ставки. Вы хотите перейти в режим фиксированной ставки?';
+  @override
   String get xlm_extra_info => 'Не забудьте указать Memo ID (памятка) при отправке транзакции XLM для обмена';
   @override
   String get xrp_extra_info => 'Не забудьте указать целевой тег при отправке транзакции XRP для обмена';
@@ -2818,7 +2832,7 @@ class $ko extends S {
   @override
   String get receive => "받다";
   @override
-  String get amount_is_guaranteed => "xmr.to에서 보장 된 BTC 금액을 받으려면 위의 XMR 금액이 아닌 BTC 금액을 입력하십시오.";
+  String get amount_is_guaranteed => "수령 금액이 보장됩니다.";
   @override
   String get auth_store_banned_for => "금지";
   @override
@@ -3434,6 +3448,10 @@ class $ko extends S {
   @override
   String get displayable => '표시 가능';
   @override
+  String get fixed_rate => '고정 비율';
+  @override
+  String get fixed_rate_alert => '고정 금리 모드 체크시 수취 금액 입력이 가능합니다. 고정 속도 모드로 전환 하시겠습니까?';
+  @override
   String get xlm_extra_info => '교환을 위해 XLM 거래를 보낼 때 메모 ID를 지정하는 것을 잊지 마십시오';
   @override
   String get xrp_extra_info => '교환을 위해 XRP 트랜잭션을 보내는 동안 대상 태그를 지정하는 것을 잊지 마십시오';
@@ -3578,7 +3596,7 @@ class $pt extends S {
   @override
   String get receive => "Receber";
   @override
-  String get amount_is_guaranteed => "Em xmr.to, para receber um valor BTC garantido, insira o valor BTC e não o valor XMR acima";
+  String get amount_is_guaranteed => "O valor recebido é garantido";
   @override
   String get auth_store_banned_for => "Banido por";
   @override
@@ -4194,6 +4212,10 @@ class $pt extends S {
   @override
   String get displayable => 'Exibível';
   @override
+  String get fixed_rate => 'Taxa fixa';
+  @override
+  String get fixed_rate_alert => 'Você poderá inserir a quantia recebida quando o modo de taxa fixa estiver marcado. Quer mudar para o modo de taxa fixa?';
+  @override
   String get xlm_extra_info => 'Não se esqueça de especificar o Memo ID ao enviar a transação XLM para a troca';
   @override
   String get xrp_extra_info => 'Não se esqueça de especificar a etiqueta de destino ao enviar a transação XRP para a troca';
@@ -4338,7 +4360,7 @@ class $uk extends S {
   @override
   String get receive => "Отримати";
   @override
-  String get amount_is_guaranteed => "У xmr.to, щоб отримати гарантовану суму BTC, введіть суму BTC, а не XMR вище";
+  String get amount_is_guaranteed => "Отримана сума є гарантованою";
   @override
   String get auth_store_banned_for => "Заблоковано на ";
   @override
@@ -4954,6 +4976,10 @@ class $uk extends S {
   @override
   String get displayable => 'Відображуваний';
   @override
+  String get fixed_rate => 'Фіксована ставка';
+  @override
+  String get fixed_rate_alert => 'Ви зможете ввести суму отримання тоді, коли буде встановлений режим фіксованої ставки. Ви хочете перейти в режим фіксованої ставки?';
+  @override
   String get xlm_extra_info => "Будь ласка, не забудьте вказати ідентифікатор пам'ятки під час надсилання транзакції XLM для обміну";
   @override
   String get xrp_extra_info => 'Будь ласка, не забудьте вказати тег призначення під час надсилання XRP-транзакції для обміну';
@@ -5098,7 +5124,7 @@ class $ja extends S {
   @override
   String get receive => "受け取る";
   @override
-  String get amount_is_guaranteed => "xmr.toで、保証されたBTC金額を受け取るには、上記のXMR金額ではなく、BTC金額を入力します";
+  String get amount_is_guaranteed => "受け取り金額は保証されています";
   @override
   String get auth_store_banned_for => "禁止されています ";
   @override
@@ -5714,6 +5740,10 @@ class $ja extends S {
   @override
   String get displayable => '表示可能';
   @override
+  String get fixed_rate => '固定金利';
+  @override
+  String get fixed_rate_alert => '固定金利モードにチェックを入れると、受取額を入力できるようになります。 固定金利モードに切り替えますか？';
+  @override
   String get xlm_extra_info => '交換用のXLMトランザクションを送信するときに、メモIDを指定することを忘れないでください';
   @override
   String get xrp_extra_info => '取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください';
@@ -5862,7 +5892,7 @@ class $pl extends S {
   @override
   String get receive => "Otrzymać";
   @override
-  String get amount_is_guaranteed => "W xmr.to, aby otrzymać gwarantowaną kwotę BTC, wprowadź kwotę BTC, a nie kwotę XMR powyżej";
+  String get amount_is_guaranteed => "Otrzymana kwota jest gwarantowana";
   @override
   String get auth_store_banned_for => "Bzbanowany za ";
   @override
@@ -6478,6 +6508,10 @@ class $pl extends S {
   @override
   String get displayable => 'Wyświetlane';
   @override
+  String get fixed_rate => 'Stała stawka';
+  @override
+  String get fixed_rate_alert => 'Będziesz mógł wprowadzić kwotę otrzymaną, gdy zaznaczony jest tryb stałej stawki. Czy chcesz przejść do trybu stałej stawki?';
+  @override
   String get xlm_extra_info => 'Nie zapomnij podać identyfikatora notatki podczas wysyłania transakcji XLM do wymiany';
   @override
   String get xrp_extra_info => 'Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany';
@@ -6622,7 +6656,7 @@ class $es extends S {
   @override
   String get receive => "Recibir";
   @override
-  String get amount_is_guaranteed => "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba";
+  String get amount_is_guaranteed => "La cantidad recibida está garantizada";
   @override
   String get auth_store_banned_for => "Prohibido para ";
   @override
@@ -7238,6 +7272,10 @@ class $es extends S {
   @override
   String get displayable => 'Visualizable';
   @override
+  String get fixed_rate => 'Tipo de interés fijo';
+  @override
+  String get fixed_rate_alert => 'Podrá ingresar la cantidad recibida cuando el modo de tarifa fija esté marcado. ¿Quieres cambiar al modo de tarifa fija?';
+  @override
   String get xlm_extra_info => 'No olvide especificar el ID de nota al enviar la transacción XLM para el intercambio';
   @override
   String get xrp_extra_info => 'No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio';
@@ -7382,7 +7420,7 @@ class $nl extends S {
   @override
   String get receive => "Krijgen";
   @override
-  String get amount_is_guaranteed => "Om een gegarandeerd BTC-bedrag te ontvangen, voert u in xmr.to het BTC-bedrag in en niet het bovenstaande XMR-bedrag";
+  String get amount_is_guaranteed => "Het ontvangen bedrag is gegarandeerd";
   @override
   String get auth_store_banned_for => "Verboden voor ";
   @override
@@ -7998,6 +8036,10 @@ class $nl extends S {
   @override
   String get displayable => 'Weer te geven';
   @override
+  String get fixed_rate => 'Vast tarief';
+  @override
+  String get fixed_rate_alert => 'U kunt het ontvangen bedrag invoeren wanneer de modus voor vaste tarieven is aangevinkt. Wilt u overschakelen naar de vaste-tariefmodus?';
+  @override
   String get xlm_extra_info => 'Vergeet niet om de Memo-ID op te geven tijdens het verzenden van de XLM-transactie voor de uitwisseling';
   @override
   String get xrp_extra_info => 'Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling';
@@ -8142,7 +8184,7 @@ class $zh extends S {
   @override
   String get receive => "接收";
   @override
-  String get amount_is_guaranteed => "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量";
+  String get amount_is_guaranteed => "接收金額有保證";
   @override
   String get auth_store_banned_for => "禁止 ";
   @override
@@ -8757,6 +8799,10 @@ class $zh extends S {
   String get unconfirmed => '未经证实';
   @override
   String get displayable => '可显示';
+  @override
+  String get fixed_rate => '固定利率';
+  @override
+  String get fixed_rate_alert => '選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？';
   @override
   String get xlm_extra_info => '發送用於交換的XLM交易時，請不要忘記指定備忘錄ID';
   @override
