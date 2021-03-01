@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Cambiar proveedor de intercambio",
   "you_will_send" : "Convertir de",
   "you_will_get" : "Convertir a",
-  "amount_is_guaranteed" : "En xmr.to, para recibir una cantidad BTC garantizada, ingrese la cantidad BTC y no la cantidad XMR arriba",
+  "amount_is_guaranteed" : "La cantidad recibida está garantizada",
   "amount_is_estimate" : "El monto recibido es un estimado",
   "powered_by" : "Energizado por ${title}",
   "error" : "Error",
@@ -456,5 +456,11 @@
   "enter_backup_password" : "Ingrese la contraseña de respaldo aquí",
   "select_backup_file" : "Seleccionar archivo de respaldo",
   "import" : "Importar",
-  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo."
+  "please_select_backup_file" : "Seleccione el archivo de respaldo e ingrese la contraseña de respaldo.",
+
+  "fixed_rate" : "Tipo de interés fijo",
+  "fixed_rate_alert" : "Podrá ingresar la cantidad recibida cuando el modo de tarifa fija esté marcado. ¿Quieres cambiar al modo de tarifa fija?",
+
+  "xlm_extra_info" : "No olvide especificar el ID de nota al enviar la transacción XLM para el intercambio",
+  "xrp_extra_info" : "No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio"
 }

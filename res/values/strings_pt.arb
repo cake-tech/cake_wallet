@@ -65,7 +65,7 @@
   "change_exchange_provider" : "Alterar o provedor de troca",
   "you_will_send" : "Converter de",
   "you_will_get" : "Converter para",
-  "amount_is_guaranteed" : "Em xmr.to, para receber um valor BTC garantido, insira o valor BTC e não o valor XMR acima",
+  "amount_is_guaranteed" : "O valor recebido é garantido",
   "amount_is_estimate" : "O valor a ser recebido informado acima é uma estimativa",
   "powered_by" : "Troca realizada por ${title}",
   "error" : "Erro",
@@ -456,5 +456,11 @@
   "enter_backup_password" : "Digite a senha de backup aqui",
   "select_backup_file" : "Selecione o arquivo de backup",
   "import" : "Importar",
-  "please_select_backup_file" : "Selecione o arquivo de backup e insira a senha de backup."
+  "please_select_backup_file" : "Selecione o arquivo de backup e insira a senha de backup.",
+
+  "fixed_rate" : "Taxa fixa",
+  "fixed_rate_alert" : "Você poderá inserir a quantia recebida quando o modo de taxa fixa estiver marcado. Quer mudar para o modo de taxa fixa?",
+
+  "xlm_extra_info" : "Não se esqueça de especificar o Memo ID ao enviar a transação XLM para a troca",
+  "xrp_extra_info" : "Não se esqueça de especificar a etiqueta de destino ao enviar a transação XRP para a troca"
 }
