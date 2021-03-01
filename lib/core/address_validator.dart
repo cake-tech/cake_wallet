@@ -15,7 +15,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xmr:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.ada:
-        return '[0-9a-zA-Z]';
+        return '^[0-9a-zA-Z]{59}\$|^[0-9a-zA-Z]{92}\$|^[0-9a-zA-Z]{104}\$'
+            '|^[0-9a-zA-Z]{105}\$|^addr1[0-9a-zA-Z]{98}\$';
       case CryptoCurrency.bch:
         return '[0-9a-zA-Z]';
       case CryptoCurrency.bnb:
@@ -54,7 +55,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xmr:
         return [95, 106];
       case CryptoCurrency.ada:
-        return [59, 92, 104, 105];
+        return null;
       case CryptoCurrency.bch:
         return [42];
       case CryptoCurrency.bnb:
