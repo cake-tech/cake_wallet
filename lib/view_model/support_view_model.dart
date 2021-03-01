@@ -6,6 +6,7 @@ import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'support_view_model.g.dart';
 
@@ -16,8 +17,9 @@ abstract class SupportViewModelBase with Store {
     items = [
       RegularListItem(
         title: S.current.faq,
-        handler: (BuildContext context) =>
-            Navigator.pushNamed(context, Routes.faq),
+        handler: (BuildContext context) async {
+          if (await canLaunch(url)) await launch(url);
+        },
       ),
       LinkListItem(
           title: 'Email',
@@ -40,5 +42,7 @@ abstract class SupportViewModelBase with Store {
           link: 'mailto:support@changenow.io')
     ];
   }
+  static const url = 'https://cakewallet.com/guide/';
+
   List<SettingsListItem> items;
 }
