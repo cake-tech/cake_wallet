@@ -456,5 +456,8 @@
   "enter_backup_password" : "在此處輸入備用密碼",
   "select_backup_file" : "選擇備份文件",
   "import" : "進口",
-  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。"
+  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。",
+
+  "xlm_extra_info" : "發送用於交換的XLM交易時，請不要忘記指定備忘錄ID",
+  "xrp_extra_info" : "發送用於交換的XRP交易時，請不要忘記指定目標標記"
 }
