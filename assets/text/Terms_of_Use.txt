@@ -1,4 +1,4 @@
-﻿Last Modified: January 28, 2021
+Last Modified: March 1, 2021
 Acceptance of the Terms of Use
 These terms of use are entered into by and between You and Cake Technologies LLC ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Cake Wallet app, including any content, functionality, and services offered on or through the Cake Wallet app (the “App").
 Please read the Terms of Use carefully before you start to use the App. By using the App you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, , incorporated herein by reference. If you do not wish to agree to these Terms of Use or the Privacy Policy, you must not access or use the App. 
@@ -45,7 +45,7 @@ Links from the App
 If the App contains links to other sites and resources provided by third parties, these links are provided for your convenience only. We have no control over the contents of those sites or resources, and accept no responsibility for them or for any loss or damage that may arise from your use of them. If you decide to access any of the third-party Apps or services linked to this App, you do so entirely at your own risk and subject to the terms and conditions of use for such Apps.
 
 Geographic Restrictions
-The owner of the App is based in the State of Florida in the United States. We provide this App for use only by persons located in the United States. We make no claims that the App or any of its content is accessible or appropriate outside of the United States. Access to the App may not be legal by certain persons or in certain countries. If you access the App from outside the United States, you do so on your own initiative and are responsible for compliance with local laws.
+The owner of the App is based in the State of Florida in the United States. Please consult with qualified legal counsel to assess the appropriate use of the App or any of its contents in the jurisdiction(s) you intend to use the App. The owner of the App makes no representation or warranty as to the suitability for use, compliance or other matter of law with respect to use in any jurisdiction. If you access the App from outside the United States, you do so on your own initiative and are responsible for compliance with local laws and regulations.
 Translations
 The App may contain translations of the English version of the content available on the App. These translations are provided only as a convenience. In the event of any conflict between the English language version and the translated version, the English language version shall take precedence. If you notice any inconsistencies, please report them on GitHub.
 Risks Related to the use of the App
