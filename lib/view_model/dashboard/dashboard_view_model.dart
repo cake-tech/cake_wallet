@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
@@ -20,6 +23,8 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
+import 'package:crypto/crypto.dart';
+import 'package:http/http.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
@@ -30,6 +35,9 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:convert/convert.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -278,5 +286,35 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore)));
+  }
+
+  void buyCryptoCurrency() async {
+    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    final url = 'https://api.testwyre.com/v3/orders/reserve' + '?timestamp=' +
+          timestamp;
+    final apiKey = secrets.wyre_api_key;
+    final secretKey = secrets.wyre_secret_key;
+    final accountId = secrets.wyre_account_id;
+    final body = {
+      'destCurrency' : walletTypeToCryptoCurrency(type).title,
+      'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
+      'referrerAccountId' : accountId,
+      'lockFields' : ['destCurrency', 'dest']
+    };
+
+    final response = await post(url,
+        headers: {
+          'Authorization': 'Bearer $secretKey',
+          'Content-Type': 'application/json',
+          'cache-control': 'no-cache'
+        },
+        body: json.encode(body)
+    );
+
+    if (response.statusCode == 200) {
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final urlFromResponse = responseJSON['url'] as String;
+      if (await canLaunch(urlFromResponse)) await launch(urlFromResponse);
+    }
   }
 }

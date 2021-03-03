@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/transactions_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class DashboardPage extends BasePage {
@@ -81,7 +83,7 @@ class DashboardPage extends BasePage {
     final exchangeImage = Image.asset('assets/images/transfer.png',
         height: 24.27, width: 22.25,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
-    final receiveImage = Image.asset('assets/images/download.png',
+    final buyImage = Image.asset('assets/images/coins.png',
         height: 22.24, width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
     _setEffects();
@@ -111,7 +113,7 @@ class DashboardPage extends BasePage {
             )),
         Container(
           padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
-          child: Row(
+          child: Observer(builder: (_) => Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               ActionButton(
@@ -122,8 +124,12 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
+              if (walletViewModel.type == WalletType.bitcoin) ActionButton(
+                  image: buyImage,
+                  title: S.of(context).buy,
+                  onClick: () => walletViewModel.buyCryptoCurrency()),
             ],
-          ),
+          )),
         )
       ],
     ));
