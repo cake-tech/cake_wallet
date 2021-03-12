@@ -4,7 +4,10 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/find_order_by_id.dart';
+import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_history.dart';
@@ -16,14 +19,18 @@ import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
@@ -49,7 +56,9 @@ abstract class DashboardViewModelBase with Store {
       this.appStore,
       this.tradesStore,
       this.tradeFilterStore,
-      this.transactionFilterStore}) {
+      this.transactionFilterStore,
+      this.ordersSource,
+      this.ordersStore}) {
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -135,7 +144,26 @@ abstract class DashboardViewModelBase with Store {
 
       return true;
     });
+
+    dataChannel.setMessageHandler((ByteData message) async {
+      final type = ByteData.view(message.buffer, 0, 4).getInt32(0);
+
+      switch (type) {
+        case _dataExists:
+          print('Wyre: Data exists');
+          break;
+        case _dataNotExists:
+          print('Wyre: Data not exists');
+          break;
+      }
+
+      return ByteData(0);
+    });
   }
+
+  static const dataChannel = BasicMessageChannel('data_change', BinaryCodec());
+  static const _dataExists = 1;
+  static const _dataNotExists = 0;
 
   @observable
   WalletType type;
@@ -180,6 +208,11 @@ abstract class DashboardViewModelBase with Store {
       .toList();
 
   @computed
+  List<OrderListItem> get orders => ordersStore.orders
+      .where((item) => item.order.walletId == wallet.id)
+      .toList();
+
+  @computed
   double get price => balanceViewModel.price;
 
   @computed
@@ -188,6 +221,7 @@ abstract class DashboardViewModelBase with Store {
 
     _items.addAll(transactionFilterStore.filtered(transactions: transactions));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
+    _items.addAll(orders);
 
     return formattedItemsList(_items);
   }
@@ -197,11 +231,15 @@ abstract class DashboardViewModelBase with Store {
 
   bool get hasRescan => wallet.type == WalletType.monero;
 
+  Box<Order> ordersSource;
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
 
   TradesStore tradesStore;
+
+  OrdersStore ordersStore;
 
   TradeFilterStore tradeFilterStore;
 
@@ -296,10 +334,12 @@ abstract class DashboardViewModelBase with Store {
     final secretKey = secrets.wyre_secret_key;
     final accountId = secrets.wyre_account_id;
     final body = {
-      'destCurrency' : walletTypeToCryptoCurrency(type).title,
-      'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
+      //'destCurrency' : walletTypeToCryptoCurrency(type).title,
+      //'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
       'referrerAccountId' : accountId,
-      'lockFields' : ['destCurrency', 'dest']
+      'redirectUrl' : 'http://google.com'
+      //'redirectUrl' : 'cakewallet://wyre-trade-success'
+      //'lockFields' : ['destCurrency', 'dest']
     };
 
     final response = await post(url,
@@ -315,6 +355,13 @@ abstract class DashboardViewModelBase with Store {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final urlFromResponse = responseJSON['url'] as String;
       if (await canLaunch(urlFromResponse)) await launch(urlFromResponse);
+
+      /*final orderId = '';
+      final order = await findOrderById(orderId);
+      order.receiveAddress = address;
+      order.walletId = wallet.id;
+      await ordersSource.add(order);
+      ordersStore.setOrder(order);*/
     }
   }
 }
