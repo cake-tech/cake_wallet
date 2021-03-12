@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
+import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
@@ -22,6 +23,7 @@ import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
+import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -39,6 +41,7 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
+import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -63,6 +66,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
@@ -115,6 +119,7 @@ Box<Trade> _tradesSource;
 Box<Template> _templates;
 Box<ExchangeTemplate> _exchangeTemplates;
 Box<TransactionDescription> _transactionDescriptionBox;
+Box<Order> _ordersSource;
 
 Future setup(
     {Box<WalletInfo> walletInfoSource,
@@ -123,7 +128,8 @@ Future setup(
     Box<Trade> tradesSource,
     Box<Template> templates,
     Box<ExchangeTemplate> exchangeTemplates,
-    Box<TransactionDescription> transactionDescriptionBox}) async {
+    Box<TransactionDescription> transactionDescriptionBox,
+    Box<Order> ordersSource}) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _contactSource = contactSource;
@@ -131,6 +137,7 @@ Future setup(
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
+  _ordersSource = ordersSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
@@ -157,6 +164,8 @@ Future setup(
       nodeListStore: getIt.get<NodeListStore>()));
   getIt.registerSingleton<TradesStore>(TradesStore(
       tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerSingleton<OrdersStore>(OrdersStore(
+      ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
@@ -219,7 +228,9 @@ Future setup(
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
       tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>()));
+      transactionFilterStore: getIt.get<TransactionFilterStore>(),
+      ordersSource: _ordersSource,
+      ordersStore: getIt.get<OrdersStore>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -482,6 +493,9 @@ Future setup(
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(tradeForDetails: trade, trades: _tradesSource));
 
+  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) =>
+      OrderDetailsViewModel(orderForDetails: order));
+
   getIt.registerFactory(() => BackupService(
       getIt.get<FlutterSecureStorage>(),
       _walletInfoSource,
@@ -510,6 +524,9 @@ Future setup(
 
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>((Trade trade, _) =>
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
+
+  getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
+      OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
   getIt.registerFactory(() => SupportViewModel());
 

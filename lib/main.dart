@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -69,11 +70,17 @@ Future<void> main() async {
       Hive.registerAdapter(ExchangeTemplateAdapter());
     }
 
+    if (!Hive.isAdapterRegistered(Order.typeId)) {
+      Hive.registerAdapter(OrderAdapter());
+    }
+
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
     final tradesBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: Trade.boxKey);
+    final ordersBoxKey = await getEncryptionKey(
+        secureStorage: secureStorage, forKey: Order.boxKey);
     final contacts = await Hive.openBox<Contact>(Contact.boxName);
     final nodes = await Hive.openBox<Node>(Node.boxName);
     final transactionDescriptions = await Hive.openBox<TransactionDescription>(
@@ -81,6 +88,8 @@ Future<void> main() async {
         encryptionKey: transactionDescriptionsBoxKey);
     final trades =
         await Hive.openBox<Trade>(Trade.boxName, encryptionKey: tradesBoxKey);
+    final orders =
+        await Hive.openBox<Order>(Order.boxName, encryptionKey: ordersBoxKey);
     final walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
     final templates = await Hive.openBox<Template>(Template.boxName);
     final exchangeTemplates =
@@ -91,6 +100,7 @@ Future<void> main() async {
         walletInfoSource: walletInfoSource,
         contactSource: contacts,
         tradesSource: trades,
+        ordersSource: orders,
         // fiatConvertationService: fiatConvertationService,
         templates: templates,
         exchangeTemplates: exchangeTemplates,
@@ -118,6 +128,7 @@ Future<void> initialSetup(
     @required Box<WalletInfo> walletInfoSource,
     @required Box<Contact> contactSource,
     @required Box<Trade> tradesSource,
+    @required Box<Order> ordersSource,
     // @required FiatConvertationService fiatConvertationService,
     @required Box<Template> templates,
     @required Box<ExchangeTemplate> exchangeTemplates,
@@ -139,7 +150,8 @@ Future<void> initialSetup(
       tradesSource: tradesSource,
       templates: templates,
       exchangeTemplates: exchangeTemplates,
-      transactionDescriptionBox: transactionDescriptions);
+      transactionDescriptionBox: transactionDescriptions,
+      ordersSource: ordersSource);
   await bootstrap(navigatorKey);
   monero_wallet.onStartup();
 }
