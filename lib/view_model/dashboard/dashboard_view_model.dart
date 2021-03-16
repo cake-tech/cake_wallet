@@ -13,6 +13,7 @@ import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
@@ -41,7 +42,8 @@ abstract class DashboardViewModelBase with Store {
       this.appStore,
       this.tradesStore,
       this.tradeFilterStore,
-      this.transactionFilterStore}) {
+      this.transactionFilterStore,
+      this.settingsStore}) {
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -193,6 +195,8 @@ abstract class DashboardViewModelBase with Store {
 
   AppStore appStore;
 
+  SettingsStore settingsStore;
+
   TradesStore tradesStore;
 
   TradeFilterStore tradeFilterStore;
@@ -200,6 +204,8 @@ abstract class DashboardViewModelBase with Store {
   TransactionFilterStore transactionFilterStore;
 
   Map<String, List<FilterItem>> filterItems;
+
+  bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
   ReactionDisposer _reaction;
 
