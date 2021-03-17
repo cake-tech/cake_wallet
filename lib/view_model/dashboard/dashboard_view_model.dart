@@ -326,7 +326,7 @@ abstract class DashboardViewModelBase with Store {
             settingsStore: appStore.settingsStore)));
   }
 
-  void buyCryptoCurrency() async {
+  Future<String> getWyreUrl() async {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final url = 'https://api.testwyre.com/v3/orders/reserve' + '?timestamp=' +
           timestamp;
@@ -337,7 +337,7 @@ abstract class DashboardViewModelBase with Store {
       //'destCurrency' : walletTypeToCryptoCurrency(type).title,
       //'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
       'referrerAccountId' : accountId,
-      'redirectUrl' : 'http://google.com'
+      //'redirectUrl' : 'http://google.com'
       //'redirectUrl' : 'cakewallet://wyre-trade-success'
       //'lockFields' : ['destCurrency', 'dest']
     };
@@ -354,7 +354,8 @@ abstract class DashboardViewModelBase with Store {
     if (response.statusCode == 200) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final urlFromResponse = responseJSON['url'] as String;
-      if (await canLaunch(urlFromResponse)) await launch(urlFromResponse);
+      return urlFromResponse;
+      //if (await canLaunch(urlFromResponse)) await launch(urlFromResponse);
 
       /*final orderId = '';
       final order = await findOrderById(orderId);
@@ -362,6 +363,8 @@ abstract class DashboardViewModelBase with Store {
       order.walletId = wallet.id;
       await ordersSource.add(order);
       ordersStore.setOrder(order);*/
+    } else {
+      return '';
     }
   }
 }

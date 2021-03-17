@@ -41,6 +41,7 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
+import 'package:cake_wallet/src/screens/web_view/web_view_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';
@@ -527,6 +528,9 @@ Future setup(
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
+
+  getIt.registerFactoryParam<WebViewPage, String, void>((String url, _) =>
+      WebViewPage(url: url));
 
   getIt.registerFactory(() => SupportViewModel());
 
