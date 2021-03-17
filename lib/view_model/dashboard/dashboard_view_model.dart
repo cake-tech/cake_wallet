@@ -93,6 +93,8 @@ abstract class DashboardViewModelBase with Store {
       ]
     };
 
+    isRunningWebView = false;
+
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
     type = wallet.type;
@@ -176,6 +178,9 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   String subname;
+
+  @observable
+  bool isRunningWebView;
 
   @computed
   String get address => wallet.address;
