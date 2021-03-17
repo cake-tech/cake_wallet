@@ -127,7 +127,13 @@ class DashboardPage extends BasePage {
               if (walletViewModel.type == WalletType.bitcoin) ActionButton(
                   image: buyImage,
                   title: S.of(context).buy,
-                  onClick: () => walletViewModel.buyCryptoCurrency()),
+                  onClick: () async {
+                    final url = await walletViewModel.getWyreUrl();
+                    if (url.isNotEmpty) {
+                      await Navigator.of(context)
+                          .pushNamed(Routes.webView, arguments: url);
+                    }
+                  }),
             ],
           )),
         )
