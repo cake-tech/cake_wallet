@@ -530,7 +530,7 @@ Future setup(
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
   getIt.registerFactoryParam<WebViewPage, String, void>((String url, _) =>
-      WebViewPage(url: url));
+      WebViewPage(ordersStore: getIt.get<OrdersStore>(), url: url));
 
   getIt.registerFactory(() => SupportViewModel());
 

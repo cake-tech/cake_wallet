@@ -330,15 +330,13 @@ abstract class DashboardViewModelBase with Store {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final url = 'https://api.testwyre.com/v3/orders/reserve' + '?timestamp=' +
           timestamp;
-    final apiKey = secrets.wyre_api_key;
-    final secretKey = secrets.wyre_secret_key;
-    final accountId = secrets.wyre_account_id;
+    final apiKey = secrets.wyreApiKey;
+    final secretKey = secrets.wyreSecretKey;
+    final accountId = secrets.wyreAccountId;
     final body = {
       //'destCurrency' : walletTypeToCryptoCurrency(type).title,
       //'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
       'referrerAccountId' : accountId,
-      //'redirectUrl' : 'http://google.com'
-      //'redirectUrl' : 'cakewallet://wyre-trade-success'
       //'lockFields' : ['destCurrency', 'dest']
     };
 
@@ -355,16 +353,16 @@ abstract class DashboardViewModelBase with Store {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final urlFromResponse = responseJSON['url'] as String;
       return urlFromResponse;
-      //if (await canLaunch(urlFromResponse)) await launch(urlFromResponse);
-
-      /*final orderId = '';
-      final order = await findOrderById(orderId);
-      order.receiveAddress = address;
-      order.walletId = wallet.id;
-      await ordersSource.add(order);
-      ordersStore.setOrder(order);*/
     } else {
       return '';
     }
+  }
+
+  Future<void> saveOrder(String orderId) async {
+    final order = await findOrderById(orderId);
+    order.receiveAddress = address;
+    order.walletId = wallet.id;
+    await ordersSource.add(order);
+    ordersStore.setOrder(order);
   }
 }
