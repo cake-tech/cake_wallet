@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -27,33 +26,37 @@ class WebViewPageBody extends StatefulWidget {
 }
 
 class WebViewPageBodyState extends State<WebViewPageBody> {
-  WebViewController webViewController;
+  String orderId;
+  WebViewController _webViewController;
+  GlobalKey _webViewkey;
 
   @override
   void initState() {
     super.initState();
+    _webViewkey = GlobalKey();
+
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
 
   @override
   Widget build(BuildContext context) {
     return WebView(
-      initialUrl: widget.url,
-      javascriptMode: JavascriptMode.unrestricted,
-      onWebViewCreated: (WebViewController controller) {
-        setState(() => webViewController = controller);
-      },
-      javascriptChannels: <JavascriptChannel>{
-        JavascriptChannel(
-          name: 'Echo',
-          onMessageReceived: (JavascriptMessage message) {
-            webViewController.evaluateJavascript("console.log('test callback');");
-          },
-        ),
-      },
-      /*onPageFinished: (url) {
-        webViewController.evaluateJavascript("alert('Test alert');");
-      },*/
-    );
+        key: _webViewkey,
+        initialUrl: widget.url,
+        javascriptMode: JavascriptMode.unrestricted,
+        onWebViewCreated: (WebViewController controller) =>
+            setState(() => _webViewController = controller),
+        navigationDelegate: (req) async {
+          final currentUrl = await _webViewController?.currentUrl() ?? '';
+
+          if (currentUrl.contains('processing') ||
+              currentUrl.contains('completed')) {
+            final urlParts = currentUrl.split('/');
+            orderId = urlParts.last;
+            print(orderId);
+          }
+
+          return NavigationDecision.navigate;
+        });
   }
 }
