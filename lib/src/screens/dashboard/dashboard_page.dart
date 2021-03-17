@@ -125,22 +125,27 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
-              if (walletViewModel.type == WalletType.bitcoin) ActionButton(
-                  image: buyImage,
-                  title: S.of(context).buy,
-                  onClick: () async {
-                    final url = await walletViewModel.getWyreUrl();
-                    if (url.isNotEmpty) {
-                      await Navigator.of(context)
-                          .pushNamed(Routes.webView, arguments: url);
+              if (walletViewModel.type == WalletType.bitcoin) Observer(
+                  builder: (_) => ActionButton(
+                      image: buyImage,
+                      title: S.of(context).buy,
+                      onClick: walletViewModel.isRunningWebView
+                        ? null
+                        : () async {
+                        walletViewModel.isRunningWebView = true;
+                        final url = await walletViewModel.getWyreUrl();
+                        if (url.isNotEmpty) {
+                          await Navigator.of(context)
+                              .pushNamed(Routes.webView, arguments: url);
 
-                      final orderId = walletViewModel.ordersStore.orderId;
+                          final orderId = walletViewModel.ordersStore.orderId;
 
-                      if (orderId.isNotEmpty) {
-                        await walletViewModel.saveOrder(orderId);
-                      }
-                    }
-                  }),
+                          if (orderId.isNotEmpty) {
+                            await walletViewModel.saveOrder(orderId);
+                          }
+                        }
+                        walletViewModel.isRunningWebView = false;
+                      })),
             ],
           )),
         )
