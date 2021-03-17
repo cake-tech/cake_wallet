@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/find_order_by_id.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -132,6 +133,12 @@ class DashboardPage extends BasePage {
                     if (url.isNotEmpty) {
                       await Navigator.of(context)
                           .pushNamed(Routes.webView, arguments: url);
+
+                      final orderId = walletViewModel.ordersStore.orderId;
+
+                      if (orderId.isNotEmpty) {
+                        await walletViewModel.saveOrder(orderId);
+                      }
                     }
                   }),
             ],

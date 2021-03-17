@@ -1,24 +1,28 @@
 import 'dart:io';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewPage extends BasePage {
-  WebViewPage({@required this.url});
+  WebViewPage({@required this.ordersStore, @required this.url});
 
+  final OrdersStore ordersStore;
   final String url;
 
   @override
   String get title => S.current.buy;
 
   @override
-  Widget body(BuildContext context) => WebViewPageBody(url: url);
+  Widget body(BuildContext context) =>
+      WebViewPageBody(ordersStore: ordersStore,url: url);
 }
 
 class WebViewPageBody extends StatefulWidget {
-  WebViewPageBody({this.url});
+  WebViewPageBody({this.ordersStore, this.url});
 
+  final OrdersStore ordersStore;
   final String url;
 
   @override
@@ -34,6 +38,7 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
   void initState() {
     super.initState();
     _webViewkey = GlobalKey();
+    widget.ordersStore.orderId = '';
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
   }
@@ -53,7 +58,7 @@ class WebViewPageBodyState extends State<WebViewPageBody> {
               currentUrl.contains('completed')) {
             final urlParts = currentUrl.split('/');
             orderId = urlParts.last;
-            print(orderId);
+            widget.ordersStore.orderId = orderId;
           }
 
           return NavigationDecision.navigate;

@@ -13,6 +13,8 @@ abstract class OrdersStoreBase with Store {
   OrdersStoreBase({this.ordersSource, this.settingsStore}) {
     orders = <OrderListItem>[];
 
+    orderId = '';
+
     _onOrdersChanged =
         ordersSource.watch().listen((_) async => await updateOrderList());
 
@@ -28,6 +30,9 @@ abstract class OrdersStoreBase with Store {
 
   @observable
   Order order;
+
+  @observable
+  String orderId;
 
   @action
   void setOrder(Order order) => this.order = order;
