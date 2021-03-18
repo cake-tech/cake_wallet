@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class WebViewPage extends BasePage {
-  WebViewPage({@required this.ordersStore, @required this.url});
+class WyrePage extends BasePage {
+  WyrePage({@required this.ordersStore, @required this.url});
 
   final OrdersStore ordersStore;
   final String url;
@@ -15,21 +16,27 @@ class WebViewPage extends BasePage {
   String get title => S.current.buy;
 
   @override
+  Color get backgroundDarkColor => Colors.white;
+
+  @override
+  Color get titleColor => Palette.darkBlueCraiola;
+
+  @override
   Widget body(BuildContext context) =>
-      WebViewPageBody(ordersStore: ordersStore,url: url);
+      WyrePageBody(ordersStore: ordersStore,url: url);
 }
 
-class WebViewPageBody extends StatefulWidget {
-  WebViewPageBody({this.ordersStore, this.url});
+class WyrePageBody extends StatefulWidget {
+  WyrePageBody({this.ordersStore, this.url});
 
   final OrdersStore ordersStore;
   final String url;
 
   @override
-  WebViewPageBodyState createState() => WebViewPageBodyState();
+  WyrePageBodyState createState() => WyrePageBodyState();
 }
 
-class WebViewPageBodyState extends State<WebViewPageBody> {
+class WyrePageBodyState extends State<WyrePageBody> {
   String orderId;
   WebViewController _webViewController;
   GlobalKey _webViewkey;

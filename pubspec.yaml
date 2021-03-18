@@ -56,6 +56,7 @@ dependencies:
   dotted_border: ^1.0.5
   smooth_page_indicator: ^0.2.0
   webview_flutter: ^1.0.7
+  flutter_spinkit: ^4.1.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
