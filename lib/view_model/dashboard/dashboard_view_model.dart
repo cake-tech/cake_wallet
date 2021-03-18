@@ -333,16 +333,15 @@ abstract class DashboardViewModelBase with Store {
 
   Future<String> getWyreUrl() async {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final url = 'https://api.testwyre.com/v3/orders/reserve' + '?timestamp=' +
+    final url = 'https://api.sendwyre.com/v3/orders/reserve' + '?timestamp=' +
           timestamp;
-    final apiKey = secrets.wyreApiKey;
     final secretKey = secrets.wyreSecretKey;
     final accountId = secrets.wyreAccountId;
     final body = {
-      //'destCurrency' : walletTypeToCryptoCurrency(type).title,
-      //'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
+      'destCurrency' : walletTypeToCryptoCurrency(type).title,
+      'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
       'referrerAccountId' : accountId,
-      //'lockFields' : ['destCurrency', 'dest']
+      'lockFields' : ['destCurrency', 'dest']
     };
 
     final response = await post(url,
