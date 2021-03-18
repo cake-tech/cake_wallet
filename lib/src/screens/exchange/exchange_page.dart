@@ -272,7 +272,7 @@ class ExchangePage extends BasePage {
                         ],
                       ),
                     ),
-                    if (exchangeViewModel.isReceiveAmountEditable) Padding(
+                    /*if (exchangeViewModel.isReceiveAmountEditable) Padding(
                         padding: EdgeInsets.only(top: 12, left: 24),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -286,7 +286,7 @@ class ExchangePage extends BasePage {
                             ),
                           ],
                         )
-                    ),
+                    ),*/
                     Padding(
                       padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
                       child: Row(
