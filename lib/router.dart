@@ -9,7 +9,7 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
-import 'package:cake_wallet/src/screens/web_view/web_view_page.dart';
+import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
@@ -293,10 +293,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
-    case Routes.webView:
+    case Routes.wyre:
       return MaterialPageRoute<void>(
           builder: (_) =>
-              getIt.get<WebViewPage>(param1: settings.arguments as String));
+              getIt.get<WyrePage>(param1: settings.arguments as String));
 
     case Routes.restoreWalletFromSeedDetails:
       final args = settings.arguments as List;

@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/find_order_by_id.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -16,6 +15,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -126,26 +126,40 @@ class DashboardPage extends BasePage {
                   title: S.of(context).exchange,
                   route: Routes.exchange),
               if (walletViewModel.type == WalletType.bitcoin) Observer(
-                  builder: (_) => ActionButton(
-                      image: buyImage,
-                      title: S.of(context).buy,
-                      onClick: walletViewModel.isRunningWebView
-                        ? null
-                        : () async {
-                        walletViewModel.isRunningWebView = true;
-                        final url = await walletViewModel.getWyreUrl();
-                        if (url.isNotEmpty) {
-                          await Navigator.of(context)
-                              .pushNamed(Routes.webView, arguments: url);
+                  builder: (_) => Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.topCenter,
+                    children: [
+                      if (walletViewModel.isRunningWebView) Positioned(
+                        top: -5,
+                        child: SpinKitRing(
+                          color: Theme.of(context).buttonColor,
+                          lineWidth: 3,
+                          size: 70.0,
+                        ),
+                      ),
+                      ActionButton(
+                          image: buyImage,
+                          title: S.of(context).buy,
+                          onClick: walletViewModel.isRunningWebView
+                              ? null
+                              : () async {
+                            walletViewModel.isRunningWebView = true;
+                            final url = await walletViewModel.getWyreUrl();
+                            if (url.isNotEmpty) {
+                              await Navigator.of(context)
+                                  .pushNamed(Routes.wyre, arguments: url);
 
-                          final orderId = walletViewModel.ordersStore.orderId;
+                              final orderId = walletViewModel.ordersStore.orderId;
 
-                          if (orderId.isNotEmpty) {
-                            await walletViewModel.saveOrder(orderId);
-                          }
-                        }
-                        walletViewModel.isRunningWebView = false;
-                      })),
+                              if (orderId.isNotEmpty) {
+                                await walletViewModel.saveOrder(orderId);
+                              }
+                            }
+                            walletViewModel.isRunningWebView = false;
+                          })
+                    ],
+                  )),
             ],
           )),
         )
