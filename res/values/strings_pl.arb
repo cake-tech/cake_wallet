@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Ten handel jest zasilany przez ${provider}",
   "copy_address" : "Skopiuj adress",
   "exchange_result_confirm" : "Naciskając Potwierdź, wyślesz ${fetchingLabel} ${from} z twojego portfela ${walletName} na adres podany poniżej. Lub możesz wysłać z zewnętrznego portfela na poniższy adres / kod QR.\n\nNaciśnij Potwierdź, aby kontynuować lub wróć, aby zmienić kwoty.",
-  "exchange_result_description" : "Proszę wyślij ${fetchingLabel} ${from} pod adres podany na następnej stronie.",
+  "exchange_result_description" : "Musisz wysłać co najmniej ${fetchingLabel} ${from} na adres podany na następnej stronie. Jeśli wyślesz kwotę niższą niż ${fetchingLabel} ${from}, może ona nie zostać przeliczona i może nie zostać zwrócona.",
   "exchange_result_write_down_ID" : "*Skopiuj lub zanotuj swój identyfikator pokazany powyżej.",
   "confirm" : "Potwierdzać",
   "confirm_sending" : "Potwierdź wysłanie",
