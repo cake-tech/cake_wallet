@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "U kunt het ontvangen bedrag invoeren wanneer de modus voor vaste tarieven is aangevinkt. Wilt u overschakelen naar de vaste-tariefmodus?",
 
   "xlm_extra_info" : "Vergeet niet om de Memo-ID op te geven tijdens het verzenden van de XLM-transactie voor de uitwisseling",
-  "xrp_extra_info" : "Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling"
+  "xrp_extra_info" : "Vergeet niet om de Destination Tag op te geven tijdens het verzenden van de XRP-transactie voor de uitwisseling",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Als u XMR wilt omwisselen van uw Cake Wallet Monero-saldo, moet u eerst overschakelen naar uw Monero-portemonnee.",
+  "confirmed" : "Bevestigd",
+  "unconfirmed" : "Niet bevestigd",
+  "displayable" : "Weer te geven"
 }

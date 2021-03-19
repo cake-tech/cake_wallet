@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "固定金利モードにチェックを入れると、受取額を入力できるようになります。 固定金利モードに切り替えますか？",
 
   "xlm_extra_info" : "交換用のXLMトランザクションを送信するときに、メモIDを指定することを忘れないでください",
-  "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください"
+  "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet Moneroの残高からXMRを交換する場合は、最初にMoneroウォレットに切り替えてください。",
+  "confirmed" : "確認済み",
+  "unconfirmed" : "未確認",
+  "displayable" : "表示可能"
 }

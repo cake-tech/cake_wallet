@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Dieser Handel wird betrieben von ${provider}",
   "copy_address" : "Adresse kopieren",
   "exchange_result_confirm" : "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die unten angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die unten angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.",
-  "exchange_result_description" : "Bitte senden ${fetchingLabel} ${from} an die auf der nächsten Seite angegebene Adresse.'",
+  "exchange_result_description" : "Bitte senden ${fetchingLabel} ${from} an die auf der nächsten Seite angegebene Adresse.",
   "exchange_result_write_down_ID" : "*Bitte kopieren oder notieren Sie Ihren oben gezeigten Ausweis.",
   "confirm" : "Bestätigen",
   "confirm_sending" : "Bestätigen Sie das Senden",
@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "Sie können den Empfangsbetrag eingeben, wenn der Festpreismodus aktiviert ist. Möchten Sie in den Festpreismodus wechseln?",
   
   "xlm_extra_info" : "Bitte vergessen Sie nicht, die Memo-ID anzugeben, während Sie die XLM-Transaktion für den Austausch senden",
-  "xrp_extra_info" : "Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden"
+  "xrp_extra_info" : "Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Wenn Sie XMR von Ihrem Cake Wallet Monero-Guthaben austauschen möchten, wechseln Sie bitte zuerst zu Ihrem Monero Wallet.",
+  "confirmed" : "Bestätigt",
+  "unconfirmed" : "Unbestätigt",
+  "displayable" : "Anzeigebar"
 }
