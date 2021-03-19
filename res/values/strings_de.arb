@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "Dieser Handel wird betrieben von ${provider}",
   "copy_address" : "Adresse kopieren",
   "exchange_result_confirm" : "Durch Drücken von Bestätigen wird gesendet ${fetchingLabel} ${from} von Ihrer Brieftasche aus angerufen ${walletName} an die unten angegebene Adresse. Oder Sie können von Ihrem externen Portemonnaie an die unten angegebene Adresse / QR-Code senden.\n\nBitte bestätigen Sie, um fortzufahren, oder gehen Sie zurück, um die Beträge zu änderns.",
-  "exchange_result_description" : "Bitte senden ${fetchingLabel} ${from} an die auf der nächsten Seite angegebene Adresse.",
+  "exchange_result_description" : "Sie müssen mindestens ${fetchingLabel} ${from} an die auf der nächsten Seite angegebene Adresse senden. Wenn Sie einen Betrag unter ${fetchingLabel} ${from} senden, wird dieser möglicherweise nicht konvertiert und möglicherweise nicht erstattet.",
   "exchange_result_write_down_ID" : "*Bitte kopieren oder notieren Sie Ihren oben gezeigten Ausweis.",
   "confirm" : "Bestätigen",
   "confirm_sending" : "Bestätigen Sie das Senden",
