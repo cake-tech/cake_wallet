@@ -4,7 +4,7 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:http/http.dart';
 
 Future<Order> findOrderById(String id) async {
-  final orderUrl = 'https://api.testwyre.com/v3/orders/' + id;
+  final orderUrl = 'https://api.sendwyre.com/v3/orders/' + id;
 
   final orderResponse = await get(orderUrl);
 
@@ -20,7 +20,7 @@ Future<Order> findOrderById(String id) async {
   DateTime.fromMillisecondsSinceEpoch(createdAtRaw).toLocal();
 
   final transferUrl =
-      'https://api.testwyre.com/v2/transfer/' + transferId + '/track';
+      'https://api.sendwyre.com/v2/transfer/' + transferId + '/track';
 
   final transferResponse = await get(transferUrl);
 

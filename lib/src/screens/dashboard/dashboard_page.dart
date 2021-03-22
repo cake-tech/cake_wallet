@@ -144,19 +144,25 @@ class DashboardPage extends BasePage {
                           onClick: walletViewModel.isRunningWebView
                               ? null
                               : () async {
-                            walletViewModel.isRunningWebView = true;
-                            final url = await walletViewModel.getWyreUrl();
-                            if (url.isNotEmpty) {
-                              await Navigator.of(context)
-                                  .pushNamed(Routes.wyre, arguments: url);
+                            try {
+                              walletViewModel.isRunningWebView = true;
+                              final url = await walletViewModel.getWyreUrl();
+                              if (url.isNotEmpty) {
+                                await Navigator.of(context)
+                                    .pushNamed(Routes.wyre, arguments: url);
 
-                              final orderId = walletViewModel.ordersStore.orderId;
+                                final orderId = walletViewModel.ordersStore
+                                    .orderId;
 
-                              if (orderId.isNotEmpty) {
-                                await walletViewModel.saveOrder(orderId);
+                                if (orderId.isNotEmpty) {
+                                  await walletViewModel.saveOrder(orderId);
+                                }
                               }
+                              walletViewModel.isRunningWebView = false;
+                            } catch(e) {
+                              print(e.toString());
+                              walletViewModel.isRunningWebView = false;
                             }
-                            walletViewModel.isRunningWebView = false;
                           })
                     ],
                   )),
