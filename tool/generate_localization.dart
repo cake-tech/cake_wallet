@@ -1,144 +1,31 @@
 import 'dart:io';
 import 'dart:convert';
+import 'localization/locale_list.dart';
+import 'localization/localization_constants.dart';
 
 const inputPath = 'res/values/';
 const outputPath = 'lib/generated/i18n.dart';
-const locales = ['en', 'de', 'es', 'hi',
-                 'ja', 'ko', 'nl', 'pl',
-                 'pt', 'ru', 'uk', 'zh'];
-const header = """
-import \'dart:async\';
-import \'package:flutter/foundation.dart\';
-import \'package:flutter/material.dart\';
-
-class S implements WidgetsLocalizations {
-  const S();
-
-  static S current;
-
-  static const GeneratedLocalizationsDelegate delegate =
-    GeneratedLocalizationsDelegate();
-
-  static S of(BuildContext context) => Localizations.of<S>(context, S);  
-""";
-
-const textDirectionDeclaration = """
-      
-  @override
-  TextDirection get textDirection => TextDirection.ltr;
-  
-""";
-
-const classDeclaration = """
-class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
-  const GeneratedLocalizationsDelegate();
-
-  List<Locale> get supportedLocales {
-    return const <Locale>[
-""";
-
-const middle = """
-    ];
-  }
-
-  LocaleListResolutionCallback listResolution({Locale fallback, bool withCountry = true}) {
-    return (List<Locale> locales, Iterable<Locale> supported) {
-      if (locales == null || locales.isEmpty) {
-        return fallback ?? supported.first;
-      } else {
-        return _resolve(locales.first, fallback, supported, withCountry);
-      }
-    };
-  }
-
-  LocaleResolutionCallback resolution({Locale fallback, bool withCountry = true}) {
-    return (Locale locale, Iterable<Locale> supported) {
-      return _resolve(locale, fallback, supported, withCountry);
-    };
-  }
-
-  @override
-  Future<S> load(Locale locale) {
-    final String lang = getLang(locale);
-    if (lang != null) {
-      switch (lang) {
-""";
-
-const end = """
-        default:
-      }
-    }
-    S.current = const S();
-    return SynchronousFuture<S>(S.current);
-  }
-
-  @override
-  bool isSupported(Locale locale) => _isSupported(locale, true);
-
-  @override
-  bool shouldReload(GeneratedLocalizationsDelegate old) => false;
-
-  Locale _resolve(Locale locale, Locale fallback, Iterable<Locale> supported, bool withCountry) {
-    if (locale == null || !_isSupported(locale, withCountry)) {
-      return fallback ?? supported.first;
-    }
-
-    final Locale languageLocale = Locale(locale.languageCode, "");
-    if (supported.contains(locale)) {
-      return locale;
-    } else if (supported.contains(languageLocale)) {
-      return languageLocale;
-    } else {
-      final Locale fallbackLocale = fallback ?? supported.first;
-      return fallbackLocale;
-    }
-  }
-
-  bool _isSupported(Locale locale, bool withCountry) {
-    if (locale != null) {
-      for (Locale supportedLocale in supportedLocales) {
-        if (supportedLocale.languageCode != locale.languageCode) {
-          continue;
-        }
-        if (supportedLocale.countryCode == locale.countryCode) {
-          return true;
-        }
-        if (true != withCountry && (supportedLocale.countryCode == null || supportedLocale.countryCode.isEmpty)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-}
-
-String getLang(Locale l) => l == null
-  ? null
-  : l.countryCode != null && l.countryCode.isEmpty
-    ? l.languageCode
-    : l.toString();
-""";
 
 Future<void> main() async {
-  var inputContent = File(inputPath + 'strings_en.arb').readAsStringSync();
-  var config = json.decode(inputContent) as Map<String, dynamic>;
   var output = '';
 
-  output += header;
+  output += part1;
   output += textDirectionDeclaration;
-  output += localizedStrings(config: config, hasOverride: false);
-  output += '}' + '\n\n';
 
   for (var locale in locales) {
+    final inputContent = File(inputPath + 'strings_$locale.arb').readAsStringSync();
+    final config = json.decode(inputContent) as Map<String, dynamic>;
+
+    if (locale == locales.first) {
+      output += localizedStrings(config: config, hasOverride: false);
+      output += '}' + '\n\n';
+    }
+
     output += 'class \$$locale extends S {' + '\n';
     output += '  const \$$locale();' + '\n';
 
     if (locale != locales.first) {
       output += textDirectionDeclaration;
-
-      inputContent = File(inputPath + 'strings_$locale.arb').readAsStringSync();
-      config = json.decode(inputContent) as Map<String, dynamic>;
-
       output += localizedStrings(config: config, hasOverride: true);
     }
 
@@ -151,7 +38,7 @@ Future<void> main() async {
     output += '      Locale("$locale", ""),' + '\n';
   }
 
-  output += middle;
+  output += part2;
 
   for (var locale in locales) {
     output += '        case "$locale":' + '\n';
@@ -159,7 +46,7 @@ Future<void> main() async {
     output += '          return SynchronousFuture<S>(S.current);' + '\n';
   }
 
-  output += end;
+  output += part3;
 
   await File(outputPath).writeAsString(output);
 }
