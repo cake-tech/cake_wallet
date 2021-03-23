@@ -496,9 +496,6 @@ Future setup(
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(tradeForDetails: trade, trades: _tradesSource));
 
-  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
-      (order, _) => OrderDetailsViewModel(orderForDetails: order));
-
   getIt.registerFactory(() => BackupService(
       getIt.get<FlutterSecureStorage>(),
       _walletInfoSource,
@@ -528,9 +525,6 @@ Future setup(
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>((Trade trade, _) =>
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
-  getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
-      OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
-
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
     return WyreViewModel(ordersSource, getIt.get<OrdersStore>(),
@@ -540,6 +534,14 @@ Future setup(
   getIt.registerFactoryParam<WyrePage, String, void>((String url, _) =>
       WyrePage(getIt.get<WyreViewModel>(),
           ordersStore: getIt.get<OrdersStore>(), url: url));
+
+  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
+          (order, _) => OrderDetailsViewModel(
+          wyreViewModel: getIt.get<WyreViewModel>(),
+          orderForDetails: order));
+
+  getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
+      OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
   getIt.registerFactory(() => SupportViewModel());
 
