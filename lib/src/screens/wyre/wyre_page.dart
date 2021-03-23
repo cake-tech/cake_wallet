@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
@@ -43,6 +44,7 @@ class WyrePageBodyState extends State<WyrePageBody> {
   String orderId;
   WebViewController _webViewController;
   GlobalKey _webViewkey;
+  Timer _timer;
 
   @override
   void initState() {
@@ -51,6 +53,24 @@ class WyrePageBodyState extends State<WyrePageBody> {
     widget.ordersStore.orderId = '';
 
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
+
+    _timer = Timer.periodic(Duration(milliseconds: 200), (_) async {
+      if (_webViewController == null) {
+        return;
+      }
+
+      final url = await _webViewController.currentUrl();
+
+      if (url.contains('completed')) {
+        final urlParts = url.split('/');
+        orderId = urlParts.last;
+        widget.ordersStore.orderId = orderId;
+
+        if (orderId.isNotEmpty) {
+          await widget.wyreViewModel.saveOrder(orderId);
+        }
+      }
+    });
   }
 
   @override
@@ -60,22 +80,6 @@ class WyrePageBodyState extends State<WyrePageBody> {
         initialUrl: widget.url,
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController controller) =>
-            setState(() => _webViewController = controller),
-        navigationDelegate: (req) async {
-          final currentUrl = await _webViewController?.currentUrl() ?? '';
-
-          if (currentUrl.contains('processing') ||
-              currentUrl.contains('completed')) {
-            final urlParts = currentUrl.split('/');
-            orderId = urlParts.last;
-            widget.ordersStore.orderId = orderId;
-
-            if (orderId.isNotEmpty) {
-              await widget.wyreViewModel.saveOrder(orderId);
-            }
-          }
-
-          return NavigationDecision.navigate;
-        });
+            setState(() => _webViewController = controller));
   }
 }
