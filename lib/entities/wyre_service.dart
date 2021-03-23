@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cake_wallet/entities/wyre_exception.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
@@ -12,13 +13,17 @@ class WyreService {
     @required this.walletAddress,
     this.isTestEnvironment = false}) {
     baseApiUrl = isTestEnvironment
-        ? 'https://api.testwyre.com'
-        : 'https://api.sendwyre.com';
+        ? _baseTestApiUrl
+        : _baseProductApiUrl;
     trackUrl = isTestEnvironment
-        ? 'https://dash.testwyre.com/track/'
-        : 'https://dash.sendwyre.com/track/';
+        ? _trackTestUrl
+        : _trackProductUrl;
   }
 
+  static const _baseTestApiUrl = 'https://api.testwyre.com';
+  static const _baseProductApiUrl = 'https://api.sendwyre.com';
+  static const _trackTestUrl = 'https://dash.testwyre.com/track/';
+  static const _trackProductUrl = 'https://dash.sendwyre.com/track/';
   static const _ordersSuffix = '/v3/orders';
   static const _reserveSuffix = '/reserve';
   static const _timeStampSuffix = '?timestamp=';
@@ -103,13 +108,4 @@ class WyreService {
         amount: amount.toString()
     );
   }
-}
-
-class WyreException implements Exception {
-  WyreException(this.description);
-
-  String description;
-
-  @override
-  String toString() => description;
 }

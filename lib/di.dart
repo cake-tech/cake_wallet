@@ -7,6 +7,7 @@ import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cake_wallet/entities/wyre_service.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -527,8 +528,14 @@ Future setup(
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
+    return WyreService(walletType: wallet.type, walletAddress: wallet.address);
+  });
+
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
     return WyreViewModel(ordersSource, getIt.get<OrdersStore>(),
-        walletId: wallet.id, address: wallet.address, type: wallet.type);
+        walletId: wallet.id, address: wallet.address, type: wallet.type,
+        wyreService: getIt.get<WyreService>());
   });
 
   getIt.registerFactoryParam<WyrePage, String, void>((String url, _) =>

@@ -12,8 +12,8 @@ class WyreViewModel = WyreViewModelBase with _$WyreViewModel;
 
 abstract class WyreViewModelBase with Store {
   WyreViewModelBase(this.ordersSource, this.ordersStore,
-      {@required this.walletId, @required this.address, @required this.type})
-      : wyreService = WyreService(walletType: type, walletAddress: address);
+      {@required this.walletId, @required this.address, @required this.type,
+      @required this.wyreService});
 
   Future<String> get wyreUrl => wyreService.getWyreUrl();
 
@@ -26,7 +26,7 @@ abstract class WyreViewModelBase with Store {
   final WalletType type;
   final String address;
 
-  WyreService wyreService;
+  final WyreService wyreService;
 
   Future<void> saveOrder(String orderId) async {
     try {
@@ -39,6 +39,4 @@ abstract class WyreViewModelBase with Store {
       print(e.toString());
     }
   }
-
-
 }
