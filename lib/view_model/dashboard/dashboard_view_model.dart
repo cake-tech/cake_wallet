@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/find_order_by_id.dart';
 import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
@@ -147,26 +146,7 @@ abstract class DashboardViewModelBase with Store {
 
       return true;
     });
-
-    dataChannel.setMessageHandler((ByteData message) async {
-      final type = ByteData.view(message.buffer, 0, 4).getInt32(0);
-
-      switch (type) {
-        case _dataExists:
-          print('Wyre: Data exists');
-          break;
-        case _dataNotExists:
-          print('Wyre: Data not exists');
-          break;
-      }
-
-      return ByteData(0);
-    });
   }
-
-  static const dataChannel = BasicMessageChannel('data_change', BinaryCodec());
-  static const _dataExists = 1;
-  static const _dataNotExists = 0;
 
   @observable
   WalletType type;

@@ -1,16 +1,23 @@
-import 'dart:convert';
+import 'package:cake_wallet/entities/wyre_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
-import 'package:cake_wallet/entities/find_order_by_id.dart';
 import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:mobx/mobx.dart';
 
-class WyreViewModel {
-  WyreViewModel(this.ordersSource, this.ordersStore,
-      {@required this.walletId, @required this.address, @required this.type});
+part 'wyre_view_model.g.dart';
+
+class WyreViewModel = WyreViewModelBase with _$WyreViewModel;
+
+abstract class WyreViewModelBase with Store {
+  WyreViewModelBase(this.ordersSource, this.ordersStore,
+      {@required this.walletId, @required this.address, @required this.type})
+      : wyreService = WyreService(walletType: type, walletAddress: address);
+
+  Future<String> get wyreUrl => wyreService.getWyreUrl();
+
+  String get trackUrl => wyreService.trackUrl;
 
   final Box<Order> ordersSource;
   final OrdersStore ordersStore;
@@ -19,42 +26,19 @@ class WyreViewModel {
   final WalletType type;
   final String address;
 
+  WyreService wyreService;
+
   Future<void> saveOrder(String orderId) async {
-    final order = await findOrderById(orderId);
-    order.receiveAddress = address;
-    order.walletId = walletId;
-    await ordersSource.add(order);
-    ordersStore.setOrder(order);
-  }
-
-  Future<String> getWyreUrl() async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final url = 'https://api.sendwyre.com/v3/orders/reserve' +
-        '?timestamp=' +
-        timestamp;
-    final secretKey = secrets.wyreSecretKey;
-    final accountId = secrets.wyreAccountId;
-    final body = {
-      'destCurrency': walletTypeToCryptoCurrency(type).title,
-      'dest': walletTypeToString(type).toLowerCase() + ':' + address,
-      'referrerAccountId': accountId,
-      'lockFields': ['destCurrency', 'dest']
-    };
-
-    final response = await post(url,
-        headers: {
-          'Authorization': 'Bearer $secretKey',
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache'
-        },
-        body: json.encode(body));
-
-    if (response.statusCode == 200) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final urlFromResponse = responseJSON['url'] as String;
-      return urlFromResponse;
-    } else {
-      return '';
+    try {
+      final order = await wyreService.findOrderById(orderId);
+      order.receiveAddress = address;
+      order.walletId = walletId;
+      await ordersSource.add(order);
+      ordersStore.setOrder(order);
+    } catch (e) {
+      print(e.toString());
     }
   }
+
+
 }
