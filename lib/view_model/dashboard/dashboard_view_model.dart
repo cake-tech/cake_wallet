@@ -28,6 +28,7 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
+import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -43,7 +44,6 @@ import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:convert/convert.dart';
 
 part 'dashboard_view_model.g.dart';
@@ -58,7 +58,8 @@ abstract class DashboardViewModelBase with Store {
       this.tradeFilterStore,
       this.transactionFilterStore,
       this.ordersSource,
-      this.ordersStore}) {
+      this.ordersStore,
+      this.wyreViewModel}) {
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -250,6 +251,8 @@ abstract class DashboardViewModelBase with Store {
 
   TransactionFilterStore transactionFilterStore;
 
+  WyreViewModel wyreViewModel;
+
   Map<String, List<FilterItem>> filterItems;
 
   ReactionDisposer _reaction;
@@ -331,42 +334,5 @@ abstract class DashboardViewModelBase with Store {
             settingsStore: appStore.settingsStore)));
   }
 
-  Future<String> getWyreUrl() async {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final url = 'https://api.sendwyre.com/v3/orders/reserve' + '?timestamp=' +
-          timestamp;
-    final secretKey = secrets.wyreSecretKey;
-    final accountId = secrets.wyreAccountId;
-    final body = {
-      'destCurrency' : walletTypeToCryptoCurrency(type).title,
-      'dest' : walletTypeToString(type).toLowerCase() + ':' + address,
-      'referrerAccountId' : accountId,
-      'lockFields' : ['destCurrency', 'dest']
-    };
 
-    final response = await post(url,
-        headers: {
-          'Authorization': 'Bearer $secretKey',
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache'
-        },
-        body: json.encode(body)
-    );
-
-    if (response.statusCode == 200) {
-      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-      final urlFromResponse = responseJSON['url'] as String;
-      return urlFromResponse;
-    } else {
-      return '';
-    }
-  }
-
-  Future<void> saveOrder(String orderId) async {
-    final order = await findOrderById(orderId);
-    order.receiveAddress = address;
-    order.walletId = wallet.id;
-    await ordersSource.add(order);
-    ordersStore.setOrder(order);
-  }
 }
