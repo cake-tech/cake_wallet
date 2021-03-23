@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'package:cake_wallet/entities/find_order_by_id.dart';
 import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -14,7 +14,7 @@ class OrderDetailsViewModel = OrderDetailsViewModelBase
     with _$OrderDetailsViewModel;
 
 abstract class OrderDetailsViewModelBase with Store {
-  OrderDetailsViewModelBase({Order orderForDetails}) {
+  OrderDetailsViewModelBase({this.wyreViewModel, Order orderForDetails}) {
     order = orderForDetails;
 
     items = ObservableList<StandartListItem>();
@@ -32,12 +32,15 @@ abstract class OrderDetailsViewModelBase with Store {
   @observable
   ObservableList<StandartListItem> items;
 
+  WyreViewModel wyreViewModel;
+
   Timer _timer;
 
   @action
   Future<void> _updateOrder() async {
     try {
-      final updatedOrder = await findOrderById(order.id);
+      final updatedOrder =
+            await wyreViewModel.wyreService.findOrderById(order.id);
 
       updatedOrder.receiveAddress = order.receiveAddress;
       updatedOrder.walletId = order.walletId;
@@ -52,7 +55,7 @@ abstract class OrderDetailsViewModelBase with Store {
   void _updateItems() {
     final dateFormat = DateFormatter.withCurrentLocal();
     final buildURL =
-        'https://dash.sendwyre.com/track/${order.transferId}';
+        wyreViewModel.trackUrl + '${order.transferId}';
 
     items?.clear();
 
