@@ -52,7 +52,7 @@ abstract class OrderDetailsViewModelBase with Store {
   void _updateItems() {
     final dateFormat = DateFormatter.withCurrentLocal();
     final buildURL =
-        'https://api.sendwyre.com/v2/transfer/${order.transferId}/track';
+        'https://dash.sendwyre.com/track/${order.transferId}';
 
     items?.clear();
 

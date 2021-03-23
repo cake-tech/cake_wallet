@@ -88,6 +88,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -142,7 +143,7 @@ Future setup(
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
-            () => SharedPreferences.getInstance());
+        () => SharedPreferences.getInstance());
   }
 
   final settingsStore = await SettingsStoreBase.load(nodeSource: _nodeSource);
@@ -231,7 +232,8 @@ Future setup(
       tradeFilterStore: getIt.get<TradeFilterStore>(),
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
       ordersSource: _ordersSource,
-      ordersStore: getIt.get<OrdersStore>()));
+      ordersStore: getIt.get<OrdersStore>(),
+      wyreViewModel: getIt.get<WyreViewModel>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -494,8 +496,8 @@ Future setup(
   getIt.registerFactoryParam<TradeDetailsViewModel, Trade, void>((trade, _) =>
       TradeDetailsViewModel(tradeForDetails: trade, trades: _tradesSource));
 
-  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) =>
-      OrderDetailsViewModel(orderForDetails: order));
+  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
+      (order, _) => OrderDetailsViewModel(orderForDetails: order));
 
   getIt.registerFactory(() => BackupService(
       getIt.get<FlutterSecureStorage>(),
@@ -529,8 +531,15 @@ Future setup(
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+    return WyreViewModel(ordersSource, getIt.get<OrdersStore>(),
+        walletId: wallet.id, address: wallet.address, type: wallet.type);
+  });
+
   getIt.registerFactoryParam<WyrePage, String, void>((String url, _) =>
-      WyrePage(ordersStore: getIt.get<OrdersStore>(), url: url));
+      WyrePage(getIt.get<WyreViewModel>(),
+          ordersStore: getIt.get<OrdersStore>(), url: url));
 
   getIt.registerFactory(() => SupportViewModel());
 

@@ -3,14 +3,16 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WyrePage extends BasePage {
-  WyrePage({@required this.ordersStore, @required this.url});
+  WyrePage(this.wyreViewModel, {@required this.ordersStore, @required this.url});
 
   final OrdersStore ordersStore;
   final String url;
+  final WyreViewModel wyreViewModel;
 
   @override
   String get title => S.current.buy;
@@ -23,14 +25,15 @@ class WyrePage extends BasePage {
 
   @override
   Widget body(BuildContext context) =>
-      WyrePageBody(ordersStore: ordersStore,url: url);
+      WyrePageBody(wyreViewModel, ordersStore: ordersStore,url: url);
 }
 
 class WyrePageBody extends StatefulWidget {
-  WyrePageBody({this.ordersStore, this.url});
+  WyrePageBody(this.wyreViewModel, {this.ordersStore, this.url});
 
   final OrdersStore ordersStore;
   final String url;
+  final WyreViewModel wyreViewModel;
 
   @override
   WyrePageBodyState createState() => WyrePageBodyState();
@@ -66,6 +69,10 @@ class WyrePageBodyState extends State<WyrePageBody> {
             final urlParts = currentUrl.split('/');
             orderId = urlParts.last;
             widget.ordersStore.orderId = orderId;
+
+            if (orderId.isNotEmpty) {
+              await widget.wyreViewModel.saveOrder(orderId);
+            }
           }
 
           return NavigationDecision.navigate;
