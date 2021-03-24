@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "You will be able to enter receive amount when fixed rate mode is checked. Do you want to switch to fixed rate mode?",
 
   "xlm_extra_info" : "Please don’t forget to specify the Memo ID while sending the XLM transaction for the exchange",
-  "xrp_extra_info" : "Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange"
+  "xrp_extra_info" : "Please don’t forget to specify the Destination Tag while sending the XRP transaction for the exchange",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "If you want to exchange XMR from your Cake Wallet Monero balance, please switch to your Monero wallet first.",
+  "confirmed" : "Confirmed",
+  "unconfirmed" : "Unconfirmed",
+  "displayable" : "Displayable"
 }

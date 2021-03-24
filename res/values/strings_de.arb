@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "Sie können den Empfangsbetrag eingeben, wenn der Festpreismodus aktiviert ist. Möchten Sie in den Festpreismodus wechseln?",
   
   "xlm_extra_info" : "Bitte vergessen Sie nicht, die Memo-ID anzugeben, während Sie die XLM-Transaktion für den Austausch senden",
-  "xrp_extra_info" : "Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden"
+  "xrp_extra_info" : "Bitte vergessen Sie nicht, das Ziel-Tag anzugeben, während Sie die XRP-Transaktion für den Austausch senden",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Wenn Sie XMR von Ihrem Cake Wallet Monero-Guthaben austauschen möchten, wechseln Sie bitte zuerst zu Ihrem Monero Wallet.",
+  "confirmed" : "Bestätigt",
+  "unconfirmed" : "Unbestätigt",
+  "displayable" : "Anzeigebar"
 }

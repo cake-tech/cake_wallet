@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "この取引は ${provider}",
   "copy_address" : "住所をコピー",
   "exchange_result_confirm" : "確認を押すと、送信されます ${fetchingLabel} ${from} と呼ばれるあなたの財布から ${walletName} 下記の住所へ。 または、外部ウォレットから以下のアドレスに送信することもできます/ QRコードに送信できます.\n\n確認を押して続行するか、戻って金額を変更してください.",
-  "exchange_result_description" : 次のページに示されているアドレスに最低 ${fetchingLabel} ${from} を送信する必要があります。 ${fetchingLabel} ${from} 未満の金額を送信すると、変換されず、返金されない場合があります。",
+  "exchange_result_description" : "次のページに示されているアドレスに最低 ${fetchingLabel} ${from} を送信する必要があります。 ${fetchingLabel} ${from} 未満の金額を送信すると、変換されず、返金されない場合があります。",
   "exchange_result_write_down_ID" : "*上記のIDをコピーまたは書き留めてください.",
   "confirm" : "確認する",
   "confirm_sending" : "送信を確認",
@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "固定金利モードにチェックを入れると、受取額を入力できるようになります。 固定金利モードに切り替えますか？",
 
   "xlm_extra_info" : "交換用のXLMトランザクションを送信するときに、メモIDを指定することを忘れないでください",
-  "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください"
+  "xrp_extra_info" : "取引所のXRPトランザクションを送信するときに、宛先タグを指定することを忘れないでください",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet Moneroの残高からXMRを交換する場合は、最初にMoneroウォレットに切り替えてください。",
+  "confirmed" : "確認済み",
+  "unconfirmed" : "未確認",
+  "displayable" : "表示可能"
 }

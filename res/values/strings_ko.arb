@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "고정 금리 모드 체크시 수취 금액 입력이 가능합니다. 고정 속도 모드로 전환 하시겠습니까?",
 
   "xlm_extra_info" : "교환을 위해 XLM 거래를 보낼 때 메모 ID를 지정하는 것을 잊지 마십시오",
-  "xrp_extra_info" : "교환을 위해 XRP 트랜잭션을 보내는 동안 대상 태그를 지정하는 것을 잊지 마십시오"
+  "xrp_extra_info" : "교환을 위해 XRP 트랜잭션을 보내는 동안 대상 태그를 지정하는 것을 잊지 마십시오",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet Monero 잔액에서 XMR을 교환하려면 먼저 Monero 지갑으로 전환하십시오.",
+  "confirmed" : "확인",
+  "unconfirmed" : "미확인",
+  "displayable" : "표시 가능"
 }

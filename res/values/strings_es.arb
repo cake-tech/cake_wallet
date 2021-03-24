@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "Podrá ingresar la cantidad recibida cuando el modo de tarifa fija esté marcado. ¿Quieres cambiar al modo de tarifa fija?",
 
   "xlm_extra_info" : "No olvide especificar el ID de nota al enviar la transacción XLM para el intercambio",
-  "xrp_extra_info" : "No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio"
+  "xrp_extra_info" : "No olvide especificar la etiqueta de destino al enviar la transacción XRP para el intercambio",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Si desea intercambiar XMR de su saldo de Cake Wallet Monero, primero cambie a su billetera Monero.",
+  "confirmed" : "Confirmada",
+  "unconfirmed" : "Inconfirmado",
+  "displayable" : "Visualizable"
 }

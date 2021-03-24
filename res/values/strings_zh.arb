@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？",
 
   "xlm_extra_info" : "發送用於交換的XLM交易時，請不要忘記指定備忘錄ID",
-  "xrp_extra_info" : "發送用於交換的XRP交易時，請不要忘記指定目標標記"
+  "xrp_extra_info" : "發送用於交換的XRP交易時，請不要忘記指定目標標記",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "如果要从Cake Wallet Monero余额中兑换XMR，请先切换到Monero钱包。",
+  "confirmed" : "已确认",
+  "unconfirmed" : "未经证实",
+  "displayable" : "可显示"
 }
