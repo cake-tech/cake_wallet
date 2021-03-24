@@ -38,6 +38,7 @@ abstract class SettingsStoreBase with Store {
       @required Map<WalletType, Node> nodes,
       @required TransactionPriority initialBitcoinTransactionPriority,
       @required TransactionPriority initialMoneroTransactionPriority,
+      @required this.isBitcoinBuyEnabled,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
     balanceDisplayMode = initialBalanceDisplayMode;
@@ -144,8 +145,11 @@ abstract class SettingsStoreBase with Store {
 
   Node getCurrentNode(WalletType walletType) => nodes[walletType];
 
+  bool isBitcoinBuyEnabled;
+
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
+       @required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       MoneroTransactionPriority initialMoneroTransactionPriority =
           MoneroTransactionPriority.slow,
@@ -212,6 +216,7 @@ abstract class SettingsStoreBase with Store {
           WalletType.bitcoin: bitcoinElectrumServer
         },
         appVersion: packageInfo.version,
+        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
