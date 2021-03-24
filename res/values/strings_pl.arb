@@ -462,5 +462,10 @@
   "fixed_rate_alert" : "Będziesz mógł wprowadzić kwotę otrzymaną, gdy zaznaczony jest tryb stałej stawki. Czy chcesz przejść do trybu stałej stawki?",
 
   "xlm_extra_info" : "Nie zapomnij podać identyfikatora notatki podczas wysyłania transakcji XLM do wymiany",
-  "xrp_extra_info" : "Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany"
+  "xrp_extra_info" : "Nie zapomnij podać tagu docelowego podczas wysyłania transakcji XRP do wymiany",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Jeśli chcesz wymienić XMR z salda Cake Wallet Monero, najpierw przełącz się na portfel Monero.",
+  "confirmed" : "Potwierdzony",
+  "unconfirmed" : "Niepotwierdzony",
+  "displayable" : "Wyświetlane"
 }
