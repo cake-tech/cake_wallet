@@ -1,54 +1,114 @@
 import 'dart:io';
 import 'dart:convert';
-import 'localization/locale_list.dart';
 import 'localization/localization_constants.dart';
+import 'utils/utils.dart';
 
 const inputPath = 'res/values/';
-const outputPath = 'lib/generated/i18n.dart';
+const outputPath = 'lib/generated/';
+const localizationFileName = 'i18n.dart';
+const localeListFileName = 'locales.dart';
+const srcDir = 'srcDir';
+const defaultLocale = 'en';
 
-Future<void> main() async {
-  var output = '';
-
-  output += part1;
-  output += textDirectionDeclaration;
-
-  for (var locale in locales) {
-    final inputContent = File(inputPath + 'strings_$locale.arb').readAsStringSync();
-    final config = json.decode(inputContent) as Map<String, dynamic>;
-
-    if (locale == locales.first) {
-      output += localizedStrings(config: config, hasOverride: false);
-      output += '}' + '\n\n';
+Future<void> main(List<String> args) async {
+  final extraInfo = args.isNotEmpty ?
+  args.fold(<String, dynamic>{}, (Map<String, dynamic> acc, String arg) {
+    final parts = arg.split('=');
+    var key = normalizeKeyName(parts[0]);
+    if (key.contains('--')) {
+      key = key.substring(2);
     }
+    acc[key] = parts.length > 1
+        ? parts[1].isNotEmpty
+          ? parts[1]
+          : inputPath
+        : inputPath;
+    return acc;
+  })
+  : <String, dynamic> {srcDir : inputPath};
 
-    output += 'class \$$locale extends S {' + '\n';
-    output += '  const \$$locale();' + '\n';
+  extraInfo.forEach((key, dynamic value) async {
+    if (key == srcDir) {
+      final dirPath = value as String;
+      final dir = Directory(dirPath);
 
-    if (locale != locales.first) {
-      output += textDirectionDeclaration;
-      output += localizedStrings(config: config, hasOverride: true);
+      if (await dir.exists()) {
+        final localePath = <String, dynamic>{};
+        await dir.list(recursive: false).forEach((element) {
+          try {
+            final shortLocale = element.path.split('_',)[1].split('.')[0];
+            localePath[shortLocale] = element.path;
+          } catch (e) {
+            print('Wrong file: ${element.path}');
+          }
+        });
+
+        if (localePath.keys.contains(defaultLocale)) {
+          try {
+            var output = '';
+            var locales = 'const locales = [';
+
+            output += part1;
+            output += textDirectionDeclaration;
+
+            var inputContent =
+                File(localePath[defaultLocale].toString()).readAsStringSync();
+            var config = json.decode(inputContent) as Map<String, dynamic>;
+
+            output += localizedStrings(config: config, hasOverride: false);
+            output += '}' + '\n\n';
+
+            localePath.forEach((key, dynamic value) {
+              inputContent = File(localePath[key].toString()).readAsStringSync();
+              config = json.decode(inputContent) as Map<String, dynamic>;
+
+              locales += "'$key', ";
+
+              output += 'class \$$key extends S {' + '\n';
+              output += '  const \$$key();' + '\n';
+
+              if (key != defaultLocale) {
+                output += textDirectionDeclaration;
+                output += localizedStrings(config: config, hasOverride: true);
+              }
+
+              output += '}' + '\n\n';
+            });
+
+            output += classDeclaration;
+
+            localePath.keys.forEach((key) {
+              output += '      Locale("$key", ""),' + '\n';
+            });
+
+            output += part2;
+
+            localePath.keys.forEach((key) {
+              output += '        case "$key":' + '\n';
+              output += '          S.current = const \$$key();' + '\n';
+              output += '          return SynchronousFuture<S>(S.current);' + '\n';
+            });
+
+            output += part3;
+
+            await File(outputPath + localizationFileName).writeAsString(output);
+
+            locales += '];';
+
+            await File(outputPath + localeListFileName).writeAsString(locales);
+          } catch (e) {
+            print(e.toString());
+          }
+        } else {
+          print("Locale list doesn't contain $defaultLocale");
+        }
+      } else {
+        print('Wrong directory path: $dirPath');
+      }
+    } else {
+      print('Wrong key: $key');
     }
-
-    output += '}' + '\n\n';
-  }
-
-  output += classDeclaration;
-
-  for (var locale in locales) {
-    output += '      Locale("$locale", ""),' + '\n';
-  }
-
-  output += part2;
-
-  for (var locale in locales) {
-    output += '        case "$locale":' + '\n';
-    output += '          S.current = const \$$locale();' + '\n';
-    output += '          return SynchronousFuture<S>(S.current);' + '\n';
-  }
-
-  output += part3;
-
-  await File(outputPath).writeAsString(output);
+  });
 }
 
 String localizedStrings({Map<String, dynamic> config, bool hasOverride}) {
