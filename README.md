@@ -1,5 +1,8 @@
-# Cake Wallet
+# CakeWallet for Android and iOS
 
-The project description, motivation, build scripts, instructions, tests will be added soon (February 2021);
+## Open Source Monero and Bitcoin Wallet
 
-Copyright (c) 2021 Cake Technologies LLC.
+
+More instructions to follow
+
+For instructions on how to build for Android: please view file `howto-build-android.md`
