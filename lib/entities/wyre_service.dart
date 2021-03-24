@@ -68,7 +68,7 @@ class WyreService {
   }
 
   Future<Order> findOrderById(String id) async {
-    final orderUrl = baseApiUrl + _ordersSuffix + id;
+    final orderUrl = baseApiUrl + _ordersSuffix + '/$id';
     final orderResponse = await get(orderUrl);
 
     if (orderResponse.statusCode != 200) {
