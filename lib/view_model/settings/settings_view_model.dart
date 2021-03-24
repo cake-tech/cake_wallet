@@ -188,6 +188,8 @@ abstract class SettingsViewModelBase with Store {
   @computed
   ThemeBase get theme => _settingsStore.currentTheme;
 
+  bool get isBitcoinBuyEnabled => _settingsStore.isBitcoinBuyEnabled;
+
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;

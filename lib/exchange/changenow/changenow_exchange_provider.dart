@@ -25,7 +25,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
                 .toList());
 
   static const apiUri = 'https://changenow.io/api/v1';
-  static const apiKey = secrets.change_now_api_key;
+  static const apiKey = secrets.changeNowApiKey;
   static const _exchangeAmountUriSufix = '/exchange-amount/';
   static const _transactionsUriSufix = '/transactions/';
   static const _minAmountUriSufix = '/min-amount/';
