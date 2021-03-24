@@ -114,7 +114,7 @@ flutter:
       fonts:
         - asset: assets/fonts/Lato-Regular.ttf
         - asset: assets/fonts/Lato-Medium.ttf
-        - asset: assets/fonts/Lato-SemiBold.ttf
+        - asset: assets/fonts/Lato-Semibold.ttf
         - asset: assets/fonts/Lato-Bold.ttf
 
 

@@ -111,6 +111,7 @@ import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 final getIt = GetIt.instance;
 
@@ -147,7 +148,11 @@ Future setup(
         () => SharedPreferences.getInstance());
   }
 
-  final settingsStore = await SettingsStoreBase.load(nodeSource: _nodeSource);
+  final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
+      (secrets.wyreApiKey?.isNotEmpty ?? false) &&
+      (secrets.wyreAccountId?.isNotEmpty ?? false);
+  final settingsStore = await SettingsStoreBase.load(
+      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
 
   if (_isSetupFinished) {
     return;
@@ -232,6 +237,7 @@ Future setup(
       tradesStore: getIt.get<TradesStore>(),
       tradeFilterStore: getIt.get<TradeFilterStore>(),
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
+      settingsStore: settingsStore,
       ordersSource: _ordersSource,
       ordersStore: getIt.get<OrdersStore>(),
       wyreViewModel: getIt.get<WyreViewModel>()));
