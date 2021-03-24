@@ -6,7 +6,11 @@
 #include <unistd.h>
 #include "thread"
 #include "CwWalletListener.h"
+#if __APPLE__
+#include "../External/android/monero/include/wallet2_api.h"
+#else
 #include "../External/android/x86/include/wallet2_api.h"
+#endif
 
 using namespace std::chrono_literals;
 
