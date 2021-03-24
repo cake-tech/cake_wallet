@@ -5,11 +5,8 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:provider/provider.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/language_service.dart';
-
-// import 'package:cake_wallet/src/stores/settings/settings_store.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 
@@ -62,7 +59,5 @@ class LanguageListPage extends BasePage {
             });
           },
         ));
-
-    return null;
   }
 }

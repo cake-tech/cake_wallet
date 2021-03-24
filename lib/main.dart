@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -135,6 +136,7 @@ Future<void> initialSetup(
     @required Box<TransactionDescription> transactionDescriptions,
     FlutterSecureStorage secureStorage,
     int initialMigrationVersion = 13}) async {
+  LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,
       version: initialMigrationVersion,
