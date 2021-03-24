@@ -4,8 +4,10 @@ import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
+import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cake_wallet/entities/wyre_service.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -22,6 +24,7 @@ import 'package:cake_wallet/src/screens/faq/faq_page.dart';
 import 'package:cake_wallet/src/screens/new_wallet/new_wallet_type_page.dart';
 import 'package:cake_wallet/src/screens/nodes/node_create_or_edit_page.dart';
 import 'package:cake_wallet/src/screens/nodes/nodes_list_page.dart';
+import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/rescan/rescan_page.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -39,6 +42,8 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
+import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
+import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -63,6 +68,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_trade_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/view_model/node_list/node_list_view_model.dart';
 import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.dart';
+import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
@@ -83,6 +89,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -104,6 +111,7 @@ import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 final getIt = GetIt.instance;
 
@@ -115,6 +123,7 @@ Box<Trade> _tradesSource;
 Box<Template> _templates;
 Box<ExchangeTemplate> _exchangeTemplates;
 Box<TransactionDescription> _transactionDescriptionBox;
+Box<Order> _ordersSource;
 
 Future setup(
     {Box<WalletInfo> walletInfoSource,
@@ -123,7 +132,8 @@ Future setup(
     Box<Trade> tradesSource,
     Box<Template> templates,
     Box<ExchangeTemplate> exchangeTemplates,
-    Box<TransactionDescription> transactionDescriptionBox}) async {
+    Box<TransactionDescription> transactionDescriptionBox,
+    Box<Order> ordersSource}) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _contactSource = contactSource;
@@ -131,13 +141,18 @@ Future setup(
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
+  _ordersSource = ordersSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
-            () => SharedPreferences.getInstance());
+        () => SharedPreferences.getInstance());
   }
 
-  final settingsStore = await SettingsStoreBase.load(nodeSource: _nodeSource);
+  final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
+      (secrets.wyreApiKey?.isNotEmpty ?? false) &&
+      (secrets.wyreAccountId?.isNotEmpty ?? false);
+  final settingsStore = await SettingsStoreBase.load(
+      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
 
   if (_isSetupFinished) {
     return;
@@ -157,6 +172,8 @@ Future setup(
       nodeListStore: getIt.get<NodeListStore>()));
   getIt.registerSingleton<TradesStore>(TradesStore(
       tradesSource: _tradesSource, settingsStore: getIt.get<SettingsStore>()));
+  getIt.registerSingleton<OrdersStore>(OrdersStore(
+      ordersSource: _ordersSource, settingsStore: getIt.get<SettingsStore>()));
   getIt.registerSingleton<TradeFilterStore>(TradeFilterStore());
   getIt.registerSingleton<TransactionFilterStore>(TransactionFilterStore());
   getIt.registerSingleton<FiatConversionStore>(FiatConversionStore());
@@ -219,7 +236,11 @@ Future setup(
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
       tradeFilterStore: getIt.get<TradeFilterStore>(),
-      transactionFilterStore: getIt.get<TransactionFilterStore>()));
+      transactionFilterStore: getIt.get<TransactionFilterStore>(),
+      settingsStore: settingsStore,
+      ordersSource: _ordersSource,
+      ordersStore: getIt.get<OrdersStore>(),
+      wyreViewModel: getIt.get<WyreViewModel>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -510,6 +531,30 @@ Future setup(
 
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>((Trade trade, _) =>
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
+
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+    return WyreService(walletType: wallet.type, walletAddress: wallet.address);
+  });
+
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+    return WyreViewModel(ordersSource, getIt.get<OrdersStore>(),
+        walletId: wallet.id, address: wallet.address, type: wallet.type,
+        wyreService: getIt.get<WyreService>());
+  });
+
+  getIt.registerFactoryParam<WyrePage, String, void>((String url, _) =>
+      WyrePage(getIt.get<WyreViewModel>(),
+          ordersStore: getIt.get<OrdersStore>(), url: url));
+
+  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
+          (order, _) => OrderDetailsViewModel(
+          wyreViewModel: getIt.get<WyreViewModel>(),
+          orderForDetails: order));
+
+  getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
+      OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
 
   getIt.registerFactory(() => SupportViewModel());
 

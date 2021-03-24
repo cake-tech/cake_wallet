@@ -52,4 +52,6 @@ class Routes {
   static const editBackupPassword = '/edit_backup_passowrd';
   static const restoreFromBackup = '/restore_from_backup';
   static const support = '/support';
+  static const orderDetails = '/order_details';
+  static const wyre = '/wyre';
 }

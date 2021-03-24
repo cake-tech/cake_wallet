@@ -1,7 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_history.dart';
@@ -13,13 +18,21 @@ import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
+import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
+import 'package:cake_wallet/view_model/wyre_view_model.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
+import 'package:http/http.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
@@ -30,6 +43,8 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:convert/convert.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -41,7 +56,11 @@ abstract class DashboardViewModelBase with Store {
       this.appStore,
       this.tradesStore,
       this.tradeFilterStore,
-      this.transactionFilterStore}) {
+      this.transactionFilterStore,
+      this.settingsStore,
+      this.ordersSource,
+      this.ordersStore,
+      this.wyreViewModel}) {
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -75,6 +94,8 @@ abstract class DashboardViewModelBase with Store {
                 .toggleDisplayExchange(ExchangeProviderDescription.morphToken)),
       ]
     };
+
+    isRunningWebView = false;
 
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
@@ -141,6 +162,9 @@ abstract class DashboardViewModelBase with Store {
   @observable
   String subname;
 
+  @observable
+  bool isRunningWebView;
+
   @computed
   String get address => wallet.address;
 
@@ -172,6 +196,11 @@ abstract class DashboardViewModelBase with Store {
       .toList();
 
   @computed
+  List<OrderListItem> get orders => ordersStore.orders
+      .where((item) => item.order.walletId == wallet.id)
+      .toList();
+
+  @computed
   double get price => balanceViewModel.price;
 
   @computed
@@ -180,6 +209,7 @@ abstract class DashboardViewModelBase with Store {
 
     _items.addAll(transactionFilterStore.filtered(transactions: transactions));
     _items.addAll(tradeFilterStore.filtered(trades: trades, wallet: wallet));
+    _items.addAll(orders);
 
     return formattedItemsList(_items);
   }
@@ -189,17 +219,27 @@ abstract class DashboardViewModelBase with Store {
 
   bool get hasRescan => wallet.type == WalletType.monero;
 
+  Box<Order> ordersSource;
+
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
 
+  SettingsStore settingsStore;
+
   TradesStore tradesStore;
+
+  OrdersStore ordersStore;
 
   TradeFilterStore tradeFilterStore;
 
   TransactionFilterStore transactionFilterStore;
 
+  WyreViewModel wyreViewModel;
+
   Map<String, List<FilterItem>> filterItems;
+
+  bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
   ReactionDisposer _reaction;
 
@@ -279,4 +319,6 @@ abstract class DashboardViewModelBase with Store {
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore)));
   }
+
+
 }
