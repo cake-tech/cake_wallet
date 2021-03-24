@@ -405,12 +405,13 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   void _defineIsReceiveAmountEditable() {
-    if ((provider is ChangeNowExchangeProvider)
+    /*if ((provider is ChangeNowExchangeProvider)
         &&(depositCurrency == CryptoCurrency.xmr)
         &&(receiveCurrency == CryptoCurrency.btc)) {
       isReceiveAmountEditable = true;
     } else {
       isReceiveAmountEditable = false;
-    }
+    }*/
+    isReceiveAmountEditable = false;
   }
 }
