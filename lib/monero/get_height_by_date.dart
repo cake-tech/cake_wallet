@@ -85,28 +85,35 @@ final dates = {
   "2020-11": 2220000
 };
 
-final heightCoefficient = 0.7;
-
 int getHeigthByDate({DateTime date}) {
   final raw = '${date.year}' + '-' + '${date.month}';
   final lastHeight = dates.values.last;
   int startHeight;
   int endHeight;
-  int height;
+  int height = 0;
 
-  if ((dates[raw] == null)||(dates[raw] == lastHeight)) {
-    startHeight = dates.values.toList()[dates.length - 2];
-    endHeight = dates.values.toList()[dates.length - 1];
-    final heightPerDay = (endHeight - startHeight) / 31;
-    final daysHeight = (heightCoefficient * (date.day - 1) * heightPerDay).round();
-    height = endHeight + daysHeight;
-  } else {
-    startHeight = dates[raw];
-    final index = dates.values.toList().indexOf(startHeight);
-    endHeight = dates.values.toList()[index + 1];
-    final heightPerDay = ((endHeight - startHeight) / 31).round();
-    final daysHeight = (date.day - 1) * heightPerDay;
-    height = startHeight + daysHeight - heightPerDay;
+  try {
+    if ((dates[raw] == null)||(dates[raw] == lastHeight)) {
+      startHeight = dates.values.toList()[dates.length - 2];
+      endHeight = dates.values.toList()[dates.length - 1];
+      final heightPerDay = (endHeight - startHeight) / 31;
+      final endDateRaw = dates.keys.toList()[dates.length - 1].split('-');
+      final endYear = int.parse(endDateRaw[0]);
+      final endMonth = int.parse(endDateRaw[1]);
+      final endDate = DateTime(endYear, endMonth);
+      final differenceInDays = date.difference(endDate).inDays;
+      final daysHeight = (differenceInDays * heightPerDay).round();
+      height = endHeight + daysHeight;
+    } else {
+      startHeight = dates[raw];
+      final index = dates.values.toList().indexOf(startHeight);
+      endHeight = dates.values.toList()[index + 1];
+      final heightPerDay = ((endHeight - startHeight) / 31).round();
+      final daysHeight = (date.day - 1) * heightPerDay;
+      height = startHeight + daysHeight - heightPerDay;
+    }
+  } catch (e) {
+    print(e.toString());
   }
 
   return height;
