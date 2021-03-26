@@ -467,5 +467,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "Если вы хотите обменять XMR со своего баланса Monero в Cake Wallet, сначала переключитесь на свой кошелек Monero.",
   "confirmed" : "Подтверждено",
   "unconfirmed" : "Неподтвержденный",
-  "displayable" : "Отображаемый"
+  "displayable" : "Отображаемый",
+
+  "submit_request" : "отправить запрос"
 }

@@ -467,5 +467,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "Se você deseja trocar o XMR de seu saldo da Carteira Monero Cake, troque primeiro para sua carteira Monero.",
   "confirmed" : "Confirmada",
   "unconfirmed" : "Não confirmado",
-  "displayable" : "Exibível"
+  "displayable" : "Exibível",
+
+  "submit_request" : "enviar um pedido"
 }

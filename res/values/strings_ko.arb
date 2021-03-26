@@ -467,5 +467,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "Cake Wallet Monero 잔액에서 XMR을 교환하려면 먼저 Monero 지갑으로 전환하십시오.",
   "confirmed" : "확인",
   "unconfirmed" : "미확인",
-  "displayable" : "표시 가능"
+  "displayable" : "표시 가능",
+
+  "submit_request" : "요청을 제출"
 }

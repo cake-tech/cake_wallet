@@ -467,5 +467,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "如果要从Cake Wallet Monero余额中兑换XMR，请先切换到Monero钱包。",
   "confirmed" : "已确认",
   "unconfirmed" : "未经证实",
-  "displayable" : "可显示"
+  "displayable" : "可显示",
+
+  "submit_request" : "提交請求"
 }
