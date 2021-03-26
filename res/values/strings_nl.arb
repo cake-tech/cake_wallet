@@ -467,5 +467,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "Als u XMR wilt omwisselen van uw Cake Wallet Monero-saldo, moet u eerst overschakelen naar uw Monero-portemonnee.",
   "confirmed" : "Bevestigd",
   "unconfirmed" : "Niet bevestigd",
-  "displayable" : "Weer te geven"
+  "displayable" : "Weer te geven",
+
+  "submit_request" : "een verzoek indienen"
 }
