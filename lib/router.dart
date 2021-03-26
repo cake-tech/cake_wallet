@@ -60,6 +60,7 @@ import 'package:cake_wallet/src/screens/send/send_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 
 Route<dynamic> createRoute(RouteSettings settings) {
@@ -250,7 +251,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.login:
       return CupertinoPageRoute<void>(
-          builder: (context) => getIt.get<AuthPage>(instanceName: 'login'),
+          builder: (context) => WillPopScope(
+              child: getIt.get<AuthPage>(instanceName: 'login'),
+              onWillPop: () =>
+                  SystemChannels.platform.invokeMethod('SystemNavigator.pop')),
           fullscreenDialog: true);
 
     case Routes.accountCreation:
