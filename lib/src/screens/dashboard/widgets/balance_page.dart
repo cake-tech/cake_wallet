@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -33,16 +32,23 @@ class BalancePage extends StatelessWidget {
           }),
           SizedBox(height: 10),
           Observer(builder: (_) {
-            return Text(
-              '${dashboardViewModel.balanceViewModel.availableBalanceLabel} (${dashboardViewModel.balanceViewModel.availableFiatBalance.toString()})',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context)
-                      .accentTextTheme
-                      .display2
-                      .backgroundColor,
-                  height: 1),
+            return Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${dashboardViewModel.balanceViewModel.availableBalanceLabel} (${dashboardViewModel.balanceViewModel.availableFiatBalance.toString()})',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context)
+                            .accentTextTheme
+                            .display2
+                            .backgroundColor,
+                        height: 1),
+                  )
+                )
+              ],
             );
           }),
           SizedBox(height: 10),
@@ -62,16 +68,23 @@ class BalancePage extends StatelessWidget {
           }),
           SizedBox(height: 10),
           Observer(builder: (_) {
-            return Text(
-              '${dashboardViewModel.balanceViewModel.additionalBalanceLabel} (${dashboardViewModel.balanceViewModel.additionalFiatBalance.toString()})',
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context)
-                      .accentTextTheme
-                      .display2
-                      .backgroundColor,
-                  height: 1),
+            return Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '${dashboardViewModel.balanceViewModel.additionalBalanceLabel} (${dashboardViewModel.balanceViewModel.additionalFiatBalance.toString()})',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context)
+                            .accentTextTheme
+                            .display2
+                            .backgroundColor,
+                        height: 1),
+                  )
+                )
+              ],
             );
           }),
           SizedBox(height: 10),
