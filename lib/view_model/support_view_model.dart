@@ -43,7 +43,7 @@ abstract class SupportViewModelBase with Store {
           title: 'Wyre',
           icon: 'assets/images/wyre.png',
           linkTitle: S.current.submit_request,
-          link: 'https://support.sendwyre.com/hc/en-us/requests/new ')
+          link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new')
     ];
   }
   static const url = 'https://cakewallet.com/guide/';
