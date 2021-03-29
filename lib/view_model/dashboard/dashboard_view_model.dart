@@ -1,25 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'dart:async';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/order.dart';
-import 'package:cake_wallet/entities/transaction_history.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
-import 'package:cake_wallet/monero/monero_transaction_history.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
-import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
@@ -29,12 +18,8 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/wyre_view_model.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
@@ -45,8 +30,6 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:convert/convert.dart';
 
 part 'dashboard_view_model.g.dart';
 

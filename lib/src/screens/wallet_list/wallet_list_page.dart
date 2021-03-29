@@ -89,7 +89,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         alertContent: S
                                             .of(context)
                                             .change_wallet_alert_content(
-                                                wallet.name),
+                                                wallet.displayName),
                                         leftButtonText: S.of(context).cancel,
                                         rightButtonText: S.of(context).change,
                                         actionLeftButton: () =>

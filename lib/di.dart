@@ -3,7 +3,6 @@ import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
@@ -42,7 +41,6 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
-import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
 import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
