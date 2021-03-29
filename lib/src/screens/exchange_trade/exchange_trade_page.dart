@@ -28,9 +28,11 @@ void showInformation(
 
   final information = exchangeTradeViewModel.isSendable
       ? S.current.exchange_result_confirm(
-          trade.amount ?? fetchingLabel, trade.from.toString(), walletName)
+          trade.amount ?? fetchingLabel, trade.from.toString(), walletName) +
+        exchangeTradeViewModel.extraInfo
       : S.current.exchange_result_description(
-          trade.amount ?? fetchingLabel, trade.from.toString());
+          trade.amount ?? fetchingLabel, trade.from.toString()) +
+        exchangeTradeViewModel.extraInfo;
 
   showPopUp<void>(
       context: context,
@@ -144,13 +146,25 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         child: Center(
                             child: AspectRatio(
                                 aspectRatio: 1.0,
-                                child: QrImage(
-                                  data: trade.inputAddress ?? fetchingLabel,
-                                  backgroundColor: Colors.transparent,
-                                  foregroundColor: Theme.of(context)
-                                      .accentTextTheme
-                                      .subtitle
-                                      .color,
+                                child: Container(
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          width: 3,
+                                          color: Theme.of(context)
+                                              .accentTextTheme
+                                              .subtitle
+                                              .color
+                                      )
+                                  ),
+                                  child: QrImage(
+                                    data: trade.inputAddress ?? fetchingLabel,
+                                    backgroundColor: Colors.transparent,
+                                    foregroundColor: Theme.of(context)
+                                        .accentTextTheme
+                                        .subtitle
+                                        .color,
+                                  ),
                                 )))),
                     Spacer(flex: 3)
                   ]),
@@ -255,11 +269,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                         .pendingTransaction.feeFormatted,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
-                    actionRightButton: () {
+                    actionRightButton: () async {
                       Navigator.of(context).pop();
-                      widget.exchangeTradeViewModel.sendViewModel
+                      await widget.exchangeTradeViewModel.sendViewModel
                           .commitTransaction();
-                      showPopUp<void>(
+                      await showPopUp<void>(
                           context: context,
                           builder: (BuildContext context) {
                             return Observer(builder: (_) {
@@ -359,10 +373,10 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           });
                     },
                     actionLeftButton: () => Navigator.of(context).pop(),
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel
-                        .pendingTransaction.feeFormatted,
+                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmount
+                        +  ' ' + widget.exchangeTradeViewModel.sendViewModel.fiat.title,
                     fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel
-                            .pendingTransactionFeeFiatAmount +
+                            .pendingTransactionFiatAmount +
                         ' ' +
                         widget.exchangeTradeViewModel.sendViewModel.fiat.title,
                     recipientTitle: S.of(context).recipient_address,

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -19,7 +20,6 @@ import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
-import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
 import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
@@ -74,6 +74,16 @@ abstract class SettingsViewModelBase with Store {
         PickerListItem(
             title: S.current.settings_fee_priority,
             items: priorityForWalletType(wallet.type),
+            displayItem: (dynamic priority) {
+              final _priority = priority as TransactionPriority;
+
+              if (wallet is BitcoinWallet) {
+                final rate = wallet.feeRate(_priority);
+                return '${priority.toString()} ($rate sat/byte)';
+              }
+
+              return priority.toString();
+            },
             selectedItem: () => transactionPriority,
             onItemSelected: (TransactionPriority priority) =>
                 _settingsStore.priority[wallet.type] = priority),
@@ -136,44 +146,10 @@ abstract class SettingsViewModelBase with Store {
                 _settingsStore.currentTheme = theme)
       ],
       [
-        LinkListItem(
-            title: 'Email',
-            linkTitle: 'support@cakewallet.com',
-            link: 'mailto:support@cakewallet.com'),
-        LinkListItem(
-            title: 'Telegram',
-            icon: 'assets/images/Telegram.png',
-            linkTitle: '@cakewallet_bot',
-            link: 'https:t.me/cakewallet_bot'),
-        LinkListItem(
-            title: 'Twitter',
-            icon: 'assets/images/Twitter.png',
-            linkTitle: '@cakewallet',
-            link: 'https://twitter.com/cakewallet'),
-        LinkListItem(
-            title: 'ChangeNow',
-            icon: 'assets/images/change_now.png',
-            linkTitle: 'support@changenow.io',
-            link: 'mailto:support@changenow.io'),
-        LinkListItem(
-            title: 'Morph',
-            icon: 'assets/images/morph_icon.png',
-            linkTitle: 'support@morphtoken.com',
-            link: 'mailto:support@morphtoken.com'),
-        LinkListItem(
-            title: 'XMR.to',
-            icon: 'assets/images/xmr_btc.png',
-            linkTitle: 'support@xmr.to',
-            link: 'mailto:support@xmr.to'),
         RegularListItem(
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>
               Navigator.of(context).pushNamed(Routes.readDisclaimer),
-        ),
-        RegularListItem(
-          title: S.current.faq,
-          handler: (BuildContext context) =>
-              Navigator.pushNamed(context, Routes.faq),
         )
       ],
       [VersionListItem(title: currentVersion)]
@@ -211,6 +187,8 @@ abstract class SettingsViewModelBase with Store {
 
   @computed
   ThemeBase get theme => _settingsStore.currentTheme;
+
+  bool get isBitcoinBuyEnabled => _settingsStore.isBitcoinBuyEnabled;
 
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;

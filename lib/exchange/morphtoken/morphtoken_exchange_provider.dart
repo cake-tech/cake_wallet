@@ -71,7 +71,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
+  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
     final url = apiUri + _limitsURISuffix;
     final headers = {'Content-type': 'application/json'};
     final body = json.encode({
@@ -100,7 +100,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request}) async {
+  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
     const url = apiUri + _morphURISuffix;
     final _request = request as MorphTokenRequest;
     final body = {
@@ -191,7 +191,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
 
   @override
   Future<double> calculateAmount(
-      {CryptoCurrency from, CryptoCurrency to, double amount,
+      {CryptoCurrency from, CryptoCurrency to, double amount, bool isFixedRateMode,
         bool isReceiveAmount}) async {
     final url = apiUri + _ratesURISuffix;
     final response = await get(url);

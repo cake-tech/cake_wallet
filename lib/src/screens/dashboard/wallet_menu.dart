@@ -20,7 +20,7 @@ class WalletMenu {
         WalletMenuItem(
             title: S.current.rescan,
             image: Image.asset('assets/images/filter_icon.png',
-                height: 16, width: 16)),
+                height: 16, width: 16, color: Palette.darkBlue)),
       WalletMenuItem(
           title: S.current.wallets,
           image: Image.asset('assets/images/wallet_menu.png',
@@ -47,6 +47,10 @@ class WalletMenu {
           title: S.current.settings_title,
           image: Image.asset('assets/images/settings_menu.png',
               height: 16, width: 16)),
+      WalletMenuItem(
+          title: S.current.settings_support,
+          image: Image.asset('assets/images/question_mark.png',
+              height: 16, width: 16, color: Palette.darkBlue)),
     ]);
   }
 
@@ -98,6 +102,9 @@ class WalletMenu {
         break;
       case 7:
         Navigator.of(context).pushNamed(Routes.settings);
+        break;
+      case 8:
+        Navigator.of(context).pushNamed(Routes.support);
         break;
       default:
         break;

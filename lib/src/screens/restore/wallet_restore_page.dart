@@ -130,7 +130,7 @@ class WalletRestorePage extends BasePage {
                   activeDotColor: Theme.of(context).hintColor),
             )),
       Padding(
-          padding: EdgeInsets.only(top: 20, bottom: 40, left: 25, right: 25),
+          padding: EdgeInsets.only(top: 20, bottom: 24, left: 24, right: 24),
           child: Observer(
             builder: (context) {
               return LoadingPrimaryButton(

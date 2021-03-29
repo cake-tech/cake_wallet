@@ -49,7 +49,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(left: 25, right: 25),
+        padding: EdgeInsets.only(left: 24, right: 24),
         child: Column(children: [
           SeedWidget(
               key: seedWidgetStateKey, language: language, type: widget.type),

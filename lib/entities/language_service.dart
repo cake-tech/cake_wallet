@@ -1,8 +1,9 @@
+import 'package:cake_wallet/generated/locales.dart';
 import 'package:devicelocale/devicelocale.dart';
 import 'package:intl/intl.dart';
 
 class LanguageService {
-  static const Map<String, String> list = {
+  static const Map<String, String> supportedLocales = {
     'en': 'English',
     'de': 'Deutsch (German)',
     'es': 'Español (Spanish)',
@@ -16,6 +17,15 @@ class LanguageService {
     'uk': 'Українська (Ukrainian)',
     'zh': '中文 (Chinese)'
   };
+  static final list = <String, String> {};
+
+  static void loadLocaleList() {
+    supportedLocales.forEach((key, value) {
+      if (locales.contains(key)) {
+        list[key] = value;
+      }
+    });
+  }
 
   static Future<String> localeDetection() async {
     var locale = await Devicelocale.currentLocale;

@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 class StandardCheckbox extends StatefulWidget {
   StandardCheckbox({
+    Key key,
     @required this.value,
     this.caption = '',
-    @required this.onChanged});
+    @required this.onChanged}) : super(key: key);
 
   final bool value;
   final String caption;
@@ -23,6 +24,10 @@ class StandardCheckboxState extends State<StandardCheckbox> {
   bool value;
   String caption;
   Function(bool) onChanged;
+
+  void changeValue(bool newValue) {
+    setState(() => value = newValue);
+  }
 
   @override
   Widget build(BuildContext context) {

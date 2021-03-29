@@ -1,11 +1,15 @@
 import 'package:cake_wallet/entities/contact_record.dart';
+import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
+import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
+import 'package:cake_wallet/src/screens/support/support_page.dart';
+import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
@@ -291,6 +295,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
+    case Routes.orderDetails:
+      return MaterialPageRoute<void>(
+          builder: (_) =>
+              getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
+
+    case Routes.wyre:
+      return MaterialPageRoute<void>(
+          builder: (_) =>
+              getIt.get<WyrePage>(param1: settings.arguments as String));
+
     case Routes.restoreWalletFromSeedDetails:
       final args = settings.arguments as List;
       final walletRestorationFromSeedVM =
@@ -337,6 +351,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.restoreFromBackup:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<RestoreFromBackupPage>());
+
+    case Routes.support:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SupportPage>());
 
     default:
       return MaterialPageRoute<void>(

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
@@ -5,6 +6,7 @@ import 'package:cake_wallet/store/secret_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
+import 'package:intl/intl.dart';
 
 part 'backup_view_model.g.dart';
 
@@ -54,9 +56,11 @@ abstract class BackupViewModelBase with Store {
       state = IsExecutingState();
       final backupContent = await backupService.exportBackup(backupPassword);
       state = ExecutedSuccessfullyState();
+      final now = DateTime.now();
+      final formatter = DateFormat('yyyy-MM-dd_Hm');
 
       return BackupExportFile(backupContent.toList(),
-          name: 'backup_${DateTime.now().toString()}.zip');
+          name: 'cake_wallet_backup_${formatter.format(now)}');
     } catch (e) {
       print(e.toString());
       state = FailureState(e.toString());
@@ -66,4 +70,12 @@ abstract class BackupViewModelBase with Store {
 
   @action
   void showMasterPassword() => isBackupPasswordVisible = true;
+
+  @action
+  Future<void> saveToDownload(String name, List<int> content) async {
+    const downloadDirPath = '/storage/emulated/0/Download'; // For Android
+    final filePath = '$downloadDirPath/${name}';
+    final file = File(filePath);
+    await file.writeAsBytes(content);
+  }
 }

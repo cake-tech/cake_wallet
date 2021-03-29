@@ -53,6 +53,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
         _accountIndex = accountIndex,
+        _feeRates = <int>[],
         super(walletInfo) {
     _unspent = [];
     _scripthashesUpdateSubject = {};
@@ -118,10 +119,6 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         walletInfo: walletInfo);
   }
 
-  static int feeAmountForPriority(BitcoinTransactionPriority priority,
-          int inputsCount, int outputsCount) =>
-      priority.rate * estimatedTransactionSize(inputsCount, outputsCount);
-
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
       inputsCount * 146 + outputsCounts * 33 + 8;
 
@@ -161,6 +158,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       wif: hd.wif, privateKey: hd.privKey, publicKey: hd.pubKey);
 
   final String _password;
+  List<int> _feeRates;
   int _accountIndex;
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
 
@@ -233,6 +231,11 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       _subscribeForUpdates();
       await _updateBalance();
       await _updateUnspent();
+      _feeRates = await eclient.feeRates();
+
+      Timer.periodic(const Duration(minutes: 1),
+          (timer) async => _feeRates = await eclient.feeRates());
+
       syncStatus = SyncedSyncStatus();
     } catch (e) {
       print(e.toString());
@@ -261,14 +264,20 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   @override
   Future<PendingBitcoinTransaction> createTransaction(
       Object credentials) async {
+    const minAmount = 546;
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
     final allAmountFee =
         calculateEstimatedFee(transactionCredentials.priority, null);
+    final allAmount = balance.confirmed - allAmountFee;
     var fee = 0;
-    final amount = transactionCredentials.amount != null
+    final credentialsAmount = transactionCredentials.amount != null
         ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
-        : balance.confirmed - allAmountFee;
+        : 0;
+    final amount = transactionCredentials.amount == null ||
+            allAmount - credentialsAmount < minAmount
+        ? allAmount
+        : credentialsAmount;
     final txb = bitcoin.TransactionBuilder(network: bitcoin.bitcoin);
     final changeAddress = address;
     var leftAmount = amount;
@@ -294,8 +303,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
 
     final totalAmount = amount + fee;
     fee = transactionCredentials.amount != null
-        ? feeAmountForPriority(
-            transactionCredentials.priority, inputs.length, 2)
+        ? feeAmountForPriority(transactionCredentials.priority, inputs.length,
+            amount == allAmount ? 1 : 2)
         : allAmountFee;
 
     if (totalAmount > balance.confirmed) {
@@ -326,10 +335,10 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         addressToOutputScript(transactionCredentials.address), amount);
 
     final estimatedSize = estimatedTransactionSize(inputs.length, 2);
-    final feeAmount = transactionCredentials.priority.rate * estimatedSize;
+    final feeAmount = feeRate(transactionCredentials.priority) * estimatedSize;
     final changeValue = totalInputAmount - amount - feeAmount;
 
-    if (changeValue > 0) {
+    if (changeValue > minAmount) {
       txb.addOutput(changeAddress, changeValue);
     }
 
@@ -356,6 +365,18 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
         'balance': balance?.toJSON()
       });
 
+  int feeRate(TransactionPriority priority) {
+    if (priority is BitcoinTransactionPriority) {
+      return _feeRates[priority.raw];
+    }
+
+    return 0;
+  }
+
+  int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount,
+          int outputsCount) =>
+      feeRate(priority) * estimatedTransactionSize(inputsCount, outputsCount);
+
   @override
   int calculateEstimatedFee(TransactionPriority priority, int amount) {
     if (priority is BitcoinTransactionPriority) {
@@ -375,8 +396,9 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
       } else {
         inputsCount = _unspent.length;
       }
-
-      return feeAmountForPriority(priority, inputsCount, 2);
+      // If send all, then we have no change value
+      return feeAmountForPriority(
+          priority, inputsCount, amount != null ? 2 : 1);
     }
 
     return 0;

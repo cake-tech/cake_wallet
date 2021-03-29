@@ -59,6 +59,13 @@ abstract class ExchangeTradeViewModelBase with Store {
   @observable
   bool isSendable;
 
+  @computed
+  String get extraInfo => trade.from == CryptoCurrency.xlm
+  ? '\n\n' + S.current.xlm_extra_info
+  : trade.from == CryptoCurrency.xrp
+    ? '\n\n' + S.current.xrp_extra_info
+    : '';
+
   @observable
   ObservableList<ExchangeTradeItem> items;
 

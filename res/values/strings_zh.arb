@@ -65,7 +65,7 @@
   "change_exchange_provider" : "更改交易所提供商",
   "you_will_send" : "從轉換",
   "you_will_get" : "轉換成",
-  "amount_is_guaranteed" : "在xmr.to中，要接收保证的BTC数量，请输入BTC数量，而不要输入上方的XMR数量",
+  "amount_is_guaranteed" : "接收金額有保證",
   "amount_is_estimate" : "收款金额为估算值",
   "powered_by" : "供电 ${title}",
   "error" : "错误",
@@ -89,7 +89,7 @@
   "trade_is_powered_by" : "该交易由 ${provider}",
   "copy_address" : "复制地址",
   "exchange_result_confirm" : "点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到下面顯示的地址。 或者您可以從外部錢包發送到以下地址/ QR码。\n\n请按确认继续或返回以更改金额",
-  "exchange_result_description" : "请发送 ${fetchingLabel} ${from} 到下一頁顯示的地址.",
+  "exchange_result_description" : "您必須至少發送 ${fetchingLabel} ${from} 到下一頁上顯示的地址。 如果您發送的金額少於 ${fetchingLabel} ${from}，則可能無法轉換，因此無法退還。",
   "exchange_result_write_down_ID" : "*请复制或写下您上面显示的ID.",
   "confirm" : "确认",
   "confirm_sending" : "确认发送",
@@ -458,5 +458,16 @@
   "enter_backup_password" : "在此處輸入備用密碼",
   "select_backup_file" : "選擇備份文件",
   "import" : "進口",
-  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。"
+  "please_select_backup_file" : "請選擇備份文件，然後輸入備份密碼。",
+
+  "fixed_rate" : "固定利率",
+  "fixed_rate_alert" : "選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？",
+
+  "xlm_extra_info" : "發送用於交換的XLM交易時，請不要忘記指定備忘錄ID",
+  "xrp_extra_info" : "發送用於交換的XRP交易時，請不要忘記指定目標標記",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "如果要从Cake Wallet Monero余额中兑换XMR，请先切换到Monero钱包。",
+  "confirmed" : "已确认",
+  "unconfirmed" : "未经证实",
+  "displayable" : "可显示"
 }

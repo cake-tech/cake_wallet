@@ -25,10 +25,12 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
                 .toList());
 
   static const apiUri = 'https://changenow.io/api/v1';
-  static const apiKey = secrets.change_now_api_key;
+  static const apiKey = secrets.changeNowApiKey;
   static const _exchangeAmountUriSufix = '/exchange-amount/';
   static const _transactionsUriSufix = '/transactions/';
   static const _minAmountUriSufix = '/min-amount/';
+  static const _marketInfoUriSufix = '/market-info/';
+  static const _fixedRateUriSufix = 'fixed-rate/';
 
   @override
   String get title => 'ChangeNOW';
@@ -44,19 +46,43 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   Future<bool> checkIsAvailable() async => true;
 
   @override
-  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to}) async {
+  Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to,
+    bool isFixedRateMode}) async {
     final symbol = from.toString() + '_' + to.toString();
-    final url = apiUri + _minAmountUriSufix + symbol;
+    final url = isFixedRateMode
+        ? apiUri + _marketInfoUriSufix + _fixedRateUriSufix + apiKey
+        : apiUri + _minAmountUriSufix + symbol;
     final response = await get(url);
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final min = responseJSON['minAmount'] as double;
 
-    return Limits(min: min, max: null);
+    if (isFixedRateMode) {
+      final responseJSON = json.decode(response.body) as List<dynamic>;
+
+      for (var elem in responseJSON) {
+        final elemFrom = elem["from"] as String;
+        final elemTo = elem["to"] as String;
+
+        if ((elemFrom == from.toString().toLowerCase()) &&
+            (elemTo == to.toString().toLowerCase())) {
+          final min = elem["min"] as double;
+          final max = elem["max"] as double;
+
+          return Limits(min: min, max: max);
+        }
+      }
+      return Limits(min: 0, max: 0);
+    } else {
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final min = responseJSON['minAmount'] as double;
+
+      return Limits(min: min, max: null);
+    }
   }
 
   @override
-  Future<Trade> createTrade({TradeRequest request}) async {
-    const url = apiUri + _transactionsUriSufix + apiKey;
+  Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode}) async {
+    final url = isFixedRateMode
+    ? apiUri + _transactionsUriSufix + _fixedRateUriSufix + apiKey
+    : apiUri + _transactionsUriSufix + apiKey;
     final _request = request as ChangeNowRequest;
     final body = {
       'from': _request.from.toString(),
@@ -127,6 +153,10 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final state = TradeState.deserialize(raw: status);
     final extraId = responseJSON['payinExtraId'] as String;
     final outputTransaction = responseJSON['payoutHash'] as String;
+    final expiredAtRaw = responseJSON['validUntil'] as String;
+    final expiredAt = expiredAtRaw != null
+        ? DateTime.parse(expiredAtRaw).toLocal()
+        : null;
 
     return Trade(
         id: id,
@@ -137,6 +167,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         amount: expectedSendAmount,
         state: state,
         extraId: extraId,
+        expiredAt: expiredAt,
         outputTransaction: outputTransaction);
   }
 
@@ -145,18 +176,62 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       {CryptoCurrency from,
       CryptoCurrency to,
       double amount,
+      bool isFixedRateMode,
       bool isReceiveAmount}) async {
-    final url = apiUri +
+    if (isReceiveAmount && isFixedRateMode) {
+      final url = apiUri + _marketInfoUriSufix + _fixedRateUriSufix + apiKey;
+      final response = await get(url);
+      final responseJSON = json.decode(response.body) as List<dynamic>;
+      var rate = 0.0;
+      var fee = 0.0;
+
+      for (var elem in responseJSON) {
+        final elemFrom = elem["from"] as String;
+        final elemTo = elem["to"] as String;
+
+        if ((elemFrom == to.toString().toLowerCase()) &&
+            (elemTo == from.toString().toLowerCase())) {
+          rate = elem["rate"] as double;
+          fee = elem["minerFee"] as double;
+          break;
+        }
+      }
+
+      final estimatedAmount = (amount == 0.0)||(rate == 0.0) ? 0.0
+          : (amount + fee)/rate;
+
+      return estimatedAmount;
+    } else {
+      final url = defineUrlForCalculatingAmount(from, to, amount, isFixedRateMode);
+      final response = await get(url);
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final estimatedAmount = responseJSON['estimatedAmount'] as double;
+
+      return estimatedAmount;
+    }
+  }
+
+  static String defineUrlForCalculatingAmount(
+      CryptoCurrency from,
+      CryptoCurrency to,
+      double amount,
+      bool isFixedRateMode) {
+    return isFixedRateMode
+        ? apiUri +
+        _exchangeAmountUriSufix +
+        _fixedRateUriSufix +
+        amount.toString() +
+        '/' +
+        from.toString() +
+        '_' +
+        to.toString() +
+        '?api_key=' + apiKey
+        : apiUri +
         _exchangeAmountUriSufix +
         amount.toString() +
         '/' +
         from.toString() +
         '_' +
         to.toString();
-    final response = await get(url);
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final estimatedAmount = responseJSON['estimatedAmount'] as double;
-
-    return estimatedAmount;
   }
 }

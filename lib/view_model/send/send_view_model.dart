@@ -36,13 +36,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 part 'send_view_model.g.dart';
 
+const String cryptoNumberPattern = '0.0';
+
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
   SendViewModelBase(this._wallet, this._settingsStore, this._sendTemplateStore,
       this._fiatConversationStore, this.transactionDescriptionBox)
       : state = InitialExecutionState(),
-        _cryptoNumberFormat = NumberFormat(),
+        _cryptoNumberFormat = NumberFormat(cryptoNumberPattern),
         note = '',
         sendAll = false {
     final priority = _settingsStore.priority[_wallet.type];
@@ -95,7 +97,8 @@ abstract class SendViewModelBase with Store {
       }
     }
 
-    final fee = _wallet.calculateEstimatedFee(_settingsStore.priority[_wallet.type], amount);
+    final fee = _wallet.calculateEstimatedFee(
+        _settingsStore.priority[_wallet.type], amount);
 
     if (_wallet is BitcoinWallet) {
       return bitcoinAmountToDouble(amount: fee);
@@ -167,6 +170,7 @@ abstract class SendViewModelBase with Store {
 
   Validator get templateValidator => TemplateValidator();
 
+  @observable
   PendingTransaction pendingTransaction;
 
   @computed
@@ -295,7 +299,8 @@ abstract class SendViewModelBase with Store {
         final amount = !sendAll ? _amount : null;
         final priority = _settingsStore.priority[_wallet.type];
 
-        return BitcoinTransactionCredentials(address, amount, priority as BitcoinTransactionPriority);
+        return BitcoinTransactionCredentials(
+            address, amount, priority as BitcoinTransactionPriority);
       case WalletType.monero:
         final amount = !sendAll ? _amount : null;
         final priority = _settingsStore.priority[_wallet.type];
@@ -342,4 +347,16 @@ abstract class SendViewModelBase with Store {
 
   void removeTemplate({Template template}) =>
       _sendTemplateStore.remove(template: template);
+
+  String displayFeeRate(dynamic priority) {
+    final _priority = priority as TransactionPriority;
+    final wallet = _wallet;
+
+    if (wallet is BitcoinWallet) {
+      final rate = wallet.feeRate(_priority);
+      return '${priority.toString()} ($rate sat/byte)';
+    }
+
+    return priority.toString();
+  }
 }

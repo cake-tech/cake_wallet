@@ -38,9 +38,7 @@ class DisclaimerPageBody extends StatefulWidget {
 }
 
 class DisclaimerBodyState extends State<DisclaimerPageBody> {
-  static const xmrtoUrl = 'https://xmr.to/terms-of-service';
   static const changenowUrl = 'https://changenow.io/terms-of-use';
-  static const morphUrl = 'http://morphtoken.com/terms';
 
   bool _checked = false;
   String _fileText = '';
@@ -160,51 +158,9 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
                           children: <Widget>[
                             Expanded(
                                 child: GestureDetector(
-                              onTap: () => launchUrl(xmrtoUrl),
-                              child: Text(
-                                xmrtoUrl,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    color: Palette.blueCraiola,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.underline),
-                              ),
-                            ))
-                          ],
-                        ),
-                        SizedBox(
-                          height: 16.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                                child: GestureDetector(
                               onTap: () => launchUrl(changenowUrl),
                               child: Text(
                                 changenowUrl,
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                    color: Palette.blueCraiola,
-                                    fontSize: 14.0,
-                                    fontWeight: FontWeight.normal,
-                                    decoration: TextDecoration.underline),
-                              ),
-                            ))
-                          ],
-                        ),
-                        SizedBox(
-                          height: 16.0,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                                child: GestureDetector(
-                              onTap: () => launchUrl(morphUrl),
-                              child: Text(
-                                morphUrl,
                                 textAlign: TextAlign.left,
                                 style: TextStyle(
                                     color: Palette.blueCraiola,

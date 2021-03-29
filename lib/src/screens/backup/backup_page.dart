@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +15,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class BackupPage extends BasePage {
   BackupPage(this.backupViewModelBase);
@@ -26,7 +29,8 @@ class BackupPage extends BasePage {
   Widget trailing(BuildContext context) => TrailButton(
       caption: S.of(context).change_password,
       onPressed: () =>
-          Navigator.of(context).pushNamed(Routes.editBackupPassword));
+          Navigator.of(context).pushNamed(Routes.editBackupPassword),
+      textColor: Palette.blueCraiola);
 
   @override
   Widget body(BuildContext context) {
@@ -35,7 +39,7 @@ class BackupPage extends BasePage {
       children: [
         Center(
             child: Container(
-                padding: EdgeInsets.only(left: 20, right: 20),
+                padding: EdgeInsets.only(left: 24, right: 24),
                 height: 300,
                 child: Column(children: [
                   Text(
@@ -78,9 +82,9 @@ class BackupPage extends BasePage {
                   text: S.of(context).export_backup,
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white)),
-          bottom: 30,
-          left: 20,
-          right: 20,
+          bottom: 24,
+          left: 24,
+          right: 24,
         )
       ],
     );
@@ -91,17 +95,51 @@ class BackupPage extends BasePage {
         context: context,
         builder: (dialogContext) {
           return AlertWithTwoActions(
-            alertTitle: S.of(context).export_backup,
-            alertContent: S.of(context).save_backup_password,
-            rightButtonText: S.of(context).seed_alert_yes,
-            leftButtonText: S.of(context).seed_alert_back,
-            actionRightButton: () async {
-              Navigator.of(dialogContext).pop();
-              final backup = await backupViewModelBase.exportBackup();
-              await Share.file(
-                S.of(context).backup_file, backup.name, backup.content, 'text');
-            },
-            actionLeftButton: () => Navigator.of(dialogContext).pop());
+              alertTitle: S.of(context).export_backup,
+              alertContent: S.of(context).save_backup_password,
+              rightButtonText: S.of(context).seed_alert_yes,
+              leftButtonText: S.of(context).seed_alert_back,
+              actionRightButton: () async {
+                Navigator.of(dialogContext).pop();
+                final backup = await backupViewModelBase.exportBackup();
+
+                if (Platform.isAndroid) {
+                  onExportAndroid(context, backup);
+                } else {
+                  await Share.file(S.of(context).backup_file, backup.name,
+                      backup.content, 'application/*');
+                }
+              },
+              actionLeftButton: () => Navigator.of(dialogContext).pop());
+        });
+  }
+
+  void onExportAndroid(BuildContext context, BackupExportFile backup) {
+    showPopUp<void>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).export_backup,
+              alertContent: 'Please select destination for the backup file.',
+              rightButtonText: 'Save to Downloads',
+              leftButtonText: 'Share',
+              actionRightButton: () async {
+                final permission = await Permission.storage.request();
+
+                if (permission.isDenied) {
+                  Navigator.of(dialogContext).pop();
+                  return;
+                }
+
+                await backupViewModelBase.saveToDownload(
+                    backup.name, backup.content);
+                Navigator.of(dialogContext).pop();
+              },
+              actionLeftButton: () {
+                Navigator.of(dialogContext).pop();
+                Share.file(S.of(context).backup_file, backup.name,
+                    backup.content, 'application/*');
+              });
         });
   }
 }

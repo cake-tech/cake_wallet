@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/screens/dashboard/widgets/order_row.dart';
+import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -72,6 +74,21 @@ class TransactionsPage extends StatelessWidget {
                               createdAtFormattedDate:
                               DateFormat('HH:mm').format(trade.createdAt),
                               formattedAmount: item.tradeFormattedAmount
+                          );
+                        }
+
+                        if (item is OrderListItem) {
+                          final order = item.order;
+
+                          return OrderRow(
+                            onTap: () => Navigator.of(context).pushNamed(
+                                Routes.orderDetails,
+                                arguments: order),
+                            from: order.from,
+                            to: order.to,
+                            createdAtFormattedDate:
+                            DateFormat('HH:mm').format(order.createdAt),
+                            formattedAmount: item.orderFormattedAmount,
                           );
                         }
 
