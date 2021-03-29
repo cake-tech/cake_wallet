@@ -467,5 +467,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "If you want to exchange XMR from your Cake Wallet Monero balance, please switch to your Monero wallet first.",
   "confirmed" : "Confirmed",
   "unconfirmed" : "Unconfirmed",
-  "displayable" : "Displayable"
+  "displayable" : "Displayable",
+
+  "submit_request" : "submit a request"
 }

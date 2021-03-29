@@ -38,7 +38,12 @@ abstract class SupportViewModelBase with Store {
           title: 'ChangeNow',
           icon: 'assets/images/change_now.png',
           linkTitle: 'support@changenow.io',
-          link: 'mailto:support@changenow.io')
+          link: 'mailto:support@changenow.io'),
+      LinkListItem(
+          title: 'Wyre',
+          icon: 'assets/images/wyre.png',
+          linkTitle: S.current.submit_request,
+          link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new')
     ];
   }
   static const url = 'https://cakewallet.com/guide/';
