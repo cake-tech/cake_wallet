@@ -79,33 +79,38 @@ abstract class SendViewModelBase with Store {
   double get estimatedFee {
     int amount;
 
-    if (cryptoAmount?.isNotEmpty ?? false) {
-      int _amount = 0;
-      switch (walletType) {
-        case WalletType.monero:
-          _amount = moneroParseAmount(amount: cryptoAmount);
-          break;
-        case WalletType.bitcoin:
-          _amount = stringDoubleToBitcoinAmount(cryptoAmount);
-          break;
-        default:
-          break;
+    try {
+      if (cryptoAmount?.isNotEmpty ?? false) {
+        final _cryptoAmount = cryptoAmount.replaceAll(',', '.');
+        int _amount = 0;
+        switch (walletType) {
+          case WalletType.monero:
+            _amount = moneroParseAmount(amount: _cryptoAmount);
+            break;
+          case WalletType.bitcoin:
+            _amount = stringDoubleToBitcoinAmount(_cryptoAmount);
+            break;
+          default:
+            break;
+        }
+
+        if (_amount > 0) {
+          amount = _amount;
+        }
       }
 
-      if (_amount > 0) {
-        amount = _amount;
+      final fee = _wallet.calculateEstimatedFee(
+          _settingsStore.priority[_wallet.type], amount);
+
+      if (_wallet is BitcoinWallet) {
+        return bitcoinAmountToDouble(amount: fee);
       }
-    }
 
-    final fee = _wallet.calculateEstimatedFee(
-        _settingsStore.priority[_wallet.type], amount);
-
-    if (_wallet is BitcoinWallet) {
-      return bitcoinAmountToDouble(amount: fee);
-    }
-
-    if (_wallet is MoneroWallet) {
-      return moneroAmountToDouble(amount: fee);
+      if (_wallet is MoneroWallet) {
+        return moneroAmountToDouble(amount: fee);
+      }
+    } catch (e) {
+      print(e.toString());
     }
 
     return 0;
