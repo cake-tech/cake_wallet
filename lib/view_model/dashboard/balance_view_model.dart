@@ -69,9 +69,9 @@ abstract class BalanceViewModelBase with Store {
 
   @computed
   BalanceDisplayMode get displayMode => isReversing
-      ? (savedDisplayMode == BalanceDisplayMode.availableBalance
-          ? BalanceDisplayMode.fullBalance
-          : BalanceDisplayMode.availableBalance)
+      ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
+        ? BalanceDisplayMode.displayableBalance
+        : savedDisplayMode
       : savedDisplayMode;
 
   @computed
@@ -96,7 +96,7 @@ abstract class BalanceViewModelBase with Store {
   String get availableBalance {
     final walletBalance = _walletBalance;
 
-    if (settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance) {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '---';
     }
 
@@ -107,7 +107,7 @@ abstract class BalanceViewModelBase with Store {
   String get additionalBalance {
     final walletBalance = _walletBalance;
 
-    if (settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance) {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '---';
     }
 
@@ -119,7 +119,7 @@ abstract class BalanceViewModelBase with Store {
     final walletBalance = _walletBalance;
     final fiatCurrency = settingsStore.fiatCurrency;
 
-    if (settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance) {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '---';
     }
 
@@ -135,7 +135,7 @@ abstract class BalanceViewModelBase with Store {
     final walletBalance = _walletBalance;
     final fiatCurrency = settingsStore.fiatCurrency;
 
-    if (settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance) {
+    if (displayMode == BalanceDisplayMode.hiddenBalance) {
       return '---';
     }
 
