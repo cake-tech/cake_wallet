@@ -64,7 +64,7 @@ class TransactionsPage extends StatelessWidget {
                         if (item is TradeListItem) {
                           final trade = item.trade;
 
-                          return TradeRow(
+                          return Observer(builder: (_) => TradeRow(
                               onTap: () => Navigator.of(context).pushNamed(
                                   Routes.tradeDetails,
                                   arguments: trade),
@@ -74,13 +74,13 @@ class TransactionsPage extends StatelessWidget {
                               createdAtFormattedDate:
                               DateFormat('HH:mm').format(trade.createdAt),
                               formattedAmount: item.tradeFormattedAmount
-                          );
+                          ));
                         }
 
                         if (item is OrderListItem) {
                           final order = item.order;
 
-                          return OrderRow(
+                          return Observer(builder: (_) => OrderRow(
                             onTap: () => Navigator.of(context).pushNamed(
                                 Routes.orderDetails,
                                 arguments: order),
@@ -89,7 +89,7 @@ class TransactionsPage extends StatelessWidget {
                             createdAtFormattedDate:
                             DateFormat('HH:mm').format(order.createdAt),
                             formattedAmount: item.orderFormattedAmount,
-                          );
+                          ));
                         }
 
                         return Container(
