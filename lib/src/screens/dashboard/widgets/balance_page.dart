@@ -10,16 +10,16 @@ class BalancePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.transparent,
-      padding: EdgeInsets.all(24),
-      child: GestureDetector(
-        onLongPress: () =>
-          dashboardViewModel.balanceViewModel.isReversing =
-          !dashboardViewModel.balanceViewModel.isReversing,
-        onLongPressUp: () =>
-          dashboardViewModel.balanceViewModel.isReversing =
-          !dashboardViewModel.balanceViewModel.isReversing,
+    return GestureDetector(
+      onLongPress: () =>
+      dashboardViewModel.balanceViewModel.isReversing =
+      !dashboardViewModel.balanceViewModel.isReversing,
+      onLongPressUp: () =>
+      dashboardViewModel.balanceViewModel.isReversing =
+      !dashboardViewModel.balanceViewModel.isReversing,
+      child: Container(
+        color: Colors.transparent,
+        padding: EdgeInsets.all(24),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
