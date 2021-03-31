@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/wyre_exception.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:flutter/foundation.dart';
@@ -9,8 +10,7 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 
 class WyreService {
   WyreService({
-    @required this.walletType,
-    @required this.walletAddress,
+    @required this.wallet,
     this.isTestEnvironment = false}) {
     baseApiUrl = isTestEnvironment
         ? _baseTestApiUrl
@@ -31,8 +31,11 @@ class WyreService {
   static const _trackSuffix = '/track';
 
   final bool isTestEnvironment;
-  final WalletType walletType;
-  final String walletAddress;
+  final WalletBase wallet;
+
+  WalletType get walletType => wallet.type;
+  String get walletAddress => wallet.address;
+  String get walletId => wallet.id;
 
   String baseApiUrl;
   String trackUrl;
@@ -105,7 +108,9 @@ class WyreService {
         to: to,
         state: state,
         createdAt: createdAt,
-        amount: amount.toString()
+        amount: amount.toString(),
+        receiveAddress: walletAddress,
+        walletId: walletId
     );
   }
 }

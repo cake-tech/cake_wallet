@@ -534,13 +534,11 @@ Future setup(
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
-    return WyreService(walletType: wallet.type, walletAddress: wallet.address);
+    return WyreService(wallet: wallet);
   });
 
   getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
     return WyreViewModel(ordersSource, getIt.get<OrdersStore>(),
-        walletId: wallet.id, address: wallet.address, type: wallet.type,
         wyreService: getIt.get<WyreService>());
   });
 
