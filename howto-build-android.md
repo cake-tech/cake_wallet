@@ -125,6 +125,10 @@ Next, we must generate key properties based on the secure keystore you generated
 
 **REMINDER:** The *above* command will **not** succeed unless you replaced the `storePassword` and `keyPassword` variables with the correct passwords for your keystore.
 
+Then we need to generate localization files.
+
+`$ flutter packages pub run tool/generate_localization.dart`
+
 Lastly, we will generate mobx models for the project.
 
 `$ flutter packages pub run build_runner build --delete-conflicting-outputs`
