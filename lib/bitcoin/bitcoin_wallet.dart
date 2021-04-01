@@ -174,7 +174,7 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
   }
 
   @action
-  void nextAddress() {
+  void nextAddress() async {
     _accountIndex += 1;
 
     if (_accountIndex >= addresses.length) {
@@ -182,6 +182,8 @@ abstract class BitcoinWalletBase extends WalletBase<BitcoinBalance> with Store {
     }
 
     address = addresses[_accountIndex].address;
+
+    await save();
   }
 
   Future<BitcoinAddressRecord> generateNewAddress() async {
