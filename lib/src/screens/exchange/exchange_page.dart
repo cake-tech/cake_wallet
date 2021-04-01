@@ -464,6 +464,7 @@ class ExchangePage extends BasePage {
                           },
                           color: Theme.of(context).accentTextTheme.body2.color,
                           textColor: Colors.white,
+                          isDisabled: exchangeViewModel.isDisabledExchangeButton,
                           isLoading:
                               exchangeViewModel.tradeState is TradeIsCreating)),
                 ]),

@@ -60,6 +60,7 @@ abstract class ExchangeViewModelBase with Store {
     _defineIsReceiveAmountEditable();
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
+    isDisabledExchangeButton = false;
     loadLimits();
   }
 
@@ -112,6 +113,9 @@ abstract class ExchangeViewModelBase with Store {
 
   @observable
   bool isFixedRateMode;
+
+  @observable
+  bool isDisabledExchangeButton;
 
   @computed
   SyncStatus get status => wallet.syncStatus;
@@ -369,19 +373,20 @@ abstract class ExchangeViewModelBase with Store {
             pair.from == depositCurrency && pair.to == receiveCurrency)
         .isNotEmpty;
 
-    if (!isPairExist) {
+    if (isPairExist) {
       final provider =
           _providerForPair(from: depositCurrency, to: receiveCurrency);
 
       if (provider != null) {
+        isDisabledExchangeButton = false;
         changeProvider(provider: provider);
       }
+    } else {
+      isDisabledExchangeButton = true;
+      depositAmount = '';
+      receiveAmount = '';
+      limitsState = LimitsLoadedFailure(error: 'Pair is not exists');
     }
-
-    _defineIsReceiveAmountEditable();
-    depositAmount = '';
-    receiveAmount = '';
-    loadLimits();
   }
 
   ExchangeProvider _providerForPair({CryptoCurrency from, CryptoCurrency to}) {

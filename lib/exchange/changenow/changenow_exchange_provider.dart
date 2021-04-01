@@ -17,12 +17,23 @@ import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider()
       : super(
-            pairList: CryptoCurrency.all
+            /*pairList: CryptoCurrency.all
                 .map((i) => CryptoCurrency.all
                     .map((k) => ExchangePair(from: i, to: k, reverse: true))
                     .where((c) => c != null))
                 .expand((i) => i)
-                .toList());
+                .toList());*/
+      pairList: CryptoCurrency.all
+          .map((i) => CryptoCurrency.all
+          .map((k) {
+            if ((i != CryptoCurrency.xmr)||
+                ((k != CryptoCurrency.xrp)&&(k != CryptoCurrency.xlm))) {
+              return ExchangePair(from: i, to: k, reverse: true);
+            }
+           })
+          .where((c) => c != null))
+          .expand((i) => i)
+          .toList());
 
   static const apiUri = 'https://changenow.io/api/v1';
   static const apiKey = secrets.changeNowApiKey;
