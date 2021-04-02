@@ -16,7 +16,7 @@ class WelcomePage extends BasePage {
         backgroundColor: Theme
             .of(context)
             .backgroundColor,
-        resizeToAvoidBottomPadding: false,
+        resizeToAvoidBottomInset: false,
         body: body(context));
   }
 
