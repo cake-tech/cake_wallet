@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -37,5 +36,5 @@ abstract class TradesStoreBase with Store {
   Future updateTradeList() async => trades =
       tradesSource.values.map((trade) => TradeListItem(
           trade: trade,
-          displayMode: settingsStore.balanceDisplayMode)).toList();
+          settingsStore: settingsStore)).toList();
 }

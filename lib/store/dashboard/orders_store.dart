@@ -41,5 +41,5 @@ abstract class OrdersStoreBase with Store {
   Future updateOrderList() async => orders =
       ordersSource.values.map((order) => OrderListItem(
           order: order,
-          displayMode: settingsStore.balanceDisplayMode)).toList();
+          settingsStore: settingsStore)).toList();
 }
