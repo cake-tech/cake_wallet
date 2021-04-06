@@ -28,7 +28,7 @@ abstract class BasePage extends StatelessWidget {
 
   Color get titleColor => null;
 
-  bool get resizeToAvoidBottomPadding => true;
+  bool get resizeToAvoidBottomInset => true;
 
   bool get extendBodyBehindAppBar => false;
 
@@ -138,7 +138,7 @@ abstract class BasePage extends StatelessWidget {
     final root = Scaffold(
         key: _scaffoldKey,
         backgroundColor: _backgroundColor,
-        resizeToAvoidBottomPadding: resizeToAvoidBottomPadding,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
         extendBodyBehindAppBar: extendBodyBehindAppBar,
         endDrawer: endDrawer,
         appBar: appBar(context),

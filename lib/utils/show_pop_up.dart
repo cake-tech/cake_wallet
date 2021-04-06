@@ -7,8 +7,7 @@ Future<T> showPopUp<T>({
   Color barrierColor,
   bool useSafeArea = false,
   bool useRootNavigator = true,
-  RouteSettings routeSettings,
-  Widget child,
+  RouteSettings routeSettings
 }) {
   return showDialog<T>(
       context: context,
@@ -17,6 +16,5 @@ Future<T> showPopUp<T>({
       barrierColor: barrierColor,
       useSafeArea: useSafeArea,
       useRootNavigator: useRootNavigator,
-      routeSettings: routeSettings,
-      child: child);
+      routeSettings: routeSettings);
 }

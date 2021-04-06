@@ -27,6 +27,12 @@ Future<void> main(List<String> args) async {
   })
   : <String, dynamic> {srcDir : inputPath};
 
+  final outputDir = Directory(outputPath);
+
+  if (!outputDir.existsSync()) {
+    await outputDir.create();
+  }
+
   extraInfo.forEach((key, dynamic value) async {
     if (key != srcDir) {
       print('Wrong key: $key');
