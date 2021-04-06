@@ -57,10 +57,12 @@ abstract class ExchangeViewModelBase with Store {
         _onPairChange();
       }
     });
+    receiveCurrencies = CryptoCurrency.all.where((cryptoCurrency) =>
+      (cryptoCurrency != CryptoCurrency.xlm)&&
+      (cryptoCurrency != CryptoCurrency.xrp)).toList();
     _defineIsReceiveAmountEditable();
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
-    isDisabledExchangeButton = false;
     loadLimits();
   }
 
@@ -114,9 +116,6 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isFixedRateMode;
 
-  @observable
-  bool isDisabledExchangeButton;
-
   @computed
   SyncStatus get status => wallet.syncStatus;
 
@@ -126,6 +125,8 @@ abstract class ExchangeViewModelBase with Store {
 
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
+
+  List<CryptoCurrency> receiveCurrencies;
 
   Limits limits;
 
@@ -378,14 +379,11 @@ abstract class ExchangeViewModelBase with Store {
           _providerForPair(from: depositCurrency, to: receiveCurrency);
 
       if (provider != null) {
-        isDisabledExchangeButton = false;
         changeProvider(provider: provider);
       }
     } else {
-      isDisabledExchangeButton = true;
       depositAmount = '';
       receiveAmount = '';
-      limitsState = LimitsLoadedFailure(error: 'Pair is not exists');
     }
   }
 
