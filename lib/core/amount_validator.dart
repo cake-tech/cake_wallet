@@ -16,8 +16,7 @@ class AmountValidator extends TextValidator {
       case WalletType.monero:
         return '^([0-9]+([.\,][0-9]{0,12})?|[.\,][0-9]{1,12})\$';
       case WalletType.bitcoin:
-        // FIXME: Incorrect pattern for bitcoin
-        return '^([0-9]+([.\,][0-9]{0,12})?|[.\,][0-9]{1,12})\$';
+        return '^([0-9]+([.\,][0-9]{0,8})?|[.\,][0-9]{1,8})\$';
       default:
         return '';
     }
