@@ -1,4 +1,4 @@
-import 'package:rxdart/rxdart.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
