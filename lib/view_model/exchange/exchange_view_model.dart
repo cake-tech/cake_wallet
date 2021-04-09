@@ -57,6 +57,9 @@ abstract class ExchangeViewModelBase with Store {
         _onPairChange();
       }
     });
+    receiveCurrencies = CryptoCurrency.all.where((cryptoCurrency) =>
+      (cryptoCurrency != CryptoCurrency.xlm)&&
+      (cryptoCurrency != CryptoCurrency.xrp)).toList();
     _defineIsReceiveAmountEditable();
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
@@ -122,6 +125,8 @@ abstract class ExchangeViewModelBase with Store {
 
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
+
+  List<CryptoCurrency> receiveCurrencies;
 
   Limits limits;
 
@@ -369,19 +374,17 @@ abstract class ExchangeViewModelBase with Store {
             pair.from == depositCurrency && pair.to == receiveCurrency)
         .isNotEmpty;
 
-    if (!isPairExist) {
+    if (isPairExist) {
       final provider =
           _providerForPair(from: depositCurrency, to: receiveCurrency);
 
       if (provider != null) {
         changeProvider(provider: provider);
       }
+    } else {
+      depositAmount = '';
+      receiveAmount = '';
     }
-
-    _defineIsReceiveAmountEditable();
-    depositAmount = '';
-    receiveAmount = '';
-    loadLimits();
   }
 
   ExchangeProvider _providerForPair({CryptoCurrency from, CryptoCurrency to}) {
