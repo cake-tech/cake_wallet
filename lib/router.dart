@@ -1,8 +1,9 @@
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
+import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -296,6 +297,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(
           builder: (_) =>
               getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
+
+    case Routes.preOrder:
+      return MaterialPageRoute<void>(
+          builder: (_) =>
+              getIt.get<PreOrderPage>());
 
     case Routes.wyre:
       return MaterialPageRoute<void>(

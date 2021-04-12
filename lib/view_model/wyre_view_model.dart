@@ -1,7 +1,7 @@
 import 'package:cake_wallet/entities/wyre_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:mobx/mobx.dart';
 

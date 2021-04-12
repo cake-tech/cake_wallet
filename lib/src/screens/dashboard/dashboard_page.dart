@@ -125,39 +125,13 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
-              if (walletViewModel.type == WalletType.bitcoin) Observer(
-                  builder: (_) => Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.topCenter,
-                    children: [
-                      if (walletViewModel.isRunningWebView) Positioned(
-                        top: -5,
-                        child: SpinKitRing(
-                          color: Theme.of(context).buttonColor,
-                          lineWidth: 3,
-                          size: 70.0,
-                        ),
-                      ),
-                      ActionButton(
-                          image: buyImage,
-                          title: S.of(context).buy,
-                          onClick: walletViewModel.isRunningWebView
-                              ? null
-                              : () async {
-                            try {
-                              walletViewModel.isRunningWebView = true;
-                              final url =
-                                    await walletViewModel.wyreViewModel.wyreUrl;
-                              await Navigator.of(context)
-                                  .pushNamed(Routes.wyre, arguments: url);
-                              walletViewModel.isRunningWebView = false;
-                            } catch(e) {
-                              print(e.toString());
-                              walletViewModel.isRunningWebView = false;
-                            }
-                          })
-                    ],
-                  )),
+              if (walletViewModel.type == WalletType.bitcoin) ActionButton(
+                image: buyImage,
+                title: S.of(context).buy,
+                onClick: () {
+                  Navigator.of(context).pushNamed(Routes.preOrder);
+                },
+              ),
             ],
           )),
         )

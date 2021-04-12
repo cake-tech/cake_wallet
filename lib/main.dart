@@ -1,5 +1,5 @@
 import 'package:cake_wallet/entities/language_service.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';

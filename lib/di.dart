@@ -4,7 +4,7 @@ import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/entities/load_current_wallet.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/entities/wyre_service.dart';
@@ -15,7 +15,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-
+import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
@@ -61,6 +61,8 @@ import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.d
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
+import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
+import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
@@ -545,6 +547,19 @@ Future setup(
   getIt.registerFactoryParam<WyrePage, String, void>((String url, _) =>
       WyrePage(getIt.get<WyreViewModel>(),
           ordersStore: getIt.get<OrdersStore>(), url: url));
+
+  getIt.registerFactory(() => BuyAmountViewModel());
+
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+
+    return BuyViewModel(ordersSource, getIt.get<OrdersStore>(),
+        getIt.get<BuyAmountViewModel>(), wallet: wallet);
+  });
+
+  getIt.registerFactory(() {
+    return PreOrderPage(buyViewModel: getIt.get<BuyViewModel>());
+  });
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
           (order, _) => OrderDetailsViewModel(
