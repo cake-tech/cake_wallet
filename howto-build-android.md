@@ -8,7 +8,7 @@ The following are the system requirements to build CakeWallet for your Android d
 Ubuntu >= 16.04 
 Android SDK 28
 Android NDK 17c
-Flutter 1.22.6
+Flutter 2 or above
 ```
 
 ## Building CakeWallet on Android
@@ -51,9 +51,9 @@ You may download and install the latest version of Android Studio [here](https:/
 
 ### 3. Installing Flutter
 
-CakeWallet requires **EXACTLY** Flutter version `1.22.6` to build properly.
+The easiest way to install Flutter is by using the `snap` package manager. Other means of installing Flutter on your system can be found [here](https://flutter.dev/docs/get-started/install/linux).
 
-To install this version of Flutter on your Ubuntu system, please use [these instructions](https://flutter.dev/docs/get-started/install/linux#install-flutter-manually).
+`$ sudo snap install flutter --classic`
 
 ### 4. Verify Installations
 
@@ -64,7 +64,7 @@ Verify that the Android toolchain, Flutter, and Android Studio have been correct
 The output of this command will appear like this, indicating successful installations. If there are problems with your installation, they **must** be corrected before proceeding.
 ```
 Doctor summary (to see all details, run flutter doctor -v):
-[✓] Flutter (Channel stable, 1.22.6, on Linux, locale en_US.UTF-8)
+[✓] Flutter (Channel stable, 2.0.2, on Linux, locale en_US.UTF-8)
 [✓] Android toolchain - develop for Android devices (Android SDK version 28)
 [✓] Android Studio (version 4.0)
 ```
@@ -87,7 +87,7 @@ $ cd /opt/android
 
 ..and download the source code into that directory.
 
-`$ git clone https://github.com/cake-tech/cake_wallet.git --branch deploy`
+`$ git clone https://github.com/cake-tech/cake_wallet.git --branch main`
 
 Proceed into the source code before proceeding with the next steps:
 
