@@ -54,4 +54,5 @@ class Routes {
   static const support = '/support';
   static const orderDetails = '/order_details';
   static const wyre = '/wyre';
+  static const preOrder = '/pre_order';
 }

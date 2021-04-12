@@ -1,17 +1,18 @@
 import 'dart:convert';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/wyre_exception.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/buy/buy_exception.dart';
 import 'package:http/http.dart';
-import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/buy/buy_amount.dart';
+import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
-class WyreService {
-  WyreService({
-    @required this.wallet,
-    this.isTestEnvironment = false}) {
+class WyreBuyProvider extends BuyProvider {
+  WyreBuyProvider({WalletBase wallet, bool isTestEnvironment = false})
+    : super(wallet: wallet, isTestEnvironment: isTestEnvironment) {
     baseApiUrl = isTestEnvironment
         ? _baseTestApiUrl
         : _baseProductApiUrl;
@@ -30,42 +31,44 @@ class WyreService {
   static const _timeStampSuffix = '?timestamp=';
   static const _transferSuffix = '/v2/transfer/';
   static const _trackSuffix = '/track';
+  static const _secretKey = secrets.wyreSecretKey;
+  static const _accountId = secrets.wyreAccountId;
 
-  final bool isTestEnvironment;
-  final WalletBase wallet;
+  @override
+  String get title => 'Wyre';
 
-  WalletType get walletType => wallet.type;
-  String get walletAddress => wallet.address;
-  String get walletId => wallet.id;
+  @override
+  BuyProviderDescription get description => BuyProviderDescription.wyre;
 
   String baseApiUrl;
   String trackUrl;
 
-  Future<String> getWyreUrl() async {
+  @override
+  Future<String> requestUrl(String amount, String sourceCurrency) async {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     final url = baseApiUrl + _ordersSuffix + _reserveSuffix +
         _timeStampSuffix + timestamp;
-    final secretKey = secrets.wyreSecretKey;
-    final accountId = secrets.wyreAccountId;
     final body = {
-      'amount': '1',
-      'sourceCurrency': 'USD',
+      'amount': amount,
+      'sourceCurrency': sourceCurrency,
       'destCurrency': walletTypeToCryptoCurrency(walletType).title,
       'dest': walletTypeToString(walletType).toLowerCase() + ':' + walletAddress,
-      'referrerAccountId': accountId,
+      'referrerAccountId': _accountId,
       'lockFields': ['amount', 'sourceCurrency', 'destCurrency', 'dest']
     };
 
     final response = await post(url,
         headers: {
-          'Authorization': 'Bearer $secretKey',
+          'Authorization': 'Bearer $_secretKey',
           'Content-Type': 'application/json',
           'cache-control': 'no-cache'
         },
         body: json.encode(body));
 
     if (response.statusCode != 200) {
-      throw WyreException('Url $url is not found!');
+      throw BuyException(
+          description: description,
+          text: 'Url $url is not found!');
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -73,12 +76,48 @@ class WyreService {
     return urlFromResponse;
   }
 
+  @override
+  Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) async {
+    final quoteUrl = baseApiUrl + _ordersSuffix + _quoteSuffix;
+    final body = {
+      'amount': amount,
+      'sourceCurrency': sourceCurrency,
+      'destCurrency': walletTypeToCryptoCurrency(walletType).title,
+      'dest': walletTypeToString(walletType).toLowerCase() + ':' + walletAddress,
+      'accountId': _accountId,
+      'country': 'US' //FIXME
+    };
+
+    final response = await post(quoteUrl,
+        headers: {
+          'Authorization': 'Bearer $_secretKey',
+          'Content-Type': 'application/json',
+          'cache-control': 'no-cache'
+        },
+        body: json.encode(body));
+
+    if (response.statusCode != 200) {
+      throw BuyException(
+          description: description,
+          text: 'Quote is not found!');
+    }
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final sourceAmount = responseJSON['sourceAmount'] as double;
+    final destAmount = responseJSON['destAmount'] as double;
+
+    return BuyAmount(sourceAmount: sourceAmount, destAmount: destAmount);
+  }
+
+  @override
   Future<Order> findOrderById(String id) async {
     final orderUrl = baseApiUrl + _ordersSuffix + '/$id';
     final orderResponse = await get(orderUrl);
 
     if (orderResponse.statusCode != 200) {
-      throw WyreException('Order $id is not found!');
+      throw BuyException(
+          description: description,
+          text: 'Order $id is not found!');
     }
 
     final orderResponseJSON =
@@ -97,7 +136,9 @@ class WyreService {
     final transferResponse = await get(transferUrl);
 
     if (transferResponse.statusCode != 200) {
-      throw WyreException('Transfer $transferId is not found!');
+      throw BuyException(
+          description: description,
+          text: 'Transfer $transferId is not found!');
     }
 
     final transferResponseJSON =
@@ -106,6 +147,7 @@ class WyreService {
 
     return Order(
         id: id,
+        provider: description,
         transferId: transferId,
         from: from,
         to: to,
@@ -115,37 +157,5 @@ class WyreService {
         receiveAddress: walletAddress,
         walletId: walletId
     );
-  }
-
-  Future<double> getAmount() async {
-    final quoteUrl = baseApiUrl + _ordersSuffix + _quoteSuffix;
-
-    final secretKey = secrets.wyreSecretKey;
-    final accountId = secrets.wyreAccountId;
-    final body = {
-      'amount': '1',
-      'sourceCurrency': 'USD',
-      'destCurrency': walletTypeToCryptoCurrency(walletType).title,
-      'dest': walletTypeToString(walletType).toLowerCase() + ':' + walletAddress,
-      'accountId': accountId,
-      'country': 'US'
-    };
-
-    final response = await post(quoteUrl,
-        headers: {
-          'Authorization': 'Bearer $secretKey',
-          'Content-Type': 'application/json',
-          'cache-control': 'no-cache'
-        },
-        body: json.encode(body));
-
-    if (response.statusCode != 200) {
-      throw WyreException('Quote is not found! ');
-    }
-
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    final amount = responseJSON['destAmount'] as double;
-
-    return amount;
   }
 }

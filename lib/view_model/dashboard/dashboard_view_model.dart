@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/monero/account.dart';
@@ -95,8 +95,6 @@ abstract class DashboardViewModelBase with Store {
       ]
     };
 
-    isRunningWebView = false;
-
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
     type = wallet.type;
@@ -161,9 +159,6 @@ abstract class DashboardViewModelBase with Store {
 
   @observable
   String subname;
-
-  @observable
-  bool isRunningWebView;
 
   @computed
   String get address => wallet.address;
