@@ -469,5 +469,8 @@
   "unconfirmed" : "未经证实",
   "displayable" : "可显示",
 
-  "submit_request" : "提交請求"
+  "submit_request" : "提交請求",
+
+  "buy_bitcoin" : "購買比特幣",
+  "buy_with" : "與一起購買"
 }

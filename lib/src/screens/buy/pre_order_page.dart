@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:mobx/mobx.dart';
 
 class PreOrderPage extends BasePage {
   PreOrderPage({@required this.buyViewModel})
@@ -31,14 +32,22 @@ class PreOrderPage extends BasePage {
         buyViewModel.selectedProvider = null;
       }
     });
+
+    reaction((_) => buyViewModel.buyAmountViewModel.amount, (String amount) {
+      if (_amountController.text != amount) {
+        _amountController.text = amount;
+      }
+    });
   }
+
+  static const _amountPattern = '^([0-9]+([.\,][0-9]{0,2})?|[.\,][0-9]{1,2})\$';
 
   final BuyViewModel buyViewModel;
   final FocusNode _amountFocus;
   final TextEditingController _amountController;
 
   @override
-  String get title => 'Buy Bitcoin';
+  String get title => S.current.buy_bitcoin;
 
   @override
   Color get titleColor => Colors.white;
@@ -96,7 +105,7 @@ class PreOrderPage extends BasePage {
                             signed: false, decimal: true),
                         inputFormatters: [
                           FilteringTextInputFormatter
-                            .allow(RegExp('^([0-9]+([.\,][0-9]{0,2})?|[.\,][0-9]{1,2})\$'))
+                            .allow(RegExp(_amountPattern))
                         ],
                         prefixIcon: Padding(
                           padding: EdgeInsets.only(top: 2),
@@ -130,7 +139,7 @@ class PreOrderPage extends BasePage {
                 Padding(
                   padding: EdgeInsets.only(top: 38, bottom: 18),
                   child: Text(
-                    'Buy with:',
+                    S.of(context).buy_with + ':',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         color: Theme.of(context).primaryTextTheme.title.color,
@@ -185,16 +194,21 @@ class PreOrderPage extends BasePage {
                 return LoadingPrimaryButton(
                     onPressed: buyViewModel.isRunning
                     ? null
-                    :  () {
+                    :  () async {
                       buyViewModel.isRunning = true;
-
-                      // FIXME: Start WebView
-
+                      final url =
+                        await buyViewModel.fetchUrl();
+                      if (url.isNotEmpty) {
+                        await Navigator.of(context)
+                            .pushNamed(Routes.buyWebView, arguments: url);
+                        buyViewModel.reset();
+                      }
                       buyViewModel.isRunning = false;
                     },
                     text: buyViewModel.selectedProvider == null
-                          ? 'Buy'
-                          : 'Buy with ${buyViewModel.selectedProvider
+                          ? S.of(context).buy
+                          : S.of(context).buy_with +
+                            ' ${buyViewModel.selectedProvider
                              .description.title}',
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Colors.white,

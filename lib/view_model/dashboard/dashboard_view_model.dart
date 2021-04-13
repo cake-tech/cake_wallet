@@ -28,7 +28,6 @@ import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
-import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -59,8 +58,7 @@ abstract class DashboardViewModelBase with Store {
       this.transactionFilterStore,
       this.settingsStore,
       this.ordersSource,
-      this.ordersStore,
-      this.wyreViewModel}) {
+      this.ordersStore}) {
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -229,8 +227,6 @@ abstract class DashboardViewModelBase with Store {
   TradeFilterStore tradeFilterStore;
 
   TransactionFilterStore transactionFilterStore;
-
-  WyreViewModel wyreViewModel;
 
   Map<String, List<FilterItem>> filterItems;
 

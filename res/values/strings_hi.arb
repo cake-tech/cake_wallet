@@ -469,5 +469,8 @@
   "unconfirmed" : "अपुष्ट",
   "displayable" : "प्रदर्शन योग्य",
 
-  "submit_request" : "एक अनुरोध सबमिट करें"
+  "submit_request" : "एक अनुरोध सबमिट करें",
+
+  "buy_bitcoin" : "बिटकॉइन खरीदें",
+  "buy_with" : "के साथ खरीदें"
 }

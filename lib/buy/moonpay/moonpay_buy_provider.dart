@@ -34,6 +34,11 @@ class MoonPayBuyProvider extends BuyProvider {
   String get currencyCode =>
     walletTypeToCryptoCurrency(walletType).title.toLowerCase();
 
+  @override
+  String get trackUrl => isTestEnvironment
+      ? ''
+      : ''; // FIXME
+
   String baseApiUrl;
 
   @override

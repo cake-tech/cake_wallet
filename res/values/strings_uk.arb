@@ -469,5 +469,8 @@
   "unconfirmed" : "Непідтверджений",
   "displayable" : "Відображуваний",
 
-  "submit_request" : "надіслати запит"
+  "submit_request" : "надіслати запит",
+
+  "buy_bitcoin" : "Купити Bitcoin",
+  "buy_with" : "Купити за допомогою"
 }
