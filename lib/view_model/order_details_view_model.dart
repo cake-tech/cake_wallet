@@ -1,12 +1,16 @@
 import 'dart:async';
+import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
-import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 
 part 'order_details_view_model.g.dart';
 
@@ -14,8 +18,19 @@ class OrderDetailsViewModel = OrderDetailsViewModelBase
     with _$OrderDetailsViewModel;
 
 abstract class OrderDetailsViewModelBase with Store {
-  OrderDetailsViewModelBase({this.wyreViewModel, Order orderForDetails}) {
+  OrderDetailsViewModelBase({WalletBase wallet, Order orderForDetails}) {
     order = orderForDetails;
+
+    if (order.provider != null) {
+      switch (order.provider) {
+        case BuyProviderDescription.wyre:
+          _provider = WyreBuyProvider(wallet: wallet);
+          break;
+        case BuyProviderDescription.moonPay:
+          _provider = MoonPayBuyProvider(wallet: wallet);
+          break;
+      }
+    }
 
     items = ObservableList<StandartListItem>();
 
@@ -23,7 +38,7 @@ abstract class OrderDetailsViewModelBase with Store {
 
     _updateOrder();
 
-    _timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateOrder());
+    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateOrder());
   }
 
   @observable
@@ -32,21 +47,20 @@ abstract class OrderDetailsViewModelBase with Store {
   @observable
   ObservableList<StandartListItem> items;
 
-  WyreViewModel wyreViewModel;
+  BuyProvider _provider;
 
-  Timer _timer;
+  Timer timer;
 
   @action
   Future<void> _updateOrder() async {
     try {
-      final updatedOrder =
-            await wyreViewModel.wyreService.findOrderById(order.id);
-
-      updatedOrder.receiveAddress = order.receiveAddress;
-      updatedOrder.walletId = order.walletId;
-      order = updatedOrder;
-
-      _updateItems();
+      if (_provider != null) {
+        final updatedOrder = await _provider.findOrderById(order.id);
+        updatedOrder.receiveAddress = order.receiveAddress;
+        updatedOrder.walletId = order.walletId;
+        order = updatedOrder;
+        _updateItems();
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -54,8 +68,6 @@ abstract class OrderDetailsViewModelBase with Store {
 
   void _updateItems() {
     final dateFormat = DateFormatter.withCurrentLocal();
-    final buildURL =
-        wyreViewModel.trackUrl + '${order.transferId}';
 
     items?.clear();
 
@@ -68,18 +80,37 @@ abstract class OrderDetailsViewModelBase with Store {
           value: order.state != null
               ? order.state.toString()
               : S.current.trade_details_fetching),
-      TrackTradeListItem(
-          title: 'Track',
-          value: buildURL,
-          onTap: () {
-            launch(buildURL);
-          }),
-      StandartListItem(
-          title: S.current.trade_details_created_at,
-          value: dateFormat.format(order.createdAt).toString()),
-      StandartListItem(
-          title: S.current.trade_details_pair,
-          value: '${order.from} → ${order.to}')
     ]);
+
+    if (order.provider != null) {
+      items.add(
+        StandartListItem(
+            title: 'Buy provider',
+            value: order.provider.title)
+      );
+    }
+
+    if (_provider.trackUrl.isNotEmpty) {
+      final buildURL = _provider.trackUrl + '${order.transferId}';
+      items.add(
+        TrackTradeListItem(
+            title: 'Track',
+            value: buildURL,
+            onTap: () => launch(buildURL)
+        )
+      );
+    }
+
+    items.add(
+        StandartListItem(
+            title: S.current.trade_details_created_at,
+            value: dateFormat.format(order.createdAt).toString())
+    );
+
+    items.add(
+        StandartListItem(
+            title: S.current.trade_details_pair,
+            value: '${order.from} → ${order.to}')
+    );
   }
 }

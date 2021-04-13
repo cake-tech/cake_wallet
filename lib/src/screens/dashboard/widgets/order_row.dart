@@ -1,22 +1,26 @@
+import 'package:cake_wallet/buy/buy_provider_description.dart';
+import 'package:cake_wallet/buy/get_buy_provider_icon.dart';
 import 'package:flutter/material.dart';
 
 class OrderRow extends StatelessWidget {
   OrderRow({
     @required this.onTap,
+    @required this.provider,
     this.from,
     this.to,
     this.createdAtFormattedDate,
     this.formattedAmount});
   final VoidCallback onTap;
+  final BuyProviderDescription provider;
   final String from;
   final String to;
   final String createdAtFormattedDate;
   final String formattedAmount;
-  final wyreImage =
-      Image.asset('assets/images/wyre-icon.png', width: 36, height: 36);
 
   @override
   Widget build(BuildContext context) {
+    final providerIcon = getBuyProviderIcon(provider);
+
     return InkWell(
         onTap: onTap,
         child: Container(
@@ -26,7 +30,7 @@ class OrderRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              wyreImage,
+              providerIcon ?? Offstage(),
               SizedBox(width: 12),
               Expanded(
                   child: Column(

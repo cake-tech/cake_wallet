@@ -53,6 +53,6 @@ class Routes {
   static const restoreFromBackup = '/restore_from_backup';
   static const support = '/support';
   static const orderDetails = '/order_details';
-  static const wyre = '/wyre';
   static const preOrder = '/pre_order';
+  static const buyWebView = '/buy_web_view';
 }

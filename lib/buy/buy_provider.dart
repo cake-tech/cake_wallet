@@ -12,6 +12,7 @@ abstract class BuyProvider {
 
   String get title;
   BuyProviderDescription get description;
+  String get trackUrl;
 
   WalletType get walletType => wallet.type;
   String get walletAddress => wallet.address;

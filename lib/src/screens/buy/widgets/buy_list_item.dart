@@ -1,5 +1,5 @@
-import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/get_buy_provider_icon.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/palette.dart';
@@ -16,11 +16,6 @@ class BuyListItem extends StatelessWidget {
     @required this.onTap
   });
 
-  final _wyreIcon =
-    Image.asset('assets/images/wyre-icon.png', width: 36, height: 36);
-  final _mooonPayIcon =
-    Image.asset('assets/images/wyre-icon.png', width: 36, height: 36);
-
   final BuyProvider selectedProvider;
   final BuyProvider provider;
   final double sourceAmount;
@@ -31,7 +26,7 @@ class BuyListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final providerIcon = _getProviderIcon(provider.description);
+    final providerIcon = getBuyProviderIcon(provider.description);
 
     final backgroundColor = selectedProvider != null
         ? selectedProvider.description == provider.description
@@ -115,17 +110,5 @@ class BuyListItem extends StatelessWidget {
         ),
       )
     );
-  }
-
-  Image _getProviderIcon(BuyProviderDescription providerDescription) {
-    switch (providerDescription) {
-      case BuyProviderDescription.wyre:
-        return _wyreIcon;
-      case BuyProviderDescription.moonPay:
-        //return _mooonPayIcon;
-        return null;
-      default:
-        return null;
-    }
   }
 }

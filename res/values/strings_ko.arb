@@ -469,5 +469,8 @@
   "unconfirmed" : "미확인",
   "displayable" : "표시 가능",
 
-  "submit_request" : "요청을 제출"
+  "submit_request" : "요청을 제출",
+
+  "buy_bitcoin" : "비트 코인 구매",
+  "buy_with" : "구매"
 }

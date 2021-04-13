@@ -469,5 +469,8 @@
   "unconfirmed" : "Niepotwierdzony",
   "displayable" : "Wyświetlane",
 
-  "submit_request" : "złożyć wniosek"
+  "submit_request" : "złożyć wniosek",
+
+  "buy_bitcoin" : "Kup Bitcoin",
+  "buy_with" : "Kup za pomocą"
 }

@@ -16,9 +16,6 @@ class WyreBuyProvider extends BuyProvider {
     baseApiUrl = isTestEnvironment
         ? _baseTestApiUrl
         : _baseProductApiUrl;
-    trackUrl = isTestEnvironment
-        ? _trackTestUrl
-        : _trackProductUrl;
   }
 
   static const _baseTestApiUrl = 'https://api.testwyre.com';
@@ -40,8 +37,12 @@ class WyreBuyProvider extends BuyProvider {
   @override
   BuyProviderDescription get description => BuyProviderDescription.wyre;
 
+  @override
+  String get trackUrl => isTestEnvironment
+      ? _trackTestUrl
+      : _trackProductUrl;
+
   String baseApiUrl;
-  String trackUrl;
 
   @override
   Future<String> requestUrl(String amount, String sourceCurrency) async {

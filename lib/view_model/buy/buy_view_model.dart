@@ -59,14 +59,17 @@ abstract class BuyViewModelBase with Store {
 
   CryptoCurrency get cryptoCurrency => walletTypeToCryptoCurrency(type);
 
-  Future createOrder() async {
+  Future <String> fetchUrl() async {
+    String _url = '';
+
     try {
-      final url = await selectedProvider
+      _url = await selectedProvider
             ?.requestUrl(doubleAmount?.toString(), fiatCurrency.title);
-       // FIXME: Start WebView
     } catch (e) {
       print(e.toString());
     }
+
+    return _url;
   }
 
   Future<void> saveOrder(String orderId) async {
@@ -77,5 +80,10 @@ abstract class BuyViewModelBase with Store {
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void reset() {
+    buyAmountViewModel.amount = '';
+    selectedProvider = null;
   }
 }

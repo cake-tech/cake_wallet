@@ -7,7 +7,6 @@ import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/entities/wyre_service.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -15,6 +14,7 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
@@ -42,7 +42,6 @@ import 'package:cake_wallet/src/screens/transaction_details/transaction_details_
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
-import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';
@@ -91,7 +90,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -241,8 +239,7 @@ Future setup(
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
       settingsStore: settingsStore,
       ordersSource: _ordersSource,
-      ordersStore: getIt.get<OrdersStore>(),
-      wyreViewModel: getIt.get<WyreViewModel>()));
+      ordersStore: getIt.get<OrdersStore>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -534,20 +531,6 @@ Future setup(
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>((Trade trade, _) =>
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
-  getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
-    return WyreService(wallet: wallet);
-  });
-
-  getIt.registerFactory(() {
-    return WyreViewModel(ordersSource, getIt.get<OrdersStore>(),
-        wyreService: getIt.get<WyreService>());
-  });
-
-  getIt.registerFactoryParam<WyrePage, String, void>((String url, _) =>
-      WyrePage(getIt.get<WyreViewModel>(),
-          ordersStore: getIt.get<OrdersStore>(), url: url));
-
   getIt.registerFactory(() => BuyAmountViewModel());
 
   getIt.registerFactory(() {
@@ -561,10 +544,18 @@ Future setup(
     return PreOrderPage(buyViewModel: getIt.get<BuyViewModel>());
   });
 
+  getIt.registerFactoryParam<BuyWebViewPage, String, void>((String url, _) =>
+      BuyWebViewPage(getIt.get<BuyViewModel>(),
+          ordersStore: getIt.get<OrdersStore>(), url: url));
+
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
-          (order, _) => OrderDetailsViewModel(
-          wyreViewModel: getIt.get<WyreViewModel>(),
-          orderForDetails: order));
+          (order, _) {
+            final wallet = getIt.get<AppStore>().wallet;
+
+            return OrderDetailsViewModel(
+                wallet: wallet,
+                orderForDetails: order);
+          });
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
