@@ -5,15 +5,14 @@ Image getBuyProviderIcon(BuyProviderDescription providerDescription) {
   final _wyreIcon =
     Image.asset('assets/images/wyre-icon.png', width: 36, height: 36);
   final _moonPayIcon =
-    Image.asset('assets/images/wyre-icon.png', width: 36, height: 36);
+    Image.asset('assets/images/moonpay-icon.png', width: 36, height: 34);
 
   if (providerDescription != null) {
     switch (providerDescription) {
       case BuyProviderDescription.wyre:
         return _wyreIcon;
       case BuyProviderDescription.moonPay:
-      //return _moonPayIcon;
-        return null;
+        return _moonPayIcon;
       default:
         return null;
     }

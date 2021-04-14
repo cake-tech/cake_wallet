@@ -14,6 +14,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:mobx/mobx.dart';
 
 class PreOrderPage extends BasePage {
@@ -62,6 +63,13 @@ class PreOrderPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
+  Widget trailing(context) => TrailButton(
+      caption: S.of(context).clear,
+      onPressed: () {
+        buyViewModel.reset();
+      });
+
+  @override
   Widget body(BuildContext context) {
     return KeyboardActions(
       config: KeyboardActionsConfig(
@@ -96,43 +104,49 @@ class PreOrderPage extends BasePage {
                     ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                   ),
                   child: Padding(
-                      padding: EdgeInsets.fromLTRB(100, 100, 100, 65),
-                      child: BaseTextFormField(
-                        focusNode: _amountFocus,
-                        controller: _amountController,
-                        keyboardType:
-                        TextInputType.numberWithOptions(
-                            signed: false, decimal: true),
-                        inputFormatters: [
-                          FilteringTextInputFormatter
-                            .allow(RegExp(_amountPattern))
-                        ],
-                        prefixIcon: Padding(
-                          padding: EdgeInsets.only(top: 2),
-                          child:
-                          Text(buyViewModel.fiatCurrency.title + ': ',
-                              style: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              )),
-                        ),
-                        hintText: '0.00',
-                        borderColor: Theme.of(context)
-                            .primaryTextTheme
-                            .headline
-                            .color,
-                        textStyle: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white),
-                        placeholderTextStyle: TextStyle(
-                            color: Theme.of(context)
+                      padding: EdgeInsets.only(top: 100, bottom: 65),
+                      child: Center(
+                        child: Container(
+                          width: 165,
+                          child: BaseTextFormField(
+                            focusNode: _amountFocus,
+                            controller: _amountController,
+                            keyboardType:
+                            TextInputType.numberWithOptions(
+                                signed: false, decimal: true),
+                            inputFormatters: [
+                              FilteringTextInputFormatter
+                                  .allow(RegExp(_amountPattern))
+                            ],
+                            prefixIcon: Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child:
+                              Text(buyViewModel.fiatCurrency.title + ': ',
+                                  style: TextStyle(
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  )),
+                            ),
+                            hintText: '0.00',
+                            borderColor: Theme.of(context)
                                 .primaryTextTheme
-                                .headline
+                                .body2
                                 .decorationColor,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 36),
+                            borderWidth: 0.5,
+                            textStyle: TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white),
+                            placeholderTextStyle: TextStyle(
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline
+                                    .decorationColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 36),
+                          )
+                        )
                       )
                   )
                 ),
@@ -144,7 +158,7 @@ class PreOrderPage extends BasePage {
                     style: TextStyle(
                         color: Theme.of(context).primaryTextTheme.title.color,
                         fontSize: 18,
-                        fontWeight: FontWeight.w500
+                        fontWeight: FontWeight.bold
                     ),
                   )
                 ),
