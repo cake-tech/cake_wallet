@@ -30,8 +30,10 @@ class OrderRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              providerIcon ?? Offstage(),
-              SizedBox(width: 12),
+              if (providerIcon != null) Padding(
+                padding: EdgeInsets.only(right: 12),
+                child: providerIcon,
+              ),
               Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

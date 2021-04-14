@@ -94,8 +94,9 @@ class MoonPayBuyProvider extends BuyProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final status = responseJSON['status'] as String;
-    final state = TradeState.deserialize(raw: status.toLowerCase());
-    final createdAt = responseJSON['createdAt'] as DateTime;
+    final state = TradeState.deserialize(raw: status);
+    final createdAtRaw = responseJSON['createdAt'] as String;
+    final createdAt = DateTime.parse(createdAtRaw).toLocal();
     final amount = responseJSON['quoteCurrencyAmount'] as double;
 
     return Order(

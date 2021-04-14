@@ -52,62 +52,67 @@ class BuyListItem extends StatelessWidget {
         height: 102,
         padding: EdgeInsets.only(
           left: 20,
+          //top: 33,
           right: 20
         ),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(25)),
             color: backgroundColor
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (providerIcon != null) Padding(
-                  padding: EdgeInsets.only(right: 10),
-                  child: providerIcon
-                ),
-                Text(
-                  provider.description.title,
-                  style: TextStyle(
-                    color: primaryTextColor,
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500
+            Positioned(
+              top: 33,
+              left: 0,
+              right: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (providerIcon != null) Padding(
+                          padding: EdgeInsets.only(right: 10),
+                          child: providerIcon
+                      ),
+                      Text(
+                        provider.description.title,
+                        style: TextStyle(
+                            color: secondaryTextColor,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold
+                        ),
+                      )
+                    ],
                   ),
-                )
-              ],
-            ),
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '${destAmount?.toString()} ${destCurrency.title}',
-                  style: TextStyle(
-                    color: secondaryTextColor,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 5),
-                  child: Text(
-                    '${sourceAmount?.toString()} ${sourceCurrency.title}',
+                  Text(
+                    '${destAmount?.toString()} ${destCurrency.title}',
                     style: TextStyle(
-                      color: primaryTextColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500
+                        color: secondaryTextColor,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold
                     ),
                   ),
-                )
-              ],
+                ],
+              )
+            ),
+            Positioned(
+              top: 65,
+              right: 0,
+              child: Text(
+                '${sourceAmount?.toString()} ${sourceCurrency.title}',
+                style: TextStyle(
+                    color: primaryTextColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold
+                ),
+              ),
             )
           ],
-        ),
+        )
       )
     );
   }

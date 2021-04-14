@@ -58,6 +58,9 @@ abstract class OrderDetailsViewModelBase with Store {
         final updatedOrder = await _provider.findOrderById(order.id);
         updatedOrder.receiveAddress = order.receiveAddress;
         updatedOrder.walletId = order.walletId;
+        if (order.provider != null) {
+          updatedOrder.providerRaw = order.provider.raw;
+        }
         order = updatedOrder;
         _updateItems();
       }
@@ -90,7 +93,7 @@ abstract class OrderDetailsViewModelBase with Store {
       );
     }
 
-    if (_provider.trackUrl.isNotEmpty) {
+    if (_provider?.trackUrl?.isNotEmpty ?? false) {
       final buildURL = _provider.trackUrl + '${order.transferId}';
       items.add(
         TrackTradeListItem(

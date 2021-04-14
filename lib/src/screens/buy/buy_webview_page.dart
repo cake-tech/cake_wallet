@@ -92,7 +92,23 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
     }
 
     if (_provider is MoonPayBuyProvider) {
-      // FIXME: fetch orderId
+      /*_timer?.cancel();
+      _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+
+        try {
+          if (_webViewController == null || _isSaving) {
+            return;
+          }
+
+          final url = await _webViewController.currentUrl();
+          print('MoonPay Url = $url');
+
+          timer.cancel();
+        } catch (e) {
+          _isSaving = false;
+          print(e);
+        }
+      });*/
     }
   }
 
