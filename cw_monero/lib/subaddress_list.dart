@@ -5,6 +5,7 @@ import 'package:cw_monero/signatures.dart';
 import 'package:cw_monero/types.dart';
 import 'package:cw_monero/monero_api.dart';
 import 'package:cw_monero/structs/subaddress_row.dart';
+import 'package:cw_monero/wallet.dart';
 
 final subaddressSizeNative = moneroApi
     .lookup<NativeFunction<subaddrress_size>>('subaddrress_size')
@@ -79,14 +80,18 @@ void _setLabelForSubaddress(Map<String, dynamic> args) {
       accountIndex: accountIndex, addressIndex: addressIndex, label: label);
 }
 
-Future addSubaddress({int accountIndex, String label}) async =>
-    compute<Map<String, Object>, void>(
+Future addSubaddress({int accountIndex, String label}) async {
+    await compute<Map<String, Object>, void>(
         _addSubaddress, {'accountIndex': accountIndex, 'label': label});
+    await store();
+}
 
 Future setLabelForSubaddress(
-        {int accountIndex, int addressIndex, String label}) =>
-    compute<Map<String, Object>, void>(_setLabelForSubaddress, {
-      'accountIndex': accountIndex,
-      'addressIndex': addressIndex,
-      'label': label
-    });
+        {int accountIndex, int addressIndex, String label}) async {
+  await compute<Map<String, Object>, void>(_setLabelForSubaddress, {
+    'accountIndex': accountIndex,
+    'addressIndex': addressIndex,
+    'label': label
+  });
+  await store();
+}
