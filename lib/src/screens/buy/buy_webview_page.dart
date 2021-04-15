@@ -12,8 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class BuyWebViewPage extends BasePage {
-  BuyWebViewPage(this.buyViewModel,
-      {@required this.ordersStore, @required this.url});
+  BuyWebViewPage({@required this.buyViewModel,
+      @required this.ordersStore, @required this.url});
 
   final OrdersStore ordersStore;
   final String url;
@@ -63,52 +63,11 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
 
     if (_provider is WyreBuyProvider) {
-      _timer?.cancel();
-      _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-
-        try {
-          if (_webViewController == null || _isSaving) {
-            return;
-          }
-
-          final url = await _webViewController.currentUrl();
-
-          if (url.contains('completed')) {
-            final urlParts = url.split('/');
-            orderId = urlParts.last;
-            widget.ordersStore.orderId = orderId;
-
-            if (orderId.isNotEmpty) {
-              _isSaving = true;
-              await widget.buyViewModel.saveOrder(orderId);
-              timer.cancel();
-            }
-          }
-        } catch (e) {
-          _isSaving = false;
-          print(e);
-        }
-      });
+      _saveOrder(keyword: 'completed', splitSymbol: '/');
     }
 
     if (_provider is MoonPayBuyProvider) {
-      /*_timer?.cancel();
-      _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
-
-        try {
-          if (_webViewController == null || _isSaving) {
-            return;
-          }
-
-          final url = await _webViewController.currentUrl();
-          print('MoonPay Url = $url');
-
-          timer.cancel();
-        } catch (e) {
-          _isSaving = false;
-          print(e);
-        }
-      });*/
+      _saveOrder(keyword: 'transactionId', splitSymbol: '=');
     }
   }
 
@@ -120,5 +79,34 @@ class BuyWebViewPageBodyState extends State<BuyWebViewPageBody> {
         javascriptMode: JavascriptMode.unrestricted,
         onWebViewCreated: (WebViewController controller) =>
             setState(() => _webViewController = controller));
+  }
+
+  void _saveOrder({String keyword, String splitSymbol}) {
+    _timer?.cancel();
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) async {
+
+      try {
+        if (_webViewController == null || _isSaving) {
+          return;
+        }
+
+        final url = await _webViewController.currentUrl();
+
+        if (url.contains(keyword)) {
+          final urlParts = url.split(splitSymbol);
+          orderId = urlParts.last;
+          widget.ordersStore.orderId = orderId;
+
+          if (orderId.isNotEmpty) {
+            _isSaving = true;
+            await widget.buyViewModel.saveOrder(orderId);
+            timer.cancel();
+          }
+        }
+      } catch (e) {
+        _isSaving = false;
+        print(e);
+      }
+    });
   }
 }

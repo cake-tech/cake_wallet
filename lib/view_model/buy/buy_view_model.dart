@@ -29,6 +29,7 @@ abstract class BuyViewModelBase with Store {
         .toList();
     isRunning = false;
     isDisabled = true;
+    isShowProviderButtons = false;
   }
 
   final Box<Order> ordersSource;
@@ -50,6 +51,9 @@ abstract class BuyViewModelBase with Store {
 
   @observable
   bool isDisabled;
+
+  @observable
+  bool isShowProviderButtons;
 
   WalletType get type => wallet.type;
 
