@@ -12,6 +12,7 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -304,9 +305,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
               getIt.get<PreOrderPage>());
 
     case Routes.buyWebView:
+      final args = settings.arguments as List;
+
       return MaterialPageRoute<void>(
           builder: (_) =>
-              getIt.get<BuyWebViewPage>(param1: settings.arguments as String));
+              getIt.get<BuyWebViewPage>(param1: args));
 
     case Routes.restoreWalletFromSeedDetails:
       final args = settings.arguments as List;

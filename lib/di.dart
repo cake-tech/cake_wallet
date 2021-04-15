@@ -544,9 +544,14 @@ Future setup(
     return PreOrderPage(buyViewModel: getIt.get<BuyViewModel>());
   });
 
-  getIt.registerFactoryParam<BuyWebViewPage, String, void>((String url, _) =>
-      BuyWebViewPage(getIt.get<BuyViewModel>(),
-          ordersStore: getIt.get<OrdersStore>(), url: url));
+  getIt.registerFactoryParam<BuyWebViewPage, List, void>(
+          (List args, _) {
+            final url = args.first as String;
+            final buyViewModel = args[1] as BuyViewModel;
+
+            return BuyWebViewPage(buyViewModel: buyViewModel,
+                ordersStore: getIt.get<OrdersStore>(), url: url);
+          });
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
           (order, _) {

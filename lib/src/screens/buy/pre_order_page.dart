@@ -27,9 +27,6 @@ class PreOrderPage extends BasePage {
 
       if (amount != buyViewModel.buyAmountViewModel.amount) {
         buyViewModel.buyAmountViewModel.amount = amount;
-      }
-
-      if (buyViewModel.buyAmountViewModel.doubleAmount == 0.0) {
         buyViewModel.selectedProvider = null;
       }
     });
@@ -37,6 +34,12 @@ class PreOrderPage extends BasePage {
     reaction((_) => buyViewModel.buyAmountViewModel.amount, (String amount) {
       if (_amountController.text != amount) {
         _amountController.text = amount;
+      }
+      if (amount.isEmpty) {
+        buyViewModel.selectedProvider = null;
+        buyViewModel.isShowProviderButtons = false;
+      } else {
+        buyViewModel.isShowProviderButtons = true;
       }
     });
   }
@@ -88,120 +91,123 @@ class PreOrderPage extends BasePage {
           color: Theme.of(context).backgroundColor,
           child: ScrollableWithBottomSection(
             contentPadding: EdgeInsets.only(bottom: 24),
-            content: Column(
+            content: Observer(builder: (_) => Column(
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(24),
-                        bottomRight: Radius.circular(24)),
-                    gradient: LinearGradient(colors: [
-                      Theme.of(context).primaryTextTheme.subhead.color,
-                      Theme.of(context)
-                          .primaryTextTheme
-                          .subhead
-                          .decorationColor,
-                    ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                  ),
-                  child: Padding(
-                      padding: EdgeInsets.only(top: 100, bottom: 65),
-                      child: Center(
-                        child: Container(
-                          width: 165,
-                          child: BaseTextFormField(
-                            focusNode: _amountFocus,
-                            controller: _amountController,
-                            keyboardType:
-                            TextInputType.numberWithOptions(
-                                signed: false, decimal: true),
-                            inputFormatters: [
-                              FilteringTextInputFormatter
-                                  .allow(RegExp(_amountPattern))
-                            ],
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.only(top: 2),
-                              child:
-                              Text(buyViewModel.fiatCurrency.title + ': ',
-                                  style: TextStyle(
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.white,
-                                  )),
-                            ),
-                            hintText: '0.00',
-                            borderColor: Theme.of(context)
-                                .primaryTextTheme
-                                .body2
-                                .decorationColor,
-                            borderWidth: 0.5,
-                            textStyle: TextStyle(
-                                fontSize: 36,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                            placeholderTextStyle: TextStyle(
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .decorationColor,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 36),
-                          )
-                        )
-                      )
-                  )
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 38, bottom: 18),
-                  child: Text(
-                    S.of(context).buy_with + ':',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        color: Theme.of(context).primaryTextTheme.title.color,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(24),
+                          bottomRight: Radius.circular(24)),
+                      gradient: LinearGradient(colors: [
+                        Theme.of(context).primaryTextTheme.subhead.color,
+                        Theme.of(context)
+                            .primaryTextTheme
+                            .subhead
+                            .decorationColor,
+                      ], begin: Alignment.topLeft, end: Alignment.bottomRight),
                     ),
-                  )
+                    child: Padding(
+                        padding: EdgeInsets.only(top: 100, bottom: 65),
+                        child: Center(
+                            child: Container(
+                                width: 165,
+                                child: BaseTextFormField(
+                                  focusNode: _amountFocus,
+                                  controller: _amountController,
+                                  keyboardType:
+                                  TextInputType.numberWithOptions(
+                                      signed: false, decimal: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter
+                                        .allow(RegExp(_amountPattern))
+                                  ],
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(top: 2),
+                                    child:
+                                    Text(buyViewModel.fiatCurrency.title + ': ',
+                                        style: TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        )),
+                                  ),
+                                  hintText: '0.00',
+                                  borderColor: Theme.of(context)
+                                      .primaryTextTheme
+                                      .body2
+                                      .decorationColor,
+                                  borderWidth: 0.5,
+                                  textStyle: TextStyle(
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                  placeholderTextStyle: TextStyle(
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .headline
+                                          .decorationColor,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 36),
+                                )
+                            )
+                        )
+                    )
                 ),
-                ...buyViewModel.items.map(
-                  (item) => Observer(builder: (_) => FutureBuilder<BuyAmount>(
-                      future: item.buyAmount,
-                      builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
-                        double sourceAmount;
-                        double destAmount;
+                if (buyViewModel.isShowProviderButtons) Padding(
+                    padding: EdgeInsets.only(top: 38, bottom: 18),
+                    child: Text(
+                      S.of(context).buy_with + ':',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Theme.of(context).primaryTextTheme.title.color,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold
+                      ),
+                    )
+                ),
+                if (buyViewModel.isShowProviderButtons)
+                  ...buyViewModel.items.map(
+                        (item) => Observer(builder: (_) => FutureBuilder<BuyAmount>(
+                        future: item.buyAmount,
+                        builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
+                          double sourceAmount;
+                          double destAmount;
 
-                        if (snapshot.hasData) {
-                          sourceAmount = snapshot.data.sourceAmount;
-                          destAmount = snapshot.data.destAmount;
-                        } else {
-                          sourceAmount = 0.0;
-                          destAmount = 0.0;
+                          if (snapshot.hasData) {
+                            sourceAmount = snapshot.data.sourceAmount;
+                            destAmount = snapshot.data.destAmount;
+                          } else {
+                            sourceAmount = 0.0;
+                            destAmount = 0.0;
+                          }
+
+                          return Padding(
+                              padding:
+                              EdgeInsets.only(left: 15, top: 20, right: 15),
+                              child: Observer(builder: (_) {
+                                return BuyListItem(
+                                    selectedProvider: buyViewModel.selectedProvider,
+                                    provider: item.provider,
+                                    sourceAmount: sourceAmount,
+                                    sourceCurrency: buyViewModel.fiatCurrency,
+                                    destAmount: destAmount,
+                                    destCurrency: buyViewModel.cryptoCurrency,
+                                    onTap:
+                                    buyViewModel.buyAmountViewModel
+                                        .doubleAmount == 0.0 ? null : () {
+                                      buyViewModel.selectedProvider = item.provider;
+                                      sourceAmount > 0
+                                        ? buyViewModel.isDisabled = false
+                                        : buyViewModel.isDisabled = true;
+                                    }
+                                );
+                              })
+                          );
                         }
-
-                        return Padding(
-                            padding:
-                                EdgeInsets.only(left: 15, top: 20, right: 15),
-                            child: Observer(builder: (_) => BuyListItem(
-                                selectedProvider: buyViewModel.selectedProvider,
-                                provider: item.provider,
-                                sourceAmount: sourceAmount,
-                                sourceCurrency: buyViewModel.fiatCurrency,
-                                destAmount: destAmount,
-                                destCurrency: buyViewModel.cryptoCurrency,
-                                onTap:
-                                  buyViewModel.buyAmountViewModel
-                                      .doubleAmount == 0.0 ? null : () {
-                                  buyViewModel.selectedProvider = item.provider;
-                                  sourceAmount > 0
-                                      ? buyViewModel.isDisabled = false
-                                      : buyViewModel.isDisabled = true;
-                                }
-                            ))
-                        );
-                      }
-                  ),)
+                    ))
                 )
               ],
-            ),
+            )),
             bottomSectionPadding:
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Observer(builder: (_) {
@@ -214,7 +220,8 @@ class PreOrderPage extends BasePage {
                         await buyViewModel.fetchUrl();
                       if (url.isNotEmpty) {
                         await Navigator.of(context)
-                            .pushNamed(Routes.buyWebView, arguments: url);
+                            .pushNamed(Routes.buyWebView,
+                            arguments: [url, buyViewModel]);
                         buyViewModel.reset();
                       }
                       buyViewModel.isRunning = false;

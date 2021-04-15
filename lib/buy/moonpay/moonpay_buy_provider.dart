@@ -23,6 +23,7 @@ class MoonPayBuyProvider extends BuyProvider {
   static const _currenciesSuffix = '/v3/currencies';
   static const _quoteSuffix = '/buy_quote';
   static const _transactionsSuffix = '/v1/transactions';
+  static const _fiatCurrency = 'USD';
   static const _apiKey = secrets.moonPayApiKey;
 
   @override
@@ -35,9 +36,7 @@ class MoonPayBuyProvider extends BuyProvider {
     walletTypeToCryptoCurrency(walletType).title.toLowerCase();
 
   @override
-  String get trackUrl => isTestEnvironment
-      ? ''
-      : ''; // FIXME
+  String get trackUrl => baseApiUrl + '/transaction_receipt?transactionId=';
 
   String baseApiUrl;
 
@@ -103,8 +102,8 @@ class MoonPayBuyProvider extends BuyProvider {
         id: id,
         provider: description,
         transferId: id,
-        from: 'USD', //FIXME
-        to: 'BTC', //FIXME
+        from: _fiatCurrency,
+        to: currencyCode.toUpperCase(),
         state: state,
         createdAt: createdAt,
         amount: amount.toString(),

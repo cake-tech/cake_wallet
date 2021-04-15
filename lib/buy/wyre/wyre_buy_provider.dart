@@ -28,6 +28,7 @@ class WyreBuyProvider extends BuyProvider {
   static const _timeStampSuffix = '?timestamp=';
   static const _transferSuffix = '/v2/transfer/';
   static const _trackSuffix = '/track';
+  static const _countryCode = 'US';
   static const _secretKey = secrets.wyreSecretKey;
   static const _accountId = secrets.wyreAccountId;
 
@@ -86,7 +87,7 @@ class WyreBuyProvider extends BuyProvider {
       'destCurrency': walletTypeToCryptoCurrency(walletType).title,
       'dest': walletTypeToString(walletType).toLowerCase() + ':' + walletAddress,
       'accountId': _accountId,
-      'country': 'US' //FIXME
+      'country': _countryCode
     };
 
     final response = await post(quoteUrl,
