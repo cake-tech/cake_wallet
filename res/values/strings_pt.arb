@@ -469,5 +469,8 @@
   "unconfirmed" : "Não confirmado",
   "displayable" : "Exibível",
 
-  "submit_request" : "enviar um pedido"
+  "submit_request" : "enviar um pedido",
+
+  "address_detected" : "Endereço detectado",
+  "address_from_domain" : "Você obteve o endereço de unstoppable domain ${domain}"
 }

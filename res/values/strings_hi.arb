@@ -469,5 +469,8 @@
   "unconfirmed" : "अपुष्ट",
   "displayable" : "प्रदर्शन योग्य",
 
-  "submit_request" : "एक अनुरोध सबमिट करें"
+  "submit_request" : "एक अनुरोध सबमिट करें",
+
+  "address_detected" : "पता लग गया",
+  "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है"
 }

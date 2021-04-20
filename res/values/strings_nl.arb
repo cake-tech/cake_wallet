@@ -469,5 +469,8 @@
   "unconfirmed" : "Niet bevestigd",
   "displayable" : "Weer te geven",
 
-  "submit_request" : "een verzoek indienen"
+  "submit_request" : "een verzoek indienen",
+
+  "address_detected" : "Adres gedetecteerd",
+  "address_from_domain" : "Je adres is van unstoppable domain ${domain}"
 }

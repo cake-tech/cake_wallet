@@ -469,5 +469,8 @@
   "unconfirmed" : "未经证实",
   "displayable" : "可显示",
 
-  "submit_request" : "提交請求"
+  "submit_request" : "提交請求",
+
+  "address_detected" : "檢測到地址",
+  "address_from_domain" : "您有以下地址 unstoppable domain ${domain}"
 }
