@@ -469,5 +469,8 @@
   "unconfirmed" : "Unconfirmed",
   "displayable" : "Displayable",
 
-  "submit_request" : "submit a request"
+  "submit_request" : "submit a request",
+
+  "address_detected" : "Address detected",
+  "address_from_domain" : "You got address from unstoppable domain ${domain}"
 }

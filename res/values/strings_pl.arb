@@ -469,5 +469,8 @@
   "unconfirmed" : "Niepotwierdzony",
   "displayable" : "Wyświetlane",
 
-  "submit_request" : "złożyć wniosek"
+  "submit_request" : "złożyć wniosek",
+
+  "address_detected" : "Wykryto adres",
+  "address_from_domain" : "Dostałeś adres od unstoppable domain ${domain}"
 }

@@ -469,5 +469,8 @@
   "unconfirmed" : "Непідтверджений",
   "displayable" : "Відображуваний",
 
-  "submit_request" : "надіслати запит"
+  "submit_request" : "надіслати запит",
+
+  "address_detected" : "Виявлено адресу",
+  "address_from_domain" : "Ви отримали адресу від unstoppable domain ${domain}"
 }

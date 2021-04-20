@@ -34,7 +34,7 @@ class SendTemplatePage extends BasePage {
   Color get titleColor => Colors.white;
 
   @override
-  bool get resizeToAvoidBottomPadding => false;
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -145,7 +145,7 @@ class SendTemplatePage extends BasePage {
                                     .primaryTextTheme
                                     .headline
                                     .decorationColor),
-                            validator: sendViewModel.addressValidator,
+                            //validator: sendViewModel.addressValidator,
                           ),
                         ),
                         Observer(builder: (_) {

@@ -469,5 +469,8 @@
   "unconfirmed" : "未確認",
   "displayable" : "表示可能",
 
-  "submit_request" : "リクエストを送信する"
+  "submit_request" : "リクエストを送信する",
+
+  "address_detected" : "アドレスが検出されました",
+  "address_from_domain" : "あなたはからアドレスを得ました unstoppable domain ${domain}"
 }

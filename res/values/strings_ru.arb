@@ -469,5 +469,8 @@
   "unconfirmed" : "Неподтвержденный",
   "displayable" : "Отображаемый",
 
-  "submit_request" : "отправить запрос"
+  "submit_request" : "отправить запрос",
+
+  "address_detected" : "Обнаружен адрес",
+  "address_from_domain" : "Вы получили адрес из unstoppable domain ${domain}"
 }

@@ -469,5 +469,8 @@
   "unconfirmed" : "Unbestätigt",
   "displayable" : "Anzeigebar",
 
-  "submit_request" : "Einen Antrag stellen"
+  "submit_request" : "Einen Antrag stellen",
+
+  "address_detected" : "Adresse erkannt",
+  "address_from_domain" : "Sie haben die Adresse von der unaufhaltsamen Domain ${domain} erhalten"
 }

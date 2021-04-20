@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:hive/hive.dart';
@@ -265,6 +266,10 @@ abstract class SendViewModelBase with Store {
         OpenaliasRecord.formatDomainName(name));
 
     return record.name != name ? record : null;
+  }
+
+  Future<String> getUnstoppableDomainAddress(String domain) async {
+    return await fetchUnstoppableDomainAddress(domain, currency.title.toLowerCase());
   }
 
   @action

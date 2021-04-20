@@ -1,6 +1,6 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/src/screens/send/widgets/unstoppable_domain_address_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -38,9 +38,10 @@ class SendPage extends BasePage {
         _cryptoAmountFocus = FocusNode(),
         _fiatAmountFocus = FocusNode(),
         _addressFocusNode = FocusNode() {
-    _addressFocusNode.addListener(() {
+    _addressFocusNode.addListener(() async {
       if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
-        getOpenaliasRecord(_addressFocusNode.context);
+        await getOpenaliasRecord(_addressFocusNode.context);
+        await applyUnstoppableDomainAddress(_addressFocusNode.context);
       }
     });
   }
@@ -67,7 +68,7 @@ class SendPage extends BasePage {
   Color get titleColor => Colors.white;
 
   @override
-  bool get resizeToAvoidBottomPadding => false;
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -173,6 +174,10 @@ class SendPage extends BasePage {
                                         .headline
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
+                                onPushPasteButton: (context) async {
+                                  await getOpenaliasRecord(context);
+                                  await applyUnstoppableDomainAddress(context);
+                                },
                               ),
                               Observer(
                                   builder: (_) => Padding(
@@ -513,12 +518,13 @@ class SendPage extends BasePage {
                                     to: template.name,
                                     amount: template.amount,
                                     from: template.cryptoCurrency,
-                                    onTap: () {
+                                    onTap: () async {
                                       _addressController.text =
                                           template.address;
                                       _cryptoAmountController.text =
                                           template.amount;
-                                      getOpenaliasRecord(context);
+                                      await getOpenaliasRecord(context);
+                                      await applyUnstoppableDomainAddress(context);
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -769,5 +775,21 @@ class SendPage extends BasePage {
                   sendViewModel.setTransactionPriority(priority),
             ),
         context: context);
+  }
+
+  Future<void> applyUnstoppableDomainAddress(BuildContext context) async {
+    try {
+      final address = await sendViewModel
+          .getUnstoppableDomainAddress(
+          _addressController.text);
+
+      if ((address != null)&&address.isNotEmpty) {
+        unstoppableDomainAddressAlert(
+            context, _addressController.text);
+        _addressController.text = address;
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 }

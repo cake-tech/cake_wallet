@@ -37,7 +37,7 @@ class ExchangeTemplatePage extends BasePage {
   Color get titleColor => Colors.white;
 
   @override
-  bool get resizeToAvoidBottomPadding => false;
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -150,9 +150,8 @@ class ExchangeTemplatePage extends BasePage {
                               .color,
                           currencyValueValidator: AmountValidator(
                               type: exchangeViewModel.wallet.type),
-                          addressTextFieldValidator: AddressValidator(
-                              type:
-                              exchangeViewModel.depositCurrency),
+                          //addressTextFieldValidator: AddressValidator(
+                          //    type: exchangeViewModel.depositCurrency),
                         ),
                       ),
                     ),
@@ -190,8 +189,8 @@ class ExchangeTemplatePage extends BasePage {
                                 .decorationColor,
                             currencyValueValidator: AmountValidator(
                                 type: exchangeViewModel.wallet.type),
-                            addressTextFieldValidator: AddressValidator(
-                                type: exchangeViewModel.receiveCurrency),
+                            //addressTextFieldValidator: AddressValidator(
+                            //    type: exchangeViewModel.receiveCurrency),
                           )),
                     )
                   ],
