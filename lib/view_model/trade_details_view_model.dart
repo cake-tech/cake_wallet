@@ -3,6 +3,7 @@ import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart'
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dart';
+import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/trade_details/track_trade_list_item.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 part 'trade_details_view_model.g.dart';
 
 class TradeDetailsViewModel = TradeDetailsViewModelBase
@@ -30,6 +32,9 @@ abstract class TradeDetailsViewModelBase with Store {
         break;
       case ExchangeProviderDescription.morphToken:
         _provider = MorphTokenExchangeProvider(trades: trades);
+        break;
+      case ExchangeProviderDescription.sideshift:
+        _provider = SideShiftExchangeProvider(trade: trade);
         break;
     }
 
@@ -94,6 +99,17 @@ abstract class TradeDetailsViewModelBase with Store {
     if (trade.provider == ExchangeProviderDescription.changeNow) {
       final buildURL =
           'https://changenow.io/exchange/txs/${trade.id.toString()}';
+      items.add(TrackTradeListItem(
+          title: 'Track',
+          value: buildURL,
+          onTap: () {
+            launch(buildURL);
+          }));
+    }
+
+    if (trade.provider == ExchangeProviderDescription.sideshift) {
+      final buildURL =
+          'https://sideshift.ai/orders/${trade.id.toString()}';
       items.add(TrackTradeListItem(
           title: 'Track',
           value: buildURL,

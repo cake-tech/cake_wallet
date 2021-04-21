@@ -11,7 +11,8 @@ abstract class TradeFilterStoreBase with Store {
   TradeFilterStoreBase(
       {this.displayXMRTO = true,
         this.displayChangeNow = true,
-        this.displayMorphToken = true});
+        this.displayMorphToken = true,
+      this.displaySideShift = true});
 
   @observable
   bool displayXMRTO;
@@ -21,6 +22,9 @@ abstract class TradeFilterStoreBase with Store {
 
   @observable
   bool displayMorphToken;
+
+  @observable
+  bool displaySideShift;
 
   @action
   void toggleDisplayExchange(ExchangeProviderDescription provider) {
@@ -33,6 +37,9 @@ abstract class TradeFilterStoreBase with Store {
         break;
       case ExchangeProviderDescription.morphToken:
         displayMorphToken = !displayMorphToken;
+        break;
+      case ExchangeProviderDescription.sideshift:
+        displaySideShift = !displaySideShift;
         break;
     }
   }
@@ -52,7 +59,10 @@ abstract class TradeFilterStoreBase with Store {
                 ExchangeProviderDescription.changeNow) ||
         (displayMorphToken &&
             item.trade.provider ==
-                ExchangeProviderDescription.morphToken))
+                ExchangeProviderDescription.morphToken) ||
+        (displaySideShift &&
+            item.trade.provider ==
+                ExchangeProviderDescription.sideshift) )
         .toList()
         : _trades;
   }
