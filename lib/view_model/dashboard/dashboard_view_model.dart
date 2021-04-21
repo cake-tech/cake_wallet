@@ -92,6 +92,11 @@ abstract class DashboardViewModelBase with Store {
             caption: 'MorphToken',
             onChanged: (value) => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.morphToken)),
+        FilterItem(
+            value: () => tradeFilterStore.displaySideShift,
+            caption: 'SideShift.ai',
+            onChanged: (value) => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.sideshift)),
       ]
     };
 

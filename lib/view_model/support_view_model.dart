@@ -40,6 +40,11 @@ abstract class SupportViewModelBase with Store {
           linkTitle: 'support@changenow.io',
           link: 'mailto:support@changenow.io'),
       LinkListItem(
+          title: 'SideShift.ai',
+          icon: 'assets/images/sideshift_icon.png',
+          linkTitle: 'help@sideshift.ai',
+          link: 'mailto:help@sideshift.ai'),
+      LinkListItem(
           title: 'Wyre',
           icon: 'assets/images/wyre.png',
           linkTitle: S.current.submit_request,

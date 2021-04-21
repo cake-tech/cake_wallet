@@ -18,6 +18,8 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
+import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_trade_request.dart';
@@ -34,7 +36,8 @@ abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore) {
     providerList = [
-      ChangeNowExchangeProvider()
+      SideShiftExchangeProvider(),
+      ChangeNowExchangeProvider(),
     ];
 
     _initialPairBasedOnWallet();
@@ -57,11 +60,13 @@ abstract class ExchangeViewModelBase with Store {
         _onPairChange();
       }
     });
-    receiveCurrencies = CryptoCurrency.all.where((cryptoCurrency) =>
-      (cryptoCurrency != CryptoCurrency.xlm)&&
-      (cryptoCurrency != CryptoCurrency.xrp)).toList();
+    receiveCurrencies = CryptoCurrency.all
+            .where((cryptoCurrency) =>
+                (cryptoCurrency != CryptoCurrency.xlm) &&
+                (cryptoCurrency != CryptoCurrency.xrp))
+            .toList();
     _defineIsReceiveAmountEditable();
-    isFixedRateMode = false;
+    isFixedRateMode = provider is SideShiftExchangeProvider ? true : false;
     isReceiveAmountEntered = false;
     loadLimits();
   }
@@ -139,7 +144,7 @@ abstract class ExchangeViewModelBase with Store {
     this.provider = provider;
     depositAmount = '';
     receiveAmount = '';
-    isFixedRateMode = false;
+    isFixedRateMode = provider is SideShiftExchangeProvider ? true : false;
     _defineIsReceiveAmountEditable();
     loadLimits();
   }
@@ -147,7 +152,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void changeDepositCurrency({CryptoCurrency currency}) {
     depositCurrency = currency;
-    isFixedRateMode = false;
+    isFixedRateMode = provider is SideShiftExchangeProvider ? true : false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -156,7 +161,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void changeReceiveCurrency({CryptoCurrency currency}) {
     receiveCurrency = currency;
-    isFixedRateMode = false;
+    isFixedRateMode = provider is SideShiftExchangeProvider ? true : false;
     _onPairChange();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -218,8 +223,10 @@ abstract class ExchangeViewModelBase with Store {
     limitsState = LimitsIsLoading();
 
     try {
-      limits = await provider.fetchLimits(from: depositCurrency,
-          to: receiveCurrency, isFixedRateMode: isFixedRateMode);
+      limits = await provider.fetchLimits(
+          from: depositCurrency,
+          to: receiveCurrency,
+          isFixedRateMode: isFixedRateMode);
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
       limitsState = LimitsLoadedFailure(error: e.toString());
@@ -256,6 +263,17 @@ abstract class ExchangeViewModelBase with Store {
       currency = depositCurrency;
     }
 
+    if (provider is SideShiftExchangeProvider) {
+      request = SideShiftRequest(
+          depositMethod: depositCurrency,
+          settleMethod: receiveCurrency,
+          depositAmount: depositAmount?.replaceAll(',', '.'),
+          refundAddress: depositAddress,
+          settleAddress: receiveAddress);
+      amount = depositAmount;
+      currency = depositCurrency;
+    }
+
     if (provider is MorphTokenExchangeProvider) {
       request = MorphTokenRequest(
           from: depositCurrency,
@@ -283,8 +301,8 @@ abstract class ExchangeViewModelBase with Store {
       } else {
         try {
           tradeState = TradeIsCreating();
-          final trade = await provider.createTrade(request: request,
-              isFixedRateMode: isFixedRateMode);
+          final trade = await provider.createTrade(
+              request: request, isFixedRateMode: isFixedRateMode);
           trade.walletId = wallet.id;
           tradesStore.setTrade(trade);
           await trades.add(trade);
@@ -320,7 +338,8 @@ abstract class ExchangeViewModelBase with Store {
   void calculateDepositAllAmount() {
     if (wallet is BitcoinWallet) {
       final availableBalance = wallet.balance.available;
-      final priority = _settingsStore.priority[wallet.type] as BitcoinTransactionPriority;
+      final priority =
+          _settingsStore.priority[wallet.type] as BitcoinTransactionPriority;
       final fee = wallet.calculateEstimatedFee(priority, null);
 
       if (availableBalance < fee || availableBalance == 0) {

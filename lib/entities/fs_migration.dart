@@ -376,6 +376,9 @@ Future<void> ios_migrate_trades_list(Box<Trade> tradeSource) async {
         case 'morph':
           provider = ExchangeProviderDescription.morphToken;
           break;
+        case 'sideshift':
+          provider = ExchangeProviderDescription.sideshift;
+          break;
         default:
           break;
       }
