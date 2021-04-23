@@ -19,7 +19,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.eos,
     CryptoCurrency.eth,
     CryptoCurrency.ltc,
-    CryptoCurrency.nano,
     CryptoCurrency.trx,
     CryptoCurrency.usdt,
     CryptoCurrency.usdterc20,
