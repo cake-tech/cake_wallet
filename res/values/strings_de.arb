@@ -469,5 +469,7 @@
   "unconfirmed" : "Unbestätigt",
   "displayable" : "Anzeigebar",
 
-  "submit_request" : "Einen Antrag stellen"
+  "submit_request" : "Einen Antrag stellen",
+
+  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin. Um Bitcoin zu kaufen, erstellen Sie bitte Ihre Bitcoin-Brieftasche oder wechseln Sie zu dieser"
 }

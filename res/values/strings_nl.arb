@@ -469,5 +469,7 @@
   "unconfirmed" : "Niet bevestigd",
   "displayable" : "Weer te geven",
 
-  "submit_request" : "een verzoek indienen"
+  "submit_request" : "een verzoek indienen",
+
+  "buy_alert_content" : "Momenteel ondersteunen we alleen de aankoop van Bitcoin. Om Bitcoin te kopen, moet u uw Bitcoin-portemonnee aanmaken of naar uw Bitcoin-portemonnee overschakelen"
 }

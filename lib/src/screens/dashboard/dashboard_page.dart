@@ -1,7 +1,9 @@
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -42,7 +44,7 @@ class DashboardPage extends BasePage {
           child: scaffold);
 
   @override
-  bool get resizeToAvoidBottomPadding => false;
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   Widget get endDrawer => MenuWidget(walletViewModel);
@@ -114,7 +116,7 @@ class DashboardPage extends BasePage {
             )),
         Container(
           padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
-          child: Observer(builder: (_) => Row(
+          child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
               ActionButton(
@@ -125,7 +127,7 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
-              if (walletViewModel.type == WalletType.bitcoin) Observer(
+              Observer(
                   builder: (_) => Stack(
                     clipBehavior: Clip.none,
                     alignment: Alignment.topCenter,
@@ -143,23 +145,11 @@ class DashboardPage extends BasePage {
                           title: S.of(context).buy,
                           onClick: walletViewModel.isRunningWebView
                               ? null
-                              : () async {
-                            try {
-                              walletViewModel.isRunningWebView = true;
-                              final url =
-                                    await walletViewModel.wyreViewModel.wyreUrl;
-                              await Navigator.of(context)
-                                  .pushNamed(Routes.wyre, arguments: url);
-                              walletViewModel.isRunningWebView = false;
-                            } catch(e) {
-                              print(e.toString());
-                              walletViewModel.isRunningWebView = false;
-                            }
-                          })
+                              : () async => await _onClickBuyButton(context))
                     ],
                   )),
             ],
-          )),
+          ),
         )
       ],
     ));
@@ -175,5 +165,34 @@ class DashboardPage extends BasePage {
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
     _isEffectsInstalled = true;
+  }
+
+  Future <void> _onClickBuyButton(BuildContext context) async {
+    final walletType = walletViewModel.type;
+
+    switch (walletType) {
+      case WalletType.bitcoin:
+        try {
+          walletViewModel.isRunningWebView = true;
+          final url = await walletViewModel.wyreViewModel.wyreUrl;
+          await Navigator.of(context).pushNamed(Routes.wyre, arguments: url);
+          walletViewModel.isRunningWebView = false;
+        } catch(e) {
+          print(e.toString());
+          walletViewModel.isRunningWebView = false;
+        }
+        break;
+      default:
+        await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).buy,
+                  alertContent: S.of(context).buy_alert_content,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+        break;
+    }
   }
 }

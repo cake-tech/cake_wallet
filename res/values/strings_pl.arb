@@ -469,5 +469,7 @@
   "unconfirmed" : "Niepotwierdzony",
   "displayable" : "Wyświetlane",
 
-  "submit_request" : "złożyć wniosek"
+  "submit_request" : "złożyć wniosek",
+
+  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoinów. Aby kupić Bitcoin, utwórz lub przełącz się na swój portfel Bitcoin"
 }

@@ -469,5 +469,7 @@
   "unconfirmed" : "Unconfirmed",
   "displayable" : "Displayable",
 
-  "submit_request" : "submit a request"
+  "submit_request" : "submit a request",
+
+  "buy_alert_content" : "Currently we only support the purchase of Bitcoin. To buy Bitcoin, please create or switch to your Bitcoin wallet"
 }
