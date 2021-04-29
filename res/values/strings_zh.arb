@@ -169,14 +169,14 @@
   "restore_recover" : "恢复",
   "restore_wallet_restore_description" : "钱包还原说明",
   "restore_new_seed" : "新种子",
-  "restore_active_seed" : "活性種子",
+  "restore_active_seed" : "活性种子",
   "restore_bitcoin_description_from_seed" : "从12个文字的组成码恢复您的钱包",
   "restore_bitcoin_description_from_keys" : "从私钥中生成的WIF字符串恢复您钱包",
   "restore_bitcoin_title_from_keys" : "从WIF还原",
   "restore_from_date_or_blockheight" : "请输入您创建这个钱包前几天的日期。或者如果您知道区块高度，请输入区块高度",
 
 
-  "seed_reminder" : "请记下这些内容，以防丟失或数据清除",
+  "seed_reminder" : "请记下这些内容，以防丟失或数据损坏",
   "seed_title" : "种子",
   "seed_share" : "分享种子",
   "copy" : "复制",
@@ -185,14 +185,14 @@
   "seed_language_choose" : "请选择种子语言:",
   "seed_choose" : "选择种子语言",
   "seed_language_next" : "下一个",
-  "seed_language_english" : "英语",
+  "seed_language_english" : "英文",
   "seed_language_chinese" : "中文",
-  "seed_language_dutch" : "荷兰语",
-  "seed_language_german" : "德语",
-  "seed_language_japanese" : "日语",
-  "seed_language_portuguese" : "葡萄牙语",
-  "seed_language_russian" : "俄语",
-  "seed_language_spanish" : "西班牙语",
+  "seed_language_dutch" : "荷兰文",
+  "seed_language_german" : "德文",
+  "seed_language_japanese" : "日文",
+  "seed_language_portuguese" : "葡萄牙文",
+  "seed_language_russian" : "俄文",
+  "seed_language_spanish" : "西班牙文",
 
 
   "send_title" : "发送",
@@ -409,7 +409,7 @@
   "creating_new_wallet_error" : "错误： ${description}",
 
   "seed_alert_title" : "注意",
-  "seed_alert_content" : "种子是恢复钱包的唯一方法。 记住了吗？",
+  "seed_alert_content" : "种子是恢复钱包的唯一方法。记住了吗？",
   "seed_alert_back" : "返回",
   "seed_alert_yes" : "确定",
 
