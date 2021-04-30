@@ -22,7 +22,7 @@ abstract class BuyViewModelBase with Store {
       {@required this.wallet}) {
     providerList = [
       WyreBuyProvider(wallet: wallet),
-      MoonPayBuyProvider(wallet: wallet, ordersSource: ordersSource)
+      MoonPayBuyProvider(wallet: wallet)
     ];
     items = providerList.map((provider) =>
         BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))

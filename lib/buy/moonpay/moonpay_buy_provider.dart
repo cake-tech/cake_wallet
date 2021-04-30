@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:cake_wallet/buy/buy_exception.dart';
-import 'package:hive/hive.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
@@ -12,8 +11,7 @@ import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 class MoonPayBuyProvider extends BuyProvider {
-  MoonPayBuyProvider({WalletBase wallet, this.ordersSource,
-      bool isTestEnvironment = false})
+  MoonPayBuyProvider({WalletBase wallet, bool isTestEnvironment = false})
       : super(wallet: wallet, isTestEnvironment: isTestEnvironment) {
       baseApiUrl = isTestEnvironment
         ? _baseTestApiUrl
@@ -39,7 +37,6 @@ class MoonPayBuyProvider extends BuyProvider {
   @override
   String get trackUrl => baseApiUrl + '/transaction_receipt?transactionId=';
 
-  final Box<Order> ordersSource;
   String baseApiUrl;
 
   @override
@@ -100,23 +97,10 @@ class MoonPayBuyProvider extends BuyProvider {
     final createdAt = DateTime.parse(createdAtRaw).toLocal();
     final amount = responseJSON['quoteCurrencyAmount'] as double;
 
-    var from = '';
-    var to = '';
-
-    for (final order in ordersSource.values) {
-      if (order.id == id) {
-        from = order.from;
-        to = order.to;
-        break;
-      }
-    }
-
     return Order(
         id: id,
         provider: description,
         transferId: id,
-        from: from,
-        to: to,
         state: state,
         createdAt: createdAt,
         amount: amount.toString(),

@@ -558,7 +558,6 @@ Future setup(
 
             return OrderDetailsViewModel(
                 wallet: wallet,
-                ordersSource: _ordersSource,
                 orderForDetails: order);
           });
 
