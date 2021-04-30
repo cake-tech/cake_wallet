@@ -80,7 +80,7 @@ class WyreBuyProvider extends BuyProvider {
 
   @override
   Future<BuyAmount> calculateAmount(String amount, String sourceCurrency) async {
-    final quoteUrl = baseApiUrl + _ordersSuffix + _quoteSuffix;
+    final quoteUrl = _baseProductApiUrl + _ordersSuffix + _quoteSuffix;
     final body = {
       'amount': amount,
       'sourceCurrency': sourceCurrency,

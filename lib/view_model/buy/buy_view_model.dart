@@ -22,7 +22,7 @@ abstract class BuyViewModelBase with Store {
       {@required this.wallet}) {
     providerList = [
       WyreBuyProvider(wallet: wallet),
-      MoonPayBuyProvider(wallet: wallet)
+      MoonPayBuyProvider(wallet: wallet, ordersSource: ordersSource)
     ];
     items = providerList.map((provider) =>
         BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
@@ -79,6 +79,8 @@ abstract class BuyViewModelBase with Store {
   Future<void> saveOrder(String orderId) async {
     try {
       final order = await selectedProvider?.findOrderById(orderId);
+      order.from = fiatCurrency.title;
+      order.to = cryptoCurrency.title;
       await ordersSource.add(order);
       ordersStore.setOrder(order);
     } catch (e) {

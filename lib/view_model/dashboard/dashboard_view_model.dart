@@ -57,7 +57,6 @@ abstract class DashboardViewModelBase with Store {
       this.tradeFilterStore,
       this.transactionFilterStore,
       this.settingsStore,
-      this.ordersSource,
       this.ordersStore}) {
     filterItems = {
       S.current.transactions: [
@@ -211,8 +210,6 @@ abstract class DashboardViewModelBase with Store {
   WalletBase<Balance> wallet;
 
   bool get hasRescan => wallet.type == WalletType.monero;
-
-  Box<Order> ordersSource;
 
   BalanceViewModel balanceViewModel;
 
