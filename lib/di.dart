@@ -238,7 +238,6 @@ Future setup(
       tradeFilterStore: getIt.get<TradeFilterStore>(),
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
       settingsStore: settingsStore,
-      ordersSource: _ordersSource,
       ordersStore: getIt.get<OrdersStore>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
@@ -536,7 +535,7 @@ Future setup(
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
 
-    return BuyViewModel(ordersSource, getIt.get<OrdersStore>(),
+    return BuyViewModel(_ordersSource, getIt.get<OrdersStore>(),
         getIt.get<BuyAmountViewModel>(), wallet: wallet);
   });
 
@@ -559,6 +558,7 @@ Future setup(
 
             return OrderDetailsViewModel(
                 wallet: wallet,
+                ordersSource: _ordersSource,
                 orderForDetails: order);
           });
 

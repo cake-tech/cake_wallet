@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
@@ -18,7 +19,8 @@ class OrderDetailsViewModel = OrderDetailsViewModelBase
     with _$OrderDetailsViewModel;
 
 abstract class OrderDetailsViewModelBase with Store {
-  OrderDetailsViewModelBase({WalletBase wallet, Order orderForDetails}) {
+  OrderDetailsViewModelBase({WalletBase wallet, this.ordersSource,
+    Order orderForDetails}) {
     order = orderForDetails;
 
     if (order.provider != null) {
@@ -27,7 +29,8 @@ abstract class OrderDetailsViewModelBase with Store {
           _provider = WyreBuyProvider(wallet: wallet);
           break;
         case BuyProviderDescription.moonPay:
-          _provider = MoonPayBuyProvider(wallet: wallet);
+          _provider =
+              MoonPayBuyProvider(wallet: wallet, ordersSource: ordersSource);
           break;
       }
     }
@@ -40,6 +43,8 @@ abstract class OrderDetailsViewModelBase with Store {
 
     timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateOrder());
   }
+
+  final Box<Order> ordersSource;
 
   @observable
   Order order;
