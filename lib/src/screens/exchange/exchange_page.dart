@@ -248,7 +248,8 @@ class ExchangePage extends BasePage {
                                   exchangeViewModel
                                       .isReceiveAddressEnabled,
                                   isAmountEstimated: true,
-                                  currencies: CryptoCurrency.all,
+                                  currencies:
+                                    exchangeViewModel.receiveCurrencies,
                                   onCurrencySelected: (currency) =>
                                       exchangeViewModel
                                           .changeReceiveCurrency(

@@ -305,10 +305,15 @@ class ElectrumClient {
   Future<List<int>> feeRates() async {
     final topDoubleString = await estimatefee(p: 1);
     final middleDoubleString = await estimatefee(p: 20);
-    final bottomDoubleString = await estimatefee(p: 150);
-    final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
-    final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
-    final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
+    final bottomDoubleString = await estimatefee(p: 100);
+    final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
+        .round();
+    final middle =
+        (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000)
+            .round();
+    final bottom =
+        (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000)
+            .round();
 
     return [bottom, middle, top];
   }
