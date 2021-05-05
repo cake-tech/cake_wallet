@@ -409,6 +409,7 @@ ${recipient_name}""";
   String get confirmed => """Confirmed""";
   String get unconfirmed => """Unconfirmed""";
   String get displayable => """Displayable""";
+  String get submit_request => """submit a request""";
 }
 
 class $nl extends S {
@@ -1190,6 +1191,8 @@ ${recipient_name}""";
   String get unconfirmed => """Niet bevestigd""";
   @override
   String get displayable => """Weer te geven""";
+  @override
+  String get submit_request => """een verzoek indienen""";
 }
 
 class $zh extends S {
@@ -1971,6 +1974,8 @@ ${recipient_name}""";
   String get unconfirmed => """未经证实""";
   @override
   String get displayable => """可显示""";
+  @override
+  String get submit_request => """提交請求""";
 }
 
 class $ru extends S {
@@ -2752,6 +2757,8 @@ ${recipient_name}""";
   String get unconfirmed => """Неподтвержденный""";
   @override
   String get displayable => """Отображаемый""";
+  @override
+  String get submit_request => """отправить запрос""";
 }
 
 class $pl extends S {
@@ -3533,6 +3540,8 @@ ${recipient_name}""";
   String get unconfirmed => """Niepotwierdzony""";
   @override
   String get displayable => """Wyświetlane""";
+  @override
+  String get submit_request => """złożyć wniosek""";
 }
 
 class $en extends S {
@@ -4318,6 +4327,8 @@ ${recipient_name}""";
   String get unconfirmed => """अपुष्ट""";
   @override
   String get displayable => """प्रदर्शन योग्य""";
+  @override
+  String get submit_request => """एक अनुरोध सबमिट करें""";
 }
 
 class $ja extends S {
@@ -5099,6 +5110,8 @@ ${recipient_name}""";
   String get unconfirmed => """未確認""";
   @override
   String get displayable => """表示可能""";
+  @override
+  String get submit_request => """リクエストを送信する""";
 }
 
 class $pt extends S {
@@ -5880,6 +5893,8 @@ ${recipient_name}""";
   String get unconfirmed => """Não confirmado""";
   @override
   String get displayable => """Exibível""";
+  @override
+  String get submit_request => """enviar um pedido""";
 }
 
 class $de extends S {
@@ -6661,6 +6676,8 @@ ${recipient_name}""";
   String get unconfirmed => """Unbestätigt""";
   @override
   String get displayable => """Anzeigebar""";
+  @override
+  String get submit_request => """Einen Antrag stellen""";
 }
 
 class $es extends S {
@@ -7442,6 +7459,8 @@ ${recipient_name}""";
   String get unconfirmed => """Inconfirmado""";
   @override
   String get displayable => """Visualizable""";
+  @override
+  String get submit_request => """presentar una solicitud""";
 }
 
 class $ko extends S {
@@ -8223,6 +8242,8 @@ ${recipient_name}""";
   String get unconfirmed => """미확인""";
   @override
   String get displayable => """표시 가능""";
+  @override
+  String get submit_request => """요청을 제출""";
 }
 
 class $uk extends S {
@@ -9004,6 +9025,8 @@ ${recipient_name}""";
   String get unconfirmed => """Непідтверджений""";
   @override
   String get displayable => """Відображуваний""";
+  @override
+  String get submit_request => """надіслати запит""";
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
