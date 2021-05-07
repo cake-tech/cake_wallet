@@ -308,7 +308,7 @@ class ElectrumClient {
     try {
       final topDoubleString = await estimatefee(p: 1);
       final middleDoubleString = await estimatefee(p: 20);
-      final bottomDoubleString = await estimatefee(p: 150);
+      final bottomDoubleString = await estimatefee(p: 100);
       final top =
           (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
               .round();
@@ -319,8 +319,7 @@ class ElectrumClient {
           (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000)
               .round();
 
-      final res = [bottom, middle, top];
-      return res;
+      return [bottom, middle, top];
     } catch (_) {
       return [];
     }
