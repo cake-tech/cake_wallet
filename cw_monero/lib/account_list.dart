@@ -5,6 +5,7 @@ import 'package:cw_monero/types.dart';
 import 'package:cw_monero/monero_api.dart';
 import 'package:cw_monero/structs/account_row.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cw_monero/wallet.dart';
 
 final accountSizeNative = moneroApi
     .lookup<NativeFunction<account_size>>('account_size')
@@ -70,8 +71,13 @@ void _setLabelForAccount(Map<String, dynamic> args) {
   setLabelForAccountSync(label: label, accountIndex: accountIndex);
 }
 
-Future<void> addAccount({String label}) async => compute(_addAccount, label);
+Future<void> addAccount({String label}) async {
+  await compute(_addAccount, label);
+  await store();
+}
 
-Future<void> setLabelForAccount({int accountIndex, String label}) async =>
-    compute(
+Future<void> setLabelForAccount({int accountIndex, String label}) async {
+    await compute(
         _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
+    await store();
+}

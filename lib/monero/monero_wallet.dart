@@ -102,10 +102,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> init() async {
     accountList.update();
-    accountList.accounts.observe((_) async => await save());
     account = accountList.accounts.first;
     subaddressList.update(accountIndex: account.id ?? 0);
-    subaddressList.subaddresses.observe((_) async => await save());
     subaddress = subaddressList.getAll().first;
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
