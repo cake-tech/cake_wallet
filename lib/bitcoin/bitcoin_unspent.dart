@@ -13,5 +13,6 @@ class BitcoinUnspent {
   final int value;
   final int vout;
 
-  bool get isP2wpkh => address.address.startsWith('bc1');
+  bool get isP2wpkh =>
+      address.address.startsWith('bc') || address.address.startsWith('ltc');
 }

@@ -149,7 +149,7 @@ abstract class SettingsStoreBase with Store {
 
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
-       @required bool isBitcoinBuyEnabled,
+      @required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       MoneroTransactionPriority initialMoneroTransactionPriority =
           MoneroTransactionPriority.slow,
@@ -205,15 +205,19 @@ abstract class SettingsStoreBase with Store {
     final nodeId = sharedPreferences.getInt(PreferencesKey.currentNodeIdKey);
     final bitcoinElectrumServerId = sharedPreferences
         .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
+    final litecoinElectrumServerId = sharedPreferences
+        .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
+    final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final packageInfo = await PackageInfo.fromPlatform();
 
     return SettingsStore(
         sharedPreferences: sharedPreferences,
         nodes: {
           WalletType.monero: moneroNode,
-          WalletType.bitcoin: bitcoinElectrumServer
+          WalletType.bitcoin: bitcoinElectrumServer,
+          WalletType.litecoin: litecoinElectrumServer
         },
         appVersion: packageInfo.version,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
@@ -262,6 +266,10 @@ abstract class SettingsStoreBase with Store {
       case WalletType.bitcoin:
         await _sharedPreferences.setInt(
             PreferencesKey.currentBitcoinElectrumSererIdKey, node.key as int);
+        break;
+      case WalletType.litecoin:
+        await _sharedPreferences.setInt(
+            PreferencesKey.currentLitecoinElectrumSererIdKey, node.key as int);
         break;
       case WalletType.monero:
         await _sharedPreferences.setInt(

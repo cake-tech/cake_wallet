@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
@@ -11,7 +12,10 @@ import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 
-abstract class WalletBase<BalanceType extends Balance> {
+abstract class WalletBase<
+    BalanceType extends Balance,
+    HistoryType extends TransactionHistoryBase,
+    TransactionType extends TransactionInfo> {
   WalletBase(this.walletInfo);
 
   static String idFor(String name, WalletType type) =>
@@ -41,7 +45,7 @@ abstract class WalletBase<BalanceType extends Balance> {
 
   Object get keys;
 
-  TransactionHistoryBase transactionHistory;
+  HistoryType transactionHistory;
 
   Future<void> connectToNode({@required Node node});
 
@@ -50,6 +54,12 @@ abstract class WalletBase<BalanceType extends Balance> {
   Future<PendingTransaction> createTransaction(Object credentials);
 
   int calculateEstimatedFee(TransactionPriority priority, int amount);
+
+  // void fetchTransactionsAsync(
+  //     void Function(TransactionType transaction) onTransactionLoaded,
+  //     {void Function() onFinished});
+
+  Future<Map<String, TransactionType>> fetchTransactions();
 
   Future<void> save();
 

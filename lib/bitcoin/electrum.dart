@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
@@ -173,10 +174,11 @@ class ElectrumClient {
       });
 
   Future<List<Map<String, dynamic>>> getListUnspentWithAddress(
-          String address) =>
+          String address, NetworkType networkType) =>
       call(
-          method: 'blockchain.scripthash.listunspent',
-          params: [scriptHash(address)]).then((dynamic result) {
+              method: 'blockchain.scripthash.listunspent',
+              params: [scriptHash(address, networkType: networkType)])
+          .then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
             if (val is Map<String, Object>) {
@@ -259,7 +261,7 @@ class ElectrumClient {
         if (result is String) {
           return result;
         }
-        print(result);
+
         return '';
       });
 
@@ -303,14 +305,25 @@ class ElectrumClient {
       });
 
   Future<List<int>> feeRates() async {
-    final topDoubleString = await estimatefee(p: 1);
-    final middleDoubleString = await estimatefee(p: 20);
-    final bottomDoubleString = await estimatefee(p: 150);
-    final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000).round();
-    final middle = (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000).round();
-    final bottom = (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000).round();
+    try {
+      final topDoubleString = await estimatefee(p: 1);
+      final middleDoubleString = await estimatefee(p: 20);
+      final bottomDoubleString = await estimatefee(p: 150);
+      final top =
+          (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
+              .round();
+      final middle =
+          (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000)
+              .round();
+      final bottom =
+          (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000)
+              .round();
 
-    return [bottom, middle, top];
+      final res = [bottom, middle, top];
+      return res;
+    } catch (_) {
+      return [];
+    }
   }
 
   BehaviorSubject<Object> scripthashUpdate(String scripthash) {
