@@ -1,4 +1,6 @@
+import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
@@ -56,12 +58,13 @@ class BitcoinURI extends PaymentURI {
 }
 
 abstract class WalletAddressListViewModelBase with Store {
-  WalletAddressListViewModelBase(
-      {@required AppStore appStore}) {
+  WalletAddressListViewModelBase({@required AppStore appStore}) {
     _appStore = appStore;
     _wallet = _appStore.wallet;
     hasAccounts = _wallet?.type == WalletType.monero;
-    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<Balance> wallet) {
+    _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<
+            Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+        wallet) {
       _wallet = wallet;
       hasAccounts = _wallet.type == WalletType.monero;
     });
@@ -119,9 +122,7 @@ abstract class WalletAddressListViewModelBase with Store {
         final isPrimary = addr == primaryAddress;
 
         return WalletAddressListItem(
-            isPrimary: isPrimary,
-            name: null,
-            address: addr.address);
+            isPrimary: isPrimary, name: null, address: addr.address);
       });
       addressList.addAll(bitcoinAddresses);
     }
@@ -147,14 +148,14 @@ abstract class WalletAddressListViewModelBase with Store {
   bool get hasAddressList => _wallet.type == WalletType.monero;
 
   @observable
-  WalletBase<Balance> _wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      _wallet;
 
   List<ListItem> _baseItems;
 
   AppStore _appStore;
 
   ReactionDisposer _onWalletChangeReaction;
-
 
   @action
   void setAddress(WalletAddressListItem address) =>

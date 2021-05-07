@@ -1,34 +1,35 @@
 import 'dart:io';
+import 'package:hive/hive.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/bitcoin/litecoin_wallet.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/entities/pathForWallet.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:hive/hive.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 
-class BitcoinWalletService extends WalletService<
+class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials> {
-  BitcoinWalletService(this.walletInfoSource);
+  LitecoinWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
 
   @override
-  WalletType getType() => WalletType.bitcoin;
+  WalletType getType() => WalletType.litecoin;
 
   @override
-  Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
-    final wallet = BitcoinWallet(
+  Future<LitecoinWallet> create(BitcoinNewWalletCredentials credentials) async {
+    final wallet = LitecoinWallet(
         mnemonic: generateMnemonic(),
         password: credentials.password,
         walletInfo: credentials.walletInfo);
     await wallet.save();
     await wallet.init();
+
     return wallet;
   }
 
@@ -37,11 +38,11 @@ class BitcoinWalletService extends WalletService<
       File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
-  Future<BitcoinWallet> openWallet(String name, String password) async {
+  Future<LitecoinWallet> openWallet(String name, String password) async {
     final walletInfo = walletInfoSource.values.firstWhere(
         (info) => info.id == WalletBase.idFor(name, getType()),
         orElse: () => null);
-    final wallet = await BitcoinWalletBase.open(
+    final wallet = await LitecoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo);
     await wallet.init();
     return wallet;
@@ -49,22 +50,22 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async =>
-      File(await pathForWalletDir(name: wallet, type: WalletType.bitcoin))
+      File(await pathForWalletDir(name: wallet, type: getType()))
           .delete(recursive: true);
 
   @override
-  Future<BitcoinWallet> restoreFromKeys(
+  Future<LitecoinWallet> restoreFromKeys(
           BitcoinRestoreWalletFromWIFCredentials credentials) async =>
       throw UnimplementedError();
 
   @override
-  Future<BitcoinWallet> restoreFromSeed(
+  Future<LitecoinWallet> restoreFromSeed(
       BitcoinRestoreWalletFromSeedCredentials credentials) async {
     if (!validateMnemonic(credentials.mnemonic)) {
       throw BitcoinMnemonicIsIncorrectException();
     }
 
-    final wallet = BitcoinWallet(
+    final wallet = LitecoinWallet(
         password: credentials.password,
         mnemonic: credentials.mnemonic,
         walletInfo: credentials.walletInfo);

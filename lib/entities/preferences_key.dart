@@ -1,8 +1,9 @@
 class PreferencesKey {
-  static const currentWalletType ='current_wallet_type';
-  static const currentWalletName ='current_wallet_name';
+  static const currentWalletType = 'current_wallet_type';
+  static const currentWalletName = 'current_wallet_name';
   static const currentNodeIdKey = 'current_node_id';
   static const currentBitcoinElectrumSererIdKey = 'current_node_id_btc';
+  static const currentLitecoinElectrumSererIdKey = 'current_node_id_ltc';
   static const currentFiatCurrencyKey = 'current_fiat_currency';
   static const currentTransactionPriorityKeyLegacy = 'current_fee_priority';
   static const currentBalanceDisplayModeKey = 'current_balance_display_mode';
@@ -14,7 +15,8 @@ class PreferencesKey {
   static const displayActionListModeKey = 'display_list_mode';
   static const currentPinLength = 'current_pin_length';
   static const currentLanguageCode = 'language_code';
-  static const currentDefaultSettingsMigrationVersion = 'current_default_settings_migration_version';
+  static const currentDefaultSettingsMigrationVersion =
+      'current_default_settings_migration_version';
   static const moneroTransactionPriority = 'current_fee_priority_monero';
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
 }

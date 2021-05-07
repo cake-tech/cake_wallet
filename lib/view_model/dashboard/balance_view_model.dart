@@ -1,7 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
@@ -23,11 +25,7 @@ abstract class BalanceViewModelBase with Store {
       @required this.settingsStore,
       @required this.fiatConvertationStore}) {
     isReversing = false;
-
     wallet ??= appStore.wallet;
-
-    _reaction = reaction((_) => appStore.wallet, _onWalletChange);
-
     final _wallet = wallet;
 
     if (_wallet is MoneroWallet) {
@@ -37,6 +35,8 @@ abstract class BalanceViewModelBase with Store {
     if (_wallet is BitcoinWallet) {
       balance = _wallet.balance;
     }
+
+    reaction((_) => appStore.wallet, _onWalletChange);
 
     _onCurrentWalletChangeReaction =
         reaction<void>((_) => wallet.balance, (dynamic balance) {
@@ -59,7 +59,8 @@ abstract class BalanceViewModelBase with Store {
   Balance balance;
 
   @observable
-  WalletBase<Balance> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      wallet;
 
   @computed
   double get price => fiatConvertationStore.prices[appStore.wallet.currency];
@@ -70,8 +71,8 @@ abstract class BalanceViewModelBase with Store {
   @computed
   BalanceDisplayMode get displayMode => isReversing
       ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
-        ? BalanceDisplayMode.displayableBalance
-        : savedDisplayMode
+          ? BalanceDisplayMode.displayableBalance
+          : savedDisplayMode
       : savedDisplayMode;
 
   @computed
@@ -153,14 +154,14 @@ abstract class BalanceViewModelBase with Store {
   CryptoCurrency get currency => appStore.wallet.currency;
 
   ReactionDisposer _onCurrentWalletChangeReaction;
-  ReactionDisposer _reaction;
 
   @action
-  void _onWalletChange(WalletBase<Balance> wallet) {
+  void _onWalletChange(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>
+          wallet) {
     this.wallet = wallet;
-
     balance = wallet.balance;
-
     _onCurrentWalletChangeReaction?.reaction?.dispose();
     _onCurrentWalletChangeReaction = reaction<Balance>(
         (_) => wallet.balance, (Balance balance) => this.balance = balance);

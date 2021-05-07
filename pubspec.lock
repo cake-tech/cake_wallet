@@ -67,10 +67,12 @@ packages:
   bech32:
     dependency: transitive
     description:
-      name: bech32
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.2"
+      path: "."
+      ref: cake
+      resolved-ref: "02fef082f20af13de00b4e64efb93a2c1e5e1cf2"
+      url: "git@github.com:cake-tech/bech32.git"
+    source: git
+    version: "0.2.0"
   bip32:
     dependency: transitive
     description:
@@ -88,9 +90,11 @@ packages:
   bitcoin_flutter:
     dependency: "direct main"
     description:
-      name: bitcoin_flutter
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: cake
+      resolved-ref: b3ab2926c665f0e68b74a4a5f31059f7fcd817b7
+      url: "git@github.com:cake-tech/bitcoin_flutter.git"
+    source: git
     version: "2.0.2"
   boolean_selector:
     dependency: transitive
