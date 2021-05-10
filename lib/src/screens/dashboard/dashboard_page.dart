@@ -171,18 +171,7 @@ class DashboardPage extends BasePage {
     final walletType = walletViewModel.type;
 
     switch (walletType) {
-      case WalletType.bitcoin:
-        try {
-          walletViewModel.isRunningWebView = true;
-          final url = await walletViewModel.wyreViewModel.wyreUrl;
-          await Navigator.of(context).pushNamed(Routes.wyre, arguments: url);
-          walletViewModel.isRunningWebView = false;
-        } catch(e) {
-          print(e.toString());
-          walletViewModel.isRunningWebView = false;
-        }
-        break;
-      default:
+      case WalletType.monero:
         await showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
@@ -192,6 +181,17 @@ class DashboardPage extends BasePage {
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop());
             });
+        break;
+      default:
+        try {
+          walletViewModel.isRunningWebView = true;
+          final url = await walletViewModel.wyreViewModel.wyreUrl;
+          await Navigator.of(context).pushNamed(Routes.wyre, arguments: url);
+          walletViewModel.isRunningWebView = false;
+        } catch(e) {
+          print(e.toString());
+          walletViewModel.isRunningWebView = false;
+        }
         break;
     }
   }
