@@ -8,16 +8,6 @@ import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
 
-class UriParseException implements Exception {
-  UriParseException(this.uri);
-
-  final String uri;
-
-  @override
-  String toString() =>
-      'Cannot parse host and port from uri. Invalid uri format. Uri: $uri';
-}
-
 String jsonrpcparams(List<Object> params) {
   final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
   return '[$_params]';
@@ -54,17 +44,8 @@ class ElectrumClient {
   Timer _aliveTimer;
   String unterminatedString;
 
-  Future<void> connectToUri(String uri) async {
-    final splittedUri = uri.split(':');
-
-    if (splittedUri.length != 2) {
-      throw UriParseException(uri);
-    }
-
-    final host = splittedUri.first;
-    final port = int.parse(splittedUri.last);
-    await connect(host: host, port: port);
-  }
+  Future<void> connectToUri(Uri uri) async =>
+    await connect(host: uri.host, port: uri.port);
 
   Future<void> connect({@required String host, @required int port}) async {
     try {

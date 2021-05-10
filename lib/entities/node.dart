@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
@@ -8,19 +10,23 @@ import 'package:cake_wallet/entities/digest_request.dart';
 
 part 'node.g.dart';
 
+Uri createUriFromElectrumAddress(String address) =>
+   Uri.tryParse('tcp://$address');
+
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node(
-      {@required this.uri,
+      {@required String uri,
       @required WalletType type,
       this.login,
       this.password,
       this.useSSL}) {
+    uriRaw = uri;
     this.type = type;
   }
 
   Node.fromMap(Map map)
-      : uri = map['uri'] as String ?? '',
+      : uriRaw = map['uri'] as String ?? '',
         login = map['login'] as String,
         password = map['password'] as String,
         typeRaw = map['typeRaw'] as int,
@@ -30,7 +36,7 @@ class Node extends HiveObject with Keyable {
   static const boxName = 'Nodes';
 
   @HiveField(0)
-  String uri;
+  String uriRaw;
 
   @HiveField(1)
   String login;
@@ -45,6 +51,19 @@ class Node extends HiveObject with Keyable {
   bool useSSL;
 
   bool get isSSL => useSSL ?? false;
+
+  Uri get uri {
+    switch (type) {
+      case WalletType.monero:
+        return Uri.http(uriRaw, '');
+      case WalletType.bitcoin:
+        return createUriFromElectrumAddress(uriRaw);
+      case WalletType.litecoin:
+        return createUriFromElectrumAddress(uriRaw);
+      default:
+        return null;
+    }
+  }
 
   @override
   dynamic get keyIndex {
@@ -64,7 +83,9 @@ class Node extends HiveObject with Keyable {
         case WalletType.monero:
           return requestMoneroNode();
         case WalletType.bitcoin:
-          return requestBitcoinElectrumServer();
+          return requestElectrumServer();
+        case WalletType.litecoin:
+          return requestElectrumServer();
         default:
           return false;
       }
@@ -80,15 +101,15 @@ class Node extends HiveObject with Keyable {
       if (login != null && password != null) {
         final digestRequest = DigestRequest();
         final response = await digestRequest.request(
-            uri: uri, login: login, password: password);
+            uri: uri.toString(), login: login, password: password);
         resBody = response.data as Map<String, dynamic>;
       } else {
-        final url = Uri.http(uri, '/json_rpc');
+        final rpcUri = Uri.http(uri.toString(), '/json_rpc');
         final headers = {'Content-type': 'application/json'};
         final body =
             json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
         final response =
-            await http.post(url.toString(), headers: headers, body: body);
+            await http.post(rpcUri.toString(), headers: headers, body: body);
         resBody = json.decode(response.body) as Map<String, dynamic>;
       }
 
@@ -98,8 +119,13 @@ class Node extends HiveObject with Keyable {
     }
   }
 
-  Future<bool> requestBitcoinElectrumServer() async {
-    // FIXME: IMPLEMENT ME
-    return true;
+  Future<bool> requestElectrumServer() async {
+    try {
+       await SecureSocket.connect(uri.host, uri.port,
+        timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+       return true;
+    } catch (_) {
+      return false;
+    }
   }
 }

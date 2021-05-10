@@ -152,7 +152,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     try {
       syncStatus = ConnectingSyncStatus();
       await monero_wallet.setupNode(
-          address: node.uri,
+          address: node.uri.toString(),
           login: node.login,
           password: node.password,
           useSSL: node.isSSL,
