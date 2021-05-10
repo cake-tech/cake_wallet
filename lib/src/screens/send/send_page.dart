@@ -67,7 +67,7 @@ class SendPage extends BasePage {
   Color get titleColor => Colors.white;
 
   @override
-  bool get resizeToAvoidBottomPadding => false;
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   bool get extendBodyBehindAppBar => true;

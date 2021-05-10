@@ -34,6 +34,9 @@ class ReceivePage extends BasePage {
   @override
   Color get backgroundDarkColor => Colors.transparent;
 
+  @override
+  bool get resizeToAvoidBottomInset => false;
+
   final FocusNode _cryptoAmountFocus;
 
   @override
