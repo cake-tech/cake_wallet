@@ -228,7 +228,7 @@ class MoneroWalletService extends WalletService<
         final name = f.path.split('/').last;
         final newPath = newWalletDirPath + '/$name';
         final newFile = File(newPath);
-        print(file.path);
+
         if (!newFile.existsSync()) {
           newFile.createSync();
         }
