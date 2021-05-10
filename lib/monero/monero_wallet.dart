@@ -262,6 +262,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance> with Store {
     await walletInfo.save();
   }
 
+  String getTransactionAddress(int accountIndex, int addressIndex) =>
+      monero_wallet.getAddress(
+          accountIndex: accountIndex,
+          addressIndex: addressIndex);
+
   void _setListeners() {
     _listener?.stop();
     _listener = monero_wallet.setListeners(_onNewBlock, _onNewTransaction);

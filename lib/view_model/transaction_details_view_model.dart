@@ -1,10 +1,13 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
+import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
+import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
@@ -22,6 +25,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   TransactionDetailsViewModelBase(
       {this.transactionInfo,
       this.transactionDescriptionBox,
+      this.wallet,
       this.settingsStore})
       : items = [] {
     showRecipientAddress = settingsStore?.shouldSaveRecipientAddress ?? false;
@@ -54,6 +58,25 @@ abstract class TransactionDetailsViewModelBase with Store {
       if (tx.key?.isNotEmpty ?? null) {
         _items.add(
             StandartListItem(title: S.current.transaction_key, value: tx.key));
+      }
+
+      if ((tx.direction == TransactionDirection.incoming)&&
+          (wallet is MoneroWallet)) {
+        try {
+          final accountIndex = tx.accountIndex;
+          final addressIndex = tx.addressIndex;
+          final _wallet = wallet as MoneroWallet;
+
+          for (var index in addressIndex) {
+            final address = _wallet.getTransactionAddress(accountIndex, index);
+            _items.add(
+                StandartListItem(
+                    title: S.current.transaction_details_recipient_address,
+                    value: address));
+          }
+        } catch (e) {
+          print(e.toString());
+        }
       }
 
       items.addAll(_items);
@@ -122,6 +145,7 @@ abstract class TransactionDetailsViewModelBase with Store {
   final TransactionInfo transactionInfo;
   final Box<TransactionDescription> transactionDescriptionBox;
   final SettingsStore settingsStore;
+  final WalletBase wallet;
 
   final List<TransactionDetailsListItem> items;
   bool showRecipientAddress;
