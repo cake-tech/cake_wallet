@@ -188,8 +188,7 @@ class DashboardPage extends BasePage {
           final url = await walletViewModel.wyreViewModel.wyreUrl;
           await Navigator.of(context).pushNamed(Routes.wyre, arguments: url);
           walletViewModel.isRunningWebView = false;
-        } catch(e) {
-          print(e.toString());
+        } catch(_) {
           walletViewModel.isRunningWebView = false;
         }
         break;
