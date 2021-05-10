@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Portemonnee-herstelbeschrijving",
   "restore_new_seed" : "Nieuw zaad",
   "restore_active_seed" : "Actief zaad",
-  "restore_bitcoin_description_from_seed" : "Herstel uw portemonnee met een combinatiecode van 12 woorden",
+  "restore_bitcoin_description_from_seed" : "Herstel uw portemonnee met een combinatiecode van 24 woorden",
   "restore_bitcoin_description_from_keys" : "Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels",
   "restore_bitcoin_title_from_keys" : "Herstel van WIF",
   "restore_from_date_or_blockheight" : "Voer een datum in een paar dagen voordat u deze portemonnee heeft gemaakt. Of als u de blokhoogte kent, voert u deze in",
