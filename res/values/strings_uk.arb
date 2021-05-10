@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Опис відновлюваного гаманця",
   "restore_new_seed" : "Нова мнемонічна фраза",
   "restore_active_seed" : "Активна мнемонічна фраза",
-  "restore_bitcoin_description_from_seed" : "Ви можете відновити гаманець використовуючи 12-ти слівну мнемонічну фразу",
+  "restore_bitcoin_description_from_seed" : "Ви можете відновити гаманець використовуючи 24-ти слівну мнемонічну фразу",
   "restore_bitcoin_description_from_keys" : "Ви можете відновити гаманець за допомогою WIF",
   "restore_bitcoin_title_from_keys" : "Відновити за допомогою WIF",
   "restore_from_date_or_blockheight" : "Будь ласка, введіть дату за кілька днів до створення цього гаманця. Або, якщо ви знаєте висоту блоку, введіть її значення",

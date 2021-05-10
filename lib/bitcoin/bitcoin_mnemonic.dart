@@ -4,22 +4,10 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
 import 'package:cryptography/cryptography.dart' as cryptography;
+import 'package:cake_wallet/core/sec_random_native.dart';
 
 const segwit = '100';
 final wordlist = englishWordlist;
-
-Uint8List randomBytes(int length, {bool secure = false}) {
-  assert(length > 0);
-
-  final random = secure ? Random.secure() : Random();
-  final ret = Uint8List(length);
-
-  for (var i = 0; i < length; i++) {
-    ret[i] = random.nextInt(256);
-  }
-
-  return ret;
-}
 
 double logBase(num x, num base) => log(x) / log(base);
 
@@ -102,14 +90,15 @@ List<bool> prefixMatches(String source, List<String> prefixes) {
   return prefixes.map((prefix) => hx.startsWith(prefix.toLowerCase())).toList();
 }
 
-String generateMnemonic({int strength = 132, String prefix = segwit}) {
+Future<String> generateMnemonic(
+    {int strength = 264, String prefix = segwit}) async {
   final wordBitlen = logBase(wordlist.length, 2).ceil();
   final wordCount = strength / wordBitlen;
   final byteCount = ((wordCount * wordBitlen).ceil() / 8).ceil();
   var result = '';
 
   do {
-    final bytes = randomBytes(byteCount);
+    final bytes = await secRandom(byteCount);
     maskBytes(bytes, strength);
     result = encode(bytes);
   } while (!prefixMatches(result, [prefix]).first);
@@ -134,7 +123,7 @@ bool matchesAnyPrefix(String mnemonic) =>
 bool validateMnemonic(String mnemonic, {String prefix = segwit}) {
   try {
     return matchesAnyPrefix(mnemonic);
-  } catch(e) {
+  } catch (e) {
     return false;
   }
 }

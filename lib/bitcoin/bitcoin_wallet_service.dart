@@ -25,7 +25,7 @@ class BitcoinWalletService extends WalletService<
         type: WalletType.bitcoin, name: credentials.name);
     final wallet = BitcoinWalletBase.build(
         dirPath: dirPath,
-        mnemonic: generateMnemonic(),
+        mnemonic: await generateMnemonic(),
         password: credentials.password,
         name: credentials.name,
         walletInfo: credentials.walletInfo);
@@ -47,7 +47,7 @@ class BitcoinWalletService extends WalletService<
     final walletPath = '$walletDirPath/$name';
     final walletJSONRaw = await read(path: walletPath, password: password);
     final walletInfo = walletInfoSource.values.firstWhere(
-            (info) => info.id == WalletBase.idFor(name, WalletType.bitcoin),
+        (info) => info.id == WalletBase.idFor(name, WalletType.bitcoin),
         orElse: () => null);
     final wallet = BitcoinWalletBase.fromJSON(
         password: password,
