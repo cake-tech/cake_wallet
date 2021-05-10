@@ -469,5 +469,7 @@
   "unconfirmed" : "Inconfirmado",
   "displayable" : "Visualizable",
 
-  "submit_request" : "presentar una solicitud"
+  "submit_request" : "presentar una solicitud",
+
+  "buy_alert_content" : "Actualmente solo apoyamos la compra de Bitcoin. Para comprar Bitcoin, cree o cambie a su billetera Bitcoin"
 }

@@ -469,5 +469,7 @@
   "unconfirmed" : "未確認",
   "displayable" : "表示可能",
 
-  "submit_request" : "リクエストを送信する"
+  "submit_request" : "リクエストを送信する",
+
+  "buy_alert_content" : "現在、ビットコインの購入のみをサポートしています。 ビットコインを購入するには、ビットコインウォレットを作成するか切り替えてください"
 }

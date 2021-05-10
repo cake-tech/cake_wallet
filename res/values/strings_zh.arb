@@ -467,6 +467,6 @@
   "confirmed" : "已确认",
   "unconfirmed" : "未经证实",
   "displayable" : "可显示",
-
-  "submit_request" : "提交请求"
+  "submit_request" : "提交请求",
+  "buy_alert_content" : "目前，我們僅支持購買比特幣。 要購買比特幣，請創建或切換到您的比特幣錢包"
 }
