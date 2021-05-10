@@ -42,7 +42,7 @@ class DashboardPage extends BasePage {
           child: scaffold);
 
   @override
-  bool get resizeToAvoidBottomPadding => false;
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   Widget get endDrawer => MenuWidget(walletViewModel);
