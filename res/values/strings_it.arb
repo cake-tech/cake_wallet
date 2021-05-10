@@ -1,0 +1,473 @@
+{
+  "welcome" : "Benvenuto",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Fantastico portafoglio per Monero e Bitcoin",
+  "please_make_selection" : "Gentilmente seleziona se vuoi generare o recuperare il tuo portafoglio.",
+  "create_new" : "Genera nuovo Portafoglio",
+  "restore_wallet" : "Recupera Portafoglio",
+
+
+  "accounts" : "Accounts",
+  "edit" : "Modifica",
+  "account" : "Account",
+  "add" : "Aggiungi",
+
+
+  "address_book" : "Rubrica indirizzi",
+  "contact" : "Contatta",
+  "please_select" : "Gentilmente seleziona:",
+  "cancel" : "Cancella",
+  "ok" : "OK",
+  "contact_name" : "Nome Contatto",
+  "reset" : "Resetta",
+  "save" : "Salva",
+  "address_remove_contact" : "Rimuovi contatto",
+  "address_remove_content" : "Sei sicuro di voler eliminare il contatto selezionato?",
+
+
+  "authenticated" : "Autenticato",
+  "authentication" : "Autenticazione",
+  "failed_authentication" : "Autenticazione fallita. ${state_error}",
+
+
+  "wallet_menu" : "Menu",
+  "Blocks_remaining" : "${status} Blocchi Rimanenti",
+  "please_try_to_connect_to_another_node" : "Gentilmente prova a connetterti ad un altro nodo",
+  "xmr_hidden" : "Nascosto",
+  "xmr_available_balance" : "Saldo Disponibile",
+  "xmr_full_balance" : "Saldo Completo",
+  "send" : "Invia",
+  "receive" : "Ricevi",
+  "transactions" : "Transazioni",
+  "incoming" : "In arrivo",
+  "outgoing" : "In uscita",
+  "transactions_by_date" : "Transazioni per data",
+  "trades" : "Scambi",
+  "filters" : "Filtri",
+  "today" : "Oggi",
+  "yesterday" : "Ieri",
+  "received" : "Ricevuto",
+  "sent" : "Inviato",
+  "pending" : " (pendente)",
+  "rescan" : "Scansiona di nuovo",
+  "reconnect" : "Riconnetti",
+  "wallets" : "Portafogli",
+  "show_seed" : "Mostra seme",
+  "show_keys" : "Mostra seme/chiavi",
+  "address_book_menu" : "Rubrica indirizzi",
+  "reconnection" : "Riconnessione",
+  "reconnect_alert_text" : "Sei sicuro di volerti riconnettere?",
+
+
+  "exchange" : "Scambia",
+  "clear" : "Pulisci",
+  "refund_address" : "Indirizzo di rimborso",
+  "change_exchange_provider" : "Cambia Exchange",
+  "you_will_send" : "Conveti da",
+  "you_will_get" : "Converti a",
+  "amount_is_guaranteed" : "L'ammonare da ricevere è fissato",
+  "amount_is_estimate" : "L'ammontare da ricevere è una stima",
+  "powered_by" : "Sviluppato da ${title}",
+  "error" : "Errore",
+  "estimated" : "Stimato",
+  "min_value" : "Min: ${value} ${currency}",
+  "max_value" : "Max: ${value} ${currency}",
+  "change_currency" : "Cambia Moneta",
+
+
+  "copy_id" : "Copia ID",
+  "exchange_result_write_down_trade_id" : "Gentilmente fai una copia o trascrivi l'ID dello scambio per continuare.",
+  "trade_id" : "ID Scambio:",
+  "copied_to_clipboard" : "Copiato negli Appunti",
+  "saved_the_trade_id" : "Ho salvato l'ID dello scambio",
+  "fetching" : "Recupero",
+  "id" : "ID: ",
+  "amount" : "Ammontare: ",
+  "payment_id" : "ID Pagamento: ",
+  "status" : "Stato: ",
+  "offer_expires_in" : "Offerta termina tra: ",
+  "trade_is_powered_by" : "Questo scambio è fornito da ${provider}",
+  "copy_address" : "Copia Indirizzo",
+  "exchange_result_confirm" : "Cliccando su Conferma, invierai ${fetchingLabel} ${from} dal tuo portafoglio chiamato ${walletName} all'indirizzo mostrato qui in basso. O puoi inviare dal tuo portafoglio esterno all'indirizzo/codice QR mostrato in basso.\n\nGentilmente clicca su Conferma per continuare o torna indietro per cambiare l'ammontare.",
+  "exchange_result_description" : "Devi inviare un minimo di ${fetchingLabel} ${from} all'indirizzo mostrato nella pagina seguente. Se invii un ammontare inferiore a ${fetchingLabel} ${from} la conversione potrebbe non andare a buon fine e l'indirizzo potrebbe non essere rimborsato.",
+  "exchange_result_write_down_ID" : "*Gentilmente fai una copia o trascrivi il tuo ID mostrato in alto.",
+  "confirm" : "Conferma",
+  "confirm_sending" : "Conferma l'invio",
+  "commit_transaction_amount_fee" : "Invia transazione\nAmmontare: ${amount}\nCommissione: ${fee}",
+  "sending" : "Invio",
+  "transaction_sent" : "Transazione inviata!",
+  "expired" : "Scaduta",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "Invia XMR",
+  "exchange_new_template" : "Nuovo modello",
+
+  "faq" : "Domande Frequenti",
+
+
+  "enter_your_pin" : "Inserisci il tuo PIN",
+  "loading_your_wallet" : "Caricamento portafoglio",
+
+
+  "new_wallet" : "Nuovo Portafoglio",
+  "wallet_name" : "Nome del Portafoglio",
+  "continue_text" : "Continua",
+  "choose_wallet_currency" : "Gentilmente scegli la moneta del portafoglio:",
+
+
+  "node_new" : "Nuovo Nodo",
+  "node_address" : "Indirizzo Nodo",
+  "node_port" : "Porta Nodo",
+  "login" : "Accedi",
+  "password" : "Password",
+  "nodes" : "Nodi",
+  "node_reset_settings_title" : "Ripristina impostazioni",
+  "nodes_list_reset_to_default_message" : "Sei sicuro di voler ripristinare le impostazioni predefinite?",
+  "change_current_node" : "Sei sicuro di voler cambiare il nodo corrente con ${node}?",
+  "change" : "Cambia",
+  "remove_node" : "Rimuovi nodo",
+  "remove_node_message" : "Sei sicuro di voler rimuovere il nodo selezionato?",
+  "remove" : "Remuovi",
+  "delete" : "Elimina",
+  "add_new_node" : "Aggiungi nuovo nodo",
+  "change_current_node_title" : "Cambia nodo corrente",
+  "node_test" : "Test",
+  "node_connection_successful" : "Connessione avvenuta con successo",
+  "node_connection_failed" : "Connessione fallita",
+  "new_node_testing" : "Test novo nodo",
+
+
+  "use" : "Passa a ",
+  "digit_pin" : "-cifre PIN",
+
+
+  "share_address" : "Condividi indirizzo",
+  "receive_amount" : "Ammontare",
+  "subaddresses" : "Sottoindirizzi",
+  "addresses" : "Indirizzi",
+  "scan_qr_code" : "Scansiona il codice QR per ottenere l'indirizzo",
+  "rename" : "Rinomina",
+  "choose_account" : "Scegli account",
+  "create_new_account" : "Crea nuovo account",
+  "accounts_subaddresses" : "Accounts e sottoindirizzi",
+
+
+  "restore_restore_wallet" : "Recupera Portafoglio",
+  "restore_title_from_seed_keys" : "Recupera dal seme/chiavi",
+  "restore_description_from_seed_keys" : "Recupera il tuo portafoglio dal seme/chiavi che hai salvato in un posto sicuro",
+  "restore_next" : "Prossimo",
+  "restore_title_from_backup" : "Recupera da backup",
+  "restore_description_from_backup" : "Puoi recuperare l'app Cake Wallet per intero dal tuo file di backup",
+  "restore_seed_keys_restore" : "Recupera Seme/Chiavi",
+  "restore_title_from_seed" : "Recupera dal seme",
+  "restore_description_from_seed" : "Recupera il tuo portafoglio da una combinazione di 25 o 13 parole",
+  "restore_title_from_keys" : "Recupera dalle chiavi",
+  "restore_description_from_keys" : "Recupera il tuo portafoglio da una sequenza di caratteri generati dalle tue chiavi private",
+  "restore_wallet_name" : "Nome Portafoglio",
+  "restore_address" : "Indirizzo",
+  "restore_view_key_private" : "Chiave di Visualizzazione (privata)",
+  "restore_spend_key_private" : "Chiave di Spesa (privata)",
+  "restore_recover" : "Recupera",
+  "restore_wallet_restore_description" : "Descrizione recupero Portafoglio",
+  "restore_new_seed" : "Nuovo seme",
+  "restore_active_seed" : "Seme attivo",
+  "restore_bitcoin_description_from_seed" : "Recupera il tuo portafoglio da una combinazione di 12 parole",
+  "restore_bitcoin_description_from_keys" : "Recupera il tuo portafoglio da una stringa WIF generata dalle tue chiavi private",
+  "restore_bitcoin_title_from_keys" : "Recupera da WIF",
+  "restore_from_date_or_blockheight" : "Gentilmente inserisci la data di un paio di giorni prima che hai creato questo portafoglio. Oppure inserisci l'altezza del blocco se la conosci",
+
+
+  "seed_reminder" : "Gentilmente trascrivi le parole. Ti tornerà utie in caso perdessi o ripristinassi il tuo telefono",
+  "seed_title" : "Seme",
+  "seed_share" : "Condividi seme",
+  "copy" : "Copia",
+
+
+  "seed_language_choose" : "Gentilmente scegli la lingua del seme:",
+  "seed_choose" : "Scegli la lingua del seme",
+  "seed_language_next" : "Prossimo",
+  "seed_language_english" : "Inglese",
+  "seed_language_chinese" : "Cinese",
+  "seed_language_dutch" : "Olandese",
+  "seed_language_german" : "Tedesco",
+  "seed_language_japanese" : "Giapponese",
+  "seed_language_portuguese" : "Portoghese",
+  "seed_language_russian" : "Russo",
+  "seed_language_spanish" : "Spagnolo",
+
+
+  "send_title" : "Invia",
+  "send_your_wallet" : "Il tuo portafoglio",
+  "send_address" : "${cryptoCurrency} indirizzo",
+  "send_payment_id" : "ID Pagamento (opzionale)",
+  "all" : "TUTTO",
+  "send_error_minimum_value" : "L'ammontare minimo è 0.01",
+  "send_error_currency" : "L'ammontare può contenere solo numeri",
+  "send_estimated_fee" : "Commissione stimata:",
+  "send_priority" : "Attualmente la commissione è impostata a priorità ${transactionPriority} .\nLa priorità della transazione può essere modificata nelle impostazioni",
+  "send_creating_transaction" : "Creazione della transazione",
+  "send_templates" : "Modelli",
+  "send_new" : "Nuovo",
+  "send_amount" : "Ammontare:",
+  "send_fee" : "Commissione:",
+  "send_name" : "Nome",
+  "send_got_it" : "Ho capito",
+  "send_sending" : "Invio...",
+  "send_success" : " ${crypto} inviati con successo",
+
+
+  "settings_title" : "Impostazioni",
+  "settings_nodes" : "Nodi",
+  "settings_current_node" : "Nodo attuale",
+  "settings_wallets" : "Portafogli",
+  "settings_display_balance_as" : "Mostra saldo come",
+  "settings_currency" : "Moneta",
+  "settings_fee_priority" : "Priorità commissione",
+  "settings_save_recipient_address" : "Salva indirizzo di destinazione",
+  "settings_personal" : "Personali",
+  "settings_change_pin" : "Cambia PIN",
+  "settings_change_language" : "Cambia lingua",
+  "settings_allow_biometrical_authentication" : "Consenti autenticazione biometrica",
+  "settings_dark_mode" : "Tema scuro",
+  "settings_transactions" : "Transazioni",
+  "settings_trades" : "Scambi",
+  "settings_display_on_dashboard_list" : "Mostra nella lista della pagina principale",
+  "settings_all" : "TUTTO",
+  "settings_only_trades" : "Solo scambi",
+  "settings_only_transactions" : "Solo transazioni",
+  "settings_none" : "Nessuno",
+  "settings_support" : "Supporto",
+  "settings_terms_and_conditions" : "Termini e condizioni",
+  "pin_is_incorrect" : "Il PIN non è corretto",
+
+
+  "setup_pin" : "Imposta PIN",
+  "enter_your_pin_again" : "Inserisci il tuo pin di nuovo",
+  "setup_successful" : "Il tuo PIN è stato impostato con successo!",
+
+
+  "wallet_keys" : "Seme Portafoglio /chiavi",
+  "wallet_seed" : "Seme Portafoglio",
+  "private_key" : "Chiave privata",
+  "public_key" : "Chiave pubblica",
+  "view_key_private" : "Chiave di visualizzazione (privata)",
+  "view_key_public" : "Chiave di visualizzazione (pubblica)",
+  "spend_key_private" : "Chiave di spesa (privata)",
+  "spend_key_public" : "Chiave di spesa (pubblica)",
+  "copied_key_to_clipboard" : " ${key} copiata negli Appunti",
+
+
+  "new_subaddress_title" : "Nuovo indirizzo",
+  "new_subaddress_label_name" : "Nome etichetta",
+  "new_subaddress_create" : "Crea",
+
+
+  "subaddress_title" : "Lista sottoindirizzi",
+
+
+  "trade_details_title" : "Dettagli Scambio",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Stato",
+  "trade_details_fetching" : "Recupero",
+  "trade_details_provider" : "Fornitore",
+  "trade_details_created_at" : "Creato alle",
+  "trade_details_pair" : "Coppia",
+  "trade_details_copied" : "${title} copiati negli Appunti",
+
+
+  "trade_history_title" : "Storico scambi",
+
+
+  "transaction_details_title" : "Dettagli Transazione",
+  "transaction_details_transaction_id" : "ID Transazione",
+  "transaction_details_date" : "Data",
+  "transaction_details_height" : "Altezza",
+  "transaction_details_amount" : "Ammontare",
+  "transaction_details_fee" : "Commissione",
+  "transaction_details_copied" : "${title} copiati negli Appunti",
+  "transaction_details_recipient_address" : "Indirizzo destinatario",
+
+
+  "wallet_list_title" : "Portafoglio Monero",
+  "wallet_list_create_new_wallet" : "Crea Nuovo Portafoglio",
+  "wallet_list_restore_wallet" : "Recupera Portafoglio",
+  "wallet_list_load_wallet" : "Caricamento Portafoglio",
+  "wallet_list_loading_wallet" : "Caricamento portafoglio ${wallet_name}",
+  "wallet_list_failed_to_load" : "Caricamento portafoglio ${wallet_name} fallito. ${error}",
+  "wallet_list_removing_wallet" : "Rimozione portafoglio ${wallet_name}",
+  "wallet_list_failed_to_remove" : "Rimozione portafoglio ${wallet_name} fallita. ${error}",
+
+
+  "widgets_address" : "Indirizzo",
+  "widgets_restore_from_blockheight" : "Recupera da altezza blocco",
+  "widgets_restore_from_date" : "Recupera da data",
+  "widgets_or" : "o",
+  "widgets_seed" : "Seme",
+
+
+  "router_no_route" : "Nessun percorso definito per ${name}",
+
+
+  "error_text_account_name" : "Il nome dell'Account può contenere solo lettere, numeri\ne deve avere una lunghezza compresa tra 1 e 15 caratteri",
+  "error_text_contact_name" : "Il nome del Contatto non può contenere i simboli ` , ' \" \ne deve avere una lunghezza compresa tra 1 e 32 caratteri",
+  "error_text_address" : "L'indirizzo del Portafoglio deve corrispondere alla tipologia\ndi criptovaluta",
+  "error_text_node_address" : "Gentilmente inserisci un indirizzo iPv4",
+  "error_text_node_port" : "La porta del nodo può contenere solo numeri compresi tra 0 e 65535",
+  "error_text_payment_id" : "l'ID del pagamento può contenere solo da 16 a 64 caratteri in hex",
+  "error_text_xmr" : "Il valore XMR non può eccedere il saldo disponibile.\nIl numero delle cifre decimali deve essere inferiore o uguale a 12",
+  "error_text_fiat" : "L'ammontare non può eccedere il saldo dispoinibile.\nIl numero di cifre decimali deve essere inferiore o uguale a 2",
+  "error_text_subaddress_name" : "Il nome del sottoindirizzo non può contenere i simboli ` , ' \" \ne deve avere una lunghezza compresa tra 1 e 20 caratteri",
+  "error_text_amount" : "L'ammontare può contenere solo numeri",
+  "error_text_wallet_name" : "Il nome del portafoglio può contenere solo lettere, numeri\ne deve avere una lunghezza compresa tra 1 e 15 caratteri",
+  "error_text_keys" : "Le chiavi del portafoglio possono contenere solo 64 caratteri in hex",
+  "error_text_crypto_currency" : "Il numero delle cifre decimali\ndeve essere inferiore o uguale a 12",
+  "error_text_minimal_limit" : "Lo scambio per ${provider} non è stato creato. L'ammontare è inferiore al minimo: ${min} ${currency}",
+  "error_text_maximum_limit" : "Lo scambio per ${provider} non è stato creato. L'ammontare è superiore al massimo: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Lo scambio per ${provider} non è stato creato. Caricamento dei limiti fallito",
+  "error_text_template" : "Il nome del modello e l'indirizzo non possono contenere i simboli ` , ' \" \ne devono avere una lunghezza compresa tra 1 e 106 caratteri",
+
+
+  "auth_store_ban_timeout" : "ban_timeout",
+  "auth_store_banned_for" : "Bannato per ",
+  "auth_store_banned_minutes" : " minuti",
+  "auth_store_incorrect_password" : "PIN non corretto",
+  "wallet_store_monero_wallet" : "Portafoglio Monero",
+  "wallet_restoration_store_incorrect_seed_length" : "Lunghezza seme non corretta",
+
+
+  "full_balance" : "Saldo Completo",
+  "available_balance" : "Saldo Disponibile",
+  "hidden_balance" : "Saldo Nascosto",
+
+
+  "sync_status_syncronizing" : "SINCRONIZZAZIONE",
+  "sync_status_syncronized" : "SINCRONIZZATO",
+  "sync_status_not_connected" : "NON CONNESSO",
+  "sync_status_starting_sync" : "INIZIO SINC",
+  "sync_status_failed_connect" : "DISCONNESSO",
+  "sync_status_connecting" : "CONNESSIONE",
+  "sync_status_connected" : "CONNESSO",
+
+
+  "transaction_priority_slow" : "Bassa",
+  "transaction_priority_regular" : "Regolare",
+  "transaction_priority_medium" : "Media",
+  "transaction_priority_fast" : "Alta",
+  "transaction_priority_fastest" : "Massima",
+
+
+  "trade_for_not_created" : "Lo scambio per ${title} non è stato creato.",
+  "trade_not_created" : "Scambio non creato.",
+  "trade_id_not_found" : "Scambio ${tradeId} di ${title} not trovato.",
+  "trade_not_found" : "Scambio non trovato.",
+
+
+  "trade_state_pending" : "In corso",
+  "trade_state_confirming" : "Conferma",
+  "trade_state_trading" : "Scambio",
+  "trade_state_traded" : "Scambiato",
+  "trade_state_complete" : "Completato",
+  "trade_state_to_be_created" : "Da creare",
+  "trade_state_unpaid" : "Non pagato",
+  "trade_state_underpaid" : "Sottopagato",
+  "trade_state_paid_unconfirmed" : "Pagato non confermato",
+  "trade_state_paid" : "Pagato",
+  "trade_state_btc_sent" : "Btc inviati",
+  "trade_state_timeout" : "Timeout",
+  "trade_state_created" : "Creato",
+  "trade_state_finished" : "Finito",
+
+  "change_language" : "Cambia lingua",
+  "change_language_to" : "Cambia lingua in ${language}?",
+
+  "paste" : "Incolla",
+  "restore_from_seed_placeholder" : "Gentilmente inserisci o incolla il tuo seme qui",
+  "add_new_word" : "Aggiungi nuova parola",
+  "incorrect_seed" : "Il testo inserito non è valido.",
+
+  "biometric_auth_reason" : "Scansiona la tua impronta per autenticarti",
+  "version" : "Versione ${currentVersion}",
+
+  "openalias_alert_title" : "XMR Destinatario Rilevato",
+  "openalias_alert_content" : "Invierai i tuoi fondi a\n${recipient_name}",
+
+  "card_address" : "Indirizzo:",
+  "buy" : "Compra",
+
+  "placeholder_transactions" : "Le tue transazioni saranno mostrate qui",
+  "placeholder_contacts" : "I tuoi contatti saranno mostrati qui",
+
+  "template" : "Modello",
+  "confirm_delete_template" : "Questa azione cancellerà questo modello. Desideri continuare?",
+  "confirm_delete_wallet" : "Questa azione cancellerà questo portafoglio. Desideri continuare?",
+
+  "picker_description" : "Per scegliere ChangeNOW  o MorphToken, gentilmente cambia prima la tua coppia di valute",
+
+  "change_wallet_alert_title" : "Cambia portafoglio attuale",
+  "change_wallet_alert_content" : "Sei sicuro di voler cambiare il portafoglio attuale con ${wallet_name}?",
+
+  "creating_new_wallet" : "Creazione nuovo portafoglio",
+  "creating_new_wallet_error" : "Errore: ${description}",
+
+  "seed_alert_title" : "Attenzione",
+  "seed_alert_content" : "Il seme è l'unico modo per recuperare il tuo portafoglio. L'hai trascritto?",
+  "seed_alert_back" : "Torna indietro",
+  "seed_alert_yes" : "Sì, l'ho fatto",
+
+  "exchange_sync_alert_content" : "Gentilmente aspetta che il tuo portafoglio sia sincronizzato",
+
+  "pre_seed_title" : "IMPORTANTE",
+  "pre_seed_description" : "Nella pagina seguente ti sarà mostrata una serie di parole ${words}. Questo è il tuo seme unico e privato ed è l'UNICO modo per recuperare il tuo portafoglio in caso di perdita o malfunzionamento. E' TUA responsabilità trascriverlo e conservarlo in un posto sicuro fuori dall'app Cake Wallet.",
+  "pre_seed_button_text" : "Ho capito. Mostrami il seme",
+
+  "xmr_to_error" : "XMR.TO errore",
+  "xmr_to_error_description" : "Ammontare invalido. Il limite massimo è 8 cifre dopo il punto decimale",
+
+  "provider_error" : "${provider} errore",
+
+  "use_ssl" : "Usa SSL",
+
+  "color_theme" : "Colore tema",
+  "light_theme" : "Bianco",
+  "bright_theme" : "Colorato",
+  "dark_theme" : "Scuro",
+  "enter_your_note" : "Inserisci la tua nota…",
+  "note_optional" : "Nota (opzionale)",
+  "note_tap_to_change" : "Nota (clicca per cambiare)",
+  "transaction_key" : "Chiave Transazione",
+  "confirmations" : "Conferme",
+  "recipient_address" : "Indirizzo di destinazione",
+
+  "extra_id" : "Extra ID:",
+  "destination_tag" : "Tag destinazione:",
+  "memo" : "Memo:",
+
+  "backup" : "Backup",
+  "change_password" : "Cambia password",
+  "backup_password" : "Backup password",
+  "write_down_backup_password" : "Gentilmente trascrivi la password del backup, che è usata per importare i tuoi file di backup.",
+  "export_backup" : "Esporta backup",
+  "save_backup_password" : "Gentilmente assicurati di aver salvato la password del tuo backup.  Senza questa non sarai in grado di importare i tuoi file di backup.",
+  "backup_file" : "Backup file",
+
+  "edit_backup_password" : "Modifica Password Backup",
+  "save_backup_password_alert" : "Salva password Backup",
+  "change_backup_password_alert" : "I precedenti file di backup non potranno essere importati con la nuova password di backup. La nuova password di backup verrà usata soltanto per i nuovi file di backup. Sei sicuro di voler cambiare la tua password di backup?",
+
+  "enter_backup_password" : "Inserisci la password di backup qui",
+  "select_backup_file" : "Seleziona file di backup",
+  "import" : "Importa",
+  "please_select_backup_file" : "Gentilmente seleziona il file di backup e inserisci la password di backup.",
+
+  "fixed_rate" : "Tasso fisso",
+  "fixed_rate_alert" : "Potrai inserire l'ammontare da ricevere quando il tasso è fisso. Vuoi cambiare alla modalità tasso fisso?",
+
+  "xlm_extra_info" : "Gentilmente ricorda di indicare il Memo ID quando invii la transazione XLM per lo scambio",
+  "xrp_extra_info" : "Gentilmente ricorda di indicare il Tag di Destinazione quando invii una transazione XRP per lo scambio",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Se vuoi scambiare XMR dal tuo saldo Cake Wallet Monero, gentilmente passa al tuo portafoglio Monero.",
+  "confirmed" : "Confermato",
+  "unconfirmed" : "Non confermato",
+  "displayable" : "Visualizzabile",
+
+  "submit_request" : "invia una richiesta"
+}

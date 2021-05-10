@@ -33,8 +33,8 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore) {
+    const excludeCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb];
     providerList = [ChangeNowExchangeProvider()];
-
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -56,10 +56,8 @@ abstract class ExchangeViewModelBase with Store {
       }
     });
     receiveCurrencies = CryptoCurrency.all
-        .where((cryptoCurrency) =>
-            (cryptoCurrency != CryptoCurrency.xlm) &&
-            (cryptoCurrency != CryptoCurrency.xrp))
-        .toList();
+      .where((cryptoCurrency) => !excludeCurrencies.contains(cryptoCurrency))
+      .toList();
     _defineIsReceiveAmountEditable();
     isFixedRateMode = false;
     isReceiveAmountEntered = false;

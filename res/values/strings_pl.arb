@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Opis przywracania portfela",
   "restore_new_seed" : "Nowe nasienie",
   "restore_active_seed" : "Aktywne nasiona",
-  "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 12 słów",
+  "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 24 słów",
   "restore_bitcoin_description_from_keys" : "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych",
   "restore_bitcoin_title_from_keys" : "Przywróć z WIF",
   "restore_from_date_or_blockheight" : "Wprowadź datę na kilka dni przed utworzeniem tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego",
@@ -469,5 +469,7 @@
   "unconfirmed" : "Niepotwierdzony",
   "displayable" : "Wyświetlane",
 
-  "submit_request" : "złożyć wniosek"
+  "submit_request" : "złożyć wniosek",
+
+  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoinów. Aby kupić Bitcoin, utwórz lub przełącz się na swój portfel Bitcoin"
 }
