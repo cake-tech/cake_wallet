@@ -1,0 +1,473 @@
+{
+  "welcome" : "Dobrodošli na",
+  "cake_wallet" : "Cake Wallet",
+  "first_wallet_text" : "Odličan novčanik za Monero i Bitcoin",
+  "please_make_selection" : "Molimo odaberite opcije niže za izradu novog novčanika ili za oporavak postojećeg.",
+  "create_new" : "Izradi novi novčanik",
+  "restore_wallet" : "Oporavi novčanik",
+
+
+  "accounts" : "Računi",
+  "edit" : "Uredi",
+  "account" : "Račun",
+  "add" : "Dodaj",
+
+
+  "address_book" : "Imenik",
+  "contact" : "Kontakt",
+  "please_select" : "Molimo odaberite:",
+  "cancel" : "Poništi",
+  "ok" : "OK",
+  "contact_name" : "Ime kontakta",
+  "reset" : "Resetiraj",
+  "save" : "Spremi",
+  "address_remove_contact" : "Ukloni kontakt",
+  "address_remove_content" : "Jeste li sigurni da želite ukloniti odabrani kontakt?",
+
+
+  "authenticated" : "Autentificiran",
+  "authentication" : "Autentifikacija",
+  "failed_authentication" : "Autentifikacija neuspješna. ${state_error}",
+
+
+  "wallet_menu" : "Izbornik",
+  "Blocks_remaining" : "${status} preostalih blokova",
+  "please_try_to_connect_to_another_node" : "Molimo pokušajte se spojiti na drugi node.",
+  "xmr_hidden" : "Sakriven",
+  "xmr_available_balance" : "Raspoloživ iznos",
+  "xmr_full_balance" : "Ukupan iznos",
+  "send" : "Pošalji",
+  "receive" : "Primi",
+  "transactions" : "Transakcije",
+  "incoming" : "Dolazno",
+  "outgoing" : "Odlazno",
+  "transactions_by_date" : "Transakcije prema datumu",
+  "trades" : "Razmjene",
+  "filters" : "Filter",
+  "today" : "Danas",
+  "yesterday" : "Jučer",
+  "received" : "Primljeno",
+  "sent" : "Poslano",
+  "pending" : " (u tijeku)",
+  "rescan" : "Ponovno skeniranje",
+  "reconnect" : "Ponovno povezivanje",
+  "wallets" : "Novčanici",
+  "show_seed" : "Prikaži pristupni izraz",
+  "show_keys" : "Prikaži pristupni izraz/ključ",
+  "address_book_menu" : "Imenik",
+  "reconnection" : "Ponovno povezivanje",
+  "reconnect_alert_text" : "Jeste li sigurni da se želite ponovno povezati?",
+
+
+  "exchange" : "Razmijeni",
+  "clear" : "Izbriši",
+  "refund_address" : "Adresa za povrat",
+  "change_exchange_provider" : "Promjena davatelja usluge razmjene",
+  "you_will_send" : "Razmijeni iz",
+  "you_will_get" : "Razmijeni u",
+  "amount_is_guaranteed" : "Iznos koji ćete primiti je zajamčen",
+  "amount_is_estimate" : "Iznos koji ćete primiti je okviran",
+  "powered_by" : "Omogućio ${title}",
+  "error" : "Greška",
+  "estimated" : "procijenjen",
+  "min_value" : "Min.: ${value} ${currency}",
+  "max_value" : "Maks.: ${value} ${currency}",
+  "change_currency" : "Promijenite valutu",
+
+
+  "copy_id" : "Kopirati ID",
+  "exchange_result_write_down_trade_id" : "Molimo kopirajte ili zapišite transakcijski ID za nastavak.",
+  "trade_id" : "Transakcijski ID:",
+  "copied_to_clipboard" : "Kopirano u međuspremnik",
+  "saved_the_trade_id" : "Spremio/la sam transakcijski ID",
+  "fetching" : "Dohvaćanje",
+  "id" : "ID: ",
+  "amount" : "Iznos: ",
+  "payment_id" : "ID plaćanja: ",
+  "status" : "Status: ",
+  "offer_expires_in" : "Ponuda istječe za: ",
+  "trade_is_powered_by" : "Razmjenu je omogućio ${provider}",
+  "copy_address" : "Kopiraj adresu",
+  "exchange_result_confirm" : "Pritiskom na potvrdi, poslat ćete ${fetchingLabel} ${from} sa svog novčanika pod nazivom ${walletName} na adresu prikazanu ispod ili iznos možete poslati s vanjskog novčanika na niže navedenu adresu. /QR code.\n\nMolimo potvrdite za nastavak ili se vratite natrag za promjenu iznosa.",
+  "exchange_result_description" : "Potrebno poslati minimalno ${fetchingLabel} ${from} na adresu prikazanu na sljedećoj stranici. Ukoliko pošaljete iznos manji od ${fetchingLabel} ${from}, postoji mogućnost da razmjena neće biti uspješna i da iznos neće biti vraćen.",
+  "exchange_result_write_down_ID" : "*Molimo kopirajte ili zapišite svoj ID prikazan ispod.",
+  "confirm" : "Potvrdi",
+  "confirm_sending" : "Potvrdi slanje",
+  "commit_transaction_amount_fee" : "Izvrši transakciju \nAmount: ${amount}\nFee: ${fee}",
+  "sending" : "Slanje",
+  "transaction_sent" : "Transakcija provedena!",
+  "expired" : "Isteklo",
+  "time" : "${minutes}m ${seconds}s",
+  "send_xmr" : "Pošalji XMR",
+  "exchange_new_template" : "Novi predložak",
+
+  "faq" : "FAQ",
+
+
+  "enter_your_pin" : "Upišite PIN",
+  "loading_your_wallet" : "Novčanik se učitava",
+
+
+  "new_wallet" : "Novi novčanik",
+  "wallet_name" : "Ime novčanika",
+  "continue_text" : "Nastavak",
+  "choose_wallet_currency" : "Molimo odaberite valutu novčanika:",
+
+
+  "node_new" : "Novi node",
+  "node_address" : "Node adresa",
+  "node_port" : "Node port",
+  "login" : "Prijava",
+  "password" : "Lozinka",
+  "nodes" : "Nodes",
+  "node_reset_settings_title" : "Resetiraj postavke",
+  "nodes_list_reset_to_default_message" : "Jeste li sigurni da se želite vratiti na početne postavke?",
+  "change_current_node" : "Jeste li sigurni da želite promijeniti trenutni node na ${node}?",
+  "change" : "Promijeni",
+  "remove_node" : "Ukloni node",
+  "remove_node_message" : "Jeste li sigurni da želite ukloniti odabrani node?",
+  "remove" : "Ukloni",
+  "delete" : "Izbriši",
+  "add_new_node" : "Dodaj novi node",
+  "change_current_node_title" : "Promijeni trenutni node",
+  "node_test" : "Provjeri",
+  "node_connection_successful" : "Uspješno spajanje",
+  "node_connection_failed" : "Neuspješno spajanje",
+  "new_node_testing" : "Provjera novog nodea",
+
+
+  "use" : "Prebaci na",
+  "digit_pin" : "-znamenkasti PIN",
+
+
+  "share_address" : "Podijeli adresu",
+  "receive_amount" : "Iznos",
+  "subaddresses" : "Podadrese",
+  "addresses" : "Adrese",
+  "scan_qr_code" : "Skeniraj QR kod za dobivanje adrese",
+  "rename" : "Preimenuj",
+  "choose_account" : "Odaberi račun",
+  "create_new_account" : "Izradi novi račun",
+  "accounts_subaddresses" : "Računi i podadrese",
+
+
+  "restore_restore_wallet" : "Oporavi novčanik",
+  "restore_title_from_seed_keys" : "Oporavi pomoću pristupnog izraza/ključa",
+  "restore_description_from_seed_keys" : "Oporavi novčanik pomoću pristupnog izraza/ključa spremljenog na sigurno mjesto",
+  "restore_next" : "Dalje",
+  "restore_title_from_backup" : "Oporavak pomoću sigurnosne kopije",
+  "restore_description_from_backup" : "Možete oporaviti cijelu Cake Wallet aplikaciju pomoću vlastite datoteke sa sigurnosnom kopijom",
+  "restore_seed_keys_restore" : "Oporavak pomoću pristupnog izraza/ključa",
+  "restore_title_from_seed" : "Oporavi pomoću pristupnog izraza",
+  "restore_description_from_seed" : "Oporavi novčanik pomoću koda koji sadrži kombinaciju od 25 ili 13 riječi",
+  "restore_title_from_keys" : "Oporavi pomoću ključa",
+  "restore_description_from_keys" : "Oporavi novčanik pomoću generiranih pritisaka na tipke spremljenih od vlastitih privatnih ključeva (keys)",
+  "restore_wallet_name" : "Ime novčanika",
+  "restore_address" : "Adresa",
+  "restore_view_key_private" : "View key (privatni)",
+  "restore_spend_key_private" : "Spend key (privatni)",
+  "restore_recover" : "Oporavi",
+  "restore_wallet_restore_description" : "Opis oporavka novčanika",
+  "restore_new_seed" : "Novi pristupi izraz",
+  "restore_active_seed" : "Aktivan pristupni izraz",
+  "restore_bitcoin_description_from_seed" : "Oporavi novčanik pomoću koda od 12 riječi",
+  "restore_bitcoin_description_from_keys" : "Oporavi novčanik pomoću WIF niza generiranog iz vlastitih privatnih ključeva (keys)",
+  "restore_bitcoin_title_from_keys" : "Oporavi pomoću formata uvoza novčanika (WIF)",
+  "restore_from_date_or_blockheight" : "Molimo unesite datum od nekoliko dana prije nego što ste izradili ovaj novčanik ili ako znate visinu bloka, molimo unesite je.",
+
+
+  "seed_reminder" : "Molimo zapišite ih u slučaju da izgubite mobitel ili izbrišete podatke",
+  "seed_title" : "Prisupni izraz",
+  "seed_share" : "Podijeli pristupni izraz",
+  "copy" : "Kopiraj",
+
+
+  "seed_language_choose" : "Molimo odaberite jezik pristupnog izraza:",
+  "seed_choose" : "Odaberi jezik pristupnog izraza",
+  "seed_language_next" : "Dalje",
+  "seed_language_english" : "Engleski",
+  "seed_language_chinese" : "Kineski",
+  "seed_language_dutch" : "Nizozemski",
+  "seed_language_german" : "Njemački",
+  "seed_language_japanese" : "Japanski",
+  "seed_language_portuguese" : "Portugalski",
+  "seed_language_russian" : "Ruski",
+  "seed_language_spanish" : "Španjolski",
+
+
+  "send_title" : "Pošalji",
+  "send_your_wallet" : "Tvoj novčanik",
+  "send_address" : "${cryptoCurrency} adresa",
+  "send_payment_id" : "ID plaćanja (nije obvezno)",
+  "all" : "SVE",
+  "send_error_minimum_value" : "Minimalna vrijednost iznosa je 0.01",
+  "send_error_currency" : "Iznos smije sadržavati samo brojeve",
+  "send_estimated_fee" : "Procijenjena naknada:",
+  "send_priority" : "Trenutno se naknada nalazi na ${transactionPriority} mjestu prioriteta.\nPrioritet transakcije moguće je prilagoditi u postavkama",
+  "send_creating_transaction" : "Izrada transakcije",
+  "send_templates" : "Predlošci",
+  "send_new" : "Novi",
+  "send_amount" : "Iznos:",
+  "send_fee" : "Naknada:",
+  "send_name" : "Ime",
+  "send_got_it" : "U redu",
+  "send_sending" : "Slanje...",
+  "send_success" : "Vaš ${crypto} je uspješno poslan",
+
+
+  "settings_title" : "Postavke",
+  "settings_nodes" : "Nodovi",
+  "settings_current_node" : "Trenutni node",
+  "settings_wallets" : "Novčanik",
+  "settings_display_balance_as" : "Prikaži stanje računa kao",
+  "settings_currency" : "Valuta",
+  "settings_fee_priority" : "Prioritet naknade",
+  "settings_save_recipient_address" : "Spremi primateljevu adresu",
+  "settings_personal" : "Osobni",
+  "settings_change_pin" : "Promijeni PIN",
+  "settings_change_language" : "Promijeni jezik",
+  "settings_allow_biometrical_authentication" : "Dopusti biometrijsku autentifikaciju",
+  "settings_dark_mode" : "Tamni način rada",
+  "settings_transactions" : "Transakcije",
+  "settings_trades" : "Razmjene",
+  "settings_display_on_dashboard_list" : "Prikaži na listi kontrolne ploče",
+  "settings_all" : "SVE",
+  "settings_only_trades" : "Samo razmjene",
+  "settings_only_transactions" : "Samo transakcije",
+  "settings_none" : "Nijedno",
+  "settings_support" : "Podrška",
+  "settings_terms_and_conditions" : "Uvjeti i odredbe",
+  "pin_is_incorrect" : "Netočan PIN",
+
+
+  "setup_pin" : "Podesi PIN",
+  "enter_your_pin_again" : "Ponovno upišite pin",
+  "setup_successful" : "Vaš je pin uspješno postavljen!",
+
+
+  "wallet_keys" : "Pristupni izraz/ključ novčanika",
+  "wallet_seed" : "Pristupni izraz novčanika",
+  "private_key" : "Privatni ključ",
+  "public_key" : "Javni ključ",
+  "view_key_private" : "View key (privatni)",
+  "view_key_public" : "View key (javni)",
+  "spend_key_private" : "Spend key (privatni)",
+  "spend_key_public" : "Spend key (javni)",
+  "copied_key_to_clipboard" : "${key} kopiran u međuspremnik",
+
+
+  "new_subaddress_title" : "Nova adresa",
+  "new_subaddress_label_name" : "Oznaka",
+  "new_subaddress_create" : "Izradi",
+
+
+  "subaddress_title" : "Lista podadresa",
+
+
+  "trade_details_title" : "Detalji razmjene",
+  "trade_details_id" : "ID",
+  "trade_details_state" : "Stanje",
+  "trade_details_fetching" : "Dohvaćanje",
+  "trade_details_provider" : "Pružatelj",
+  "trade_details_created_at" : "Stvoreno u",
+  "trade_details_pair" : "Upari",
+  "trade_details_copied" : "${title} kopiran u međuspremnik",
+
+
+  "trade_history_title" : "Povijest razmjena",
+
+
+  "transaction_details_title" : "Detalji transakcije",
+  "transaction_details_transaction_id" : "Transakcijski ID",
+  "transaction_details_date" : "Datum",
+  "transaction_details_height" : "Visina",
+  "transaction_details_amount" : "Iznos",
+  "transaction_details_fee" : "Naknada",
+  "transaction_details_copied" : "${title} kopiran u međuspremnik",
+  "transaction_details_recipient_address" : "Primateljeva adresa",
+
+
+  "wallet_list_title" : "Monero novčanik",
+  "wallet_list_create_new_wallet" : "Izradi novi novčanik",
+  "wallet_list_restore_wallet" : "Oporavi novčanik",
+  "wallet_list_load_wallet" : "Učitaj novčanik",
+  "wallet_list_loading_wallet" : "Učitavanje novčanika ${wallet_name}",
+  "wallet_list_failed_to_load" : "Neuspješno učitavanje novčanika ${wallet_name}. ${error}",
+  "wallet_list_removing_wallet" : "Uklanjanje novčanika ${wallet_name}",
+  "wallet_list_failed_to_remove" : "Neuspješno uklanjanje novčanika ${wallet_name}. ${error}",
+
+
+  "widgets_address" : "Adresa",
+  "widgets_restore_from_blockheight" : "Oporavi pomoću visine bloka",
+  "widgets_restore_from_date" : "Oporavi pomoću datuma",
+  "widgets_or" : "ili",
+  "widgets_seed" : "pristupnog izraza",
+
+
+  "router_no_route" : "Nije definirana ruta za ${name}",
+
+
+  "error_text_account_name" : "Ime računa smije sadržavati samo slova i brojeve\nte mora biti dužine između 1 i 15 znakova",
+  "error_text_contact_name" : "Ime kontakta ne smije sadržavati znakove ` , ' \" \ni mora biti dužine između 1 i 32 znaka",
+  "error_text_address" : "Adresa novčanika mora odgovarati\nvrsti kriptovalute",
+  "error_text_node_address" : "Molimo unesite iPv4 adresu",
+  "error_text_node_port" : "Node port smije sadržavati samo brojeve između 0 i 65535",
+  "error_text_payment_id" : "ID plaćanja smije sadržavati samo od 16 do 64 znakova hex vrijednosti",
+  "error_text_xmr" : "XMR vrijednost ne smije biti veća od raspoloživog iznosa.\nBroj decimala smije biti 12 ili manji.",
+  "error_text_fiat" : "Vrijednost iznosa ne smije biti veća od raspoloživog iznosa.\nBroj decimala smije biti 2 ili manji.",
+  "error_text_subaddress_name" : "Ime podadrese ne smije sadržavati znakove ` , ' \" \ni mora biti dužine između 1 i 20 znakova",
+  "error_text_amount" : "Iznos smije sadržavati samo brojeve",
+  "error_text_wallet_name" : "Ime novčanika smije sadržavati samo slova i brojeve\nte mora biti dužine između 1 i 15 znakova",
+  "error_text_keys" : "Novčanik smije sadržavati samo 64 znakova hex vrijednosti",
+  "error_text_crypto_currency" : "Broj decimala mora\nbiti 12 ili manji",
+  "error_text_minimal_limit" : "Razmjena za ${provider} nije izrađena. Iznos je manji od minimalnog: ${min} ${currency}",
+  "error_text_maximum_limit" : "Razmjena za ${provider} nije izrađena. Iznos je veći od maskimalnog: ${max} ${currency}",
+  "error_text_limits_loading_failed" : "Razmjena za ${provider} nije izrađena. Neuspješno učitavanje limita",
+  "error_text_template" : "Ime i adresa predloška ne smiju sadržavati znakove ` , ' \" \ni moraju biti dužine između 1 i 106 znakova",
+
+
+  "auth_store_ban_timeout" : "ban_timeout",
+  "auth_store_banned_for" : "Suspendiran na ",
+  "auth_store_banned_minutes" : " minute",
+  "auth_store_incorrect_password" : "Pogrešan PIN",
+  "wallet_store_monero_wallet" : "Monero novčanik",
+  "wallet_restoration_store_incorrect_seed_length" : "Netočna dužina pristupnog izraza",
+
+
+  "full_balance" : "Pun iznos",
+  "available_balance" : "Raspoloživ iznos",
+  "hidden_balance" : "Skriven iznos",
+
+
+  "sync_status_syncronizing" : "SINKRONIZIRANJE",
+  "sync_status_syncronized" : "SINKRONIZIRANO",
+  "sync_status_not_connected" : "NIJE POVEZANO",
+  "sync_status_starting_sync" : "ZAPOČINJEMO SINKRONIZIRANJE",
+  "sync_status_failed_connect" : "ISKLJUČENO",
+  "sync_status_connecting" : "SPAJANJE",
+  "sync_status_connected" : "SPOJENO",
+
+
+  "transaction_priority_slow" : "Sporo",
+  "transaction_priority_regular" : "Uobičajeno",
+  "transaction_priority_medium" : "Srednje",
+  "transaction_priority_fast" : "Brzo",
+  "transaction_priority_fastest" : "Najbrže",
+
+
+  "trade_for_not_created" : "Razmjena za ${title} nije izrađena.",
+  "trade_not_created" : "Razmjena nije izrađena.",
+  "trade_id_not_found" : "Razmjena ${tradeId} za ${title} nije pronađena.",
+  "trade_not_found" : "Razmjena nije pronađena.",
+
+
+  "trade_state_pending" : "U tijeku",
+  "trade_state_confirming" : "Potvrđivanje",
+  "trade_state_trading" : "Razmjenjivanje",
+  "trade_state_traded" : "Razmijenjeno",
+  "trade_state_complete" : "Dovršeno",
+  "trade_state_to_be_created" : "Stvaranje",
+  "trade_state_unpaid" : "Neplaćen",
+  "trade_state_underpaid" : "Nedovoljno plaćen",
+  "trade_state_paid_unconfirmed" : "Plaćanje nije potrđeno",
+  "trade_state_paid" : "Plaćen",
+  "trade_state_btc_sent" : "BTC poslan",
+  "trade_state_timeout" : "Isteklo",
+  "trade_state_created" : "Stvoreno",
+  "trade_state_finished" : "Završeno",
+
+  "change_language" : "Promijeni jezik",
+  "change_language_to" : "Promijeni jezik u ${language}?",
+
+  "paste" : "Zalijepi",
+  "restore_from_seed_placeholder" : "Molimo unesite ili zalijepite svoj pristupni izraz ovdje",
+  "add_new_word" : "Dodaj novu riječ",
+  "incorrect_seed" : "Uneseni tekst nije valjan.",
+
+  "biometric_auth_reason" : "Skenirajte svoj otisak prsta za autentifikaciju",
+  "version" : "Verzija ${currentVersion}",
+
+  "openalias_alert_title" : "XMR primatelj otkriven",
+  "openalias_alert_content" : "Poslat ćete sredstva primatelju\n${recipient_name}",
+
+  "card_address" : "Adresa:",
+  "buy" : "Kupi",
+
+  "placeholder_transactions" : "Vaše će transakcije biti prikazane ovdje",
+  "placeholder_contacts" : "Vaši će kontakti biti prikazani ovdje",
+
+  "template" : "Predložak",
+  "confirm_delete_template" : "Ovom ćete radnjom izbrisati ovaj predložak. Želite li nastaviti?",
+  "confirm_delete_wallet" : "Ovom ćete radnjom izbrisati ovaj novčanik. Želite li nastaviti?",
+
+  "picker_description" : "Da biste odabrali ChangeNOW ili MorphToken, molimo da prvo odabete dvije valute za trgovanje",
+
+  "change_wallet_alert_title" : "Izmijeni trenutni novčanik",
+  "change_wallet_alert_content" : "Želite li promijeniti trenutni novčanik u ${wallet_name}?",
+
+  "creating_new_wallet" : "Stvaranje novog novčanika",
+  "creating_new_wallet_error" : "Greška: ${description}",
+
+  "seed_alert_title" : "Upozorenje",
+  "seed_alert_content" : "Pristupni izraz jedini je način za oporavak novčanika. Jeste li ga zapisali?",
+  "seed_alert_back" : "Vrati se natrag",
+  "seed_alert_yes" : "Jesam",
+
+  "exchange_sync_alert_content" : "Molimo pričekajte dok se Vaš novčanik ne sinkronizira.",
+
+  "pre_seed_title" : "VAŽNO",
+  "pre_seed_description" : "Na sljedećoj ćete stranici vidjeti niz ${words} riječi. Radi se o Vašem jedinstvenom i tajnom pristupnom izrazu koji je ujedno i JEDINI način na koji možete oporaviti svoj novčanik u slučaju gubitka ili kvara. VAŠA je odgovornost zapisati ga te pohraniti na sigurno mjesto izvan Cake Wallet aplikacije.",
+  "pre_seed_button_text" : "Razumijem. Prikaži mi moj pristupni izraz",
+
+  "xmr_to_error" : "XMR.TO greška",
+  "xmr_to_error_description" : "Nevažeći iznos. Dopušteno je najviše 8 znamenki iza točke",
+
+  "provider_error" : "${provider} greška",
+
+  "use_ssl" : "Koristi SSL",
+
+  "color_theme" : "Shema boja",
+  "light_theme" : "Svijetla",
+  "bright_theme" : "Jarka",
+  "dark_theme" : "Tamna",
+  "enter_your_note" : "Unesite svoju poruku…",
+  "note_optional" : "Poruka (nije obvezno)",
+  "note_tap_to_change" : "Poruka (dodirnite za promjenu)",
+  "transaction_key" : "Transakcijski ključ",
+  "confirmations" : "Potvrde",
+  "recipient_address" : "Primateljeva adresa",
+
+  "extra_id" : "Dodatni ID:",
+  "destination_tag" : "Odredišna oznaka:",
+  "memo" : "Memo:",
+
+  "backup" : "Sigurnosna kopija",
+  "change_password" : "Promijeni lozinku",
+  "backup_password" : "Lozinka za sigurnosnu kopiju",
+  "write_down_backup_password" : "Molimo zapišite svoju lozinku za sigurnosnu kopiju koja se koristi za uvoz datoteka sigurnosne kopije.",
+  "export_backup" : "Izvezi sigurnosnu kopiju",
+  "save_backup_password" : "Molimo pobrinite se da spremite svoju lozinku za sigurnosnu kopiju. Bez nje nećete moći uvesti datoteke sigurnosne kopije.",
+  "backup_file" : "Sigurnosna kopija datoteke",
+
+  "edit_backup_password" : "Uredi lozinku za sigurnosnu kopiju",
+  "save_backup_password_alert" : "Spremi lozinku za sigurnosnu kopiju",
+  "change_backup_password_alert" : "Nećemo moći uvesti Vaše prethodne datoteke sigurnosne kopije s novom lozinkom za sigurnosnu kopiju. Novu lozinku za sigurnosnu kopiju moći ćete koristiti samo za nove datoteke sigurnosne kopije. Jeste li sigurni da želite promijeniti lozinku za sigurnosnu kopiju?",
+
+  "enter_backup_password" : "Unesite svoju lozinku za sigurnosnu kopiju ovdje",
+  "select_backup_file" : "Odaberite datoteku sigurnosne kopije",
+  "import" : "Uvezi",
+  "please_select_backup_file" : "Molimo odaberite datoteku sigurnosne kopije i unesite lozinku za sigurnosnu kopiju.",
+
+  "fixed_rate" : "Fiksna stopa",
+  "fixed_rate_alert" : "Moći ćete unijeti iznos koji želite primiti nakon što označite način rada fiksne stope. Želite li se prebaciti na način rada fiksne stope?",
+
+  "xlm_extra_info" : "Molimo ne zaboravite navesti memo ID prilikom slanja XLM transakcije na razmjenu",
+  "xrp_extra_info" : "Molimo ne zaboravite navesti odredišnu oznaku prilikom slanja XRP transakcije na razmjenu",
+
+  "exchange_incorrect_current_wallet_for_xmr" : "Ako želite razmijeniti XMR s vlastitog Monero računa na Cake Wallet novčaniku, molimo prvo se prebacite na svoj Monero novčanik.",
+  "confirmed" : "Potvrđeno",
+  "unconfirmed" : "Nepotvrđeno",
+  "displayable" : "Dostupno za prikaz",
+
+  "submit_request" : "podnesi zahtjev"
+}
