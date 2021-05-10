@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "बटुआ विवरण पुनर्स्थापित करें",
   "restore_new_seed" : "नया बीज",
   "restore_active_seed" : "सक्रिय बीज",
-  "restore_bitcoin_description_from_seed" : "12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें",
+  "restore_bitcoin_description_from_seed" : "24 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_description_from_keys" : "अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_title_from_keys" : "WIF से पुनर्स्थापित करें",
   "restore_from_date_or_blockheight" : "कृपया इस वॉलेट को बनाने से कुछ दिन पहले एक तारीख दर्ज करें। या यदि आप ब्लॉकचेट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें",
