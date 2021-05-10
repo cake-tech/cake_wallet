@@ -170,11 +170,10 @@
   "restore_wallet_restore_description" : "钱包还原说明",
   "restore_new_seed" : "新种子",
   "restore_active_seed" : "活性种子",
-  "restore_bitcoin_description_from_seed" : "从12个文字的组成码恢复您的钱包",
+  "restore_bitcoin_description_from_seed" : "从24个文字的组成码恢复您的钱包",
   "restore_bitcoin_description_from_keys" : "从私钥中生成的WIF字符串恢复您钱包",
   "restore_bitcoin_title_from_keys" : "从WIF还原",
   "restore_from_date_or_blockheight" : "请输入您创建这个钱包前几天的日期。或者如果您知道区块高度，请输入区块高度",
-
 
   "seed_reminder" : "请记下这些内容，以防丟失或数据损坏",
   "seed_title" : "种子",
