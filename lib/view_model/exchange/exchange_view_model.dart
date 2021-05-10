@@ -59,7 +59,8 @@ abstract class ExchangeViewModelBase with Store {
     });
     receiveCurrencies = CryptoCurrency.all.where((cryptoCurrency) =>
       (cryptoCurrency != CryptoCurrency.xlm)&&
-      (cryptoCurrency != CryptoCurrency.xrp)).toList();
+      (cryptoCurrency != CryptoCurrency.xrp)&&
+      (cryptoCurrency != CryptoCurrency.bnb)).toList();
     _defineIsReceiveAmountEditable();
     isFixedRateMode = false;
     isReceiveAmountEntered = false;

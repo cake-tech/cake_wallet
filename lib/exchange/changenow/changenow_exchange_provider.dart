@@ -48,7 +48,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   @override
   Future<Limits> fetchLimits({CryptoCurrency from, CryptoCurrency to,
     bool isFixedRateMode}) async {
-    final symbol = from.toString() + '_' + to.toString();
+    final fromTitle = defineCurrencyTitle(from);
+    final toTitle = defineCurrencyTitle(to);
+    final symbol = fromTitle + '_' + toTitle;
     final url = isFixedRateMode
         ? apiUri + _marketInfoUriSufix + _fixedRateUriSufix + apiKey
         : apiUri + _minAmountUriSufix + symbol;
@@ -61,8 +63,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         final elemFrom = elem["from"] as String;
         final elemTo = elem["to"] as String;
 
-        if ((elemFrom == from.toString().toLowerCase()) &&
-            (elemTo == to.toString().toLowerCase())) {
+        if ((elemFrom == fromTitle) && (elemTo == toTitle)) {
           final min = elem["min"] as double;
           final max = elem["max"] as double;
 
@@ -84,9 +85,11 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     ? apiUri + _transactionsUriSufix + _fixedRateUriSufix + apiKey
     : apiUri + _transactionsUriSufix + apiKey;
     final _request = request as ChangeNowRequest;
+    final fromTitle = defineCurrencyTitle(_request.from);
+    final toTitle = defineCurrencyTitle(_request.to);
     final body = {
-      'from': _request.from.toString(),
-      'to': _request.to.toString(),
+      'from': fromTitle,
+      'to': toTitle,
       'address': _request.address,
       'amount': _request.amount,
       'refundAddress': _request.refundAddress
@@ -182,6 +185,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final url = apiUri + _marketInfoUriSufix + _fixedRateUriSufix + apiKey;
       final response = await get(url);
       final responseJSON = json.decode(response.body) as List<dynamic>;
+      final fromTitle = defineCurrencyTitle(from);
+      final toTitle = defineCurrencyTitle(to);
       var rate = 0.0;
       var fee = 0.0;
 
@@ -189,8 +194,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
         final elemFrom = elem["from"] as String;
         final elemTo = elem["to"] as String;
 
-        if ((elemFrom == to.toString().toLowerCase()) &&
-            (elemTo == from.toString().toLowerCase())) {
+        if ((elemFrom == toTitle) && (elemTo == fromTitle)) {
           rate = elem["rate"] as double;
           fee = elem["minerFee"] as double;
           break;
@@ -216,22 +220,32 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       CryptoCurrency to,
       double amount,
       bool isFixedRateMode) {
+    final fromTitle = defineCurrencyTitle(from);
+    final toTitle = defineCurrencyTitle(to);
+
     return isFixedRateMode
         ? apiUri +
         _exchangeAmountUriSufix +
         _fixedRateUriSufix +
         amount.toString() +
         '/' +
-        from.toString() +
+        fromTitle +
         '_' +
-        to.toString() +
+        toTitle +
         '?api_key=' + apiKey
         : apiUri +
         _exchangeAmountUriSufix +
         amount.toString() +
         '/' +
-        from.toString() +
+        fromTitle +
         '_' +
-        to.toString();
+        toTitle;
+  }
+
+  static String defineCurrencyTitle(CryptoCurrency currency) {
+    const bnbTitle = 'bnbmainnet';
+    final currencyTitle = currency == CryptoCurrency.bnb
+        ? bnbTitle : currency.title.toLowerCase();
+    return currencyTitle;
   }
 }
