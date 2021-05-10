@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "월렛 복원 설명",
   "restore_new_seed" : "새로운 씨앗",
   "restore_active_seed" : "활성 종자",
-  "restore_bitcoin_description_from_seed" : "12 단어 조합 코드에서 지갑 복원",
+  "restore_bitcoin_description_from_seed" : "24 단어 조합 코드에서 지갑 복원",
   "restore_bitcoin_description_from_keys" : "개인 키에서 생성 된 WIF 문자열에서 지갑 복원",
   "restore_bitcoin_title_from_keys" : "WIF에서 복원",
   "restore_from_date_or_blockheight" : "이 지갑을 생성하기 며칠 전에 날짜를 입력하십시오. 또는 블록 높이를 알고있는 경우 대신 입력하십시오.",
@@ -469,5 +469,7 @@
   "unconfirmed" : "미확인",
   "displayable" : "표시 가능",
 
-  "submit_request" : "요청을 제출"
+  "submit_request" : "요청을 제출",
+
+  "buy_alert_content" : "현재 우리는 비트 코인 구매 만 지원합니다. 비트 코인을 구매하려면 비트 코인 지갑을 생성하거나 전환하십시오"
 }

@@ -8,9 +8,10 @@ import Flutter
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-        let batteryChannel = FlutterMethodChannel(name: "com.cakewallet.cakewallet/legacy_wallet_migration",
-                                                  binaryMessenger: controller.binaryMessenger)
-        batteryChannel.setMethodCallHandler({
+        let legacyMigrationChannel = FlutterMethodChannel(
+            name: "com.cakewallet.cakewallet/legacy_wallet_migration",
+            binaryMessenger: controller.binaryMessenger)
+        legacyMigrationChannel.setMethodCallHandler({
             (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             
             switch call.method {
@@ -47,6 +48,24 @@ import Flutter
                 }
                 
                 result(value)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        })
+        
+        let utilsChannel = FlutterMethodChannel(
+            name: "com.cake_wallet/native_utils",
+            binaryMessenger: controller.binaryMessenger)
+        utilsChannel.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+            switch call.method {
+            case "sec_random":
+                guard let args = call.arguments as? Dictionary<String, Any>,
+                      let count = args["count"] as? Int else {
+                    result(nil)
+                    return
+                }
+
+                result(secRandom(count: count))
             default:
                 result(FlutterMethodNotImplemented)
             }

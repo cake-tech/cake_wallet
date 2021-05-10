@@ -24,7 +24,7 @@ class BitcoinWalletService extends WalletService<
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
     final wallet = BitcoinWallet(
-        mnemonic: generateMnemonic(),
+        mnemonic: await generateMnemonic(),
         password: credentials.password,
         walletInfo: credentials.walletInfo);
     await wallet.save();
