@@ -149,7 +149,7 @@ Future<void> replaceNodesMigration({@required Box<Node> nodes}) async {
     final nodeToReplace = replaceNodes[node.uri];
 
     if (nodeToReplace != null) {
-      node.uri = nodeToReplace.uri;
+      node.uriRaw = nodeToReplace.uriRaw;
       node.login = nodeToReplace.login;
       node.password = nodeToReplace.password;
       await node.save();
@@ -319,11 +319,11 @@ Future<void> changeDefaultMoneroNode(
   final currentMoneroNode =
       nodeSource.values.firstWhere((node) => node.key == currentMoneroNodeId);
   final needToReplaceCurrentMoneroNode =
-      currentMoneroNode.uri.contains(cakeWalletMoneroNodeUriPattern);
+      currentMoneroNode.uri.toString().contains(cakeWalletMoneroNodeUriPattern);
 
   nodeSource.values.forEach((node) async {
     if (node.type == WalletType.monero &&
-        node.uri.contains(cakeWalletMoneroNodeUriPattern)) {
+        node.uri.toString().contains(cakeWalletMoneroNodeUriPattern)) {
       await node.delete();
     }
   });
@@ -389,10 +389,10 @@ Future<void> resetBitcoinElectrumServer(
   final currentElectrumSeverId =
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
   final oldElectrumServer = nodeSource.values.firstWhere(
-      (node) => node.uri.contains('electrumx.cakewallet.com'),
+      (node) => node.uri.toString().contains('electrumx.cakewallet.com'),
       orElse: () => null);
   var cakeWalletNode = nodeSource.values.firstWhere(
-      (node) => node.uri == cakeWalletBitcoinElectrumUri,
+      (node) => node.uri.toString() == cakeWalletBitcoinElectrumUri,
       orElse: () => null);
 
   if (cakeWalletNode == null) {
