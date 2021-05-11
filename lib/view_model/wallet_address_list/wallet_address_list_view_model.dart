@@ -1,7 +1,3 @@
-import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
@@ -12,6 +8,11 @@ import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_h
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
+import 'package:cake_wallet/core/transaction_history.dart';
+import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cake_wallet/store/app_store.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -175,7 +176,7 @@ abstract class WalletAddressListViewModelBase with Store {
   void nextAddress() {
     final wallet = _wallet;
 
-    if (wallet is BitcoinWallet) {
+    if (wallet is ElectrumWallet) {
       wallet.nextAddress();
     }
   }

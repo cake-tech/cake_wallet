@@ -39,7 +39,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.bitcoin:
       return BitcoinTransactionPriority.all;
     case WalletType.litecoin:
-      return BitcoinTransactionPriority.all;
+      return LitecoinTransactionPriority.all;
     default:
       return [];
   }
@@ -87,7 +87,7 @@ abstract class SettingsViewModelBase with Store {
 
               if (wallet is ElectrumWallet) {
                 final rate = wallet.feeRate(_priority);
-                return '${priority.toString()} ($rate sat/byte)';
+                return '${priority.labelWithRate(rate)}';
               }
 
               return priority.toString();

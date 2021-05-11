@@ -372,7 +372,7 @@ abstract class SendViewModelBase with Store {
 
     if (wallet is ElectrumWallet) {
       final rate = wallet.feeRate(_priority);
-      return '${priority.toString()} ($rate sat/byte)';
+      return '${priority.labelWithRate(rate)}';
     }
 
     return priority.toString();
