@@ -11,7 +11,7 @@ import 'package:cake_wallet/entities/digest_request.dart';
 part 'node.g.dart';
 
 Uri createUriFromElectrumAddress(String address) =>
-   Uri.tryParse('tcp://$address');
+    Uri.tryParse('tcp://$address');
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
@@ -104,7 +104,7 @@ class Node extends HiveObject with Keyable {
             uri: uri.toString(), login: login, password: password);
         resBody = response.data as Map<String, dynamic>;
       } else {
-        final rpcUri = Uri.http(uri.toString(), '/json_rpc');
+        final rpcUri = Uri.http(uri.authority, '/json_rpc');
         final headers = {'Content-type': 'application/json'};
         final body =
             json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
@@ -121,9 +121,9 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestElectrumServer() async {
     try {
-       await SecureSocket.connect(uri.host, uri.port,
-        timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
-       return true;
+      await SecureSocket.connect(uri.host, uri.port,
+          timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
+      return true;
     } catch (_) {
       return false;
     }
