@@ -234,6 +234,10 @@ abstract class DashboardViewModelBase with Store {
     await wallet.connectToNode(node: node);
   }
 
+  @computed
+  bool get isOutdatedElectrumWallet =>
+      wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
+
   @action
   void _onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,

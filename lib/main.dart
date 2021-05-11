@@ -74,7 +74,7 @@ Future<void> main() async {
     if (!Hive.isAdapterRegistered(Order.typeId)) {
       Hive.registerAdapter(OrderAdapter());
     }
-    
+
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);

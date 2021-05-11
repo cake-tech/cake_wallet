@@ -72,13 +72,13 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
 
   @override
   int feeRate(TransactionPriority priority) {
-    if (priority is BitcoinTransactionPriority) {
+    if (priority is LitecoinTransactionPriority) {
       switch (priority) {
-        case BitcoinTransactionPriority.slow:
+        case LitecoinTransactionPriority.slow:
           return 1;
-        case BitcoinTransactionPriority.medium:
+        case LitecoinTransactionPriority.medium:
           return 2;
-        case BitcoinTransactionPriority.fast:
+        case LitecoinTransactionPriority.fast:
           return 3;
       }
     }
