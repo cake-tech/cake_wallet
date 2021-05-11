@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
@@ -90,6 +91,9 @@ abstract class SendViewModelBase with Store {
           case WalletType.bitcoin:
             _amount = stringDoubleToBitcoinAmount(_cryptoAmount);
             break;
+          case WalletType.litecoin:
+            _amount = stringDoubleToBitcoinAmount(_cryptoAmount);
+            break;
           default:
             break;
         }
@@ -102,7 +106,7 @@ abstract class SendViewModelBase with Store {
       final fee = _wallet.calculateEstimatedFee(
           _settingsStore.priority[_wallet.type], amount);
 
-      if (_wallet is BitcoinWallet) {
+      if (_wallet is ElectrumWallet) {
         return bitcoinAmountToDouble(amount: fee);
       }
 
@@ -306,6 +310,12 @@ abstract class SendViewModelBase with Store {
 
         return BitcoinTransactionCredentials(
             address, amount, priority as BitcoinTransactionPriority);
+      case WalletType.litecoin:
+        final amount = !sendAll ? _amount : null;
+        final priority = _settingsStore.priority[_wallet.type];
+
+        return BitcoinTransactionCredentials(
+            address, amount, priority as BitcoinTransactionPriority);
       case WalletType.monero:
         final amount = !sendAll ? _amount : null;
         final priority = _settingsStore.priority[_wallet.type];
@@ -328,6 +338,9 @@ abstract class SendViewModelBase with Store {
         maximumFractionDigits = 12;
         break;
       case WalletType.bitcoin:
+        maximumFractionDigits = 8;
+        break;
+      case WalletType.litecoin:
         maximumFractionDigits = 8;
         break;
       default:
@@ -357,9 +370,9 @@ abstract class SendViewModelBase with Store {
     final _priority = priority as TransactionPriority;
     final wallet = _wallet;
 
-    if (wallet is BitcoinWallet) {
+    if (wallet is ElectrumWallet) {
       final rate = wallet.feeRate(_priority);
-      return '${priority.toString()} ($rate sat/byte)';
+      return '${priority.labelWithRate(rate)}';
     }
 
     return priority.toString();
