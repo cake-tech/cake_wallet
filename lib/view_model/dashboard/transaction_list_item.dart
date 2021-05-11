@@ -4,7 +4,7 @@ import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
+import 'package:cake_wallet/bitcoin/electrum_transaction_info.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
@@ -42,7 +42,7 @@ class TransactionListItem extends ActionListItem with Keyable {
       transaction.changeFiatAmount(amount);
     }
 
-    if (transaction is BitcoinTransactionInfo) {
+    if (transaction is ElectrumTransactionInfo) {
       final amount = calculateFiatAmountRaw(
           cryptoAmount: bitcoinAmountToDouble(amount: transaction.amount),
           price: price);

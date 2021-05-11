@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 
@@ -62,7 +63,7 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _createNew() async {
     final wallet = _wallet;
 
-    if (wallet is BitcoinWallet) {
+    if (wallet is ElectrumWallet) {
       await wallet.generateNewAddress();
     }
 

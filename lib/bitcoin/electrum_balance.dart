@@ -1,21 +1,20 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/entities/balance.dart';
 
-class BitcoinBalance extends Balance {
-  const BitcoinBalance({@required this.confirmed, @required this.unconfirmed})
+class ElectrumBalance extends Balance {
+  const ElectrumBalance({@required this.confirmed, @required this.unconfirmed})
       : super(confirmed, unconfirmed);
 
-  factory BitcoinBalance.fromJSON(String jsonSource) {
+  factory ElectrumBalance.fromJSON(String jsonSource) {
     if (jsonSource == null) {
       return null;
     }
 
     final decoded = json.decode(jsonSource) as Map;
 
-    return BitcoinBalance(
+    return ElectrumBalance(
         confirmed: decoded['confirmed'] as int ?? 0,
         unconfirmed: decoded['unconfirmed'] as int ?? 0);
   }
@@ -24,7 +23,8 @@ class BitcoinBalance extends Balance {
   final int unconfirmed;
 
   @override
-  String get formattedAvailableBalance => bitcoinAmountToString(amount: confirmed);
+  String get formattedAvailableBalance =>
+      bitcoinAmountToString(amount: confirmed);
 
   @override
   String get formattedAdditionalBalance =>

@@ -21,6 +21,7 @@ class MenuWidget extends StatefulWidget {
 class MenuWidgetState extends State<MenuWidget> {
   Image moneroIcon;
   Image bitcoinIcon;
+  Image litecoinIcon;
   final largeScreen = 731;
 
   double menuWidth;
@@ -76,6 +77,7 @@ class MenuWidgetState extends State<MenuWidget> {
         color: Theme.of(context).accentTextTheme.overline.decorationColor);
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
         color: Theme.of(context).accentTextTheme.overline.decorationColor);
+    litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -238,6 +240,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return moneroIcon;
       case WalletType.bitcoin:
         return bitcoinIcon;
+      case WalletType.litecoin:
+        return litecoinIcon;
       default:
         return null;
     }
