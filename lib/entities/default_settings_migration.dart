@@ -21,7 +21,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
-const cakeWalletLitecoinElectrumUri = '128.199.34.116:50002';
+const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
 
 Future defaultSettingsMigration(
     {@required int version,
