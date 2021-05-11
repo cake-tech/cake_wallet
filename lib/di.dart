@@ -538,8 +538,7 @@ Future setup(
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
   getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
-    return WyreService(wallet: wallet);
+    return WyreService(appStore: getIt.get<AppStore>());
   });
 
   getIt.registerFactory(() {
@@ -551,10 +550,9 @@ Future setup(
       WyrePage(getIt.get<WyreViewModel>(),
           ordersStore: getIt.get<OrdersStore>(), url: url));
 
-  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
-          (order, _) => OrderDetailsViewModel(
-          wyreViewModel: getIt.get<WyreViewModel>(),
-          orderForDetails: order));
+  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) =>
+      OrderDetailsViewModel(
+          wyreViewModel: getIt.get<WyreViewModel>(), orderForDetails: order));
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));

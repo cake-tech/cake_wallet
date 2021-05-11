@@ -84,6 +84,8 @@ abstract class DashboardViewModelBase with Store {
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
     type = wallet.type;
+    isOutdatedElectrumWallet =
+        wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
     final _wallet = wallet;
 
     if (_wallet is MoneroWallet) {
@@ -234,9 +236,8 @@ abstract class DashboardViewModelBase with Store {
     await wallet.connectToNode(node: node);
   }
 
-  @computed
-  bool get isOutdatedElectrumWallet =>
-      wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
+  @observable
+  bool isOutdatedElectrumWallet;
 
   @action
   void _onWalletChange(
@@ -246,6 +247,8 @@ abstract class DashboardViewModelBase with Store {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    isOutdatedElectrumWallet =
+        wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
 
     if (wallet is MoneroWallet) {
       subname = wallet.account?.label;
