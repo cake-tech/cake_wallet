@@ -134,6 +134,7 @@ extern "C"
         uint32_t subaddrAccount;
         int8_t direction;
         int8_t isPending;
+        uint32_t subaddrIndex;
         
         char *hash;
         char *paymentId;
@@ -146,6 +147,8 @@ extern "C"
             fee = transaction->fee();
             blockHeight = transaction->blockHeight();
             subaddrAccount = transaction->subaddrAccount();
+            std::set<uint32_t>::iterator it = transaction->subaddrIndex().begin();
+            subaddrIndex = *it;
             confirmations = transaction->confirmations();
             datetime = static_cast<int64_t>(transaction->timestamp());            
             direction = transaction->direction();
