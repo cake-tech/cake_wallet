@@ -66,9 +66,9 @@ abstract class TransactionDetailsViewModelBase with Store {
           final accountIndex = tx.accountIndex;
           final addressIndex = tx.addressIndex;
           final _wallet = wallet as MoneroWallet;
-
-          for (var index in addressIndex) {
-            final address = _wallet.getTransactionAddress(accountIndex, index);
+          final address =
+            _wallet.getTransactionAddress(accountIndex, addressIndex);
+          if (address?.isNotEmpty ?? false) {
             _items.add(
                 StandartListItem(
                     title: S.current.transaction_details_recipient_address,

@@ -21,7 +21,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int,
         accountIndex = int.parse(map['accountIndex'] as String),
-        addressIndex = map['addressIndex'] as List<int>,
+        addressIndex = map['addressIndex'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int ?? 0;
 
@@ -34,7 +34,7 @@ class MoneroTransactionInfo extends TransactionInfo {
         isPending = row.isPending != 0,
         amount = row.getAmount(),
         accountIndex = row.subaddrAccount,
-        addressIndex = row.getSubaddrIndex(),
+        addressIndex = row.subaddrIndex,
         key = getTxKey(row.getHash()),
         fee = row.fee;
 
@@ -46,7 +46,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   final bool isPending;
   final int amount;
   final int fee;
-  final List<int> addressIndex;
+  final int addressIndex;
   String recipientAddress;
   String key;
 
