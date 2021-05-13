@@ -126,13 +126,13 @@
   "change" : "更改",
   "remove_node" : "删除节点",
   "remove_node_message" : "您确定要删除所选节点吗？",
-  "remove" : "去掉",
+  "remove" : "确定",
   "delete" : "删除",
   "add_new_node" : "添加新节点",
   "change_current_node_title" : "更改当前节点",
   "node_test" : "测试",
   "node_connection_successful" : "连接成功",
-  "node_connection_failed" : "连接失敗",
+  "node_connection_failed" : "连接失败",
   "new_node_testing" : "新节点测试",
 
 
@@ -175,6 +175,7 @@
   "restore_bitcoin_title_from_keys" : "从WIF还原",
   "restore_from_date_or_blockheight" : "请输入您创建这个钱包前几天的日期。或者如果您知道区块高度，请输入区块高度",
 
+
   "seed_reminder" : "请记下这些内容，以防丟失或数据损坏",
   "seed_title" : "种子",
   "seed_share" : "分享种子",
@@ -198,7 +199,7 @@
   "send_your_wallet" : "你的钱包",
   "send_address" : "${cryptoCurrency} 地址",
   "send_payment_id" : "付款编号 (可选的)",
-  "all" : "所有",
+  "all" : "全部",
   "send_error_minimum_value" : "最小金额为0.01",
   "send_error_currency" : "货币只能包含数字",
   "send_estimated_fee" : "预估费用:",
@@ -396,7 +397,7 @@
   "placeholder_contacts" : "您的联系人将显示在这里",
 
   "template" : "模板",
-  "confirm_delete_template" : "此操作将刪除此模板。 确定吗？",
+  "confirm_delete_template" : "此操作将刪除此模板。确定吗？",
   "confirm_delete_wallet" : "此操作将刪除此钱包。确定吗？",
 
   "picker_description" : "要选择ChangeNOW或MorphToken，请先更改您的交易币",
@@ -425,7 +426,7 @@
 
   "use_ssl" : "使用SSL",
 
-  "color_theme" : "主題",
+  "color_theme" : "主题",
   "light_theme" : "艳丽",
   "bright_theme" : "明亮",
   "dark_theme" : "黑暗",
@@ -467,9 +468,11 @@
   "confirmed" : "已确认",
   "unconfirmed" : "未经证实",
   "displayable" : "可显示",
-  "submit_request" : "提交请求",
-  "buy_alert_content" : "目前，我們僅支持購買比特幣。 要購買比特幣，請創建或切換到您的比特幣錢包",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand"
+  "submit_request" : "提交请求",
+
+  "buy_alert_content" : "目前，我们仅支持购买比特币。 要购买比特币，请创建或切换到您的比特币钱包",
+
+  "outdated_electrum_wallet_desceription" : "在Cake创建的新比特币钱包现在有一个24字的种子。你必须创建一个新的比特币钱包，并将你所有的资金转移到新的24字钱包，并停止使用12字种子的钱包。请立即这样做以保证你的资金安全。",
+  "understand" : "我已知晓"
 }
