@@ -70,7 +70,7 @@ packages:
       path: "."
       ref: cake
       resolved-ref: "02fef082f20af13de00b4e64efb93a2c1e5e1cf2"
-      url: "git@github.com:cake-tech/bech32.git"
+      url: "https://github.com/cake-tech/bech32.git"
     source: git
     version: "0.2.0"
   bip32:
@@ -92,8 +92,8 @@ packages:
     description:
       path: "."
       ref: cake
-      resolved-ref: b3ab2926c665f0e68b74a4a5f31059f7fcd817b7
-      url: "git@github.com:cake-tech/bitcoin_flutter.git"
+      resolved-ref: cbabfd87b6ce3cae6051a3e86ddb56e7a934e188
+      url: "https://github.com/cake-tech/bitcoin_flutter.git"
     source: git
     version: "2.0.2"
   boolean_selector:
