@@ -1,7 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
@@ -14,11 +17,6 @@ import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 const reservedNames = ["flutter_assets", "wallets", "db"];
@@ -407,7 +405,7 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
     }
 
     final List<dynamic> addresses =
-    json.decode(addressBookJSON.readAsStringSync()) as List<dynamic>;
+        json.decode(addressBookJSON.readAsStringSync()) as List<dynamic>;
     final contacts = addresses.map((dynamic item) {
       final _item = item as Map<String, dynamic>;
       final type = _item["type"] as String;
@@ -420,7 +418,7 @@ Future<void> ios_migrate_address_book(Box<Contact> contactSource) async {
 
     await contactSource.addAll(contacts);
     await prefs.setBool('ios_migration_address_book_completed', true);
-  } catch(e) {
+  } catch (e) {
     print(e.toString());
   }
 }

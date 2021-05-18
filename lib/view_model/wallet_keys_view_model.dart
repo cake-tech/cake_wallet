@@ -2,7 +2,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 
 part 'wallet_keys_view_model.g.dart';
@@ -24,12 +24,11 @@ abstract class WalletKeysViewModelBase with Store {
             title: S.current.view_key_public, value: keys.publicViewKey),
         StandartListItem(
             title: S.current.view_key_private, value: keys.privateViewKey),
-        StandartListItem(
-            title: S.current.wallet_seed, value: wallet.seed),
+        StandartListItem(title: S.current.wallet_seed, value: wallet.seed),
       ]);
     }
 
-    if (wallet is BitcoinWallet) {
+    if (wallet is ElectrumWallet) {
       final keys = wallet.keys;
 
       items.addAll([

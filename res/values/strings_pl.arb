@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Opis przywracania portfela",
   "restore_new_seed" : "Nowe nasienie",
   "restore_active_seed" : "Aktywne nasiona",
-  "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 12 słów",
+  "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 24 słów",
   "restore_bitcoin_description_from_keys" : "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych",
   "restore_bitcoin_title_from_keys" : "Przywróć z WIF",
   "restore_from_date_or_blockheight" : "Wprowadź datę na kilka dni przed utworzeniem tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego",
@@ -469,5 +469,10 @@
   "unconfirmed" : "Niepotwierdzony",
   "displayable" : "Wyświetlane",
 
-  "submit_request" : "złożyć wniosek"
+  "submit_request" : "złożyć wniosek",
+
+  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoinów. Aby kupić Bitcoin, utwórz lub przełącz się na swój portfel Bitcoin",
+
+  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand"
 }

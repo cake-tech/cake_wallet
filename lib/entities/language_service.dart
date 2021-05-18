@@ -15,7 +15,9 @@ class LanguageService {
     'pt': 'Português (Portuguese)',
     'ru': 'Русский (Russian)',
     'uk': 'Українська (Ukrainian)',
-    'zh': '中文 (Chinese)'
+    'zh': '中文 (Chinese)',
+    'hr': 'Hrvatski (Croatian)',
+    'it': 'Italiano (Italian)'
   };
   static final list = <String, String> {};
 
