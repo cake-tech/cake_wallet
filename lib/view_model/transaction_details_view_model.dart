@@ -1,5 +1,4 @@
 import 'package:cake_wallet/bitcoin/electrum_transaction_info.dart';
-//import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
