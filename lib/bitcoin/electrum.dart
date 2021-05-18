@@ -2,20 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/script_hash.dart';
 import 'package:flutter/foundation.dart';
 import 'package:rxdart/rxdart.dart';
-
-class UriParseException implements Exception {
-  UriParseException(this.uri);
-
-  final String uri;
-
-  @override
-  String toString() =>
-      'Cannot parse host and port from uri. Invalid uri format. Uri: $uri';
-}
 
 String jsonrpcparams(List<Object> params) {
   final _params = params?.map((val) => '"${val.toString()}"')?.join(',');
@@ -53,17 +44,8 @@ class ElectrumClient {
   Timer _aliveTimer;
   String unterminatedString;
 
-  Future<void> connectToUri(String uri) async {
-    final splittedUri = uri.split(':');
-
-    if (splittedUri.length != 2) {
-      throw UriParseException(uri);
-    }
-
-    final host = splittedUri.first;
-    final port = int.parse(splittedUri.last);
-    await connect(host: host, port: port);
-  }
+  Future<void> connectToUri(Uri uri) async =>
+    await connect(host: uri.host, port: uri.port);
 
   Future<void> connect({@required String host, @required int port}) async {
     try {
@@ -173,10 +155,11 @@ class ElectrumClient {
       });
 
   Future<List<Map<String, dynamic>>> getListUnspentWithAddress(
-          String address) =>
+          String address, NetworkType networkType) =>
       call(
-          method: 'blockchain.scripthash.listunspent',
-          params: [scriptHash(address)]).then((dynamic result) {
+              method: 'blockchain.scripthash.listunspent',
+              params: [scriptHash(address, networkType: networkType)])
+          .then((dynamic result) {
         if (result is List) {
           return result.map((dynamic val) {
             if (val is Map<String, Object>) {
@@ -259,7 +242,7 @@ class ElectrumClient {
         if (result is String) {
           return result;
         }
-        print(result);
+
         return '';
       });
 
@@ -303,19 +286,24 @@ class ElectrumClient {
       });
 
   Future<List<int>> feeRates() async {
-    final topDoubleString = await estimatefee(p: 1);
-    final middleDoubleString = await estimatefee(p: 20);
-    final bottomDoubleString = await estimatefee(p: 100);
-    final top = (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
-        .round();
-    final middle =
-        (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000)
-            .round();
-    final bottom =
-        (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000)
-            .round();
+    try {
+      final topDoubleString = await estimatefee(p: 1);
+      final middleDoubleString = await estimatefee(p: 20);
+      final bottomDoubleString = await estimatefee(p: 100);
+      final top =
+          (stringDoubleToBitcoinAmount(topDoubleString.toString()) / 1000)
+              .round();
+      final middle =
+          (stringDoubleToBitcoinAmount(middleDoubleString.toString()) / 1000)
+              .round();
+      final bottom =
+          (stringDoubleToBitcoinAmount(bottomDoubleString.toString()) / 1000)
+              .round();
 
-    return [bottom, middle, top];
+      return [bottom, middle, top];
+    } catch (_) {
+      return [];
+    }
   }
 
   BehaviorSubject<Object> scripthashUpdate(String scripthash) {

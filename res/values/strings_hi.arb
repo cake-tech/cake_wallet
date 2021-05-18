@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "बटुआ विवरण पुनर्स्थापित करें",
   "restore_new_seed" : "नया बीज",
   "restore_active_seed" : "सक्रिय बीज",
-  "restore_bitcoin_description_from_seed" : "12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें",
+  "restore_bitcoin_description_from_seed" : "24 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_description_from_keys" : "अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_title_from_keys" : "WIF से पुनर्स्थापित करें",
   "restore_from_date_or_blockheight" : "कृपया इस वॉलेट को बनाने से कुछ दिन पहले एक तारीख दर्ज करें। या यदि आप ब्लॉकचेट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें",
@@ -469,5 +469,10 @@
   "unconfirmed" : "अपुष्ट",
   "displayable" : "प्रदर्शन योग्य",
 
-  "submit_request" : "एक अनुरोध सबमिट करें"
+  "submit_request" : "एक अनुरोध सबमिट करें",
+
+  "buy_alert_content" : "वर्तमान में हम केवल बिटकॉइन की खरीद का समर्थन करते हैं। बिटकॉइन खरीदने के लिए, कृपया अपना बिटकॉइन वॉलेट बनाएं या स्विच करें",
+
+  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand"
 }

@@ -13,7 +13,7 @@ class PreSeedPage extends BasePage {
         imageDark = Image.asset('assets/images/pre_seed_dark.png'),
         wordsCount = type == WalletType.monero
             ? 25
-            : 12; // FIXME: Stupid fast implementation
+            : 24; // FIXME: Stupid fast implementation
 
   final Image imageDark;
   final Image imageLight;
@@ -49,7 +49,9 @@ class PreSeedPage extends BasePage {
                       Padding(
                         padding: EdgeInsets.only(top: 70, left: 16, right: 16),
                         child: Text(
-                          S.of(context).pre_seed_description(wordsCount.toString()),
+                          S
+                              .of(context)
+                              .pre_seed_description(wordsCount.toString()),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 14,

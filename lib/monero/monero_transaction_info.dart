@@ -62,6 +62,7 @@ class MoneroTransactionInfo extends TransactionInfo {
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
+  @override
   String feeFormatted() =>
       '${formatAmount(moneroAmountToString(amount: fee))} XMR';
 }
