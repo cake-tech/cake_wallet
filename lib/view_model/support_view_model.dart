@@ -31,7 +31,7 @@ abstract class SupportViewModelBase with Store {
       LinkListItem(
           title: 'GitHub',
           icon: 'assets/images/github.png',
-          linkTitle: 'APK update',
+          linkTitle: S.current.apk_update,
           link: 'https://github.com/cake-tech/cake_wallet/releases'),
       LinkListItem(
           title: 'Telegram',
