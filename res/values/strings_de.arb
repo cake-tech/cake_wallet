@@ -474,7 +474,7 @@
   "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin. Um Bitcoin zu kaufen, erstellen Sie bitte Ihre Bitcoin-Brieftasche oder wechseln Sie zu dieser",
 
   "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand"
+  "understand" : "I understand",
 
   "address_detected" : "Adresse erkannt",
   "address_from_domain" : "Sie haben die Adresse von der unaufhaltsamen Domain ${domain} erhalten"
