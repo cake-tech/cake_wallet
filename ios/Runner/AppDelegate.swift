@@ -7,16 +7,20 @@ import UnstoppableDomainsResolution
     lazy var resolution : Resolution? =  {
            return  try? Resolution()
         }()
-    
+
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+        let legacyMigrationChannel = FlutterMethodChannel(
+            name: "com.cakewallet.cakewallet/legacy_wallet_migration",
+            binaryMessenger: controller.binaryMessenger)
+        legacyMigrationChannel.setMethodCallHandler({
         let batteryChannel = FlutterMethodChannel(name: "com.cakewallet.cakewallet/legacy_wallet_migration",
                                                   binaryMessenger: controller.binaryMessenger)
         let unstoppableDomainChannel = FlutterMethodChannel(name: "com.cakewallet.cake_wallet/unstoppable-domain", binaryMessenger: controller.binaryMessenger)
-        
+
         batteryChannel.setMethodCallHandler({
             (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             
@@ -58,7 +62,25 @@ import UnstoppableDomainsResolution
                 result(FlutterMethodNotImplemented)
             }
         })
-        
+
+        let utilsChannel = FlutterMethodChannel(
+            name: "com.cake_wallet/native_utils",
+            binaryMessenger: controller.binaryMessenger)
+        utilsChannel.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+            switch call.method {
+            case "sec_random":
+                guard let args = call.arguments as? Dictionary<String, Any>,
+                      let count = args["count"] as? Int else {
+                    result(nil)
+                    return
+                }
+
+                result(secRandom(count: count))
+            default:
+                result(FlutterMethodNotImplemented)
+            }
+        })
+
         unstoppableDomainChannel.setMethodCallHandler({ [weak self]
                     (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
                     switch call.method {
@@ -69,29 +91,29 @@ import UnstoppableDomainsResolution
                             result(nil)
                             return
                         }
-                        
+
                         guard let resolution = self?.resolution else {
                             result(nil)
                             return
                         }
-                                
+
                         resolution.addr(domain: domain, ticker: ticker) { addrResult in
                           var address : String = ""
-                            
+
                           switch addrResult {
                               case .success(let returnValue):
                                 address = returnValue
                               case .failure(let error):
                                 print("Expected Address, but got \(error)")
                             }
-                            
+
                             result(address)
                         }
                     default:
                         result(FlutterMethodNotImplemented)
                     }
                 })
-        
+
         GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }

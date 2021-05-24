@@ -96,3 +96,5 @@ vendor/
 android/app/.cxx/**
 ios/Flutter/.last_build_id
 /lib/generated/**
+#**#
+/**/#**#

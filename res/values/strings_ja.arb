@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "ウォレットの復元",
   "restore_new_seed" : "新しい種",
   "restore_active_seed" : "アクティブシード",
-  "restore_bitcoin_description_from_seed" : "12ワードの組み合わせコードからウォレットを復元する",
+  "restore_bitcoin_description_from_seed" : "24ワードの組み合わせコードからウォレットを復元する",
   "restore_bitcoin_description_from_keys" : "秘密鍵から生成されたWIF文字列からウォレットを復元します",
   "restore_bitcoin_title_from_keys" : "WIFから復元",
   "restore_from_date_or_blockheight" : "このウォレットを作成する数日前に日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください",
@@ -470,6 +470,11 @@
   "displayable" : "表示可能",
 
   "submit_request" : "リクエストを送信する",
+
+  "buy_alert_content" : "現在、ビットコインの購入のみをサポートしています。 ビットコインを購入するには、ビットコインウォレットを作成するか切り替えてください",
+
+  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand"
 
   "address_detected" : "アドレスが検出されました",
   "address_from_domain" : "あなたはからアドレスを得ました unstoppable domain ${domain}"

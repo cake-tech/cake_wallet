@@ -8,7 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:cryptography/cryptography.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:archive/archive_io.dart';
-import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';

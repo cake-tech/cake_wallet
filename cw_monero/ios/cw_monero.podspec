@@ -5,20 +5,18 @@
 Pod::Spec.new do |s|
   s.name             = 'cw_monero'
   s.version          = '0.0.2'
-  s.summary          = 'A new flutter plugin project.'
-  s.description      = <<-DESC
-A new flutter plugin project.
-                       DESC
-  s.homepage         = 'http://example.com'
+  s.summary          = 'CW Monero'
+  s.description      = 'Cake Wallet wrapper over Monero project.'
+  s.homepage         = 'http://cakewallet.com'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'CakeWallet' => 'support@cakewallet.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h, Classes/*.h, External/ios/libs/monero/include/src/**/*.h, External/ios/libs/monero/include/contrib/**/*.h, External/ios/libs/monero/include/External/ios/**/*.h'
   s.dependency 'Flutter'
   s.platform = :ios, '9.0'
   s.swift_version = '4.0'
-  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS' => 'arm64' }
+  s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'VALID_ARCHS' => 'arm64', 'ENABLE_BITCODE' => 'NO' }
   s.xcconfig = { 'HEADER_SEARCH_PATHS' => "${PODS_ROOT}/#{s.name}/Classes/*.h" }
 
   s.subspec 'OpenSSL' do |openssl|

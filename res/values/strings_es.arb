@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Restaurar billetera",
   "restore_new_seed" : "Nueva semilla",
   "restore_active_seed" : "Semilla activa",
-  "restore_bitcoin_description_from_seed" : "Restaure su billetera a partir del código de combinación de 12 palabras",
+  "restore_bitcoin_description_from_seed" : "Restaure su billetera a partir del código de combinación de 24 palabras",
   "restore_bitcoin_description_from_keys" : "Restaure su billetera a partir de una cadena WIF generada a partir de sus claves privadas",
   "restore_bitcoin_title_from_keys" : "Restaurar desde WIF",
   "restore_from_date_or_blockheight" : "Ingrese una fecha unos días antes de crear esta billetera. O si conoce la altura del bloque, ingréselo en su lugar",
@@ -470,6 +470,11 @@
   "displayable" : "Visualizable",
 
   "submit_request" : "presentar una solicitud",
+
+  "buy_alert_content" : "Actualmente solo apoyamos la compra de Bitcoin. Para comprar Bitcoin, cree o cambie a su billetera Bitcoin",
+
+  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand"
 
   "address_detected" : "Dirección detectada",
   "address_from_domain" : "Tienes la dirección de unstoppable domain ${domain}"

@@ -7,19 +7,22 @@ import 'package:connectivity/connectivity.dart';
 
 Timer _checkConnectionTimer;
 
-void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore, {int timeInterval = 5}) {
+void startCheckConnectionReaction(
+    WalletBase wallet, SettingsStore settingsStore,
+    {int timeInterval = 5}) {
   _checkConnectionTimer?.cancel();
-  _checkConnectionTimer = Timer.periodic(Duration(seconds: timeInterval), (_) async {
-    final connectivityResult = await (Connectivity().checkConnectivity());
+  _checkConnectionTimer =
+      Timer.periodic(Duration(seconds: timeInterval), (_) async {
+    try {
+      final connectivityResult = await (Connectivity().checkConnectivity());
 
-    if (connectivityResult == ConnectivityResult.none) {
-      wallet.syncStatus = FailedSyncStatus();
-      return;
-    }
+      if (connectivityResult == ConnectivityResult.none) {
+        wallet.syncStatus = FailedSyncStatus();
+        return;
+      }
 
-    if (wallet.syncStatus is LostConnectionSyncStatus ||
-        wallet.syncStatus is FailedSyncStatus) {
-      try {
+      if (wallet.syncStatus is LostConnectionSyncStatus ||
+          wallet.syncStatus is FailedSyncStatus) {
         final alive =
             await settingsStore.getCurrentNode(wallet.type).requestNode();
 
@@ -27,9 +30,9 @@ void startCheckConnectionReaction(WalletBase wallet, SettingsStore settingsStore
           await wallet.connectToNode(
               node: settingsStore.getCurrentNode(wallet.type));
         }
-      } catch (_) {
-        // FIXME: empty catch clojure
       }
+    } catch (e) {
+      print(e.toString());
     }
   });
 }
