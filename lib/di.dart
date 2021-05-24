@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
+import 'package:cake_wallet/bitcoin/litecoin_wallet_service.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
@@ -443,6 +444,8 @@ Future setup(
 
   getIt.registerFactory(() => BitcoinWalletService(_walletInfoSource));
 
+  getIt.registerFactory(() => LitecoinWalletService(_walletInfoSource));
+
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
     switch (param1) {
@@ -450,6 +453,8 @@ Future setup(
         return getIt.get<MoneroWalletService>();
       case WalletType.bitcoin:
         return getIt.get<BitcoinWalletService>();
+      case WalletType.litecoin:
+        return getIt.get<LitecoinWalletService>();
       default:
         return null;
     }
@@ -533,8 +538,7 @@ Future setup(
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
   getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
-    return WyreService(wallet: wallet);
+    return WyreService(appStore: getIt.get<AppStore>());
   });
 
   getIt.registerFactory(() {
@@ -546,10 +550,9 @@ Future setup(
       WyrePage(getIt.get<WyreViewModel>(),
           ordersStore: getIt.get<OrdersStore>(), url: url));
 
-  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
-          (order, _) => OrderDetailsViewModel(
-          wyreViewModel: getIt.get<WyreViewModel>(),
-          orderForDetails: order));
+  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) =>
+      OrderDetailsViewModel(
+          wyreViewModel: getIt.get<WyreViewModel>(), orderForDetails: order));
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));

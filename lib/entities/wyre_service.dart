@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/wyre_exception.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -9,15 +9,9 @@ import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 
 class WyreService {
-  WyreService({
-    @required this.wallet,
-    this.isTestEnvironment = false}) {
-    baseApiUrl = isTestEnvironment
-        ? _baseTestApiUrl
-        : _baseProductApiUrl;
-    trackUrl = isTestEnvironment
-        ? _trackTestUrl
-        : _trackProductUrl;
+  WyreService({@required this.appStore, this.isTestEnvironment = false}) {
+    baseApiUrl = isTestEnvironment ? _baseTestApiUrl : _baseProductApiUrl;
+    trackUrl = isTestEnvironment ? _trackTestUrl : _trackProductUrl;
   }
 
   static const _baseTestApiUrl = 'https://api.testwyre.com';
@@ -31,24 +25,28 @@ class WyreService {
   static const _trackSuffix = '/track';
 
   final bool isTestEnvironment;
-  final WalletBase wallet;
+  final AppStore appStore;
 
-  WalletType get walletType => wallet.type;
-  String get walletAddress => wallet.address;
-  String get walletId => wallet.id;
+  WalletType get walletType => appStore.wallet.type;
+  String get walletAddress => appStore.wallet.address;
+  String get walletId => appStore.wallet.id;
 
   String baseApiUrl;
   String trackUrl;
 
   Future<String> getWyreUrl() async {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final url = baseApiUrl + _ordersSuffix + _reserveSuffix +
-        _timeStampSuffix + timestamp;
+    final url = baseApiUrl +
+        _ordersSuffix +
+        _reserveSuffix +
+        _timeStampSuffix +
+        timestamp;
     final secretKey = secrets.wyreSecretKey;
     final accountId = secrets.wyreAccountId;
     final body = {
       'destCurrency': walletTypeToCryptoCurrency(walletType).title,
-      'dest': walletTypeToString(walletType).toLowerCase() + ':' + walletAddress,
+      'dest':
+          walletTypeToString(walletType).toLowerCase() + ':' + walletAddress,
       'referrerAccountId': accountId,
       'lockFields': ['destCurrency', 'dest']
     };
@@ -79,7 +77,7 @@ class WyreService {
     }
 
     final orderResponseJSON =
-    json.decode(orderResponse.body) as Map<String, dynamic>;
+        json.decode(orderResponse.body) as Map<String, dynamic>;
     final transferId = orderResponseJSON['transferId'] as String;
     final from = orderResponseJSON['sourceCurrency'] as String;
     final to = orderResponseJSON['destCurrency'] as String;
@@ -87,7 +85,7 @@ class WyreService {
     final state = TradeState.deserialize(raw: status.toLowerCase());
     final createdAtRaw = orderResponseJSON['createdAt'] as int;
     final createdAt =
-    DateTime.fromMillisecondsSinceEpoch(createdAtRaw).toLocal();
+        DateTime.fromMillisecondsSinceEpoch(createdAtRaw).toLocal();
 
     final transferUrl =
         baseApiUrl + _transferSuffix + transferId + _trackSuffix;
@@ -98,7 +96,7 @@ class WyreService {
     }
 
     final transferResponseJSON =
-    json.decode(transferResponse.body) as Map<String, dynamic>;
+        json.decode(transferResponse.body) as Map<String, dynamic>;
     final amount = transferResponseJSON['destAmount'] as double;
 
     return Order(
@@ -110,7 +108,6 @@ class WyreService {
         createdAt: createdAt,
         amount: amount.toString(),
         receiveAddress: walletAddress,
-        walletId: walletId
-    );
+        walletId: walletId);
   }
 }

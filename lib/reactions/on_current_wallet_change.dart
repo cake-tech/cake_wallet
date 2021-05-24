@@ -1,4 +1,6 @@
+import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:mobx/mobx.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/di.dart';
@@ -18,9 +20,11 @@ ReactionDisposer _onCurrentWalletChangeFiatRateUpdateReaction;
 void startCurrentWalletChangeReaction(AppStore appStore,
     SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
   _onCurrentWalletChangeReaction?.reaction?.dispose();
+  _onCurrentWalletChangeFiatRateUpdateReaction?.reaction?.dispose();
 
-  _onCurrentWalletChangeReaction =
-      reaction((_) => appStore.wallet, (WalletBase<Balance> wallet) async {
+  _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet, (WalletBase<
+          Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      wallet) async {
     try {
       final node = settingsStore.getCurrentNode(wallet.type);
       startWalletSyncStatusChangeReaction(wallet);
@@ -45,7 +49,9 @@ void startCurrentWalletChangeReaction(AppStore appStore,
   });
 
   _onCurrentWalletChangeFiatRateUpdateReaction =
-      reaction((_) => appStore.wallet, (WalletBase<Balance> wallet) async {
+      reaction((_) => appStore.wallet, (WalletBase<Balance,
+              TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+          wallet) async {
     try {
       fiatConversionStore.prices[wallet.currency] = 0;
       fiatConversionStore.prices[wallet.currency] =

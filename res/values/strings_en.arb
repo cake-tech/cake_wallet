@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Wallet restore description",
   "restore_new_seed" : "New seed",
   "restore_active_seed" : "Active seed",
-  "restore_bitcoin_description_from_seed" : "Restore your wallet from 12 word combination code",
+  "restore_bitcoin_description_from_seed" : "Restore your wallet from 24 word combination code",
   "restore_bitcoin_description_from_keys" : "Restore your wallet from generated WIF string from your private keys",
   "restore_bitcoin_title_from_keys" : "Restore from WIF",
   "restore_from_date_or_blockheight" : "Please enter a date a few days before you created this wallet. Or if you know the blockheight, please enter it instead",
@@ -470,6 +470,11 @@
   "displayable" : "Displayable",
 
   "submit_request" : "submit a request",
+
+  "buy_alert_content" : "Currently we only support the purchase of Bitcoin. To buy Bitcoin, please create or switch to your Bitcoin wallet",
+
+  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand"
 
   "address_detected" : "Address detected",
   "address_from_domain" : "You got address from unstoppable domain ${domain}"

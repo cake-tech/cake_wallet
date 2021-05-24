@@ -6,9 +6,10 @@ import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/entities/format_amount.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
-class BitcoinTransactionInfo extends TransactionInfo {
-  BitcoinTransactionInfo(
+class ElectrumTransactionInfo extends TransactionInfo {
+  ElectrumTransactionInfo(this.type,
       {@required String id,
       @required int height,
       @required int amount,
@@ -27,7 +28,8 @@ class BitcoinTransactionInfo extends TransactionInfo {
     this.confirmations = confirmations;
   }
 
-  factory BitcoinTransactionInfo.fromElectrumVerbose(Map<String, Object> obj,
+  factory ElectrumTransactionInfo.fromElectrumVerbose(
+      Map<String, Object> obj, WalletType type,
       {@required List<BitcoinAddressRecord> addresses, @required int height}) {
     final addressesSet = addresses.map((addr) => addr.address).toSet();
     final id = obj['txid'] as String;
@@ -47,7 +49,8 @@ class BitcoinTransactionInfo extends TransactionInfo {
       final out = vin['tx']['vout'][vout] as Map;
       final outAddresses =
           (out['scriptPubKey']['addresses'] as List<Object>)?.toSet();
-      inputsAmount += stringDoubleToBitcoinAmount((out['value'] as double ?? 0).toString());
+      inputsAmount +=
+          stringDoubleToBitcoinAmount((out['value'] as double ?? 0).toString());
 
       if (outAddresses?.intersection(addressesSet)?.isNotEmpty ?? false) {
         direction = TransactionDirection.outgoing;
@@ -58,7 +61,8 @@ class BitcoinTransactionInfo extends TransactionInfo {
       final outAddresses =
           out['scriptPubKey']['addresses'] as List<Object> ?? [];
       final ntrs = outAddresses.toSet().intersection(addressesSet);
-      final value = stringDoubleToBitcoinAmount((out['value'] as double ?? 0.0).toString());
+      final value = stringDoubleToBitcoinAmount(
+          (out['value'] as double ?? 0.0).toString());
       totalOutAmount += value;
 
       if ((direction == TransactionDirection.incoming && ntrs.isNotEmpty) ||
@@ -69,7 +73,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
 
     final fee = inputsAmount - totalOutAmount;
 
-    return BitcoinTransactionInfo(
+    return ElectrumTransactionInfo(type,
         id: id,
         height: height,
         isPending: false,
@@ -80,7 +84,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
         confirmations: confirmations);
   }
 
-  factory BitcoinTransactionInfo.fromHexAndHeader(String hex,
+  factory ElectrumTransactionInfo.fromHexAndHeader(WalletType type, String hex,
       {List<String> addresses, int height, int timestamp, int confirmations}) {
     final tx = bitcoin.Transaction.fromHex(hex);
     var exist = false;
@@ -104,7 +108,7 @@ class BitcoinTransactionInfo extends TransactionInfo {
         ? DateTime.fromMillisecondsSinceEpoch(timestamp * 1000)
         : DateTime.now();
 
-    return BitcoinTransactionInfo(
+    return ElectrumTransactionInfo(type,
         id: tx.getId(),
         height: height,
         isPending: false,
@@ -115,8 +119,9 @@ class BitcoinTransactionInfo extends TransactionInfo {
         confirmations: confirmations);
   }
 
-  factory BitcoinTransactionInfo.fromJson(Map<String, dynamic> data) {
-    return BitcoinTransactionInfo(
+  factory ElectrumTransactionInfo.fromJson(
+      Map<String, dynamic> data, WalletType type) {
+    return ElectrumTransactionInfo(type,
         id: data['id'] as String,
         height: data['height'] as int,
         amount: data['amount'] as int,
@@ -127,15 +132,17 @@ class BitcoinTransactionInfo extends TransactionInfo {
         confirmations: data['confirmations'] as int);
   }
 
+  final WalletType type;
+
   String _fiatAmount;
 
   @override
   String amountFormatted() =>
-      '${formatAmount(bitcoinAmountToString(amount: amount))} BTC';
+      '${formatAmount(bitcoinAmountToString(amount: amount))} ${walletTypeToCryptoCurrency(type).title}';
 
   @override
   String feeFormatted() => fee != null
-      ? '${formatAmount(bitcoinAmountToString(amount: fee))} BTC'
+      ? '${formatAmount(bitcoinAmountToString(amount: fee))} ${walletTypeToCryptoCurrency(type).title}'
       : '';
 
   @override
@@ -144,8 +151,8 @@ class BitcoinTransactionInfo extends TransactionInfo {
   @override
   void changeFiatAmount(String amount) => _fiatAmount = formatAmount(amount);
 
-  BitcoinTransactionInfo updated(BitcoinTransactionInfo info) {
-    return BitcoinTransactionInfo(
+  ElectrumTransactionInfo updated(ElectrumTransactionInfo info) {
+    return ElectrumTransactionInfo(info.type,
         id: id,
         height: info.height,
         amount: info.amount,
