@@ -474,7 +474,7 @@
   "buy_alert_content" : "वर्तमान में हम केवल बिटकॉइन की खरीद का समर्थन करते हैं। बिटकॉइन खरीदने के लिए, कृपया अपना बिटकॉइन वॉलेट बनाएं या स्विच करें",
 
   "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand"
+  "understand" : "I understand",
 
   "address_detected" : "पता लग गया",
   "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है"
