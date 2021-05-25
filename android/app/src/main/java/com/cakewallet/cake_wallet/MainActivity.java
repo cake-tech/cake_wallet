@@ -22,6 +22,7 @@ import java.security.SecureRandom;
 public class MainActivity extends FlutterFragmentActivity {
     final String UTILS_CHANNEL = "com.cake_wallet/native_utils";
     final String UNSTOPPABLE_DOMAIN_CHANNEL = "com.cakewallet.cake_wallet/unstoppable-domain";
+    final int UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK = 24;
 
     @Override
     public void configureFlutterEngine(@NonNull FlutterEngine flutterEngine) {
@@ -54,7 +55,7 @@ public class MainActivity extends FlutterFragmentActivity {
                     break;
                 case "getUnstoppableDomainAddress":
                     int  version = Build.VERSION.SDK_INT;
-                    if (version >= 24) {
+                    if (version >= UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK) {
                         getUnstoppableDomainAddress(call, result);
                     } else {
                         handler.post(() -> result.success(""));
