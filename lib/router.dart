@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
+import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -354,6 +355,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.support:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SupportPage>());
+
+    case Routes.unspentCoinsList:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<UnspentCoinsListPage>());
 
     default:
       return MaterialPageRoute<void>(
