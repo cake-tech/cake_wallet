@@ -37,11 +37,12 @@ class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCo
 
 abstract class UnspentCoinsListViewModelBase with Store {
   @computed
-  List<UnspentCoinsItem> get items => unspentCoinsMap.map((elem) =>
-      UnspentCoinsItem(
-        address: elem["address"] as String,
-        amount: elem["amount"] as String,
-        isFrozen: elem["isFrozen"] as bool,
-        note: elem["note"] as String
-      )).toList();
+  ObservableList<UnspentCoinsItem> get items =>
+      ObservableList.of(unspentCoinsMap.map((elem) =>
+        UnspentCoinsItem(
+          address: elem["address"] as String,
+          amount: elem["amount"] as String,
+          isFrozen: elem["isFrozen"] as bool,
+          note: elem["note"] as String
+      )));
 }
