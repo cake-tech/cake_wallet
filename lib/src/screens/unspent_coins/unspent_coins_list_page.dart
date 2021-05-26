@@ -4,6 +4,7 @@ import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_mod
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class UnspentCoinsListPage extends BasePage {
   UnspentCoinsListPage({this.unspentCoinsListViewModel});
@@ -15,24 +16,23 @@ class UnspentCoinsListPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return SectionStandardList(
+    return Observer(builder: (_) => SectionStandardList(
         sectionCount: 1,
         itemCounter: (int _) => unspentCoinsListViewModel.items.length,
         itemBuilder: (_, __, index) {
           final item = unspentCoinsListViewModel.items[index];
 
           return GestureDetector(
-            onTap: () {print('Item taped');},
-            child: UnspentCoinsListItem(
-              address: item.address,
-              amount: item.amount,
-              isFrozen: item.isFrozen,
-              note: item.note,
-              isSending: item.isSending,
-              onCheckBoxTap: (value) {print('CheckBox taped');},
-            )
-          );
-        });
+              onTap: () {print('Item taped');},
+              child: UnspentCoinsListItem(
+                address: item.address,
+                amount: item.amount,
+                isFrozen: item.isFrozen,
+                note: item.note,
+                isSending: item.isSending,
+                onCheckBoxTap: (value) {print('CheckBox taped');},
+              ));
+        }));
   }
 
 }
