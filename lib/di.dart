@@ -40,6 +40,7 @@ import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
+import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
@@ -77,6 +78,8 @@ import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
@@ -568,6 +571,15 @@ Future setup(
   getIt.registerFactory(() => UnspentCoinsListPage(
     unspentCoinsListViewModel: getIt.get<UnspentCoinsListViewModel>()
   ));
+
+  getIt.registerFactoryParam<UnspentCoinsDetailsViewModel,
+      UnspentCoinsItem, void>((item, _) =>
+      UnspentCoinsDetailsViewModel(unspentCoinsItem: item));
+
+  getIt.registerFactoryParam<UnspentCoinsDetailsPage,
+      UnspentCoinsItem, void>((UnspentCoinsItem item, _) =>
+      UnspentCoinsDetailsPage(unspentCoinsDetailsViewModel:
+      getIt.get<UnspentCoinsDetailsViewModel>(param1: item)));
 
   _isSetupFinished = true;
 }
