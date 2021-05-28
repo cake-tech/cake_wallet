@@ -179,8 +179,6 @@ extern "C"
     Monero::SubaddressAccount *m_account;
     uint64_t m_last_known_wallet_height;
     uint64_t m_cached_syncing_blockchain_height = 0;
-    std::mutex store_mutex;
-
 
     void change_current_wallet(Monero::Wallet *wallet)
     {
@@ -451,9 +449,7 @@ extern "C"
 
     void store(char *path)
     {
-        store_mutex.lock();
         get_current_wallet()->store(std::string(path));
-        store_mutex.unlock();
     }
 
     bool transaction_create(char *address, char *payment_id, char *amount,
