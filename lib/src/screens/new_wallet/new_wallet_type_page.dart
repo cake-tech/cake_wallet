@@ -59,6 +59,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       Image.asset('assets/images/monero_logo.png', height: 24, width: 24);
   final bitcoinIcon =
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
+  final litecoinIcon =
+      Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final walletTypeImage = Image.asset('assets/images/wallet_type.png');
   final walletTypeLightImage =
       Image.asset('assets/images/wallet_type_light.png');
@@ -69,7 +71,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   @override
   void initState() {
-    types = [WalletType.bitcoin, WalletType.monero];
+    types = [WalletType.bitcoin, WalletType.monero, WalletType.litecoin];
     super.initState();
   }
 
@@ -84,8 +86,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             padding: EdgeInsets.only(left: 12, right: 12),
             child: AspectRatio(
                 aspectRatio: aspectRatioImage,
-                child:
-                FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+                child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
           ),
           Padding(
             padding: EdgeInsets.only(top: 48),
@@ -99,13 +100,13 @@ class WalletTypeFormState extends State<WalletTypeForm> {
             ),
           ),
           ...types.map((type) => Padding(
-            padding: EdgeInsets.only(top: 24),
-            child: SelectButton(
-                image: _iconFor(type),
-                text: walletTypeToDisplayName(type),
-                isSelected: selected == type,
-                onTap: () => setState(() => selected = type)),
-          ))
+                padding: EdgeInsets.only(top: 24),
+                child: SelectButton(
+                    image: _iconFor(type),
+                    text: walletTypeToDisplayName(type),
+                    isSelected: selected == type,
+                    onTap: () => setState(() => selected = type)),
+              ))
         ],
       ),
       bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
@@ -125,6 +126,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         return moneroIcon;
       case WalletType.bitcoin:
         return bitcoinIcon;
+      case WalletType.litecoin:
+        return litecoinIcon;
       default:
         return null;
     }

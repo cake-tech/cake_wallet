@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Beschreibung zur Wiederherstellung der Brieftasche",
   "restore_new_seed" : "Neuer Seed",
   "restore_active_seed" : "Aktives Seed",
-  "restore_bitcoin_description_from_seed" : "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her",
+  "restore_bitcoin_description_from_seed" : "Stellen Sie Ihre Brieftasche aus dem 24-Wort-Kombinationscode wieder her",
   "restore_bitcoin_description_from_keys" : "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her",
   "restore_bitcoin_title_from_keys" : "Aus WIF wiederherstellen",
   "restore_from_date_or_blockheight" : "Bitte geben Sie einige Tage vor dem Erstellen dieser Brieftasche ein Datum ein. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein",
@@ -470,6 +470,11 @@
   "displayable" : "Anzeigebar",
 
   "submit_request" : "Einen Antrag stellen",
+
+  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin. Um Bitcoin zu kaufen, erstellen Sie bitte Ihre Bitcoin-Brieftasche oder wechseln Sie zu dieser",
+
+  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand",
 
   "buy_bitcoin" : "Bitcoin kaufen",
   "buy_with" : "Kaufen mit"

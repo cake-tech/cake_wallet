@@ -37,6 +37,8 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
             name: name, language: options as String);
       case WalletType.bitcoin:
         return BitcoinNewWalletCredentials(name: name);
+      case WalletType.litecoin:
+        return BitcoinNewWalletCredentials(name: name);
       default:
         return null;
     }

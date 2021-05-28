@@ -87,7 +87,7 @@ class NodeListPage extends BasePage {
                 final isSelected =
                     node.keyIndex == nodeListViewModel.currentNode?.keyIndex;
                 final nodeListRow = NodeListRow(
-                    title: node.uri,
+                    title: node.uriRaw,
                     isSelected: isSelected,
                     isAlive: node.requestNode(),
                     onTap: (_) async {
@@ -101,8 +101,9 @@ class NodeListPage extends BasePage {
                             return AlertWithTwoActions(
                                 alertTitle:
                                     S.of(context).change_current_node_title,
-                                alertContent:
-                                    S.of(context).change_current_node(node.uri),
+                                alertContent: S
+                                    .of(context)
+                                    .change_current_node(node.uriRaw),
                                 leftButtonText: S.of(context).cancel,
                                 rightButtonText: S.of(context).change,
                                 actionLeftButton: () =>

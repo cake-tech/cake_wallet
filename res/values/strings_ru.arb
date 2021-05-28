@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Описание восстановления кошелька",
   "restore_new_seed" : "Новая мнемоническая фраза",
   "restore_active_seed" : "Активная мнемоническая фраза",
-  "restore_bitcoin_description_from_seed" : "Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу",
+  "restore_bitcoin_description_from_seed" : "Вы можете восстановить кошелёк используя 24-ти значную мнемоническую фразу",
   "restore_bitcoin_description_from_keys" : "Вы можете восстановить кошелёк с помощью WIF",
   "restore_bitcoin_title_from_keys" : "Восстановить с помощью WIF",
   "restore_from_date_or_blockheight" : "Пожалуйста, введите дату за несколько дней до создания этого кошелька. Или, если вы знаете высоту блока, введите ее значение",
@@ -470,6 +470,11 @@
   "displayable" : "Отображаемый",
 
   "submit_request" : "отправить запрос",
+
+  "buy_alert_content" : "В настоящее время мы поддерживаем только покупку Bitcoin. Чтобы купить Bitcoin, создайте или переключитесь на ваш Bitcoin кошелек",
+
+  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand",
 
   "buy_bitcoin" : "Купить Bitcoin",
   "buy_with" : "Купить с помощью"

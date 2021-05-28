@@ -1,23 +1,15 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
+import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
-import 'package:cake_wallet/monero/monero_transaction_history.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
-import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
@@ -31,7 +23,6 @@ import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
-import 'package:http/http.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
@@ -42,8 +33,6 @@ import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:convert/convert.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -95,9 +84,8 @@ abstract class DashboardViewModelBase with Store {
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
     type = wallet.type;
-
-    _reaction = reaction((_) => appStore.wallet, _onWalletChange);
-
+    isOutdatedElectrumWallet =
+        wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
     final _wallet = wallet;
 
     if (_wallet is MoneroWallet) {
@@ -127,6 +115,8 @@ abstract class DashboardViewModelBase with Store {
               balanceViewModel: balanceViewModel,
               settingsStore: appStore.settingsStore)));
     }
+
+    reaction((_) => appStore.wallet, _onWalletChange);
 
     connectMapToListWithTransform(
         appStore.wallet.transactionHistory.transactions,
@@ -207,7 +197,8 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @observable
-  WalletBase<Balance> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      wallet;
 
   bool get hasRescan => wallet.type == WalletType.monero;
 
@@ -229,8 +220,6 @@ abstract class DashboardViewModelBase with Store {
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
-  ReactionDisposer _reaction;
-
   ReactionDisposer _onMoneroAccountChangeReaction;
 
   ReactionDisposer _onMoneroBalanceChangeReaction;
@@ -240,11 +229,19 @@ abstract class DashboardViewModelBase with Store {
     await wallet.connectToNode(node: node);
   }
 
+  @observable
+  bool isOutdatedElectrumWallet;
+
   @action
-  void _onWalletChange(WalletBase<Balance> wallet) {
+  void _onWalletChange(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>
+          wallet) {
     this.wallet = wallet;
     type = wallet.type;
     name = wallet.name;
+    isOutdatedElectrumWallet =
+        wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
 
     if (wallet is MoneroWallet) {
       subname = wallet.account?.label;
@@ -274,17 +271,17 @@ abstract class DashboardViewModelBase with Store {
     connectMapToListWithTransform(
         appStore.wallet.transactionHistory.transactions,
         transactions,
-            (TransactionInfo val) => TransactionListItem(
+        (TransactionInfo val) => TransactionListItem(
             transaction: val,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore),
         filter: (TransactionInfo tx) {
-          if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
-            return tx.accountIndex == wallet.account.id;
-          }
+      if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
+        return tx.accountIndex == wallet.account.id;
+      }
 
-          return true;
-        });
+      return true;
+    });
   }
 
   @action
@@ -307,6 +304,4 @@ abstract class DashboardViewModelBase with Store {
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore)));
   }
-
-
 }

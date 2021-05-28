@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
+import 'package:cake_wallet/bitcoin/litecoin_wallet_service.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
@@ -441,6 +442,8 @@ Future setup(
 
   getIt.registerFactory(() => BitcoinWalletService(_walletInfoSource));
 
+  getIt.registerFactory(() => LitecoinWalletService(_walletInfoSource));
+
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
     switch (param1) {
@@ -448,6 +451,8 @@ Future setup(
         return getIt.get<MoneroWalletService>();
       case WalletType.bitcoin:
         return getIt.get<BitcoinWalletService>();
+      case WalletType.litecoin:
+        return getIt.get<LitecoinWalletService>();
       default:
         return null;
     }

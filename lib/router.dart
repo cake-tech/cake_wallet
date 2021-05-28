@@ -239,9 +239,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<AuthPage>(
-              param1: settings.arguments as OnAuthenticationFinished,
-              param2: false));
+          builder: (_) => WillPopScope(
+              child: getIt.get<AuthPage>(
+                  param1: settings.arguments as OnAuthenticationFinished,
+                  param2: false),
+              onWillPop: () async => false));
 
     case Routes.nodeList:
       return CupertinoPageRoute<void>(
