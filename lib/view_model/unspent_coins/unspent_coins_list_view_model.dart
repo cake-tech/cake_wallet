@@ -5,32 +5,45 @@ part 'unspent_coins_list_view_model.g.dart';
 
 const List<Map<String, dynamic>> unspentCoinsMap = [
   <String, dynamic>{
-    "address" : "11111111111111121111132432432432432432432443124324324234324324324324332424",
-    "amount" : "222",
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.00358 BTC",
     "isFrozen" : true,
     "note" : "333cvgf23132132132132131321321314rwrtdggfdddewq ewqasfdxgdhgfgfszczcxgbhhhbcgbc"},
   <String, dynamic>{
-    "address" : "444",
-    "amount" : "555",
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.00567894 BTC",
     "note" : "sfjskf"},
   <String, dynamic>{
-    "address" : "777",
-    "amount" : "888",
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.00087 BTC",
     "isFrozen" : false},
   <String, dynamic>{
-    "address" : "11111111111111121111132432432432432432432443124324324234324324324324332424",
-    "amount" : "222",
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.00012 BTC",
     "isFrozen" : true,
     "note" : "333cvgf23132132132132131321321314rwrtdggfdddewq ewqasfdxgdhgfgfszczcxgbhhhbcgbc"},
   <String, dynamic>{
-    "address" : "444",
-    "amount" : "555",
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.00574 BTC",
     "note" : "sffsfsdsgs"},
   <String, dynamic>{
-    "address" : "777",
-    "amount" : "888",
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.000482 BTC",
     "isFrozen" : false},
   <String, dynamic>{},
+  <String, dynamic>{
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.00012 BTC",
+    "isFrozen" : true,
+    "note" : "333cvgf23132132132132131321321314rwrtdggfdddewq ewqasfdxgdhgfgfszczcxgbhhhbcgbc"},
+  <String, dynamic>{
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.00574 BTC",
+    "note" : "sffsfsdsgs"},
+  <String, dynamic>{
+    "address" : "bc1qm80mu5p3mf04a7cj7teymasf04dwpc3av2fwtr",
+    "amount" : "0.000482 BTC",
+    "isFrozen" : false},
 ];
 
 class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCoinsListViewModel;

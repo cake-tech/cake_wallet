@@ -55,6 +55,8 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
+    isBitcoinWallet  = _wallet is BitcoinWallet;
+
     _setCryptoNumMaximumFractionDigits();
   }
 
@@ -181,6 +183,9 @@ abstract class SendViewModelBase with Store {
 
   @observable
   PendingTransaction pendingTransaction;
+
+  @observable
+  bool isBitcoinWallet;
 
   @computed
   String get balance => _wallet.balance.formattedAvailableBalance ?? '0.0';
