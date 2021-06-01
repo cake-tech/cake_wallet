@@ -1,7 +1,11 @@
 import 'dart:ui';
 import 'package:cake_wallet/buy/buy_amount.dart';
+import 'package:cake_wallet/buy/buy_provider.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -172,13 +176,16 @@ class PreOrderPage extends BasePage {
                         builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
                           double sourceAmount;
                           double destAmount;
+                          int minAmount;
 
                           if (snapshot.hasData) {
                             sourceAmount = snapshot.data.sourceAmount;
                             destAmount = snapshot.data.destAmount;
+                            minAmount = snapshot.data.minAmount;
                           } else {
                             sourceAmount = 0.0;
                             destAmount = 0.0;
+                            minAmount = 0;
                           }
 
                           return Padding(
@@ -192,14 +199,15 @@ class PreOrderPage extends BasePage {
                                     sourceCurrency: buyViewModel.fiatCurrency,
                                     destAmount: destAmount,
                                     destCurrency: buyViewModel.cryptoCurrency,
-                                    onTap:
-                                    buyViewModel.buyAmountViewModel
-                                        .doubleAmount == 0.0 ? null : () {
-                                      buyViewModel.selectedProvider = item.provider;
-                                      sourceAmount > 0
-                                        ? buyViewModel.isDisabled = false
-                                        : buyViewModel.isDisabled = true;
-                                    }
+                                    onTap: ((buyViewModel.buyAmountViewModel
+                                        .doubleAmount != 0.0) &&
+                                        (snapshot.hasData)) ? () =>
+                                        onSelectBuyProvider(
+                                          context: context,
+                                          provider: item.provider,
+                                          sourceAmount: sourceAmount,
+                                          minAmount: minAmount
+                                        ) : null
                                 );
                               })
                           );
@@ -241,5 +249,27 @@ class PreOrderPage extends BasePage {
           )
       )
     );
+  }
+
+  void onSelectBuyProvider({BuildContext context, BuyProvider provider,
+    double sourceAmount, int minAmount}) {
+
+    if ((provider is MoonPayBuyProvider)&&
+        (buyViewModel.buyAmountViewModel.doubleAmount < minAmount)) {
+      showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithOneAction(
+                alertTitle: 'MoonPay',
+                alertContent: 'Value of the amount must be more than $minAmount ${buyViewModel.fiatCurrency.toString()}',
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+      return;
+    }
+    buyViewModel.selectedProvider = provider;
+    sourceAmount > 0
+        ? buyViewModel.isDisabled = false
+        : buyViewModel.isDisabled = true;
   }
 }

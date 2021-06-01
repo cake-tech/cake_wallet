@@ -4,6 +4,7 @@ import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -18,12 +19,14 @@ part 'buy_view_model.g.dart';
 class BuyViewModel = BuyViewModelBase with _$BuyViewModel;
 
 abstract class BuyViewModelBase with Store {
-  BuyViewModelBase(this.ordersSource, this.ordersStore, this.buyAmountViewModel,
-      {@required this.wallet}) {
-    providerList = [
-      WyreBuyProvider(wallet: wallet),
-      MoonPayBuyProvider(wallet: wallet)
-    ];
+  BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore,
+      this.buyAmountViewModel, {@required this.wallet}) {
+    providerList = [WyreBuyProvider(wallet: wallet)];
+
+    if (settingsStore.isMoonPayEnabled ?? false) {
+      providerList.add(MoonPayBuyProvider(wallet: wallet));
+    }
+
     items = providerList.map((provider) =>
         BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
         .toList();
@@ -34,6 +37,7 @@ abstract class BuyViewModelBase with Store {
 
   final Box<Order> ordersSource;
   final OrdersStore ordersStore;
+  final SettingsStore settingsStore;
   final BuyAmountViewModel buyAmountViewModel;
   final WalletBase wallet;
 
