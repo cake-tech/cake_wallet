@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/bitcoin/litecoin_wallet_service.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
@@ -91,6 +92,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:devicelocale/devicelocale.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -152,8 +154,14 @@ Future setup(
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
       (secrets.wyreApiKey?.isNotEmpty ?? false) &&
       (secrets.wyreAccountId?.isNotEmpty ?? false);
+
+  final locale = await Devicelocale.currentLocale;
+  final deviceCountryCode = locale.split('_').last;
+  final isMoonPayEnabled = await MoonPayBuyProvider.onEnabled(deviceCountryCode);
+
   final settingsStore = await SettingsStoreBase.load(
-      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
+      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled,
+      isMoonPayEnabled: isMoonPayEnabled);
 
   if (_isSetupFinished) {
     return;
@@ -541,7 +549,8 @@ Future setup(
     final wallet = getIt.get<AppStore>().wallet;
 
     return BuyViewModel(_ordersSource, getIt.get<OrdersStore>(),
-        getIt.get<BuyAmountViewModel>(), wallet: wallet);
+        getIt.get<SettingsStore>(), getIt.get<BuyAmountViewModel>(),
+        wallet: wallet);
   });
 
   getIt.registerFactory(() {
