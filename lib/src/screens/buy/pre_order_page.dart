@@ -199,9 +199,8 @@ class PreOrderPage extends BasePage {
                                     sourceCurrency: buyViewModel.fiatCurrency,
                                     destAmount: destAmount,
                                     destCurrency: buyViewModel.cryptoCurrency,
-                                    onTap: ((buyViewModel.buyAmountViewModel
-                                        .doubleAmount != 0.0) &&
-                                        (snapshot.hasData)) ? () =>
+                                    onTap: ((buyViewModel.doubleAmount != 0.0)
+                                        && (snapshot.hasData)) ? () =>
                                         onSelectBuyProvider(
                                           context: context,
                                           provider: item.provider,
