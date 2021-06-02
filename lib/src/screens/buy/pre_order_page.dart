@@ -261,7 +261,9 @@ class PreOrderPage extends BasePage {
           builder: (BuildContext context) {
             return AlertWithOneAction(
                 alertTitle: 'MoonPay',
-                alertContent: 'Value of the amount must be more than $minAmount ${buyViewModel.fiatCurrency.toString()}',
+                alertContent: S.of(context).moonpay_alert_text(
+                    minAmount.toString(),
+                    buyViewModel.fiatCurrency.toString()),
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });

@@ -477,5 +477,6 @@
   "understand" : "I understand",
 
   "buy_bitcoin" : "बिटकॉइन खरीदें",
-  "buy_with" : "के साथ खरीदें"
+  "buy_with" : "के साथ खरीदें",
+  "moonpay_alert_text" : "राशि का मूल्य अधिक है या करने के लिए बराबर होना चाहिए ${minAmount} ${fiatCurrency}"
 }

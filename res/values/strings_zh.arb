@@ -474,5 +474,6 @@
   "understand" : "I understand",
 
   "buy_bitcoin" : "購買比特幣",
-  "buy_with" : "與一起購買"
+  "buy_with" : "與一起購買",
+  "moonpay_alert_text" : "金額的價值必須大於或等於 ${minAmount} ${fiatCurrency}"
 }
