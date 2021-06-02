@@ -468,6 +468,7 @@
   "confirmed" : "已确认",
   "unconfirmed" : "未经证实",
   "displayable" : "可显示",
+
   "submit_request" : "提交请求",
 
   "buy_alert_content" : "目前，我们仅支持购买比特币。要购买比特币，请创建或切换到您的比特币钱包",
