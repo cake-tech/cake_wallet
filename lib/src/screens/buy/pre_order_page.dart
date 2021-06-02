@@ -114,7 +114,7 @@ class PreOrderPage extends BasePage {
                         padding: EdgeInsets.only(top: 100, bottom: 65),
                         child: Center(
                             child: Container(
-                                width: 165,
+                                width: 185,
                                 child: BaseTextFormField(
                                   focusNode: _amountFocus,
                                   controller: _amountController,
