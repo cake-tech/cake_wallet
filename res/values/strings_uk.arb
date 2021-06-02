@@ -477,5 +477,6 @@
   "understand" : "I understand",
 
   "buy_bitcoin" : "Купити Bitcoin",
-  "buy_with" : "Купити за допомогою"
+  "buy_with" : "Купити за допомогою",
+  "moonpay_alert_text" : "Значення суми має бути більшим або дорівнювати ${minAmount} ${fiatCurrency}"
 }

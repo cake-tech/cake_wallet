@@ -477,5 +477,6 @@
   "understand" : "I understand",
 
   "buy_bitcoin" : "Koop Bitcoin",
-  "buy_with" : "Koop met"
+  "buy_with" : "Koop met",
+  "moonpay_alert_text" : "Waarde van het bedrag moet meer of gelijk zijn aan ${minAmount} ${fiatCurrency}"
 }
