@@ -27,7 +27,9 @@ class UnspentCoinsDetailsPage extends BasePage {
           final item = unspentCoinsDetailsViewModel.items[index];
 
           if (item is StandartListItem) {
-            return StandartListRow(title: '${item.title}:', value: item.value);
+            return StandartListRow(
+                title: '${item.title}:',
+                value: item.value);
           }
 
           if (item is TextFieldListItem) {
