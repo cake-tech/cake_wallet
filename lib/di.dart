@@ -155,7 +155,7 @@ Future setup(
       (secrets.wyreApiKey?.isNotEmpty ?? false) &&
       (secrets.wyreAccountId?.isNotEmpty ?? false);
 
-  var isMoonPayEnabled = false;
+  /*var isMoonPayEnabled = false;
   try {
     final locale = await Devicelocale.currentLocale;
     final deviceCountryCode = locale.split('_').last;
@@ -163,11 +163,11 @@ Future setup(
   } catch (e) {
     isMoonPayEnabled = false;
     print(e.toString());
-  }
+  }*/
 
   final settingsStore = await SettingsStoreBase.load(
       nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-      isMoonPayEnabled: isMoonPayEnabled);
+      isMoonPayEnabled: true);
 
   if (_isSetupFinished) {
     return;
