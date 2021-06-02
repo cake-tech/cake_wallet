@@ -253,7 +253,7 @@ abstract class SettingsStoreBase with Store {
         (secrets.wyreApiKey?.isNotEmpty ?? false) &&
         (secrets.wyreAccountId?.isNotEmpty ?? false);
 
-    var isMoonPayEnabled = false;
+    /*var isMoonPayEnabled = false;
     try {
       final locale = await Devicelocale.currentLocale;
       final deviceCountryCode = locale.split('_').last;
@@ -261,12 +261,12 @@ abstract class SettingsStoreBase with Store {
     } catch (e) {
       isMoonPayEnabled = false;
       print(e.toString());
-    }
+    }*/
 
     final settings = await SettingsStoreBase.load(
         nodeSource: nodeSource,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        isMoonPayEnabled: isMoonPayEnabled,
+        isMoonPayEnabled: true,
         initialBalanceDisplayMode: initialBalanceDisplayMode,
         initialFiatCurrency: initialFiatCurrency,
         initialMoneroTransactionPriority: initialMoneroTransactionPriority,
