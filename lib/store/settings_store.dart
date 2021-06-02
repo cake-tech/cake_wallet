@@ -253,9 +253,15 @@ abstract class SettingsStoreBase with Store {
         (secrets.wyreApiKey?.isNotEmpty ?? false) &&
         (secrets.wyreAccountId?.isNotEmpty ?? false);
 
-    final locale = await Devicelocale.currentLocale;
-    final deviceCountryCode = locale.split('_').last;
-    final isMoonPayEnabled = await MoonPayBuyProvider.onEnabled(deviceCountryCode);
+    var isMoonPayEnabled = false;
+    try {
+      final locale = await Devicelocale.currentLocale;
+      final deviceCountryCode = locale.split('_').last;
+      isMoonPayEnabled = await MoonPayBuyProvider.onEnabled(deviceCountryCode);
+    } catch (e) {
+      isMoonPayEnabled = false;
+      print(e.toString());
+    }
 
     final settings = await SettingsStoreBase.load(
         nodeSource: nodeSource,
