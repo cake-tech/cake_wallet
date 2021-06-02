@@ -171,7 +171,8 @@ class PreOrderPage extends BasePage {
                 ),
                 if (buyViewModel.isShowProviderButtons)
                   ...buyViewModel.items.map(
-                        (item) => Observer(builder: (_) => FutureBuilder<BuyAmount>(
+                        (item) => Observer(builder: (_) =>
+                        FutureBuilder<BuyAmount>(
                         future: item.buyAmount,
                         builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
                           double sourceAmount;
@@ -193,7 +194,8 @@ class PreOrderPage extends BasePage {
                               EdgeInsets.only(left: 15, top: 20, right: 15),
                               child: Observer(builder: (_) {
                                 return BuyListItem(
-                                    selectedProvider: buyViewModel.selectedProvider,
+                                    selectedProvider:
+                                      buyViewModel.selectedProvider,
                                     provider: item.provider,
                                     sourceAmount: sourceAmount,
                                     sourceCurrency: buyViewModel.fiatCurrency,
