@@ -28,15 +28,7 @@ class UnspentCoinsListPage extends BasePage {
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
             padding: EdgeInsets.all(0),
-            onPressed: () => showPopUp<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return AlertWithOneAction(
-                      alertTitle: '',
-                      alertContent: 'Information about unspent coins',
-                      buttonText: S.of(context).ok,
-                      buttonAction: () => Navigator.of(context).pop());
-                }),
+            onPressed: () => showUnspentCoinsAlert(context),
             child: questionImage),
       ),
     );
@@ -45,28 +37,70 @@ class UnspentCoinsListPage extends BasePage {
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
   @override
-  Widget body(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(24, 12, 24, 24),
-      child: Observer(
-        builder: (_) => ListView.separated(
-          itemCount: unspentCoinsListViewModel.items.length,
-          separatorBuilder: (_, __) =>
-              SizedBox(height: 15),
-          itemBuilder: (_, int index) {
-            final item = unspentCoinsListViewModel.items[index];
+  Widget body(BuildContext context) =>
+      UnspentCoinsListForm(unspentCoinsListViewModel);
+}
 
-            return GestureDetector(
-                onTap: () {print('Item taped');},
-                child: UnspentCoinsListItem(
-                  address: item.address,
-                  amount: item.amount,
-                  isSending: item.isSending,
-                  onCheckBoxTap: (value) {},
-                ));
-          }
+class UnspentCoinsListForm extends StatefulWidget {
+  UnspentCoinsListForm(this.unspentCoinsListViewModel);
+
+  final UnspentCoinsListViewModel unspentCoinsListViewModel;
+
+  @override
+  UnspentCoinsListFormState createState() =>
+      UnspentCoinsListFormState(unspentCoinsListViewModel);
+}
+
+class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
+  UnspentCoinsListFormState(this.unspentCoinsListViewModel);
+
+  final UnspentCoinsListViewModel unspentCoinsListViewModel;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback(afterLayout);
+  }
+
+  void afterLayout(dynamic _) {
+    showUnspentCoinsAlert(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        padding: EdgeInsets.fromLTRB(24, 12, 24, 24),
+        child: Observer(
+            builder: (_) => ListView.separated(
+                itemCount: unspentCoinsListViewModel.items.length,
+                separatorBuilder: (_, __) =>
+                    SizedBox(height: 15),
+                itemBuilder: (_, int index) {
+                  final item = unspentCoinsListViewModel.items[index];
+
+                  return GestureDetector(
+                      onTap: () {print('Item taped');},
+                      child: UnspentCoinsListItem(
+                        address: item.address,
+                        amount: item.amount,
+                        isSending: item.isSending,
+                        onCheckBoxTap: (value) {},
+                      ));
+                }
+            )
         )
-      )
     );
   }
+}
+
+void showUnspentCoinsAlert(BuildContext context) {
+  showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+            alertTitle: '',
+            alertContent: 'Information about unspent coins',
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop());
+      });
 }
