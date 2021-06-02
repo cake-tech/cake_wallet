@@ -425,7 +425,31 @@ class SendPage extends BasePage {
                                             ],
                                           ),
                                         ),
-                                      ))
+                                      )),
+                              if (sendViewModel.isBitcoinWallet) Padding(
+                                padding: EdgeInsets.only(top: 6),
+                                child: GestureDetector(
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.unspentCoinsList),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                            'Coin control (optional)',
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white)),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 12,
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    )
+                                )
+                              )
                             ],
                           ),
                         )
@@ -558,35 +582,22 @@ class SendPage extends BasePage {
               ),
               bottomSectionPadding:
                   EdgeInsets.only(left: 24, right: 24, bottom: 24),
-              bottomSection: Column(
-                children: [
-                  Observer(builder: (_) {
-                    return LoadingPrimaryButton(
-                        onPressed: () async {
-                          if (_formKey.currentState.validate()) {
-                            await sendViewModel.createTransaction();
-                          }
-                        },
-                        text: S.of(context).send,
-                        color: Theme.of(context).accentTextTheme.body2.color,
-                        textColor: Colors.white,
-                        isLoading: sendViewModel.state is IsExecutingState ||
-                            sendViewModel.state is TransactionCommitting,
-                        isDisabled:
-                        false // FIXME !(syncStore.status is SyncedSyncStatus),
-                    );
-                  }),
-                  Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: PrimaryButton(
-                      onPressed: () => Navigator.of(context).pushNamed(Routes.unspentCoinsList),
-                      text: 'Unspent coins',
-                      color: Colors.green,
-                      textColor: Colors.white,
-                    )
-                  )
-                ],
-              )),
+              bottomSection: Observer(builder: (_) {
+                return LoadingPrimaryButton(
+                    onPressed: () async {
+                      if (_formKey.currentState.validate()) {
+                        await sendViewModel.createTransaction();
+                      }
+                    },
+                    text: S.of(context).send,
+                    color: Theme.of(context).accentTextTheme.body2.color,
+                    textColor: Colors.white,
+                    isLoading: sendViewModel.state is IsExecutingState ||
+                        sendViewModel.state is TransactionCommitting,
+                    isDisabled:
+                    false // FIXME !(syncStore.status is SyncedSyncStatus),
+                );
+              })),
         ));
   }
 
