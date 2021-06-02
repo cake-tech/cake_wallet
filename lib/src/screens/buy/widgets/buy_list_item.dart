@@ -26,25 +26,22 @@ class BuyListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final providerIcon = getBuyProviderIcon(provider.description);
+    final isSelected = selectedProvider?.description == provider.description;
 
-    final backgroundColor = selectedProvider != null
-        ? selectedProvider.description == provider.description
+    final providerIcon = getBuyProviderIcon(provider.description,
+        isWhiteIconColor: isSelected);
+
+    final backgroundColor = isSelected
           ? Palette.greyBlueCraiola
-          : Palette.shadowWhite
-        : Palette.shadowWhite;
+          : Palette.shadowWhite;
 
-    final primaryTextColor = selectedProvider != null
-        ? selectedProvider.description == provider.description
+    final primaryTextColor = isSelected
           ? Colors.white
-          : Palette.darkGray
-        : Palette.darkGray;
+          : Palette.darkGray;
 
-    final secondaryTextColor = selectedProvider != null
-        ? selectedProvider.description == provider.description
+    final secondaryTextColor = isSelected
           ? Colors.white
-          : Palette.darkBlueCraiola
-        : Palette.darkBlueCraiola;
+          : Palette.darkBlueCraiola;
 
     return GestureDetector(
       onTap: () => onTap?.call(),
