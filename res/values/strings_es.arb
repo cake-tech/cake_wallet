@@ -473,6 +473,8 @@
 
   "buy_alert_content" : "Actualmente solo apoyamos la compra de Bitcoin. Para comprar Bitcoin, cree o cambie a su billetera Bitcoin",
   
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand"
+  "outdated_electrum_wallet_desceription" : "Las nuevas carteras de Bitcoin creadas en Cake ahora tienen una semilla de 24 palabras. Es obligatorio que cree una nueva billetera de Bitcoin y transfiera todos sus fondos a la nueva billetera de 24 palabras, y deje de usar billeteras con una semilla de 12 palabras. Haga esto de inmediato para asegurar sus fondos.",
+  "understand" : "Entiendo",
+
+  "apk_update" : "Actualización de APK"
 }
