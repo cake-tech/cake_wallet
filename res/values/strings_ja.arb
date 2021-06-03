@@ -473,6 +473,8 @@
 
   "buy_alert_content" : "現在、ビットコインの購入のみをサポートしています。 ビットコインを購入するには、ビットコインウォレットを作成するか切り替えてください",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand"
+  "outdated_electrum_wallet_desceription" : "Cakeで作成された新しいビットコインウォレットには、24ワードのシードがあります。 新しいビットコインウォレットを作成し、すべての資金を新しい24ワードのウォレットに転送し、12ワードのシードを持つウォレットの使用を停止することが必須です。 あなたの資金を確保するためにこれをすぐに行ってください。",
+  "understand" : "わかります",
+
+  "apk_update" : "APKアップデート"
 }
