@@ -7,7 +7,7 @@ class BiometricAuth {
 
   Future<bool> isAuthenticated() async {
     try {
-      return await _localAuth.authenticateWithBiometrics(
+      return await _localAuth.authenticate(
           localizedReason: S.current.biometric_auth_reason,
           useErrorDialogs: true,
           stickyAuth: false);
