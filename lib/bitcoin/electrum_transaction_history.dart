@@ -35,7 +35,7 @@ abstract class ElectrumTransactionHistoryBase
 
   @override
   void addMany(Map<String, ElectrumTransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
+      transactions.forEach((_, tx) => _updateOrInsert(tx));
 
   @override
   Future<void> save() async {

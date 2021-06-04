@@ -113,6 +113,7 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/entities/push_notifications_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -232,6 +233,9 @@ Future setup(
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
+
+  getIt.registerFactory(() => PushNotificationsService());
+
   getIt.registerFactory(() => DashboardViewModel(
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
@@ -241,7 +245,8 @@ Future setup(
       settingsStore: settingsStore,
       ordersSource: _ordersSource,
       ordersStore: getIt.get<OrdersStore>(),
-      wyreViewModel: getIt.get<WyreViewModel>()));
+      wyreViewModel: getIt.get<WyreViewModel>(),
+      pushNotificationsService: getIt.get<PushNotificationsService>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
