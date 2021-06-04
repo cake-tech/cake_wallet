@@ -476,5 +476,8 @@
   "outdated_electrum_wallet_desceription" : "Neue Bitcoin-Geldbörsen, die in Cake erstellt wurden, haben jetzt einen Startwert von 24 Wörtern. Es ist obligatorisch, dass Sie eine neue Bitcoin-Brieftasche erstellen, Ihr gesamtes Geld in die neue 24-Wörter-Brieftasche überweisen und keine Brieftaschen mit einem 12-Wörter-Startwert mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
   "understand" : "Ich verstehe",
 
-  "apk_update" : "APK Update"
+  "apk_update" : "APK Update",
+
+  "outdated_electrum_wallet_receive_warning": "WARNUNG\nWenn diese Brieftasche einen Seed von 12 Wörtern hat, der in Cake Wallet erstellt wurde, zahlen Sie KEINE Bitcoins in diese Brieftasche ein. Ihr Bitcoin kann gestohlen werden. Erstellen Sie eine neue Brieftasche und verschieben Sie Ihr Geld SOFORT in die neue Brieftasche.",
+  "do_not_show_me": "Zeig mir das nicht noch einmal"
 }

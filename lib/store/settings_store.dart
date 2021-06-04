@@ -147,6 +147,12 @@ abstract class SettingsStoreBase with Store {
 
   bool isBitcoinBuyEnabled;
 
+  bool get shouldShowReceiveWarning =>
+    _sharedPreferences.getBool(PreferencesKey.shouldShowReceiveWarning) ?? true;
+
+  Future<void> setShouldShowReceiveWarning(bool value) async =>
+    _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
+
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
       @required bool isBitcoinBuyEnabled,

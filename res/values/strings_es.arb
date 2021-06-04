@@ -476,5 +476,8 @@
   "outdated_electrum_wallet_desceription" : "Las nuevas carteras de Bitcoin creadas en Cake ahora tienen una semilla de 24 palabras. Es obligatorio que cree una nueva billetera de Bitcoin y transfiera todos sus fondos a la nueva billetera de 24 palabras, y deje de usar billeteras con una semilla de 12 palabras. Haga esto de inmediato para asegurar sus fondos.",
   "understand" : "Entiendo",
 
-  "apk_update" : "Actualización de APK"
+  "apk_update" : "Actualización de APK",
+
+  "outdated_electrum_wallet_receive_warning": "ADVERTENCIA\nSi esta billetera tiene una semilla de 12 palabras que se creó en Cake Wallet, NO DEposite Bitcoin en esta billetera. Su Bitcoin puede estar en riesgo de ser robado. Cree una nueva billetera y mueva sus fondos a la nueva billetera INMEDIATAMENTE.",
+  "do_not_show_me": "no me muestres esto otra vez"
 }

@@ -167,7 +167,8 @@ class DashboardPage extends BasePage {
       return;
     }
 
-    pages.add(AddressPage(addressListViewModel: addressListViewModel));
+    pages.add(AddressPage(addressListViewModel: addressListViewModel,
+              walletViewModel: walletViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
