@@ -125,7 +125,8 @@ class ReceivePage extends BasePage {
                 child: QRWidget(
                     addressListViewModel: addressListViewModel,
                     isAmountFieldShow: true,
-                    amountTextFieldFocusNode: _cryptoAmountFocus),
+                    amountTextFieldFocusNode: _cryptoAmountFocus,
+                    isBright: currentTheme.type == ThemeType.bright),
               ),
               Observer(
                   builder: (_) => ListView.separated(

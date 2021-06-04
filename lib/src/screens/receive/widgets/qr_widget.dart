@@ -13,7 +13,8 @@ class QRWidget extends StatelessWidget {
   QRWidget(
       {@required this.addressListViewModel,
       this.isAmountFieldShow = false,
-      this.amountTextFieldFocusNode})
+      this.amountTextFieldFocusNode,
+      this.isBright})
       : amountController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
     amountController.addListener(() => addressListViewModel.amount =
@@ -25,6 +26,7 @@ class QRWidget extends StatelessWidget {
   final TextEditingController amountController;
   final FocusNode amountTextFieldFocusNode;
   final GlobalKey<FormState> _formKey;
+  final bool isBright;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +57,7 @@ class QRWidget extends StatelessWidget {
                             ),
                             child: QrImage(
                               data: addressListViewModel.uri.toString(),
-                              backgroundColor: Colors.transparent,
+                              backgroundColor: isBright ? Colors.black : Colors.white,
                               foregroundColor: Theme.of(context).accentTextTheme.
                               display3.backgroundColor,
                             ),
