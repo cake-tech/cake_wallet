@@ -476,5 +476,8 @@
   "outdated_electrum_wallet_desceription" : "Cake에서 생성 된 새로운 비트 코인 지갑에는 이제 24 단어 시드가 있습니다. 새로운 비트 코인 지갑을 생성하고 모든 자금을 새로운 24 단어 지갑으로 이체하고 12 단어 시드가있는 지갑 사용을 중지해야합니다. 자금을 확보하려면 즉시이 작업을 수행하십시오.",
   "understand" : "이해 했어요",
 
-  "apk_update" : "APK 업데이트"
+  "apk_update" : "APK 업데이트",
+
+  "outdated_electrum_wallet_receive_warning": "경고\n이 지갑에 Cake Wallet에서 생성 된 12 단어의 시드가있는 경우이 지갑에 Bitcoin을 입금하지 마십시오. 귀하의 비트 코인은 도난 당할 위험이 있습니다. 새 지갑을 만들고 즉시 새 지갑으로 자금을 이동하십시오.",
+  "do_not_show_me": "나를 다시 표시하지 않음"
 }

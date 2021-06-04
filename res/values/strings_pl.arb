@@ -476,5 +476,8 @@
   "outdated_electrum_wallet_desceription" : "Nowe portfele Bitcoin utworzone w Cake mają teraz ziarno składające się z 24 słów. Konieczne jest utworzenie nowego portfela Bitcoin i przeniesienie wszystkich środków do nowego portfela na 24 słowa oraz zaprzestanie korzystania z portfeli z zalążkiem na 12 słów. Zrób to natychmiast, aby zabezpieczyć swoje fundusze.",
   "understand" : "Rozumiem",
 
-  "apk_update" : "Aktualizacja APK"
+  "apk_update" : "Aktualizacja APK",
+
+  "outdated_electrum_wallet_receive_warning": "OSTRZEŻENIE\nJeśli ten portfel zawiera ziarno 12 słów, które zostało utworzone w portfelu Cake, NIE Wpłacaj Bitcoinów do tego portfela. Twój Bitcoin może być zagrożony kradzieżą. Utwórz nowy portfel i NATYCHMIAST przenieś swoje środki do nowego portfela.",
+  "do_not_show_me": "Nie pokazuj mi tego ponownie"
 }

@@ -1,5 +1,10 @@
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 import 'package:cake_wallet/src/screens/receive/widgets/qr_widget.dart';
@@ -7,17 +12,43 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:mobx/mobx.dart';
 
 class AddressPage extends StatelessWidget {
-  AddressPage({@required this.addressListViewModel})
+  AddressPage({@required this.addressListViewModel,
+                this.walletViewModel})
       : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
+  final DashboardViewModel walletViewModel;
 
   final FocusNode _cryptoAmountFocus;
 
   @override
   Widget build(BuildContext context) {
+    autorun((_) async {
+      if (!walletViewModel.isOutdatedElectrumWallet
+        || !walletViewModel.settingsStore.shouldShowReceiveWarning) {
+        return;
+      }
+
+      await Future<void>.delayed(Duration(seconds: 1));
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertWithTwoActions(
+                alertTitle: S.of(context).pre_seed_title,
+                alertContent: S.of(context).outdated_electrum_wallet_receive_warning,
+                leftButtonText: S.of(context).understand,
+                actionLeftButton: () => Navigator.of(context).pop(),
+                rightButtonText: S.of(context).do_not_show_me,
+                actionRightButton: () {
+                  walletViewModel.settingsStore.setShouldShowReceiveWarning(false);
+                  Navigator.of(context).pop();
+                });
+          });
+    });
+
     return KeyboardActions(
         autoScroll: false,
         disableScroll: true,

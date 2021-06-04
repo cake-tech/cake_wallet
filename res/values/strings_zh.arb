@@ -476,5 +476,8 @@
   "outdated_electrum_wallet_desceription" : "在Cake创建的新比特币钱包现在有一个24字的种子。你必须创建一个新的比特币钱包，并将你所有的资金转移到新的24字钱包，并停止使用12字种子的钱包。请立即这样做以保证你的资金安全。",
   "understand" : "我已知晓",
 
-  "apk_update" : "APK更新"
+  "apk_update" : "APK更新",
+
+  "outdated_electrum_wallet_receive_warning": "警告\n如果这个钱包有一个在 Cake Wallet 中创建的 12 个单词的种子，请不要在这个钱包中存入比特币。 您的比特币可能有被盗的风险。 创建一个新钱包，并立即将您的资金转移到新钱包中。",
+  "do_not_show_me": "不要再让我看这个了"
 }
