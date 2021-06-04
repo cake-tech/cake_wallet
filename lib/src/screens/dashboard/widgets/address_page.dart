@@ -3,6 +3,7 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
@@ -73,7 +74,8 @@ class AddressPage extends StatelessWidget {
                   child: Observer(builder: (_) => QRWidget(
                       addressListViewModel: addressListViewModel,
                       amountTextFieldFocusNode: _cryptoAmountFocus,
-                      isAmountFieldShow: !addressListViewModel.hasAccounts))
+                      isAmountFieldShow: !addressListViewModel.hasAccounts,
+                      isBright: walletViewModel.settingsStore.currentTheme.type == ThemeType.bright))
               ),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
