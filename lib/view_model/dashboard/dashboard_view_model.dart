@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/entities/push_notifications_service.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
@@ -44,7 +45,9 @@ abstract class DashboardViewModelBase with Store {
       this.settingsStore,
       this.ordersSource,
       this.ordersStore,
-      this.wyreViewModel}) {
+      this.wyreViewModel,
+      PushNotificationsService pushNotificationsService}) {
+    _pushNotificationsService = pushNotificationsService;
     filterItems = {
       S.current.transactions: [
         FilterItem(
@@ -133,6 +136,8 @@ abstract class DashboardViewModelBase with Store {
 
       return true;
     });
+
+    Future.delayed(Duration(seconds: 2), () => _pushNotificationsService.init());
   }
 
   @observable
@@ -227,17 +232,19 @@ abstract class DashboardViewModelBase with Store {
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
+  PushNotificationsService _pushNotificationsService;
+
   ReactionDisposer _onMoneroAccountChangeReaction;
 
   ReactionDisposer _onMoneroBalanceChangeReaction;
+
+  @observable
+  bool isOutdatedElectrumWallet;
 
   Future<void> reconnect() async {
     final node = appStore.settingsStore.getCurrentNode(wallet.type);
     await wallet.connectToNode(node: node);
   }
-
-  @observable
-  bool isOutdatedElectrumWallet;
 
   @action
   void _onWalletChange(
