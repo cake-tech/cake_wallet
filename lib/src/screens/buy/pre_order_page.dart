@@ -20,6 +20,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:mobx/mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PreOrderPage extends BasePage {
   PreOrderPage({@required this.buyViewModel})
@@ -221,20 +222,7 @@ class PreOrderPage extends BasePage {
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: Observer(builder: (_) {
                 return LoadingPrimaryButton(
-                    onPressed: buyViewModel.isRunning
-                    ? null
-                    :  () async {
-                      buyViewModel.isRunning = true;
-                      final url =
-                        await buyViewModel.fetchUrl();
-                      if (url.isNotEmpty) {
-                        await Navigator.of(context)
-                            .pushNamed(Routes.buyWebView,
-                            arguments: [url, buyViewModel]);
-                        buyViewModel.reset();
-                      }
-                      buyViewModel.isRunning = false;
-                    },
+                    onPressed: () => onPresentProvider(context: context),
                     text: buyViewModel.selectedProvider == null
                           ? S.of(context).buy
                           : S.of(context).buy_with +
@@ -274,5 +262,27 @@ class PreOrderPage extends BasePage {
     sourceAmount > 0
         ? buyViewModel.isDisabled = false
         : buyViewModel.isDisabled = true;
+  }
+
+  Future<void> onPresentProvider({BuildContext context}) async {
+    if (buyViewModel.isRunning) {
+      return;
+    }
+
+    buyViewModel.isRunning = true;
+    final url = await buyViewModel.fetchUrl();
+    
+    if (url.isNotEmpty) {
+      if (buyViewModel.selectedProvider is MoonPayBuyProvider) {
+         if (await canLaunch(url)) await launch(url);
+      } else {
+        await Navigator.of(context)
+          .pushNamed(Routes.buyWebView,
+          arguments: [url, buyViewModel]);
+        }
+    }
+
+    buyViewModel.reset();
+    buyViewModel.isRunning = false;
   }
 }
