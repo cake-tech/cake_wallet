@@ -473,12 +473,15 @@
 
   "buy_alert_content" : "Attualmente supportiamo solo l'acquisto di Bitcoin. Per acquistare Bitcoin, crea o passa al tuo portafoglio Bitcoin",
   
-  "outdated_electrum_wallet_desceription" : "I nuovi portafogli Bitcoin creati in Cake ora hanno un seme di 24 parole. È obbligatorio creare un nuovo portafoglio Bitcoin e trasferire tutti i fondi nel nuovo portafoglio di 24 parole e smettere di usare portafogli con un seme di 12 parole. Ti preghiamo di farlo immediatamente per proteggere i tuoi fondi.",
+  "outdated_electrum_wallet_description" : "I nuovi portafogli Bitcoin creati in Cake ora hanno un seme di 24 parole. È obbligatorio creare un nuovo portafoglio Bitcoin e trasferire tutti i fondi nel nuovo portafoglio di 24 parole e smettere di usare portafogli con un seme di 12 parole. Ti preghiamo di farlo immediatamente per proteggere i tuoi fondi.",
   "understand" : "Capisco",
 
   "apk_update" : "Aggiornamento APK",
 
   "buy_bitcoin" : "Acquista Bitcoin",
   "buy_with" : "Acquista con",
-  "moonpay_alert_text" : "Il valore dell'importo deve essere maggiore o uguale a ${minAmount} ${fiatCurrency}"
+  "moonpay_alert_text" : "Il valore dell'importo deve essere maggiore o uguale a ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Se questo portafoglio ha un seme di 12 parole ed è stato creato in Cake, NON depositare Bitcoin in questo portafoglio. Qualsiasi BTC trasferito su questo portafoglio potrebbe andare perso. Crea un nuovo portafoglio di 24 parole (tocca il menu in alto a destra, seleziona Portafogli, scegli Crea nuovo portafoglio, quindi seleziona Bitcoin) e sposta IMMEDIATAMENTE lì il tuo BTC. I nuovi portafogli BTC (24 parole) di Cake sono sicuri",
+  "do_not_show_me": "Non mostrarmelo di nuovo"
 }
