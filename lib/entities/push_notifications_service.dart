@@ -21,7 +21,7 @@ class PushNotificationsService {
     _firebaseMessaging.requestNotificationPermissions();
     _firebaseMessaging.configure(
       onMessage: (message) async {
-        Map<dynamic, dynamic> alert = {};
+        Map<dynamic, dynamic> alert = <dynamic, dynamic>{};
         String msg = '';
         String title = '';
 

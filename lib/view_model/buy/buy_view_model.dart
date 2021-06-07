@@ -21,15 +21,9 @@ class BuyViewModel = BuyViewModelBase with _$BuyViewModel;
 abstract class BuyViewModelBase with Store {
   BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore,
       this.buyAmountViewModel, {@required this.wallet}) {
-    providerList = [WyreBuyProvider(wallet: wallet)];
 
-    if (settingsStore.isMoonPayEnabled ?? false) {
-      providerList.add(MoonPayBuyProvider(wallet: wallet));
-    }
+    _fetchBuyItems();
 
-    items = providerList.map((provider) =>
-        BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
-        .toList();
     isRunning = false;
     isDisabled = true;
     isShowProviderButtons = false;
@@ -40,9 +34,6 @@ abstract class BuyViewModelBase with Store {
   final SettingsStore settingsStore;
   final BuyAmountViewModel buyAmountViewModel;
   final WalletBase wallet;
-
-  @observable
-  List<BuyProvider> providerList;
 
   @observable
   BuyProvider selectedProvider;
@@ -95,5 +86,25 @@ abstract class BuyViewModelBase with Store {
   void reset() {
     buyAmountViewModel.amount = '';
     selectedProvider = null;
+  }
+
+  Future<void> _fetchBuyItems() async {
+    final List<BuyProvider> _providerList = [WyreBuyProvider(wallet: wallet)];
+
+    var isMoonPayEnabled = false;
+    try {
+      isMoonPayEnabled = await MoonPayBuyProvider.onEnabled();
+    } catch (e) {
+      isMoonPayEnabled = false;
+      print(e.toString());
+    }
+
+    if (isMoonPayEnabled) {
+      _providerList.add(MoonPayBuyProvider(wallet: wallet));
+    }
+
+    items = _providerList.map((provider) =>
+        BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
+        .toList();
   }
 }
