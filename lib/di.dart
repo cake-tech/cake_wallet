@@ -490,10 +490,14 @@ Future setup(
 
   getIt
       .registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
-          (TransactionInfo transactionInfo, _) => TransactionDetailsViewModel(
-              transactionInfo: transactionInfo,
-              transactionDescriptionBox: _transactionDescriptionBox,
-              settingsStore: getIt.get<SettingsStore>()));
+          (TransactionInfo transactionInfo, _) {
+            final wallet = getIt.get<AppStore>().wallet;
+            return TransactionDetailsViewModel(
+                transactionInfo: transactionInfo,
+                transactionDescriptionBox: _transactionDescriptionBox,
+                wallet: wallet,
+                settingsStore: getIt.get<SettingsStore>());
+          });
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
