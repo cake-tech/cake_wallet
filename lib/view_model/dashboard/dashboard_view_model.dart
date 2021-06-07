@@ -1,7 +1,9 @@
 import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/order.dart';
 import 'package:cake_wallet/entities/push_notifications_service.dart';
+import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/entities/transaction_history.dart';
+import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
@@ -18,7 +20,9 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/wyre_view_model.dart';
+import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
+import 'package:crypto/crypto.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
@@ -43,9 +47,7 @@ abstract class DashboardViewModelBase with Store {
       this.tradeFilterStore,
       this.transactionFilterStore,
       this.settingsStore,
-      this.ordersSource,
       this.ordersStore,
-      this.wyreViewModel,
       PushNotificationsService pushNotificationsService}) {
     _pushNotificationsService = pushNotificationsService;
     filterItems = {
@@ -81,8 +83,6 @@ abstract class DashboardViewModelBase with Store {
                 .toggleDisplayExchange(ExchangeProviderDescription.morphToken)),
       ]
     };
-
-    isRunningWebView = false;
 
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
@@ -152,9 +152,6 @@ abstract class DashboardViewModelBase with Store {
   @observable
   String subname;
 
-  @observable
-  bool isRunningWebView;
-
   @computed
   String get address => wallet.address;
 
@@ -210,8 +207,6 @@ abstract class DashboardViewModelBase with Store {
 
   bool get hasRescan => wallet.type == WalletType.monero;
 
-  Box<Order> ordersSource;
-
   BalanceViewModel balanceViewModel;
 
   AppStore appStore;
@@ -225,8 +220,6 @@ abstract class DashboardViewModelBase with Store {
   TradeFilterStore tradeFilterStore;
 
   TransactionFilterStore transactionFilterStore;
-
-  WyreViewModel wyreViewModel;
 
   Map<String, List<FilterItem>> filterItems;
 
