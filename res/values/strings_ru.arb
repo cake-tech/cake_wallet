@@ -473,8 +473,10 @@
 
   "buy_alert_content" : "В настоящее время мы поддерживаем только покупку Bitcoin. Чтобы купить Bitcoin, создайте или переключитесь на ваш Bitcoin кошелек",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
+  "outdated_electrum_wallet_desceription" : "Новые биткойн-кошельки, созданные в Cake, теперь содержат мнемоническую фразу из 24 слов. Вы обязательно должны создать новый биткойн-кошелек и перевести все свои средства в новый кошелек из 24 слов, а также прекратить использование кошельков с мнемонической фразой из 12 слов. Пожалуйста, сделайте это немедленно, чтобы обезопасить свои средства.",
+  "understand" : "Понятно",
+
+  "apk_update" : "Обновление APK",
 
   "buy_bitcoin" : "Купить Bitcoin",
   "buy_with" : "Купить с помощью",

@@ -1,5 +1,4 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -9,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
-import 'package:devicelocale/devicelocale.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +39,6 @@ abstract class SettingsStoreBase with Store {
       @required TransactionPriority initialBitcoinTransactionPriority,
       @required TransactionPriority initialMoneroTransactionPriority,
       @required this.isBitcoinBuyEnabled,
-      @required this.isMoonPayEnabled,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
     balanceDisplayMode = initialBalanceDisplayMode;
@@ -150,12 +147,9 @@ abstract class SettingsStoreBase with Store {
 
   bool isBitcoinBuyEnabled;
 
-  bool isMoonPayEnabled;
-
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
       @required bool isBitcoinBuyEnabled,
-      @required bool isMoonPayEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
       MoneroTransactionPriority initialMoneroTransactionPriority =
           MoneroTransactionPriority.slow,
@@ -227,7 +221,6 @@ abstract class SettingsStoreBase with Store {
         },
         appVersion: packageInfo.version,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        isMoonPayEnabled: isMoonPayEnabled,
         initialFiatCurrency: currentFiatCurrency,
         initialBalanceDisplayMode: currentBalanceDisplayMode,
         initialSaveRecipientAddress: shouldSaveRecipientAddress,
@@ -253,20 +246,9 @@ abstract class SettingsStoreBase with Store {
         (secrets.wyreApiKey?.isNotEmpty ?? false) &&
         (secrets.wyreAccountId?.isNotEmpty ?? false);
 
-    /*var isMoonPayEnabled = false;
-    try {
-      final locale = await Devicelocale.currentLocale;
-      final deviceCountryCode = locale.split('_').last;
-      isMoonPayEnabled = await MoonPayBuyProvider.onEnabled(deviceCountryCode);
-    } catch (e) {
-      isMoonPayEnabled = false;
-      print(e.toString());
-    }*/
-
     final settings = await SettingsStoreBase.load(
         nodeSource: nodeSource,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-        isMoonPayEnabled: true,
         initialBalanceDisplayMode: initialBalanceDisplayMode,
         initialFiatCurrency: initialFiatCurrency,
         initialMoneroTransactionPriority: initialMoneroTransactionPriority,

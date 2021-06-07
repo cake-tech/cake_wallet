@@ -471,9 +471,14 @@
 
   "submit_request" : "podnesi zahtjev",
 
-  "buy_alert_content" : "Currently we only support the purchase of Bitcoin. To buy Bitcoin, please create or switch to your Bitcoin wallet",
+  "buy_alert_content" : "Trenutno podržavamo samo kupnju Bitcoina. Da biste kupili Bitcoin, izradite ili prijeđite na svoj Bitcoin novčanik",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
+  "outdated_electrum_wallet_desceription" : "Novi Bitcoin novčanici stvoreni u Cakeu sada imaju sjeme od 24 riječi. Obavezno je stvoriti novi Bitcoin novčanik i prenijeti sva svoja sredstva u novi novčanik od 24 riječi te prestati koristiti novčanike s sjemenkom od 12 riječi. Učinite to odmah kako biste osigurali svoja sredstva.",
+  "understand" : "Razumijem",
+
+  "apk_update" : "APK ažuriranje",
+
+  "buy_bitcoin" : "Kupite Bitcoin",
+  "buy_with" : "Kupite s",
   "moonpay_alert_text" : "Vrijednost iznosa mora biti veća ili jednaka ${minAmount} ${fiatCurrency}"
 }
