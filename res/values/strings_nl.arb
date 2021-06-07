@@ -473,11 +473,11 @@
 
   "buy_alert_content" : "Momenteel ondersteunen we alleen de aankoop van Bitcoin. Om Bitcoin te kopen, moet u uw Bitcoin-portemonnee aanmaken of naar uw Bitcoin-portemonnee overschakelen",
 
-  "outdated_electrum_wallet_desceription" : "Nieuwe Bitcoin-portefeuilles die in Cake zijn gemaakt, hebben nu een zaadje van 24 woorden. Het is verplicht dat u een nieuwe Bitcoin-portemonnee maakt en al uw geld overmaakt naar de nieuwe portemonnee van 24 woorden, en stopt met het gebruik van wallets met een seed van 12 woorden. Doe dit onmiddellijk om uw geld veilig te stellen.",
+  "outdated_electrum_wallet_description" : "Nieuwe Bitcoin-portefeuilles die in Cake zijn gemaakt, hebben nu een zaadje van 24 woorden. Het is verplicht dat u een nieuwe Bitcoin-portemonnee maakt en al uw geld overmaakt naar de nieuwe portemonnee van 24 woorden, en stopt met het gebruik van wallets met een seed van 12 woorden. Doe dit onmiddellijk om uw geld veilig te stellen.",
   "understand" : "Ik begrijp het",
 
   "apk_update" : "APK-update",
 
-  "outdated_electrum_wallet_receive_warning": "WAARSCHUWING\nAls deze portemonnee een seed van 12 woorden heeft die is gemaakt in Cake Wallet, stort dan GEEN Bitcoin in deze portemonnee. Uw Bitcoin kan het risico lopen te worden gestolen. Maak een nieuwe portemonnee en verplaats uw geld ONMIDDELLIJK naar de nieuwe portemonnee.",
+  "outdated_electrum_wallet_receive_warning": "Als deze portemonnee een seed van 12 woorden heeft en is gemaakt in Cake, stort dan GEEN Bitcoin in deze portemonnee. Elke BTC die naar deze portemonnee is overgebracht, kan verloren gaan. Maak een nieuwe portemonnee van 24 woorden (tik op het menu rechtsboven, selecteer Portefeuilles, kies Nieuwe portemonnee maken en selecteer vervolgens Bitcoin) en verplaats je BTC ONMIDDELLIJK daar. Nieuwe (24-woorden) BTC-portefeuilles van Cake zijn veilig",
   "do_not_show_me": "laat me dit niet opnieuw zien"
 }
