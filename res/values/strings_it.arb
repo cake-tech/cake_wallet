@@ -478,5 +478,7 @@
 
   "apk_update" : "Aggiornamento APK",
 
+  "buy_bitcoin" : "Acquista Bitcoin",
+  "buy_with" : "Acquista con",
   "moonpay_alert_text" : "Il valore dell'importo deve essere maggiore o uguale a ${minAmount} ${fiatCurrency}"
 }

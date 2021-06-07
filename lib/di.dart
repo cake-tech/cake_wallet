@@ -1,11 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/bitcoin/litecoin_wallet_service.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/load_current_wallet.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
@@ -92,7 +90,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:devicelocale/devicelocale.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -156,17 +153,8 @@ Future setup(
       (secrets.wyreApiKey?.isNotEmpty ?? false) &&
       (secrets.wyreAccountId?.isNotEmpty ?? false);
 
-  var isMoonPayEnabled = false;
-  try {
-    isMoonPayEnabled = await MoonPayBuyProvider.onEnabled();
-  } catch (e) {
-    isMoonPayEnabled = false;
-    print(e.toString());
-  }
-
   final settingsStore = await SettingsStoreBase.load(
-      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-      isMoonPayEnabled: isMoonPayEnabled);
+      nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
 
   if (_isSetupFinished) {
     return;

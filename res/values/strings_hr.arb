@@ -478,5 +478,7 @@
 
   "apk_update" : "APK ažuriranje",
 
+  "buy_bitcoin" : "Kupite Bitcoin",
+  "buy_with" : "Kupite s",
   "moonpay_alert_text" : "Vrijednost iznosa mora biti veća ili jednaka ${minAmount} ${fiatCurrency}"
 }
