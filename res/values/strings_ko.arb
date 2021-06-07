@@ -473,8 +473,10 @@
 
   "buy_alert_content" : "현재 우리는 비트 코인 구매 만 지원합니다. 비트 코인을 구매하려면 비트 코인 지갑을 생성하거나 전환하십시오",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
+  "outdated_electrum_wallet_desceription" : "Cake에서 생성 된 새로운 비트 코인 지갑에는 이제 24 단어 시드가 있습니다. 새로운 비트 코인 지갑을 생성하고 모든 자금을 새로운 24 단어 지갑으로 이체하고 12 단어 시드가있는 지갑 사용을 중지해야합니다. 자금을 확보하려면 즉시이 작업을 수행하십시오.",
+  "understand" : "이해 했어요",
+
+  "apk_update" : "APK 업데이트",
 
   "buy_bitcoin" : "비트 코인 구매",
   "buy_with" : "구매",

@@ -37,6 +37,11 @@
 	<string>Enable Face ID for fast and secure access to wallets and private keys</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>We need access to documents folder for get acces to open/save backup file</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

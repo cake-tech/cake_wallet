@@ -71,7 +71,7 @@ String walletTypeToDisplayName(WalletType type) {
     case WalletType.bitcoin:
       return 'Bitcoin (Electrum)';
     case WalletType.litecoin:
-      return 'Litecoin';
+      return 'Litecoin (Electrum)';
     default:
       return '';
   }
