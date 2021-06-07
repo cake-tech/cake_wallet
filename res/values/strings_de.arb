@@ -478,6 +478,10 @@
 
   "apk_update" : "APK Update",
 
+  "buy_bitcoin" : "Bitcoin kaufen",
+  "buy_with" : "Kaufen mit",
+  "moonpay_alert_text" : "Der Wert des Betrags muss größer oder gleich sein ${minAmount} ${fiatCurrency}",
+  
   "outdated_electrum_wallet_receive_warning": "Wenn diese Brieftasche einen 12-Wort-Seed hat und in Cake erstellt wurde, zahlen Sie KEINE Bitcoins in diese Brieftasche ein. Alle auf diese Wallet übertragenen BTC können verloren gehen. Erstellen Sie eine neue 24-Wort-Wallet (tippen Sie auf das Menü oben rechts, wählen Sie Wallets, wählen Sie Create New Wallet und dann Bitcoin) und verschieben Sie Ihre BTC SOFORT dorthin. Neue (24 Wörter) BTC-Wallets von Cake sind sicher",
   "do_not_show_me": "Zeig mir das nicht noch einmal"
 }

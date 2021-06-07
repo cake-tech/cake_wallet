@@ -478,6 +478,10 @@
 
   "apk_update" : "Atualização de APK",
 
+  "buy_bitcoin" : "Compre Bitcoin",
+  "buy_with" : "Compre com",
+  "moonpay_alert_text" : "O valor do montante deve ser maior ou igual a ${minAmount} ${fiatCurrency}",
+
   "outdated_electrum_wallet_receive_warning": "Se esta carteira tiver uma semente de 12 palavras e foi criada no Cake, NÃO deposite Bitcoin nesta carteira. Qualquer BTC transferido para esta carteira pode ser perdido. Crie uma nova carteira de 24 palavras (toque no menu no canto superior direito, selecione Carteiras, escolha Criar Nova Carteira e selecione Bitcoin) e mova IMEDIATAMENTE seu BTC para lá. As novas carteiras BTC (24 palavras) da Cake são seguras",
   "do_not_show_me": "não me mostre isso novamente"
 }

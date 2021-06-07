@@ -1,16 +1,18 @@
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
+import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
+import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
 import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
-import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -299,10 +301,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
-    case Routes.wyre:
+    case Routes.preOrder:
       return MaterialPageRoute<void>(
           builder: (_) =>
-              getIt.get<WyrePage>(param1: settings.arguments as String));
+              getIt.get<PreOrderPage>());
+
+    case Routes.buyWebView:
+      final args = settings.arguments as List;
+
+      return MaterialPageRoute<void>(
+          builder: (_) =>
+              getIt.get<BuyWebViewPage>(param1: args));
 
     case Routes.restoreWalletFromSeedDetails:
       final args = settings.arguments as List;
