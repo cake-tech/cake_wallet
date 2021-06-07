@@ -155,19 +155,17 @@ Future setup(
       (secrets.wyreApiKey?.isNotEmpty ?? false) &&
       (secrets.wyreAccountId?.isNotEmpty ?? false);
 
-  /*var isMoonPayEnabled = false;
+  var isMoonPayEnabled = false;
   try {
-    final locale = await Devicelocale.currentLocale;
-    final deviceCountryCode = locale.split('_').last;
-    isMoonPayEnabled = await MoonPayBuyProvider.onEnabled(deviceCountryCode);
+    isMoonPayEnabled = await MoonPayBuyProvider.onEnabled();
   } catch (e) {
     isMoonPayEnabled = false;
     print(e.toString());
-  }*/
+  }
 
   final settingsStore = await SettingsStoreBase.load(
       nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled,
-      isMoonPayEnabled: true);
+      isMoonPayEnabled: isMoonPayEnabled);
 
   if (_isSetupFinished) {
     return;

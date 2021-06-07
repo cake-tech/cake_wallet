@@ -23,7 +23,7 @@ class MoonPayBuyProvider extends BuyProvider {
   static const _currenciesSuffix = '/v3/currencies';
   static const _quoteSuffix = '/buy_quote';
   static const _transactionsSuffix = '/v1/transactions';
-  static const _countrySuffix = '/v3/countries';
+  static const _ipAddressSuffix = '/v4/ip_address';
   static const _apiKey = secrets.moonPayApiKey;
   static const _secretKey = secrets.moonPaySecretKey;
 
@@ -125,23 +125,15 @@ class MoonPayBuyProvider extends BuyProvider {
     );
   }
 
-  static Future<bool> onEnabled(String deviceCountryCode) async {
-    final url = _apiUrl + _countrySuffix;
+  static Future<bool> onEnabled() async {
+    final url = _apiUrl + _ipAddressSuffix + '?apiKey=' + _apiKey;
     var isBuyEnable = false;
 
     final response = await get(url);
 
     try {
-      final responseJSON = json.decode(response.body) as List<dynamic>;
-
-      for (var element in responseJSON) {
-        final countryMap = element as Map<String, dynamic>;
-        final countryCode = countryMap['alpha2'] as String;
-        if (countryCode == deviceCountryCode) {
-          isBuyEnable = countryMap['isBuyAllowed'] as bool;
-          break;
-        }
-      }
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      isBuyEnable = responseJSON['isBuyAllowed'] as bool;
     } catch (e) {
       isBuyEnable = false;
       print(e.toString());
