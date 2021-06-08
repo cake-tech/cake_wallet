@@ -180,10 +180,7 @@ class DashboardPage extends BasePage {
     final walletType = walletViewModel.type;
 
     switch (walletType) {
-      case WalletType.bitcoin:
-        Navigator.of(context).pushNamed(Routes.preOrder);
-        break;
-      default:
+      case WalletType.monero:
         await showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
@@ -193,6 +190,9 @@ class DashboardPage extends BasePage {
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop());
             });
+        break;
+      default:
+        Navigator.of(context).pushNamed(Routes.preOrder);
         break;
     }
   }
