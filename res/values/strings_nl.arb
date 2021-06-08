@@ -473,9 +473,18 @@
 
   "buy_alert_content" : "Momenteel ondersteunen we alleen de aankoop van Bitcoin. Om Bitcoin te kopen, moet u uw Bitcoin-portemonnee aanmaken of naar uw Bitcoin-portemonnee overschakelen",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
-
+  "outdated_electrum_wallet_description" : "Nieuwe Bitcoin-portefeuilles die in Cake zijn gemaakt, hebben nu een zaadje van 24 woorden. Het is verplicht dat u een nieuwe Bitcoin-portemonnee maakt en al uw geld overmaakt naar de nieuwe portemonnee van 24 woorden, en stopt met het gebruik van wallets met een seed van 12 woorden. Doe dit onmiddellijk om uw geld veilig te stellen.",
+  "understand" : "Ik begrijp het",
+  
   "address_detected" : "Adres gedetecteerd",
-  "address_from_domain" : "Je adres is van unstoppable domain ${domain}"
+  "address_from_domain" : "Je adres is van unstoppable domain ${domain}",
+
+  "apk_update" : "APK-update",
+
+  "buy_bitcoin" : "Koop Bitcoin",
+  "buy_with" : "Koop met",
+  "moonpay_alert_text" : "Waarde van het bedrag moet meer of gelijk zijn aan ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Als deze portemonnee een seed van 12 woorden heeft en is gemaakt in Cake, stort dan GEEN Bitcoin in deze portemonnee. Elke BTC die naar deze portemonnee is overgebracht, kan verloren gaan. Maak een nieuwe portemonnee van 24 woorden (tik op het menu rechtsboven, selecteer Portefeuilles, kies Nieuwe portemonnee maken en selecteer vervolgens Bitcoin) en verplaats je BTC ONMIDDELLIJK daar. Nieuwe (24-woorden) BTC-portefeuilles van Cake zijn veilig",
+  "do_not_show_me": "laat me dit niet opnieuw zien"
 }

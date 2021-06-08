@@ -473,9 +473,18 @@
 
   "buy_alert_content" : "वर्तमान में हम केवल बिटकॉइन की खरीद का समर्थन करते हैं। बिटकॉइन खरीदने के लिए, कृपया अपना बिटकॉइन वॉलेट बनाएं या स्विच करें",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
-
+  "outdated_electrum_wallet_description" : "केक में बनाए गए नए बिटकॉइन वॉलेट में अब 24-शब्द का बीज है। यह अनिवार्य है कि आप एक नया बिटकॉइन वॉलेट बनाएं और अपने सभी फंड को नए 24-शब्द वाले वॉलेट में स्थानांतरित करें, और 12-शब्द बीज वाले वॉलेट का उपयोग करना बंद करें। कृपया अपने धन को सुरक्षित करने के लिए इसे तुरंत करें।",
+  "understand" : "मुझे समझ",
+  
   "address_detected" : "पता लग गया",
   "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है"
+
+  "apk_update" : "APK अद्यतन",
+
+  "buy_bitcoin" : "बिटकॉइन खरीदें",
+  "buy_with" : "के साथ खरीदें",
+  "moonpay_alert_text" : "राशि का मूल्य अधिक है या करने के लिए बराबर होना चाहिए ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "अगर इस वॉलेट में 12 शब्दों का बीज है और इसे केक में बनाया गया है, तो इस वॉलेट में बिटकॉइन जमा न करें। इस वॉलेट में स्थानांतरित किया गया कोई भी बीटीसी खो सकता है। एक नया 24-शब्द वॉलेट बनाएं (ऊपर दाईं ओर स्थित मेनू पर टैप करें, वॉलेट चुनें, नया वॉलेट बनाएं चुनें, फिर बिटकॉइन चुनें) और तुरंत अपना बीटीसी वहां ले जाएं। केक से नए (24-शब्द) बीटीसी वॉलेट सुरक्षित हैं",
+  "do_not_show_me": "मुझे यह फिर न दिखाएं"
 }
