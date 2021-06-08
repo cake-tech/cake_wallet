@@ -73,9 +73,7 @@ class PreOrderPage extends BasePage {
   @override
   Widget trailing(context) => TrailButton(
       caption: S.of(context).clear,
-      onPressed: () {
-        buyViewModel.reset();
-      });
+      onPressed: () => buyViewModel.reset());
 
   @override
   Widget body(BuildContext context) {

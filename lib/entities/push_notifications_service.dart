@@ -10,6 +10,25 @@ class PushNotificationsService {
 
   static final PushNotificationsService _instance = PushNotificationsService._();
   static Future<dynamic> _onBackgroundMessage(Map<String, dynamic> message) async  {}
+  static Future<void> _showNotification(Map<String, dynamic> message) async {
+    Map<dynamic, dynamic> alert = <dynamic, dynamic>{};
+    String msg = '';
+    String title = '';
+
+    if (Platform.isIOS) {
+      alert = message['aps']['alert'] as Map<dynamic, dynamic> ?? <dynamic, dynamic>{};
+      msg = alert['body'] as String ?? '';
+      title = alert['title'] as String ?? '';
+    }
+
+    if (Platform.isAndroid) {
+      msg = message['notification']['body'] as String ?? '';
+      title = message['notification']['title'] as String ?? '';
+    }
+
+    await showBar<void>(navigatorKey.currentContext, msg, titleText: title, duration: null);
+  }
+
   final _firebaseMessaging = FirebaseMessaging();
   bool _initialized = false;
 
@@ -20,24 +39,9 @@ class PushNotificationsService {
 
     _firebaseMessaging.requestNotificationPermissions();
     _firebaseMessaging.configure(
-      onMessage: (message) async {
-        Map<dynamic, dynamic> alert = <dynamic, dynamic>{};
-        String msg = '';
-        String title = '';
-
-        if (Platform.isIOS) {
-          alert = message['aps']['alert'] as Map<dynamic, dynamic> ?? <dynamic, dynamic>{};
-          msg = alert['body'] as String ?? '';
-          title = alert['title'] as String ?? '';
-        }
-
-        if (Platform.isAndroid) {
-          msg = message['notification']['body'] as String ?? '';
-          title = message['notification']['title'] as String ?? '';
-        }
-
-        await showBar<void>(navigatorKey.currentContext, msg, titleText: title, duration: null);
-      },
+      onMessage: (message) async => _showNotification(message),
+      onLaunch: (message) async => _showNotification(message),
+      onResume: (message) async => _showNotification(message),
       onBackgroundMessage: _onBackgroundMessage);
 
     _initialized = true;

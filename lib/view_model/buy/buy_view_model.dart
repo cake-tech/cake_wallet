@@ -89,7 +89,11 @@ abstract class BuyViewModelBase with Store {
   }
 
   Future<void> _fetchBuyItems() async {
-    final List<BuyProvider> _providerList = [WyreBuyProvider(wallet: wallet)];
+    final List<BuyProvider> _providerList = [];
+
+    if (wallet.type == WalletType.bitcoin) {
+      _providerList.add(WyreBuyProvider(wallet: wallet));
+    }
 
     var isMoonPayEnabled = false;
     try {
