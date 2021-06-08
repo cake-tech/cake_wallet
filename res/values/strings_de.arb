@@ -471,7 +471,7 @@
 
   "submit_request" : "Einen Antrag stellen",
 
-  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin. Um Bitcoin zu kaufen, erstellen Sie bitte Ihre Bitcoin-Brieftasche oder wechseln Sie zu dieser",
+  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin und Litecoin. Um Bitcoin oder Litecoin zu kaufen, erstellen oder wechseln Sie bitte zu Ihrem Bitcoin- oder Litecoin-Wallet.",
 
   "outdated_electrum_wallet_description" : "Neue Bitcoin-Geldbörsen, die in Cake erstellt wurden, haben jetzt einen Startwert von 24 Wörtern. Es ist obligatorisch, dass Sie eine neue Bitcoin-Brieftasche erstellen, Ihr gesamtes Geld in die neue 24-Wörter-Brieftasche überweisen und keine Brieftaschen mit einem 12-Wörter-Startwert mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
   "understand" : "Ich verstehe",

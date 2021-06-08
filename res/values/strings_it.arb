@@ -471,7 +471,7 @@
 
   "submit_request" : "invia una richiesta",
 
-  "buy_alert_content" : "Attualmente supportiamo solo l'acquisto di Bitcoin. Per acquistare Bitcoin, crea o passa al tuo portafoglio Bitcoin",
+  "buy_alert_content" : "Attualmente supportiamo solo l'acquisto di Bitcoin e Litecoin. Per acquistare Bitcoin o Litecoin, crea o passa al tuo portafoglio Bitcoin o Litecoin.",
   
   "outdated_electrum_wallet_description" : "I nuovi portafogli Bitcoin creati in Cake ora hanno un seme di 24 parole. È obbligatorio creare un nuovo portafoglio Bitcoin e trasferire tutti i fondi nel nuovo portafoglio di 24 parole e smettere di usare portafogli con un seme di 12 parole. Ti preghiamo di farlo immediatamente per proteggere i tuoi fondi.",
   "understand" : "Capisco",
