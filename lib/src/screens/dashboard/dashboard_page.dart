@@ -132,29 +132,12 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
-              Observer(
-                  builder: (_) => Stack(
-                        clipBehavior: Clip.none,
-                        alignment: Alignment.topCenter,
-                        children: [
-                          if (walletViewModel.isRunningWebView)
-                            Positioned(
-                              top: -5,
-                              child: SpinKitRing(
-                                color: Theme.of(context).buttonColor,
-                                lineWidth: 3,
-                                size: 70.0,
-                              ),
-                            ),
-                          ActionButton(
-                              image: buyImage,
-                              title: S.of(context).buy,
-                              onClick: walletViewModel.isRunningWebView
-                                  ? null
-                                  : () async =>
-                                      await _onClickBuyButton(context))
-                        ],
-                      )),
+              ActionButton(
+                  image: buyImage,
+                  title: S.of(context).buy,
+                  onClick: () async =>
+                    await _onClickBuyButton(context),
+              ),
             ],
           ),
         )
@@ -167,7 +150,8 @@ class DashboardPage extends BasePage {
       return;
     }
 
-    pages.add(AddressPage(addressListViewModel: addressListViewModel));
+    pages.add(AddressPage(addressListViewModel: addressListViewModel,
+              walletViewModel: walletViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
@@ -183,7 +167,7 @@ class DashboardPage extends BasePage {
             return AlertWithOneAction(
                 alertTitle: S.of(context).pre_seed_title,
                 alertContent:
-                    S.of(context).outdated_electrum_wallet_desceription,
+                    S.of(context).outdated_electrum_wallet_description,
                 buttonText: S.of(context).understand,
                 buttonAction: () => Navigator.of(context).pop());
           });
@@ -197,14 +181,7 @@ class DashboardPage extends BasePage {
 
     switch (walletType) {
       case WalletType.bitcoin:
-        try {
-          walletViewModel.isRunningWebView = true;
-          final url = await walletViewModel.wyreViewModel.wyreUrl;
-          await Navigator.of(context).pushNamed(Routes.wyre, arguments: url);
-          walletViewModel.isRunningWebView = false;
-        } catch (_) {
-          walletViewModel.isRunningWebView = false;
-        }
+        Navigator.of(context).pushNamed(Routes.preOrder);
         break;
       default:
         await showPopUp<void>(

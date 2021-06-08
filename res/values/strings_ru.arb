@@ -473,9 +473,18 @@
 
   "buy_alert_content" : "В настоящее время мы поддерживаем только покупку Bitcoin. Чтобы купить Bitcoin, создайте или переключитесь на ваш Bitcoin кошелек",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
-
+  "outdated_electrum_wallet_description" : "Новые биткойн-кошельки, созданные в Cake, теперь содержат мнемоническую фразу из 24 слов. Вы обязательно должны создать новый биткойн-кошелек и перевести все свои средства в новый кошелек из 24 слов, а также прекратить использование кошельков с мнемонической фразой из 12 слов. Пожалуйста, сделайте это немедленно, чтобы обезопасить свои средства.",
+  "understand" : "Понятно",
+  
   "address_detected" : "Обнаружен адрес",
-  "address_from_domain" : "Вы получили адрес из unstoppable domain ${domain}"
+  "address_from_domain" : "Вы получили адрес из unstoppable domain ${domain}",
+
+  "apk_update" : "Обновление APK",
+
+  "buy_bitcoin" : "Купить Bitcoin",
+  "buy_with" : "Купить с помощью",
+  "moonpay_alert_text" : "Сумма должна быть больше или равна ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Если этот кошелек имеет мнемоническую фразу из 12 слов и был создан в Cake, НЕ переводите биткойны на этот кошелек. Любые BTC, переведенные на этот кошелек, могут быть потеряны. Создайте новый кошелек с мнемоническои фразы из 24 слов (коснитесь меню в правом верхнем углу, выберите «Кошельки», выберите «Создать новый кошелек», затем выберите «Bitcoin») и НЕМЕДЛЕННО переведите туда свои BTC. Новые (24 слова) кошельки BTC от Cake безопасны",
+  "do_not_show_me": "Не показывай мне это больше"
 }

@@ -19,4 +19,5 @@ class PreferencesKey {
       'current_default_settings_migration_version';
   static const moneroTransactionPriority = 'current_fee_priority_monero';
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
+  static const shouldShowReceiveWarning = 'should_show_receive_warning';
 }

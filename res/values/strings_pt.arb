@@ -473,9 +473,18 @@
 
   "buy_alert_content" : "Atualmente, apoiamos apenas a compra de Bitcoin. Para comprar Bitcoin, crie ou mude para sua carteira Bitcoin",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
-
+  "outdated_electrum_wallet_description" : "As novas carteiras Bitcoin criadas no Cake agora têm uma semente de 24 palavras. É obrigatório que você crie uma nova carteira Bitcoin e transfira todos os seus fundos para a nova carteira de 24 palavras, e pare de usar carteiras com semente de 12 palavras. Faça isso imediatamente para garantir seus fundos.",
+  "understand" : "Entendo",
+  
   "address_detected" : "Endereço detectado",
-  "address_from_domain" : "Você obteve o endereço de unstoppable domain ${domain}"
+  "address_from_domain" : "Você obteve o endereço de unstoppable domain ${domain}",
+
+  "apk_update" : "Atualização de APK",
+
+  "buy_bitcoin" : "Compre Bitcoin",
+  "buy_with" : "Compre com",
+  "moonpay_alert_text" : "O valor do montante deve ser maior ou igual a ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Se esta carteira tiver uma semente de 12 palavras e foi criada no Cake, NÃO deposite Bitcoin nesta carteira. Qualquer BTC transferido para esta carteira pode ser perdido. Crie uma nova carteira de 24 palavras (toque no menu no canto superior direito, selecione Carteiras, escolha Criar Nova Carteira e selecione Bitcoin) e mova IMEDIATAMENTE seu BTC para lá. As novas carteiras BTC (24 palavras) da Cake são seguras",
+  "do_not_show_me": "não me mostre isso novamente"
 }
