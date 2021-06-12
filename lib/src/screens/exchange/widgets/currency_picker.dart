@@ -45,6 +45,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
     color: Palette.darkBlueCraiola,
   );
   final int crossAxisCount = 3;
+  final int maxNumberItemsInAlert = 12;
   final int itemsCount;
   final double backgroundHeight = 280;
   final double thumbHeight = 72;
@@ -148,6 +149,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                         );
                                       })
                               ),
+                              if (itemsCount > maxNumberItemsInAlert)
                               CakeScrollbar(
                                   backgroundHeight: backgroundHeight,
                                   thumbHeight: thumbHeight,

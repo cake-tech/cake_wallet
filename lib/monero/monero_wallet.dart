@@ -271,6 +271,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await walletInfo.save();
   }
 
+  String getTransactionAddress(int accountIndex, int addressIndex) =>
+      monero_wallet.getAddress(
+          accountIndex: accountIndex,
+          addressIndex: addressIndex);
+
   @override
   Future<Map<String, MoneroTransactionInfo>> fetchTransactions() async {
     monero_transaction_history.refreshTransactions();

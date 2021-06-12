@@ -471,8 +471,17 @@
 
   "submit_request" : "złożyć wniosek",
 
-  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoinów. Aby kupić Bitcoin, utwórz lub przełącz się na swój portfel Bitcoin",
+  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoin i Litecoin. Aby kupić Bitcoin lub Litecoin, utwórz lub przełącz się na swój portfel Bitcoin lub Litecoin.",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand"
+  "outdated_electrum_wallet_description" : "Nowe portfele Bitcoin utworzone w Cake mają teraz ziarno składające się z 24 słów. Konieczne jest utworzenie nowego portfela Bitcoin i przeniesienie wszystkich środków do nowego portfela na 24 słowa oraz zaprzestanie korzystania z portfeli z zalążkiem na 12 słów. Zrób to natychmiast, aby zabezpieczyć swoje fundusze.",
+  "understand" : "Rozumiem",
+
+  "apk_update" : "Aktualizacja APK",
+
+  "buy_bitcoin" : "Kup Bitcoin",
+  "buy_with" : "Kup za pomocą",
+  "moonpay_alert_text" : "Wartość kwoty musi być większa lub równa ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Jeśli ten portfel ma 12-wyrazowy seed i został utworzony w Cake, NIE Wpłacaj Bitcoina do tego portfela. Wszelkie BTC przeniesione do tego portfela mogą zostać utracone. Utwórz nowy portfel z 24 słowami (dotknij menu w prawym górnym rogu, wybierz Portfele, wybierz Utwórz nowy portfel, a następnie Bitcoin) i NATYCHMIAST przenieś tam swoje BTC. Nowe (24 słowa) portfele BTC firmy Cake są bezpieczne",
+  "do_not_show_me": "Nie pokazuj mi tego ponownie"
 }
