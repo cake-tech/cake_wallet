@@ -471,8 +471,17 @@
 
   "submit_request" : "submit a request",
 
-  "buy_alert_content" : "Currently we only support the purchase of Bitcoin. To buy Bitcoin, please create or switch to your Bitcoin wallet",
+  "buy_alert_content" : "Currently we only support the purchase of Bitcoin and Litecoin. To buy Bitcoin or Litecoin, please create or switch to your Bitcoin or Litecoin wallet.",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand"
+  "outdated_electrum_wallet_description" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
+  "understand" : "I understand",
+
+  "apk_update" : "APK update",
+
+  "buy_bitcoin" : "Buy Bitcoin",
+  "buy_with" : "Buy with",
+  "moonpay_alert_text" : "Value of the amount must be more or equal to ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "If this wallet has a 12-word seed and was created in Cake, DO NOT deposit Bitcoin into this wallet. Any BTC transferred to this wallet may be lost. Create a new 24-word wallet (tap the menu at the top right, select Wallets, choose Create New Wallet, then select Bitcoin) and IMMEDIATELY move your BTC there. New (24-word) BTC wallets from Cake are secure",
+  "do_not_show_me": "Do not show me this again"
 }

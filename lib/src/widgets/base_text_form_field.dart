@@ -26,7 +26,8 @@ class BaseTextFormField extends StatelessWidget {
       this.placeholderTextStyle,
       this.maxLength,
       this.focusNode,
-      this.initialValue});
+      this.initialValue,
+      this.borderWidth = 1.0});
 
   final TextEditingController controller;
   final TextInputType keyboardType;
@@ -52,6 +53,7 @@ class BaseTextFormField extends StatelessWidget {
   final bool readOnly;
   final bool enableInteractiveSelection;
   final String initialValue;
+  final double borderWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -88,17 +90,17 @@ class BaseTextFormField extends StatelessWidget {
               borderSide: BorderSide(
                   color: borderColor ??
                       Theme.of(context).primaryTextTheme.title.backgroundColor,
-                  width: 1.0)),
+                  width: borderWidth)),
           disabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
                       Theme.of(context).primaryTextTheme.title.backgroundColor,
-                  width: 1.0)),
+                  width: borderWidth)),
           enabledBorder: UnderlineInputBorder(
               borderSide: BorderSide(
                   color: borderColor ??
                       Theme.of(context).primaryTextTheme.title.backgroundColor,
-                  width: 1.0))),
+                  width: borderWidth))),
       validator: validator,
     );
   }

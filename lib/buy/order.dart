@@ -1,3 +1,4 @@
+import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/entities/format_amount.dart';
@@ -8,6 +9,7 @@ part 'order.g.dart';
 class Order extends HiveObject {
   Order(
       {this.id,
+        BuyProviderDescription provider,
         this.transferId,
         this.from,
         this.to,
@@ -16,7 +18,8 @@ class Order extends HiveObject {
         this.amount,
         this.receiveAddress,
         this.walletId})
-      : stateRaw = state?.raw;
+      : providerRaw = provider?.raw,
+        stateRaw = state?.raw;
 
   static const typeId = 8;
   static const boxName = 'Orders';
@@ -50,6 +53,12 @@ class Order extends HiveObject {
 
   @HiveField(8)
   String walletId;
+
+  @HiveField(9)
+  int providerRaw;
+
+  BuyProviderDescription get provider =>
+      BuyProviderDescription.deserialize(raw: providerRaw);
 
   String amountFormatted() => formatAmount(amount);
 }
