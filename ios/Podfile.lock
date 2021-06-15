@@ -191,6 +191,7 @@ SPEC REPOS:
     - CryptoSwift
     - DKImagePickerController
     - DKPhotoGallery
+    - EthereumAddress
     - Firebase
     - FirebaseCore
     - FirebaseCoreDiagnostics
@@ -199,7 +200,6 @@ SPEC REPOS:
     - FirebaseMessaging
     - GoogleDataTransport
     - GoogleUtilities
-    - EthereumAddress
     - MTBBarcodeScanner
     - nanopb
     - PromisesObjC
@@ -290,6 +290,5 @@ SPEC CHECKSUMS:
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
 
-PODFILE CHECKSUM: 5b5f101b119a1b6eb857c967d462832a9062dec4
 
 COCOAPODS: 1.10.1
