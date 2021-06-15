@@ -480,7 +480,7 @@
   "moonpay_alert_text" : "Der Wert des Betrags muss größer oder gleich sein ${minAmount} ${fiatCurrency}",
 
   "outdated_electrum_wallet_receive_warning": "Wenn diese Brieftasche einen 12-Wort-Seed hat und in Cake erstellt wurde, zahlen Sie KEINE Bitcoins in diese Brieftasche ein. Alle auf diese Wallet übertragenen BTC können verloren gehen. Erstellen Sie eine neue 24-Wort-Wallet (tippen Sie auf das Menü oben rechts, wählen Sie Wallets, wählen Sie Create New Wallet und dann Bitcoin) und verschieben Sie Ihre BTC SOFORT dorthin. Neue (24 Wörter) BTC-Wallets von Cake sind sicher",
-  "do_not_show_me": "Zeig mir das nicht noch einmal"
+  "do_not_show_me": "Zeig mir das nicht noch einmal",
   "outdated_electrum_wallet_description" : "Neue Bitcoin-Geldbörsen, die in Cake erstellt wurden, haben jetzt einen Startwert von 24 Wörtern. Es ist obligatorisch, dass Sie eine neue Bitcoin-Brieftasche erstellen, Ihr gesamtes Geld in die neue 24-Wörter-Brieftasche überweisen und keine Brieftaschen mit einem 12-Wörter-Startwert mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
   "understand" : "Ich verstehe",
 
