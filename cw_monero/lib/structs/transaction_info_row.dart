@@ -23,6 +23,9 @@ class TransactionInfoRow extends Struct {
   @Int8()
   int isPending;
 
+  @Uint32()
+  int subaddrIndex;
+
   Pointer<Utf8> hash;
 
   Pointer<Utf8> paymentId;

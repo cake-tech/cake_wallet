@@ -19,7 +19,33 @@ class OrderDetailsPage extends BasePage {
   final OrderDetailsViewModel orderDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) {
+  Widget body(BuildContext context) =>
+      OrderDetailsPageBody(orderDetailsViewModel);
+}
+
+class OrderDetailsPageBody extends StatefulWidget {
+  OrderDetailsPageBody(this.orderDetailsViewModel);
+
+  final OrderDetailsViewModel orderDetailsViewModel;
+
+  @override
+  OrderDetailsPageBodyState createState() =>
+      OrderDetailsPageBodyState(orderDetailsViewModel);
+}
+
+class OrderDetailsPageBodyState extends State<OrderDetailsPageBody> {
+  OrderDetailsPageBodyState(this.orderDetailsViewModel);
+
+  final OrderDetailsViewModel orderDetailsViewModel;
+
+  @override
+  void dispose() {
+    super.dispose();
+    orderDetailsViewModel.timer?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Observer(builder: (_) {
       return SectionStandardList(
           sectionCount: 1,
@@ -44,4 +70,5 @@ class OrderDetailsPage extends BasePage {
           });
     });
   }
+
 }

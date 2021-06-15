@@ -471,10 +471,19 @@
 
   "submit_request" : "надіслати запит",
 
-  "buy_alert_content" : "На даний час ми підтримуємо тільки покупку Bitcoin. Щоб купити Bitcoin, будь ласка, створіть або переключіться на ваш Bitcoin гаманець",
+  "buy_alert_content" : "В даний час ми підтримуємо лише придбання Bitcoin та Litecoin. Щоб купити Bitcoin або Litecoin, будь ласка, створіть або перейдіть на свій гаманець Bitcoin або Litecoin.",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
+  "outdated_electrum_wallet_description" : "Нові біткойн-гаманці, створені в Cake, тепер містять мнемонічну фразу з 24 слів. Обов’язково стовріть новий біткойн-гаманець, переведіть всі кошти на новий гаманець із 24 слів і припиніть використання гаманців із мнемонічною фразою з 12 слів. Зробіть це негайно, щоб убезпечити свої кошти.",
+  "understand" : "Зрозуміло",
+
+  "apk_update" : "Оновлення APK",
+
+  "buy_bitcoin" : "Купити Bitcoin",
+  "buy_with" : "Купити за допомогою",
+  "moonpay_alert_text" : "Значення суми має бути більшим або дорівнювати ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Якщо цей гаманець має мнемонічну фразу з 12 слів і був створений у Cake, НЕ переводьте біткойни на цей гаманець. Будь-які BTC, переведений на цей гаманець, можуть бути втраченими. Створіть новий гаманець з мнемонічною фразою з 24 слів (торкніться меню у верхньому правому куті, виберіть Гаманці, виберіть Створити новий гаманець, потім виберіть Bitcoin) і НЕГАЙНО переведіть туди свії BTC. Нові (з мнемонічною фразою з 24 слів) гаманці BTC від Cake надійно захищені",
+  "do_not_show_me": "Не показуй мені це знову",
 
   "address_detected" : "Виявлено адресу",
   "address_from_domain" : "Ви отримали адресу від unstoppable domain ${domain}"
