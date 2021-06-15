@@ -38,10 +38,9 @@ class SendPage extends BasePage {
         _cryptoAmountFocus = FocusNode(),
         _fiatAmountFocus = FocusNode(),
         _addressFocusNode = FocusNode() {
-    _addressFocusNode.addListener(() async {
+    _addressFocusNode.addListener(() {
       if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
-        await getOpenaliasRecord(_addressFocusNode.context);
-        await applyUnstoppableDomainAddress(_addressFocusNode.context);
+        applyOpenaliasOrUnstoppableDomains(_addressFocusNode.context);
       }
     });
   }
@@ -174,9 +173,8 @@ class SendPage extends BasePage {
                                         .headline
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
-                                onPushPasteButton: (context) async {
-                                  await getOpenaliasRecord(context);
-                                  await applyUnstoppableDomainAddress(context);
+                                onPushPasteButton: (context) {
+                                  applyOpenaliasOrUnstoppableDomains(context);
                                 },
                               ),
                               Observer(
@@ -518,13 +516,12 @@ class SendPage extends BasePage {
                                     to: template.name,
                                     amount: template.amount,
                                     from: template.cryptoCurrency,
-                                    onTap: () async {
+                                    onTap: () {
                                       _addressController.text =
                                           template.address;
                                       _cryptoAmountController.text =
                                           template.amount;
-                                      await getOpenaliasRecord(context);
-                                      await applyUnstoppableDomainAddress(context);
+                                      applyOpenaliasOrUnstoppableDomains(context);
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -790,6 +787,22 @@ class SendPage extends BasePage {
       }
     } catch (e) {
       print(e.toString());
+    }
+  }
+
+  void applyOpenaliasOrUnstoppableDomains(BuildContext context) async {
+    const topLevelDomain = 'crypto';
+    final address = _addressController.text;
+
+    if (address.contains('.')) {
+      final name = address.split('.').last;
+      if (name.isNotEmpty) {
+        if (name == topLevelDomain) {
+          await applyUnstoppableDomainAddress(context);
+        } else {
+          await getOpenaliasRecord(context);
+        }
+      }
     }
   }
 }

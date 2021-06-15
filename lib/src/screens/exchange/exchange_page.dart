@@ -778,15 +778,22 @@ class ExchangePage extends BasePage {
 
   Future<String> applyUnstoppableDomainAddress(BuildContext context,
       String domain, String ticker) async {
-    try {
-      final address =
-        await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-      if ((address != null)&&address.isNotEmpty) {
-        unstoppableDomainAddressAlert(context, domain);
-        return address;
+    const topLevelDomain = 'crypto';
+
+    if (domain.contains('.')) {
+      final name = domain.split('.').last;
+      if (name.isNotEmpty && (name == topLevelDomain)) {
+        try {
+          final address =
+          await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
+          if ((address != null)&&address.isNotEmpty) {
+            unstoppableDomainAddressAlert(context, domain);
+            return address;
+          }
+        } catch (e) {
+          print(e.toString());
+        }
       }
-    } catch (e) {
-      print(e.toString());
     }
 
     return domain;
