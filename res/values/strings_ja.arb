@@ -471,10 +471,19 @@
 
   "submit_request" : "リクエストを送信する",
 
-  "buy_alert_content" : "現在、ビットコインの購入のみをサポートしています。 ビットコインを購入するには、ビットコインウォレットを作成するか切り替えてください",
+  "buy_alert_content" : "現在、ビットコインとライトコインの購入のみをサポートしています。 ビットコインまたはライトコインを購入するには、ビットコインまたはライトコインのウォレットを作成するか、ウォレットに切り替えてください。",
 
-  "outdated_electrum_wallet_desceription" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
-  "understand" : "I understand",
+  "outdated_electrum_wallet_description" : "Cakeで作成された新しいビットコインウォレットには、24ワードのシードがあります。 新しいビットコインウォレットを作成し、すべての資金を新しい24ワードのウォレットに転送し、12ワードのシードを持つウォレットの使用を停止することが必須です。 あなたの資金を確保するためにこれをすぐに行ってください。",
+  "understand" : "わかります",
+
+  "apk_update" : "APKアップデート",
+
+  "buy_bitcoin" : "ビットコインを購入する",
+  "buy_with" : "で購入",
+  "moonpay_alert_text" : "金額の値は以上でなければなりません ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "このウォレットに 12 ワードのシードがあり、Cake で作成された場合、このウォレットにビットコインを入金しないでください。 このウォレットに転送された BTC は失われる可能性があります。 新しい 24 ワードのウォレットを作成し (右上のメニューをタップし、[ウォレット]、[新しいウォレットの作成]、[ビットコイン] の順に選択)、すぐに BTC をそこに移動します。 Cake の新しい (24 ワード) BTC ウォレットは安全です",
+  "do_not_show_me": "また僕にこれを見せないでください",
 
   "address_detected" : "アドレスが検出されました",
   "address_from_domain" : "あなたはからアドレスを得ました unstoppable domain ${domain}"

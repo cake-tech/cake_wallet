@@ -22,3 +22,10 @@
 -
   uri: node.imonero.org:18081
   is_default: false
+
+  uri: node.c3pool.com:18081
+  is_default: false
+  
+  uri: xmr.prprpr.icu:18081
+  is_default: false
+

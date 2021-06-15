@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -33,6 +34,9 @@ class ReceivePage extends BasePage {
 
   @override
   Color get backgroundDarkColor => Colors.transparent;
+
+  @override
+  bool get resizeToAvoidBottomInset => false;
 
   final FocusNode _cryptoAmountFocus;
 
@@ -124,7 +128,8 @@ class ReceivePage extends BasePage {
                 child: QRWidget(
                     addressListViewModel: addressListViewModel,
                     isAmountFieldShow: true,
-                    amountTextFieldFocusNode: _cryptoAmountFocus),
+                    amountTextFieldFocusNode: _cryptoAmountFocus,
+                    isBright: currentTheme.type == ThemeType.bright),
               ),
               Observer(
                   builder: (_) => ListView.separated(
