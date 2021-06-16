@@ -43,7 +43,6 @@ import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
-import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';

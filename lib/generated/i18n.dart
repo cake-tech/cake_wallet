@@ -165,7 +165,7 @@ Fee: ${fee}""";
   String get restore_wallet_restore_description => """Wallet restore description""";
   String get restore_new_seed => """New seed""";
   String get restore_active_seed => """Active seed""";
-  String get restore_bitcoin_description_from_seed => """Restore your wallet from 12 word combination code""";
+  String get restore_bitcoin_description_from_seed => """Restore your wallet from 24 word combination code""";
   String get restore_bitcoin_description_from_keys => """Restore your wallet from generated WIF string from your private keys""";
   String get restore_bitcoin_title_from_keys => """Restore from WIF""";
   String get restore_from_date_or_blockheight => """Please enter a date a few days before you created this wallet. Or if you know the blockheight, please enter it instead""";
@@ -410,6 +410,15 @@ ${recipient_name}""";
   String get unconfirmed => """Unconfirmed""";
   String get displayable => """Displayable""";
   String get submit_request => """submit a request""";
+  String get buy_alert_content => """Currently we only support the purchase of Bitcoin and Litecoin. To buy Bitcoin or Litecoin, please create or switch to your Bitcoin or Litecoin wallet.""";
+  String get outdated_electrum_wallet_description => """New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.""";
+  String get understand => """I understand""";
+  String get apk_update => """APK update""";
+  String get buy_bitcoin => """Buy Bitcoin""";
+  String get buy_with => """Buy with""";
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Value of the amount must be more or equal to ${minAmount} ${fiatCurrency}""";
+  String get outdated_electrum_wallet_receive_warning => """If this wallet has a 12-word seed and was created in Cake, DO NOT deposit Bitcoin into this wallet. Any BTC transferred to this wallet may be lost. Create a new 24-word wallet (tap the menu at the top right, select Wallets, choose Create New Wallet, then select Bitcoin) and IMMEDIATELY move your BTC there. New (24-word) BTC wallets from Cake are secure""";
+  String get do_not_show_me => """Do not show me this again""";
 }
 
 class $nl extends S {
@@ -715,7 +724,7 @@ honorarium: ${fee}""";
   @override
   String get restore_active_seed => """Actief zaad""";
   @override
-  String get restore_bitcoin_description_from_seed => """Herstel uw portemonnee met een combinatiecode van 12 woorden""";
+  String get restore_bitcoin_description_from_seed => """Herstel uw portemonnee met een combinatiecode van 24 woorden""";
   @override
   String get restore_bitcoin_description_from_keys => """Herstel uw portemonnee van de gegenereerde WIF-string van uw privésleutels""";
   @override
@@ -1193,6 +1202,24 @@ ${recipient_name}""";
   String get displayable => """Weer te geven""";
   @override
   String get submit_request => """een verzoek indienen""";
+  @override
+  String get buy_alert_content => """Momenteel ondersteunen we alleen de aankoop van Bitcoin en Litecoin. Om Bitcoin of Litecoin te kopen, maakt u uw Bitcoin- of Litecoin-portemonnee aan of schakelt u over naar deze.""";
+  @override
+  String get outdated_electrum_wallet_description => """Nieuwe Bitcoin-portefeuilles die in Cake zijn gemaakt, hebben nu een zaadje van 24 woorden. Het is verplicht dat u een nieuwe Bitcoin-portemonnee maakt en al uw geld overmaakt naar de nieuwe portemonnee van 24 woorden, en stopt met het gebruik van wallets met een seed van 12 woorden. Doe dit onmiddellijk om uw geld veilig te stellen.""";
+  @override
+  String get understand => """Ik begrijp het""";
+  @override
+  String get apk_update => """APK-update""";
+  @override
+  String get buy_bitcoin => """Koop Bitcoin""";
+  @override
+  String get buy_with => """Koop met""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Waarde van het bedrag moet meer of gelijk zijn aan ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Als deze portemonnee een seed van 12 woorden heeft en is gemaakt in Cake, stort dan GEEN Bitcoin in deze portemonnee. Elke BTC die naar deze portemonnee is overgebracht, kan verloren gaan. Maak een nieuwe portemonnee van 24 woorden (tik op het menu rechtsboven, selecteer Portefeuilles, kies Nieuwe portemonnee maken en selecteer vervolgens Bitcoin) en verplaats je BTC ONMIDDELLIJK daar. Nieuwe (24-woorden) BTC-portefeuilles van Cake zijn veilig""";
+  @override
+  String get do_not_show_me => """laat me dit niet opnieuw zien""";
 }
 
 class $zh extends S {
@@ -1202,11 +1229,11 @@ class $zh extends S {
   TextDirection get textDirection => TextDirection.ltr;
   
   @override
-  String get welcome => """歡迎來到""";
+  String get welcome => """欢迎使用""";
   @override
   String get cake_wallet => """Cake Wallet""";
   @override
-  String get first_wallet_text => """很棒的Monero和比特幣錢包""";
+  String get first_wallet_text => """很棒的门罗币和比特币钱包""";
   @override
   String get please_make_selection => """请在下面进行选择 创建或恢复您的钱包.""";
   @override
@@ -1214,13 +1241,13 @@ class $zh extends S {
   @override
   String get restore_wallet => """恢复钱包""";
   @override
-  String get accounts => """帐目""";
+  String get accounts => """账户""";
   @override
   String get edit => """编辑""";
   @override
   String get account => """帐户""";
   @override
-  String get add => """加""";
+  String get add => """添加""";
   @override
   String get address_book => """地址簿""";
   @override
@@ -1230,17 +1257,17 @@ class $zh extends S {
   @override
   String get cancel => """取消""";
   @override
-  String get ok => """好""";
+  String get ok => """确认""";
   @override
   String get contact_name => """联系人姓名""";
   @override
-  String get reset => """重启""";
+  String get reset => """重置""";
   @override
   String get save => """保存""";
   @override
-  String get address_remove_contact => """刪除聯繫人""";
+  String get address_remove_contact => """刪除联系人""";
   @override
-  String get address_remove_content => """您確定要刪除所選的聯繫人嗎？""";
+  String get address_remove_content => """您确定要刪除所选的联系人吗？""";
   @override
   String get authenticated => """已认证""";
   @override
@@ -1252,9 +1279,9 @@ class $zh extends S {
   @override
   String Blocks_remaining(String status) => """${status} 剩余的块""";
   @override
-  String get please_try_to_connect_to_another_node => """请尝试连接到另一个节点""";
+  String get please_try_to_connect_to_another_node => """请尝试连接到其他节点""";
   @override
-  String get xmr_hidden => """隱""";
+  String get xmr_hidden => """隐藏""";
   @override
   String get xmr_available_balance => """可用余额 """;
   @override
@@ -1264,17 +1291,17 @@ class $zh extends S {
   @override
   String get receive => """接收""";
   @override
-  String get transactions => """交易次数""";
+  String get transactions => """交易情况""";
   @override
-  String get incoming => """传入""";
+  String get incoming => """收到""";
   @override
-  String get outgoing => """外向""";
+  String get outgoing => """发送""";
   @override
   String get transactions_by_date => """按日期交易""";
   @override
   String get trades => """交易""";
   @override
-  String get filters => """過濾""";
+  String get filters => """过滤""";
   @override
   String get today => """今天""";
   @override
@@ -1290,61 +1317,61 @@ class $zh extends S {
   @override
   String get reconnect => """重新连接""";
   @override
-  String get wallets => """皮夹""";
+  String get wallets => """钱包""";
   @override
   String get show_seed => """显示种子""";
   @override
-  String get show_keys => """顯示種子/密鑰""";
+  String get show_keys => """显示种子/密钥""";
   @override
   String get address_book_menu => """地址簿""";
   @override
-  String get reconnection => """重新连线""";
+  String get reconnection => """重新连接""";
   @override
   String get reconnect_alert_text => """您确定要重新连接吗？""";
   @override
-  String get exchange => """交换""";
+  String get exchange => """兑换""";
   @override
-  String get clear => """明确""";
+  String get clear => """清空""";
   @override
   String get refund_address => """退款地址""";
   @override
-  String get change_exchange_provider => """更改交易所提供商""";
+  String get change_exchange_provider => """更改交易所""";
   @override
-  String get you_will_send => """從轉換""";
+  String get you_will_send => """转换自""";
   @override
-  String get you_will_get => """轉換成""";
+  String get you_will_get => """转换到""";
   @override
-  String get amount_is_guaranteed => """接收金額有保證""";
+  String get amount_is_guaranteed => """保证收到的金额""";
   @override
   String get amount_is_estimate => """收款金额为估算值""";
   @override
-  String powered_by(String title) => """供电 ${title}""";
+  String powered_by(String title) => """Powered by ${title}""";
   @override
   String get error => """错误""";
   @override
-  String get estimated => """估计的""";
+  String get estimated => """估计值""";
   @override
-  String min_value(String value, String currency) => """敏: ${value} ${currency}""";
+  String min_value(String value, String currency) => """最低: ${value} ${currency}""";
   @override
   String max_value(String value, String currency) => """最高: ${value} ${currency}""";
   @override
   String get change_currency => """更改币种""";
   @override
-  String get copy_id => """复印ID""";
+  String get copy_id => """复制ID""";
   @override
   String get exchange_result_write_down_trade_id => """请复制或写下交易编号以继续.""";
   @override
-  String get trade_id => """贸易编号:""";
+  String get trade_id => """交易编号:""";
   @override
   String get copied_to_clipboard => """复制到剪贴板""";
   @override
-  String get saved_the_trade_id => """我已经保存了交易ID""";
+  String get saved_the_trade_id => """我已经保存了交易编号""";
   @override
-  String get fetching => """正在取得""";
+  String get fetching => """正在获取""";
   @override
   String get id => """ID: """;
   @override
-  String get amount => """量: """;
+  String get amount => """金额: """;
   @override
   String get payment_id => """付款 ID: """;
   @override
@@ -1356,11 +1383,11 @@ class $zh extends S {
   @override
   String get copy_address => """复制地址""";
   @override
-  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => """点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到下面顯示的地址。 或者您可以從外部錢包發送到以下地址/ QR码。
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => """点击确认 您将发送 ${fetchingLabel} ${from} 从你的钱包里 ${walletName} 到下面显示的地址。 或者您可以从外部钱包发送到以下地址/ QR码。
 
 请按确认继续或返回以更改金额""";
   @override
-  String exchange_result_description(String fetchingLabel, String from) => """您必須至少發送 ${fetchingLabel} ${from} 到下一頁上顯示的地址。 如果您發送的金額少於 ${fetchingLabel} ${from}，則可能無法轉換，因此無法退還。""";
+  String exchange_result_description(String fetchingLabel, String from) => """您必须至少发送 ${fetchingLabel} ${from} 到下一页上显示的地址。 如果您发送的金额少于 ${fetchingLabel} ${from}，则可能无法转换，因此无法退还。""";
   @override
   String get exchange_result_write_down_ID => """*请复制或写下您上面显示的ID.""";
   @override
@@ -1369,8 +1396,8 @@ class $zh extends S {
   String get confirm_sending => """确认发送""";
   @override
   String commit_transaction_amount_fee(String amount, String fee) => """提交交易
-量: ${amount}
-Fee: ${fee}""";
+金额: ${amount}
+手续费: ${fee}""";
   @override
   String get sending => """正在发送""";
   @override
@@ -1382,13 +1409,13 @@ Fee: ${fee}""";
   @override
   String get send_xmr => """发送 XMR""";
   @override
-  String get exchange_new_template => """新範本""";
+  String get exchange_new_template => """新模板""";
   @override
   String get faq => """FAQ""";
   @override
   String get enter_your_pin => """输入密码""";
   @override
-  String get loading_your_wallet => """装钱包""";
+  String get loading_your_wallet => """加载您的钱包""";
   @override
   String get new_wallet => """新钱包""";
   @override
@@ -1396,7 +1423,7 @@ Fee: ${fee}""";
   @override
   String get continue_text => """继续""";
   @override
-  String get choose_wallet_currency => """請選擇錢包貨幣：""";
+  String get choose_wallet_currency => """请选择钱包货币：""";
   @override
   String get node_new => """新节点""";
   @override
@@ -1422,43 +1449,43 @@ Fee: ${fee}""";
   @override
   String get remove_node_message => """您确定要删除所选节点吗？""";
   @override
-  String get remove => """去掉""";
+  String get remove => """确定""";
   @override
   String get delete => """删除""";
   @override
-  String get add_new_node => """添加新節點""";
+  String get add_new_node => """添加新节点""";
   @override
-  String get change_current_node_title => """更改當前節點""";
+  String get change_current_node_title => """更改当前节点""";
   @override
-  String get node_test => """測試""";
+  String get node_test => """测试""";
   @override
-  String get node_connection_successful => """連接成功""";
+  String get node_connection_successful => """连接成功""";
   @override
-  String get node_connection_failed => """連接失敗""";
+  String get node_connection_failed => """连接失败""";
   @override
-  String get new_node_testing => """新節點測試""";
+  String get new_node_testing => """新节点测试""";
   @override
-  String get use => """採用 """;
+  String get use => """切换使用""";
   @override
-  String get digit_pin => """数字别针""";
+  String get digit_pin => """位 PIN""";
   @override
   String get share_address => """分享地址""";
   @override
-  String get receive_amount => """量""";
+  String get receive_amount => """金额""";
   @override
   String get subaddresses => """子地址""";
   @override
   String get addresses => """地址""";
   @override
-  String get scan_qr_code => """掃描二維碼獲取地址""";
+  String get scan_qr_code => """扫描二维码获取地址""";
   @override
-  String get rename => """改名""";
+  String get rename => """重命名""";
   @override
-  String get choose_account => """選擇帳號""";
+  String get choose_account => """选择账户""";
   @override
-  String get create_new_account => """建立新帳戶""";
+  String get create_new_account => """建立新账户""";
   @override
-  String get accounts_subaddresses => """帳戶和子地址""";
+  String get accounts_subaddresses => """账户和子地址""";
   @override
   String get restore_restore_wallet => """恢复钱包""";
   @override
@@ -1480,33 +1507,33 @@ Fee: ${fee}""";
   @override
   String get restore_title_from_keys => """从密钥还原""";
   @override
-  String get restore_description_from_keys => """R从生成的电子钱包从您的私钥中保存的击键""";
+  String get restore_description_from_keys => """使用私钥恢复钱包""";
   @override
   String get restore_wallet_name => """钱包名称""";
   @override
   String get restore_address => """地址""";
   @override
-  String get restore_view_key_private => """查看金钥 (私人的)""";
+  String get restore_view_key_private => """View私钥""";
   @override
-  String get restore_spend_key_private => """支出金钥 (私人的)""";
+  String get restore_spend_key_private => """Spend私钥""";
   @override
   String get restore_recover => """恢复""";
   @override
   String get restore_wallet_restore_description => """钱包还原说明""";
   @override
-  String get restore_new_seed => """新種子""";
+  String get restore_new_seed => """新种子""";
   @override
-  String get restore_active_seed => """活性種子""";
+  String get restore_active_seed => """活性种子""";
   @override
-  String get restore_bitcoin_description_from_seed => """從12個單詞的組合碼恢復您的錢包""";
+  String get restore_bitcoin_description_from_seed => """从24个文字的组成码恢复您的钱包""";
   @override
-  String get restore_bitcoin_description_from_keys => """從私鑰中生成的WIF字符串還原您的錢包""";
+  String get restore_bitcoin_description_from_keys => """从私钥中生成的WIF字符串恢复您钱包""";
   @override
-  String get restore_bitcoin_title_from_keys => """從WIF還原""";
+  String get restore_bitcoin_title_from_keys => """从WIF还原""";
   @override
-  String get restore_from_date_or_blockheight => """請在創建此錢包之前幾天輸入一個日期。 或者，如果您知道塊高，請改為輸入""";
+  String get restore_from_date_or_blockheight => """请输入您创建这个钱包前几天的日期。或者如果您知道区块高度，请输入区块高度""";
   @override
-  String get seed_reminder => """請寫下這些，以防丟失或擦拭手機""";
+  String get seed_reminder => """请记下这些内容，以防丟失或数据损坏""";
   @override
   String get seed_title => """种子""";
   @override
@@ -1514,29 +1541,29 @@ Fee: ${fee}""";
   @override
   String get copy => """复制""";
   @override
-  String get seed_language_choose => """請選擇種子語言:""";
+  String get seed_language_choose => """请选择种子语言:""";
   @override
-  String get seed_choose => """選擇種子語言""";
+  String get seed_choose => """选择种子语言""";
   @override
   String get seed_language_next => """下一个""";
   @override
-  String get seed_language_english => """英語""";
+  String get seed_language_english => """英文""";
   @override
   String get seed_language_chinese => """中文""";
   @override
-  String get seed_language_dutch => """荷蘭人""";
+  String get seed_language_dutch => """荷兰文""";
   @override
-  String get seed_language_german => """德語""";
+  String get seed_language_german => """德文""";
   @override
-  String get seed_language_japanese => """日本""";
+  String get seed_language_japanese => """日文""";
   @override
-  String get seed_language_portuguese => """葡萄牙語""";
+  String get seed_language_portuguese => """葡萄牙文""";
   @override
-  String get seed_language_russian => """俄語""";
+  String get seed_language_russian => """俄文""";
   @override
   String get seed_language_spanish => """西班牙文""";
   @override
-  String get send_title => """發送""";
+  String get send_title => """发送""";
   @override
   String get send_your_wallet => """你的钱包""";
   @override
@@ -1544,7 +1571,7 @@ Fee: ${fee}""";
   @override
   String get send_payment_id => """付款编号 (可选的)""";
   @override
-  String get all => """所有""";
+  String get all => """全部""";
   @override
   String get send_error_minimum_value => """最小金额为0.01""";
   @override
@@ -1557,21 +1584,21 @@ Fee: ${fee}""";
   @override
   String get send_creating_transaction => """创建交易""";
   @override
-  String get send_templates => """範本""";
+  String get send_templates => """模板""";
   @override
-  String get send_new => """新""";
+  String get send_new => """新建""";
   @override
-  String get send_amount => """量:""";
+  String get send_amount => """金额:""";
   @override
-  String get send_fee => """費用:""";
+  String get send_fee => """手续费:""";
   @override
-  String get send_name => """名稱""";
+  String get send_name => """名称""";
   @override
-  String get send_got_it => """得到它了""";
+  String get send_got_it => """明白""";
   @override
-  String get send_sending => """正在發送...""";
+  String get send_sending => """正在发送...""";
   @override
-  String send_success(String crypto) => """你${crypto}已成功發送""";
+  String send_success(String crypto) => """您的${crypto}已成功发送""";
   @override
   String get settings_title => """设定值""";
   @override
@@ -1579,13 +1606,13 @@ Fee: ${fee}""";
   @override
   String get settings_current_node => """当前节点""";
   @override
-  String get settings_wallets => """皮夹""";
+  String get settings_wallets => """钱包""";
   @override
   String get settings_display_balance_as => """将余额显示为""";
   @override
   String get settings_currency => """货币""";
   @override
-  String get settings_fee_priority => """费用优先""";
+  String get settings_fee_priority => """交易优先级""";
   @override
   String get settings_save_recipient_address => """保存收件人地址""";
   @override
@@ -1593,19 +1620,19 @@ Fee: ${fee}""";
   @override
   String get settings_change_pin => """更改密码""";
   @override
-  String get settings_change_language => """改变语言""";
+  String get settings_change_language => """修改语言""";
   @override
-  String get settings_allow_biometrical_authentication => """允许生物特征认证""";
+  String get settings_allow_biometrical_authentication => """允许生物识别认证""";
   @override
-  String get settings_dark_mode => """暗模式""";
+  String get settings_dark_mode => """黑暗模式""";
   @override
-  String get settings_transactions => """交易次数""";
+  String get settings_transactions => """交易情况""";
   @override
   String get settings_trades => """交易""";
   @override
   String get settings_display_on_dashboard_list => """显示在仪表板上""";
   @override
-  String get settings_all => """所有""";
+  String get settings_all => """全部""";
   @override
   String get settings_only_trades => """只交易""";
   @override
@@ -1613,7 +1640,7 @@ Fee: ${fee}""";
   @override
   String get settings_none => """没有""";
   @override
-  String get settings_support => """支持""";
+  String get settings_support => """帮助""";
   @override
   String get settings_terms_and_conditions => """条款和条件""";
   @override
@@ -1625,21 +1652,21 @@ Fee: ${fee}""";
   @override
   String get setup_successful => """您的PIN码已成功设置!""";
   @override
-  String get wallet_keys => """錢包種子/鑰匙""";
+  String get wallet_keys => """钱包种子/密钥""";
   @override
-  String get wallet_seed => """錢包種子""";
+  String get wallet_seed => """钱包种子""";
   @override
-  String get private_key => """私鑰""";
+  String get private_key => """私钥""";
   @override
-  String get public_key => """公鑰""";
+  String get public_key => """公钥""";
   @override
-  String get view_key_private => """查看金钥 (私人的)""";
+  String get view_key_private => """View 密钥(私钥)""";
   @override
-  String get view_key_public => """查看金钥 (public)""";
+  String get view_key_public => """View 密钥(公钥)""";
   @override
-  String get spend_key_private => """支出金钥 (私人的)""";
+  String get spend_key_private => """Spend 密钥 (私钥)""";
   @override
-  String get spend_key_public => """支出金钥 (public)""";
+  String get spend_key_public => """Spend 密钥 (公钥)""";
   @override
   String copied_key_to_clipboard(String key) => """复制 ${key} 到剪贴板""";
   @override
@@ -1649,7 +1676,7 @@ Fee: ${fee}""";
   @override
   String get new_subaddress_create => """创建""";
   @override
-  String get subaddress_title => """子地址清单""";
+  String get subaddress_title => """子地址列表""";
   @override
   String get trade_details_title => """交易明细""";
   @override
@@ -1675,13 +1702,13 @@ Fee: ${fee}""";
   @override
   String get transaction_details_date => """日期""";
   @override
-  String get transaction_details_height => """高度""";
+  String get transaction_details_height => """区块高度""";
   @override
-  String get transaction_details_amount => """量""";
+  String get transaction_details_amount => """金额""";
   @override
-  String get transaction_details_fee => """費用""";
+  String get transaction_details_fee => """手续费""";
   @override
-  String transaction_details_copied(String title) => """${title} 复制到剪贴板""";
+  String transaction_details_copied(String title) => """${title} 复制到剪切板""";
   @override
   String get transaction_details_recipient_address => """收件人地址""";
   @override
@@ -1691,13 +1718,13 @@ Fee: ${fee}""";
   @override
   String get wallet_list_restore_wallet => """恢复钱包""";
   @override
-  String get wallet_list_load_wallet => """装入钱包""";
+  String get wallet_list_load_wallet => """加载钱包""";
   @override
   String wallet_list_loading_wallet(String wallet_name) => """载入中 ${wallet_name} 钱包""";
   @override
   String wallet_list_failed_to_load(String wallet_name, String error) => """加载失败 ${wallet_name} 钱包. ${error}""";
   @override
-  String wallet_list_removing_wallet(String wallet_name) => """拆下 ${wallet_name} 钱包""";
+  String wallet_list_removing_wallet(String wallet_name) => """删除 ${wallet_name} 钱包""";
   @override
   String wallet_list_failed_to_remove(String wallet_name, String error) => """删除失败 ${wallet_name} 钱包. ${error}""";
   @override
@@ -1707,7 +1734,7 @@ Fee: ${fee}""";
   @override
   String get widgets_restore_from_date => """从日期还原""";
   @override
-  String get widgets_or => """要么""";
+  String get widgets_or => """或者""";
   @override
   String get widgets_seed => """种子""";
   @override
@@ -1722,7 +1749,7 @@ Fee: ${fee}""";
   String get error_text_address => """钱包地址必须与类型对应
 加密货币""";
   @override
-  String get error_text_node_address => """请输入一个iPv4地址""";
+  String get error_text_node_address => """请输入一个IPv4地址""";
   @override
   String get error_text_node_port => """节点端口只能包含0到65535之间的数字""";
   @override
@@ -1747,13 +1774,13 @@ Fee: ${fee}""";
   String get error_text_crypto_currency => """小数位数
 必须小于或等于12""";
   @override
-  String error_text_minimal_limit(String provider, String min, String currency) => """未創建 ${provider} 交易。 金額少於最小值：${min} ${currency}""";
+  String error_text_minimal_limit(String provider, String min, String currency) => """未创建 ${provider} 交易。 金额小于最小值：${min} ${currency}""";
   @override
-  String error_text_maximum_limit(String provider, String max, String currency) => """未創建 ${provider} 交易。 金額大於最大值：${max} ${currency}""";
+  String error_text_maximum_limit(String provider, String max, String currency) => """未创建 ${provider} 交易。 金额大于最大值：${max} ${currency}""";
   @override
-  String error_text_limits_loading_failed(String provider) => """未創建 ${provider} 交易。 限制加載失敗""";
+  String error_text_limits_loading_failed(String provider) => """未创建 ${provider} 交易。 限制加载失敗""";
   @override
-  String get error_text_template => """模板名稱和地址不能包含`，' " 符号
+  String get error_text_template => """模板名称和地址不能包含`，' " 符号
 并且必须在1到106个字符之间""";
   @override
   String get auth_store_ban_timeout => """禁止超时""";
@@ -1774,7 +1801,7 @@ Fee: ${fee}""";
   @override
   String get hidden_balance => """隐藏余额""";
   @override
-  String get sync_status_syncronizing => """同步化""";
+  String get sync_status_syncronizing => """正在同步""";
   @override
   String get sync_status_syncronized => """已同步""";
   @override
@@ -1782,27 +1809,27 @@ Fee: ${fee}""";
   @override
   String get sync_status_starting_sync => """开始同步""";
   @override
-  String get sync_status_failed_connect => """斷線""";
+  String get sync_status_failed_connect => """断线""";
   @override
   String get sync_status_connecting => """连接中""";
   @override
-  String get sync_status_connected => """连接的""";
+  String get sync_status_connected => """已连接""";
   @override
-  String get transaction_priority_slow => """慢""";
+  String get transaction_priority_slow => """慢速""";
   @override
-  String get transaction_priority_regular => """定期""";
+  String get transaction_priority_regular => """常规""";
   @override
-  String get transaction_priority_medium => """介质""";
+  String get transaction_priority_medium => """中等""";
   @override
   String get transaction_priority_fast => """快速""";
   @override
-  String get transaction_priority_fastest => """最快的""";
+  String get transaction_priority_fastest => """最快""";
   @override
   String trade_for_not_created(String title) => """交易 ${title} 未创建.""";
   @override
   String get trade_not_created => """未建立交易.""";
   @override
-  String trade_id_not_found(String tradeId, String title) => """贸易方式 ${tradeId} 的 ${title} 未找到.""";
+  String trade_id_not_found(String tradeId, String title) => """交易方式 ${tradeId} 的 ${title} 未找到.""";
   @override
   String get trade_not_found => """找不到交易.""";
   @override
@@ -1810,9 +1837,9 @@ Fee: ${fee}""";
   @override
   String get trade_state_confirming => """确认中""";
   @override
-  String get trade_state_trading => """贸易""";
+  String get trade_state_trading => """交易""";
   @override
-  String get trade_state_traded => """交易""";
+  String get trade_state_traded => """已交易""";
   @override
   String get trade_state_complete => """完成""";
   @override
@@ -1834,11 +1861,11 @@ Fee: ${fee}""";
   @override
   String get trade_state_finished => """已完成""";
   @override
-  String get change_language => """改變語言""";
+  String get change_language => """修改语言""";
   @override
-  String change_language_to(String language) => """將語言更改為 ${language}?""";
+  String change_language_to(String language) => """修改语言为 ${language}?""";
   @override
-  String get paste => """糊""";
+  String get paste => """粘贴""";
   @override
   String get restore_from_seed_placeholder => """请在此处输入或粘贴您的代码短语""";
   @override
@@ -1846,126 +1873,126 @@ Fee: ${fee}""";
   @override
   String get incorrect_seed => """输入的文字无效。""";
   @override
-  String get biometric_auth_reason => """掃描指紋以進行身份驗證""";
+  String get biometric_auth_reason => """扫描指纹进行身份认证""";
   @override
-  String version(String currentVersion) => """版 ${currentVersion}""";
+  String version(String currentVersion) => """版本 ${currentVersion}""";
   @override
-  String get openalias_alert_title => """檢測到XMR收件人""";
+  String get openalias_alert_title => """检测到XMR收件人""";
   @override
-  String openalias_alert_content(String recipient_name) => """您將匯款至
+  String openalias_alert_content(String recipient_name) => """您将汇款至
 ${recipient_name}""";
   @override
   String get card_address => """地址:""";
   @override
-  String get buy => """購買""";
+  String get buy => """购买""";
   @override
-  String get placeholder_transactions => """您的交易將顯示在這裡""";
+  String get placeholder_transactions => """您的交易将显示在这里""";
   @override
-  String get placeholder_contacts => """您的聯繫人將顯示在這裡""";
+  String get placeholder_contacts => """您的联系人将显示在这里""";
   @override
   String get template => """模板""";
   @override
-  String get confirm_delete_template => """此操作將刪除此模板。 你想繼續嗎？""";
+  String get confirm_delete_template => """此操作将刪除此模板。确定吗？""";
   @override
-  String get confirm_delete_wallet => """此操作將刪除此錢包。 你想繼續嗎？""";
+  String get confirm_delete_wallet => """此操作将刪除此钱包。确定吗？""";
   @override
-  String get picker_description => """要選擇ChangeNOW或MorphToken，請先更改您的交易對""";
+  String get picker_description => """要选择ChangeNOW或MorphToken，请先更改您的交易币""";
   @override
-  String get change_wallet_alert_title => """更換當前錢包""";
+  String get change_wallet_alert_title => """更换当前钱包""";
   @override
-  String change_wallet_alert_content(String wallet_name) => """您要將當前的錢包更改為 ${wallet_name}?""";
+  String change_wallet_alert_content(String wallet_name) => """您是否想将当前钱包改为 ${wallet_name}?""";
   @override
-  String get creating_new_wallet => """創建新錢包""";
+  String get creating_new_wallet => """创建新钱包""";
   @override
-  String creating_new_wallet_error(String description) => """錯誤： ${description}""";
+  String creating_new_wallet_error(String description) => """错误： ${description}""";
   @override
   String get seed_alert_title => """注意""";
   @override
-  String get seed_alert_content => """種子是恢復錢包的唯一方法。 你寫下來了嗎？""";
+  String get seed_alert_content => """种子是恢复钱包的唯一方法。记住了吗？""";
   @override
-  String get seed_alert_back => """回去""";
+  String get seed_alert_back => """返回""";
   @override
-  String get seed_alert_yes => """是的，我有""";
+  String get seed_alert_yes => """确定""";
   @override
   String get wallet_name_alert_content => """存在同名錢包""";
   @override
-  String get exchange_sync_alert_content => """請等待，直到您的錢包同步""";
+  String get exchange_sync_alert_content => """请等待，直到您的钱包同步""";
   @override
   String get pre_seed_title => """重要""";
   @override
-  String pre_seed_description(String words) => """在下一頁上，您將看到一系列${words}個單詞。 這是您獨特的私人種子，是丟失或出現故障時恢復錢包的唯一方法。 您有責任將其寫下並存儲在Cake Wallet應用程序外部的安全地方。""";
+  String pre_seed_description(String words) => """在下一页上，您将看到${words}个文字。 这是您独有的种子，是丟失或出现故障时恢复钱包的唯一方法。 您有必须将其写下并储存在Cake Wallet应用程序以外的安全地方。""";
   @override
-  String get pre_seed_button_text => """我明白。 給我看我的種子""";
+  String get pre_seed_button_text => """我明白。 查看种子""";
   @override
-  String get xmr_to_error => """XMR.TO錯誤""";
+  String get xmr_to_error => """XMR.TO 错误""";
   @override
-  String get xmr_to_error_description => """無效的金額。 小數點後最多8位數字""";
+  String get xmr_to_error_description => """无效的金额。 小数点后最多8位数字""";
   @override
-  String provider_error(String provider) => """${provider} 錯誤""";
+  String provider_error(String provider) => """${provider} 错误""";
   @override
   String get use_ssl => """使用SSL""";
   @override
-  String get color_theme => """顏色主題""";
+  String get color_theme => """主题""";
   @override
-  String get light_theme => """光""";
+  String get light_theme => """艳丽""";
   @override
-  String get bright_theme => """亮""";
+  String get bright_theme => """明亮""";
   @override
   String get dark_theme => """黑暗""";
   @override
-  String get enter_your_note => """輸入您的筆記...""";
+  String get enter_your_note => """输入您的笔记...""";
   @override
-  String get note_optional => """注意（可選）""";
+  String get note_optional => """注释（可选）""";
   @override
-  String get note_tap_to_change => """注意（輕按即可更改）""";
+  String get note_tap_to_change => """注释（轻按即可更改）""";
   @override
-  String get transaction_key => """交易密碼""";
+  String get transaction_key => """交易密码""";
   @override
-  String get confirmations => """確認書""";
+  String get confirmations => """确认""";
   @override
   String get recipient_address => """收件人地址""";
   @override
-  String get extra_id => """額外編號:""";
+  String get extra_id => """额外ID:""";
   @override
-  String get destination_tag => """目標標籤:""";
+  String get destination_tag => """目标Tag:""";
   @override
-  String get memo => """備忘錄:""";
+  String get memo => """备忘录:""";
   @override
-  String get backup => """後備""";
+  String get backup => """备份""";
   @override
-  String get change_password => """更改密碼""";
+  String get change_password => """更改密码""";
   @override
-  String get backup_password => """備用密碼""";
+  String get backup_password => """备份密码""";
   @override
-  String get write_down_backup_password => """請寫下您的備份密碼，該密碼用於導入備份文件。""";
+  String get write_down_backup_password => """请写下您的备份密码，该密码用于导入备份文件。""";
   @override
-  String get export_backup => """導出備份""";
+  String get export_backup => """导出备份""";
   @override
-  String get save_backup_password => """請確保您已保存備份密碼。 沒有它，您將無法導入備份文件。""";
+  String get save_backup_password => """请确保您已保存备份密码。 沒有它，您将无法导入备份文件。""";
   @override
-  String get backup_file => """備份檔案""";
+  String get backup_file => """备份文件""";
   @override
-  String get edit_backup_password => """編輯備份密碼""";
+  String get edit_backup_password => """编辑备份密码""";
   @override
-  String get save_backup_password_alert => """保存備份密碼""";
+  String get save_backup_password_alert => """保存备份密码""";
   @override
-  String get change_backup_password_alert => """您以前的備份文件將無法使用新的備份密碼導入。 新的備份密碼將僅用於新的備份文件。 您確定要更改備份密碼嗎？""";
+  String get change_backup_password_alert => """您以前的备份文件将无法使用新的备份密码導入。 新的备份密码将仅用于新的备份文件。 您确定要更改备份密码吗？""";
   @override
-  String get enter_backup_password => """在此處輸入備用密碼""";
+  String get enter_backup_password => """在此处输入備用密码""";
   @override
-  String get select_backup_file => """選擇備份文件""";
+  String get select_backup_file => """选择备份文件""";
   @override
-  String get import => """進口""";
+  String get import => """导入""";
   @override
-  String get please_select_backup_file => """請選擇備份文件，然後輸入備份密碼。""";
+  String get please_select_backup_file => """请选择备份文件，然后输入备份密码。""";
   @override
-  String get fixed_rate => """固定利率""";
+  String get fixed_rate => """固定汇率""";
   @override
-  String get fixed_rate_alert => """選中固定費率模式後，您將可以輸入接收金額。 您要切換到固定速率模式嗎？""";
+  String get fixed_rate_alert => """选中固定汇率模式后，您将可以输入接收金额。 您要切换到固定汇率模式吗？""";
   @override
-  String get xlm_extra_info => """發送用於交換的XLM交易時，請不要忘記指定備忘錄ID""";
+  String get xlm_extra_info => """发送用于交换的XLM交易时，请不要忘记指定备忘录ID""";
   @override
-  String get xrp_extra_info => """發送用於交換的XRP交易時，請不要忘記指定目標標記""";
+  String get xrp_extra_info => """发送用于交换的XRP交易时，请不要忘记指定目标Tag""";
   @override
   String get exchange_incorrect_current_wallet_for_xmr => """如果要从Cake Wallet Monero余额中兑换XMR，请先切换到Monero钱包。""";
   @override
@@ -1975,7 +2002,25 @@ ${recipient_name}""";
   @override
   String get displayable => """可显示""";
   @override
-  String get submit_request => """提交請求""";
+  String get submit_request => """提交请求""";
+  @override
+  String get buy_alert_content => """目前我们只支持购买比特币和莱特币。 要购买比特币或莱特币，请创建或切换到您的比特币或莱特币钱包。""";
+  @override
+  String get outdated_electrum_wallet_description => """在Cake创建的新比特币钱包现在有一个24字的种子。你必须创建一个新的比特币钱包，并将你所有的资金转移到新的24字钱包，并停止使用12字种子的钱包。请立即这样做以保证你的资金安全。""";
+  @override
+  String get understand => """我已知晓""";
+  @override
+  String get apk_update => """APK更新""";
+  @override
+  String get buy_bitcoin => """購買比特幣""";
+  @override
+  String get buy_with => """與一起購買""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """金額的價值必須大於或等於 ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """如果这个钱包有一个 12 字的种子并且是在 Cake 中创建的，不要将比特币存入这个钱包。 任何转移到此钱包的 BTC 都可能丢失。 创建一个新的 24 字钱包（点击右上角的菜单，选择钱包，选择创建新钱包，然后选择比特币）并立即将您的 BTC 移到那里。 Cake 的新（24 字）BTC 钱包是安全的""";
+  @override
+  String get do_not_show_me => """不要再让我看这个了""";
 }
 
 class $ru extends S {
@@ -2281,7 +2326,7 @@ class $ru extends S {
   @override
   String get restore_active_seed => """Активная мнемоническая фраза""";
   @override
-  String get restore_bitcoin_description_from_seed => """Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу""";
+  String get restore_bitcoin_description_from_seed => """Вы можете восстановить кошелёк используя 24-ти значную мнемоническую фразу""";
   @override
   String get restore_bitcoin_description_from_keys => """Вы можете восстановить кошелёк с помощью WIF""";
   @override
@@ -2759,6 +2804,24 @@ ${recipient_name}""";
   String get displayable => """Отображаемый""";
   @override
   String get submit_request => """отправить запрос""";
+  @override
+  String get buy_alert_content => """В настоящее время мы поддерживаем только покупку Bitcoin и Litecoin. Чтобы купить Bitcoin или Litecoin, создайте или переключитесь на свой Bitcoin или Litecoin кошелек.""";
+  @override
+  String get outdated_electrum_wallet_description => """Новые биткойн-кошельки, созданные в Cake, теперь содержат мнемоническую фразу из 24 слов. Вы обязательно должны создать новый биткойн-кошелек и перевести все свои средства в новый кошелек из 24 слов, а также прекратить использование кошельков с мнемонической фразой из 12 слов. Пожалуйста, сделайте это немедленно, чтобы обезопасить свои средства.""";
+  @override
+  String get understand => """Понятно""";
+  @override
+  String get apk_update => """Обновление APK""";
+  @override
+  String get buy_bitcoin => """Купить Bitcoin""";
+  @override
+  String get buy_with => """Купить с помощью""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Сумма должна быть больше или равна ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Если этот кошелек имеет мнемоническую фразу из 12 слов и был создан в Cake, НЕ переводите биткойны на этот кошелек. Любые BTC, переведенные на этот кошелек, могут быть потеряны. Создайте новый кошелек с мнемоническои фразы из 24 слов (коснитесь меню в правом верхнем углу, выберите «Кошельки», выберите «Создать новый кошелек», затем выберите «Bitcoin») и НЕМЕДЛЕННО переведите туда свои BTC. Новые (24 слова) кошельки BTC от Cake безопасны""";
+  @override
+  String get do_not_show_me => """Не показывай мне это больше""";
 }
 
 class $pl extends S {
@@ -3064,7 +3127,7 @@ Opłata: ${fee}""";
   @override
   String get restore_active_seed => """Aktywne nasiona""";
   @override
-  String get restore_bitcoin_description_from_seed => """Przywróć swój portfel z kodu złożonego z 12 słów""";
+  String get restore_bitcoin_description_from_seed => """Przywróć swój portfel z kodu złożonego z 24 słów""";
   @override
   String get restore_bitcoin_description_from_keys => """Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych""";
   @override
@@ -3542,6 +3605,24 @@ ${recipient_name}""";
   String get displayable => """Wyświetlane""";
   @override
   String get submit_request => """złożyć wniosek""";
+  @override
+  String get buy_alert_content => """Obecnie obsługujemy tylko zakup Bitcoin i Litecoin. Aby kupić Bitcoin lub Litecoin, utwórz lub przełącz się na swój portfel Bitcoin lub Litecoin.""";
+  @override
+  String get outdated_electrum_wallet_description => """Nowe portfele Bitcoin utworzone w Cake mają teraz ziarno składające się z 24 słów. Konieczne jest utworzenie nowego portfela Bitcoin i przeniesienie wszystkich środków do nowego portfela na 24 słowa oraz zaprzestanie korzystania z portfeli z zalążkiem na 12 słów. Zrób to natychmiast, aby zabezpieczyć swoje fundusze.""";
+  @override
+  String get understand => """Rozumiem""";
+  @override
+  String get apk_update => """Aktualizacja APK""";
+  @override
+  String get buy_bitcoin => """Kup Bitcoin""";
+  @override
+  String get buy_with => """Kup za pomocą""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Wartość kwoty musi być większa lub równa ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Jeśli ten portfel ma 12-wyrazowy seed i został utworzony w Cake, NIE Wpłacaj Bitcoina do tego portfela. Wszelkie BTC przeniesione do tego portfela mogą zostać utracone. Utwórz nowy portfel z 24 słowami (dotknij menu w prawym górnym rogu, wybierz Portfele, wybierz Utwórz nowy portfel, a następnie Bitcoin) i NATYCHMIAST przenieś tam swoje BTC. Nowe (24 słowa) portfele BTC firmy Cake są bezpieczne""";
+  @override
+  String get do_not_show_me => """Nie pokazuj mi tego ponownie""";
 }
 
 class $en extends S {
@@ -3851,7 +3932,7 @@ class $hi extends S {
   @override
   String get restore_active_seed => """सक्रिय बीज""";
   @override
-  String get restore_bitcoin_description_from_seed => """12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें""";
+  String get restore_bitcoin_description_from_seed => """24 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें""";
   @override
   String get restore_bitcoin_description_from_keys => """अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें""";
   @override
@@ -4329,6 +4410,24 @@ ${recipient_name}""";
   String get displayable => """प्रदर्शन योग्य""";
   @override
   String get submit_request => """एक अनुरोध सबमिट करें""";
+  @override
+  String get buy_alert_content => """वर्तमान में हम केवल बिटकॉइन और लिटकोइन की खरीद का समर्थन करते हैं। बिटकॉइन या लाइटकोइन खरीदने के लिए, कृपया अपना बिटकॉइन या लाइटकोइन वॉलेट बनाएं या स्विच करें।""";
+  @override
+  String get outdated_electrum_wallet_description => """केक में बनाए गए नए बिटकॉइन वॉलेट में अब 24-शब्द का बीज है। यह अनिवार्य है कि आप एक नया बिटकॉइन वॉलेट बनाएं और अपने सभी फंड को नए 24-शब्द वाले वॉलेट में स्थानांतरित करें, और 12-शब्द बीज वाले वॉलेट का उपयोग करना बंद करें। कृपया अपने धन को सुरक्षित करने के लिए इसे तुरंत करें।""";
+  @override
+  String get understand => """मुझे समझ""";
+  @override
+  String get apk_update => """APK अद्यतन""";
+  @override
+  String get buy_bitcoin => """बिटकॉइन खरीदें""";
+  @override
+  String get buy_with => """के साथ खरीदें""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """राशि का मूल्य अधिक है या करने के लिए बराबर होना चाहिए ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """अगर इस वॉलेट में 12 शब्दों का बीज है और इसे केक में बनाया गया है, तो इस वॉलेट में बिटकॉइन जमा न करें। इस वॉलेट में स्थानांतरित किया गया कोई भी बीटीसी खो सकता है। एक नया 24-शब्द वॉलेट बनाएं (ऊपर दाईं ओर स्थित मेनू पर टैप करें, वॉलेट चुनें, नया वॉलेट बनाएं चुनें, फिर बिटकॉइन चुनें) और तुरंत अपना बीटीसी वहां ले जाएं। केक से नए (24-शब्द) बीटीसी वॉलेट सुरक्षित हैं""";
+  @override
+  String get do_not_show_me => """मुझे यह फिर न दिखाएं""";
 }
 
 class $ja extends S {
@@ -4634,7 +4733,7 @@ class $ja extends S {
   @override
   String get restore_active_seed => """アクティブシード""";
   @override
-  String get restore_bitcoin_description_from_seed => """12ワードの組み合わせコードからウォレットを復元する""";
+  String get restore_bitcoin_description_from_seed => """24ワードの組み合わせコードからウォレットを復元する""";
   @override
   String get restore_bitcoin_description_from_keys => """秘密鍵から生成されたWIF文字列からウォレットを復元します""";
   @override
@@ -5112,6 +5211,823 @@ ${recipient_name}""";
   String get displayable => """表示可能""";
   @override
   String get submit_request => """リクエストを送信する""";
+  @override
+  String get buy_alert_content => """現在、ビットコインとライトコインの購入のみをサポートしています。 ビットコインまたはライトコインを購入するには、ビットコインまたはライトコインのウォレットを作成するか、ウォレットに切り替えてください。""";
+  @override
+  String get outdated_electrum_wallet_description => """Cakeで作成された新しいビットコインウォレットには、24ワードのシードがあります。 新しいビットコインウォレットを作成し、すべての資金を新しい24ワードのウォレットに転送し、12ワードのシードを持つウォレットの使用を停止することが必須です。 あなたの資金を確保するためにこれをすぐに行ってください。""";
+  @override
+  String get understand => """わかります""";
+  @override
+  String get apk_update => """APKアップデート""";
+  @override
+  String get buy_bitcoin => """ビットコインを購入する""";
+  @override
+  String get buy_with => """で購入""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """金額の値は以上でなければなりません ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """このウォレットに 12 ワードのシードがあり、Cake で作成された場合、このウォレットにビットコインを入金しないでください。 このウォレットに転送された BTC は失われる可能性があります。 新しい 24 ワードのウォレットを作成し (右上のメニューをタップし、[ウォレット]、[新しいウォレットの作成]、[ビットコイン] の順に選択)、すぐに BTC をそこに移動します。 Cake の新しい (24 ワード) BTC ウォレットは安全です""";
+  @override
+  String get do_not_show_me => """また僕にこれを見せないでください""";
+}
+
+class $hr extends S {
+  const $hr();
+      
+  @override
+  TextDirection get textDirection => TextDirection.ltr;
+  
+  @override
+  String get welcome => """Dobrodošli na""";
+  @override
+  String get cake_wallet => """Cake Wallet""";
+  @override
+  String get first_wallet_text => """Odličan novčanik za Monero i Bitcoin""";
+  @override
+  String get please_make_selection => """Molimo odaberite opcije niže za izradu novog novčanika ili za oporavak postojećeg.""";
+  @override
+  String get create_new => """Izradi novi novčanik""";
+  @override
+  String get restore_wallet => """Oporavi novčanik""";
+  @override
+  String get accounts => """Računi""";
+  @override
+  String get edit => """Uredi""";
+  @override
+  String get account => """Račun""";
+  @override
+  String get add => """Dodaj""";
+  @override
+  String get address_book => """Imenik""";
+  @override
+  String get contact => """Kontakt""";
+  @override
+  String get please_select => """Molimo odaberite:""";
+  @override
+  String get cancel => """Poništi""";
+  @override
+  String get ok => """OK""";
+  @override
+  String get contact_name => """Ime kontakta""";
+  @override
+  String get reset => """Resetiraj""";
+  @override
+  String get save => """Spremi""";
+  @override
+  String get address_remove_contact => """Ukloni kontakt""";
+  @override
+  String get address_remove_content => """Jeste li sigurni da želite ukloniti odabrani kontakt?""";
+  @override
+  String get authenticated => """Autentificiran""";
+  @override
+  String get authentication => """Autentifikacija""";
+  @override
+  String failed_authentication(String state_error) => """Autentifikacija neuspješna. ${state_error}""";
+  @override
+  String get wallet_menu => """Izbornik""";
+  @override
+  String Blocks_remaining(String status) => """${status} preostalih blokova""";
+  @override
+  String get please_try_to_connect_to_another_node => """Molimo pokušajte se spojiti na drugi node.""";
+  @override
+  String get xmr_hidden => """Sakriven""";
+  @override
+  String get xmr_available_balance => """Raspoloživ iznos""";
+  @override
+  String get xmr_full_balance => """Ukupan iznos""";
+  @override
+  String get send => """Pošalji""";
+  @override
+  String get receive => """Primi""";
+  @override
+  String get transactions => """Transakcije""";
+  @override
+  String get incoming => """Dolazno""";
+  @override
+  String get outgoing => """Odlazno""";
+  @override
+  String get transactions_by_date => """Transakcije prema datumu""";
+  @override
+  String get trades => """Razmjene""";
+  @override
+  String get filters => """Filter""";
+  @override
+  String get today => """Danas""";
+  @override
+  String get yesterday => """Jučer""";
+  @override
+  String get received => """Primljeno""";
+  @override
+  String get sent => """Poslano""";
+  @override
+  String get pending => """ (u tijeku)""";
+  @override
+  String get rescan => """Ponovno skeniranje""";
+  @override
+  String get reconnect => """Ponovno povezivanje""";
+  @override
+  String get wallets => """Novčanici""";
+  @override
+  String get show_seed => """Prikaži pristupni izraz""";
+  @override
+  String get show_keys => """Prikaži pristupni izraz/ključ""";
+  @override
+  String get address_book_menu => """Imenik""";
+  @override
+  String get reconnection => """Ponovno povezivanje""";
+  @override
+  String get reconnect_alert_text => """Jeste li sigurni da se želite ponovno povezati?""";
+  @override
+  String get exchange => """Razmijeni""";
+  @override
+  String get clear => """Izbriši""";
+  @override
+  String get refund_address => """Adresa za povrat""";
+  @override
+  String get change_exchange_provider => """Promjena davatelja usluge razmjene""";
+  @override
+  String get you_will_send => """Razmijeni iz""";
+  @override
+  String get you_will_get => """Razmijeni u""";
+  @override
+  String get amount_is_guaranteed => """Iznos koji ćete primiti je zajamčen""";
+  @override
+  String get amount_is_estimate => """Iznos koji ćete primiti je okviran""";
+  @override
+  String powered_by(String title) => """Omogućio ${title}""";
+  @override
+  String get error => """Greška""";
+  @override
+  String get estimated => """procijenjen""";
+  @override
+  String min_value(String value, String currency) => """Min.: ${value} ${currency}""";
+  @override
+  String max_value(String value, String currency) => """Maks.: ${value} ${currency}""";
+  @override
+  String get change_currency => """Promijenite valutu""";
+  @override
+  String get copy_id => """Kopirati ID""";
+  @override
+  String get exchange_result_write_down_trade_id => """Molimo kopirajte ili zapišite transakcijski ID za nastavak.""";
+  @override
+  String get trade_id => """Transakcijski ID:""";
+  @override
+  String get copied_to_clipboard => """Kopirano u međuspremnik""";
+  @override
+  String get saved_the_trade_id => """Spremio/la sam transakcijski ID""";
+  @override
+  String get fetching => """Dohvaćanje""";
+  @override
+  String get id => """ID: """;
+  @override
+  String get amount => """Iznos: """;
+  @override
+  String get payment_id => """ID plaćanja: """;
+  @override
+  String get status => """Status: """;
+  @override
+  String get offer_expires_in => """Ponuda istječe za: """;
+  @override
+  String trade_is_powered_by(String provider) => """Razmjenu je omogućio ${provider}""";
+  @override
+  String get copy_address => """Kopiraj adresu""";
+  @override
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => """Pritiskom na potvrdi, poslat ćete ${fetchingLabel} ${from} sa svog novčanika pod nazivom ${walletName} na adresu prikazanu ispod ili iznos možete poslati s vanjskog novčanika na niže navedenu adresu. /QR code.
+
+Molimo potvrdite za nastavak ili se vratite natrag za promjenu iznosa.""";
+  @override
+  String exchange_result_description(String fetchingLabel, String from) => """Potrebno poslati minimalno ${fetchingLabel} ${from} na adresu prikazanu na sljedećoj stranici. Ukoliko pošaljete iznos manji od ${fetchingLabel} ${from}, postoji mogućnost da razmjena neće biti uspješna i da iznos neće biti vraćen.""";
+  @override
+  String get exchange_result_write_down_ID => """*Molimo kopirajte ili zapišite svoj ID prikazan ispod.""";
+  @override
+  String get confirm => """Potvrdi""";
+  @override
+  String get confirm_sending => """Potvrdi slanje""";
+  @override
+  String commit_transaction_amount_fee(String amount, String fee) => """Izvrši transakciju 
+Amount: ${amount}
+Fee: ${fee}""";
+  @override
+  String get sending => """Slanje""";
+  @override
+  String get transaction_sent => """Transakcija provedena!""";
+  @override
+  String get expired => """Isteklo""";
+  @override
+  String time(String minutes, String seconds) => """${minutes}m ${seconds}s""";
+  @override
+  String get send_xmr => """Pošalji XMR""";
+  @override
+  String get exchange_new_template => """Novi predložak""";
+  @override
+  String get faq => """FAQ""";
+  @override
+  String get enter_your_pin => """Upišite PIN""";
+  @override
+  String get loading_your_wallet => """Novčanik se učitava""";
+  @override
+  String get new_wallet => """Novi novčanik""";
+  @override
+  String get wallet_name => """Ime novčanika""";
+  @override
+  String get continue_text => """Nastavak""";
+  @override
+  String get choose_wallet_currency => """Molimo odaberite valutu novčanika:""";
+  @override
+  String get node_new => """Novi node""";
+  @override
+  String get node_address => """Node adresa""";
+  @override
+  String get node_port => """Node port""";
+  @override
+  String get login => """Prijava""";
+  @override
+  String get password => """Lozinka""";
+  @override
+  String get nodes => """Nodes""";
+  @override
+  String get node_reset_settings_title => """Resetiraj postavke""";
+  @override
+  String get nodes_list_reset_to_default_message => """Jeste li sigurni da se želite vratiti na početne postavke?""";
+  @override
+  String change_current_node(String node) => """Jeste li sigurni da želite promijeniti trenutni node na ${node}?""";
+  @override
+  String get change => """Promijeni""";
+  @override
+  String get remove_node => """Ukloni node""";
+  @override
+  String get remove_node_message => """Jeste li sigurni da želite ukloniti odabrani node?""";
+  @override
+  String get remove => """Ukloni""";
+  @override
+  String get delete => """Izbriši""";
+  @override
+  String get add_new_node => """Dodaj novi node""";
+  @override
+  String get change_current_node_title => """Promijeni trenutni node""";
+  @override
+  String get node_test => """Provjeri""";
+  @override
+  String get node_connection_successful => """Uspješno spajanje""";
+  @override
+  String get node_connection_failed => """Neuspješno spajanje""";
+  @override
+  String get new_node_testing => """Provjera novog nodea""";
+  @override
+  String get use => """Prebaci na""";
+  @override
+  String get digit_pin => """-znamenkasti PIN""";
+  @override
+  String get share_address => """Podijeli adresu""";
+  @override
+  String get receive_amount => """Iznos""";
+  @override
+  String get subaddresses => """Podadrese""";
+  @override
+  String get addresses => """Adrese""";
+  @override
+  String get scan_qr_code => """Skeniraj QR kod za dobivanje adrese""";
+  @override
+  String get rename => """Preimenuj""";
+  @override
+  String get choose_account => """Odaberi račun""";
+  @override
+  String get create_new_account => """Izradi novi račun""";
+  @override
+  String get accounts_subaddresses => """Računi i podadrese""";
+  @override
+  String get restore_restore_wallet => """Oporavi novčanik""";
+  @override
+  String get restore_title_from_seed_keys => """Oporavi pomoću pristupnog izraza/ključa""";
+  @override
+  String get restore_description_from_seed_keys => """Oporavi novčanik pomoću pristupnog izraza/ključa spremljenog na sigurno mjesto""";
+  @override
+  String get restore_next => """Dalje""";
+  @override
+  String get restore_title_from_backup => """Oporavak pomoću sigurnosne kopije""";
+  @override
+  String get restore_description_from_backup => """Možete oporaviti cijelu Cake Wallet aplikaciju pomoću vlastite datoteke sa sigurnosnom kopijom""";
+  @override
+  String get restore_seed_keys_restore => """Oporavak pomoću pristupnog izraza/ključa""";
+  @override
+  String get restore_title_from_seed => """Oporavi pomoću pristupnog izraza""";
+  @override
+  String get restore_description_from_seed => """Oporavi novčanik pomoću koda koji sadrži kombinaciju od 25 ili 13 riječi""";
+  @override
+  String get restore_title_from_keys => """Oporavi pomoću ključa""";
+  @override
+  String get restore_description_from_keys => """Oporavi novčanik pomoću generiranih pritisaka na tipke spremljenih od vlastitih privatnih ključeva (keys)""";
+  @override
+  String get restore_wallet_name => """Ime novčanika""";
+  @override
+  String get restore_address => """Adresa""";
+  @override
+  String get restore_view_key_private => """View key (privatni)""";
+  @override
+  String get restore_spend_key_private => """Spend key (privatni)""";
+  @override
+  String get restore_recover => """Oporavi""";
+  @override
+  String get restore_wallet_restore_description => """Opis oporavka novčanika""";
+  @override
+  String get restore_new_seed => """Novi pristupi izraz""";
+  @override
+  String get restore_active_seed => """Aktivan pristupni izraz""";
+  @override
+  String get restore_bitcoin_description_from_seed => """Oporavi novčanik pomoću koda od 12 riječi""";
+  @override
+  String get restore_bitcoin_description_from_keys => """Oporavi novčanik pomoću WIF niza generiranog iz vlastitih privatnih ključeva (keys)""";
+  @override
+  String get restore_bitcoin_title_from_keys => """Oporavi pomoću formata uvoza novčanika (WIF)""";
+  @override
+  String get restore_from_date_or_blockheight => """Molimo unesite datum od nekoliko dana prije nego što ste izradili ovaj novčanik ili ako znate visinu bloka, molimo unesite je.""";
+  @override
+  String get seed_reminder => """Molimo zapišite ih u slučaju da izgubite mobitel ili izbrišete podatke""";
+  @override
+  String get seed_title => """Prisupni izraz""";
+  @override
+  String get seed_share => """Podijeli pristupni izraz""";
+  @override
+  String get copy => """Kopiraj""";
+  @override
+  String get seed_language_choose => """Molimo odaberite jezik pristupnog izraza:""";
+  @override
+  String get seed_choose => """Odaberi jezik pristupnog izraza""";
+  @override
+  String get seed_language_next => """Dalje""";
+  @override
+  String get seed_language_english => """Engleski""";
+  @override
+  String get seed_language_chinese => """Kineski""";
+  @override
+  String get seed_language_dutch => """Nizozemski""";
+  @override
+  String get seed_language_german => """Njemački""";
+  @override
+  String get seed_language_japanese => """Japanski""";
+  @override
+  String get seed_language_portuguese => """Portugalski""";
+  @override
+  String get seed_language_russian => """Ruski""";
+  @override
+  String get seed_language_spanish => """Španjolski""";
+  @override
+  String get send_title => """Pošalji""";
+  @override
+  String get send_your_wallet => """Tvoj novčanik""";
+  @override
+  String send_address(String cryptoCurrency) => """${cryptoCurrency} adresa""";
+  @override
+  String get send_payment_id => """ID plaćanja (nije obvezno)""";
+  @override
+  String get all => """SVE""";
+  @override
+  String get send_error_minimum_value => """Minimalna vrijednost iznosa je 0.01""";
+  @override
+  String get send_error_currency => """Iznos smije sadržavati samo brojeve""";
+  @override
+  String get send_estimated_fee => """Procijenjena naknada:""";
+  @override
+  String send_priority(String transactionPriority) => """Trenutno se naknada nalazi na ${transactionPriority} mjestu prioriteta.
+Prioritet transakcije moguće je prilagoditi u postavkama""";
+  @override
+  String get send_creating_transaction => """Izrada transakcije""";
+  @override
+  String get send_templates => """Predlošci""";
+  @override
+  String get send_new => """Novi""";
+  @override
+  String get send_amount => """Iznos:""";
+  @override
+  String get send_fee => """Naknada:""";
+  @override
+  String get send_name => """Ime""";
+  @override
+  String get send_got_it => """U redu""";
+  @override
+  String get send_sending => """Slanje...""";
+  @override
+  String send_success(String crypto) => """Vaš ${crypto} je uspješno poslan""";
+  @override
+  String get settings_title => """Postavke""";
+  @override
+  String get settings_nodes => """Nodovi""";
+  @override
+  String get settings_current_node => """Trenutni node""";
+  @override
+  String get settings_wallets => """Novčanik""";
+  @override
+  String get settings_display_balance_as => """Prikaži stanje računa kao""";
+  @override
+  String get settings_currency => """Valuta""";
+  @override
+  String get settings_fee_priority => """Prioritet naknade""";
+  @override
+  String get settings_save_recipient_address => """Spremi primateljevu adresu""";
+  @override
+  String get settings_personal => """Osobni""";
+  @override
+  String get settings_change_pin => """Promijeni PIN""";
+  @override
+  String get settings_change_language => """Promijeni jezik""";
+  @override
+  String get settings_allow_biometrical_authentication => """Dopusti biometrijsku autentifikaciju""";
+  @override
+  String get settings_dark_mode => """Tamni način rada""";
+  @override
+  String get settings_transactions => """Transakcije""";
+  @override
+  String get settings_trades => """Razmjene""";
+  @override
+  String get settings_display_on_dashboard_list => """Prikaži na listi kontrolne ploče""";
+  @override
+  String get settings_all => """SVE""";
+  @override
+  String get settings_only_trades => """Samo razmjene""";
+  @override
+  String get settings_only_transactions => """Samo transakcije""";
+  @override
+  String get settings_none => """Nijedno""";
+  @override
+  String get settings_support => """Podrška""";
+  @override
+  String get settings_terms_and_conditions => """Uvjeti i odredbe""";
+  @override
+  String get pin_is_incorrect => """Netočan PIN""";
+  @override
+  String get setup_pin => """Podesi PIN""";
+  @override
+  String get enter_your_pin_again => """Ponovno upišite pin""";
+  @override
+  String get setup_successful => """Vaš je pin uspješno postavljen!""";
+  @override
+  String get wallet_keys => """Pristupni izraz/ključ novčanika""";
+  @override
+  String get wallet_seed => """Pristupni izraz novčanika""";
+  @override
+  String get private_key => """Privatni ključ""";
+  @override
+  String get public_key => """Javni ključ""";
+  @override
+  String get view_key_private => """View key (privatni)""";
+  @override
+  String get view_key_public => """View key (javni)""";
+  @override
+  String get spend_key_private => """Spend key (privatni)""";
+  @override
+  String get spend_key_public => """Spend key (javni)""";
+  @override
+  String copied_key_to_clipboard(String key) => """${key} kopiran u međuspremnik""";
+  @override
+  String get new_subaddress_title => """Nova adresa""";
+  @override
+  String get new_subaddress_label_name => """Oznaka""";
+  @override
+  String get new_subaddress_create => """Izradi""";
+  @override
+  String get subaddress_title => """Lista podadresa""";
+  @override
+  String get trade_details_title => """Detalji razmjene""";
+  @override
+  String get trade_details_id => """ID""";
+  @override
+  String get trade_details_state => """Stanje""";
+  @override
+  String get trade_details_fetching => """Dohvaćanje""";
+  @override
+  String get trade_details_provider => """Pružatelj""";
+  @override
+  String get trade_details_created_at => """Stvoreno u""";
+  @override
+  String get trade_details_pair => """Upari""";
+  @override
+  String trade_details_copied(String title) => """${title} kopiran u međuspremnik""";
+  @override
+  String get trade_history_title => """Povijest razmjena""";
+  @override
+  String get transaction_details_title => """Detalji transakcije""";
+  @override
+  String get transaction_details_transaction_id => """Transakcijski ID""";
+  @override
+  String get transaction_details_date => """Datum""";
+  @override
+  String get transaction_details_height => """Visina""";
+  @override
+  String get transaction_details_amount => """Iznos""";
+  @override
+  String get transaction_details_fee => """Naknada""";
+  @override
+  String transaction_details_copied(String title) => """${title} kopiran u međuspremnik""";
+  @override
+  String get transaction_details_recipient_address => """Primateljeva adresa""";
+  @override
+  String get wallet_list_title => """Monero novčanik""";
+  @override
+  String get wallet_list_create_new_wallet => """Izradi novi novčanik""";
+  @override
+  String get wallet_list_restore_wallet => """Oporavi novčanik""";
+  @override
+  String get wallet_list_load_wallet => """Učitaj novčanik""";
+  @override
+  String wallet_list_loading_wallet(String wallet_name) => """Učitavanje novčanika ${wallet_name}""";
+  @override
+  String wallet_list_failed_to_load(String wallet_name, String error) => """Neuspješno učitavanje novčanika ${wallet_name}. ${error}""";
+  @override
+  String wallet_list_removing_wallet(String wallet_name) => """Uklanjanje novčanika ${wallet_name}""";
+  @override
+  String wallet_list_failed_to_remove(String wallet_name, String error) => """Neuspješno uklanjanje novčanika ${wallet_name}. ${error}""";
+  @override
+  String get widgets_address => """Adresa""";
+  @override
+  String get widgets_restore_from_blockheight => """Oporavi pomoću visine bloka""";
+  @override
+  String get widgets_restore_from_date => """Oporavi pomoću datuma""";
+  @override
+  String get widgets_or => """ili""";
+  @override
+  String get widgets_seed => """pristupnog izraza""";
+  @override
+  String router_no_route(String name) => """Nije definirana ruta za ${name}""";
+  @override
+  String get error_text_account_name => """Ime računa smije sadržavati samo slova i brojeve
+te mora biti dužine između 1 i 15 znakova""";
+  @override
+  String get error_text_contact_name => """Ime kontakta ne smije sadržavati znakove ` , ' " 
+i mora biti dužine između 1 i 32 znaka""";
+  @override
+  String get error_text_address => """Adresa novčanika mora odgovarati
+vrsti kriptovalute""";
+  @override
+  String get error_text_node_address => """Molimo unesite iPv4 adresu""";
+  @override
+  String get error_text_node_port => """Node port smije sadržavati samo brojeve između 0 i 65535""";
+  @override
+  String get error_text_payment_id => """ID plaćanja smije sadržavati samo od 16 do 64 znakova hex vrijednosti""";
+  @override
+  String get error_text_xmr => """XMR vrijednost ne smije biti veća od raspoloživog iznosa.
+Broj decimala smije biti 12 ili manji.""";
+  @override
+  String get error_text_fiat => """Vrijednost iznosa ne smije biti veća od raspoloživog iznosa.
+Broj decimala smije biti 2 ili manji.""";
+  @override
+  String get error_text_subaddress_name => """Ime podadrese ne smije sadržavati znakove ` , ' " 
+i mora biti dužine između 1 i 20 znakova""";
+  @override
+  String get error_text_amount => """Iznos smije sadržavati samo brojeve""";
+  @override
+  String get error_text_wallet_name => """Ime novčanika smije sadržavati samo slova i brojeve
+te mora biti dužine između 1 i 15 znakova""";
+  @override
+  String get error_text_keys => """Novčanik smije sadržavati samo 64 znakova hex vrijednosti""";
+  @override
+  String get error_text_crypto_currency => """Broj decimala mora
+biti 12 ili manji""";
+  @override
+  String error_text_minimal_limit(String provider, String min, String currency) => """Razmjena za ${provider} nije izrađena. Iznos je manji od minimalnog: ${min} ${currency}""";
+  @override
+  String error_text_maximum_limit(String provider, String max, String currency) => """Razmjena za ${provider} nije izrađena. Iznos je veći od maskimalnog: ${max} ${currency}""";
+  @override
+  String error_text_limits_loading_failed(String provider) => """Razmjena za ${provider} nije izrađena. Neuspješno učitavanje limita""";
+  @override
+  String get error_text_template => """Ime i adresa predloška ne smiju sadržavati znakove ` , ' " 
+i moraju biti dužine između 1 i 106 znakova""";
+  @override
+  String get auth_store_ban_timeout => """ban_timeout""";
+  @override
+  String get auth_store_banned_for => """Suspendiran na """;
+  @override
+  String get auth_store_banned_minutes => """ minute""";
+  @override
+  String get auth_store_incorrect_password => """Pogrešan PIN""";
+  @override
+  String get wallet_store_monero_wallet => """Monero novčanik""";
+  @override
+  String get wallet_restoration_store_incorrect_seed_length => """Netočna dužina pristupnog izraza""";
+  @override
+  String get full_balance => """Pun iznos""";
+  @override
+  String get available_balance => """Raspoloživ iznos""";
+  @override
+  String get hidden_balance => """Skriven iznos""";
+  @override
+  String get sync_status_syncronizing => """SINKRONIZIRANJE""";
+  @override
+  String get sync_status_syncronized => """SINKRONIZIRANO""";
+  @override
+  String get sync_status_not_connected => """NIJE POVEZANO""";
+  @override
+  String get sync_status_starting_sync => """ZAPOČINJEMO SINKRONIZIRANJE""";
+  @override
+  String get sync_status_failed_connect => """ISKLJUČENO""";
+  @override
+  String get sync_status_connecting => """SPAJANJE""";
+  @override
+  String get sync_status_connected => """SPOJENO""";
+  @override
+  String get transaction_priority_slow => """Sporo""";
+  @override
+  String get transaction_priority_regular => """Uobičajeno""";
+  @override
+  String get transaction_priority_medium => """Srednje""";
+  @override
+  String get transaction_priority_fast => """Brzo""";
+  @override
+  String get transaction_priority_fastest => """Najbrže""";
+  @override
+  String trade_for_not_created(String title) => """Razmjena za ${title} nije izrađena.""";
+  @override
+  String get trade_not_created => """Razmjena nije izrađena.""";
+  @override
+  String trade_id_not_found(String tradeId, String title) => """Razmjena ${tradeId} za ${title} nije pronađena.""";
+  @override
+  String get trade_not_found => """Razmjena nije pronađena.""";
+  @override
+  String get trade_state_pending => """U tijeku""";
+  @override
+  String get trade_state_confirming => """Potvrđivanje""";
+  @override
+  String get trade_state_trading => """Razmjenjivanje""";
+  @override
+  String get trade_state_traded => """Razmijenjeno""";
+  @override
+  String get trade_state_complete => """Dovršeno""";
+  @override
+  String get trade_state_to_be_created => """Stvaranje""";
+  @override
+  String get trade_state_unpaid => """Neplaćen""";
+  @override
+  String get trade_state_underpaid => """Nedovoljno plaćen""";
+  @override
+  String get trade_state_paid_unconfirmed => """Plaćanje nije potrđeno""";
+  @override
+  String get trade_state_paid => """Plaćen""";
+  @override
+  String get trade_state_btc_sent => """BTC poslan""";
+  @override
+  String get trade_state_timeout => """Isteklo""";
+  @override
+  String get trade_state_created => """Stvoreno""";
+  @override
+  String get trade_state_finished => """Završeno""";
+  @override
+  String get change_language => """Promijeni jezik""";
+  @override
+  String change_language_to(String language) => """Promijeni jezik u ${language}?""";
+  @override
+  String get paste => """Zalijepi""";
+  @override
+  String get restore_from_seed_placeholder => """Molimo unesite ili zalijepite svoj pristupni izraz ovdje""";
+  @override
+  String get add_new_word => """Dodaj novu riječ""";
+  @override
+  String get incorrect_seed => """Uneseni tekst nije valjan.""";
+  @override
+  String get biometric_auth_reason => """Skenirajte svoj otisak prsta za autentifikaciju""";
+  @override
+  String version(String currentVersion) => """Verzija ${currentVersion}""";
+  @override
+  String get openalias_alert_title => """XMR primatelj otkriven""";
+  @override
+  String openalias_alert_content(String recipient_name) => """Poslat ćete sredstva primatelju
+${recipient_name}""";
+  @override
+  String get card_address => """Adresa:""";
+  @override
+  String get buy => """Kupi""";
+  @override
+  String get placeholder_transactions => """Vaše će transakcije biti prikazane ovdje""";
+  @override
+  String get placeholder_contacts => """Vaši će kontakti biti prikazani ovdje""";
+  @override
+  String get template => """Predložak""";
+  @override
+  String get confirm_delete_template => """Ovom ćete radnjom izbrisati ovaj predložak. Želite li nastaviti?""";
+  @override
+  String get confirm_delete_wallet => """Ovom ćete radnjom izbrisati ovaj novčanik. Želite li nastaviti?""";
+  @override
+  String get picker_description => """Da biste odabrali ChangeNOW ili MorphToken, molimo da prvo odabete dvije valute za trgovanje""";
+  @override
+  String get change_wallet_alert_title => """Izmijeni trenutni novčanik""";
+  @override
+  String change_wallet_alert_content(String wallet_name) => """Želite li promijeniti trenutni novčanik u ${wallet_name}?""";
+  @override
+  String get creating_new_wallet => """Stvaranje novog novčanika""";
+  @override
+  String creating_new_wallet_error(String description) => """Greška: ${description}""";
+  @override
+  String get seed_alert_title => """Upozorenje""";
+  @override
+  String get seed_alert_content => """Pristupni izraz jedini je način za oporavak novčanika. Jeste li ga zapisali?""";
+  @override
+  String get seed_alert_back => """Vrati se natrag""";
+  @override
+  String get seed_alert_yes => """Jesam""";
+  @override
+  String get exchange_sync_alert_content => """Molimo pričekajte dok se Vaš novčanik ne sinkronizira.""";
+  @override
+  String get pre_seed_title => """VAŽNO""";
+  @override
+  String pre_seed_description(String words) => """Na sljedećoj ćete stranici vidjeti niz ${words} riječi. Radi se o Vašem jedinstvenom i tajnom pristupnom izrazu koji je ujedno i JEDINI način na koji možete oporaviti svoj novčanik u slučaju gubitka ili kvara. VAŠA je odgovornost zapisati ga te pohraniti na sigurno mjesto izvan Cake Wallet aplikacije.""";
+  @override
+  String get pre_seed_button_text => """Razumijem. Prikaži mi moj pristupni izraz""";
+  @override
+  String get xmr_to_error => """XMR.TO greška""";
+  @override
+  String get xmr_to_error_description => """Nevažeći iznos. Dopušteno je najviše 8 znamenki iza točke""";
+  @override
+  String provider_error(String provider) => """${provider} greška""";
+  @override
+  String get use_ssl => """Koristi SSL""";
+  @override
+  String get color_theme => """Shema boja""";
+  @override
+  String get light_theme => """Svijetla""";
+  @override
+  String get bright_theme => """Jarka""";
+  @override
+  String get dark_theme => """Tamna""";
+  @override
+  String get enter_your_note => """Unesite svoju poruku…""";
+  @override
+  String get note_optional => """Poruka (nije obvezno)""";
+  @override
+  String get note_tap_to_change => """Poruka (dodirnite za promjenu)""";
+  @override
+  String get transaction_key => """Transakcijski ključ""";
+  @override
+  String get confirmations => """Potvrde""";
+  @override
+  String get recipient_address => """Primateljeva adresa""";
+  @override
+  String get extra_id => """Dodatni ID:""";
+  @override
+  String get destination_tag => """Odredišna oznaka:""";
+  @override
+  String get memo => """Memo:""";
+  @override
+  String get backup => """Sigurnosna kopija""";
+  @override
+  String get change_password => """Promijeni lozinku""";
+  @override
+  String get backup_password => """Lozinka za sigurnosnu kopiju""";
+  @override
+  String get write_down_backup_password => """Molimo zapišite svoju lozinku za sigurnosnu kopiju koja se koristi za uvoz datoteka sigurnosne kopije.""";
+  @override
+  String get export_backup => """Izvezi sigurnosnu kopiju""";
+  @override
+  String get save_backup_password => """Molimo pobrinite se da spremite svoju lozinku za sigurnosnu kopiju. Bez nje nećete moći uvesti datoteke sigurnosne kopije.""";
+  @override
+  String get backup_file => """Sigurnosna kopija datoteke""";
+  @override
+  String get edit_backup_password => """Uredi lozinku za sigurnosnu kopiju""";
+  @override
+  String get save_backup_password_alert => """Spremi lozinku za sigurnosnu kopiju""";
+  @override
+  String get change_backup_password_alert => """Nećemo moći uvesti Vaše prethodne datoteke sigurnosne kopije s novom lozinkom za sigurnosnu kopiju. Novu lozinku za sigurnosnu kopiju moći ćete koristiti samo za nove datoteke sigurnosne kopije. Jeste li sigurni da želite promijeniti lozinku za sigurnosnu kopiju?""";
+  @override
+  String get enter_backup_password => """Unesite svoju lozinku za sigurnosnu kopiju ovdje""";
+  @override
+  String get select_backup_file => """Odaberite datoteku sigurnosne kopije""";
+  @override
+  String get import => """Uvezi""";
+  @override
+  String get please_select_backup_file => """Molimo odaberite datoteku sigurnosne kopije i unesite lozinku za sigurnosnu kopiju.""";
+  @override
+  String get fixed_rate => """Fiksna stopa""";
+  @override
+  String get fixed_rate_alert => """Moći ćete unijeti iznos koji želite primiti nakon što označite način rada fiksne stope. Želite li se prebaciti na način rada fiksne stope?""";
+  @override
+  String get xlm_extra_info => """Molimo ne zaboravite navesti memo ID prilikom slanja XLM transakcije na razmjenu""";
+  @override
+  String get xrp_extra_info => """Molimo ne zaboravite navesti odredišnu oznaku prilikom slanja XRP transakcije na razmjenu""";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => """Ako želite razmijeniti XMR s vlastitog Monero računa na Cake Wallet novčaniku, molimo prvo se prebacite na svoj Monero novčanik.""";
+  @override
+  String get confirmed => """Potvrđeno""";
+  @override
+  String get unconfirmed => """Nepotvrđeno""";
+  @override
+  String get displayable => """Dostupno za prikaz""";
+  @override
+  String get submit_request => """podnesi zahtjev""";
+  @override
+  String get buy_alert_content => """Trenutno podržavamo samo kupnju Bitcoina i Litecoina. Da biste kupili Bitcoin ili Litecoin, stvorite ili pređite na svoj Bitcoin ili Litecoin novčanik.""";
+  @override
+  String get outdated_electrum_wallet_description => """Novi Bitcoin novčanici stvoreni u Cakeu sada imaju sjeme od 24 riječi. Obavezno je stvoriti novi Bitcoin novčanik i prenijeti sva svoja sredstva u novi novčanik od 24 riječi te prestati koristiti novčanike s sjemenkom od 12 riječi. Učinite to odmah kako biste osigurali svoja sredstva.""";
+  @override
+  String get understand => """Razumijem""";
+  @override
+  String get apk_update => """APK ažuriranje""";
+  @override
+  String get buy_bitcoin => """Kupite Bitcoin""";
+  @override
+  String get buy_with => """Kupite s""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Vrijednost iznosa mora biti veća ili jednaka ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Ako ovaj novčanik sadrži sjeme od 12 riječi i stvoren je u Torti, NEMOJTE polagati Bitcoin u ovaj novčanik. Bilo koji BTC prebačen u ovaj novčanik može se izgubiti. Stvorite novi novčanik od 24 riječi (taknite izbornik u gornjem desnom dijelu, odaberite Novčanici, odaberite Stvori novi novčanik, a zatim odaberite Bitcoin) i ODMAH premjestite svoj BTC tamo. Novi BTC novčanici (s 24 riječi) tvrtke Cake sigurni su""";
+  @override
+  String get do_not_show_me => """Ne pokazuj mi ovo više""";
 }
 
 class $pt extends S {
@@ -5417,7 +6333,7 @@ Taxa: ${fee}""";
   @override
   String get restore_active_seed => """Semente ativa""";
   @override
-  String get restore_bitcoin_description_from_seed => """Restaure sua carteira a partir de um código de combinação de 12 palavras""";
+  String get restore_bitcoin_description_from_seed => """Restaure sua carteira a partir de um código de combinação de 24 palavras""";
   @override
   String get restore_bitcoin_description_from_keys => """Restaure sua carteira a partir da string WIF gerada de suas chaves privadas""";
   @override
@@ -5895,6 +6811,24 @@ ${recipient_name}""";
   String get displayable => """Exibível""";
   @override
   String get submit_request => """enviar um pedido""";
+  @override
+  String get buy_alert_content => """Atualmente, apoiamos apenas a compra de Bitcoin e Litecoin. Para comprar Bitcoin ou Litecoin, crie ou troque para sua carteira Bitcoin ou Litecoin.""";
+  @override
+  String get outdated_electrum_wallet_description => """As novas carteiras Bitcoin criadas no Cake agora têm uma semente de 24 palavras. É obrigatório que você crie uma nova carteira Bitcoin e transfira todos os seus fundos para a nova carteira de 24 palavras, e pare de usar carteiras com semente de 12 palavras. Faça isso imediatamente para garantir seus fundos.""";
+  @override
+  String get understand => """Entendo""";
+  @override
+  String get apk_update => """Atualização de APK""";
+  @override
+  String get buy_bitcoin => """Compre Bitcoin""";
+  @override
+  String get buy_with => """Compre com""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """O valor do montante deve ser maior ou igual a ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Se esta carteira tiver uma semente de 12 palavras e foi criada no Cake, NÃO deposite Bitcoin nesta carteira. Qualquer BTC transferido para esta carteira pode ser perdido. Crie uma nova carteira de 24 palavras (toque no menu no canto superior direito, selecione Carteiras, escolha Criar Nova Carteira e selecione Bitcoin) e mova IMEDIATAMENTE seu BTC para lá. As novas carteiras BTC (24 palavras) da Cake são seguras""";
+  @override
+  String get do_not_show_me => """não me mostre isso novamente""";
 }
 
 class $de extends S {
@@ -6200,7 +7134,7 @@ Gebühr: ${fee}""";
   @override
   String get restore_active_seed => """Aktives Seed""";
   @override
-  String get restore_bitcoin_description_from_seed => """Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her""";
+  String get restore_bitcoin_description_from_seed => """Stellen Sie Ihre Brieftasche aus dem 24-Wort-Kombinationscode wieder her""";
   @override
   String get restore_bitcoin_description_from_keys => """Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her""";
   @override
@@ -6678,6 +7612,823 @@ ${recipient_name}""";
   String get displayable => """Anzeigebar""";
   @override
   String get submit_request => """Einen Antrag stellen""";
+  @override
+  String get buy_alert_content => """Derzeit unterstützen wir nur den Kauf von Bitcoin und Litecoin. Um Bitcoin oder Litecoin zu kaufen, erstellen oder wechseln Sie bitte zu Ihrem Bitcoin- oder Litecoin-Wallet.""";
+  @override
+  String get outdated_electrum_wallet_description => """Neue Bitcoin-Geldbörsen, die in Cake erstellt wurden, haben jetzt einen Startwert von 24 Wörtern. Es ist obligatorisch, dass Sie eine neue Bitcoin-Brieftasche erstellen, Ihr gesamtes Geld in die neue 24-Wörter-Brieftasche überweisen und keine Brieftaschen mit einem 12-Wörter-Startwert mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.""";
+  @override
+  String get understand => """Ich verstehe""";
+  @override
+  String get apk_update => """APK Update""";
+  @override
+  String get buy_bitcoin => """Bitcoin kaufen""";
+  @override
+  String get buy_with => """Kaufen mit""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Der Wert des Betrags muss größer oder gleich sein ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Wenn diese Brieftasche einen 12-Wort-Seed hat und in Cake erstellt wurde, zahlen Sie KEINE Bitcoins in diese Brieftasche ein. Alle auf diese Wallet übertragenen BTC können verloren gehen. Erstellen Sie eine neue 24-Wort-Wallet (tippen Sie auf das Menü oben rechts, wählen Sie Wallets, wählen Sie Create New Wallet und dann Bitcoin) und verschieben Sie Ihre BTC SOFORT dorthin. Neue (24 Wörter) BTC-Wallets von Cake sind sicher""";
+  @override
+  String get do_not_show_me => """Zeig mir das nicht noch einmal""";
+}
+
+class $it extends S {
+  const $it();
+      
+  @override
+  TextDirection get textDirection => TextDirection.ltr;
+  
+  @override
+  String get welcome => """Benvenuto""";
+  @override
+  String get cake_wallet => """Cake Wallet""";
+  @override
+  String get first_wallet_text => """Fantastico portafoglio per Monero e Bitcoin""";
+  @override
+  String get please_make_selection => """Gentilmente seleziona se vuoi generare o recuperare il tuo portafoglio.""";
+  @override
+  String get create_new => """Genera nuovo Portafoglio""";
+  @override
+  String get restore_wallet => """Recupera Portafoglio""";
+  @override
+  String get accounts => """Accounts""";
+  @override
+  String get edit => """Modifica""";
+  @override
+  String get account => """Account""";
+  @override
+  String get add => """Aggiungi""";
+  @override
+  String get address_book => """Rubrica indirizzi""";
+  @override
+  String get contact => """Contatta""";
+  @override
+  String get please_select => """Gentilmente seleziona:""";
+  @override
+  String get cancel => """Cancella""";
+  @override
+  String get ok => """OK""";
+  @override
+  String get contact_name => """Nome Contatto""";
+  @override
+  String get reset => """Resetta""";
+  @override
+  String get save => """Salva""";
+  @override
+  String get address_remove_contact => """Rimuovi contatto""";
+  @override
+  String get address_remove_content => """Sei sicuro di voler eliminare il contatto selezionato?""";
+  @override
+  String get authenticated => """Autenticato""";
+  @override
+  String get authentication => """Autenticazione""";
+  @override
+  String failed_authentication(String state_error) => """Autenticazione fallita. ${state_error}""";
+  @override
+  String get wallet_menu => """Menu""";
+  @override
+  String Blocks_remaining(String status) => """${status} Blocchi Rimanenti""";
+  @override
+  String get please_try_to_connect_to_another_node => """Gentilmente prova a connetterti ad un altro nodo""";
+  @override
+  String get xmr_hidden => """Nascosto""";
+  @override
+  String get xmr_available_balance => """Saldo Disponibile""";
+  @override
+  String get xmr_full_balance => """Saldo Completo""";
+  @override
+  String get send => """Invia""";
+  @override
+  String get receive => """Ricevi""";
+  @override
+  String get transactions => """Transazioni""";
+  @override
+  String get incoming => """In arrivo""";
+  @override
+  String get outgoing => """In uscita""";
+  @override
+  String get transactions_by_date => """Transazioni per data""";
+  @override
+  String get trades => """Scambi""";
+  @override
+  String get filters => """Filtri""";
+  @override
+  String get today => """Oggi""";
+  @override
+  String get yesterday => """Ieri""";
+  @override
+  String get received => """Ricevuto""";
+  @override
+  String get sent => """Inviato""";
+  @override
+  String get pending => """ (pendente)""";
+  @override
+  String get rescan => """Scansiona di nuovo""";
+  @override
+  String get reconnect => """Riconnetti""";
+  @override
+  String get wallets => """Portafogli""";
+  @override
+  String get show_seed => """Mostra seme""";
+  @override
+  String get show_keys => """Mostra seme/chiavi""";
+  @override
+  String get address_book_menu => """Rubrica indirizzi""";
+  @override
+  String get reconnection => """Riconnessione""";
+  @override
+  String get reconnect_alert_text => """Sei sicuro di volerti riconnettere?""";
+  @override
+  String get exchange => """Scambia""";
+  @override
+  String get clear => """Pulisci""";
+  @override
+  String get refund_address => """Indirizzo di rimborso""";
+  @override
+  String get change_exchange_provider => """Cambia Exchange""";
+  @override
+  String get you_will_send => """Conveti da""";
+  @override
+  String get you_will_get => """Converti a""";
+  @override
+  String get amount_is_guaranteed => """L'ammonare da ricevere è fissato""";
+  @override
+  String get amount_is_estimate => """L'ammontare da ricevere è una stima""";
+  @override
+  String powered_by(String title) => """Sviluppato da ${title}""";
+  @override
+  String get error => """Errore""";
+  @override
+  String get estimated => """Stimato""";
+  @override
+  String min_value(String value, String currency) => """Min: ${value} ${currency}""";
+  @override
+  String max_value(String value, String currency) => """Max: ${value} ${currency}""";
+  @override
+  String get change_currency => """Cambia Moneta""";
+  @override
+  String get copy_id => """Copia ID""";
+  @override
+  String get exchange_result_write_down_trade_id => """Gentilmente fai una copia o trascrivi l'ID dello scambio per continuare.""";
+  @override
+  String get trade_id => """ID Scambio:""";
+  @override
+  String get copied_to_clipboard => """Copiato negli Appunti""";
+  @override
+  String get saved_the_trade_id => """Ho salvato l'ID dello scambio""";
+  @override
+  String get fetching => """Recupero""";
+  @override
+  String get id => """ID: """;
+  @override
+  String get amount => """Ammontare: """;
+  @override
+  String get payment_id => """ID Pagamento: """;
+  @override
+  String get status => """Stato: """;
+  @override
+  String get offer_expires_in => """Offerta termina tra: """;
+  @override
+  String trade_is_powered_by(String provider) => """Questo scambio è fornito da ${provider}""";
+  @override
+  String get copy_address => """Copia Indirizzo""";
+  @override
+  String exchange_result_confirm(String fetchingLabel, String from, String walletName) => """Cliccando su Conferma, invierai ${fetchingLabel} ${from} dal tuo portafoglio chiamato ${walletName} all'indirizzo mostrato qui in basso. O puoi inviare dal tuo portafoglio esterno all'indirizzo/codice QR mostrato in basso.
+
+Gentilmente clicca su Conferma per continuare o torna indietro per cambiare l'ammontare.""";
+  @override
+  String exchange_result_description(String fetchingLabel, String from) => """Devi inviare un minimo di ${fetchingLabel} ${from} all'indirizzo mostrato nella pagina seguente. Se invii un ammontare inferiore a ${fetchingLabel} ${from} la conversione potrebbe non andare a buon fine e l'indirizzo potrebbe non essere rimborsato.""";
+  @override
+  String get exchange_result_write_down_ID => """*Gentilmente fai una copia o trascrivi il tuo ID mostrato in alto.""";
+  @override
+  String get confirm => """Conferma""";
+  @override
+  String get confirm_sending => """Conferma l'invio""";
+  @override
+  String commit_transaction_amount_fee(String amount, String fee) => """Invia transazione
+Ammontare: ${amount}
+Commissione: ${fee}""";
+  @override
+  String get sending => """Invio""";
+  @override
+  String get transaction_sent => """Transazione inviata!""";
+  @override
+  String get expired => """Scaduta""";
+  @override
+  String time(String minutes, String seconds) => """${minutes}m ${seconds}s""";
+  @override
+  String get send_xmr => """Invia XMR""";
+  @override
+  String get exchange_new_template => """Nuovo modello""";
+  @override
+  String get faq => """Domande Frequenti""";
+  @override
+  String get enter_your_pin => """Inserisci il tuo PIN""";
+  @override
+  String get loading_your_wallet => """Caricamento portafoglio""";
+  @override
+  String get new_wallet => """Nuovo Portafoglio""";
+  @override
+  String get wallet_name => """Nome del Portafoglio""";
+  @override
+  String get continue_text => """Continua""";
+  @override
+  String get choose_wallet_currency => """Gentilmente scegli la moneta del portafoglio:""";
+  @override
+  String get node_new => """Nuovo Nodo""";
+  @override
+  String get node_address => """Indirizzo Nodo""";
+  @override
+  String get node_port => """Porta Nodo""";
+  @override
+  String get login => """Accedi""";
+  @override
+  String get password => """Password""";
+  @override
+  String get nodes => """Nodi""";
+  @override
+  String get node_reset_settings_title => """Ripristina impostazioni""";
+  @override
+  String get nodes_list_reset_to_default_message => """Sei sicuro di voler ripristinare le impostazioni predefinite?""";
+  @override
+  String change_current_node(String node) => """Sei sicuro di voler cambiare il nodo corrente con ${node}?""";
+  @override
+  String get change => """Cambia""";
+  @override
+  String get remove_node => """Rimuovi nodo""";
+  @override
+  String get remove_node_message => """Sei sicuro di voler rimuovere il nodo selezionato?""";
+  @override
+  String get remove => """Remuovi""";
+  @override
+  String get delete => """Elimina""";
+  @override
+  String get add_new_node => """Aggiungi nuovo nodo""";
+  @override
+  String get change_current_node_title => """Cambia nodo corrente""";
+  @override
+  String get node_test => """Test""";
+  @override
+  String get node_connection_successful => """Connessione avvenuta con successo""";
+  @override
+  String get node_connection_failed => """Connessione fallita""";
+  @override
+  String get new_node_testing => """Test novo nodo""";
+  @override
+  String get use => """Passa a """;
+  @override
+  String get digit_pin => """-cifre PIN""";
+  @override
+  String get share_address => """Condividi indirizzo""";
+  @override
+  String get receive_amount => """Ammontare""";
+  @override
+  String get subaddresses => """Sottoindirizzi""";
+  @override
+  String get addresses => """Indirizzi""";
+  @override
+  String get scan_qr_code => """Scansiona il codice QR per ottenere l'indirizzo""";
+  @override
+  String get rename => """Rinomina""";
+  @override
+  String get choose_account => """Scegli account""";
+  @override
+  String get create_new_account => """Crea nuovo account""";
+  @override
+  String get accounts_subaddresses => """Accounts e sottoindirizzi""";
+  @override
+  String get restore_restore_wallet => """Recupera Portafoglio""";
+  @override
+  String get restore_title_from_seed_keys => """Recupera dal seme/chiavi""";
+  @override
+  String get restore_description_from_seed_keys => """Recupera il tuo portafoglio dal seme/chiavi che hai salvato in un posto sicuro""";
+  @override
+  String get restore_next => """Prossimo""";
+  @override
+  String get restore_title_from_backup => """Recupera da backup""";
+  @override
+  String get restore_description_from_backup => """Puoi recuperare l'app Cake Wallet per intero dal tuo file di backup""";
+  @override
+  String get restore_seed_keys_restore => """Recupera Seme/Chiavi""";
+  @override
+  String get restore_title_from_seed => """Recupera dal seme""";
+  @override
+  String get restore_description_from_seed => """Recupera il tuo portafoglio da una combinazione di 25 o 13 parole""";
+  @override
+  String get restore_title_from_keys => """Recupera dalle chiavi""";
+  @override
+  String get restore_description_from_keys => """Recupera il tuo portafoglio da una sequenza di caratteri generati dalle tue chiavi private""";
+  @override
+  String get restore_wallet_name => """Nome Portafoglio""";
+  @override
+  String get restore_address => """Indirizzo""";
+  @override
+  String get restore_view_key_private => """Chiave di Visualizzazione (privata)""";
+  @override
+  String get restore_spend_key_private => """Chiave di Spesa (privata)""";
+  @override
+  String get restore_recover => """Recupera""";
+  @override
+  String get restore_wallet_restore_description => """Descrizione recupero Portafoglio""";
+  @override
+  String get restore_new_seed => """Nuovo seme""";
+  @override
+  String get restore_active_seed => """Seme attivo""";
+  @override
+  String get restore_bitcoin_description_from_seed => """Recupera il tuo portafoglio da una combinazione di 12 parole""";
+  @override
+  String get restore_bitcoin_description_from_keys => """Recupera il tuo portafoglio da una stringa WIF generata dalle tue chiavi private""";
+  @override
+  String get restore_bitcoin_title_from_keys => """Recupera da WIF""";
+  @override
+  String get restore_from_date_or_blockheight => """Gentilmente inserisci la data di un paio di giorni prima che hai creato questo portafoglio. Oppure inserisci l'altezza del blocco se la conosci""";
+  @override
+  String get seed_reminder => """Gentilmente trascrivi le parole. Ti tornerà utie in caso perdessi o ripristinassi il tuo telefono""";
+  @override
+  String get seed_title => """Seme""";
+  @override
+  String get seed_share => """Condividi seme""";
+  @override
+  String get copy => """Copia""";
+  @override
+  String get seed_language_choose => """Gentilmente scegli la lingua del seme:""";
+  @override
+  String get seed_choose => """Scegli la lingua del seme""";
+  @override
+  String get seed_language_next => """Prossimo""";
+  @override
+  String get seed_language_english => """Inglese""";
+  @override
+  String get seed_language_chinese => """Cinese""";
+  @override
+  String get seed_language_dutch => """Olandese""";
+  @override
+  String get seed_language_german => """Tedesco""";
+  @override
+  String get seed_language_japanese => """Giapponese""";
+  @override
+  String get seed_language_portuguese => """Portoghese""";
+  @override
+  String get seed_language_russian => """Russo""";
+  @override
+  String get seed_language_spanish => """Spagnolo""";
+  @override
+  String get send_title => """Invia""";
+  @override
+  String get send_your_wallet => """Il tuo portafoglio""";
+  @override
+  String send_address(String cryptoCurrency) => """${cryptoCurrency} indirizzo""";
+  @override
+  String get send_payment_id => """ID Pagamento (opzionale)""";
+  @override
+  String get all => """TUTTO""";
+  @override
+  String get send_error_minimum_value => """L'ammontare minimo è 0.01""";
+  @override
+  String get send_error_currency => """L'ammontare può contenere solo numeri""";
+  @override
+  String get send_estimated_fee => """Commissione stimata:""";
+  @override
+  String send_priority(String transactionPriority) => """Attualmente la commissione è impostata a priorità ${transactionPriority} .
+La priorità della transazione può essere modificata nelle impostazioni""";
+  @override
+  String get send_creating_transaction => """Creazione della transazione""";
+  @override
+  String get send_templates => """Modelli""";
+  @override
+  String get send_new => """Nuovo""";
+  @override
+  String get send_amount => """Ammontare:""";
+  @override
+  String get send_fee => """Commissione:""";
+  @override
+  String get send_name => """Nome""";
+  @override
+  String get send_got_it => """Ho capito""";
+  @override
+  String get send_sending => """Invio...""";
+  @override
+  String send_success(String crypto) => """ ${crypto} inviati con successo""";
+  @override
+  String get settings_title => """Impostazioni""";
+  @override
+  String get settings_nodes => """Nodi""";
+  @override
+  String get settings_current_node => """Nodo attuale""";
+  @override
+  String get settings_wallets => """Portafogli""";
+  @override
+  String get settings_display_balance_as => """Mostra saldo come""";
+  @override
+  String get settings_currency => """Moneta""";
+  @override
+  String get settings_fee_priority => """Priorità commissione""";
+  @override
+  String get settings_save_recipient_address => """Salva indirizzo di destinazione""";
+  @override
+  String get settings_personal => """Personali""";
+  @override
+  String get settings_change_pin => """Cambia PIN""";
+  @override
+  String get settings_change_language => """Cambia lingua""";
+  @override
+  String get settings_allow_biometrical_authentication => """Consenti autenticazione biometrica""";
+  @override
+  String get settings_dark_mode => """Tema scuro""";
+  @override
+  String get settings_transactions => """Transazioni""";
+  @override
+  String get settings_trades => """Scambi""";
+  @override
+  String get settings_display_on_dashboard_list => """Mostra nella lista della pagina principale""";
+  @override
+  String get settings_all => """TUTTO""";
+  @override
+  String get settings_only_trades => """Solo scambi""";
+  @override
+  String get settings_only_transactions => """Solo transazioni""";
+  @override
+  String get settings_none => """Nessuno""";
+  @override
+  String get settings_support => """Supporto""";
+  @override
+  String get settings_terms_and_conditions => """Termini e condizioni""";
+  @override
+  String get pin_is_incorrect => """Il PIN non è corretto""";
+  @override
+  String get setup_pin => """Imposta PIN""";
+  @override
+  String get enter_your_pin_again => """Inserisci il tuo pin di nuovo""";
+  @override
+  String get setup_successful => """Il tuo PIN è stato impostato con successo!""";
+  @override
+  String get wallet_keys => """Seme Portafoglio /chiavi""";
+  @override
+  String get wallet_seed => """Seme Portafoglio""";
+  @override
+  String get private_key => """Chiave privata""";
+  @override
+  String get public_key => """Chiave pubblica""";
+  @override
+  String get view_key_private => """Chiave di visualizzazione (privata)""";
+  @override
+  String get view_key_public => """Chiave di visualizzazione (pubblica)""";
+  @override
+  String get spend_key_private => """Chiave di spesa (privata)""";
+  @override
+  String get spend_key_public => """Chiave di spesa (pubblica)""";
+  @override
+  String copied_key_to_clipboard(String key) => """ ${key} copiata negli Appunti""";
+  @override
+  String get new_subaddress_title => """Nuovo indirizzo""";
+  @override
+  String get new_subaddress_label_name => """Nome etichetta""";
+  @override
+  String get new_subaddress_create => """Crea""";
+  @override
+  String get subaddress_title => """Lista sottoindirizzi""";
+  @override
+  String get trade_details_title => """Dettagli Scambio""";
+  @override
+  String get trade_details_id => """ID""";
+  @override
+  String get trade_details_state => """Stato""";
+  @override
+  String get trade_details_fetching => """Recupero""";
+  @override
+  String get trade_details_provider => """Fornitore""";
+  @override
+  String get trade_details_created_at => """Creato alle""";
+  @override
+  String get trade_details_pair => """Coppia""";
+  @override
+  String trade_details_copied(String title) => """${title} copiati negli Appunti""";
+  @override
+  String get trade_history_title => """Storico scambi""";
+  @override
+  String get transaction_details_title => """Dettagli Transazione""";
+  @override
+  String get transaction_details_transaction_id => """ID Transazione""";
+  @override
+  String get transaction_details_date => """Data""";
+  @override
+  String get transaction_details_height => """Altezza""";
+  @override
+  String get transaction_details_amount => """Ammontare""";
+  @override
+  String get transaction_details_fee => """Commissione""";
+  @override
+  String transaction_details_copied(String title) => """${title} copiati negli Appunti""";
+  @override
+  String get transaction_details_recipient_address => """Indirizzo destinatario""";
+  @override
+  String get wallet_list_title => """Portafoglio Monero""";
+  @override
+  String get wallet_list_create_new_wallet => """Crea Nuovo Portafoglio""";
+  @override
+  String get wallet_list_restore_wallet => """Recupera Portafoglio""";
+  @override
+  String get wallet_list_load_wallet => """Caricamento Portafoglio""";
+  @override
+  String wallet_list_loading_wallet(String wallet_name) => """Caricamento portafoglio ${wallet_name}""";
+  @override
+  String wallet_list_failed_to_load(String wallet_name, String error) => """Caricamento portafoglio ${wallet_name} fallito. ${error}""";
+  @override
+  String wallet_list_removing_wallet(String wallet_name) => """Rimozione portafoglio ${wallet_name}""";
+  @override
+  String wallet_list_failed_to_remove(String wallet_name, String error) => """Rimozione portafoglio ${wallet_name} fallita. ${error}""";
+  @override
+  String get widgets_address => """Indirizzo""";
+  @override
+  String get widgets_restore_from_blockheight => """Recupera da altezza blocco""";
+  @override
+  String get widgets_restore_from_date => """Recupera da data""";
+  @override
+  String get widgets_or => """o""";
+  @override
+  String get widgets_seed => """Seme""";
+  @override
+  String router_no_route(String name) => """Nessun percorso definito per ${name}""";
+  @override
+  String get error_text_account_name => """Il nome dell'Account può contenere solo lettere, numeri
+e deve avere una lunghezza compresa tra 1 e 15 caratteri""";
+  @override
+  String get error_text_contact_name => """Il nome del Contatto non può contenere i simboli ` , ' " 
+e deve avere una lunghezza compresa tra 1 e 32 caratteri""";
+  @override
+  String get error_text_address => """L'indirizzo del Portafoglio deve corrispondere alla tipologia
+di criptovaluta""";
+  @override
+  String get error_text_node_address => """Gentilmente inserisci un indirizzo iPv4""";
+  @override
+  String get error_text_node_port => """La porta del nodo può contenere solo numeri compresi tra 0 e 65535""";
+  @override
+  String get error_text_payment_id => """l'ID del pagamento può contenere solo da 16 a 64 caratteri in hex""";
+  @override
+  String get error_text_xmr => """Il valore XMR non può eccedere il saldo disponibile.
+Il numero delle cifre decimali deve essere inferiore o uguale a 12""";
+  @override
+  String get error_text_fiat => """L'ammontare non può eccedere il saldo dispoinibile.
+Il numero di cifre decimali deve essere inferiore o uguale a 2""";
+  @override
+  String get error_text_subaddress_name => """Il nome del sottoindirizzo non può contenere i simboli ` , ' " 
+e deve avere una lunghezza compresa tra 1 e 20 caratteri""";
+  @override
+  String get error_text_amount => """L'ammontare può contenere solo numeri""";
+  @override
+  String get error_text_wallet_name => """Il nome del portafoglio può contenere solo lettere, numeri
+e deve avere una lunghezza compresa tra 1 e 15 caratteri""";
+  @override
+  String get error_text_keys => """Le chiavi del portafoglio possono contenere solo 64 caratteri in hex""";
+  @override
+  String get error_text_crypto_currency => """Il numero delle cifre decimali
+deve essere inferiore o uguale a 12""";
+  @override
+  String error_text_minimal_limit(String provider, String min, String currency) => """Lo scambio per ${provider} non è stato creato. L'ammontare è inferiore al minimo: ${min} ${currency}""";
+  @override
+  String error_text_maximum_limit(String provider, String max, String currency) => """Lo scambio per ${provider} non è stato creato. L'ammontare è superiore al massimo: ${max} ${currency}""";
+  @override
+  String error_text_limits_loading_failed(String provider) => """Lo scambio per ${provider} non è stato creato. Caricamento dei limiti fallito""";
+  @override
+  String get error_text_template => """Il nome del modello e l'indirizzo non possono contenere i simboli ` , ' " 
+e devono avere una lunghezza compresa tra 1 e 106 caratteri""";
+  @override
+  String get auth_store_ban_timeout => """ban_timeout""";
+  @override
+  String get auth_store_banned_for => """Bannato per """;
+  @override
+  String get auth_store_banned_minutes => """ minuti""";
+  @override
+  String get auth_store_incorrect_password => """PIN non corretto""";
+  @override
+  String get wallet_store_monero_wallet => """Portafoglio Monero""";
+  @override
+  String get wallet_restoration_store_incorrect_seed_length => """Lunghezza seme non corretta""";
+  @override
+  String get full_balance => """Saldo Completo""";
+  @override
+  String get available_balance => """Saldo Disponibile""";
+  @override
+  String get hidden_balance => """Saldo Nascosto""";
+  @override
+  String get sync_status_syncronizing => """SINCRONIZZAZIONE""";
+  @override
+  String get sync_status_syncronized => """SINCRONIZZATO""";
+  @override
+  String get sync_status_not_connected => """NON CONNESSO""";
+  @override
+  String get sync_status_starting_sync => """INIZIO SINC""";
+  @override
+  String get sync_status_failed_connect => """DISCONNESSO""";
+  @override
+  String get sync_status_connecting => """CONNESSIONE""";
+  @override
+  String get sync_status_connected => """CONNESSO""";
+  @override
+  String get transaction_priority_slow => """Bassa""";
+  @override
+  String get transaction_priority_regular => """Regolare""";
+  @override
+  String get transaction_priority_medium => """Media""";
+  @override
+  String get transaction_priority_fast => """Alta""";
+  @override
+  String get transaction_priority_fastest => """Massima""";
+  @override
+  String trade_for_not_created(String title) => """Lo scambio per ${title} non è stato creato.""";
+  @override
+  String get trade_not_created => """Scambio non creato.""";
+  @override
+  String trade_id_not_found(String tradeId, String title) => """Scambio ${tradeId} di ${title} not trovato.""";
+  @override
+  String get trade_not_found => """Scambio non trovato.""";
+  @override
+  String get trade_state_pending => """In corso""";
+  @override
+  String get trade_state_confirming => """Conferma""";
+  @override
+  String get trade_state_trading => """Scambio""";
+  @override
+  String get trade_state_traded => """Scambiato""";
+  @override
+  String get trade_state_complete => """Completato""";
+  @override
+  String get trade_state_to_be_created => """Da creare""";
+  @override
+  String get trade_state_unpaid => """Non pagato""";
+  @override
+  String get trade_state_underpaid => """Sottopagato""";
+  @override
+  String get trade_state_paid_unconfirmed => """Pagato non confermato""";
+  @override
+  String get trade_state_paid => """Pagato""";
+  @override
+  String get trade_state_btc_sent => """Btc inviati""";
+  @override
+  String get trade_state_timeout => """Timeout""";
+  @override
+  String get trade_state_created => """Creato""";
+  @override
+  String get trade_state_finished => """Finito""";
+  @override
+  String get change_language => """Cambia lingua""";
+  @override
+  String change_language_to(String language) => """Cambia lingua in ${language}?""";
+  @override
+  String get paste => """Incolla""";
+  @override
+  String get restore_from_seed_placeholder => """Gentilmente inserisci o incolla il tuo seme qui""";
+  @override
+  String get add_new_word => """Aggiungi nuova parola""";
+  @override
+  String get incorrect_seed => """Il testo inserito non è valido.""";
+  @override
+  String get biometric_auth_reason => """Scansiona la tua impronta per autenticarti""";
+  @override
+  String version(String currentVersion) => """Versione ${currentVersion}""";
+  @override
+  String get openalias_alert_title => """XMR Destinatario Rilevato""";
+  @override
+  String openalias_alert_content(String recipient_name) => """Invierai i tuoi fondi a
+${recipient_name}""";
+  @override
+  String get card_address => """Indirizzo:""";
+  @override
+  String get buy => """Compra""";
+  @override
+  String get placeholder_transactions => """Le tue transazioni saranno mostrate qui""";
+  @override
+  String get placeholder_contacts => """I tuoi contatti saranno mostrati qui""";
+  @override
+  String get template => """Modello""";
+  @override
+  String get confirm_delete_template => """Questa azione cancellerà questo modello. Desideri continuare?""";
+  @override
+  String get confirm_delete_wallet => """Questa azione cancellerà questo portafoglio. Desideri continuare?""";
+  @override
+  String get picker_description => """Per scegliere ChangeNOW  o MorphToken, gentilmente cambia prima la tua coppia di valute""";
+  @override
+  String get change_wallet_alert_title => """Cambia portafoglio attuale""";
+  @override
+  String change_wallet_alert_content(String wallet_name) => """Sei sicuro di voler cambiare il portafoglio attuale con ${wallet_name}?""";
+  @override
+  String get creating_new_wallet => """Creazione nuovo portafoglio""";
+  @override
+  String creating_new_wallet_error(String description) => """Errore: ${description}""";
+  @override
+  String get seed_alert_title => """Attenzione""";
+  @override
+  String get seed_alert_content => """Il seme è l'unico modo per recuperare il tuo portafoglio. L'hai trascritto?""";
+  @override
+  String get seed_alert_back => """Torna indietro""";
+  @override
+  String get seed_alert_yes => """Sì, l'ho fatto""";
+  @override
+  String get exchange_sync_alert_content => """Gentilmente aspetta che il tuo portafoglio sia sincronizzato""";
+  @override
+  String get pre_seed_title => """IMPORTANTE""";
+  @override
+  String pre_seed_description(String words) => """Nella pagina seguente ti sarà mostrata una serie di parole ${words}. Questo è il tuo seme unico e privato ed è l'UNICO modo per recuperare il tuo portafoglio in caso di perdita o malfunzionamento. E' TUA responsabilità trascriverlo e conservarlo in un posto sicuro fuori dall'app Cake Wallet.""";
+  @override
+  String get pre_seed_button_text => """Ho capito. Mostrami il seme""";
+  @override
+  String get xmr_to_error => """XMR.TO errore""";
+  @override
+  String get xmr_to_error_description => """Ammontare invalido. Il limite massimo è 8 cifre dopo il punto decimale""";
+  @override
+  String provider_error(String provider) => """${provider} errore""";
+  @override
+  String get use_ssl => """Usa SSL""";
+  @override
+  String get color_theme => """Colore tema""";
+  @override
+  String get light_theme => """Bianco""";
+  @override
+  String get bright_theme => """Colorato""";
+  @override
+  String get dark_theme => """Scuro""";
+  @override
+  String get enter_your_note => """Inserisci la tua nota…""";
+  @override
+  String get note_optional => """Nota (opzionale)""";
+  @override
+  String get note_tap_to_change => """Nota (clicca per cambiare)""";
+  @override
+  String get transaction_key => """Chiave Transazione""";
+  @override
+  String get confirmations => """Conferme""";
+  @override
+  String get recipient_address => """Indirizzo di destinazione""";
+  @override
+  String get extra_id => """Extra ID:""";
+  @override
+  String get destination_tag => """Tag destinazione:""";
+  @override
+  String get memo => """Memo:""";
+  @override
+  String get backup => """Backup""";
+  @override
+  String get change_password => """Cambia password""";
+  @override
+  String get backup_password => """Backup password""";
+  @override
+  String get write_down_backup_password => """Gentilmente trascrivi la password del backup, che è usata per importare i tuoi file di backup.""";
+  @override
+  String get export_backup => """Esporta backup""";
+  @override
+  String get save_backup_password => """Gentilmente assicurati di aver salvato la password del tuo backup.  Senza questa non sarai in grado di importare i tuoi file di backup.""";
+  @override
+  String get backup_file => """Backup file""";
+  @override
+  String get edit_backup_password => """Modifica Password Backup""";
+  @override
+  String get save_backup_password_alert => """Salva password Backup""";
+  @override
+  String get change_backup_password_alert => """I precedenti file di backup non potranno essere importati con la nuova password di backup. La nuova password di backup verrà usata soltanto per i nuovi file di backup. Sei sicuro di voler cambiare la tua password di backup?""";
+  @override
+  String get enter_backup_password => """Inserisci la password di backup qui""";
+  @override
+  String get select_backup_file => """Seleziona file di backup""";
+  @override
+  String get import => """Importa""";
+  @override
+  String get please_select_backup_file => """Gentilmente seleziona il file di backup e inserisci la password di backup.""";
+  @override
+  String get fixed_rate => """Tasso fisso""";
+  @override
+  String get fixed_rate_alert => """Potrai inserire l'ammontare da ricevere quando il tasso è fisso. Vuoi cambiare alla modalità tasso fisso?""";
+  @override
+  String get xlm_extra_info => """Gentilmente ricorda di indicare il Memo ID quando invii la transazione XLM per lo scambio""";
+  @override
+  String get xrp_extra_info => """Gentilmente ricorda di indicare il Tag di Destinazione quando invii una transazione XRP per lo scambio""";
+  @override
+  String get exchange_incorrect_current_wallet_for_xmr => """Se vuoi scambiare XMR dal tuo saldo Cake Wallet Monero, gentilmente passa al tuo portafoglio Monero.""";
+  @override
+  String get confirmed => """Confermato""";
+  @override
+  String get unconfirmed => """Non confermato""";
+  @override
+  String get displayable => """Visualizzabile""";
+  @override
+  String get submit_request => """invia una richiesta""";
+  @override
+  String get buy_alert_content => """Attualmente supportiamo solo l'acquisto di Bitcoin e Litecoin. Per acquistare Bitcoin o Litecoin, crea o passa al tuo portafoglio Bitcoin o Litecoin.""";
+  @override
+  String get outdated_electrum_wallet_description => """I nuovi portafogli Bitcoin creati in Cake ora hanno un seme di 24 parole. È obbligatorio creare un nuovo portafoglio Bitcoin e trasferire tutti i fondi nel nuovo portafoglio di 24 parole e smettere di usare portafogli con un seme di 12 parole. Ti preghiamo di farlo immediatamente per proteggere i tuoi fondi.""";
+  @override
+  String get understand => """Capisco""";
+  @override
+  String get apk_update => """Aggiornamento APK""";
+  @override
+  String get buy_bitcoin => """Acquista Bitcoin""";
+  @override
+  String get buy_with => """Acquista con""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Il valore dell'importo deve essere maggiore o uguale a ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Se questo portafoglio ha un seme di 12 parole ed è stato creato in Cake, NON depositare Bitcoin in questo portafoglio. Qualsiasi BTC trasferito su questo portafoglio potrebbe andare perso. Crea un nuovo portafoglio di 24 parole (tocca il menu in alto a destra, seleziona Portafogli, scegli Crea nuovo portafoglio, quindi seleziona Bitcoin) e sposta IMMEDIATAMENTE lì il tuo BTC. I nuovi portafogli BTC (24 parole) di Cake sono sicuri""";
+  @override
+  String get do_not_show_me => """Non mostrarmelo di nuovo""";
 }
 
 class $es extends S {
@@ -6983,7 +8734,7 @@ Cuota: ${fee}""";
   @override
   String get restore_active_seed => """Semilla activa""";
   @override
-  String get restore_bitcoin_description_from_seed => """Restaure su billetera a partir del código de combinación de 12 palabras""";
+  String get restore_bitcoin_description_from_seed => """Restaure su billetera a partir del código de combinación de 24 palabras""";
   @override
   String get restore_bitcoin_description_from_keys => """Restaure su billetera a partir de una cadena WIF generada a partir de sus claves privadas""";
   @override
@@ -7461,6 +9212,24 @@ ${recipient_name}""";
   String get displayable => """Visualizable""";
   @override
   String get submit_request => """presentar una solicitud""";
+  @override
+  String get buy_alert_content => """Actualmente solo apoyamos la compra de Bitcoin y Litecoin. Para comprar Bitcoin o Litecoin, cree o cambie a su billetera Bitcoin o Litecoin.""";
+  @override
+  String get outdated_electrum_wallet_description => """Las nuevas carteras de Bitcoin creadas en Cake ahora tienen una semilla de 24 palabras. Es obligatorio que cree una nueva billetera de Bitcoin y transfiera todos sus fondos a la nueva billetera de 24 palabras, y deje de usar billeteras con una semilla de 12 palabras. Haga esto de inmediato para asegurar sus fondos.""";
+  @override
+  String get understand => """Entiendo""";
+  @override
+  String get apk_update => """Actualización de APK""";
+  @override
+  String get buy_bitcoin => """Comprar Bitcoin""";
+  @override
+  String get buy_with => """Compra con""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """El valor de la cantidad debe ser mayor o igual a ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Si esta billetera tiene una semilla de 12 palabras y se creó en Cake, NO deposite Bitcoin en esta billetera. Cualquier BTC transferido a esta billetera se puede perder. Cree una nueva billetera de 24 palabras (toque el menú en la parte superior derecha, seleccione Monederos, elija Crear nueva billetera, luego seleccione Bitcoin) e INMEDIATAMENTE mueva su BTC allí. Las nuevas carteras BTC (24 palabras) de Cake son seguras""";
+  @override
+  String get do_not_show_me => """no me muestres esto otra vez""";
 }
 
 class $ko extends S {
@@ -7766,7 +9535,7 @@ class $ko extends S {
   @override
   String get restore_active_seed => """활성 종자""";
   @override
-  String get restore_bitcoin_description_from_seed => """12 단어 조합 코드에서 지갑 복원""";
+  String get restore_bitcoin_description_from_seed => """24 단어 조합 코드에서 지갑 복원""";
   @override
   String get restore_bitcoin_description_from_keys => """개인 키에서 생성 된 WIF 문자열에서 지갑 복원""";
   @override
@@ -8244,6 +10013,24 @@ ${recipient_name}""";
   String get displayable => """표시 가능""";
   @override
   String get submit_request => """요청을 제출""";
+  @override
+  String get buy_alert_content => """현재 우리는 비트 코인과 라이트 코인 구매 만 지원합니다. 비트 코인 또는 라이트 코인을 구매하려면 비트 코인 또는 라이트 코인 지갑을 생성하거나 전환하십시오.""";
+  @override
+  String get outdated_electrum_wallet_description => """Cake에서 생성 된 새로운 비트 코인 지갑에는 이제 24 단어 시드가 있습니다. 새로운 비트 코인 지갑을 생성하고 모든 자금을 새로운 24 단어 지갑으로 이체하고 12 단어 시드가있는 지갑 사용을 중지해야합니다. 자금을 확보하려면 즉시이 작업을 수행하십시오.""";
+  @override
+  String get understand => """이해 했어요""";
+  @override
+  String get apk_update => """APK 업데이트""";
+  @override
+  String get buy_bitcoin => """비트 코인 구매""";
+  @override
+  String get buy_with => """구매""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """금액은 다음보다 크거나 같아야합니다 ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """이 지갑에 12 단어 시드가 있고 Cake에서 생성 된 경우이 지갑에 비트 코인을 입금하지 마십시오. 이 지갑으로 전송 된 모든 BTC는 손실 될 수 있습니다. 새로운 24 단어 지갑을 생성하고 (오른쪽 상단의 메뉴를 탭하고 지갑을 선택한 다음 새 지갑 생성을 선택한 다음 비트 코인을 선택하십시오) 즉시 BTC를 그곳으로 이동하십시오. Cake의 새로운 (24 단어) BTC 지갑은 안전합니다""";
+  @override
+  String get do_not_show_me => """나를 다시 표시하지 않음""";
 }
 
 class $uk extends S {
@@ -8549,7 +10336,7 @@ class $uk extends S {
   @override
   String get restore_active_seed => """Активна мнемонічна фраза""";
   @override
-  String get restore_bitcoin_description_from_seed => """Ви можете відновити гаманець використовуючи 12-ти слівну мнемонічну фразу""";
+  String get restore_bitcoin_description_from_seed => """Ви можете відновити гаманець використовуючи 24-ти слівну мнемонічну фразу""";
   @override
   String get restore_bitcoin_description_from_keys => """Ви можете відновити гаманець за допомогою WIF""";
   @override
@@ -9027,6 +10814,24 @@ ${recipient_name}""";
   String get displayable => """Відображуваний""";
   @override
   String get submit_request => """надіслати запит""";
+  @override
+  String get buy_alert_content => """В даний час ми підтримуємо лише придбання Bitcoin та Litecoin. Щоб купити Bitcoin або Litecoin, будь ласка, створіть або перейдіть на свій гаманець Bitcoin або Litecoin.""";
+  @override
+  String get outdated_electrum_wallet_description => """Нові біткойн-гаманці, створені в Cake, тепер містять мнемонічну фразу з 24 слів. Обов’язково стовріть новий біткойн-гаманець, переведіть всі кошти на новий гаманець із 24 слів і припиніть використання гаманців із мнемонічною фразою з 12 слів. Зробіть це негайно, щоб убезпечити свої кошти.""";
+  @override
+  String get understand => """Зрозуміло""";
+  @override
+  String get apk_update => """Оновлення APK""";
+  @override
+  String get buy_bitcoin => """Купити Bitcoin""";
+  @override
+  String get buy_with => """Купити за допомогою""";
+  @override
+  String moonpay_alert_text(String minAmount, String fiatCurrency) => """Значення суми має бути більшим або дорівнювати ${minAmount} ${fiatCurrency}""";
+  @override
+  String get outdated_electrum_wallet_receive_warning => """Якщо цей гаманець має мнемонічну фразу з 12 слів і був створений у Cake, НЕ переводьте біткойни на цей гаманець. Будь-які BTC, переведений на цей гаманець, можуть бути втраченими. Створіть новий гаманець з мнемонічною фразою з 24 слів (торкніться меню у верхньому правому куті, виберіть Гаманці, виберіть Створити новий гаманець, потім виберіть Bitcoin) і НЕГАЙНО переведіть туди свії BTC. Нові (з мнемонічною фразою з 24 слів) гаманці BTC від Cake надійно захищені""";
+  @override
+  String get do_not_show_me => """Не показуй мені це знову""";
 }
 
 class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
@@ -9041,8 +10846,10 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
       Locale("en", ""),
       Locale("hi", ""),
       Locale("ja", ""),
+      Locale("hr", ""),
       Locale("pt", ""),
       Locale("de", ""),
+      Locale("it", ""),
       Locale("es", ""),
       Locale("ko", ""),
       Locale("uk", ""),
@@ -9091,11 +10898,17 @@ class GeneratedLocalizationsDelegate extends LocalizationsDelegate<S> {
         case "ja":
           S.current = const $ja();
           return SynchronousFuture<S>(S.current);
+        case "hr":
+          S.current = const $hr();
+          return SynchronousFuture<S>(S.current);
         case "pt":
           S.current = const $pt();
           return SynchronousFuture<S>(S.current);
         case "de":
           S.current = const $de();
+          return SynchronousFuture<S>(S.current);
+        case "it":
+          S.current = const $it();
           return SynchronousFuture<S>(S.current);
         case "es":
           S.current = const $es();
