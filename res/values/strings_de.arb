@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Beschreibung zur Wiederherstellung der Brieftasche",
   "restore_new_seed" : "Neuer Seed",
   "restore_active_seed" : "Aktives Seed",
-  "restore_bitcoin_description_from_seed" : "Stellen Sie Ihre Brieftasche aus dem 12-Wort-Kombinationscode wieder her",
+  "restore_bitcoin_description_from_seed" : "Stellen Sie Ihre Brieftasche aus dem 24-Wort-Kombinationscode wieder her",
   "restore_bitcoin_description_from_keys" : "Stellen Sie Ihre Brieftasche aus der generierten WIF-Zeichenfolge aus Ihren privaten Schlüsseln wieder her",
   "restore_bitcoin_title_from_keys" : "Aus WIF wiederherstellen",
   "restore_from_date_or_blockheight" : "Bitte geben Sie einige Tage vor dem Erstellen dieser Brieftasche ein Datum ein. Oder wenn Sie die Blockhöhe kennen, geben Sie sie stattdessen ein",
@@ -471,5 +471,19 @@
   "unconfirmed" : "Unbestätigt",
   "displayable" : "Anzeigebar",
 
-  "submit_request" : "Einen Antrag stellen"
+  "submit_request" : "Einen Antrag stellen",
+
+  "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin und Litecoin. Um Bitcoin oder Litecoin zu kaufen, erstellen oder wechseln Sie bitte zu Ihrem Bitcoin- oder Litecoin-Wallet.",
+
+  "outdated_electrum_wallet_description" : "Neue Bitcoin-Geldbörsen, die in Cake erstellt wurden, haben jetzt einen Startwert von 24 Wörtern. Es ist obligatorisch, dass Sie eine neue Bitcoin-Brieftasche erstellen, Ihr gesamtes Geld in die neue 24-Wörter-Brieftasche überweisen und keine Brieftaschen mit einem 12-Wörter-Startwert mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
+  "understand" : "Ich verstehe",
+
+  "apk_update" : "APK Update",
+
+  "buy_bitcoin" : "Bitcoin kaufen",
+  "buy_with" : "Kaufen mit",
+  "moonpay_alert_text" : "Der Wert des Betrags muss größer oder gleich sein ${minAmount} ${fiatCurrency}",
+  
+  "outdated_electrum_wallet_receive_warning": "Wenn diese Brieftasche einen 12-Wort-Seed hat und in Cake erstellt wurde, zahlen Sie KEINE Bitcoins in diese Brieftasche ein. Alle auf diese Wallet übertragenen BTC können verloren gehen. Erstellen Sie eine neue 24-Wort-Wallet (tippen Sie auf das Menü oben rechts, wählen Sie Wallets, wählen Sie Create New Wallet und dann Bitcoin) und verschieben Sie Ihre BTC SOFORT dorthin. Neue (24 Wörter) BTC-Wallets von Cake sind sicher",
+  "do_not_show_me": "Zeig mir das nicht noch einmal"
 }

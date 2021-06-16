@@ -1,6 +1,8 @@
-import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
@@ -20,7 +22,8 @@ abstract class AppStoreBase with Store {
   AuthenticationStore authenticationStore;
 
   @observable
-  WalletBase<Balance> wallet;
+  WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
+      wallet;
 
   WalletListStore walletList;
 
@@ -29,7 +32,10 @@ abstract class AppStoreBase with Store {
   NodeListStore nodeListStore;
 
   @action
-  void changeCurrentWallet(WalletBase<Balance> wallet) {
+  void changeCurrentWallet(
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>
+          wallet) {
     this.wallet?.close();
     this.wallet = wallet;
   }

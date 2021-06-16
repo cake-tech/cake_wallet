@@ -13,14 +13,43 @@ bitcoin.ECPair generateKeyPair(
         {@required bitcoin.HDWallet hd,
         @required int index,
         bitcoin.NetworkType network}) =>
-    bitcoin.ECPair.fromWIF(hd.derive(index).wif,
-        network: network ?? bitcoin.bitcoin);
+    bitcoin.ECPair.fromWIF(hd.derive(index).wif, network: network);
 
-String generateAddress({@required bitcoin.HDWallet hd, @required int index}) =>
+String generateP2WPKHAddress(
+        {@required bitcoin.HDWallet hd,
+        @required int index,
+        bitcoin.NetworkType networkType}) =>
     bitcoin
         .P2WPKH(
             data: PaymentData(
                 pubkey:
-                    Uint8List.fromList(HEX.decode(hd.derive(index).pubKey))))
+                    Uint8List.fromList(HEX.decode(hd.derive(index).pubKey))),
+            network: networkType)
+        .data
+        .address;
+
+String generateP2WPKHAddressByPath(
+        {@required bitcoin.HDWallet hd,
+        @required String path,
+        bitcoin.NetworkType networkType}) =>
+    bitcoin
+        .P2WPKH(
+            data: PaymentData(
+                pubkey:
+                    Uint8List.fromList(HEX.decode(hd.derivePath(path).pubKey))),
+            network: networkType)
+        .data
+        .address;
+
+String generateP2PKHAddress(
+        {@required bitcoin.HDWallet hd,
+        @required int index,
+        bitcoin.NetworkType networkType}) =>
+    bitcoin
+        .P2PKH(
+            data: PaymentData(
+                pubkey:
+                    Uint8List.fromList(HEX.decode(hd.derive(index).pubKey))),
+            network: networkType)
         .data
         .address;

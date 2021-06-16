@@ -134,6 +134,7 @@ extern "C"
         uint32_t subaddrAccount;
         int8_t direction;
         int8_t isPending;
+        uint32_t subaddrIndex;
         
         char *hash;
         char *paymentId;
@@ -146,6 +147,8 @@ extern "C"
             fee = transaction->fee();
             blockHeight = transaction->blockHeight();
             subaddrAccount = transaction->subaddrAccount();
+            std::set<uint32_t>::iterator it = transaction->subaddrIndex().begin();
+            subaddrIndex = *it;
             confirmations = transaction->confirmations();
             datetime = static_cast<int64_t>(transaction->timestamp());            
             direction = transaction->direction();
@@ -179,8 +182,6 @@ extern "C"
     Monero::SubaddressAccount *m_account;
     uint64_t m_last_known_wallet_height;
     uint64_t m_cached_syncing_blockchain_height = 0;
-    std::mutex store_mutex;
-
 
     void change_current_wallet(Monero::Wallet *wallet)
     {
@@ -451,9 +452,7 @@ extern "C"
 
     void store(char *path)
     {
-        store_mutex.lock();
         get_current_wallet()->store(std::string(path));
-        store_mutex.unlock();
     }
 
     bool transaction_create(char *address, char *payment_id, char *amount,

@@ -19,7 +19,6 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.eos,
     CryptoCurrency.eth,
     CryptoCurrency.ltc,
-    CryptoCurrency.nano,
     CryptoCurrency.trx,
     CryptoCurrency.usdt,
     CryptoCurrency.usdterc20,
@@ -29,7 +28,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const xmr = CryptoCurrency(title: 'XMR', raw: 0);
   static const ada = CryptoCurrency(title: 'ADA', raw: 1);
   static const bch = CryptoCurrency(title: 'BCH', raw: 2);
-  static const bnb = CryptoCurrency(title: 'BNB', raw: 3);
+  static const bnb = CryptoCurrency(title: 'BNB BEP2', raw: 3);
   static const btc = CryptoCurrency(title: 'BTC', raw: 4);
   static const dai = CryptoCurrency(title: 'DAI', raw: 5);
   static const dash = CryptoCurrency(title: 'DASH', raw: 6);
@@ -90,7 +89,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.ada;
       case 'bch':
         return CryptoCurrency.bch;
-      case 'bnb':
+      case 'bnbmainnet':
         return CryptoCurrency.bnb;
       case 'btc':
         return CryptoCurrency.btc;

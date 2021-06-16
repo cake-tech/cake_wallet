@@ -4,9 +4,9 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 
 String generateWalletPassword(WalletType type) {
   switch (type) {
-    case WalletType.bitcoin:
-      return generateKey();
-    default:
+    case WalletType.monero:
       return Uuid().v4();
+    default:
+      return generateKey();
   }
 }

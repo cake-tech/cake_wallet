@@ -1,5 +1,5 @@
 import 'package:cake_wallet/entities/language_service.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -107,7 +107,7 @@ Future<void> main() async {
         exchangeTemplates: exchangeTemplates,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 13);
+        initialMigrationVersion: 15);
     runApp(App());
   } catch (e) {
     runApp(MaterialApp(
@@ -135,7 +135,7 @@ Future<void> initialSetup(
     @required Box<ExchangeTemplate> exchangeTemplates,
     @required Box<TransactionDescription> transactionDescriptions,
     FlutterSecureStorage secureStorage,
-    int initialMigrationVersion = 13}) async {
+    int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
   await defaultSettingsMigration(
       secureStorage: secureStorage,

@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Opis przywracania portfela",
   "restore_new_seed" : "Nowe nasienie",
   "restore_active_seed" : "Aktywne nasiona",
-  "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 12 słów",
+  "restore_bitcoin_description_from_seed" : "Przywróć swój portfel z kodu złożonego z 24 słów",
   "restore_bitcoin_description_from_keys" : "Przywróć swój portfel z wygenerowanego ciągu WIF z kluczy prywatnych",
   "restore_bitcoin_title_from_keys" : "Przywróć z WIF",
   "restore_from_date_or_blockheight" : "Wprowadź datę na kilka dni przed utworzeniem tego portfela. Lub jeśli znasz wysokość bloku, wprowadź go zamiast tego",
@@ -471,5 +471,19 @@
   "unconfirmed" : "Niepotwierdzony",
   "displayable" : "Wyświetlane",
 
-  "submit_request" : "złożyć wniosek"
+  "submit_request" : "złożyć wniosek",
+
+  "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoin i Litecoin. Aby kupić Bitcoin lub Litecoin, utwórz lub przełącz się na swój portfel Bitcoin lub Litecoin.",
+
+  "outdated_electrum_wallet_description" : "Nowe portfele Bitcoin utworzone w Cake mają teraz ziarno składające się z 24 słów. Konieczne jest utworzenie nowego portfela Bitcoin i przeniesienie wszystkich środków do nowego portfela na 24 słowa oraz zaprzestanie korzystania z portfeli z zalążkiem na 12 słów. Zrób to natychmiast, aby zabezpieczyć swoje fundusze.",
+  "understand" : "Rozumiem",
+
+  "apk_update" : "Aktualizacja APK",
+
+  "buy_bitcoin" : "Kup Bitcoin",
+  "buy_with" : "Kup za pomocą",
+  "moonpay_alert_text" : "Wartość kwoty musi być większa lub równa ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Jeśli ten portfel ma 12-wyrazowy seed i został utworzony w Cake, NIE Wpłacaj Bitcoina do tego portfela. Wszelkie BTC przeniesione do tego portfela mogą zostać utracone. Utwórz nowy portfel z 24 słowami (dotknij menu w prawym górnym rogu, wybierz Portfele, wybierz Utwórz nowy portfel, a następnie Bitcoin) i NATYCHMIAST przenieś tam swoje BTC. Nowe (24 słowa) portfele BTC firmy Cake są bezpieczne",
+  "do_not_show_me": "Nie pokazuj mi tego ponownie"
 }

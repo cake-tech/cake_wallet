@@ -1,18 +1,22 @@
-import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_info.dart';
-import 'package:cake_wallet/entities/transaction_direction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/bitcoin/electrum.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
+import 'package:cake_wallet/bitcoin/electrum_transaction_info.dart';
+import 'package:cake_wallet/entities/transaction_direction.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 
 class PendingBitcoinTransaction with PendingTransaction {
-  PendingBitcoinTransaction(this._tx,
-      {@required this.eclient, @required this.amount, @required this.fee})
-      : _listeners = <void Function(BitcoinTransactionInfo transaction)>[];
+  PendingBitcoinTransaction(this._tx, this.type,
+      {@required this.electrumClient,
+      @required this.amount,
+      @required this.fee})
+      : _listeners = <void Function(ElectrumTransactionInfo transaction)>[];
 
+  final WalletType type;
   final bitcoin.Transaction _tx;
-  final ElectrumClient eclient;
+  final ElectrumClient electrumClient;
   final int amount;
   final int fee;
 
@@ -25,24 +29,25 @@ class PendingBitcoinTransaction with PendingTransaction {
   @override
   String get feeFormatted => bitcoinAmountToString(amount: fee);
 
-  final List<void Function(BitcoinTransactionInfo transaction)> _listeners;
+  final List<void Function(ElectrumTransactionInfo transaction)> _listeners;
 
   @override
   Future<void> commit() async {
-    await eclient.broadcastTransaction(transactionRaw: _tx.toHex());
+    await electrumClient.broadcastTransaction(transactionRaw: _tx.toHex());
     _listeners?.forEach((listener) => listener(transactionInfo()));
   }
 
   void addListener(
-          void Function(BitcoinTransactionInfo transaction) listener) =>
+          void Function(ElectrumTransactionInfo transaction) listener) =>
       _listeners.add(listener);
 
-  BitcoinTransactionInfo transactionInfo() => BitcoinTransactionInfo(
+  ElectrumTransactionInfo transactionInfo() => ElectrumTransactionInfo(type,
       id: id,
       height: 0,
       amount: amount,
       direction: TransactionDirection.outgoing,
       date: DateTime.now(),
       isPending: true,
-      confirmations: 0);
+      confirmations: 0,
+      fee: fee);
 }
