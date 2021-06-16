@@ -782,7 +782,7 @@ class ExchangePage extends BasePage {
 
     if (domain.contains('.')) {
       final name = domain.split('.').last;
-      if (name.isNotEmpty && (name == topLevelDomain)) {
+      if (name == topLevelDomain) {
         try {
           final address =
           await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);

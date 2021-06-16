@@ -774,7 +774,7 @@ class SendPage extends BasePage {
         context: context);
   }
 
-  Future<void> applyUnstoppableDomainAddress(BuildContext context) async {
+  Future<void> getUnstoppableDomainAddress(BuildContext context) async {
     try {
       final address = await sendViewModel
           .getUnstoppableDomainAddress(
@@ -798,7 +798,7 @@ class SendPage extends BasePage {
       final name = address.split('.').last;
       if (name.isNotEmpty) {
         if (name == topLevelDomain) {
-          await applyUnstoppableDomainAddress(context);
+          await getUnstoppableDomainAddress(context);
         } else {
           await getOpenaliasRecord(context);
         }
