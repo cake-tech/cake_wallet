@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
+import 'package:cake_wallet/entities/generate_name.dart';
 
 part 'wallet_address_edit_or_create_view_model.g.dart';
 
@@ -68,8 +69,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     }
 
     if (wallet is MoneroWallet) {
-      await wallet.subaddressList
-          .addSubaddress(accountIndex: wallet.account.id, label: label);
+      await wallet.subaddressList.addSubaddress(
+          accountIndex: wallet.account.id, label: await generateName());
       await wallet.save();
     }
   }
