@@ -54,6 +54,8 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
         await _createNew();
       }
 
+      await _wallet.updateAddressesInfo();
+
       state = AddressSavedSuccessfully();
     } catch (e) {
       state = AddressEditOrCreateStateFailure(error: e.toString());

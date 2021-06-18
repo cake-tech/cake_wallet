@@ -125,6 +125,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
     address = addresses[_accountIndex].address;
 
+    await updateAddressesInfo();
+
     await save();
   }
 

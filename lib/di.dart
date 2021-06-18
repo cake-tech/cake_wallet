@@ -362,6 +362,7 @@ Future setup(
           AccountListItem, void>(
       (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
           (getIt.get<AppStore>().wallet as MoneroWallet).accountList,
+          wallet: getIt.get<AppStore>().wallet,
           accountListItem: account));
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem,

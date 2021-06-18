@@ -445,4 +445,26 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       print(e.toString());
     }
   }
+
+  @override
+  Future<void> updateAddressesInfo() async {
+    final Map<String, String> _addresses = {};
+    final _subaddressList = MoneroSubaddressList();
+
+    accountList.accounts.forEach((account) {
+      _subaddressList.update(accountIndex: account.id);
+      _subaddressList.subaddresses.forEach((subaddress) {
+        _addresses.addAll({subaddress.address:subaddress.label});
+      });
+    });
+
+    try {
+      walletInfo.addresses = _addresses;
+      walletInfo.address = address;
+
+      await walletInfo.save();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }
