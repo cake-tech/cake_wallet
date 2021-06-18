@@ -16,11 +16,23 @@ class ContactListViewModel = ContactListViewModelBase
 abstract class ContactListViewModelBase with Store {
   ContactListViewModelBase(this.contactSource, this.walletInfoSource)
       : contacts = ObservableList<ContactRecord>(),
-        walletContacts = walletInfoSource.values
-            .where((info) => info.address?.isNotEmpty ?? false)
-            .map((info) => WalletContact(
-                info.address, info.name, walletTypeToCryptoCurrency(info.type)))
-            .toList() {
+        walletContacts = [] {
+    walletInfoSource.values.forEach((info) {
+      if (info.address?.isNotEmpty ?? false) {
+        if (info.addresses != null) {
+          info.addresses.forEach((address, label) {
+            walletContacts.add(WalletContact(
+                address,
+                info.name + ' ($label)',
+                walletTypeToCryptoCurrency(info.type)));
+          });
+        } else {
+          walletContacts.add(WalletContact(info.address, info.name,
+              walletTypeToCryptoCurrency(info.type)));
+        }
+      }
+    });
+
     _subscription = contactSource.bindToListWithTransform(
         contacts, (Contact contact) => ContactRecord(contactSource, contact),
         initialFire: true);

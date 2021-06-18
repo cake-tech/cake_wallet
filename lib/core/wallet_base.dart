@@ -66,4 +66,13 @@ abstract class WalletBase<
   Future<void> rescan({int height});
 
   void close();
+
+  Future<void> updateAddressesInfo() async {
+    try {
+      walletInfo.address = address;
+      await walletInfo.save();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
 }

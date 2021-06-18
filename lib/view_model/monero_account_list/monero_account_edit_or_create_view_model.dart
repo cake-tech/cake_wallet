@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/monero/monero_account_list.dart';
@@ -10,11 +12,12 @@ class MoneroAccountEditOrCreateViewModel = MoneroAccountEditOrCreateViewModelBas
 
 abstract class MoneroAccountEditOrCreateViewModelBase with Store {
   MoneroAccountEditOrCreateViewModelBase(this._moneroAccountList,
-      {AccountListItem accountListItem})
+      {@required WalletBase wallet, AccountListItem accountListItem})
       : state = InitialExecutionState(),
         isEdit = accountListItem != null,
         label = accountListItem?.label??'',
-        _accountListItem = accountListItem;
+        _accountListItem = accountListItem,
+        _wallet = wallet;
 
   final bool isEdit;
 
@@ -26,6 +29,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
   final MoneroAccountList _moneroAccountList;
   final AccountListItem _accountListItem;
+  final WalletBase _wallet;
 
   Future<void> save() async {
     try {
@@ -37,6 +41,8 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
       } else {
         await _moneroAccountList.addAccount(label: label);
       }
+
+      await _wallet.updateAddressesInfo();
 
       state = ExecutedSuccessfullyState();
     } catch (e) {
