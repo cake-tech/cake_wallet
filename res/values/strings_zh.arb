@@ -169,7 +169,7 @@
   "restore_recover" : "恢复",
   "restore_wallet_restore_description" : "钱包还原说明",
   "restore_new_seed" : "新种子",
-  "restore_active_seed" : "活性种子",
+  "restore_active_seed" : "活动种子",
   "restore_bitcoin_description_from_seed" : "从24个文字的组成码恢复您的钱包",
   "restore_bitcoin_description_from_keys" : "从私钥中生成的WIF字符串恢复您钱包",
   "restore_bitcoin_title_from_keys" : "从WIF还原",
@@ -267,7 +267,7 @@
   "trade_details_title" : "交易明细",
   "trade_details_id" : "ID",
   "trade_details_state" : "条件",
-  "trade_details_fetching" : "正在取得",
+  "trade_details_fetching" : "正在获取",
   "trade_details_provider" : "提供者",
   "trade_details_created_at" : "创建于",
   "trade_details_pair" : "对",
@@ -322,7 +322,7 @@
   "error_text_crypto_currency" : "小数位数\n必须小于或等于12",
   "error_text_minimal_limit" : "未创建 ${provider} 交易。 金额小于最小值：${min} ${currency}",
   "error_text_maximum_limit" : "未创建 ${provider} 交易。 金额大于最大值：${max} ${currency}",
-  "error_text_limits_loading_failed" : "未创建 ${provider} 交易。 限制加载失敗",
+  "error_text_limits_loading_failed" : "未创建 ${provider} 交易。 限制加载失败",
   "error_text_template" : "模板名称和地址不能包含`，' \" 符号\n并且必须在1到106个字符之间",
 
 
@@ -478,10 +478,10 @@
 
   "apk_update" : "APK更新",
 
-  "buy_bitcoin" : "購買比特幣",
-  "buy_with" : "與一起購買",
-  "moonpay_alert_text" : "金額的價值必須大於或等於 ${minAmount} ${fiatCurrency}",
+  "buy_bitcoin" : "购买比特币",
+  "buy_with" : "一起购买",
+  "moonpay_alert_text" : "金额的价值必须大于或等于 ${minAmount} ${fiatCurrency}",
 
   "outdated_electrum_wallet_receive_warning": "如果这个钱包有一个 12 字的种子并且是在 Cake 中创建的，不要将比特币存入这个钱包。 任何转移到此钱包的 BTC 都可能丢失。 创建一个新的 24 字钱包（点击右上角的菜单，选择钱包，选择创建新钱包，然后选择比特币）并立即将您的 BTC 移到那里。 Cake 的新（24 字）BTC 钱包是安全的",
-  "do_not_show_me": "不要再让我看这个了"
+  "do_not_show_me": "不再提示"
 }
