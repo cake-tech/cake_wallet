@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/src/screens/send/widgets/unstoppable_domain_address_alert.dart';
+import 'package:cake_wallet/src/screens/send/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -226,10 +226,10 @@ class ExchangePage extends BasePage {
                                 onPushPasteButton: (context) async {
                                   final domain =
                                       exchangeViewModel.depositAddress;
-                                  final ticker =
-                                      exchangeViewModel.depositCurrency.title;
+                                  final ticker = exchangeViewModel
+                                      .depositCurrency.title.toLowerCase();
                                   exchangeViewModel.depositAddress =
-                                    await applyUnstoppableDomainAddress(
+                                    await parseAddressFromDomain(
                                         context, domain, ticker);
                                 },
                               ),
@@ -281,10 +281,10 @@ class ExchangePage extends BasePage {
                                   onPushPasteButton: (context) async {
                                     final domain =
                                         exchangeViewModel.receiveAddress;
-                                    final ticker =
-                                        exchangeViewModel.receiveCurrency.title;
+                                    final ticker = exchangeViewModel
+                                        .receiveCurrency.title.toLowerCase();
                                     exchangeViewModel.receiveAddress =
-                                      await applyUnstoppableDomainAddress(
+                                      await parseAddressFromDomain(
                                           context, domain, ticker);
                                   },
                                 )),
@@ -512,14 +512,14 @@ class ExchangePage extends BasePage {
     exchangeViewModel.isFixedRateMode = false;
 
     var domain = template.depositAddress;
-    var ticker = template.depositCurrency;
+    var ticker = template.depositCurrency.toLowerCase();
     exchangeViewModel.depositAddress =
-      await applyUnstoppableDomainAddress(context, domain, ticker);
+      await parseAddressFromDomain(context, domain, ticker);
 
     domain = template.receiveAddress;
-    ticker = template.receiveCurrency;
+    ticker = template.receiveCurrency.toLowerCase();
     exchangeViewModel.receiveAddress =
-      await applyUnstoppableDomainAddress(context, domain, ticker);
+      await parseAddressFromDomain(context, domain, ticker);
   }
 
   void _setReactions(
@@ -689,9 +689,9 @@ class ExchangePage extends BasePage {
       if (!_depositAddressFocus.hasFocus &&
           depositAddressController.text.isNotEmpty) {
         final domain = depositAddressController.text;
-        final ticker = exchangeViewModel.depositCurrency.title;
+        final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
         exchangeViewModel.depositAddress =
-          await applyUnstoppableDomainAddress(context, domain, ticker);
+          await parseAddressFromDomain(context, domain, ticker);
       }
     });
 
@@ -699,9 +699,9 @@ class ExchangePage extends BasePage {
       if (!_receiveAddressFocus.hasFocus &&
           receiveAddressController.text.isNotEmpty) {
         final domain = receiveAddressController.text;
-        final ticker = exchangeViewModel.receiveCurrency.title;
+        final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
         exchangeViewModel.receiveAddress =
-          await applyUnstoppableDomainAddress(context, domain, ticker);
+          await parseAddressFromDomain(context, domain, ticker);
       }
     });
 
@@ -774,28 +774,5 @@ class ExchangePage extends BasePage {
       key.currentState.changeWalletName(null);
       key.currentState.addressController.text = null;
     }
-  }
-
-  Future<String> applyUnstoppableDomainAddress(BuildContext context,
-      String domain, String ticker) async {
-    const topLevelDomain = 'crypto';
-
-    if (domain.contains('.')) {
-      final name = domain.split('.').last;
-      if (name == topLevelDomain) {
-        try {
-          final address =
-          await exchangeViewModel.getUnstoppableDomainAddress(domain, ticker);
-          if ((address != null)&&address.isNotEmpty) {
-            unstoppableDomainAddressAlert(context, domain);
-            return address;
-          }
-        } catch (e) {
-          print(e.toString());
-        }
-      }
-    }
-
-    return domain;
   }
 }
