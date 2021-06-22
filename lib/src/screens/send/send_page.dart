@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/src/screens/send/widgets/unstoppable_domain_address_alert.dart';
+import 'package:cake_wallet/src/screens/send/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -736,26 +736,6 @@ class SendPage extends BasePage {
     _effectsInstalled = true;
   }
 
-  Future<void> getOpenaliasRecord(BuildContext context) async {
-    final record =
-        await sendViewModel.decodeOpenaliasRecord(_addressController.text);
-
-    if (record != null) {
-      _addressController.text = record.address;
-
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.of(context).openalias_alert_title,
-                alertContent:
-                    S.of(context).openalias_alert_content(record.name),
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    }
-  }
-
   Future<void> _setTransactionPriority(BuildContext context) async {
     final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
@@ -774,35 +754,10 @@ class SendPage extends BasePage {
         context: context);
   }
 
-  Future<void> getUnstoppableDomainAddress(BuildContext context) async {
-    try {
-      final address = await sendViewModel
-          .getUnstoppableDomainAddress(
-          _addressController.text);
-
-      if ((address != null)&&address.isNotEmpty) {
-        unstoppableDomainAddressAlert(
-            context, _addressController.text);
-        _addressController.text = address;
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-  }
-
   void applyOpenaliasOrUnstoppableDomains(BuildContext context) async {
-    const topLevelDomain = 'crypto';
-    final address = _addressController.text;
-
-    if (address.contains('.')) {
-      final name = address.split('.').last;
-      if (name.isNotEmpty) {
-        if (name == topLevelDomain) {
-          await getUnstoppableDomainAddress(context);
-        } else {
-          await getOpenaliasRecord(context);
-        }
-      }
-    }
+    final domain = _addressController.text;
+    final ticker = sendViewModel.currency.title.toLowerCase();
+    _addressController.text =
+      await parseAddressFromDomain(context, domain, ticker);
   }
 }

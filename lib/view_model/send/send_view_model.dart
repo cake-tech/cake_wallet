@@ -1,17 +1,14 @@
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
 import 'package:cake_wallet/core/template_validator.dart';
@@ -21,7 +18,6 @@ import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
@@ -264,17 +260,6 @@ abstract class SendViewModelBase with Store {
   @action
   void setTransactionPriority(TransactionPriority priority) =>
       _settingsStore.priority[_wallet.type] = priority;
-
-  Future<OpenaliasRecord> decodeOpenaliasRecord(String name) async {
-    final record = await OpenaliasRecord.fetchAddressAndName(
-        OpenaliasRecord.formatDomainName(name));
-
-    return record.name != name ? record : null;
-  }
-
-  Future<String> getUnstoppableDomainAddress(String domain) async {
-    return await fetchUnstoppableDomainAddress(domain, currency.title.toLowerCase());
-  }
 
   @action
   void _updateFiatAmount() {
