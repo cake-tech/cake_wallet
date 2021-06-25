@@ -19,7 +19,9 @@ abstract class ContactListViewModelBase with Store {
         walletContacts = walletInfoSource.values
             .where((info) => info.address?.isNotEmpty ?? false)
             .map((info) => WalletContact(
-                info.address, info.name, walletTypeToCryptoCurrency(info.type)))
+                info.address,
+                info.displayedName,
+                walletTypeToCryptoCurrency(info.type)))
             .toList() {
     _subscription = contactSource.bindToListWithTransform(
         contacts, (Contact contact) => ContactRecord(contactSource, contact),
