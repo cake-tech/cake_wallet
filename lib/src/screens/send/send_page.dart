@@ -570,8 +570,7 @@ class SendPage extends BasePage {
                     textColor: Colors.white,
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,
-                    isDisabled:
-                        false // FIXME !(syncStore.status is SyncedSyncStatus),
+                    isDisabled: !sendViewModel.isReadyForSend,
                     );
               })),
         ));
