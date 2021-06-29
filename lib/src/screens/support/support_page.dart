@@ -34,6 +34,7 @@ class SupportPage extends BasePage {
             return SettingsLinkProviderCell(
                 title: item.title,
                 icon: item.icon,
+                iconColor: item.iconColor,
                 link: item.link,
                 linkTitle: item.linkTitle);
           }
