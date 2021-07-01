@@ -25,6 +25,15 @@ abstract class SupportViewModelBase with Store {
           linkTitle: 'support@cakewallet.com',
           link: 'mailto:support@cakewallet.com'),
       LinkListItem(
+          title: 'Website',
+          linkTitle: 'cakewallet.com',
+          link: 'https://cakewallet.com'),
+      LinkListItem(
+          title: 'GitHub',
+          icon: 'assets/images/github.png',
+          linkTitle: S.current.apk_update,
+          link: 'https://github.com/cake-tech/cake_wallet/releases'),
+      LinkListItem(
           title: 'Telegram',
           icon: 'assets/images/Telegram.png',
           linkTitle: '@cakewallet_bot',

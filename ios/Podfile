@@ -36,6 +36,7 @@ target 'Runner' do
 
   # Cake Wallet (Legacy)
   pod 'CryptoSwift'
+  pod 'Firebase/Messaging', '6.33.0'
 end
 
 post_install do |installer|

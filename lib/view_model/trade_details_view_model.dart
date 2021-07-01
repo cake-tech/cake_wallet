@@ -39,7 +39,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
     _updateTrade();
 
-    _timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
 
   final Box<Trade> trades;
@@ -52,7 +52,7 @@ abstract class TradeDetailsViewModelBase with Store {
 
   ExchangeProvider _provider;
 
-  Timer _timer;
+  Timer timer;
 
   @action
   Future<void> _updateTrade() async {
