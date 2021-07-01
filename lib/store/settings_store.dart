@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
-import 'package:devicelocale/devicelocale.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -18,6 +17,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node.dart';
 import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'settings_store.g.dart';
 
@@ -147,6 +147,12 @@ abstract class SettingsStoreBase with Store {
 
   bool isBitcoinBuyEnabled;
 
+  bool get shouldShowReceiveWarning =>
+    _sharedPreferences.getBool(PreferencesKey.shouldShowReceiveWarning) ?? true;
+
+  Future<void> setShouldShowReceiveWarning(bool value) async =>
+    _sharedPreferences.setBool(PreferencesKey.shouldShowReceiveWarning, value);
+
   static Future<SettingsStore> load(
       {@required Box<Node> nodeSource,
       @required bool isBitcoinBuyEnabled,
@@ -242,8 +248,13 @@ abstract class SettingsStoreBase with Store {
           BitcoinTransactionPriority.medium,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
+    final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
+        (secrets.wyreApiKey?.isNotEmpty ?? false) &&
+        (secrets.wyreAccountId?.isNotEmpty ?? false);
+
     final settings = await SettingsStoreBase.load(
         nodeSource: nodeSource,
+        isBitcoinBuyEnabled: isBitcoinBuyEnabled,
         initialBalanceDisplayMode: initialBalanceDisplayMode,
         initialFiatCurrency: initialFiatCurrency,
         initialMoneroTransactionPriority: initialMoneroTransactionPriority,

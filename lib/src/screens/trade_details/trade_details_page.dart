@@ -19,7 +19,33 @@ class TradeDetailsPage extends BasePage {
   final TradeDetailsViewModel tradeDetailsViewModel;
 
   @override
-  Widget body(BuildContext context) {
+  Widget body(BuildContext context) =>
+      TradeDetailsPageBody(tradeDetailsViewModel);
+}
+
+class TradeDetailsPageBody extends StatefulWidget {
+  TradeDetailsPageBody(this.tradeDetailsViewModel);
+
+  final TradeDetailsViewModel tradeDetailsViewModel;
+
+  @override
+  TradeDetailsPageBodyState createState() =>
+      TradeDetailsPageBodyState(tradeDetailsViewModel);
+}
+
+class TradeDetailsPageBodyState extends State<TradeDetailsPageBody> {
+  TradeDetailsPageBodyState(this.tradeDetailsViewModel);
+
+  final TradeDetailsViewModel tradeDetailsViewModel;
+
+  @override
+  void dispose() {
+    super.dispose();
+    tradeDetailsViewModel.timer?.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Observer(builder: (_) {
       return SectionStandardList(
           sectionCount: 1,
@@ -44,4 +70,5 @@ class TradeDetailsPage extends BasePage {
           });
     });
   }
+
 }

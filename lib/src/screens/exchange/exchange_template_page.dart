@@ -37,7 +37,7 @@ class ExchangeTemplatePage extends BasePage {
   Color get titleColor => Colors.white;
 
   @override
-  bool get resizeToAvoidBottomPadding => false;
+  bool get resizeToAvoidBottomInset => false;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -176,7 +176,7 @@ class ExchangeTemplatePage extends BasePage {
                             initialIsAddressEditable:
                             exchangeViewModel.isReceiveAddressEnabled,
                             isAmountEstimated: true,
-                            currencies: CryptoCurrency.all,
+                            currencies: exchangeViewModel.receiveCurrencies,
                             onCurrencySelected: (currency) =>
                                 exchangeViewModel.changeReceiveCurrency(
                                     currency: currency),
