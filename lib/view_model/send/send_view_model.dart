@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
@@ -20,7 +19,6 @@ import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
@@ -55,7 +53,7 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
-    isBitcoinWallet  = _wallet is BitcoinWallet;
+    isElectrumWallet  = _wallet is ElectrumWallet;
 
     _setCryptoNumMaximumFractionDigits();
   }
@@ -185,7 +183,7 @@ abstract class SendViewModelBase with Store {
   PendingTransaction pendingTransaction;
 
   @observable
-  bool isBitcoinWallet;
+  bool isElectrumWallet;
 
   @computed
   String get balance => _wallet.balance.formattedAvailableBalance ?? '0.0';

@@ -426,7 +426,7 @@ class SendPage extends BasePage {
                                           ),
                                         ),
                                       )),
-                              if (sendViewModel.isBitcoinWallet) Padding(
+                              if (sendViewModel.isElectrumWallet) Padding(
                                 padding: EdgeInsets.only(top: 6),
                                 child: GestureDetector(
                                     onTap: () => Navigator.of(context)
@@ -436,7 +436,7 @@ class SendPage extends BasePage {
                                       MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                            'Coin control (optional)',
+                                            S.of(context).coin_control,
                                             style: TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,

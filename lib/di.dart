@@ -1,5 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
 import 'package:cake_wallet/bitcoin/litecoin_wallet_service.dart';
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
@@ -130,6 +131,7 @@ Box<Template> _templates;
 Box<ExchangeTemplate> _exchangeTemplates;
 Box<TransactionDescription> _transactionDescriptionBox;
 Box<Order> _ordersSource;
+Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 
 Future setup(
     {Box<WalletInfo> walletInfoSource,
@@ -139,7 +141,8 @@ Future setup(
     Box<Template> templates,
     Box<ExchangeTemplate> exchangeTemplates,
     Box<TransactionDescription> transactionDescriptionBox,
-    Box<Order> ordersSource}) async {
+    Box<Order> ordersSource,
+    Box<UnspentCoinsInfo> unspentCoinsInfoSource}) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _contactSource = contactSource;
@@ -148,6 +151,7 @@ Future setup(
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
+  _unspentCoinsInfoSource = unspentCoinsInfoSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
@@ -450,9 +454,11 @@ Future setup(
 
   getIt.registerFactory(() => MoneroWalletService(_walletInfoSource));
 
-  getIt.registerFactory(() => BitcoinWalletService(_walletInfoSource));
+  getIt.registerFactory(() =>
+      BitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource));
 
-  getIt.registerFactory(() => LitecoinWalletService(_walletInfoSource));
+  getIt.registerFactory(() =>
+      LitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource));
 
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
@@ -588,20 +594,35 @@ Future setup(
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
 
-  getIt.registerFactory(() => UnspentCoinsListViewModel());
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+
+    return UnspentCoinsListViewModel(
+        wallet: wallet,
+        unspentCoinsInfo: _unspentCoinsInfoSource);
+  });
 
   getIt.registerFactory(() => UnspentCoinsListPage(
     unspentCoinsListViewModel: getIt.get<UnspentCoinsListViewModel>()
   ));
 
   getIt.registerFactoryParam<UnspentCoinsDetailsViewModel,
-      UnspentCoinsItem, void>((item, _) =>
-      UnspentCoinsDetailsViewModel(unspentCoinsItem: item));
+      UnspentCoinsItem, UnspentCoinsListViewModel>((item, model) =>
+      UnspentCoinsDetailsViewModel(
+          unspentCoinsItem: item,
+          unspentCoinsListViewModel: model));
 
-  getIt.registerFactoryParam<UnspentCoinsDetailsPage,
-      UnspentCoinsItem, void>((UnspentCoinsItem item, _) =>
-      UnspentCoinsDetailsPage(unspentCoinsDetailsViewModel:
-      getIt.get<UnspentCoinsDetailsViewModel>(param1: item)));
+  getIt.registerFactoryParam<UnspentCoinsDetailsPage, List, void>(
+        (List args, _) {
+        final item = args.first as UnspentCoinsItem;
+        final unspentCoinsListViewModel = args[1] as UnspentCoinsListViewModel;
+
+        return UnspentCoinsDetailsPage(
+            unspentCoinsDetailsViewModel:
+              getIt.get<UnspentCoinsDetailsViewModel>(
+                  param1: item,
+                  param2: unspentCoinsListViewModel));
+  });
 
   _isSetupFinished = true;
 }

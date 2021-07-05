@@ -9,12 +9,13 @@ import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class UnspentCoinsDetailsPage extends BasePage {
   UnspentCoinsDetailsPage({this.unspentCoinsDetailsViewModel});
 
   @override
-  String get title => 'Unspent coins details';
+  String get title => S.current.unspent_coins_details_title;
 
   final UnspentCoinsDetailsViewModel unspentCoinsDetailsViewModel;
 
