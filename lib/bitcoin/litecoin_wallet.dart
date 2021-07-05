@@ -1,8 +1,10 @@
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet_snapshot.dart';
@@ -21,6 +23,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
       {@required String mnemonic,
       @required String password,
       @required WalletInfo walletInfo,
+      @required Box<UnspentCoinsInfo> unspentCoinsInfo,
       List<BitcoinAddressRecord> initialAddresses,
       ElectrumBalance initialBalance,
       int accountIndex = 0})
@@ -28,6 +31,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
+            unspentCoinsInfo: unspentCoinsInfo,
             networkType: litecoinNetwork,
             initialAddresses: initialAddresses,
             initialBalance: initialBalance,
@@ -36,6 +40,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
   static Future<LitecoinWallet> open({
     @required String name,
     @required WalletInfo walletInfo,
+    @required Box<UnspentCoinsInfo> unspentCoinsInfo,
     @required String password,
   }) async {
     final snp = ElectrumWallletSnapshot(name, walletInfo.type, password);
@@ -44,6 +49,7 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         mnemonic: snp.mnemonic,
         password: password,
         walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: snp.addresses,
         initialBalance: snp.balance,
         accountIndex: snp.accountIndex);

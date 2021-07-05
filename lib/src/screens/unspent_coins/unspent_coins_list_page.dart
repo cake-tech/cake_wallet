@@ -13,7 +13,7 @@ class UnspentCoinsListPage extends BasePage {
   UnspentCoinsListPage({this.unspentCoinsListViewModel});
 
   @override
-  String get title => 'Unspent coins';
+  String get title => S.current.unspent_coins_title;
 
   @override
   Widget trailing(BuildContext context) {
@@ -77,18 +77,25 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                 separatorBuilder: (_, __) =>
                     SizedBox(height: 15),
                 itemBuilder: (_, int index) {
-                  final item = unspentCoinsListViewModel.items[index];
+                  return Observer(builder: (_) {
+                    final item = unspentCoinsListViewModel.items[index];
 
-                  return GestureDetector(
-                      onTap: () =>
-                          Navigator.of(context).pushNamed(Routes.unspentCoinsDetails,
-                              arguments: item),
-                      child: UnspentCoinsListItem(
-                        address: item.address,
-                        amount: item.amount,
-                        isSending: item.isSending,
-                        onCheckBoxTap: (value) {},
-                      ));
+                    return GestureDetector(
+                        onTap: () =>
+                            Navigator.of(context)
+                                .pushNamed(Routes.unspentCoinsDetails,
+                                arguments: [item, unspentCoinsListViewModel]),
+                        child: UnspentCoinsListItem(
+                            address: item.address,
+                            amount: item.amount,
+                            isSending: item.isSending,
+                            onCheckBoxTap: item.isFrozen
+                              ? null
+                              : () async {
+                                item.isSending = !item.isSending;
+                                await unspentCoinsListViewModel
+                                  .saveUnspentCoinInfo(item);}));
+                  });
                 }
             )
         )

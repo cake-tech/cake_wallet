@@ -372,10 +372,12 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<UnspentCoinsListPage>());
 
     case Routes.unspentCoinsDetails:
+      final args = settings.arguments as List;
+
       return MaterialPageRoute<void>(
           builder: (_) =>
               getIt.get<UnspentCoinsDetailsPage>(
-                  param1: settings.arguments as UnspentCoinsItem));
+                  param1: args));
 
     default:
       return MaterialPageRoute<void>(
