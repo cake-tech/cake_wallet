@@ -112,6 +112,7 @@ class DarkTheme extends ThemeBase {
           ),
           display4: TextStyle(
               color: PaletteDark.cyanBlue, // template title (send page)
+              backgroundColor: Colors.white, // icon color on order row (moonpay)
               decorationColor: PaletteDark.darkCyanBlue // receive amount text (exchange page)
           ),
           subtitle: TextStyle(
@@ -178,6 +179,7 @@ class DarkTheme extends ThemeBase {
         ),
         display4: TextStyle(
             color: PaletteDark.deepVioletBlue, // switch background (settings page)
+            backgroundColor: Colors.white, // icon color on support page (moonpay, github)
             decorationColor: PaletteDark.lightBlueGrey // hint text (exchange page)
         ),
         body1: TextStyle(
