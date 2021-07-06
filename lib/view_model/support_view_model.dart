@@ -6,6 +6,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 
 part 'support_view_model.g.dart';
 
@@ -13,6 +16,11 @@ class SupportViewModel = SupportViewModelBase with _$SupportViewModel;
 
 abstract class SupportViewModelBase with Store {
   SupportViewModelBase() {
+    final currentTheme = getIt.get<SettingsStore>().currentTheme;
+    final iconColor = currentTheme.type == ThemeType.dark
+      ? Colors.white
+      : Colors.black;
+
     items = [
       RegularListItem(
         title: S.current.faq,
@@ -31,6 +39,7 @@ abstract class SupportViewModelBase with Store {
       LinkListItem(
           title: 'GitHub',
           icon: 'assets/images/github.png',
+          iconColor: iconColor,
           linkTitle: S.current.apk_update,
           link: 'https://github.com/cake-tech/cake_wallet/releases'),
       LinkListItem(
@@ -52,7 +61,13 @@ abstract class SupportViewModelBase with Store {
           title: 'Wyre',
           icon: 'assets/images/wyre.png',
           linkTitle: S.current.submit_request,
-          link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new')
+          link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new'),
+      LinkListItem(
+          title: 'MoonPay',
+          icon: 'assets/images/moonpay.png',
+          iconColor: iconColor,
+          linkTitle: S.current.submit_request,
+          link: 'https://support.moonpay.com/hc/en-gb/requests/new')
     ];
   }
   static const url = 'https://cakewallet.com/guide/';
