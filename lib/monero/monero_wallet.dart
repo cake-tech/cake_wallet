@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/monero/monero_wallet_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/transaction_history.dart'
@@ -246,6 +247,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
     _lastSaveTimestamp = now;
     await monero_wallet.store();
+    await backupWalletFiles(name);
   }
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
