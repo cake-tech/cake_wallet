@@ -21,7 +21,6 @@ import java.security.SecureRandom;
 
 public class MainActivity extends FlutterFragmentActivity {
     final String UTILS_CHANNEL = "com.cake_wallet/native_utils";
-    final String UNSTOPPABLE_DOMAIN_CHANNEL = "com.cakewallet.cake_wallet/unstoppable-domain";
     final int UNSTOPPABLE_DOMAIN_MIN_VERSION_SDK = 24;
 
     @Override
@@ -33,12 +32,6 @@ public class MainActivity extends FlutterFragmentActivity {
                         UTILS_CHANNEL);
 
         utilsChannel.setMethodCallHandler(this::handle);
-
-        MethodChannel unstoppableDomainChannel =
-                new MethodChannel(flutterEngine.getDartExecutor().getBinaryMessenger(),
-                        UNSTOPPABLE_DOMAIN_CHANNEL);
-
-        unstoppableDomainChannel.setMethodCallHandler(this::handle);
     }
 
     private void handle(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
@@ -80,7 +73,8 @@ public class MainActivity extends FlutterFragmentActivity {
                 String address = resolution.getAddress(domain, ticker);
                 handler.post(() -> result.success(address));
             } catch (Exception e) {
-                handler.post(() -> result.error("INVALID DOMAIN", e.getMessage(), null));
+                System.out.println("Expected Address, but got " + e.getMessage());
+                handler.post(() -> result.success(""));
             }
         });
     }

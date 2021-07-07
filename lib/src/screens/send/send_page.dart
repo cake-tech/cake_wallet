@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/src/screens/send/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';

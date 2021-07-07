@@ -1,9 +1,9 @@
 import 'package:flutter/services.dart';
 
-const channel = MethodChannel('com.cakewallet.cake_wallet/unstoppable-domain');
+const channel = MethodChannel('com.cake_wallet/native_utils');
 
 Future<String> fetchUnstoppableDomainAddress(String domain, String ticker) async {
-  String address;
+  var address = '';
 
   try {
     address = await channel.invokeMethod(
