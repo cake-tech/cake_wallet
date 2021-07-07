@@ -8,11 +8,11 @@ class LinkListItem extends SettingsListItem {
         @required this.link,
         @required this.linkTitle,
         this.icon,
-        this.iconColor})
+        this.hasIconColor = false})
       : super(title);
 
   final String icon;
   final String link;
   final String linkTitle;
-  final Color iconColor;
+  final bool hasIconColor;
 }
