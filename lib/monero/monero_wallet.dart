@@ -454,7 +454,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     accountList.accounts.forEach((account) {
       _subaddressList.update(accountIndex: account.id);
       _subaddressList.subaddresses.forEach((subaddress) {
-        _addresses.addAll({subaddress.address:subaddress.label});
+        _addresses[subaddress.address] = subaddress.label;
       });
     });
 

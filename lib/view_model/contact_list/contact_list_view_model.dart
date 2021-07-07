@@ -20,7 +20,7 @@ abstract class ContactListViewModelBase with Store {
     walletInfoSource.values.forEach((info) {
       if (info.address?.isNotEmpty ?? false) {
         if (info.addresses != null) {
-          info.addresses.forEach((address, label) {
+          info.addresses?.forEach((address, label) {
             walletContacts.add(WalletContact(
                 address,
                 info.name + ' ($label)',
