@@ -1,52 +1,40 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
-import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
-import 'package:flutter/material.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 const topLevelDomain = 'crypto';
 
-Future<String> parseAddressFromDomain(
-    BuildContext context, String domain, String ticker) async {
+Future<ParsedAddress> parseAddressFromDomain(
+    String domain, String ticker) async {
   try {
     final domainParts = domain.split('.');
     final name = domainParts.last;
 
     if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
-      return domain;
+      return ParsedAddress(domain, ParseFrom.notParsed);
     }
 
     if (name.contains(topLevelDomain)) {
       final address = await fetchUnstoppableDomainAddress(domain, ticker);
 
       if (address?.isEmpty ?? true) {
-        return domain;
+        return ParsedAddress(domain, ParseFrom.notParsed);
       }
 
-      showAddressAlert(
-          context,
-          S.of(context).address_detected,
-          S.of(context).address_from_domain(domain));
-
-      return address;
+      return ParsedAddress(address, ParseFrom.unstoppableDomains);
     }
 
     final record = await OpenaliasRecord.fetchAddressAndName(
         OpenaliasRecord.formatDomainName(domain));
 
     if (record == null || record.address.contains(domain)) {
-      return domain;
+      return ParsedAddress(domain, ParseFrom.notParsed);
     }
 
-    showAddressAlert(
-        context,
-        S.of(context).openalias_alert_title,
-        S.of(context).openalias_alert_content(domain));
-
-    return record.address;
+    return ParsedAddress(record.address, ParseFrom.openAlias);
   } catch (e) {
     print(e.toString());
   }
 
-  return domain;
+  return ParsedAddress(domain, ParseFrom.notParsed);
 }

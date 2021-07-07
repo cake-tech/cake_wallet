@@ -1,6 +1,8 @@
 import 'dart:ui';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -757,7 +759,24 @@ class SendPage extends BasePage {
   void applyOpenaliasOrUnstoppableDomains(BuildContext context) async {
     final domain = _addressController.text;
     final ticker = sendViewModel.currency.title.toLowerCase();
-    _addressController.text =
-      await parseAddressFromDomain(context, domain, ticker);
+    final parsedAddress = await parseAddressFromDomain(domain, ticker);
+    _addressController.text = parsedAddress.address;
+
+    switch (parsedAddress.parseFrom) {
+      case ParseFrom.unstoppableDomains:
+        showAddressAlert(
+            context,
+            S.of(context).address_detected,
+            S.of(context).address_from_domain(domain));
+        break;
+      case ParseFrom.openAlias:
+        showAddressAlert(
+            context,
+            S.of(context).openalias_alert_title,
+            S.of(context).openalias_alert_content(domain));
+        break;
+      case ParseFrom.notParsed:
+        break;
+    }
   }
 }
