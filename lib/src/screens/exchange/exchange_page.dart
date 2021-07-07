@@ -1,7 +1,9 @@
 import 'dart:ui';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -229,7 +231,7 @@ class ExchangePage extends BasePage {
                                   final ticker = exchangeViewModel
                                       .depositCurrency.title.toLowerCase();
                                   exchangeViewModel.depositAddress =
-                                    await parseAddressFromDomain(
+                                    await applyOpenaliasOrUnstoppableDomains(
                                         context, domain, ticker);
                                 },
                               ),
@@ -284,7 +286,7 @@ class ExchangePage extends BasePage {
                                     final ticker = exchangeViewModel
                                         .receiveCurrency.title.toLowerCase();
                                     exchangeViewModel.receiveAddress =
-                                      await parseAddressFromDomain(
+                                      await applyOpenaliasOrUnstoppableDomains(
                                           context, domain, ticker);
                                   },
                                 )),
@@ -514,12 +516,12 @@ class ExchangePage extends BasePage {
     var domain = template.depositAddress;
     var ticker = template.depositCurrency.toLowerCase();
     exchangeViewModel.depositAddress =
-      await parseAddressFromDomain(context, domain, ticker);
+      await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
 
     domain = template.receiveAddress;
     ticker = template.receiveCurrency.toLowerCase();
     exchangeViewModel.receiveAddress =
-      await parseAddressFromDomain(context, domain, ticker);
+      await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
   }
 
   void _setReactions(
@@ -691,7 +693,7 @@ class ExchangePage extends BasePage {
         final domain = depositAddressController.text;
         final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
         exchangeViewModel.depositAddress =
-          await parseAddressFromDomain(context, domain, ticker);
+          await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
       }
     });
 
@@ -701,7 +703,7 @@ class ExchangePage extends BasePage {
         final domain = receiveAddressController.text;
         final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
         exchangeViewModel.receiveAddress =
-          await parseAddressFromDomain(context, domain, ticker);
+          await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
       }
     });
 
@@ -774,5 +776,29 @@ class ExchangePage extends BasePage {
       key.currentState.changeWalletName(null);
       key.currentState.addressController.text = null;
     }
+  }
+
+  Future<String> applyOpenaliasOrUnstoppableDomains(
+      BuildContext context, String domain, String ticker) async {
+    final parsedAddress = await parseAddressFromDomain(domain, ticker);
+
+    switch (parsedAddress.parseFrom) {
+      case ParseFrom.unstoppableDomains:
+        showAddressAlert(
+            context,
+            S.of(context).address_detected,
+            S.of(context).address_from_domain(domain));
+        break;
+      case ParseFrom.openAlias:
+        showAddressAlert(
+            context,
+            S.of(context).openalias_alert_title,
+            S.of(context).openalias_alert_content(domain));
+        break;
+      case ParseFrom.notParsed:
+        break;
+    }
+
+    return parsedAddress.address;
   }
 }
