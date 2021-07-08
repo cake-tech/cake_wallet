@@ -6,7 +6,6 @@ import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/currency_for_wallet_type.dart';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -66,13 +65,4 @@ abstract class WalletBase<
   Future<void> rescan({int height});
 
   void close();
-
-  Future<void> updateAddressesInfo() async {
-    try {
-      walletInfo.address = address;
-      await walletInfo.save();
-    } catch (e) {
-      print(e.toString());
-    }
-  }
 }

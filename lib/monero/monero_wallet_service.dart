@@ -126,7 +126,6 @@ class MoneroWalletService extends WalletService<
       }
 
       await wallet.init();
-      await wallet.updateAddressesInfo();
 
       return wallet;
     } catch (e) {

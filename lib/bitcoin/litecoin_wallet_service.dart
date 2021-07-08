@@ -45,7 +45,6 @@ class LitecoinWalletService extends WalletService<
     final wallet = await LitecoinWalletBase.open(
         password: password, name: name, walletInfo: walletInfo);
     await wallet.init();
-    await wallet.updateAddressesInfo();
     return wallet;
   }
 
