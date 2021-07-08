@@ -3,6 +3,8 @@ import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/monero/monero_wallet_addresses.dart';
+import 'package:cake_wallet/monero/monero_wallet_addresses_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/transaction_history.dart'
@@ -47,6 +49,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     _isSavingAfterSync = false;
     _isSavingAfterNewTransaction = false;
     _isTransactionUpdating = false;
+    _walletAllAddresses = MoneroWalletAddresses(walletInfo);
+    _walletAddressesCredentials = MoneroWalletAddressesCredentials();
     _onAccountChangeReaction = reaction((_) => account, (Account account) {
       balance = MoneroBalance(
           fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
@@ -99,6 +103,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   bool _isSavingAfterNewTransaction;
   bool _isTransactionUpdating;
   int _lastSaveTimestamp;
+  MoneroWalletAddresses _walletAllAddresses;
+  MoneroWalletAddressesCredentials _walletAddressesCredentials;
 
   Future<void> init() async {
     accountList.update();
@@ -110,6 +116,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         unlockedBalance:
             monero_wallet.getUnlockedBalance(accountIndex: account.id));
     address = subaddress.address;
+    await _updateWalletAllAddressesInBox();
     _setListeners();
     await updateTransactions();
 
@@ -238,6 +245,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> save() async {
+    await _updateWalletAllAddressesInBox();
+
     final now = DateTime.now().millisecondsSinceEpoch;
 
     if (now - _lastSaveTimestamp < Duration(seconds: 10).inMilliseconds) {
@@ -446,25 +455,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
   }
 
-  @override
-  Future<void> updateAddressesInfo() async {
-    final Map<String, String> _addresses = {};
-    final _subaddressList = MoneroSubaddressList();
-
-    accountList.accounts.forEach((account) {
-      _subaddressList.update(accountIndex: account.id);
-      _subaddressList.subaddresses.forEach((subaddress) {
-        _addresses[subaddress.address] = subaddress.label;
-      });
-    });
-
-    try {
-      walletInfo.addresses = _addresses;
-      walletInfo.address = address;
-
-      await walletInfo.save();
-    } catch (e) {
-      print(e.toString());
-    }
+  Future<void> _updateWalletAllAddressesInBox() async {
+    _walletAddressesCredentials
+      ..accountList = accountList
+      ..subaddressList = subaddressList;
+    await _walletAllAddresses.update(_walletAddressesCredentials);
+    subaddressList.update(accountIndex: account.id ?? 0);
+    subaddress = subaddressList.subaddresses.first;
+    address = subaddress.address;
   }
 }

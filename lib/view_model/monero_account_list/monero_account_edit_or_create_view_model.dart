@@ -42,8 +42,7 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
         await _moneroAccountList.addAccount(label: label);
       }
 
-      await _wallet.updateAddressesInfo();
-
+      await _wallet.save();
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());

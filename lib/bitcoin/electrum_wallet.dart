@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cake_wallet/bitcoin/electrum_wallet_addresses.dart';
+import 'package:cake_wallet/bitcoin/electrum_wallet_addresses_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:flutter/foundation.dart';
@@ -63,6 +65,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
     _unspent = [];
     _scripthashesUpdateSubject = {};
+    _walletAddressInBox = ElectrumWalletAddresses(walletInfo);
+    _walletAddressInBoxCredentials = ElectrumWalletAddressesCredentials();
   }
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
@@ -93,6 +97,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   String get xpub => hd.base58;
 
+  ElectrumWalletAddresses _walletAddressInBox;
+  ElectrumWalletAddressesCredentials _walletAddressInBoxCredentials;
+
   @override
   String get seed => mnemonic;
 
@@ -113,6 +120,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     await generateAddresses();
     address = addresses[_accountIndex].address;
     await transactionHistory.init();
+    await _updateWalletAddressInBox();
   }
 
   @action
@@ -124,8 +132,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
 
     address = addresses[_accountIndex].address;
-
-    await updateAddressesInfo();
 
     await save();
   }
@@ -364,6 +370,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
+    await _updateWalletAddressInBox();
   }
 
   bitcoin.ECPair keyPairFor({@required int index}) =>
@@ -465,5 +472,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   Future<void> _updateBalance() async {
     balance = await _fetchBalances();
     await save();
+  }
+
+  Future<void> _updateWalletAddressInBox() async {
+    _walletAddressInBoxCredentials.address = address;
+    await _walletAddressInBox.update(_walletAddressInBoxCredentials);
   }
 }

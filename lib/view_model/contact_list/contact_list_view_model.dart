@@ -18,18 +18,17 @@ abstract class ContactListViewModelBase with Store {
       : contacts = ObservableList<ContactRecord>(),
         walletContacts = [] {
     walletInfoSource.values.forEach((info) {
-      if (info.address?.isNotEmpty ?? false) {
-        if (info.addresses != null) {
-          info.addresses?.forEach((address, label) {
-            walletContacts.add(WalletContact(
-                address,
-                info.name + ' ($label)',
-                walletTypeToCryptoCurrency(info.type)));
-          });
-        } else {
-          walletContacts.add(WalletContact(info.address, info.name,
+      if (info.addresses?.isNotEmpty ?? false) {
+        info.addresses?.forEach((address, label) {
+          final name = label.isNotEmpty
+            ? info.name + ' ($label)'
+            : info.name;
+
+          walletContacts.add(WalletContact(
+              address,
+              name,
               walletTypeToCryptoCurrency(info.type)));
-        }
+        });
       }
     });
 

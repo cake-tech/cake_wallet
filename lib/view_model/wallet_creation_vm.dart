@@ -54,7 +54,6 @@ abstract class WalletCreationVMBase with Store {
       await _walletInfoSource.add(walletInfo);
       _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowed();
-      await wallet.updateAddressesInfo();
       state = ExecutedSuccessfullyState();
     } catch (e) {
       state = FailureState(e.toString());
