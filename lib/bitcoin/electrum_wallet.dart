@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:cake_wallet/bitcoin/electrum_wallet_addresses.dart';
-import 'package:cake_wallet/bitcoin/electrum_wallet_addresses_credentials.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:flutter/foundation.dart';
@@ -44,18 +43,14 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       @required this.networkType,
       @required this.mnemonic,
       ElectrumClient electrumClient,
-      int accountIndex = 0,
       ElectrumBalance initialBalance})
       : balance = initialBalance ??
             const ElectrumBalance(confirmed: 0, unconfirmed: 0),
         hd = bitcoin.HDWallet.fromSeed(mnemonicToSeedBytes(mnemonic),
                 network: networkType)
             .derivePath("m/0'/0"),
-        addresses = ObservableList<BitcoinAddressRecord>.of(
-            (initialAddresses ?? []).toSet()),
         syncStatus = NotConnectedSyncStatus(),
         _password = password,
-        _accountIndex = accountIndex,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
         super(walletInfo) {
@@ -65,8 +60,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
     _unspent = [];
     _scripthashesUpdateSubject = {};
-    _walletAddressInBox = ElectrumWalletAddresses(walletInfo);
-    _walletAddressInBoxCredentials = ElectrumWalletAddressesCredentials();
   }
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
@@ -78,8 +71,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   ElectrumClient electrumClient;
 
   @override
-  @observable
-  String address;
+  ElectrumWalletAddresses walletAddresses;
 
   @override
   @observable
@@ -89,16 +81,11 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @observable
   SyncStatus syncStatus;
 
-  ObservableList<BitcoinAddressRecord> addresses;
-
-  List<String> get scriptHashes => addresses
+  List<String> get scriptHashes => walletAddresses.addresses
       .map((addr) => scriptHash(addr.address, networkType: networkType))
       .toList();
 
   String get xpub => hd.base58;
-
-  ElectrumWalletAddresses _walletAddressInBox;
-  ElectrumWalletAddressesCredentials _walletAddressInBoxCredentials;
 
   @override
   String get seed => mnemonic;
@@ -112,73 +99,13 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   final String _password;
   List<BitcoinUnspent> _unspent;
   List<int> _feeRates;
-  int _accountIndex;
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
   bool _isTransactionUpdating;
 
   Future<void> init() async {
-    await generateAddresses();
-    address = addresses[_accountIndex].address;
+    await walletAddresses.init();
     await transactionHistory.init();
-    await _updateWalletAddressInBox();
-  }
-
-  @action
-  Future<void> nextAddress() async {
-    _accountIndex += 1;
-
-    if (_accountIndex >= addresses.length) {
-      _accountIndex = 0;
-    }
-
-    address = addresses[_accountIndex].address;
-
     await save();
-  }
-
-  Future<void> generateAddresses() async {
-    if (addresses.length < 33) {
-      final addressesCount = 33 - addresses.length;
-      await generateNewAddresses(addressesCount,
-          startIndex: addresses.length, hd: hd);
-    }
-  }
-
-  Future<BitcoinAddressRecord> generateNewAddress(
-      {bool isHidden = false, bitcoin.HDWallet hd}) async {
-    _accountIndex += 1;
-    final _hd = hd ?? this.hd;
-    final address = BitcoinAddressRecord(
-        getAddress(index: _accountIndex, hd: _hd),
-        index: _accountIndex,
-        isHidden: isHidden);
-    addresses.add(address);
-    await save();
-    return address;
-  }
-
-  Future<List<BitcoinAddressRecord>> generateNewAddresses(int count,
-      {int startIndex = 0, bitcoin.HDWallet hd, bool isHidden = false}) async {
-    final list = <BitcoinAddressRecord>[];
-
-    for (var i = startIndex; i < count + startIndex; i++) {
-      final address = BitcoinAddressRecord(getAddress(index: i, hd: hd),
-          index: i, isHidden: isHidden);
-      list.add(address);
-    }
-
-    addresses.addAll(list);
-    await save();
-    return list;
-  }
-
-  Future<void> updateAddress(String address) async {
-    for (final addr in addresses) {
-      if (addr.address == address) {
-        await save();
-        break;
-      }
-    }
   }
 
   @action
@@ -186,7 +113,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   Future<void> startSync() async {
     try {
       syncStatus = StartingSyncStatus();
-      updateTransactions();
+      await updateTransactions();
       _subscribeForUpdates();
       await _updateBalance();
       await _updateUnspent();
@@ -238,7 +165,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         ? allAmount
         : credentialsAmount;
     final txb = bitcoin.TransactionBuilder(network: networkType);
-    final changeAddress = address;
+    final changeAddress = walletAddresses.address;
     var leftAmount = amount;
     var totalInputAmount = 0;
 
@@ -321,8 +248,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
-        'account_index': _accountIndex.toString(),
-        'addresses': addresses.map((addr) => addr.toJSON()).toList(),
+        'account_index': walletAddresses.accountIndex.toString(),
+        'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
         'balance': balance?.toJSON()
       });
 
@@ -370,7 +297,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
-    await _updateWalletAddressInBox();
   }
 
   bitcoin.ECPair keyPairFor({@required int index}) =>
@@ -386,13 +312,12 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     } catch (_) {}
   }
 
-  String getAddress({@required int index, @required bitcoin.HDWallet hd}) => '';
-
   Future<String> makePath() async =>
       pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
   Future<void> _updateUnspent() async {
-    final unspent = await Future.wait(addresses.map((address) => electrumClient
+    final unspent = await Future.wait(walletAddresses
+        .addresses.map((address) => electrumClient
         .getListUnspentWithAddress(address.address, networkType)
         .then((unspent) => unspent
             .map((unspent) => BitcoinUnspent.fromJSON(address, unspent)))));
@@ -403,7 +328,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       {@required String hash, @required int height}) async {
     final tx = await electrumClient.getTransactionExpanded(hash: hash);
     return ElectrumTransactionInfo.fromElectrumVerbose(tx, walletInfo.type,
-        height: height, addresses: addresses);
+        height: height, addresses: walletAddresses.addresses);
   }
 
   @override
@@ -472,10 +397,5 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   Future<void> _updateBalance() async {
     balance = await _fetchBalances();
     await save();
-  }
-
-  Future<void> _updateWalletAddressInBox() async {
-    _walletAddressInBoxCredentials.address = address;
-    await _walletAddressInBox.update(_walletAddressInBoxCredentials);
   }
 }

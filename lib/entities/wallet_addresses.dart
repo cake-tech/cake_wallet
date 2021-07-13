@@ -1,24 +1,30 @@
-import 'package:cake_wallet/entities/wallet_addresses_credentials.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 
 abstract class WalletAddresses {
   WalletAddresses(this.walletInfo) {
-    addresses = walletInfo?.addresses ?? {};
+    addressesMap = {};
   }
 
   final WalletInfo walletInfo;
 
-  Map<String, String> addresses;
+  String get address;
 
-  Future<void> update(WalletAddressesCredentials credentials);
+  set address(String address);
 
-  Future<void> save() async {
+  Map<String, String> addressesMap;
+
+  Future<void> init();
+
+  Future<void> updateAddressesInBox();
+
+  Future<void> saveAddressesInBox() async {
     try {
       if (walletInfo == null) {
         return;
       }
 
-      walletInfo.addresses = addresses;
+      walletInfo.address = address;
+      walletInfo.addresses = addressesMap;
 
       if (walletInfo.isInBox) {
         await walletInfo.save();

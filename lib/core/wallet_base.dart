@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/wallet_addresses.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
@@ -30,9 +31,9 @@ abstract class WalletBase<
 
   String get name => walletInfo.name;
 
-  String get address;
+  //String get address;
 
-  set address(String address);
+  //set address(String address);
 
   BalanceType get balance;
 
@@ -43,6 +44,8 @@ abstract class WalletBase<
   String get seed;
 
   Object get keys;
+
+  WalletAddresses get walletAddresses;
 
   HistoryType transactionHistory;
 
