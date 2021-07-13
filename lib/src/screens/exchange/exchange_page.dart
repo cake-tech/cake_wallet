@@ -179,7 +179,7 @@ class ExchangePage extends BasePage {
                                 initialAddress:
                                 exchangeViewModel.depositCurrency ==
                                     exchangeViewModel.wallet.currency
-                                    ? exchangeViewModel.wallet.address
+                                    ? exchangeViewModel.wallet.walletAddresses.address
                                     : exchangeViewModel.depositAddress,
                                 initialIsAmountEditable: true,
                                 initialIsAddressEditable:
@@ -240,7 +240,7 @@ class ExchangePage extends BasePage {
                                   initialAddress: exchangeViewModel
                                       .receiveCurrency ==
                                       exchangeViewModel.wallet.currency
-                                      ? exchangeViewModel.wallet.address
+                                      ? exchangeViewModel.wallet.walletAddresses.address
                                       : exchangeViewModel.receiveAddress,
                                   initialIsAmountEditable: exchangeViewModel
                                       .isReceiveAmountEditable,
@@ -646,7 +646,8 @@ class ExchangePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.wallet.address, (String address) {
+    reaction((_) => exchangeViewModel.wallet.walletAddresses.address,
+            (String address) {
       if (exchangeViewModel.depositCurrency == CryptoCurrency.xmr) {
         depositKey.currentState.changeAddress(address: address);
       }
@@ -707,7 +708,8 @@ class ExchangePage extends BasePage {
         isCurrentTypeWallet ? exchangeViewModel.wallet.name : null);
 
     key.currentState.changeAddress(
-        address: isCurrentTypeWallet ? exchangeViewModel.wallet.address : '');
+        address: isCurrentTypeWallet
+            ? exchangeViewModel.wallet.walletAddresses.address : '');
 
     key.currentState.changeAmount(amount: '');
   }
@@ -719,9 +721,9 @@ class ExchangePage extends BasePage {
     if (isCurrentTypeWallet) {
       key.currentState.changeWalletName(exchangeViewModel.wallet.name);
       key.currentState.addressController.text =
-          exchangeViewModel.wallet.address;
+          exchangeViewModel.wallet.walletAddresses.address;
     } else if (key.currentState.addressController.text ==
-        exchangeViewModel.wallet.address) {
+        exchangeViewModel.wallet.walletAddresses.address) {
       key.currentState.changeWalletName(null);
       key.currentState.addressController.text = null;
     }

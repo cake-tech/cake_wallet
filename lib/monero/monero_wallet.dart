@@ -4,7 +4,6 @@ import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet_addresses.dart';
-import 'package:cake_wallet/monero/monero_wallet_addresses_credentials.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/transaction_history.dart'
@@ -17,10 +16,7 @@ import 'package:cake_wallet/monero/pending_monero_transaction.dart';
 import 'package:cake_wallet/monero/monero_wallet_keys.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_history.dart';
-import 'package:cake_wallet/monero/monero_subaddress_list.dart';
-import 'package:cake_wallet/monero/monero_account_list.dart';
 import 'package:cake_wallet/monero/account.dart';
-import 'package:cake_wallet/monero/subaddress.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
@@ -37,9 +33,7 @@ class MoneroWallet = MoneroWalletBase with _$MoneroWallet;
 abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     MoneroTransactionHistory, MoneroTransactionInfo> with Store {
   MoneroWalletBase({WalletInfo walletInfo})
-      : accountList = MoneroAccountList(),
-        subaddressList = MoneroSubaddressList(),
-        super(walletInfo) {
+      : super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
@@ -49,34 +43,25 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     _isSavingAfterSync = false;
     _isSavingAfterNewTransaction = false;
     _isTransactionUpdating = false;
-    _walletAllAddresses = MoneroWalletAddresses(walletInfo);
-    _walletAddressesCredentials = MoneroWalletAddressesCredentials();
-    _onAccountChangeReaction = reaction((_) => account, (Account account) {
+    walletAddresses = MoneroWalletAddresses(walletInfo);
+    _onAccountChangeReaction = reaction((_) => walletAddresses.account,
+            (Account account) {
       balance = MoneroBalance(
           fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
           unlockedBalance:
               monero_wallet.getUnlockedBalance(accountIndex: account.id));
-      subaddressList.update(accountIndex: account.id);
-      subaddress = subaddressList.subaddresses.first;
-      address = subaddress.address;
+      walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
   }
 
   static const int _autoAfterSyncSaveInterval = 60000;
 
-  @observable
-  Account account;
-
-  @observable
-  Subaddress subaddress;
+  @override
+  MoneroWalletAddresses walletAddresses;
 
   @override
   @observable
   SyncStatus syncStatus;
-
-  @override
-  @observable
-  String address;
 
   @override
   @observable
@@ -92,10 +77,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       publicSpendKey: monero_wallet.getPublicSpendKey(),
       publicViewKey: monero_wallet.getPublicViewKey());
 
-  final MoneroSubaddressList subaddressList;
-
-  final MoneroAccountList accountList;
-
   SyncListener _listener;
   ReactionDisposer _onAccountChangeReaction;
   int _lastAutosaveTimestamp;
@@ -103,20 +84,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   bool _isSavingAfterNewTransaction;
   bool _isTransactionUpdating;
   int _lastSaveTimestamp;
-  MoneroWalletAddresses _walletAllAddresses;
-  MoneroWalletAddressesCredentials _walletAddressesCredentials;
 
   Future<void> init() async {
-    accountList.update();
-    account = accountList.accounts.first;
-    subaddressList.update(accountIndex: account.id ?? 0);
-    subaddress = subaddressList.getAll().first;
+    await walletAddresses.init();
     balance = MoneroBalance(
-        fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
+        fullBalance: monero_wallet.getFullBalance(accountIndex: walletAddresses.account.id),
         unlockedBalance:
-            monero_wallet.getUnlockedBalance(accountIndex: account.id));
-    address = subaddress.address;
-    await _updateWalletAllAddressesInBox();
+            monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id));
     _setListeners();
     await updateTransactions();
 
@@ -134,24 +108,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction?.dispose();
-  }
-
-  bool validate() {
-    accountList.update();
-    final accountListLength = accountList.accounts?.length ?? 0;
-
-    if (accountListLength <= 0) {
-      return false;
-    }
-
-    subaddressList.update(accountIndex: accountList.accounts.first.id);
-    final subaddressListLength = subaddressList.subaddresses?.length ?? 0;
-
-    if (subaddressListLength <= 0) {
-      return false;
-    }
-
-    return true;
   }
 
   @override
@@ -196,7 +152,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         ? moneroParseAmount(amount: _credentials.amount)
         : null;
     final unlockedBalance =
-        monero_wallet.getUnlockedBalance(accountIndex: account.id);
+        monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id);
 
     if ((amount != null && unlockedBalance < amount) ||
         (amount == null && unlockedBalance <= 0)) {
@@ -216,7 +172,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             paymentId: _credentials.paymentId,
             amount: _credentials.amount,
             priorityRaw: _credentials.priority.serialize(),
-            accountIndex: account.id);
+            accountIndex: walletAddresses.account.id);
 
     return PendingMoneroTransaction(pendingTransactionDescription);
   }
@@ -245,7 +201,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   Future<void> save() async {
-    await _updateWalletAllAddressesInBox();
+    await walletAddresses.updateAddressesInBox();
 
     final now = DateTime.now().millisecondsSinceEpoch;
 
@@ -274,7 +230,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     monero_wallet.rescanBlockchainAsync();
     await startSync();
     _askForUpdateBalance();
-    accountList.update();
+    walletAddresses.accountList.update();
     await _askForUpdateTransactionHistory();
     await save();
     await walletInfo.save();
@@ -373,10 +329,10 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       await updateTransactions();
 
   int _getFullBalance() =>
-      monero_wallet.getFullBalance(accountIndex: account.id);
+      monero_wallet.getFullBalance(accountIndex: walletAddresses.account.id);
 
   int _getUnlockedBalance() =>
-      monero_wallet.getUnlockedBalance(accountIndex: account.id);
+      monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id);
 
   Future<void> _afterSyncSave() async {
     try {
@@ -423,13 +379,13 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       if (walletInfo.isRecovery) {
         await _askForUpdateTransactionHistory();
         _askForUpdateBalance();
-        accountList.update();
+        walletAddresses.accountList.update();
       }
 
       if (blocksLeft < 100) {
         await _askForUpdateTransactionHistory();
         _askForUpdateBalance();
-        accountList.update();
+        walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
         await _afterSyncSave();
 
@@ -453,15 +409,5 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     } catch (e) {
       print(e.toString());
     }
-  }
-
-  Future<void> _updateWalletAllAddressesInBox() async {
-    _walletAddressesCredentials
-      ..accountList = accountList
-      ..subaddressList = subaddressList;
-    await _walletAllAddresses.update(_walletAddressesCredentials);
-    subaddressList.update(accountIndex: account.id ?? 0);
-    subaddress = subaddressList.subaddresses.first;
-    address = subaddress.address;
   }
 }

@@ -117,7 +117,7 @@ class MoneroWalletService extends WalletService<
           (info) => info.id == WalletBase.idFor(name, getType()),
           orElse: () => null);
       final wallet = MoneroWallet(walletInfo: walletInfo);
-      final isValid = wallet.validate();
+      final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
         await _removeCache(name);
