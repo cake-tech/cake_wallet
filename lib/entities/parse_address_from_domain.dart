@@ -7,34 +7,41 @@ const topLevelDomain = 'crypto';
 Future<ParsedAddress> parseAddressFromDomain(
     String domain, String ticker) async {
   try {
-    final domainParts = domain.split('.');
+    final formattedName = OpenaliasRecord.formatDomainName(domain);
+    final domainParts = formattedName.split('.');
     final name = domainParts.last;
 
     if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
-      return ParsedAddress(domain, ParseFrom.notParsed);
+      return ParsedAddress(address: domain);
     }
 
     if (name.contains(topLevelDomain)) {
-      final address = await fetchUnstoppableDomainAddress(domain, ticker);
+      final address =
+        await fetchUnstoppableDomainAddress(formattedName, ticker);
 
       if (address?.isEmpty ?? true) {
-        return ParsedAddress(domain, ParseFrom.notParsed);
+        return ParsedAddress(address: domain);
       }
 
-      return ParsedAddress(address, ParseFrom.unstoppableDomains);
+      return ParsedAddress(
+          address: address,
+          name: formattedName,
+          parseFrom: ParseFrom.unstoppableDomains);
     }
 
-    final record = await OpenaliasRecord.fetchAddressAndName(
-        OpenaliasRecord.formatDomainName(domain));
+    final record = await OpenaliasRecord.fetchAddressAndName(formattedName);
 
-    if (record == null || record.address.contains(domain)) {
-      return ParsedAddress(domain, ParseFrom.notParsed);
+    if (record == null || record.address.contains(formattedName)) {
+      return ParsedAddress(address: domain);
     }
 
-    return ParsedAddress(record.address, ParseFrom.openAlias);
+    return ParsedAddress(
+        address: record.address,
+        name: record.name,
+        parseFrom: ParseFrom.openAlias);
   } catch (e) {
     print(e.toString());
   }
 
-  return ParsedAddress(domain, ParseFrom.notParsed);
+  return ParsedAddress(address: domain);
 }
