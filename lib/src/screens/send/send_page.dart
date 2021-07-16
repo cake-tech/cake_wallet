@@ -767,13 +767,13 @@ class SendPage extends BasePage {
         showAddressAlert(
             context,
             S.of(context).address_detected,
-            S.of(context).address_from_domain(domain));
+            S.of(context).address_from_domain(parsedAddress.name));
         break;
       case ParseFrom.openAlias:
         showAddressAlert(
             context,
             S.of(context).openalias_alert_title,
-            S.of(context).openalias_alert_content(domain));
+            S.of(context).openalias_alert_content(parsedAddress.name));
         break;
       case ParseFrom.notParsed:
         break;
