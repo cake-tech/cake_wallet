@@ -17,7 +17,7 @@ Future<ParsedAddress> parseAddressFromDomain(
 
     if (name.contains(topLevelDomain)) {
       final address =
-        await fetchUnstoppableDomainAddress(formattedName, ticker);
+        await fetchUnstoppableDomainAddress(domain, ticker);
 
       if (address?.isEmpty ?? true) {
         return ParsedAddress(address: domain);
@@ -25,7 +25,7 @@ Future<ParsedAddress> parseAddressFromDomain(
 
       return ParsedAddress(
           address: address,
-          name: formattedName,
+          name: domain,
           parseFrom: ParseFrom.unstoppableDomains);
     }
 
