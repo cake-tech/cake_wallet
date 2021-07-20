@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Ammontare",
   "transaction_details_fee" : "Commissione",
   "transaction_details_copied" : "${title} copiati negli Appunti",
-  "transaction_details_recipient_address" : "Indirizzo destinatario",
+  "transaction_details_recipient_address" : "Indirizzi dei destinatari",
 
 
   "wallet_list_title" : "Portafoglio Monero",
@@ -483,5 +483,7 @@
   "moonpay_alert_text" : "Il valore dell'importo deve essere maggiore o uguale a ${minAmount} ${fiatCurrency}",
 
   "outdated_electrum_wallet_receive_warning": "Se questo portafoglio ha un seme di 12 parole ed è stato creato in Cake, NON depositare Bitcoin in questo portafoglio. Qualsiasi BTC trasferito su questo portafoglio potrebbe andare perso. Crea un nuovo portafoglio di 24 parole (tocca il menu in alto a destra, seleziona Portafogli, scegli Crea nuovo portafoglio, quindi seleziona Bitcoin) e sposta IMMEDIATAMENTE lì il tuo BTC. I nuovi portafogli BTC (24 parole) di Cake sono sicuri",
-  "do_not_show_me": "Non mostrarmelo di nuovo"
+  "do_not_show_me": "Non mostrarmelo di nuovo",
+
+  "add_receiver" : "Aggiungi ricevitore"
 }

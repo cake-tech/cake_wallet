@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Сума",
   "transaction_details_fee" : "Комісія",
   "transaction_details_copied" : "${title} скопійовано в буфер обміну",
-  "transaction_details_recipient_address" : "Адреса отримувача",
+  "transaction_details_recipient_address" : "Адреси одержувачів",
 
 
   "wallet_list_title" : "Monero Гаманець",
@@ -483,5 +483,7 @@
   "moonpay_alert_text" : "Значення суми має бути більшим або дорівнювати ${minAmount} ${fiatCurrency}",
 
   "outdated_electrum_wallet_receive_warning": "Якщо цей гаманець має мнемонічну фразу з 12 слів і був створений у Cake, НЕ переводьте біткойни на цей гаманець. Будь-які BTC, переведений на цей гаманець, можуть бути втраченими. Створіть новий гаманець з мнемонічною фразою з 24 слів (торкніться меню у верхньому правому куті, виберіть Гаманці, виберіть Створити новий гаманець, потім виберіть Bitcoin) і НЕГАЙНО переведіть туди свії BTC. Нові (з мнемонічною фразою з 24 слів) гаманці BTC від Cake надійно захищені",
-  "do_not_show_me": "Не показуй мені це знову"
+  "do_not_show_me": "Не показуй мені це знову",
+
+  "add_receiver" : "Додати одержувача"
 }

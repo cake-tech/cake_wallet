@@ -262,9 +262,6 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
 
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          final item = widget.exchangeTradeViewModel.sendViewModel
-              .sendItemList.first;
-
           showPopUp<void>(
               context: context,
               builder: (BuildContext context) {
@@ -388,8 +385,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             .pendingTransactionFiatAmount +
                         ' ' +
                         widget.exchangeTradeViewModel.sendViewModel.fiat.title,
-                    recipientTitle: S.of(context).recipient_address,
-                    recipientAddress: item.address);
+                    sendItemList: widget.exchangeTradeViewModel.sendViewModel
+                                 .sendItemList);
               });
         });
       }
