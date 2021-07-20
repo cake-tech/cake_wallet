@@ -1,30 +1,20 @@
-import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
-import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/view_model/send/send_item.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:hive/hive.dart';
-import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/template.dart';
-import 'package:cake_wallet/store/templates/send_template_store.dart';
-import 'package:cake_wallet/core/template_validator.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
@@ -35,7 +25,6 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 part 'send_view_model.g.dart';
 
@@ -138,6 +127,9 @@ abstract class SendViewModelBase with Store {
   @computed
   ObservableList<Template> get templates => sendTemplateViewModel.templates;
 
+  @computed
+  bool get isAddReceiverButtonEnabled => _wallet is ElectrumWallet;
+
   WalletType get walletType => _wallet.type;
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
@@ -158,8 +150,18 @@ abstract class SendViewModelBase with Store {
 
   @action
   Future<void> commitTransaction() async {
-    final address = ''; // FIXME: get it from item
-    final note = ''; // FIXME: get it from item
+    String address = sendItemList.fold('', (previousValue, item) {
+      return previousValue + item.address + '\n';
+    });
+
+    address = address.trim();
+
+    String note = sendItemList.fold('', (previousValue, item) {
+      return previousValue + item.note + '\n';
+    });
+
+    note = note.trim();
+
     try {
       state = TransactionCommitting();
       await pendingTransaction.commit();
@@ -185,25 +187,23 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priority;
 
   Object _credentials() {
-    // FIXME: get it from item
-    return null;
-    /*final _amount = cryptoAmount.replaceAll(',', '.');
-
     switch (_wallet.type) {
       case WalletType.bitcoin:
-        final amount = !sendAll ? _amount : null;
         final priority = _settingsStore.priority[_wallet.type];
 
         return BitcoinTransactionCredentials(
-            address, amount, priority as BitcoinTransactionPriority);
+            sendItemList, priority as BitcoinTransactionPriority);
       case WalletType.litecoin:
-        final amount = !sendAll ? _amount : null;
         final priority = _settingsStore.priority[_wallet.type];
 
         return BitcoinTransactionCredentials(
-            address, amount, priority as BitcoinTransactionPriority);
+            sendItemList, priority as BitcoinTransactionPriority);
       case WalletType.monero:
-        final amount = !sendAll ? _amount : null;
+        final _item = sendItemList.first;
+        final address = _item.address;
+        final amount = _item.sendAll
+            ? null
+            : _item.cryptoAmount.replaceAll(',', '.');
         final priority = _settingsStore.priority[_wallet.type];
 
         return MoneroTransactionCreationCredentials(
@@ -213,7 +213,7 @@ abstract class SendViewModelBase with Store {
             amount: amount);
       default:
         return null;
-    }*/
+    }
   }
 
   String displayFeeRate(dynamic priority) {

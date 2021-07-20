@@ -266,56 +266,49 @@ class SendPage extends BasePage {
           EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Column(
             children: [
-              PrimaryButton(
-                onPressed: () {
-                  sendViewModel.addSendItem();
-                },
-                text: 'Add receiver',
-                color: Colors.green,
-                textColor: Colors.white,
-              ),
-              Padding(
-                  padding: EdgeInsets.only(top: 12),
-                  child: Observer(builder: (_) {
-                    return LoadingPrimaryButton(
-                        onPressed: () async {
-                          if (_formKey.currentState.validate()) {
-                            //await sendViewModel.createTransaction();
-                            // FIXME: for test only
-                            sendViewModel.clearSendItemList();
-                            await showPopUp<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertWithOneAction(
-                                      alertTitle: S.of(context).send,
-                                      alertContent: S.of(context).send_success(
-                                          sendViewModel.currency
-                                              .toString()),
-                                      buttonText: S.of(context).ok,
-                                      buttonAction: () => Navigator.of(context).pop());
-                                });
-                          } else {
-                            await showPopUp<void>(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertWithOneAction(
-                                      alertTitle: S.of(context).error,
-                                      alertContent: 'Please, check your receivers forms',
-                                      buttonText: S.of(context).ok,
-                                      buttonAction: () =>
-                                          Navigator.of(context).pop());
-                                });
-                          }
-                        },
-                        text: S.of(context).send,
-                        color: Theme.of(context).accentTextTheme.body2.color,
-                        textColor: Colors.white,
-                        isLoading: sendViewModel.state is IsExecutingState ||
-                            sendViewModel.state is TransactionCommitting,
-                        isDisabled: !sendViewModel.isReadyForSend,
-                    );
+              if (sendViewModel.isAddReceiverButtonEnabled) Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: PrimaryButton(
+                  onPressed: () {
+                    sendViewModel.addSendItem();
                   },
-                  ))
+                  text: S.of(context).add_receiver,
+                  color: Colors.green,
+                  textColor: Colors.white,
+                )
+              ),
+              Observer(builder: (_) {
+                return LoadingPrimaryButton(
+                  onPressed: () async {
+                    if (!_formKey.currentState.validate()) {
+                      if (sendViewModel.sendItemList.length > 1) {
+                        showErrorValidationAlert(context);
+                      }
+
+                      return;
+                    }
+
+                    final notValidItems = sendViewModel.sendItemList
+                        .where((item) =>
+                    item.address.isEmpty || item.cryptoAmount.isEmpty)
+                        .toList();
+
+                    if (notValidItems?.isNotEmpty ?? false) {
+                      showErrorValidationAlert(context);
+                      return;
+                    }
+
+                    await sendViewModel.createTransaction();
+                  },
+                  text: S.of(context).send,
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white,
+                  isLoading: sendViewModel.state is IsExecutingState ||
+                      sendViewModel.state is TransactionCommitting,
+                  isDisabled: !sendViewModel.isReadyForSend,
+                );
+              },
+              )
             ],
           )),
     );
@@ -357,8 +350,7 @@ class SendPage extends BasePage {
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
                     feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmount
                         +  ' ' + sendViewModel.fiat.title,
-                    recipientTitle: S.of(context).recipient_address,
-                    recipientAddress: '', // FIXME: sendViewModel.address,
+                    sendItemList: sendViewModel.sendItemList,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
                     actionRightButton: () {
@@ -407,5 +399,18 @@ class SendPage extends BasePage {
   SendItem _defineCurrentSendItem() {
     final itemCount = controller.page.round();
     return sendViewModel.sendItemList[itemCount];
+  }
+
+  void showErrorValidationAlert(BuildContext context) async {
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.of(context).error,
+              alertContent: 'Please, check receiver forms',
+              buttonText: S.of(context).ok,
+              buttonAction: () =>
+                  Navigator.of(context).pop());
+        });
   }
 }
