@@ -245,9 +245,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       return;
     }
 
+    await backupWalletFiles(name);
     _lastSaveTimestamp = now;
     await monero_wallet.store();
-    await backupWalletFiles(name);
   }
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
