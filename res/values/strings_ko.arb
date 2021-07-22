@@ -483,5 +483,13 @@
   "moonpay_alert_text" : "금액은 다음보다 크거나 같아야합니다 ${minAmount} ${fiatCurrency}",
 
   "outdated_electrum_wallet_receive_warning": "이 지갑에 12 단어 시드가 있고 Cake에서 생성 된 경우이 지갑에 비트 코인을 입금하지 마십시오. 이 지갑으로 전송 된 모든 BTC는 손실 될 수 있습니다. 새로운 24 단어 지갑을 생성하고 (오른쪽 상단의 메뉴를 탭하고 지갑을 선택한 다음 새 지갑 생성을 선택한 다음 비트 코인을 선택하십시오) 즉시 BTC를 그곳으로 이동하십시오. Cake의 새로운 (24 단어) BTC 지갑은 안전합니다",
-  "do_not_show_me": "나를 다시 표시하지 않음"
+  "do_not_show_me": "나를 다시 표시하지 않음",
+
+  "unspent_coins_title" : "사용하지 않은 동전",
+  "unspent_coins_details_title" : "사용하지 않은 동전 세부 정보",
+  "freeze" : "얼다",
+  "coin_control" : "코인 제어 (옵션)",
+
+  "address_detected" : "주소 감지",
+  "address_from_domain" : "주소는 unstoppable domain ${domain}"
 }

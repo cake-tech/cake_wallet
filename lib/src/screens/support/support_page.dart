@@ -19,6 +19,9 @@ class SupportPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    final iconColor =
+        Theme.of(context).accentTextTheme.display4.backgroundColor;
+
     return SectionStandardList(
         sectionCount: 1,
         itemCounter: (int _) => supportViewModel.items.length,
@@ -34,6 +37,7 @@ class SupportPage extends BasePage {
             return SettingsLinkProviderCell(
                 title: item.title,
                 icon: item.icon,
+                iconColor: item.hasIconColor ? iconColor : null,
                 link: item.link,
                 linkTitle: item.linkTitle);
           }
