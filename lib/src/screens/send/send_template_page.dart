@@ -145,7 +145,7 @@ class SendTemplatePage extends BasePage {
                                     .primaryTextTheme
                                     .headline
                                     .decorationColor),
-                            validator: sendViewModel.addressValidator,
+                            //validator: sendViewModel.addressValidator,
                           ),
                         ),
                         Observer(builder: (_) {
