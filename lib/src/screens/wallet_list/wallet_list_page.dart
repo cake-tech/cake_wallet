@@ -91,7 +91,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                         alertContent: S
                                             .of(context)
                                             .change_wallet_alert_content(
-                                                wallet.name),
+                                                wallet.displayName),
                                         leftButtonText: S.of(context).cancel,
                                         rightButtonText: S.of(context).change,
                                         actionLeftButton: () =>
@@ -132,7 +132,7 @@ class WalletListBodyState extends State<WalletListBody> {
                                       _imageFor(type: wallet.type),
                                       SizedBox(width: 10),
                                       Text(
-                                        wallet.name,
+                                        wallet.displayName,
                                         style: TextStyle(
                                             fontSize: 22,
                                             fontWeight: FontWeight.w500,
@@ -149,20 +149,29 @@ class WalletListBodyState extends State<WalletListBody> {
                           ),
                         ));
 
-                    return wallet.isCurrent
-                        ? row
-                        : Slidable(
+                    final editAction = IconSlideAction(
+                      caption: S.of(context).edit,
+                      color: Colors.blue,
+                      icon: Icons.edit,
+                      onTap: () => Navigator.of(context)
+                          .pushNamed(Routes.editWalletName,
+                          arguments: wallet),
+                    );
+
+                    final deleteAction = IconSlideAction(
+                      caption: S.of(context).delete,
+                      color: Colors.red,
+                      icon: CupertinoIcons.delete,
+                      onTap: () async => _removeWallet(wallet),
+                    );
+
+                    return Slidable(
                             key: Key('${wallet.key}'),
                             actionPane: SlidableDrawerActionPane(),
                             child: row,
-                            secondaryActions: <Widget>[
-                                IconSlideAction(
-                                  caption: S.of(context).delete,
-                                  color: Colors.red,
-                                  icon: CupertinoIcons.delete,
-                                  onTap: () async => _removeWallet(wallet),
-                                )
-                              ]);
+                            secondaryActions: wallet.isCurrent
+                            ? <Widget>[editAction]
+                            : <Widget>[editAction, deleteAction]);
                   }),
             ),
           ),
@@ -211,7 +220,7 @@ class WalletListBodyState extends State<WalletListBody> {
 
       try {
         auth.changeProcessText(
-            S.of(context).wallet_list_loading_wallet(wallet.name));
+            S.of(context).wallet_list_loading_wallet(wallet.displayName));
         await widget.walletListViewModel.loadWallet(wallet);
         auth.hideProgressText();
         auth.close();
@@ -219,7 +228,7 @@ class WalletListBodyState extends State<WalletListBody> {
       } catch (e) {
         auth.changeProcessText(S
             .of(context)
-            .wallet_list_failed_to_load(wallet.name, e.toString()));
+            .wallet_list_failed_to_load(wallet.displayName, e.toString()));
       }
     });
   }
@@ -233,12 +242,12 @@ class WalletListBodyState extends State<WalletListBody> {
 
       try {
         auth.changeProcessText(
-            S.of(context).wallet_list_removing_wallet(wallet.name));
+            S.of(context).wallet_list_removing_wallet(wallet.displayName));
         await widget.walletListViewModel.remove(wallet);
       } catch (e) {
         auth.changeProcessText(S
             .of(context)
-            .wallet_list_failed_to_remove(wallet.name, e.toString()));
+            .wallet_list_failed_to_remove(wallet.displayName, e.toString()));
       }
 
       auth.close();

@@ -413,6 +413,8 @@
   "seed_alert_back" : "Zurückgehen",
   "seed_alert_yes" : "Ja, habe ich",
 
+  "wallet_name_alert_content" : "Brieftasche mit dem gleichen Namen ist vorhanden",
+
   "exchange_sync_alert_content" : "Bitte warten Sie, bis Ihre Wallet synchronisiert ist",
 
   "pre_seed_title" : "WICHTIG",

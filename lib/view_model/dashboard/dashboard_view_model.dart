@@ -1,12 +1,11 @@
+import 'dart:async';
 import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/push_notifications_service.dart';
-import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/entities/transaction_history.dart';
-import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/monero/account.dart';
 import 'package:cake_wallet/monero/monero_balance.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
+import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
@@ -20,9 +19,6 @@ import 'package:cake_wallet/view_model/dashboard/order_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/trade_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
-import 'package:cake_wallet/view_model/dashboard/action_list_display_mode.dart';
-import 'package:crypto/crypto.dart';
-import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
@@ -48,6 +44,7 @@ abstract class DashboardViewModelBase with Store {
       this.transactionFilterStore,
       this.settingsStore,
       this.ordersStore,
+      this.walletInfoSource,
       PushNotificationsService pushNotificationsService}) {
     _pushNotificationsService = pushNotificationsService;
     filterItems = {
@@ -84,7 +81,10 @@ abstract class DashboardViewModelBase with Store {
       ]
     };
 
-    name = appStore.wallet?.name;
+    final info = walletInfoSource.values.firstWhere((element) =>
+    element.name == appStore.wallet?.name);
+
+    name = info?.displayedName;
     wallet ??= appStore.wallet;
     type = wallet.type;
     isOutdatedElectrumWallet =
@@ -136,6 +136,9 @@ abstract class DashboardViewModelBase with Store {
 
       return true;
     });
+
+    _onNamesChanged = walletInfoSource.watch().listen((_) =>
+        _onWalletNameChanged());
 
     Future.delayed(Duration(seconds: 2), () => _pushNotificationsService.init());
   }
@@ -221,7 +224,11 @@ abstract class DashboardViewModelBase with Store {
 
   TransactionFilterStore transactionFilterStore;
 
+  final Box<WalletInfo> walletInfoSource;
+
   Map<String, List<FilterItem>> filterItems;
+
+  StreamSubscription<BoxEvent> _onNamesChanged;
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
@@ -246,7 +253,10 @@ abstract class DashboardViewModelBase with Store {
           wallet) {
     this.wallet = wallet;
     type = wallet.type;
-    name = wallet.name;
+    final info = walletInfoSource.values.firstWhere((element) =>
+    element.name == wallet.name);
+
+    name = info?.displayedName;
     isOutdatedElectrumWallet =
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
 
@@ -310,5 +320,13 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore)));
+  }
+
+  @action
+  void _onWalletNameChanged() {
+    final info = walletInfoSource.values.firstWhere((element) =>
+    element.name == wallet.name);
+
+    name = info?.displayedName;
   }
 }

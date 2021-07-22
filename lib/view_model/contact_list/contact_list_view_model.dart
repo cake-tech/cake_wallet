@@ -21,8 +21,8 @@ abstract class ContactListViewModelBase with Store {
       if (info.addresses?.isNotEmpty ?? false) {
         info.addresses?.forEach((address, label) {
           final name = label.isNotEmpty
-            ? info.name + ' ($label)'
-            : info.name;
+            ? info.displayedName + ' ($label)'
+            : info.displayedName;
 
           walletContacts.add(WalletContact(
               address,

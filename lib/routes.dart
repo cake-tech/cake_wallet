@@ -47,6 +47,7 @@ class Routes {
   static const exchangeTemplate = '/exchange_template';
   static const restoreWalletType = '/restore_wallet_type';
   static const restoreWallet = '/restore_wallet';
+  static const editWalletName = '/edit_wallet_name';
   static const preSeed = '/pre_seed';
   static const backup = '/backup';
   static const editBackupPassword = '/edit_backup_passowrd';

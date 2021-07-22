@@ -317,7 +317,7 @@
   "error_text_fiat" : "金额不能超过可用余额.\n小数位数必须小于或等于2",
   "error_text_subaddress_name" : "子地址名称不能包含`，' \" 符号\n并且必须在1到20个字符之间",
   "error_text_amount" : "金额只能包含数字",
-  "error_text_wallet_name" : "钱包名称只能包含字母，数字\n且必须介于1到15个字符之间",
+  "error_text_wallet_name" : "钱包名称只能包含字母，数字\n且必须介于1到20个字符之间",
   "error_text_keys" : "钱包密钥只能包含16个字符的十六进制字符",
   "error_text_crypto_currency" : "小数位数\n必须小于或等于12",
   "error_text_minimal_limit" : "未创建 ${provider} 交易。 金额小于最小值：${min} ${currency}",
@@ -412,6 +412,8 @@
   "seed_alert_content" : "种子是恢复钱包的唯一方法。记住了吗？",
   "seed_alert_back" : "返回",
   "seed_alert_yes" : "确定",
+
+  "wallet_name_alert_content" : "存在同名錢包",
 
   "exchange_sync_alert_content" : "请等待，直到您的钱包同步",
 

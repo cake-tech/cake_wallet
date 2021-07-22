@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -16,6 +18,7 @@ abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(this._walletInfoSource, this._appStore,
       this._keyService, this.walletNewVM) {
     wallets = ObservableList<WalletListItem>();
+    _onWalletsChanged = _walletInfoSource.watch().listen((_) => _updateList());
     _updateList();
   }
 
@@ -26,6 +29,7 @@ abstract class WalletListViewModelBase with Store {
   final Box<WalletInfo> _walletInfoSource;
   final KeyService _keyService;
   final WalletNewVM walletNewVM;
+  StreamSubscription<BoxEvent> _onWalletsChanged;
 
   @action
   Future<void> loadWallet(WalletListItem wallet) async {
@@ -49,6 +53,7 @@ abstract class WalletListViewModelBase with Store {
     wallets.clear();
     wallets.addAll(_walletInfoSource.values.map((info) => WalletListItem(
         name: info.name,
+        displayName: info.displayedName,
         type: info.type,
         key: info.key,
         isCurrent: info.name == _appStore.wallet.name &&

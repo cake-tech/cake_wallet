@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 abstract class Validator<T> {
   Validator({@required this.errorMessage});
@@ -43,5 +44,7 @@ class TextValidator extends Validator<String> {
 
 class WalletNameValidator extends TextValidator {
   WalletNameValidator()
-      : super(minLength: 1, maxLength: 15, pattern: '^[a-zA-Z0-9_]\$');
+      : super(
+        errorMessage: S.current.error_text_wallet_name,
+        pattern: '^[a-zA-Z0-9_ -]{1,20}\$');
 }

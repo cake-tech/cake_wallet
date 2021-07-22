@@ -16,6 +16,8 @@ import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.da
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
+import 'package:cake_wallet/src/screens/wallet_list/edit_wallet_name_page.dart';
+import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -231,6 +233,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.walletList:
       return MaterialPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
+
+    case Routes.editWalletName:
+      return CupertinoPageRoute<void>(
+        builder: (_) => getIt.get<EditWalletNamePage>(
+            param1: settings.arguments as WalletListItem));
 
     case Routes.auth:
       return MaterialPageRoute<void>(
