@@ -31,6 +31,7 @@ abstract class SupportViewModelBase with Store {
       LinkListItem(
           title: 'GitHub',
           icon: 'assets/images/github.png',
+          hasIconColor: true,
           linkTitle: S.current.apk_update,
           link: 'https://github.com/cake-tech/cake_wallet/releases'),
       LinkListItem(
@@ -52,7 +53,13 @@ abstract class SupportViewModelBase with Store {
           title: 'Wyre',
           icon: 'assets/images/wyre.png',
           linkTitle: S.current.submit_request,
-          link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new')
+          link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new'),
+      LinkListItem(
+          title: 'MoonPay',
+          icon: 'assets/images/moonpay.png',
+          hasIconColor: true,
+          linkTitle: S.current.submit_request,
+          link: 'https://support.moonpay.com/hc/en-gb/requests/new')
     ];
   }
   static const url = 'https://cakewallet.com/guide/';
