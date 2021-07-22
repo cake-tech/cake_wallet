@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
@@ -14,9 +15,10 @@ class LitecoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials> {
-  LitecoinWalletService(this.walletInfoSource);
+  LitecoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
+  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
 
   @override
   WalletType getType() => WalletType.litecoin;
@@ -26,7 +28,8 @@ class LitecoinWalletService extends WalletService<
     final wallet = LitecoinWallet(
         mnemonic: await generateMnemonic(),
         password: credentials.password,
-        walletInfo: credentials.walletInfo);
+        walletInfo: credentials.walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
 
@@ -43,7 +46,8 @@ class LitecoinWalletService extends WalletService<
         (info) => info.id == WalletBase.idFor(name, getType()),
         orElse: () => null);
     final wallet = await LitecoinWalletBase.open(
-        password: password, name: name, walletInfo: walletInfo);
+        password: password, name: name, walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
   }
@@ -68,7 +72,8 @@ class LitecoinWalletService extends WalletService<
     final wallet = LitecoinWallet(
         password: credentials.password,
         mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo);
+        walletInfo: credentials.walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
     return wallet;

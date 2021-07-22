@@ -52,6 +52,8 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
+    isElectrumWallet  = _wallet is ElectrumWallet;
+
     _setCryptoNumMaximumFractionDigits();
   }
 
@@ -178,6 +180,9 @@ abstract class SendViewModelBase with Store {
 
   @observable
   PendingTransaction pendingTransaction;
+
+  @observable
+  bool isElectrumWallet;
 
   @computed
   String get balance => _wallet.balance.formattedAvailableBalance ?? '0.0';
