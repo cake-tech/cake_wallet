@@ -488,5 +488,8 @@
   "unspent_coins_title" : "Niewydane monety",
   "unspent_coins_details_title" : "Szczegóły niewydanych monet",
   "freeze" : "Zamrażać",
-  "coin_control" : "Kontrola monet (opcjonalnie)"
+  "coin_control" : "Kontrola monet (opcjonalnie)",
+
+  "address_detected" : "Wykryto adres",
+  "address_from_domain" : "Dostałeś adres od unstoppable domain ${domain}"
 }

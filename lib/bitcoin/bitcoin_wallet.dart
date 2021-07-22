@@ -3,12 +3,12 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
-import 'package:cake_wallet/bitcoin/utils.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet_snapshot.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
 import 'package:cake_wallet/bitcoin/electrum_balance.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_wallet_addresses.dart';
 
 part 'bitcoin_wallet.g.dart';
 
@@ -30,8 +30,14 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             unspentCoinsInfo: unspentCoinsInfo,
             networkType: bitcoin.bitcoin,
             initialAddresses: initialAddresses,
-            initialBalance: initialBalance,
-            accountIndex: accountIndex);
+            initialBalance: initialBalance) {
+    walletAddresses = BitcoinWalletAddresses(
+        walletInfo,
+        initialAddresses: initialAddresses,
+        accountIndex: accountIndex,
+        hd: hd,
+        networkType: networkType);
+  }
 
   static Future<BitcoinWallet> open({
     @required String name,
@@ -50,8 +56,4 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         initialBalance: snp.balance,
         accountIndex: snp.accountIndex);
   }
-
-  @override
-  String getAddress({@required int index, @required bitcoin.HDWallet hd}) =>
-      generateP2WPKHAddress(hd: hd, index: index, networkType: networkType);
 }

@@ -488,5 +488,8 @@
   "unspent_coins_title" : "खर्च न किए गए सिक्के",
   "unspent_coins_details_title" : "अव्ययित सिक्कों का विवरण",
   "freeze" : "फ्रीज",
-  "coin_control" : "सिक्का नियंत्रण (वैकल्पिक)"
+  "coin_control" : "सिक्का नियंत्रण (वैकल्पिक)",
+
+  "address_detected" : "पता लग गया",
+  "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है"
 }

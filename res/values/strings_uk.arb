@@ -488,5 +488,8 @@
   "unspent_coins_title" : "Невитрачені монети",
   "unspent_coins_details_title" : "Відомості про невитрачені монети",
   "freeze" : "Заморозити",
-  "coin_control" : "Контроль монет (необов’язково)"
+  "coin_control" : "Контроль монет (необов’язково)",
+
+  "address_detected" : "Виявлено адресу",
+  "address_from_domain" : "Ви отримали адресу від unstoppable domain ${domain}"
 }

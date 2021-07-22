@@ -20,15 +20,16 @@ abstract class MoneroAccountListViewModelBase with Store {
   }
 
   @computed
-  List<AccountListItem> get accounts => _moneroWallet.accountList.accounts
-      .map((acc) => AccountListItem(
+  List<AccountListItem> get accounts => _moneroWallet.walletAddresses
+      .accountList.accounts.map((acc) => AccountListItem(
           label: acc.label,
           id: acc.id,
-          isSelected: acc.id == _moneroWallet.account.id))
+          isSelected: acc.id == _moneroWallet.walletAddresses.account.id))
       .toList();
 
   final MoneroWallet _moneroWallet;
 
   void select(AccountListItem item) =>
-      _moneroWallet.account = Account(id: item.id, label: item.label);
+      _moneroWallet.walletAddresses.account =
+          Account(id: item.id, label: item.label);
 }
