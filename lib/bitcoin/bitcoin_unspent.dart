@@ -1,7 +1,10 @@
 import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
 
 class BitcoinUnspent {
-  BitcoinUnspent(this.address, this.hash, this.value, this.vout);
+  BitcoinUnspent(this.address, this.hash, this.value, this.vout)
+      : isSending = true,
+        isFrozen = false,
+        note = '';
 
   factory BitcoinUnspent.fromJSON(
           BitcoinAddressRecord address, Map<String, dynamic> json) =>
@@ -15,4 +18,7 @@ class BitcoinUnspent {
 
   bool get isP2wpkh =>
       address.address.startsWith('bc') || address.address.startsWith('ltc');
+  bool isSending;
+  bool isFrozen;
+  String note;
 }

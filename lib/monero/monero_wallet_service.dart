@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/monero/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_monero/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/wallet.dart' as monero_wallet;
@@ -55,16 +56,7 @@ class MoneroWalletService extends WalletService<
   MoneroWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
-
-  static Future<void> _removeCache(String name) async {
-    final path = await pathForWallet(name: name, type: WalletType.monero);
-    final cacheFile = File(path);
-
-    if (cacheFile.existsSync()) {
-      cacheFile.deleteSync();
-    }
-  }
-
+  
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
@@ -117,10 +109,10 @@ class MoneroWalletService extends WalletService<
           (info) => info.id == WalletBase.idFor(name, getType()),
           orElse: () => null);
       final wallet = MoneroWallet(walletInfo: walletInfo);
-      final isValid = wallet.validate();
+      final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
-        await _removeCache(name);
+        await restoreOrResetWalletFiles(name);
         wallet.close();
         return openWallet(name, password);
       }
@@ -135,7 +127,7 @@ class MoneroWalletService extends WalletService<
           (e is WalletOpeningException &&
               (e.message == 'std::bad_alloc' ||
                   e.message.contains('bad_alloc')))) {
-        await _removeCache(name);
+        await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
 
