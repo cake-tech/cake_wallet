@@ -485,5 +485,13 @@
   "outdated_electrum_wallet_receive_warning": "如果这个钱包有一个 12 字的种子并且是在 Cake 中创建的，不要将比特币存入这个钱包。 任何转移到此钱包的 BTC 都可能丢失。 创建一个新的 24 字钱包（点击右上角的菜单，选择钱包，选择创建新钱包，然后选择比特币）并立即将您的 BTC 移到那里。 Cake 的新（24 字）BTC 钱包是安全的",
   "do_not_show_me": "不再提示",
 
+  "unspent_coins_title" : "未使用的硬幣",
+  "unspent_coins_details_title" : "未使用代幣詳情",
+  "freeze" : "凍結",
+  "coin_control" : "硬幣控制（可選）",
+
+  "address_detected" : "檢測到地址",
+  "address_from_domain" : "您有以下地址 unstoppable domain ${domain}",
+
   "add_receiver" : "添加接收器"
 }

@@ -44,9 +44,6 @@ class StandardCheckboxState extends State<StandardCheckbox> {
           Container(
             height: 24.0,
             width: 24.0,
-            margin: EdgeInsets.only(
-              right: 10.0,
-            ),
             decoration: BoxDecoration(
                 border: Border.all(
                     color: Theme.of(context)
@@ -65,14 +62,17 @@ class StandardCheckboxState extends State<StandardCheckbox> {
               )
               : Offstage(),
           ),
-          Text(
-            caption,
-            style: TextStyle(
-                fontSize: 16.0,
-                color: Theme.of(context)
-                    .primaryTextTheme
-                    .title
-                    .color),
+          if (caption.isNotEmpty) Padding(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              caption,
+              style: TextStyle(
+                  fontSize: 16.0,
+                  color: Theme.of(context)
+                      .primaryTextTheme
+                      .title
+                      .color),
+            )
           )
         ],
       ),

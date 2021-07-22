@@ -1,4 +1,3 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

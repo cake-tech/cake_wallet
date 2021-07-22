@@ -485,5 +485,13 @@
   "outdated_electrum_wallet_receive_warning": "Ako ovaj novčanik sadrži sjeme od 12 riječi i stvoren je u Torti, NEMOJTE polagati Bitcoin u ovaj novčanik. Bilo koji BTC prebačen u ovaj novčanik može se izgubiti. Stvorite novi novčanik od 24 riječi (taknite izbornik u gornjem desnom dijelu, odaberite Novčanici, odaberite Stvori novi novčanik, a zatim odaberite Bitcoin) i ODMAH premjestite svoj BTC tamo. Novi BTC novčanici (s 24 riječi) tvrtke Cake sigurni su",
   "do_not_show_me": "Ne pokazuj mi ovo više",
 
+  "unspent_coins_title" : "Nepotrošeni novčići",
+  "unspent_coins_details_title" : "Nepotrošeni detalji o novčićima",
+  "freeze" : "Zamrznuti",
+  "coin_control" : "Kontrola novca (nije obavezno)",
+
+  "address_detected" : "Adresa je otkrivena",
+  "address_from_domain" : "Dobili ste adresu od unstoppable domain ${domain}",
+
   "add_receiver" : "Dodajte prijamnik"
 }
