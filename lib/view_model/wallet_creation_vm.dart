@@ -50,7 +50,7 @@ abstract class WalletCreationVMBase with Store {
           dirPath: dirPath);
       credentials.walletInfo = walletInfo;
       final wallet = await process(credentials);
-      walletInfo.address = wallet.address;
+      walletInfo.address = wallet.walletAddresses.address;
       await _walletInfoSource.add(walletInfo);
       _appStore.changeCurrentWallet(wallet);
       _appStore.authenticationStore.allowed();

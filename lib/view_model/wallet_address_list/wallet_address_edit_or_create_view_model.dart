@@ -64,12 +64,15 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
     final wallet = _wallet;
 
     if (wallet is ElectrumWallet) {
-      await wallet.generateNewAddress();
+      await wallet.walletAddresses.generateNewAddress();
+      await wallet.save();
     }
 
     if (wallet is MoneroWallet) {
-      await wallet.subaddressList
-          .addSubaddress(accountIndex: wallet.account.id, label: label);
+      await wallet.walletAddresses.subaddressList
+          .addSubaddress(
+          accountIndex: wallet.walletAddresses.account.id,
+          label: label);
       await wallet.save();
     }
   }
@@ -77,13 +80,14 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _update() async {
     final wallet = _wallet;
 
-    if (wallet is BitcoinWallet) {
-      await wallet.updateAddress(_item.address as String);
-    }
+    /*if (wallet is BitcoinWallet) {
+      await wallet.walletAddresses.updateAddress(_item.address as String);
+      await wallet.save();
+    }*/
 
     if (wallet is MoneroWallet) {
-      await wallet.subaddressList.setLabelSubaddress(
-          accountIndex: wallet.account.id,
+      await wallet.walletAddresses.subaddressList.setLabelSubaddress(
+          accountIndex: wallet.walletAddresses.account.id,
           addressIndex: _item.id as int,
           label: label);
       await wallet.save();
