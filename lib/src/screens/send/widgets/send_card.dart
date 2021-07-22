@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -79,7 +80,7 @@ class SendCardState extends State<SendCard>
               )
             ]),
         child: Container(
-          height: 445,
+          height: 470,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
@@ -140,6 +141,11 @@ class SendCardState extends State<SendCard>
                               .primaryTextTheme
                               .headline
                               .decorationColor),
+                      onPushPasteButton: (context) async {
+                        final parsedAddress =
+                          await item.applyOpenaliasOrUnstoppableDomains();
+                        showAddressAlert(context, parsedAddress);
+                      },
                       validator: sendViewModel.addressValidator,
                     ),
                     Observer(
@@ -393,7 +399,34 @@ class SendCardState extends State<SendCard>
                               ],
                             ),
                           ),
-                        ))
+                        )),
+                    if (sendViewModel.isElectrumWallet) Padding(
+                        padding: EdgeInsets.only(top: 6),
+                        child: GestureDetector(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed(Routes.unspentCoinsList),
+                            child: Container(
+                                color: Colors.transparent,
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                        S.of(context).coin_control,
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white)),
+                                    Icon(
+                                      Icons.arrow_forward_ios,
+                                      size: 12,
+                                      color: Colors.white,
+                                    )
+                                  ],
+                                )
+                            )
+                        )
+                    )
                   ],
                 )
             ),
@@ -485,14 +518,8 @@ class SendCardState extends State<SendCard>
 
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
-        final record = await item.getOpenaliasRecord();
-
-        if (record != null) {
-          showAddressAlert(
-              context,
-              S.current.openalias_alert_title,
-              S.current.openalias_alert_content(record.name));
-        }
+        final parsedAddress = await item.applyOpenaliasOrUnstoppableDomains();
+        showAddressAlert(context, parsedAddress);
       }
     });
 

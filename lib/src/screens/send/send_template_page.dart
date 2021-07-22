@@ -146,7 +146,6 @@ class SendTemplatePage extends BasePage {
                                     .primaryTextTheme
                                     .headline
                                     .decorationColor),
-                            validator: sendTemplateViewModel.addressValidator,
                           ),
                         ),
                         Padding(

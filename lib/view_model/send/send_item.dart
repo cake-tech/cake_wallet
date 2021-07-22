@@ -2,6 +2,8 @@ import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -184,15 +186,13 @@ abstract class SendItemBase with Store {
     _cryptoNumberFormat.maximumFractionDigits = maximumFractionDigits;
   }
 
-  Future<OpenaliasRecord> getOpenaliasRecord() async {
-    final formattedName = OpenaliasRecord.formatDomainName(address);
-    final record = await OpenaliasRecord.fetchAddressAndName(formattedName);
+  Future<ParsedAddress> applyOpenaliasOrUnstoppableDomains() async {
+    final domain = address;
+    final ticker = _wallet.currency.title.toLowerCase();
+    final parsedAddress = await parseAddressFromDomain(domain, ticker);
 
-    if (record == null || record.address.contains(formattedName)) {
-      return null;
-    }
+    address = parsedAddress.address;
 
-    address = record.address;
-    return record;
+    return parsedAddress;
   }
 }
