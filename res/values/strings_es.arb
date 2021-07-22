@@ -472,7 +472,7 @@
   "submit_request" : "presentar una solicitud",
 
   "buy_alert_content" : "Actualmente solo apoyamos la compra de Bitcoin y Litecoin. Para comprar Bitcoin o Litecoin, cree o cambie a su billetera Bitcoin o Litecoin.",
-  
+
   "outdated_electrum_wallet_description" : "Las nuevas carteras de Bitcoin creadas en Cake ahora tienen una semilla de 24 palabras. Es obligatorio que cree una nueva billetera de Bitcoin y transfiera todos sus fondos a la nueva billetera de 24 palabras, y deje de usar billeteras con una semilla de 12 palabras. Haga esto de inmediato para asegurar sus fondos.",
   "understand" : "Entiendo",
 
@@ -488,5 +488,8 @@
   "unspent_coins_title" : "Monedas no gastadas",
   "unspent_coins_details_title" : "Detalles de monedas no gastadas",
   "freeze" : "Congelar",
-  "coin_control" : "Control de monedas (opcional)"
+  "coin_control" : "Control de monedas (opcional)",
+
+  "address_detected" : "Dirección detectada",
+  "address_from_domain" : "Tienes la dirección de unstoppable domain ${domain}"
 }

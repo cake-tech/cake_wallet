@@ -488,5 +488,8 @@
   "unspent_coins_title" : "사용하지 않은 동전",
   "unspent_coins_details_title" : "사용하지 않은 동전 세부 정보",
   "freeze" : "얼다",
-  "coin_control" : "코인 제어 (옵션)"
+  "coin_control" : "코인 제어 (옵션)",
+
+  "address_detected" : "주소 감지",
+  "address_from_domain" : "주소는 unstoppable domain ${domain}"
 }

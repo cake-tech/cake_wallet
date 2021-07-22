@@ -1,6 +1,8 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -40,7 +42,7 @@ class SendPage extends BasePage {
         _addressFocusNode = FocusNode() {
     _addressFocusNode.addListener(() {
       if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
-        getOpenaliasRecord(_addressFocusNode.context);
+        applyOpenaliasOrUnstoppableDomains(_addressFocusNode.context);
       }
     });
   }
@@ -173,6 +175,9 @@ class SendPage extends BasePage {
                                         .headline
                                         .decorationColor),
                                 validator: sendViewModel.addressValidator,
+                                onPushPasteButton: (context) {
+                                  applyOpenaliasOrUnstoppableDomains(context);
+                                },
                               ),
                               Observer(
                                   builder: (_) => Padding(
@@ -542,7 +547,7 @@ class SendPage extends BasePage {
                                           template.address;
                                       _cryptoAmountController.text =
                                           template.amount;
-                                      getOpenaliasRecord(context);
+                                      applyOpenaliasOrUnstoppableDomains(context);
                                     },
                                     onRemove: () {
                                       showPopUp<void>(
@@ -757,26 +762,6 @@ class SendPage extends BasePage {
     _effectsInstalled = true;
   }
 
-  Future<void> getOpenaliasRecord(BuildContext context) async {
-    final record =
-        await sendViewModel.decodeOpenaliasRecord(_addressController.text);
-
-    if (record != null) {
-      _addressController.text = record.address;
-
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertWithOneAction(
-                alertTitle: S.of(context).openalias_alert_title,
-                alertContent:
-                    S.of(context).openalias_alert_content(record.name),
-                buttonText: S.of(context).ok,
-                buttonAction: () => Navigator.of(context).pop());
-          });
-    }
-  }
-
   Future<void> _setTransactionPriority(BuildContext context) async {
     final items = priorityForWalletType(sendViewModel.walletType);
     final selectedItem = items.indexOf(sendViewModel.transactionPriority);
@@ -793,5 +778,29 @@ class SendPage extends BasePage {
                   sendViewModel.setTransactionPriority(priority),
             ),
         context: context);
+  }
+
+  void applyOpenaliasOrUnstoppableDomains(BuildContext context) async {
+    final domain = _addressController.text;
+    final ticker = sendViewModel.currency.title.toLowerCase();
+    final parsedAddress = await parseAddressFromDomain(domain, ticker);
+    _addressController.text = parsedAddress.address;
+
+    switch (parsedAddress.parseFrom) {
+      case ParseFrom.unstoppableDomains:
+        showAddressAlert(
+            context,
+            S.of(context).address_detected,
+            S.of(context).address_from_domain(parsedAddress.name));
+        break;
+      case ParseFrom.openAlias:
+        showAddressAlert(
+            context,
+            S.of(context).openalias_alert_title,
+            S.of(context).openalias_alert_content(parsedAddress.name));
+        break;
+      case ParseFrom.notParsed:
+        break;
+    }
   }
 }

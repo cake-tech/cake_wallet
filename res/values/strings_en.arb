@@ -488,5 +488,8 @@
   "unspent_coins_title" : "Unspent coins",
   "unspent_coins_details_title" : "Unspent coins details",
   "freeze" : "Freeze",
-  "coin_control" : "Coin control (optional)"
+  "coin_control" : "Coin control (optional)",
+
+  "address_detected" : "Address detected",
+  "address_from_domain" : "You got address from unstoppable domain ${domain}"
 }

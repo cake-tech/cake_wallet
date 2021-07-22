@@ -488,5 +488,8 @@
   "unspent_coins_title" : "Ongebruikte munten",
   "unspent_coins_details_title" : "Details van niet-uitgegeven munten",
   "freeze" : "Bevriezen",
-  "coin_control" : "Muntcontrole (optioneel)"
+  "coin_control" : "Muntcontrole (optioneel)",
+
+  "address_detected" : "Adres gedetecteerd",
+  "address_from_domain" : "Je adres is van unstoppable domain ${domain}"
 }

@@ -488,5 +488,8 @@
   "unspent_coins_title" : "未使用のコイン",
   "unspent_coins_details_title" : "未使用のコインの詳細",
   "freeze" : "氷結",
-  "coin_control" : "コインコントロール（オプション）"
+  "coin_control" : "コインコントロール（オプション）",
+
+  "address_detected" : "アドレスが検出されました",
+  "address_from_domain" : "あなたはからアドレスを得ました unstoppable domain ${domain}"
 }

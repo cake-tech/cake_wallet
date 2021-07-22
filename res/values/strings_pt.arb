@@ -488,5 +488,8 @@
   "unspent_coins_title" : "Moedas não gastas",
   "unspent_coins_details_title" : "Detalhes de moedas não gastas",
   "freeze" : "Congelar",
-  "coin_control" : "Controle de moedas (opcional)"
+  "coin_control" : "Controle de moedas (opcional)",
+
+  "address_detected" : "Endereço detectado",
+  "address_from_domain" : "Você obteve o endereço de unstoppable domain ${domain}"
 }

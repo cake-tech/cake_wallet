@@ -488,5 +488,8 @@
   "unspent_coins_title" : "Nepotrošeni novčići",
   "unspent_coins_details_title" : "Nepotrošeni detalji o novčićima",
   "freeze" : "Zamrznuti",
-  "coin_control" : "Kontrola novca (nije obavezno)"
+  "coin_control" : "Kontrola novca (nije obavezno)",
+
+  "address_detected" : "Adresa je otkrivena",
+  "address_from_domain" : "Dobili ste adresu od unstoppable domain ${domain}"
 }

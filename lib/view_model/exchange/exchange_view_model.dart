@@ -41,7 +41,8 @@ abstract class ExchangeViewModelBase with Store {
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
+    depositAddress = depositCurrency == wallet.currency
+        ? wallet.walletAddresses.address : '';
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
@@ -308,8 +309,10 @@ abstract class ExchangeViewModelBase with Store {
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
-    receiveAddress = receiveCurrency == wallet.currency ? wallet.address : '';
+    depositAddress = depositCurrency == wallet.currency
+        ? wallet.walletAddresses.address : '';
+    receiveAddress = receiveCurrency == wallet.currency
+        ? wallet.walletAddresses.address : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     isFixedRateMode = false;

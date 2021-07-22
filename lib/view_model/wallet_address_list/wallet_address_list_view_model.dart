@@ -80,7 +80,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   WalletAddressListItem get address =>
-      WalletAddressListItem(address: _wallet.address);
+      WalletAddressListItem(address: _wallet.walletAddresses.address);
 
   @computed
   PaymentURI get uri {
@@ -105,8 +105,10 @@ abstract class WalletAddressListViewModelBase with Store {
     final addressList = ObservableList<ListItem>();
 
     if (wallet is MoneroWallet) {
-      final primaryAddress = wallet.subaddressList.subaddresses.first;
-      addressList.addAll(wallet.subaddressList.subaddresses.map((subaddress) {
+      final primaryAddress =
+          wallet.walletAddresses.subaddressList.subaddresses.first;
+      addressList.addAll(wallet.walletAddresses.subaddressList.subaddresses
+          .map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
         return WalletAddressListItem(
@@ -118,8 +120,8 @@ abstract class WalletAddressListViewModelBase with Store {
     }
 
     if (wallet is BitcoinWallet) {
-      final primaryAddress = wallet.addresses.first;
-      final bitcoinAddresses = wallet.addresses.map((addr) {
+      final primaryAddress = wallet.walletAddresses.addresses.first;
+      final bitcoinAddresses = wallet.walletAddresses.addresses.map((addr) {
         final isPrimary = addr == primaryAddress;
 
         return WalletAddressListItem(
@@ -139,7 +141,7 @@ abstract class WalletAddressListViewModelBase with Store {
     final wallet = _wallet;
 
     if (wallet is MoneroWallet) {
-      return wallet.account.label;
+      return wallet.walletAddresses.account.label;
     }
 
     return null;
@@ -160,7 +162,7 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @action
   void setAddress(WalletAddressListItem address) =>
-      _wallet.address = address.address;
+      _wallet.walletAddresses.address = address.address;
 
   void _init() {
     _baseItems = [];
@@ -177,7 +179,8 @@ abstract class WalletAddressListViewModelBase with Store {
     final wallet = _wallet;
 
     if (wallet is ElectrumWallet) {
-      wallet.nextAddress();
+      wallet.walletAddresses.nextAddress();
+      wallet.save();
     }
   }
 }

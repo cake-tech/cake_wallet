@@ -15,7 +15,7 @@ abstract class BuyProvider {
   String get trackUrl;
 
   WalletType get walletType => wallet.type;
-  String get walletAddress => wallet.address;
+  String get walletAddress => wallet.walletAddresses.address;
   String get walletId => wallet.id;
 
   @override
