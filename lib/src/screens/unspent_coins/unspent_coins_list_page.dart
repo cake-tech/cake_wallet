@@ -15,25 +15,25 @@ class UnspentCoinsListPage extends BasePage {
   @override
   String get title => S.current.unspent_coins_title;
 
-  @override
-  Widget trailing(BuildContext context) {
-    final questionImage = Image.asset('assets/images/question_mark.png',
-        color: Theme.of(context).primaryTextTheme.title.color);
+  //@override
+  //Widget trailing(BuildContext context) {
+  //  final questionImage = Image.asset('assets/images/question_mark.png',
+  //      color: Theme.of(context).primaryTextTheme.title.color);
 
-    return SizedBox(
-      height: 20.0,
-      width: 20.0,
-      child: ButtonTheme(
-        minWidth: double.minPositive,
-        child: FlatButton(
-            highlightColor: Colors.transparent,
-            splashColor: Colors.transparent,
-            padding: EdgeInsets.all(0),
-            onPressed: () => showUnspentCoinsAlert(context),
-            child: questionImage),
-      ),
-    );
-  }
+  //  return SizedBox(
+  //    height: 20.0,
+  //    width: 20.0,
+  //    child: ButtonTheme(
+  //      minWidth: double.minPositive,
+  //      child: FlatButton(
+  //          highlightColor: Colors.transparent,
+  //          splashColor: Colors.transparent,
+  //          padding: EdgeInsets.all(0),
+  //          onPressed: () => showUnspentCoinsAlert(context),
+  //          child: questionImage),
+  //    ),
+  //  );
+  //}
 
   final UnspentCoinsListViewModel unspentCoinsListViewModel;
 
@@ -64,7 +64,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
   }
 
   void afterLayout(dynamic _) {
-    showUnspentCoinsAlert(context);
+    //showUnspentCoinsAlert(context);
   }
 
   @override
