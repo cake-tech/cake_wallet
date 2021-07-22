@@ -3,6 +3,7 @@ PODS:
     - Flutter
     - MTBBarcodeScanner
     - SwiftProtobuf
+  - BigInt (5.2.0)
   - connectivity (0.0.1):
     - Flutter
     - Reachability
@@ -59,6 +60,8 @@ PODS:
     - SwiftyGif
   - esys_flutter_share (0.0.1):
     - Flutter
+  - EthereumAddress (1.3.0):
+    - CryptoSwift (~> 1.0)
   - file_picker (0.0.1):
     - DKImagePickerController/PhotoGallery
     - Flutter
@@ -150,6 +153,10 @@ PODS:
     - Flutter
   - SwiftProtobuf (1.12.0)
   - SwiftyGif (5.3.0)
+  - UnstoppableDomainsResolution (0.3.6):
+    - BigInt
+    - CryptoSwift (~> 1.0)
+    - EthereumAddress (~> 1.3)
   - url_launcher (0.0.1):
     - Flutter
   - webview_flutter (0.0.1):
@@ -174,14 +181,17 @@ DEPENDENCIES:
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - UnstoppableDomainsResolution (~> 0.3.6)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
   - webview_flutter (from `.symlinks/plugins/webview_flutter/ios`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - BigInt
     - CryptoSwift
     - DKImagePickerController
     - DKPhotoGallery
+    - EthereumAddress
     - Firebase
     - FirebaseCore
     - FirebaseCoreDiagnostics
@@ -198,6 +208,7 @@ SPEC REPOS:
     - SDWebImage
     - SwiftProtobuf
     - SwiftyGif
+    - UnstoppableDomainsResolution
 
 EXTERNAL SOURCES:
   barcode_scan:
@@ -239,6 +250,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   barcode_scan: a5c27959edfafaa0c771905bad0b29d6d39e4479
+  BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   cw_monero: 78f369253cc913efc23db9cf6be81a11eaf40fe1
@@ -246,6 +258,7 @@ SPEC CHECKSUMS:
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
   esys_flutter_share: 403498dab005b36ce1f8d7aff377e81f0621b0b4
+  EthereumAddress: 39fe8e11cf04e4e9902b55ae653dbc4e0aee5f30
   file_picker: 3e6c3790de664ccf9b882732d9db5eaf6b8d4eb1
   Firebase: 8db6f2d1b2c5e2984efba4949a145875a8f65fe5
   firebase_core: 5d6a02f3d85acd5f8321c2d6d62877626a670659
@@ -273,9 +286,9 @@ SPEC CHECKSUMS:
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   SwiftProtobuf: 4ef85479c18ca85b5482b343df9c319c62bda699
   SwiftyGif: e466e86c660d343357ab944a819a101c4127cb40
+  UnstoppableDomainsResolution: 63abb84858d3e91eb838a5bfa6f7e3c0e0593f24
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
 
-PODFILE CHECKSUM: f316539722a6f9dbb0d0f1065a27fa7ea38c6f88
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.1
