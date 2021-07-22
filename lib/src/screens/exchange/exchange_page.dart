@@ -1,7 +1,9 @@
 import 'dart:ui';
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/exchange/changenow/changenow_exchange_provider.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
+import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,8 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
-import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
@@ -23,7 +23,6 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
-import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -42,7 +41,9 @@ class ExchangePage extends BasePage {
   final checkBoxKey = GlobalKey<StandardCheckboxState>();
   final _formKey = GlobalKey<FormState>();
   final _depositAmountFocus = FocusNode();
+  final _depositAddressFocus = FocusNode();
   final _receiveAmountFocus = FocusNode();
+  final _receiveAddressFocus = FocusNode();
   var _isReactionsSet = false;
 
   @override
@@ -171,6 +172,7 @@ class ExchangePage extends BasePage {
                                     .calculateDepositAllAmount()
                                     : null,
                                 amountFocusNode: _depositAmountFocus,
+                                addressFocusNode: _depositAddressFocus,
                                 key: depositKey,
                                 title: S.of(context).you_will_send,
                                 initialCurrency:
@@ -223,6 +225,15 @@ class ExchangePage extends BasePage {
                                     type: exchangeViewModel.wallet.type),
                                 addressTextFieldValidator: AddressValidator(
                                     type: exchangeViewModel.depositCurrency),
+                                onPushPasteButton: (context) async {
+                                  final domain =
+                                      exchangeViewModel.depositAddress;
+                                  final ticker = exchangeViewModel
+                                      .depositCurrency.title.toLowerCase();
+                                  exchangeViewModel.depositAddress =
+                                    await applyOpenaliasOrUnstoppableDomains(
+                                        context, domain, ticker);
+                                },
                               ),
                             ),
                           ),
@@ -232,6 +243,7 @@ class ExchangePage extends BasePage {
                             child: Observer(
                                 builder: (_) => ExchangeCard(
                                   amountFocusNode: _receiveAmountFocus,
+                                  addressFocusNode: _receiveAddressFocus,
                                   key: receiveKey,
                                   title: S.of(context).you_will_get,
                                   initialCurrency:
@@ -268,6 +280,15 @@ class ExchangePage extends BasePage {
                                   AddressValidator(
                                       type: exchangeViewModel
                                           .receiveCurrency),
+                                  onPushPasteButton: (context) async {
+                                    final domain =
+                                        exchangeViewModel.receiveAddress;
+                                    final ticker = exchangeViewModel
+                                        .receiveCurrency.title.toLowerCase();
+                                    exchangeViewModel.receiveAddress =
+                                      await applyOpenaliasOrUnstoppableDomains(
+                                          context, domain, ticker);
+                                  },
                                 )),
                           )
                         ],
@@ -371,7 +392,7 @@ class ExchangePage extends BasePage {
                                           from: template.depositCurrency,
                                           to: template.receiveCurrency,
                                           onTap: () {
-                                            applyTemplate(
+                                            applyTemplate(context,
                                                 exchangeViewModel, template);
                                           },
                                           onRemove: () {
@@ -472,8 +493,8 @@ class ExchangePage extends BasePage {
         ));
   }
 
-  void applyTemplate(
-      ExchangeViewModel exchangeViewModel, ExchangeTemplate template) {
+  void applyTemplate(BuildContext context,
+      ExchangeViewModel exchangeViewModel, ExchangeTemplate template) async {
     exchangeViewModel.changeDepositCurrency(
         currency: CryptoCurrency.fromString(template.depositCurrency));
     exchangeViewModel.changeReceiveCurrency(
@@ -491,6 +512,16 @@ class ExchangePage extends BasePage {
     exchangeViewModel.receiveAddress = template.receiveAddress;
     exchangeViewModel.isReceiveAmountEntered = false;
     exchangeViewModel.isFixedRateMode = false;
+
+    var domain = template.depositAddress;
+    var ticker = template.depositCurrency.toLowerCase();
+    exchangeViewModel.depositAddress =
+      await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
+
+    domain = template.receiveAddress;
+    ticker = template.receiveCurrency.toLowerCase();
+    exchangeViewModel.receiveAddress =
+      await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
   }
 
   void _setReactions(
@@ -657,6 +688,26 @@ class ExchangePage extends BasePage {
       }
     });
 
+    _depositAddressFocus.addListener(() async {
+      if (!_depositAddressFocus.hasFocus &&
+          depositAddressController.text.isNotEmpty) {
+        final domain = depositAddressController.text;
+        final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
+        exchangeViewModel.depositAddress =
+          await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
+      }
+    });
+
+    _receiveAddressFocus.addListener(() async {
+      if (!_receiveAddressFocus.hasFocus &&
+          receiveAddressController.text.isNotEmpty) {
+        final domain = receiveAddressController.text;
+        final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
+        exchangeViewModel.receiveAddress =
+          await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
+      }
+    });
+
     _receiveAmountFocus.addListener(() {
       if (_receiveAmountFocus.hasFocus && !exchangeViewModel.isFixedRateMode) {
         showPopUp<void>(
@@ -727,5 +778,29 @@ class ExchangePage extends BasePage {
       key.currentState.changeWalletName(null);
       key.currentState.addressController.text = null;
     }
+  }
+
+  Future<String> applyOpenaliasOrUnstoppableDomains(
+      BuildContext context, String domain, String ticker) async {
+    final parsedAddress = await parseAddressFromDomain(domain, ticker);
+
+    switch (parsedAddress.parseFrom) {
+      case ParseFrom.unstoppableDomains:
+        showAddressAlert(
+            context,
+            S.of(context).address_detected,
+            S.of(context).address_from_domain(parsedAddress.name));
+        break;
+      case ParseFrom.openAlias:
+        showAddressAlert(
+            context,
+            S.of(context).openalias_alert_title,
+            S.of(context).openalias_alert_content(parsedAddress.name));
+        break;
+      case ParseFrom.notParsed:
+        break;
+    }
+
+    return parsedAddress.address;
   }
 }

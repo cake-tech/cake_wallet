@@ -1,8 +1,13 @@
 import UIKit
 import Flutter
+import UnstoppableDomainsResolution
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
+    lazy var resolution : Resolution? =  {
+               return try? Resolution()
+            }()
+    
     override func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -70,6 +75,27 @@ import Flutter
                 }
 
                 result(secRandom(count: count))
+            case "getUnstoppableDomainAddress":
+                guard let args = call.arguments as? Dictionary<String, String>,
+                      let domain = args["domain"],
+                      let ticker = args["ticker"],
+                      let resolution = self?.resolution else {
+                    result(nil)
+                    return
+                }
+                        
+                resolution.addr(domain: domain, ticker: ticker) { addrResult in
+                  var address : String = ""
+                    
+                  switch addrResult {
+                      case .success(let returnValue):
+                        address = returnValue
+                      case .failure(let error):
+                        print("Expected Address, but got \(error)")
+                    }
+                    
+                    result(address)
+                }
             default:
                 result(FlutterMethodNotImplemented)
             }
