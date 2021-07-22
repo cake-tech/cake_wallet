@@ -1,8 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
@@ -83,7 +79,7 @@ class SendPage extends BasePage {
           content: Column(
             children: <Widget>[
               Container(
-                  height: 445,
+                  height: 470,
                   child: Observer(
                     builder: (_) {
                       return PageView.builder(
@@ -219,16 +215,9 @@ class SendPage extends BasePage {
                                   item.address =
                                       template.address;
                                   item.setCryptoAmount(template.amount);
-                                  final record =
-                                    await item.getOpenaliasRecord();
-
-                                  if (record != null) {
-                                    showAddressAlert(
-                                        context,
-                                        S.current.openalias_alert_title,
-                                        S.current
-                                        .openalias_alert_content(record.name));
-                                  }
+                                  final parsedAddress = await item
+                                      .applyOpenaliasOrUnstoppableDomains();
+                                  showAddressAlert(context, parsedAddress);
                                 },
                                 onRemove: () {
                                   showPopUp<void>(
