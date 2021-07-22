@@ -7,6 +7,7 @@ class SettingsLinkProviderCell extends StandardListRow {
   SettingsLinkProviderCell(
       {@required String title,
         @required this.icon,
+        this.iconColor,
         @required this.link,
         @required this.linkTitle})
       : super(title: title, isSelected: false, onTap: (BuildContext context) => _launchUrl(link) );
@@ -14,10 +15,11 @@ class SettingsLinkProviderCell extends StandardListRow {
   final String icon;
   final String link;
   final String linkTitle;
+  final Color iconColor;
 
   @override
   Widget buildLeading(BuildContext context) =>
-      icon != null ? Image.asset(icon) : null;
+      icon != null ? Image.asset(icon, color: iconColor) : null;
 
   @override
   Widget buildTrailing(BuildContext context) => Text(linkTitle,
