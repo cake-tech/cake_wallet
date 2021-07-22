@@ -65,7 +65,7 @@ import UnstoppableDomainsResolution
         let utilsChannel = FlutterMethodChannel(
             name: "com.cake_wallet/native_utils",
             binaryMessenger: controller.binaryMessenger)
-        utilsChannel.setMethodCallHandler({ (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+        utilsChannel.setMethodCallHandler({ [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
             switch call.method {
             case "sec_random":
                 guard let args = call.arguments as? Dictionary<String, Any>,
