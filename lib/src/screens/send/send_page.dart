@@ -430,7 +430,31 @@ class SendPage extends BasePage {
                                             ],
                                           ),
                                         ),
-                                      ))
+                                      )),
+                              if (sendViewModel.isElectrumWallet) Padding(
+                                padding: EdgeInsets.only(top: 6),
+                                child: GestureDetector(
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.unspentCoinsList),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                            S.of(context).coin_control,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white)),
+                                        Icon(
+                                          Icons.arrow_forward_ios,
+                                          size: 12,
+                                          color: Colors.white,
+                                        )
+                                      ],
+                                    )
+                                )
+                              )
                             ],
                           ),
                         )
@@ -576,8 +600,8 @@ class SendPage extends BasePage {
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,
                     isDisabled:
-                        false // FIXME !(syncStore.status is SyncedSyncStatus),
-                    );
+                    false // FIXME !(syncStore.status is SyncedSyncStatus),
+                );
               })),
         ));
   }

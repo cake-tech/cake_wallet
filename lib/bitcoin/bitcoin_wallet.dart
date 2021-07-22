@@ -1,3 +1,5 @@
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
@@ -17,6 +19,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       {@required String mnemonic,
       @required String password,
       @required WalletInfo walletInfo,
+      @required Box<UnspentCoinsInfo> unspentCoinsInfo,
       List<BitcoinAddressRecord> initialAddresses,
       ElectrumBalance initialBalance,
       int accountIndex = 0})
@@ -24,6 +27,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             mnemonic: mnemonic,
             password: password,
             walletInfo: walletInfo,
+            unspentCoinsInfo: unspentCoinsInfo,
             networkType: bitcoin.bitcoin,
             initialAddresses: initialAddresses,
             initialBalance: initialBalance) {
@@ -38,6 +42,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
   static Future<BitcoinWallet> open({
     @required String name,
     @required WalletInfo walletInfo,
+    @required Box<UnspentCoinsInfo> unspentCoinsInfo,
     @required String password,
   }) async {
     final snp = ElectrumWallletSnapshot(name, walletInfo.type, password);
@@ -46,6 +51,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         mnemonic: snp.mnemonic,
         password: password,
         walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: snp.addresses,
         initialBalance: snp.balance,
         accountIndex: snp.accountIndex);

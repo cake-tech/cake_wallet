@@ -55,4 +55,6 @@ class Routes {
   static const orderDetails = '/order_details';
   static const preOrder = '/pre_order';
   static const buyWebView = '/buy_web_view';
+  static const unspentCoinsList = '/unspent_coins_list';
+  static const unspentCoinsDetails = '/unspent_coins_details';
 }

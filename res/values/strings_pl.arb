@@ -485,6 +485,11 @@
   "outdated_electrum_wallet_receive_warning": "Jeśli ten portfel ma 12-wyrazowy seed i został utworzony w Cake, NIE Wpłacaj Bitcoina do tego portfela. Wszelkie BTC przeniesione do tego portfela mogą zostać utracone. Utwórz nowy portfel z 24 słowami (dotknij menu w prawym górnym rogu, wybierz Portfele, wybierz Utwórz nowy portfel, a następnie Bitcoin) i NATYCHMIAST przenieś tam swoje BTC. Nowe (24 słowa) portfele BTC firmy Cake są bezpieczne",
   "do_not_show_me": "Nie pokazuj mi tego ponownie",
 
+  "unspent_coins_title" : "Niewydane monety",
+  "unspent_coins_details_title" : "Szczegóły niewydanych monet",
+  "freeze" : "Zamrażać",
+  "coin_control" : "Kontrola monet (opcjonalnie)",
+
   "address_detected" : "Wykryto adres",
   "address_from_domain" : "Dostałeś adres od unstoppable domain ${domain}"
 }

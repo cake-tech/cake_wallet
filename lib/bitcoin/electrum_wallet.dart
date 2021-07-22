@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
+import 'package:hive/hive.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet_addresses.dart';
 import 'package:mobx/mobx.dart';
 import 'package:rxdart/subjects.dart';
@@ -39,6 +41,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   ElectrumWalletBase(
       {@required String password,
       @required WalletInfo walletInfo,
+      @required Box<UnspentCoinsInfo> unspentCoinsInfo,
       @required List<BitcoinAddressRecord> initialAddresses,
       @required this.networkType,
       @required this.mnemonic,
@@ -56,9 +59,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         super(walletInfo) {
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
+    this.unspentCoinsInfo = unspentCoinsInfo;
     transactionHistory =
         ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
-    _unspent = [];
+    unspentCoins = [];
     _scripthashesUpdateSubject = {};
   }
 
@@ -69,6 +73,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   final String mnemonic;
 
   ElectrumClient electrumClient;
+  Box<UnspentCoinsInfo> unspentCoinsInfo;
 
   @override
   ElectrumWalletAddresses walletAddresses;
@@ -97,7 +102,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       wif: hd.wif, privateKey: hd.privKey, publicKey: hd.pubKey);
 
   final String _password;
-  List<BitcoinUnspent> _unspent;
+  List<BitcoinUnspent> unspentCoins;
   List<int> _feeRates;
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
   bool _isTransactionUpdating;
@@ -116,7 +121,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       await updateTransactions();
       _subscribeForUpdates();
       await _updateBalance();
-      await _updateUnspent();
+      await updateUnspent();
       _feeRates = await electrumClient.feeRates();
 
       Timer.periodic(const Duration(minutes: 1),
@@ -153,33 +158,16 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     const minAmount = 546;
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
-    final allAmountFee =
-        calculateEstimatedFee(transactionCredentials.priority, null);
-    final allAmount = balance.confirmed - allAmountFee;
-    var fee = 0;
-    final credentialsAmount = transactionCredentials.amount != null
-        ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
-        : 0;
-    final amount = transactionCredentials.amount == null ||
-            allAmount - credentialsAmount < minAmount
-        ? allAmount
-        : credentialsAmount;
-    final txb = bitcoin.TransactionBuilder(network: networkType);
-    final changeAddress = walletAddresses.address;
-    var leftAmount = amount;
-    var totalInputAmount = 0;
+    var allInputsAmount = 0;
 
-    if (_unspent.isEmpty) {
-      await _updateUnspent();
+    if (unspentCoins.isEmpty) {
+      await updateUnspent();
     }
 
-    for (final utx in _unspent) {
-      leftAmount = leftAmount - utx.value;
-      totalInputAmount += utx.value;
-      inputs.add(utx);
-
-      if (leftAmount <= 0) {
-        break;
+    for (final utx in unspentCoins) {
+      if (utx.isSending) {
+        allInputsAmount += utx.value;
+        inputs.add(utx);
       }
     }
 
@@ -187,18 +175,56 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       throw BitcoinTransactionNoInputsException();
     }
 
-    final totalAmount = amount + fee;
-    fee = transactionCredentials.amount != null
-        ? feeAmountForPriority(transactionCredentials.priority, inputs.length,
-            amount == allAmount ? 1 : 2)
-        : allAmountFee;
+    final allAmountFee =
+      feeAmountForPriority(transactionCredentials.priority, inputs.length, 1);
+    final allAmount = allInputsAmount - allAmountFee;
 
-    if (totalAmount > balance.confirmed) {
-      throw BitcoinTransactionWrongBalanceException();
+    final credentialsAmount = transactionCredentials.amount != null
+        ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
+        : 0;
+    final amount = transactionCredentials.amount == null ||
+        allAmount - credentialsAmount < minAmount
+        ? allAmount
+        : credentialsAmount;
+    final fee = transactionCredentials.amount == null || amount == allAmount
+        ? allAmountFee
+        : calculateEstimatedFee(transactionCredentials.priority, amount);
+
+    if (fee == 0) {
+      throw BitcoinTransactionWrongBalanceException(currency);
     }
 
-    if (amount <= 0 || totalInputAmount < amount) {
-      throw BitcoinTransactionWrongBalanceException();
+    final totalAmount =  amount + fee;
+
+    if (totalAmount > balance.confirmed || totalAmount > allInputsAmount) {
+      throw BitcoinTransactionWrongBalanceException(currency);
+    }
+
+    final txb = bitcoin.TransactionBuilder(network: networkType);
+    final changeAddress = walletAddresses.address;
+    var leftAmount = totalAmount;
+    var totalInputAmount = 0;
+
+    inputs.clear();
+
+    for (final utx in unspentCoins) {
+      if (utx.isSending) {
+        leftAmount = leftAmount - utx.value;
+        totalInputAmount += utx.value;
+        inputs.add(utx);
+
+        if (leftAmount <= 0) {
+          break;
+        }
+      }
+    }
+
+    if (inputs.isEmpty) {
+      throw BitcoinTransactionNoInputsException();
+    }
+
+    if (amount <= 0 || totalInputAmount < totalAmount) {
+      throw BitcoinTransactionWrongBalanceException(currency);
     }
 
     txb.setVersion(1);
@@ -273,17 +299,26 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       if (amount != null) {
         int totalValue = 0;
 
-        for (final input in _unspent) {
+        for (final input in unspentCoins) {
           if (totalValue >= amount) {
             break;
           }
 
-          totalValue += input.value;
-          inputsCount += 1;
+          if (input.isSending) {
+            totalValue += input.value;
+            inputsCount += 1;
+          }
         }
+
+        if (totalValue < amount) return 0;
       } else {
-        inputsCount = _unspent.length;
+        for (final input in unspentCoins) {
+          if (input.isSending) {
+            inputsCount += 1;
+          }
+        }
       }
+
       // If send all, then we have no change value
       return feeAmountForPriority(
           priority, inputsCount, amount != null ? 2 : 1);
@@ -315,13 +350,74 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   Future<String> makePath() async =>
       pathForWallet(name: walletInfo.name, type: walletInfo.type);
 
-  Future<void> _updateUnspent() async {
+  Future<void> updateUnspent() async {
     final unspent = await Future.wait(walletAddresses
         .addresses.map((address) => electrumClient
         .getListUnspentWithAddress(address.address, networkType)
         .then((unspent) => unspent
             .map((unspent) => BitcoinUnspent.fromJSON(address, unspent)))));
-    _unspent = unspent.expand((e) => e).toList();
+    unspentCoins = unspent.expand((e) => e).toList();
+
+    if (unspentCoinsInfo.isEmpty) {
+      unspentCoins.forEach((coin) => _addCoinInfo(coin));
+      return;
+    }
+
+    if (unspentCoins.isNotEmpty) {
+      unspentCoins.forEach((coin) {
+        final coinInfoList = unspentCoinsInfo.values.where((element) =>
+          element.walletId.contains(id) && element.hash.contains(coin.hash));
+
+        if (coinInfoList.isNotEmpty) {
+          final coinInfo = coinInfoList.first;
+
+          coin.isFrozen = coinInfo.isFrozen;
+          coin.isSending = coinInfo.isSending;
+          coin.note = coinInfo.note;
+        } else {
+          _addCoinInfo(coin);
+        }
+      });
+    }
+
+    await _refreshUnspentCoinsInfo();
+  }
+
+  Future<void> _addCoinInfo(BitcoinUnspent coin) async {
+    final newInfo = UnspentCoinsInfo(
+        walletId: id,
+        hash: coin.hash,
+        isFrozen: coin.isFrozen,
+        isSending: coin.isSending,
+        note: coin.note
+    );
+
+    await unspentCoinsInfo.add(newInfo);
+  }
+
+  Future<void> _refreshUnspentCoinsInfo() async {
+    try {
+      final List<dynamic> keys = <dynamic>[];
+      final currentWalletUnspentCoins = unspentCoinsInfo.values
+          .where((element) => element.walletId.contains(id));
+
+      if (currentWalletUnspentCoins.isNotEmpty) {
+        currentWalletUnspentCoins.forEach((element) {
+          final existUnspentCoins = unspentCoins
+              ?.where((coin) => element.hash.contains(coin?.hash));
+
+          if (existUnspentCoins?.isEmpty ?? true) {
+            keys.add(element.key);
+          }
+        });
+      }
+
+      if (keys.isNotEmpty) {
+        await unspentCoinsInfo.deleteAll(keys);
+      }
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   Future<ElectrumTransactionInfo> fetchTransactionInfo(
@@ -372,7 +468,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       _scripthashesUpdateSubject[sh].listen((event) async {
         try {
           await _updateBalance();
-          await _updateUnspent();
+          await updateUnspent();
           await updateTransactions();
         } catch (e) {
           print(e.toString());
