@@ -290,5 +290,6 @@ SPEC CHECKSUMS:
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
   webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
 
+PODFILE CHECKSUM: 82161cafcb98ddf3e6a0ff8149da3f656be3f1e3
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.9.3
