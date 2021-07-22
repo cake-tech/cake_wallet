@@ -105,10 +105,12 @@ class BrightTheme extends ThemeBase {
           ),
           display2: TextStyle(
               color: Colors.white.withOpacity(0.5), // estimated fee (send page)
+              backgroundColor: PaletteDark.darkCyanBlue.withOpacity(0.67), // dot color for indicator on send page
               decorationColor: Palette.shadowWhite // template dotted border (send page)
           ),
           display3: TextStyle(
               color: Palette.darkBlueCraiola, // template new text (send page)
+              backgroundColor: PaletteDark.darkNightBlue, // active dot color for indicator on send page
               decorationColor: Palette.shadowWhite // template background color (send page)
           ),
           display4: TextStyle(

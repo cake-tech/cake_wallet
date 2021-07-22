@@ -75,6 +75,7 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
@@ -316,10 +317,17 @@ Future setup(
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
-  getIt.registerFactory<SendViewModel>(() => SendViewModel(
+  getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateStore>(),
+      getIt.get<FiatConversionStore>()
+  ));
+
+  getIt.registerFactory<SendViewModel>(() => SendViewModel(
+      getIt.get<AppStore>().wallet,
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
       _transactionDescriptionBox));
 
@@ -327,7 +335,8 @@ Future setup(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(
-      () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
+      () => SendTemplatePage(
+          sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       _walletInfoSource,

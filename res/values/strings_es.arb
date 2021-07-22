@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Cantidad",
   "transaction_details_fee" : "Cuota",
   "transaction_details_copied" : "${title} Copiado al portapapeles",
-  "transaction_details_recipient_address" : "Dirección del receptor",
+  "transaction_details_recipient_address" : "Direcciones de destinatarios",
 
 
   "wallet_list_title" : "Monedero Monero",
@@ -491,5 +491,7 @@
   "coin_control" : "Control de monedas (opcional)",
 
   "address_detected" : "Dirección detectada",
-  "address_from_domain" : "Tienes la dirección de unstoppable domain ${domain}"
+  "address_from_domain" : "Tienes la dirección de unstoppable domain ${domain}",
+
+  "add_receiver" : "Agregar receptor"
 }

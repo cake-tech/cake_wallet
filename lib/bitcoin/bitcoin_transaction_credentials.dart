@@ -1,9 +1,9 @@
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/view_model/send/send_item.dart';
 
 class BitcoinTransactionCredentials {
-  BitcoinTransactionCredentials(this.address, this.amount, this.priority);
+  BitcoinTransactionCredentials(this.sendItemList, this.priority);
 
-  final String address;
-  final String amount;
+  final List<SendItem> sendItemList;
   BitcoinTransactionPriority priority;
 }
