@@ -436,22 +436,25 @@ class SendPage extends BasePage {
                                 child: GestureDetector(
                                     onTap: () => Navigator.of(context)
                                         .pushNamed(Routes.unspentCoinsList),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                            S.of(context).coin_control,
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.white)),
-                                        Icon(
-                                          Icons.arrow_forward_ios,
-                                          size: 12,
-                                          color: Colors.white,
-                                        )
-                                      ],
+                                    child: Container(
+                                      color: Colors.transparent,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                              S.of(context).coin_control,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white)),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 12,
+                                            color: Colors.white,
+                                          )
+                                        ],
+                                      )
                                     )
                                 )
                               )
@@ -599,9 +602,8 @@ class SendPage extends BasePage {
                     textColor: Colors.white,
                     isLoading: sendViewModel.state is IsExecutingState ||
                         sendViewModel.state is TransactionCommitting,
-                    isDisabled:
-                    false // FIXME !(syncStore.status is SyncedSyncStatus),
-                );
+                    isDisabled: !sendViewModel.isReadyForSend,
+                    );
               })),
         ));
   }
