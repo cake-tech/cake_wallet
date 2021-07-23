@@ -44,16 +44,12 @@ abstract class SendViewModelBase with Store {
 
     sendItemList = ObservableList<SendItem>()
       ..add(SendItem(_wallet, _settingsStore, _fiatConversationStore));
-
-    isElectrumWallet  = _wallet is ElectrumWallet;
   }
 
   @observable
   ExecutionState state;
 
   ObservableList<SendItem> sendItemList;
-
-  bool isElectrumWallet;
 
   @action
   void addSendItem() {
@@ -132,7 +128,7 @@ abstract class SendViewModelBase with Store {
   ObservableList<Template> get templates => sendTemplateViewModel.templates;
 
   @computed
-  bool get isAddReceiverButtonEnabled => _wallet is ElectrumWallet;
+  bool get isElectrumWallet => _wallet is ElectrumWallet;
 
   WalletType get walletType => _wallet.type;
   final WalletBase _wallet;

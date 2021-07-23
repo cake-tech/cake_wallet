@@ -80,7 +80,7 @@ class SendCardState extends State<SendCard>
               )
             ]),
         child: Container(
-          height: 470,
+          height: sendViewModel.isElectrumWallet ? 470 : 445,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
