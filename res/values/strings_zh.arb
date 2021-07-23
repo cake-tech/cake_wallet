@@ -488,6 +488,7 @@
   "unspent_coins_title" : "未使用的硬幣",
   "unspent_coins_details_title" : "未使用代幣詳情",
   "freeze" : "凍結",
+  "frozen" : "凍結的",
   "coin_control" : "硬幣控制（可選）",
 
   "address_detected" : "檢測到地址",

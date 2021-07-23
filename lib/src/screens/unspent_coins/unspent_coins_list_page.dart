@@ -86,9 +86,10 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                                 .pushNamed(Routes.unspentCoinsDetails,
                                 arguments: [item, unspentCoinsListViewModel]),
                         child: UnspentCoinsListItem(
-                            address: item.address,
+                            note: item.note,
                             amount: item.amount,
                             isSending: item.isSending,
+                            isFrozen: item.isFrozen,
                             onCheckBoxTap: item.isFrozen
                               ? null
                               : () async {
