@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/contact_base.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,7 @@ class ExchangeCard extends StatefulWidget {
       this.initialIsAddressEditable,
       this.isAmountEstimated,
       this.hasRefundAddress = false,
+      this.isMoneroWallet = false,
       this.currencies,
       this.onCurrencySelected,
       this.imageArrow,
@@ -44,6 +47,7 @@ class ExchangeCard extends StatefulWidget {
   final bool initialIsAddressEditable;
   final bool isAmountEstimated;
   final bool hasRefundAddress;
+  final bool isMoneroWallet;
   final Image imageArrow;
   final Color currencyButtonColor;
   final Color addressButtonsColor;
@@ -72,6 +76,7 @@ class ExchangeCardState extends State<ExchangeCard> {
   bool _isAmountEditable;
   bool _isAddressEditable;
   bool _isAmountEstimated;
+  bool _isMoneroWallet;
 
   @override
   void initState() {
@@ -81,6 +86,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     _walletName = widget.initialWalletName;
     _selectedCurrency = widget.initialCurrency;
     _isAmountEstimated = widget.isAmountEstimated;
+    _isMoneroWallet = widget.isMoneroWallet;
     addressController.text = widget.initialAddress;
     super.initState();
   }
@@ -322,34 +328,93 @@ class ExchangeCardState extends State<ExchangeCard> {
             : Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Builder(
-                    builder: (context) => GestureDetector(
-                          onTap: () {
-                            Clipboard.setData(
-                                ClipboardData(text: addressController.text));
-                            showBar<void>(
-                                context, S.of(context).copied_to_clipboard);
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.max,
-                            children: <Widget>[
-                              Expanded(
-                                child: Text(
-                                  addressController.text,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 16),
-                                child: copyImage,
+                    builder: (context) => Stack(
+                      children: <Widget> [
+                        BaseTextFormField(
+                            controller: addressController,
+                            readOnly: true,
+                            borderColor: Colors.transparent,
+                            suffixIcon: SizedBox(
+                              width: _isMoneroWallet ? 80 : 36
+                            ),
+                            textStyle: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
+                            validator: widget.addressTextFieldValidator
+                        ),
+                        Positioned(
+                            top: 2,
+                            right: 0,
+                            child: SizedBox(
+                              width: _isMoneroWallet ? 80 : 36,
+                              child: Row(
+                                children: <Widget>[
+                                  if (_isMoneroWallet) Padding(
+                                    padding: EdgeInsets.only(left: 10),
+                                    child: Container(
+                                        width: 34,
+                                        height: 34,
+                                        padding: EdgeInsets.only(top: 0),
+                                        child: InkWell(
+                                          onTap: () async {
+                                            final contact = await Navigator
+                                              .of(context, rootNavigator: true)
+                                              .pushNamed(
+                                                Routes.pickerAddressBook);
+
+                                            if (contact is ContactBase &&
+                                                contact.address != null) {
+                                              setState(() =>
+                                              addressController.text =
+                                                  contact.address);
+                                            }
+                                          },
+                                          child: Container(
+                                              padding: EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: widget
+                                                    .addressButtonsColor,
+                                                borderRadius: BorderRadius
+                                                    .all(Radius.circular(6))),
+                                              child: Image.asset(
+                                                'assets/images/open_book.png',
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .display1
+                                                    .decorationColor,
+                                              )),
+                                        )),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 2),
+                                    child: Container(
+                                        width: 34,
+                                        height: 34,
+                                        padding: EdgeInsets.only(top: 0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Clipboard.setData(
+                                                ClipboardData(
+                                                  text: addressController.text));
+                                            showBar<void>(
+                                                context, S.of(context)
+                                                .copied_to_clipboard);
+                                          },
+                                          child: Container(
+                                              padding: EdgeInsets
+                                                  .fromLTRB(8, 8, 0, 8),
+                                              color: Colors.transparent,
+                                              child: copyImage),
+                                        ))
+                                  )
+                                ]
                               )
-                            ],
-                          ),
-                        )),
+                            )
+                        )
+                      ]
+                    )
+                ),
               ),
       ]),
     );
