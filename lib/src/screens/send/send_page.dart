@@ -79,7 +79,7 @@ class SendPage extends BasePage {
           content: Column(
             children: <Widget>[
               Container(
-                  height: 470,
+                  height: sendViewModel.isElectrumWallet ? 470 : 445,
                   child: Observer(
                     builder: (_) {
                       return PageView.builder(
@@ -259,7 +259,7 @@ class SendPage extends BasePage {
           EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Column(
             children: [
-              if (sendViewModel.isAddReceiverButtonEnabled) Padding(
+              if (sendViewModel.isElectrumWallet) Padding(
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
                   onPressed: () {
