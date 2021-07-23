@@ -488,6 +488,7 @@
   "unspent_coins_title" : "Nepotrošeni novčići",
   "unspent_coins_details_title" : "Nepotrošeni detalji o novčićima",
   "freeze" : "Zamrznuti",
+  "frozen" : "Smrznuto",
   "coin_control" : "Kontrola novca (nije obavezno)",
 
   "address_detected" : "Adresa je otkrivena",

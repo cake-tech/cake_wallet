@@ -2,12 +2,14 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class UnspentCoinsListItem extends StatelessWidget {
   UnspentCoinsListItem({
-    @required this.address,
+    @required this.note,
     @required this.amount,
     @required this.isSending,
+    @required this.isFrozen,
     @required this.onCheckBoxTap,
   });
 
@@ -16,9 +18,10 @@ class UnspentCoinsListItem extends StatelessWidget {
   static const selectedItemColor = Palette.paleCornflowerBlue;
   static const unselectedItemColor = Palette.moderateLavender;
 
-  final String address;
+  final String note;
   final String amount;
   final bool isSending;
+  final bool isFrozen;
   final Function() onCheckBoxTap;
 
   @override
@@ -51,7 +54,7 @@ class UnspentCoinsListItem extends StatelessWidget {
                             width: 1.0),
                         borderRadius: BorderRadius.all(
                             Radius.circular(8.0)),
-                        color: Theme.of(context).backgroundColor),
+                        color: itemColor),
                     child: isSending
                       ? Icon(
                         Icons.check,
@@ -64,25 +67,53 @@ class UnspentCoinsListItem extends StatelessWidget {
             ),
             Expanded(
                 child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: (note?.isNotEmpty ?? false)
+                        ? MainAxisAlignment.spaceBetween
+                        : MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      AutoSizeText(
-                        amount,
-                        style: TextStyle(
-                            color: amountColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600
-                        ),
-                        maxLines: 1,
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: AutoSizeText(
+                              amount,
+                              style: TextStyle(
+                                  color: amountColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600
+                              ),
+                              maxLines: 1,
+                            ),
+                          ),
+                          if (isFrozen) Container(
+                            height: 17,
+                            padding: EdgeInsets.only(left: 6, right: 6),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.all(Radius.circular(8.5)),
+                              color: Colors.white),
+                            alignment: Alignment.center,
+                            child: Text(
+                                S.of(context).frozen,
+                                style: TextStyle(
+                                  color: amountColor,
+                                  fontSize: 7,
+                                  fontWeight: FontWeight.w600
+                                ),
+                            )
+                          )
+                        ],
                       ),
-                      AutoSizeText(
-                        address,
+                      if (note?.isNotEmpty ?? false) Text(
+                        note,
                         style: TextStyle(
                           color: addressColor,
                           fontSize: 12,
                         ),
                         maxLines: 1,
+                        overflow: TextOverflow.ellipsis
                       )
                     ]
                 )
