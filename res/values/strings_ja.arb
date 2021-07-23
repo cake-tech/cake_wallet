@@ -488,6 +488,7 @@
   "unspent_coins_title" : "未使用のコイン",
   "unspent_coins_details_title" : "未使用のコインの詳細",
   "freeze" : "氷結",
+  "frozen" : "凍った",
   "coin_control" : "コインコントロール（オプション）",
 
   "address_detected" : "アドレスが検出されました",
