@@ -8,6 +8,7 @@ class UnspentCoinsListItem extends StatelessWidget {
   UnspentCoinsListItem({
     @required this.note,
     @required this.amount,
+    @required this.address,
     @required this.isSending,
     @required this.isFrozen,
     @required this.onCheckBoxTap,
@@ -20,6 +21,7 @@ class UnspentCoinsListItem extends StatelessWidget {
 
   final String note;
   final String amount;
+  final String address;
   final bool isSending;
   final bool isFrozen;
   final Function() onCheckBoxTap;
@@ -27,6 +29,7 @@ class UnspentCoinsListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final itemColor = isSending? selectedItemColor : unselectedItemColor;
+    final _note = (note?.isNotEmpty ?? false) ? note : address;
 
     return Container(
         height: 62,
@@ -67,9 +70,7 @@ class UnspentCoinsListItem extends StatelessWidget {
             ),
             Expanded(
                 child: Column(
-                    mainAxisAlignment: (note?.isNotEmpty ?? false)
-                        ? MainAxisAlignment.spaceBetween
-                        : MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -106,8 +107,8 @@ class UnspentCoinsListItem extends StatelessWidget {
                           )
                         ],
                       ),
-                      if (note?.isNotEmpty ?? false) Text(
-                        note,
+                      Text(
+                        _note,
                         style: TextStyle(
                           color: addressColor,
                           fontSize: 12,
