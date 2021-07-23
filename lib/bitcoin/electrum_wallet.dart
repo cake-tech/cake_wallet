@@ -158,6 +158,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     const minAmount = 546;
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
+    final credentialsAmount = transactionCredentials.amount != null
+      ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
+      : 0;
     var allInputsAmount = 0;
 
     if (unspentCoins.isEmpty) {
@@ -171,7 +174,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
     }
 
-    if (inputs.isEmpty) {
+    if (inputs.isEmpty ||
+        (credentialsAmount > 0 && allInputsAmount < credentialsAmount)) {
       throw BitcoinTransactionNoInputsException();
     }
 
@@ -179,9 +183,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       feeAmountForPriority(transactionCredentials.priority, inputs.length, 1);
     final allAmount = allInputsAmount - allAmountFee;
 
-    final credentialsAmount = transactionCredentials.amount != null
-        ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
-        : 0;
     final amount = transactionCredentials.amount == null ||
         allAmount - credentialsAmount < minAmount
         ? allAmount
