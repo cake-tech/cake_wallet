@@ -88,6 +88,7 @@ class UnspentCoinsListFormState extends State<UnspentCoinsListForm> {
                         child: UnspentCoinsListItem(
                             note: item.note,
                             amount: item.amount,
+                            address: item.address,
                             isSending: item.isSending,
                             isFrozen: item.isFrozen,
                             onCheckBoxTap: item.isFrozen
