@@ -1,12 +1,12 @@
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/entities/wallet_addresses.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/entities/wallet_info.dart';
 import 'package:cake_wallet/core/pending_transaction.dart';
 import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/currency_for_wallet_type.dart';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -31,9 +31,9 @@ abstract class WalletBase<
 
   String get name => walletInfo.name;
 
-  String get address;
+  //String get address;
 
-  set address(String address);
+  //set address(String address);
 
   BalanceType get balance;
 
@@ -44,6 +44,8 @@ abstract class WalletBase<
   String get seed;
 
   Object get keys;
+
+  WalletAddresses get walletAddresses;
 
   HistoryType transactionHistory;
 

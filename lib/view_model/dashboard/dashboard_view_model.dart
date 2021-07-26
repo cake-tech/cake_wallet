@@ -92,17 +92,17 @@ abstract class DashboardViewModelBase with Store {
     final _wallet = wallet;
 
     if (_wallet is MoneroWallet) {
-      subname = _wallet.account?.label;
+      subname = _wallet.walletAddresses.account?.label;
 
-      _onMoneroAccountChangeReaction = reaction((_) => _wallet.account,
-          (Account account) => _onMoneroAccountChange(_wallet));
+      _onMoneroAccountChangeReaction = reaction((_) => _wallet.walletAddresses
+          .account, (Account account) => _onMoneroAccountChange(_wallet));
 
       _onMoneroBalanceChangeReaction = reaction((_) => _wallet.balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
 
       final _accountTransactions = _wallet
           .transactionHistory.transactions.values
-          .where((tx) => tx.accountIndex == _wallet.account.id)
+          .where((tx) => tx.accountIndex == _wallet.walletAddresses.account.id)
           .toList();
 
       transactions = ObservableList.of(_accountTransactions.map((transaction) =>
@@ -131,7 +131,7 @@ abstract class DashboardViewModelBase with Store {
         filter: (TransactionInfo tx) {
       final wallet = _wallet;
       if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
-        return tx.accountIndex == wallet.account.id;
+        return tx.accountIndex == wallet.walletAddresses.account.id;
       }
 
       return true;
@@ -153,7 +153,7 @@ abstract class DashboardViewModelBase with Store {
   String subname;
 
   @computed
-  String get address => wallet.address;
+  String get address => wallet.walletAddresses.address;
 
   @computed
   SyncStatus get status => wallet.syncStatus;
@@ -251,13 +251,13 @@ abstract class DashboardViewModelBase with Store {
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
 
     if (wallet is MoneroWallet) {
-      subname = wallet.account?.label;
+      subname = wallet.walletAddresses.account?.label;
 
       _onMoneroAccountChangeReaction?.reaction?.dispose();
       _onMoneroBalanceChangeReaction?.reaction?.dispose();
 
-      _onMoneroAccountChangeReaction = reaction((_) => wallet.account,
-          (Account account) => _onMoneroAccountChange(wallet));
+      _onMoneroAccountChangeReaction = reaction((_) => wallet.walletAddresses
+          .account, (Account account) => _onMoneroAccountChange(wallet));
 
       _onMoneroBalanceChangeReaction = reaction((_) => wallet.balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
@@ -284,7 +284,7 @@ abstract class DashboardViewModelBase with Store {
             settingsStore: appStore.settingsStore),
         filter: (TransactionInfo tx) {
       if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
-        return tx.accountIndex == wallet.account.id;
+        return tx.accountIndex == wallet.walletAddresses.account.id;
       }
 
       return true;
@@ -293,7 +293,7 @@ abstract class DashboardViewModelBase with Store {
 
   @action
   void _onMoneroAccountChange(MoneroWallet wallet) {
-    subname = wallet.account?.label;
+    subname = wallet.walletAddresses.account?.label;
     _onMoneroTransactionsUpdate(wallet);
   }
 
@@ -302,7 +302,7 @@ abstract class DashboardViewModelBase with Store {
     transactions.clear();
 
     final _accountTransactions = wallet.transactionHistory.transactions.values
-        .where((tx) => tx.accountIndex == wallet.account.id)
+        .where((tx) => tx.accountIndex == wallet.walletAddresses.account.id)
         .toList();
 
     transactions.addAll(_accountTransactions.map((transaction) =>

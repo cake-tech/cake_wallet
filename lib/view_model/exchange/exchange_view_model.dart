@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
+import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:intl/intl.dart';
@@ -41,7 +42,8 @@ abstract class ExchangeViewModelBase with Store {
     depositAmount = '';
     receiveAmount = '';
     receiveAddress = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
+    depositAddress = depositCurrency == wallet.currency
+        ? wallet.walletAddresses.address : '';
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
@@ -123,6 +125,8 @@ abstract class ExchangeViewModelBase with Store {
 
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
+
+  bool get isMoneroWallet  => wallet is MoneroWallet;
 
   List<CryptoCurrency> receiveCurrencies;
 
@@ -308,8 +312,10 @@ abstract class ExchangeViewModelBase with Store {
     isReceiveAmountEntered = false;
     depositAmount = '';
     receiveAmount = '';
-    depositAddress = depositCurrency == wallet.currency ? wallet.address : '';
-    receiveAddress = receiveCurrency == wallet.currency ? wallet.address : '';
+    depositAddress = depositCurrency == wallet.currency
+        ? wallet.walletAddresses.address : '';
+    receiveAddress = receiveCurrency == wallet.currency
+        ? wallet.walletAddresses.address : '';
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     isFixedRateMode = false;

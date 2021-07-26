@@ -37,7 +37,7 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await wallet.connectToNode(node: node);
 
       if (wallet.walletInfo.address?.isEmpty ?? true) {
-        wallet.walletInfo.address = wallet.address;
+        wallet.walletInfo.address = wallet.walletAddresses.address;
 
         if (wallet.walletInfo.isInBox) {
           await wallet.walletInfo.save();
