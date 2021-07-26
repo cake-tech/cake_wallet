@@ -1,5 +1,5 @@
 # Uncomment this line to define a global platform for your project
-platform :ios, '9.0'
+platform :ios, '11.0'
 source 'https://github.com/CocoaPods/Specs.git'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
@@ -36,6 +36,7 @@ target 'Runner' do
 
   # Cake Wallet (Legacy)
   pod 'CryptoSwift'
+  pod 'UnstoppableDomainsResolution', '~> 0.3.6'
   pod 'Firebase/Messaging', '6.33.0'
 end
 

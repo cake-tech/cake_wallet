@@ -483,5 +483,14 @@
   "moonpay_alert_text" : "Value of the amount must be more or equal to ${minAmount} ${fiatCurrency}",
 
   "outdated_electrum_wallet_receive_warning": "If this wallet has a 12-word seed and was created in Cake, DO NOT deposit Bitcoin into this wallet. Any BTC transferred to this wallet may be lost. Create a new 24-word wallet (tap the menu at the top right, select Wallets, choose Create New Wallet, then select Bitcoin) and IMMEDIATELY move your BTC there. New (24-word) BTC wallets from Cake are secure",
-  "do_not_show_me": "Do not show me this again"
+  "do_not_show_me": "Do not show me this again",
+
+  "unspent_coins_title" : "Unspent coins",
+  "unspent_coins_details_title" : "Unspent coins details",
+  "freeze" : "Freeze",
+  "frozen" : "Frozen",
+  "coin_control" : "Coin control (optional)",
+
+  "address_detected" : "Address detected",
+  "address_from_domain" : "You got address from unstoppable domain ${domain}"
 }

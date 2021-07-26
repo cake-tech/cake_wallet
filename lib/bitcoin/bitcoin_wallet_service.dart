@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
@@ -14,9 +15,10 @@ class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials> {
-  BitcoinWalletService(this.walletInfoSource);
+  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
+  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
 
   @override
   WalletType getType() => WalletType.bitcoin;
@@ -26,7 +28,8 @@ class BitcoinWalletService extends WalletService<
     final wallet = BitcoinWallet(
         mnemonic: await generateMnemonic(),
         password: credentials.password,
-        walletInfo: credentials.walletInfo);
+        walletInfo: credentials.walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
     return wallet;
@@ -42,7 +45,8 @@ class BitcoinWalletService extends WalletService<
         (info) => info.id == WalletBase.idFor(name, getType()),
         orElse: () => null);
     final wallet = await BitcoinWalletBase.open(
-        password: password, name: name, walletInfo: walletInfo);
+        password: password, name: name, walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.init();
     return wallet;
   }
@@ -67,7 +71,8 @@ class BitcoinWalletService extends WalletService<
     final wallet = BitcoinWallet(
         password: credentials.password,
         mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo);
+        walletInfo: credentials.walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
     return wallet;

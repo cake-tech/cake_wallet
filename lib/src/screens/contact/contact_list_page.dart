@@ -151,17 +151,19 @@ class ContactListPage extends BasePage {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             image ?? Offstage(),
-            Padding(
-              padding: image != null
-                  ? EdgeInsets.only(left: 12)
-                  : EdgeInsets.only(left: 0),
-              child: Text(
-                contact.name,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).primaryTextTheme.title.color),
-              ),
+            Expanded(
+              child: Padding(
+                padding: image != null
+                    ? EdgeInsets.only(left: 12)
+                    : EdgeInsets.only(left: 0),
+                child: Text(
+                  contact.name,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).primaryTextTheme.title.color),
+                ),
+              )
             )
           ],
         ),
