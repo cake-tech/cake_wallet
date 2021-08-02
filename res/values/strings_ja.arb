@@ -483,5 +483,14 @@
   "moonpay_alert_text" : "金額の値は以上でなければなりません ${minAmount} ${fiatCurrency}",
 
   "outdated_electrum_wallet_receive_warning": "このウォレットに 12 ワードのシードがあり、Cake で作成された場合、このウォレットにビットコインを入金しないでください。 このウォレットに転送された BTC は失われる可能性があります。 新しい 24 ワードのウォレットを作成し (右上のメニューをタップし、[ウォレット]、[新しいウォレットの作成]、[ビットコイン] の順に選択)、すぐに BTC をそこに移動します。 Cake の新しい (24 ワード) BTC ウォレットは安全です",
-  "do_not_show_me": "また僕にこれを見せないでください"
+  "do_not_show_me": "また僕にこれを見せないでください",
+
+  "unspent_coins_title" : "未使用のコイン",
+  "unspent_coins_details_title" : "未使用のコインの詳細",
+  "freeze" : "氷結",
+  "frozen" : "凍った",
+  "coin_control" : "コインコントロール（オプション）",
+
+  "address_detected" : "アドレスが検出されました",
+  "address_from_domain" : "あなたはからアドレスを得ました unstoppable domain ${domain}"
 }

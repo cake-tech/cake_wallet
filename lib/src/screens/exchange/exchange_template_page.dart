@@ -129,13 +129,14 @@ class ExchangeTemplatePage extends BasePage {
                           initialAddress: exchangeViewModel
                               .depositCurrency ==
                               exchangeViewModel.wallet.currency
-                              ? exchangeViewModel.wallet.address
+                              ? exchangeViewModel.wallet.walletAddresses.address
                               : exchangeViewModel.depositAddress,
                           initialIsAmountEditable: true,
                           initialIsAddressEditable: exchangeViewModel
                               .isDepositAddressEnabled,
                           isAmountEstimated: false,
                           hasRefundAddress: true,
+                          isMoneroWallet: exchangeViewModel.isMoneroWallet,
                           currencies: CryptoCurrency.all,
                           onCurrencySelected: (currency) =>
                               exchangeViewModel.changeDepositCurrency(
@@ -150,9 +151,8 @@ class ExchangeTemplatePage extends BasePage {
                               .color,
                           currencyValueValidator: AmountValidator(
                               type: exchangeViewModel.wallet.type),
-                          addressTextFieldValidator: AddressValidator(
-                              type:
-                              exchangeViewModel.depositCurrency),
+                          //addressTextFieldValidator: AddressValidator(
+                          //    type: exchangeViewModel.depositCurrency),
                         ),
                       ),
                     ),
@@ -168,7 +168,7 @@ class ExchangeTemplatePage extends BasePage {
                             initialAddress:
                             exchangeViewModel.receiveCurrency ==
                                 exchangeViewModel.wallet.currency
-                                ? exchangeViewModel.wallet.address
+                                ? exchangeViewModel.wallet.walletAddresses.address
                                 : exchangeViewModel.receiveAddress,
                             initialIsAmountEditable:
                             exchangeViewModel.provider is
@@ -176,6 +176,7 @@ class ExchangeTemplatePage extends BasePage {
                             initialIsAddressEditable:
                             exchangeViewModel.isReceiveAddressEnabled,
                             isAmountEstimated: true,
+                            isMoneroWallet: exchangeViewModel.isMoneroWallet,
                             currencies: exchangeViewModel.receiveCurrencies,
                             onCurrencySelected: (currency) =>
                                 exchangeViewModel.changeReceiveCurrency(
@@ -190,8 +191,8 @@ class ExchangeTemplatePage extends BasePage {
                                 .decorationColor,
                             currencyValueValidator: AmountValidator(
                                 type: exchangeViewModel.wallet.type),
-                            addressTextFieldValidator: AddressValidator(
-                                type: exchangeViewModel.receiveCurrency),
+                            //addressTextFieldValidator: AddressValidator(
+                            //    type: exchangeViewModel.receiveCurrency),
                           )),
                     )
                   ],
@@ -383,7 +384,8 @@ class ExchangeTemplatePage extends BasePage {
       }
     });
 
-    reaction((_) => exchangeViewModel.wallet.address, (String address) {
+    reaction((_) => exchangeViewModel.wallet.walletAddresses.address,
+            (String address) {
       if (exchangeViewModel.depositCurrency == CryptoCurrency.xmr) {
         depositKey.currentState.changeAddress(address: address);
       }
@@ -405,7 +407,8 @@ class ExchangeTemplatePage extends BasePage {
         isCurrentTypeWallet ? exchangeViewModel.wallet.name : null);
 
     key.currentState.changeAddress(
-        address: isCurrentTypeWallet ? exchangeViewModel.wallet.address : '');
+        address: isCurrentTypeWallet
+            ? exchangeViewModel.wallet.walletAddresses.address : '');
 
     key.currentState.changeAmount(amount: '');
   }
@@ -417,9 +420,9 @@ class ExchangeTemplatePage extends BasePage {
     if (isCurrentTypeWallet) {
       key.currentState.changeWalletName(exchangeViewModel.wallet.name);
       key.currentState.addressController.text =
-          exchangeViewModel.wallet.address;
+          exchangeViewModel.wallet.walletAddresses.address;
     } else if (key.currentState.addressController.text ==
-        exchangeViewModel.wallet.address) {
+        exchangeViewModel.wallet.walletAddresses.address) {
       key.currentState.changeWalletName(null);
       key.currentState.addressController.text = null;
     }

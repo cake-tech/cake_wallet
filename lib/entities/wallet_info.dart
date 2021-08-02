@@ -53,5 +53,8 @@ class WalletInfo extends HiveObject {
   @HiveField(8)
   String address;
 
+  @HiveField(10)
+  Map<String, String> addresses;
+
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 }
