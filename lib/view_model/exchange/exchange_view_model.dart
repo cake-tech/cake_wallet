@@ -9,6 +9,7 @@ import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
+import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:intl/intl.dart';
@@ -124,6 +125,8 @@ abstract class ExchangeViewModelBase with Store {
 
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
+
+  bool get isMoneroWallet  => wallet is MoneroWallet;
 
   List<CryptoCurrency> receiveCurrencies;
 

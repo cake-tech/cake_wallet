@@ -488,6 +488,7 @@
   "unspent_coins_title" : "Unspent coins",
   "unspent_coins_details_title" : "Unspent coins details",
   "freeze" : "Freeze",
+  "frozen" : "Frozen",
   "coin_control" : "Coin control (optional)",
 
   "address_detected" : "Address detected",

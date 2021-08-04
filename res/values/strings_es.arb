@@ -488,6 +488,7 @@
   "unspent_coins_title" : "Monedas no gastadas",
   "unspent_coins_details_title" : "Detalles de monedas no gastadas",
   "freeze" : "Congelar",
+  "frozen" : "Congelada",
   "coin_control" : "Control de monedas (opcional)",
 
   "address_detected" : "Dirección detectada",

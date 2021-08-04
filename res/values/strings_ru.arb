@@ -488,6 +488,7 @@
   "unspent_coins_title" : "Неизрасходованные монеты",
   "unspent_coins_details_title" : "Сведения о неизрасходованных монетах",
   "freeze" : "Заморозить",
+  "frozen" : "Заморожено",
   "coin_control" : "Контроль монет (необязательно)",
 
   "address_detected" : "Обнаружен адрес",
