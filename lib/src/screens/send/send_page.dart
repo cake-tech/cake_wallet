@@ -259,7 +259,7 @@ class SendPage extends BasePage {
           EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Column(
             children: [
-              if (sendViewModel.isElectrumWallet) Padding(
+              Padding(
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
                   onPressed: () {

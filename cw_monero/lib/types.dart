@@ -93,6 +93,16 @@ typedef TransactionCreate = int Function(
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
+typedef TransactionCreateMultDest = int Function(
+    Pointer<Pointer<Utf8>> addresses,
+    Pointer<Utf8> paymentId,
+    Pointer<Pointer<Utf8>> amounts,
+    int size,
+    int priorityRaw,
+    int subaddrAccount,
+    Pointer<Utf8Box> error,
+    Pointer<PendingTransactionRaw> pendingTransaction);
+
 typedef TransactionCommit = int Function(Pointer<PendingTransactionRaw>, Pointer<Utf8Box>);
 
 typedef SecretViewKey = Pointer<Utf8> Function();

@@ -1,7 +1,6 @@
 import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
-import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
