@@ -199,18 +199,11 @@ abstract class SendViewModelBase with Store {
         return BitcoinTransactionCredentials(
             sendItemList, priority as BitcoinTransactionPriority);
       case WalletType.monero:
-        final _item = sendItemList.first;
-        final address = _item.address;
-        final amount = _item.sendAll
-            ? null
-            : _item.cryptoAmount.replaceAll(',', '.');
         final priority = _settingsStore.priority[_wallet.type];
 
         return MoneroTransactionCreationCredentials(
-            address: address,
-            paymentId: '',
-            priority: priority as MoneroTransactionPriority,
-            amount: amount);
+            sendItemList: sendItemList,
+            priority: priority as MoneroTransactionPriority);
       default:
         return null;
     }
