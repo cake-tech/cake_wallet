@@ -488,6 +488,7 @@
   "unspent_coins_title" : "Ongebruikte munten",
   "unspent_coins_details_title" : "Details van niet-uitgegeven munten",
   "freeze" : "Bevriezen",
+  "frozen" : "Bevroren",
   "coin_control" : "Muntcontrole (optioneel)",
 
   "address_detected" : "Adres gedetecteerd",

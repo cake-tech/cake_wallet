@@ -488,6 +488,7 @@
   "unspent_coins_title" : "Nicht ausgegebene Münzen",
   "unspent_coins_details_title" : "Details zu nicht ausgegebenen Münzen",
   "freeze" : "Einfrieren",
+  "frozen" : "Gefroren",
   "coin_control" : "Münzkontrolle (optional)",
 
   "address_detected" : "Adresse erkannt",

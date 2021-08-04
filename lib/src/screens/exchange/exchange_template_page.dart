@@ -136,6 +136,7 @@ class ExchangeTemplatePage extends BasePage {
                               .isDepositAddressEnabled,
                           isAmountEstimated: false,
                           hasRefundAddress: true,
+                          isMoneroWallet: exchangeViewModel.isMoneroWallet,
                           currencies: CryptoCurrency.all,
                           onCurrencySelected: (currency) =>
                               exchangeViewModel.changeDepositCurrency(
@@ -175,6 +176,7 @@ class ExchangeTemplatePage extends BasePage {
                             initialIsAddressEditable:
                             exchangeViewModel.isReceiveAddressEnabled,
                             isAmountEstimated: true,
+                            isMoneroWallet: exchangeViewModel.isMoneroWallet,
                             currencies: exchangeViewModel.receiveCurrencies,
                             onCurrencySelected: (currency) =>
                                 exchangeViewModel.changeReceiveCurrency(
