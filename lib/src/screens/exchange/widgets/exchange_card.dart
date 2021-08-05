@@ -165,11 +165,9 @@ class ExchangeCardState extends State<ExchangeCard> {
                     textAlign: TextAlign.left,
                     keyboardType: TextInputType.numberWithOptions(
                         signed: false, decimal: true),
-                    // inputFormatters: [
-                    //   LengthLimitingTextInputFormatter(15),
-                    //   BlacklistingTextInputFormatter(
-                    //       RegExp('[\\-|\\ |\\,]'))
-                    // ],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                    ],
                     hintText: '0.0000',
                     borderColor: widget.borderColor,
                     textStyle: TextStyle(

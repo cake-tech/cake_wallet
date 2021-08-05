@@ -190,6 +190,9 @@ class SendPage extends BasePage {
                                             keyboardType:
                                             TextInputType.numberWithOptions(
                                                 signed: false, decimal: true),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                            ],
                                             prefixIcon: Padding(
                                               padding: EdgeInsets.only(top: 9),
                                               child: Text(
@@ -299,6 +302,9 @@ class SendPage extends BasePage {
                                     keyboardType:
                                         TextInputType.numberWithOptions(
                                             signed: false, decimal: true),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                    ],
                                     prefixIcon: Padding(
                                       padding: EdgeInsets.only(top: 9),
                                       child:
