@@ -193,7 +193,7 @@ class SendCardState extends State<SendCard>
                                           ? sendViewModel.allAmountValidator
                                           : sendViewModel
                                           .amountValidator),
-                                  Positioned(
+                                  if (!sendViewModel.isBatchSending) Positioned(
                                       top: 2,
                                       right: 0,
                                       child: Container(

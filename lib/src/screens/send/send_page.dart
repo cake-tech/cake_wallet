@@ -49,7 +49,7 @@ class SendPage extends BasePage {
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
-    return sendViewModel.isRemoveButtonShow
+    return sendViewModel.isBatchSending
         ? TrailButton(
         caption: S.of(context).remove,
         onPressed: () {
