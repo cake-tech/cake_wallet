@@ -68,7 +68,7 @@ abstract class SendViewModelBase with Store {
   }
 
   @computed
-  bool get isRemoveButtonShow => sendItemList.length > 1;
+  bool get isBatchSending => sendItemList.length > 1;
 
   @computed
   String get pendingTransactionFiatAmount {
