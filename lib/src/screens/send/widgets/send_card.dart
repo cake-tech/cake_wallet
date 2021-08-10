@@ -4,7 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/view_model/send/send_item.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,21 +19,21 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class SendCard extends StatefulWidget {
-  SendCard({Key key, @required this.item, @required this.sendViewModel}) : super(key: key);
+  SendCard({Key key, @required this.output, @required this.sendViewModel}) : super(key: key);
 
-  final SendItem item;
+  final Output output;
   final SendViewModel sendViewModel;
 
   @override
   SendCardState createState() => SendCardState(
-    item: item,
+    output: output,
     sendViewModel: sendViewModel
   );
 }
 
 class SendCardState extends State<SendCard>
     with AutomaticKeepAliveClientMixin<SendCard> {
-  SendCardState({@required this.item, @required this.sendViewModel})
+  SendCardState({@required this.output, @required this.sendViewModel})
       : addressController = TextEditingController(),
         cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
@@ -45,7 +45,7 @@ class SendCardState extends State<SendCard>
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
 
-  final SendItem item;
+  final Output output;
   final SendViewModel sendViewModel;
 
   final TextEditingController addressController;
@@ -143,7 +143,7 @@ class SendCardState extends State<SendCard>
                               .decorationColor),
                       onPushPasteButton: (context) async {
                         final parsedAddress =
-                          await item.applyOpenaliasOrUnstoppableDomains();
+                          await output.applyOpenaliasOrUnstoppableDomains();
                         showAddressAlert(context, parsedAddress);
                       },
                       validator: sendViewModel.addressValidator,
@@ -189,7 +189,7 @@ class SendCardState extends State<SendCard>
                                               .decorationColor,
                                           fontWeight: FontWeight.w500,
                                           fontSize: 14),
-                                      validator: item.sendAll
+                                      validator: output.sendAll
                                           ? sendViewModel.allAmountValidator
                                           : sendViewModel
                                           .amountValidator),
@@ -201,7 +201,7 @@ class SendCardState extends State<SendCard>
                                           height: prefixIconHeight,
                                           child: InkWell(
                                               onTap: () async =>
-                                                  item.setSendAll(),
+                                                  output.setSendAll(),
                                               child: Container(
                                                 decoration: BoxDecoration(
                                                     color: Theme.of(context)
@@ -349,7 +349,7 @@ class SendCardState extends State<SendCard>
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                              item
+                                              output
                                                   .estimatedFee
                                                   .toString() +
                                                   ' ' +
@@ -366,7 +366,7 @@ class SendCardState extends State<SendCard>
                                               padding:
                                               EdgeInsets.only(top: 5),
                                               child: Text(
-                                                  item
+                                                  output
                                                       .estimatedFeeFiatAmount
                                                       +  ' ' +
                                                       sendViewModel
@@ -435,10 +435,10 @@ class SendCardState extends State<SendCard>
   }
 
   void _setEffects(BuildContext context) {
-    addressController.text = item.address;
-    cryptoAmountController.text = item.cryptoAmount;
-    fiatAmountController.text = item.fiatAmount;
-    noteController.text = item.note;
+    addressController.text = output.address;
+    cryptoAmountController.text = output.cryptoAmount;
+    fiatAmountController.text = output.fiatAmount;
+    noteController.text = output.note;
 
     if (_effectsInstalled) {
       return;
@@ -447,48 +447,48 @@ class SendCardState extends State<SendCard>
     cryptoAmountController.addListener(() {
       final amount = cryptoAmountController.text;
 
-      if (item.sendAll && amount != S.current.all) {
-        item.sendAll = false;
+      if (output.sendAll && amount != S.current.all) {
+        output.sendAll = false;
       }
 
-      if (amount != item.cryptoAmount) {
-        item.setCryptoAmount(amount);
+      if (amount != output.cryptoAmount) {
+        output.setCryptoAmount(amount);
       }
     });
 
     fiatAmountController.addListener(() {
       final amount = fiatAmountController.text;
 
-      if (amount != item.fiatAmount) {
-        item.sendAll = false;
-        item.setFiatAmount(amount);
+      if (amount != output.fiatAmount) {
+        output.sendAll = false;
+        output.setFiatAmount(amount);
       }
     });
 
     noteController.addListener(() {
       final note = noteController.text ?? '';
 
-      if (note != item.note) {
-        item.note = note;
+      if (note != output.note) {
+        output.note = note;
       }
     });
 
-    reaction((_) => item.sendAll, (bool all) {
+    reaction((_) => output.sendAll, (bool all) {
       if (all) {
         cryptoAmountController.text = S.current.all;
         fiatAmountController.text = null;
       }
     });
 
-    reaction((_) => item.fiatAmount, (String amount) {
+    reaction((_) => output.fiatAmount, (String amount) {
       if (amount != fiatAmountController.text) {
         fiatAmountController.text = amount;
       }
     });
 
-    reaction((_) => item.cryptoAmount, (String amount) {
-      if (item.sendAll && amount != S.current.all) {
-        item.sendAll = false;
+    reaction((_) => output.cryptoAmount, (String amount) {
+      if (output.sendAll && amount != S.current.all) {
+        output.sendAll = false;
       }
 
       if (amount != cryptoAmountController.text) {
@@ -496,7 +496,7 @@ class SendCardState extends State<SendCard>
       }
     });
 
-    reaction((_) => item.address, (String address) {
+    reaction((_) => output.address, (String address) {
       if (address != addressController.text) {
         addressController.text = address;
       }
@@ -505,12 +505,12 @@ class SendCardState extends State<SendCard>
     addressController.addListener(() {
       final address = addressController.text;
 
-      if (item.address != address) {
-        item.address = address;
+      if (output.address != address) {
+        output.address = address;
       }
     });
 
-    reaction((_) => item.note, (String note) {
+    reaction((_) => output.note, (String note) {
       if (note != noteController.text) {
         noteController.text = note;
       }
@@ -518,7 +518,7 @@ class SendCardState extends State<SendCard>
 
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
-        final parsedAddress = await item.applyOpenaliasOrUnstoppableDomains();
+        final parsedAddress = await output.applyOpenaliasOrUnstoppableDomains();
         showAddressAlert(context, parsedAddress);
       }
     });

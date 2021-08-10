@@ -385,8 +385,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             .pendingTransactionFiatAmount +
                         ' ' +
                         widget.exchangeTradeViewModel.sendViewModel.fiat.title,
-                    sendItemList: widget.exchangeTradeViewModel.sendViewModel
-                                 .sendItemList);
+                    outputs: widget.exchangeTradeViewModel.sendViewModel
+                                 .outputs);
               });
         });
       }

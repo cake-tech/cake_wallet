@@ -2,7 +2,7 @@ import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/view_model/send/send_item.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
 import 'package:hive/hive.dart';
@@ -42,33 +42,33 @@ abstract class SendViewModelBase with Store {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
-    sendItemList = ObservableList<SendItem>()
-      ..add(SendItem(_wallet, _settingsStore, _fiatConversationStore));
+    outputs = ObservableList<Output>()
+      ..add(Output(_wallet, _settingsStore, _fiatConversationStore));
   }
 
   @observable
   ExecutionState state;
 
-  ObservableList<SendItem> sendItemList;
+  ObservableList<Output> outputs;
 
   @action
-  void addSendItem() {
-    sendItemList.add(SendItem(_wallet, _settingsStore, _fiatConversationStore));
+  void addOutput() {
+    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore));
   }
 
   @action
-  void removeSendItem(SendItem item) {
-    sendItemList.remove(item);
+  void removeOutput(Output output) {
+    outputs.remove(output);
   }
 
   @action
-  void clearSendItemList() {
-    sendItemList.clear();
-    addSendItem();
+  void clearOutputs() {
+    outputs.clear();
+    addOutput();
   }
 
   @computed
-  bool get isBatchSending => sendItemList.length > 1;
+  bool get isBatchSending => outputs.length > 1;
 
   @computed
   String get pendingTransactionFiatAmount {
@@ -150,14 +150,14 @@ abstract class SendViewModelBase with Store {
 
   @action
   Future<void> commitTransaction() async {
-    String address = sendItemList.fold('', (previousValue, item) {
-      return previousValue + item.address + '\n';
+    String address = outputs.fold('', (acc, value) {
+      return acc + value.address + '\n';
     });
 
     address = address.trim();
 
-    String note = sendItemList.fold('', (previousValue, item) {
-      return previousValue + item.note + '\n';
+    String note = outputs.fold('', (acc, value) {
+      return acc + value.note + '\n';
     });
 
     note = note.trim();
@@ -192,17 +192,17 @@ abstract class SendViewModelBase with Store {
         final priority = _settingsStore.priority[_wallet.type];
 
         return BitcoinTransactionCredentials(
-            sendItemList, priority as BitcoinTransactionPriority);
+            outputs, priority as BitcoinTransactionPriority);
       case WalletType.litecoin:
         final priority = _settingsStore.priority[_wallet.type];
 
         return BitcoinTransactionCredentials(
-            sendItemList, priority as BitcoinTransactionPriority);
+            outputs, priority as BitcoinTransactionPriority);
       case WalletType.monero:
         final priority = _settingsStore.priority[_wallet.type];
 
         return MoneroTransactionCreationCredentials(
-            sendItemList: sendItemList,
+            outputs: outputs,
             priority: priority as MoneroTransactionPriority);
       default:
         return null;

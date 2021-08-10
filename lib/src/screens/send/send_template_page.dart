@@ -14,7 +14,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class SendTemplatePage extends BasePage {
   SendTemplatePage({@required this.sendTemplateViewModel}) {
-    sendTemplateViewModel.sendItem.reset();
+    sendTemplateViewModel.output.reset();
   }
 
   final SendTemplateViewModel sendTemplateViewModel;
@@ -258,21 +258,21 @@ class SendTemplatePage extends BasePage {
       return;
     }
 
-    final item = sendTemplateViewModel.sendItem;
+    final output = sendTemplateViewModel.output;
 
-    reaction((_) => item.fiatAmount, (String amount) {
+    reaction((_) => output.fiatAmount, (String amount) {
       if (amount != _fiatAmountController.text) {
         _fiatAmountController.text = amount;
       }
     });
 
-    reaction((_) => item.cryptoAmount, (String amount) {
+    reaction((_) => output.cryptoAmount, (String amount) {
       if (amount != _cryptoAmountController.text) {
         _cryptoAmountController.text = amount;
       }
     });
 
-    reaction((_) => item.address, (String address) {
+    reaction((_) => output.address, (String address) {
       if (address != _addressController.text) {
         _addressController.text = address;
       }
@@ -281,24 +281,24 @@ class SendTemplatePage extends BasePage {
     _cryptoAmountController.addListener(() {
       final amount = _cryptoAmountController.text;
 
-      if (amount != item.cryptoAmount) {
-        item.setCryptoAmount(amount);
+      if (amount != output.cryptoAmount) {
+        output.setCryptoAmount(amount);
       }
     });
 
     _fiatAmountController.addListener(() {
       final amount = _fiatAmountController.text;
 
-      if (amount != item.fiatAmount) {
-        item.setFiatAmount(amount);
+      if (amount != output.fiatAmount) {
+        output.setFiatAmount(amount);
       }
     });
 
     _addressController.addListener(() {
       final address = _addressController.text;
 
-      if (item.address != address) {
-        item.address = address;
+      if (output.address != address) {
+        output.address = address;
       }
     });
 
