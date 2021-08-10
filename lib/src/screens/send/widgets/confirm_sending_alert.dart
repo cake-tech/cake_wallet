@@ -1,5 +1,5 @@
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/view_model/send/send_item.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -13,14 +13,14 @@ class ConfirmSendingAlert extends BaseAlertDialog {
     @required this.fee,
     @required this.feeValue,
     @required this.feeFiatAmount,
-    @required this.sendItemList,
+    @required this.outputs,
     @required this.leftButtonText,
     @required this.rightButtonText,
     @required this.actionLeftButton,
     @required this.actionRightButton,
     this.alertBarrierDismissible = true
   }) {
-    itemCount = sendItemList.length;
+    itemCount = outputs.length;
     recipientTitle = itemCount > 1
         ? S.current.transaction_details_recipient_address
         : S.current.recipient_address;
@@ -33,7 +33,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
   final String fee;
   final String feeValue;
   final String feeFiatAmount;
-  final List<SendItem> sendItemList;
+  final List<Output> outputs;
   final String leftButtonText;
   final String rightButtonText;
   final VoidCallback actionLeftButton;
@@ -179,10 +179,10 @@ class ConfirmSendingAlert extends BaseAlertDialog {
                       physics: NeverScrollableScrollPhysics(),
                       itemCount: itemCount,
                       itemBuilder: (context, index) {
-                        final item = sendItemList[index];
+                        final item = outputs[index];
                         final _address = item.address;
                         final _amount =
-                        item.cryptoAmount.replaceAll(',', '.');
+                          item.cryptoAmount.replaceAll(',', '.');
 
                         return Column(
                           children: [
@@ -225,7 +225,7 @@ class ConfirmSendingAlert extends BaseAlertDialog {
                     : Padding(
                     padding: EdgeInsets.only(top: 8),
                     child: Text(
-                      sendItemList.first.address,
+                      outputs.first.address,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,

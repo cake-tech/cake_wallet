@@ -15,14 +15,14 @@ import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-part 'send_item.g.dart';
+part 'output.g.dart';
 
 const String cryptoNumberPattern = '0.0';
 
-class SendItem = SendItemBase with _$SendItem;
+class Output = OutputBase with _$Output;
 
-abstract class SendItemBase with Store {
-  SendItemBase(this._wallet, this._settingsStore, this._fiatConversationStore)
+abstract class OutputBase with Store {
+  OutputBase(this._wallet, this._settingsStore, this._fiatConversationStore)
       :_cryptoNumberFormat = NumberFormat(cryptoNumberPattern) {
     reset();
     _setCryptoNumMaximumFractionDigits();
@@ -47,8 +47,8 @@ abstract class SendItemBase with Store {
   bool sendAll;
 
   @computed
-  double get estimatedFee {
-    int amount;
+  int get formattedCryptoAmount {
+    int amount = 0;
 
     try {
       if (cryptoAmount?.isNotEmpty ?? false) {
@@ -72,9 +72,18 @@ abstract class SendItemBase with Store {
           amount = _amount;
         }
       }
+    } catch(e) {
+      amount = 0;
+    }
 
+    return amount;
+  }
+
+  @computed
+  double get estimatedFee {
+    try {
       final fee = _wallet.calculateEstimatedFee(
-          _settingsStore.priority[_wallet.type], amount);
+          _settingsStore.priority[_wallet.type], formattedCryptoAmount);
 
       if (_wallet is ElectrumWallet) {
         return bitcoinAmountToDouble(amount: fee);

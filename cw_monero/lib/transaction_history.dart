@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'package:cw_monero/convert_utf8_to_string.dart';
+import 'package:cw_monero/monero_output.dart';
 import 'package:cw_monero/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -107,21 +108,21 @@ PendingTransactionDescription createTransactionSync(
 }
 
 PendingTransactionDescription createTransactionMultDestSync(
-    {List<String> addresses,
+    {List<MoneroOutput> outputs,
       String paymentId,
-      List<String> amounts,
-      int size,
       int priorityRaw,
       int accountIndex = 0}) {
-  final List<Pointer<Utf8>> addressesPointers = addresses.map(Utf8.toUtf8).toList();
+  final int size = outputs.length;
+  final List<Pointer<Utf8>> addressesPointers = outputs.map((output) =>
+      Utf8.toUtf8(output.address)).toList();
   final Pointer<Pointer<Utf8>> addressesPointerPointer = allocate(count: size);
-
-  final List<Pointer<Utf8>> amountsPointers = amounts.map(Utf8.toUtf8).toList();
+  final List<Pointer<Utf8>> amountsPointers = outputs.map((output) =>
+      Utf8.toUtf8(output.amount)).toList();
   final Pointer<Pointer<Utf8>> amountsPointerPointer = allocate(count: size);
 
   for (int i = 0; i < size; i++) {
-    addressesPointerPointer[ i ] = addressesPointers[ i ];
-    amountsPointerPointer[ i ] = amountsPointers[ i ];
+    addressesPointerPointer[i] = addressesPointers[i];
+    amountsPointerPointer[i] = amountsPointers[i];
   }
 
   final paymentIdPointer = Utf8.toUtf8(paymentId);
@@ -190,18 +191,14 @@ PendingTransactionDescription _createTransactionSync(Map args) {
 }
 
 PendingTransactionDescription _createTransactionMultDestSync(Map args) {
-  final addresses = args['addresses'] as List<String>;
+  final outputs = args['outputs'] as List<MoneroOutput>;
   final paymentId = args['paymentId'] as String;
-  final amounts = args['amounts'] as List<String>;
-  final size = args['size'] as int;
   final priorityRaw = args['priorityRaw'] as int;
   final accountIndex = args['accountIndex'] as int;
 
   return createTransactionMultDestSync(
-      addresses: addresses,
+      outputs: outputs,
       paymentId: paymentId,
-      amounts: amounts,
-      size: size,
       priorityRaw: priorityRaw,
       accountIndex: accountIndex);
 }
@@ -221,17 +218,13 @@ Future<PendingTransactionDescription> createTransaction(
     });
 
 Future<PendingTransactionDescription> createTransactionMultDest(
-    {List<String> addresses,
+    {List<MoneroOutput> outputs,
       String paymentId,
-      List<String> amounts,
-      int size,
       int priorityRaw,
       int accountIndex = 0}) =>
     compute(_createTransactionMultDestSync, {
-      'addresses': addresses,
+      'outputs': outputs,
       'paymentId': paymentId,
-      'amounts': amounts,
-      'size': size,
       'priorityRaw': priorityRaw,
       'accountIndex': accountIndex
     });
