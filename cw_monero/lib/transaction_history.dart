@@ -205,7 +205,7 @@ PendingTransactionDescription _createTransactionMultDestSync(Map args) {
 
 Future<PendingTransactionDescription> createTransaction(
         {String address,
-        String paymentId,
+        String paymentId = '',
         String amount,
         int priorityRaw,
         int accountIndex = 0}) =>
@@ -219,7 +219,7 @@ Future<PendingTransactionDescription> createTransaction(
 
 Future<PendingTransactionDescription> createTransactionMultDest(
     {List<MoneroOutput> outputs,
-      String paymentId,
+      String paymentId = '',
       int priorityRaw,
       int accountIndex = 0}) =>
     compute(_createTransactionMultDestSync, {

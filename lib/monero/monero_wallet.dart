@@ -163,25 +163,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     if (hasMultiDestination) {
-      final sendAllItems = outputs.where((item) => item.sendAll).toList();
-
-      if (sendAllItems?.isNotEmpty ?? false) {
+      if (outputs.any((item) => item.sendAll) ||
+          outputs.any((item) => item.formattedCryptoAmount <= 0)) {
         throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
       }
 
-      final nullAmountItems = outputs.where((item) =>
-          item.formattedCryptoAmount <= 0).toList();
-
-      if (nullAmountItems?.isNotEmpty ?? false) {
-        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
-      }
-
-      var credentialsAmount = 0;
-
-      credentialsAmount = outputs.fold(0, (acc, value) =>
+      final int totalAmount = outputs.fold(0, (acc, value) =>
           acc + value.formattedCryptoAmount);
 
-      if (unlockedBalance < credentialsAmount) {
+      if (unlockedBalance < totalAmount) {
         throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
       }
 
@@ -194,7 +184,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       pendingTransactionDescription =
       await transaction_history.createTransactionMultDest(
           outputs: moneroOutputs,
-          paymentId: '',
           priorityRaw: _credentials.priority.serialize(),
           accountIndex: walletAddresses.account.id);
     } else {
@@ -218,7 +207,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       pendingTransactionDescription =
       await transaction_history.createTransaction(
           address: address,
-          paymentId: '',
           amount: amount,
           priorityRaw: _credentials.priority.serialize(),
           accountIndex: walletAddresses.account.id);
