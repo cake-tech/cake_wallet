@@ -86,7 +86,6 @@ class SendCardState extends State<SendCard>
               color: Colors.transparent,
             )),
         Container(
-          height: sendViewModel.isElectrumWallet ? 470 : 445,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(24),
@@ -100,7 +99,7 @@ class SendCardState extends State<SendCard>
             ], begin: Alignment.topLeft, end: Alignment.bottomRight),
           ),
           child: Padding(
-            padding: EdgeInsets.fromLTRB(24, 80, 24, 32),
+            padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
             child: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

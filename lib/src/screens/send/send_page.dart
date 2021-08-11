@@ -79,7 +79,7 @@ class SendPage extends BasePage {
           content: Column(
             children: <Widget>[
               Container(
-                  height: sendViewModel.isElectrumWallet ? 470 : 445,
+                  height: sendViewModel.isElectrumWallet ? 490 : 465,
                   child: Observer(
                     builder: (_) {
                       return PageView.builder(
