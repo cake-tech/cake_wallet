@@ -112,8 +112,6 @@ final rescanBlockchainAsyncNative = moneroApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
 
-bool isStoring = false;
-
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -285,20 +283,7 @@ SyncListener setListeners(void Function(int, int, double) onNewBlock,
 
 void onStartup() => onStartupNative();
 
-void _storeSync(Object _) {
-  if (isStoring) {
-    return;
-  }
-
-  try {
-    isStoring = true;
-    storeSync();
-    isStoring = false;
-  } catch (e) {
-    isStoring = false;
-    rethrow;
-  }
-}
+void _storeSync(Object _) => storeSync();
 
 bool _setupNodeSync(Map args) {
   final address = args['address'] as String;

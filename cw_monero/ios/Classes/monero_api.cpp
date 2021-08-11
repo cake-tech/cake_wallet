@@ -4,6 +4,7 @@
 #include <functional>
 #include <iostream>
 #include <unistd.h>
+#include <mutex>
 #include "thread"
 #include "CwWalletListener.h"
 #if __APPLE__
@@ -182,6 +183,8 @@ extern "C"
     Monero::SubaddressAccount *m_account;
     uint64_t m_last_known_wallet_height;
     uint64_t m_cached_syncing_blockchain_height = 0;
+    std::mutex store_lock;
+    bool is_storing = false;
 
     void change_current_wallet(Monero::Wallet *wallet)
     {
@@ -452,7 +455,15 @@ extern "C"
 
     void store(char *path)
     {
+        store_lock.lock();
+        if (is_storing) {
+            return;
+        }
+
+        is_storing = true;
         get_current_wallet()->store(std::string(path));
+        is_storing = false;
+        store_lock.unlock();
     }
 
     bool transaction_create(char *address, char *payment_id, char *amount,
