@@ -151,7 +151,7 @@ abstract class SendViewModelBase with Store {
   @action
   Future<void> commitTransaction() async {
     String address = outputs.fold('', (acc, value) {
-      return acc + value.address + '\n';
+      return acc + value.address + '\n\n';
     });
 
     address = address.trim();
