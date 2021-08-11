@@ -186,16 +186,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     var fee = 0;
 
     if (hasMultiDestination) {
-      final sendAllItems = outputs.where((item) => item.sendAll).toList();
-
-      if (sendAllItems?.isNotEmpty ?? false) {
-        throw BitcoinTransactionWrongBalanceException(currency);
-      }
-
-      final nullAmountItems = outputs.where((item) =>
-          item.formattedCryptoAmount <= 0).toList();
-
-      if (nullAmountItems?.isNotEmpty ?? false) {
+      if (outputs.any((item) => item.sendAll) ||
+          outputs.any((item) => item.formattedCryptoAmount <= 0)) {
         throw BitcoinTransactionWrongBalanceException(currency);
       }
 
