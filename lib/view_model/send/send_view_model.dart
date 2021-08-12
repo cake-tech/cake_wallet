@@ -58,7 +58,9 @@ abstract class SendViewModelBase with Store {
 
   @action
   void removeOutput(Output output) {
-    outputs.remove(output);
+    if (isBatchSending) {
+      outputs.remove(output);
+    }
   }
 
   @action

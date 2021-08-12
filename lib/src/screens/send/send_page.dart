@@ -264,10 +264,21 @@ class SendPage extends BasePage {
                 child: PrimaryButton(
                   onPressed: () {
                     sendViewModel.addOutput();
+                    Future.delayed(const Duration(milliseconds: 250), () {
+                      controller.jumpToPage(sendViewModel.outputs.length - 1);
+                    });
                   },
                   text: S.of(context).add_receiver,
-                  color: Colors.green,
-                  textColor: Colors.white,
+                  color: Colors.transparent,
+                  textColor: Theme.of(context)
+                      .accentTextTheme
+                      .display2
+                      .decorationColor,
+                  isDottedBorder: true,
+                  borderColor: Theme.of(context)
+                      .primaryTextTheme
+                      .display2
+                      .decorationColor,
                 )
               ),
               Observer(builder: (_) {

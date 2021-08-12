@@ -1,3 +1,4 @@
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,18 +9,22 @@ class PrimaryButton extends StatelessWidget {
       @required this.color,
       @required this.textColor,
       this.isDisabled = false,
+      this.isDottedBorder = false,
+      this.borderColor = Colors.black,
       this.onDisabledPressed});
 
   final VoidCallback onPressed;
   final VoidCallback onDisabledPressed;
   final Color color;
   final Color textColor;
+  final Color borderColor;
   final String text;
   final bool isDisabled;
+  final bool isDottedBorder;
 
   @override
   Widget build(BuildContext context) {
-    return ButtonTheme(
+    final content = ButtonTheme(
         minWidth: double.infinity,
         height: 52.0,
         child: FlatButton(
@@ -27,6 +32,8 @@ class PrimaryButton extends StatelessWidget {
               ? (onDisabledPressed != null ? onDisabledPressed : null)
               : onPressed,
           color: isDisabled ? color.withOpacity(0.5) : color,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
           disabledColor: color.withOpacity(0.5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26.0),
@@ -40,6 +47,16 @@ class PrimaryButton extends StatelessWidget {
                       ? textColor.withOpacity(0.5)
                       : textColor)),
         ));
+
+    return isDottedBorder
+        ? DottedBorder(
+            borderType: BorderType.RRect,
+            dashPattern: [6, 4],
+            color: borderColor,
+            strokeWidth: 2,
+            radius: Radius.circular(26),
+            child: content)
+        : content;
   }
 }
 

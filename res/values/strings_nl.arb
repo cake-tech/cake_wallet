@@ -494,5 +494,5 @@
   "address_detected" : "Adres gedetecteerd",
   "address_from_domain" : "Je adres is van unstoppable domain ${domain}",
 
-  "add_receiver" : "Ontvanger toevoegen"
+  "add_receiver" : "Nog een ontvanger toevoegen (optioneel)"
 }
