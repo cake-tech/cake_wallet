@@ -494,5 +494,5 @@
   "address_detected" : "アドレスが検出されました",
   "address_from_domain" : "あなたはからアドレスを得ました unstoppable domain ${domain}",
 
-  "add_receiver" : "レシーバーを追加"
+  "add_receiver" : "別のレシーバーを追加します（オプション）"
 }

@@ -494,5 +494,5 @@
   "address_detected" : "Adresa je otkrivena",
   "address_from_domain" : "Dobili ste adresu od unstoppable domain ${domain}",
 
-  "add_receiver" : "Dodajte prijamnik"
+  "add_receiver" : "Dodajte drugi prijemnik (izborno)"
 }

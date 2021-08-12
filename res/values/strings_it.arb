@@ -494,5 +494,5 @@
   "address_detected" : "Indirizzo rilevato",
   "address_from_domain" : "Hai l'indirizzo da unstoppable domain ${domain}",
 
-  "add_receiver" : "Aggiungi ricevitore"
+  "add_receiver" : "Aggiungi un altro ricevitore (opzionale)"
 }

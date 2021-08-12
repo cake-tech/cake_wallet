@@ -494,5 +494,5 @@
   "address_detected" : "Adresse erkannt",
   "address_from_domain" : "Sie haben die Adresse von der unaufhaltsamen Domain ${domain} erhalten",
 
-  "add_receiver" : "Empfänger hinzufügen"
+  "add_receiver" : "Fügen Sie einen weiteren Empfänger hinzu (optional)"
 }

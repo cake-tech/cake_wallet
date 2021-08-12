@@ -494,5 +494,5 @@
   "address_detected" : "Обнаружен адрес",
   "address_from_domain" : "Вы получили адрес из unstoppable domain ${domain}",
 
-  "add_receiver" : "Добавить получателя"
+  "add_receiver" : "Добавить получателя (необязательно)"
 }
