@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -115,43 +116,67 @@ class PreOrderPage extends BasePage {
                         child: Center(
                             child: Container(
                                 width: 210,
-                                child: BaseTextFormField(
-                                  focusNode: _amountFocus,
-                                  controller: _amountController,
-                                  keyboardType:
-                                  TextInputType.numberWithOptions(
-                                      signed: false, decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter
-                                        .allow(RegExp(_amountPattern))
-                                  ],
-                                  prefixIcon: Padding(
-                                    padding: EdgeInsets.only(top: 2),
-                                    child:
-                                    Text(buyViewModel.fiatCurrency.title + ': ',
-                                        style: TextStyle(
-                                          fontSize: 36,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                        )),
-                                  ),
-                                  hintText: '0.00',
-                                  borderColor: Theme.of(context)
-                                      .primaryTextTheme
-                                      .body2
-                                      .decorationColor,
-                                  borderWidth: 0.5,
-                                  textStyle: TextStyle(
-                                      fontSize: 36,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
-                                  placeholderTextStyle: TextStyle(
-                                      color: Theme.of(context)
+                                child: FutureBuilder<FiatCurrency>(
+                                  future: buyViewModel
+                                      .buyAmountViewModel
+                                      .currentFiatCurrency,
+                                  builder: (context,
+                                      AsyncSnapshot<FiatCurrency> snapshot) {
+                                    String fiatCurrencyTitle;
+                                    bool isEnabled;
+
+                                    if (snapshot.hasData) {
+                                      fiatCurrencyTitle = snapshot.data.title;
+                                      buyViewModel
+                                          .buyAmountViewModel
+                                          .fiatCurrency = snapshot.data;
+                                      isEnabled = true;
+                                    } else {
+                                      fiatCurrencyTitle = buyViewModel
+                                          .buyAmountViewModel
+                                          .fiatCurrency
+                                          .title;
+                                      isEnabled = false;
+                                    }
+
+                                    return BaseTextFormField(
+                                      focusNode: _amountFocus,
+                                      controller: _amountController,
+                                      enabled: isEnabled,
+                                      keyboardType:
+                                      TextInputType.numberWithOptions(
+                                          signed: false, decimal: true),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter
+                                            .allow(RegExp(_amountPattern))
+                                      ],
+                                      prefixIcon: Padding(
+                                          padding: EdgeInsets.only(top: 2),
+                                          child: Text(fiatCurrencyTitle + ': ',
+                                              style: TextStyle(
+                                                  fontSize: 36,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white))
+                                      ),
+                                      hintText: '0.00',
+                                      borderColor: Theme.of(context)
                                           .primaryTextTheme
-                                          .headline
+                                          .body2
                                           .decorationColor,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 36),
+                                      borderWidth: 0.5,
+                                      textStyle: TextStyle(
+                                          fontSize: 36,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.white),
+                                      placeholderTextStyle: TextStyle(
+                                          color: Theme.of(context)
+                                              .primaryTextTheme
+                                              .headline
+                                              .decorationColor,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 36),
+                                    );
+                                  }
                                 )
                             )
                         )

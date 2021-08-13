@@ -557,7 +557,8 @@ Future setup(
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
   getIt.registerFactory(() => BuyAmountViewModel(
-    settingsStore: getIt.get<SettingsStore>()
+    settingsStore: getIt.get<SettingsStore>(),
+    wallet: getIt.get<AppStore>().wallet
   ));
 
   getIt.registerFactory(() {
