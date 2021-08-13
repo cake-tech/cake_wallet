@@ -492,5 +492,6 @@
   "coin_control" : "硬币控制（可选）",
 
   "address_detected" : "检测到地址",
-  "address_from_domain" : "You got address from unstoppable domain ${domain}"
+  "address_from_domain" : "You got address from unstoppable domain ${domain}",
+  "add_receiver" : "添加接收器" 
 }

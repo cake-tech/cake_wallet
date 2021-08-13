@@ -1,19 +1,13 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
+import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
-import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
-import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/view_model/send/send_view_model.dart';
 import 'package:cake_wallet/core/execution_state.dart';
@@ -23,42 +17,18 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
-import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class SendPage extends BasePage {
-  SendPage({@required this.sendViewModel})
-      : _addressController = TextEditingController(),
-        _cryptoAmountController = TextEditingController(),
-        _fiatAmountController = TextEditingController(),
-        _noteController = TextEditingController(),
-        _formKey = GlobalKey<FormState>(),
-        _cryptoAmountFocus = FocusNode(),
-        _fiatAmountFocus = FocusNode(),
-        _addressFocusNode = FocusNode() {
-    _addressFocusNode.addListener(() {
-      if (!_addressFocusNode.hasFocus && _addressController.text.isNotEmpty) {
-        applyOpenaliasOrUnstoppableDomains(_addressFocusNode.context);
-      }
-    });
-  }
-
-  static const prefixIconWidth = 34.0;
-  static const prefixIconHeight = 34.0;
+  SendPage({@required this.sendViewModel}) :_formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
-  final TextEditingController _addressController;
-  final TextEditingController _cryptoAmountController;
-  final TextEditingController _fiatAmountController;
-  final TextEditingController _noteController;
   final GlobalKey<FormState> _formKey;
-  final FocusNode _cryptoAmountFocus;
-  final FocusNode _fiatAmountFocus;
-  final FocusNode _addressFocusNode;
+  final controller = PageController(initialPage: 0);
 
   bool _effectsInstalled = false;
 
@@ -78,88 +48,78 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  Widget trailing(context) => TrailButton(
-      caption: S.of(context).clear,
-      onPressed: () {
-        _formKey.currentState.reset();
-        sendViewModel.reset();
-      });
+  Widget trailing(context) => Observer(builder: (_) {
+    return sendViewModel.isBatchSending
+        ? TrailButton(
+        caption: S.of(context).remove,
+        onPressed: () {
+          var pageToJump = controller.page.round() - 1;
+          pageToJump = pageToJump > 0 ? pageToJump : 0;
+          final item = _defineCurrentSendItem();
+          sendViewModel.removeSendItem(item);
+          controller.jumpToPage(pageToJump);
+        })
+        : TrailButton(
+        caption: S.of(context).clear,
+        onPressed: () {
+          final item = _defineCurrentSendItem();
+          _formKey.currentState.reset();
+          item.reset();
+        });
+  });
 
   @override
   Widget body(BuildContext context) {
     _setEffects(context);
 
-    return KeyboardActions(
-        config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _cryptoAmountFocus,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
+    return Form(
+      key: _formKey,
+      child: ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.only(bottom: 24),
+          content: Column(
+            children: <Widget>[
+              Container(
+                  height: sendViewModel.isElectrumWallet ? 470 : 445,
+                  child: Observer(
+                    builder: (_) {
+                      return PageView.builder(
+                          scrollDirection: Axis.horizontal,
+                          controller: controller,
+                          itemCount: sendViewModel.sendItemList.length,
+                          itemBuilder: (context, index) {
+                            final item = sendViewModel.sendItemList[index];
+
+                            return SendCard(
+                              key: item.key,
+                              item: item,
+                              sendViewModel: sendViewModel,
+                            );
+                          }
+                      );
+                    },
+                  )
               ),
-              KeyboardActionsItem(
-                focusNode: _fiatAmountFocus,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
-              )
-            ]),
-        child: Container(
-          height: 0,
-          color: Theme.of(context).backgroundColor,
-          child: ScrollableWithBottomSection(
-              contentPadding: EdgeInsets.only(bottom: 24),
-              content: Column(
-                children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24),
-                          bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(colors: [
-                        Theme.of(context).primaryTextTheme.subhead.color,
-                        Theme.of(context)
-                            .primaryTextTheme
-                            .subhead
-                            .decorationColor,
-                      ], begin: Alignment.topLeft, end: Alignment.bottomRight),
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
-                          child: Column(
-                            children: <Widget>[
-                              AddressTextField(
-                                focusNode: _addressFocusNode,
-                                controller: _addressController,
-                                onURIScanned: (uri) {
-                                  var address = '';
-                                  var amount = '';
+              Padding(
+                  padding: EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
+                  child: Container(
+                      height: 10,
+                      child: Observer(builder: (_) {
+                        final count = sendViewModel.sendItemList.length;
 
-                                  if (uri != null) {
-                                    address = uri.path;
-                                    amount = uri.queryParameters['tx_amount'] ??
-                                        uri.queryParameters['amount'];
-                                  } else {
-                                    address = uri.toString();
-                                  }
-
-                                  _addressController.text = address;
-                                  _cryptoAmountController.text = amount;
-                                },
-                                options: [
-                                  AddressTextFieldOption.paste,
-                                  AddressTextFieldOption.qrCode,
-                                  AddressTextFieldOption.addressBook
-                                ],
-                                buttonColor: Theme.of(context)
+                        return count > 1
+                          ? SmoothPageIndicator(
+                            controller: controller,
+                            count: count,
+                            effect: ScrollingDotsEffect(
+                                spacing: 6.0,
+                                radius: 6.0,
+                                dotWidth: 6.0,
+                                dotHeight: 6.0,
+                                dotColor: Theme.of(context)
                                     .primaryTextTheme
-                                    .display1
-                                    .color,
-                                borderColor: Theme.of(context)
+                                    .display2
+                                    .backgroundColor,
+                                activeDotColor: Theme.of(context)
                                     .primaryTextTheme
                                     .headline
                                     .color,
@@ -190,6 +150,9 @@ class SendPage extends BasePage {
                                             keyboardType:
                                             TextInputType.numberWithOptions(
                                                 signed: false, decimal: true),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                            ],
                                             prefixIcon: Padding(
                                               padding: EdgeInsets.only(top: 9),
                                               child: Text(
@@ -299,6 +262,9 @@ class SendPage extends BasePage {
                                     keyboardType:
                                         TextInputType.numberWithOptions(
                                             signed: false, decimal: true),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                    ],
                                     prefixIcon: Padding(
                                       padding: EdgeInsets.only(top: 9),
                                       child:
@@ -476,214 +442,152 @@ class SendPage extends BasePage {
                               fontWeight: FontWeight.w600,
                               color: Theme.of(context)
                                   .primaryTextTheme
-                                  .display4
-                                  .color),
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    height: 40,
-                    width: double.infinity,
-                    padding: EdgeInsets.only(left: 24),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: <Widget>[
-                          GestureDetector(
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(Routes.sendTemplate),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 1, right: 10),
-                              child: DottedBorder(
-                                  borderType: BorderType.RRect,
-                                  dashPattern: [6, 4],
-                                  color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .display2
-                                      .decorationColor,
-                                  strokeWidth: 2,
-                                  radius: Radius.circular(20),
-                                  child: Container(
-                                    height: 34,
-                                    width: 75,
-                                    padding:
-                                        EdgeInsets.only(left: 10, right: 10),
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(20)),
-                                      color: Colors.transparent,
-                                    ),
-                                    child: Text(
-                                      S.of(context).send_new,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .display3
-                                              .color),
-                                    ),
-                                  )),
-                            ),
-                          ),
-                          Observer(builder: (_) {
-                            final templates = sendViewModel.templates;
-                            final itemCount = templates.length;
-
-                            return ListView.builder(
-                                scrollDirection: Axis.horizontal,
-                                shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: itemCount,
-                                itemBuilder: (context, index) {
-                                  final template = templates[index];
-
-                                  return TemplateTile(
-                                    key: UniqueKey(),
-                                    to: template.name,
-                                    amount: template.amount,
-                                    from: template.cryptoCurrency,
-                                    onTap: () {
-                                      _addressController.text =
-                                          template.address;
-                                      _cryptoAmountController.text =
-                                          template.amount;
-                                      applyOpenaliasOrUnstoppableDomains(context);
-                                    },
-                                    onRemove: () {
-                                      showPopUp<void>(
-                                          context: context,
-                                          builder: (dialogContext) {
-                                            return AlertWithTwoActions(
-                                                alertTitle:
-                                                    S.of(context).template,
-                                                alertContent: S
-                                                    .of(context)
-                                                    .confirm_delete_template,
-                                                rightButtonText:
-                                                    S.of(context).delete,
-                                                leftButtonText:
-                                                    S.of(context).cancel,
-                                                actionRightButton: () {
-                                                  Navigator.of(dialogContext)
-                                                      .pop();
-                                                  sendViewModel.removeTemplate(
-                                                      template: template);
-                                                  sendViewModel
-                                                      .updateTemplate();
-                                                },
-                                                actionLeftButton: () =>
-                                                    Navigator.of(dialogContext)
-                                                        .pop());
-                                          });
-                                    },
-                                  );
-                                });
-                          })
-                        ],
+                                  .display2
+                                  .decorationColor,
+                              strokeWidth: 2,
+                              radius: Radius.circular(20),
+                              child: Container(
+                                height: 34,
+                                width: 75,
+                                padding:
+                                EdgeInsets.only(left: 10, right: 10),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  borderRadius:
+                                  BorderRadius.all(Radius.circular(20)),
+                                  color: Colors.transparent,
+                                ),
+                                child: Text(
+                                  S.of(context).send_new,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .display3
+                                          .color),
+                                ),
+                              )),
+                        ),
                       ),
-                    ),
-                  )
-                ],
+                      Observer(builder: (_) {
+                        final templates = sendViewModel.templates;
+                        final itemCount = templates.length;
+
+                        return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: itemCount,
+                            itemBuilder: (context, index) {
+                              final template = templates[index];
+
+                              return TemplateTile(
+                                key: UniqueKey(),
+                                to: template.name,
+                                amount: template.amount,
+                                from: template.cryptoCurrency,
+                                onTap: () async {
+                                  final item = _defineCurrentSendItem();
+                                  item.address =
+                                      template.address;
+                                  item.setCryptoAmount(template.amount);
+                                  final parsedAddress = await item
+                                      .applyOpenaliasOrUnstoppableDomains();
+                                  showAddressAlert(context, parsedAddress);
+                                },
+                                onRemove: () {
+                                  showPopUp<void>(
+                                      context: context,
+                                      builder: (dialogContext) {
+                                        return AlertWithTwoActions(
+                                            alertTitle:
+                                            S.of(context).template,
+                                            alertContent: S
+                                                .of(context)
+                                                .confirm_delete_template,
+                                            rightButtonText:
+                                            S.of(context).delete,
+                                            leftButtonText:
+                                            S.of(context).cancel,
+                                            actionRightButton: () {
+                                              Navigator.of(dialogContext)
+                                                  .pop();
+                                              sendViewModel
+                                                  .sendTemplateViewModel
+                                                  .removeTemplate(
+                                                  template: template);
+                                            },
+                                            actionLeftButton: () =>
+                                                Navigator.of(dialogContext)
+                                                    .pop());
+                                      });
+                                },
+                              );
+                            });
+                      })
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+          bottomSectionPadding:
+          EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          bottomSection: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: PrimaryButton(
+                  onPressed: () {
+                    sendViewModel.addSendItem();
+                  },
+                  text: S.of(context).add_receiver,
+                  color: Colors.green,
+                  textColor: Colors.white,
+                )
               ),
-              bottomSectionPadding:
-                  EdgeInsets.only(left: 24, right: 24, bottom: 24),
-              bottomSection: Observer(builder: (_) {
+              Observer(builder: (_) {
                 return LoadingPrimaryButton(
-                    onPressed: () async {
-                      if (_formKey.currentState.validate()) {
-                        await sendViewModel.createTransaction();
+                  onPressed: () async {
+                    if (!_formKey.currentState.validate()) {
+                      if (sendViewModel.sendItemList.length > 1) {
+                        showErrorValidationAlert(context);
                       }
-                    },
-                    text: S.of(context).send,
-                    color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Colors.white,
-                    isLoading: sendViewModel.state is IsExecutingState ||
-                        sendViewModel.state is TransactionCommitting,
-                    isDisabled: !sendViewModel.isReadyForSend,
-                    );
-              })),
-        ));
+
+                      return;
+                    }
+
+                    final notValidItems = sendViewModel.sendItemList
+                        .where((item) =>
+                    item.address.isEmpty || item.cryptoAmount.isEmpty)
+                        .toList();
+
+                    if (notValidItems?.isNotEmpty ?? false) {
+                      showErrorValidationAlert(context);
+                      return;
+                    }
+
+                    await sendViewModel.createTransaction();
+                  },
+                  text: S.of(context).send,
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white,
+                  isLoading: sendViewModel.state is IsExecutingState ||
+                      sendViewModel.state is TransactionCommitting,
+                  isDisabled: !sendViewModel.isReadyForSend,
+                );
+              },
+              )
+            ],
+          )),
+    );
   }
 
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
     }
-
-    _cryptoAmountController.addListener(() {
-      final amount = _cryptoAmountController.text;
-
-      if (sendViewModel.sendAll && amount != S.current.all) {
-        sendViewModel.sendAll = false;
-      }
-
-      if (amount != sendViewModel.cryptoAmount) {
-        sendViewModel.setCryptoAmount(amount);
-      }
-    });
-
-    _fiatAmountController.addListener(() {
-      final amount = _fiatAmountController.text;
-
-      if (amount != sendViewModel.fiatAmount) {
-        sendViewModel.sendAll = false;
-        sendViewModel.setFiatAmount(amount);
-      }
-    });
-
-    _noteController.addListener(() {
-      final note = _noteController.text ?? '';
-
-      if (note != sendViewModel.note) {
-        sendViewModel.note = note;
-      }
-    });
-
-    reaction((_) => sendViewModel.sendAll, (bool all) {
-      if (all) {
-        _cryptoAmountController.text = S.current.all;
-        _fiatAmountController.text = null;
-      }
-    });
-
-    reaction((_) => sendViewModel.fiatAmount, (String amount) {
-      if (amount != _fiatAmountController.text) {
-        _fiatAmountController.text = amount;
-      }
-    });
-
-    reaction((_) => sendViewModel.cryptoAmount, (String amount) {
-      if (sendViewModel.sendAll && amount != S.current.all) {
-        sendViewModel.sendAll = false;
-      }
-
-      if (amount != _cryptoAmountController.text) {
-        _cryptoAmountController.text = amount;
-      }
-    });
-
-    reaction((_) => sendViewModel.address, (String address) {
-      if (address != _addressController.text) {
-        _addressController.text = address;
-      }
-    });
-
-    _addressController.addListener(() {
-      final address = _addressController.text;
-
-      if (sendViewModel.address != address) {
-        sendViewModel.address = address;
-      }
-    });
-
-    reaction((_) => sendViewModel.note, (String note) {
-      if (note != _noteController.text) {
-        _noteController.text = note;
-      }
-    });
 
     reaction((_) => sendViewModel.state, (ExecutionState state) {
       if (state is FailureState) {
@@ -709,15 +613,14 @@ class SendPage extends BasePage {
                     alertTitle: S.of(context).confirm_sending,
                     amount: S.of(context).send_amount,
                     amountValue:
-                        sendViewModel.pendingTransaction.amountFormatted,
+                    sendViewModel.pendingTransaction.amountFormatted,
                     fiatAmountValue: sendViewModel.pendingTransactionFiatAmount
                         +  ' ' + sendViewModel.fiat.title,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
                     feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmount
                         +  ' ' + sendViewModel.fiat.title,
-                    recipientTitle: S.of(context).recipient_address,
-                    recipientAddress: sendViewModel.address,
+                    sendItemList: sendViewModel.sendItemList,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
                     actionRightButton: () {
@@ -755,8 +658,7 @@ class SendPage extends BasePage {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _addressController.text = '';
-          _cryptoAmountController.text = '';
+          sendViewModel.clearSendItemList();
         });
       }
     });
@@ -764,45 +666,21 @@ class SendPage extends BasePage {
     _effectsInstalled = true;
   }
 
-  Future<void> _setTransactionPriority(BuildContext context) async {
-    final items = priorityForWalletType(sendViewModel.walletType);
-    final selectedItem = items.indexOf(sendViewModel.transactionPriority);
-    final isShowScrollThumb = items.length > 3;
-
-    await showPopUp<void>(
-        builder: (_) => Picker(
-              items: items,
-              displayItem: sendViewModel.displayFeeRate,
-              selectedAtIndex: selectedItem,
-              title: S.of(context).please_select,
-              mainAxisAlignment: MainAxisAlignment.center,
-              onItemSelected: (TransactionPriority priority) =>
-                  sendViewModel.setTransactionPriority(priority),
-            ),
-        context: context);
+  SendItem _defineCurrentSendItem() {
+    final itemCount = controller.page.round();
+    return sendViewModel.sendItemList[itemCount];
   }
 
-  void applyOpenaliasOrUnstoppableDomains(BuildContext context) async {
-    final domain = _addressController.text;
-    final ticker = sendViewModel.currency.title.toLowerCase();
-    final parsedAddress = await parseAddressFromDomain(domain, ticker);
-    _addressController.text = parsedAddress.address;
-
-    switch (parsedAddress.parseFrom) {
-      case ParseFrom.unstoppableDomains:
-        showAddressAlert(
-            context,
-            S.of(context).address_detected,
-            S.of(context).address_from_domain(parsedAddress.name));
-        break;
-      case ParseFrom.openAlias:
-        showAddressAlert(
-            context,
-            S.of(context).openalias_alert_title,
-            S.of(context).openalias_alert_content(parsedAddress.name));
-        break;
-      case ParseFrom.notParsed:
-        break;
-    }
+  void showErrorValidationAlert(BuildContext context) async {
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.of(context).error,
+              alertContent: 'Please, check receiver forms',
+              buttonText: S.of(context).ok,
+              buttonAction: () =>
+                  Navigator.of(context).pop());
+        });
   }
 }
