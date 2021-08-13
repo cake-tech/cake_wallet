@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Bedrag",
   "transaction_details_fee" : "Vergoeding",
   "transaction_details_copied" : "${title} gekopieerd naar het klembord",
-  "transaction_details_recipient_address" : "Adres van de ontvanger",
+  "transaction_details_recipient_address" : "Adressen van ontvangers",
 
 
   "wallet_list_title" : "Monero portemonnee",
@@ -492,5 +492,7 @@
   "coin_control" : "Muntcontrole (optioneel)",
 
   "address_detected" : "Adres gedetecteerd",
-  "address_from_domain" : "Je adres is van unstoppable domain ${domain}"
+  "address_from_domain" : "Je adres is van unstoppable domain ${domain}",
+
+  "add_receiver" : "Nog een ontvanger toevoegen (optioneel)"
 }

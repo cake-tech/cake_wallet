@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Ammontare",
   "transaction_details_fee" : "Commissione",
   "transaction_details_copied" : "${title} copiati negli Appunti",
-  "transaction_details_recipient_address" : "Indirizzo destinatario",
+  "transaction_details_recipient_address" : "Indirizzi dei destinatari",
 
 
   "wallet_list_title" : "Portafoglio Monero",
@@ -492,5 +492,7 @@
   "coin_control" : "Controllo monete (opzionale)",
 
   "address_detected" : "Indirizzo rilevato",
-  "address_from_domain" : "Hai l'indirizzo da unstoppable domain ${domain}"
+  "address_from_domain" : "Hai l'indirizzo da unstoppable domain ${domain}",
+
+  "add_receiver" : "Aggiungi un altro ricevitore (opzionale)"
 }

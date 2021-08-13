@@ -284,7 +284,7 @@
   "transaction_details_amount" : "रकम",
   "transaction_details_fee" : "शुल्क",
   "transaction_details_copied" : "${title} क्लिपबोर्ड पर नकल",
-  "transaction_details_recipient_address" : "प्राप्तकर्ता का पता",
+  "transaction_details_recipient_address" : "प्राप्तकर्ता के पते",
 
 
   "wallet_list_title" : "Monero बटुआ",
@@ -492,5 +492,7 @@
   "coin_control" : "सिक्का नियंत्रण (वैकल्पिक)",
 
   "address_detected" : "पता लग गया",
-  "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है"
+  "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है",
+
+  "add_receiver" : "एक और रिसीवर जोड़ें (वैकल्पिक)"
 }

@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Iznos",
   "transaction_details_fee" : "Naknada",
   "transaction_details_copied" : "${title} kopiran u međuspremnik",
-  "transaction_details_recipient_address" : "Primateljeva adresa",
+  "transaction_details_recipient_address" : "Adrese primatelja",
 
 
   "wallet_list_title" : "Monero novčanik",
@@ -492,5 +492,7 @@
   "coin_control" : "Kontrola novca (nije obavezno)",
 
   "address_detected" : "Adresa je otkrivena",
-  "address_from_domain" : "Dobili ste adresu od unstoppable domain ${domain}"
+  "address_from_domain" : "Dobili ste adresu od unstoppable domain ${domain}",
+
+  "add_receiver" : "Dodajte drugi prijemnik (izborno)"
 }

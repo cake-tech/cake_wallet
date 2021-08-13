@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Amount",
   "transaction_details_fee" : "Fee",
   "transaction_details_copied" : "${title} copied to Clipboard",
-  "transaction_details_recipient_address" : "Recipient address",
+  "transaction_details_recipient_address" : "Recipient addresses",
 
 
   "wallet_list_title" : "Monero Wallet",
@@ -492,5 +492,7 @@
   "coin_control" : "Coin control (optional)",
 
   "address_detected" : "Address detected",
-  "address_from_domain" : "You got address from unstoppable domain ${domain}"
+  "address_from_domain" : "You got address from unstoppable domain ${domain}",
+
+  "add_receiver" : "Add another receiver (optional)"
 }

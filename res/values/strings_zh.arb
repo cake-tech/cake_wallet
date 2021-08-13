@@ -492,5 +492,7 @@
   "coin_control" : "硬幣控制（可選）",
 
   "address_detected" : "檢測到地址",
-  "address_from_domain" : "您有以下地址 unstoppable domain ${domain}"
+  "address_from_domain" : "您有以下地址 unstoppable domain ${domain}",
+
+  "add_receiver" : "添加另一個接收器（可選）"
 }

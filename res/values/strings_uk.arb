@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Сума",
   "transaction_details_fee" : "Комісія",
   "transaction_details_copied" : "${title} скопійовано в буфер обміну",
-  "transaction_details_recipient_address" : "Адреса отримувача",
+  "transaction_details_recipient_address" : "Адреси одержувачів",
 
 
   "wallet_list_title" : "Monero Гаманець",
@@ -492,5 +492,7 @@
   "coin_control" : "Контроль монет (необов’язково)",
 
   "address_detected" : "Виявлено адресу",
-  "address_from_domain" : "Ви отримали адресу від unstoppable domain ${domain}"
+  "address_from_domain" : "Ви отримали адресу від unstoppable domain ${domain}",
+
+  "add_receiver" : "Додати одержувача (необов'язково)"
 }

@@ -2,11 +2,10 @@ import 'package:mobx/mobx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -14,9 +13,11 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 
 class SendTemplatePage extends BasePage {
-  SendTemplatePage({@required this.sendViewModel});
+  SendTemplatePage({@required this.sendTemplateViewModel}) {
+    sendTemplateViewModel.output.reset();
+  }
 
-  final SendViewModel sendViewModel;
+  final SendTemplateViewModel sendTemplateViewModel;
   final _addressController = TextEditingController();
   final _cryptoAmountController = TextEditingController();
   final _fiatAmountController = TextEditingController();
@@ -100,7 +101,7 @@ class SendTemplatePage extends BasePage {
                                   .decorationColor,
                               fontWeight: FontWeight.w500,
                               fontSize: 14),
-                          validator: sendViewModel.templateValidator,
+                          validator: sendTemplateViewModel.templateValidator,
                         ),
                         Padding(
                           padding: EdgeInsets.only(top: 20),
@@ -145,49 +146,48 @@ class SendTemplatePage extends BasePage {
                                     .primaryTextTheme
                                     .headline
                                     .decorationColor),
-                            //validator: sendViewModel.addressValidator,
                           ),
                         ),
-                        Observer(builder: (_) {
-                          return Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: BaseTextFormField(
-                                  focusNode: _cryptoAmountFocus,
-                                  controller: _cryptoAmountController,
-                                  keyboardType: TextInputType.numberWithOptions(
-                                      signed: false, decimal: true),
-                                  inputFormatters: [
-                                    BlacklistingTextInputFormatter(
-                                        RegExp('[\\-|\\ ]'))
-                                  ],
-                                  prefixIcon: Padding(
-                                    padding: EdgeInsets.only(top: 9),
-                                    child:
-                                        Text(sendViewModel.currency.title + ':',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white,
-                                            )),
-                                  ),
-                                  hintText: '0.0000',
-                                  borderColor: Theme.of(context)
-                                      .primaryTextTheme
-                                      .headline
-                                      .color,
-                                  textStyle: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
-                                  placeholderTextStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline
-                                          .decorationColor,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14),
-                                  validator: sendViewModel.amountValidator));
-                        }),
+                        Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: BaseTextFormField(
+                                focusNode: _cryptoAmountFocus,
+                                controller: _cryptoAmountController,
+                                keyboardType: TextInputType.numberWithOptions(
+                                    signed: false, decimal: true),
+                                inputFormatters: [
+                                  BlacklistingTextInputFormatter(
+                                      RegExp('[\\-|\\ ]'))
+                                ],
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.only(top: 9),
+                                  child:
+                                  Text(sendTemplateViewModel
+                                      .currency.title + ':',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.white,
+                                      )),
+                                ),
+                                hintText: '0.0000',
+                                borderColor: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline
+                                    .color,
+                                textStyle: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                                placeholderTextStyle: TextStyle(
+                                    color: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .decorationColor,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14),
+                                validator: sendTemplateViewModel
+                                    .amountValidator)),
                         Padding(
                             padding: const EdgeInsets.only(top: 20),
                             child: BaseTextFormField(
@@ -201,7 +201,8 @@ class SendTemplatePage extends BasePage {
                               ],
                               prefixIcon: Padding(
                                 padding: EdgeInsets.only(top: 9),
-                                child: Text(sendViewModel.fiat.title + ':',
+                                child: Text(sendTemplateViewModel
+                                    .fiat.title + ':',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -236,12 +237,11 @@ class SendTemplatePage extends BasePage {
             bottomSection: PrimaryButton(
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  sendViewModel.addTemplate(
+                  sendTemplateViewModel.addTemplate(
                       name: _nameController.text,
                       address: _addressController.text,
-                      cryptoCurrency: sendViewModel.currency.title,
+                      cryptoCurrency: sendTemplateViewModel.currency.title,
                       amount: _cryptoAmountController.text);
-                  sendViewModel.updateTemplate();
                   Navigator.of(context).pop();
                 }
               },
@@ -258,19 +258,21 @@ class SendTemplatePage extends BasePage {
       return;
     }
 
-    reaction((_) => sendViewModel.fiatAmount, (String amount) {
+    final output = sendTemplateViewModel.output;
+
+    reaction((_) => output.fiatAmount, (String amount) {
       if (amount != _fiatAmountController.text) {
         _fiatAmountController.text = amount;
       }
     });
 
-    reaction((_) => sendViewModel.cryptoAmount, (String amount) {
+    reaction((_) => output.cryptoAmount, (String amount) {
       if (amount != _cryptoAmountController.text) {
         _cryptoAmountController.text = amount;
       }
     });
 
-    reaction((_) => sendViewModel.address, (String address) {
+    reaction((_) => output.address, (String address) {
       if (address != _addressController.text) {
         _addressController.text = address;
       }
@@ -279,24 +281,24 @@ class SendTemplatePage extends BasePage {
     _cryptoAmountController.addListener(() {
       final amount = _cryptoAmountController.text;
 
-      if (amount != sendViewModel.cryptoAmount) {
-        sendViewModel.setCryptoAmount(amount);
+      if (amount != output.cryptoAmount) {
+        output.setCryptoAmount(amount);
       }
     });
 
     _fiatAmountController.addListener(() {
       final amount = _fiatAmountController.text;
 
-      if (amount != sendViewModel.fiatAmount) {
-        sendViewModel.setFiatAmount(amount);
+      if (amount != output.fiatAmount) {
+        output.setFiatAmount(amount);
       }
     });
 
     _addressController.addListener(() {
       final address = _addressController.text;
 
-      if (sendViewModel.address != address) {
-        sendViewModel.address = address;
+      if (output.address != address) {
+        output.address = address;
       }
     });
 

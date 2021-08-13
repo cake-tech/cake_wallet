@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Betrag",
   "transaction_details_fee" : "Gebühr",
   "transaction_details_copied" : "${title} in die Zwischenablage kopiert",
-  "transaction_details_recipient_address" : "Empfängeradresse",
+  "transaction_details_recipient_address" : "Empfängeradressen",
 
 
   "wallet_list_title" : "Monero-Wallet",
@@ -492,5 +492,7 @@
   "coin_control" : "Münzkontrolle (optional)",
 
   "address_detected" : "Adresse erkannt",
-  "address_from_domain" : "Sie haben die Adresse von der unaufhaltsamen Domain ${domain} erhalten"
+  "address_from_domain" : "Sie haben die Adresse von der unaufhaltsamen Domain ${domain} erhalten",
+
+  "add_receiver" : "Fügen Sie einen weiteren Empfänger hinzu (optional)"
 }

@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Quantia",
   "transaction_details_fee" : "Taxa",
   "transaction_details_copied" : "${title} copiados para a área de transferência",
-  "transaction_details_recipient_address" : "Endereço do destinatário",
+  "transaction_details_recipient_address" : "Endereços de destinatários",
 
 
   "wallet_list_title" : "Carteira Monero",
@@ -492,5 +492,7 @@
   "coin_control" : "Controle de moedas (opcional)",
 
   "address_detected" : "Endereço detectado",
-  "address_from_domain" : "Você obteve o endereço de unstoppable domain ${domain}"
+  "address_from_domain" : "Você obteve o endereço de unstoppable domain ${domain}",
+
+  "add_receiver" : "Adicione outro receptor (opcional)"
 }

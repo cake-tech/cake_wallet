@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Сумма",
   "transaction_details_fee" : "Комиссия",
   "transaction_details_copied" : "${title} скопировано в буфер обмена",
-  "transaction_details_recipient_address" : "Адрес получателя",
+  "transaction_details_recipient_address" : "Адреса получателей",
 
 
   "wallet_list_title" : "Monero Кошелёк",
@@ -492,5 +492,7 @@
   "coin_control" : "Контроль монет (необязательно)",
 
   "address_detected" : "Обнаружен адрес",
-  "address_from_domain" : "Вы получили адрес из unstoppable domain ${domain}"
+  "address_from_domain" : "Вы получили адрес из unstoppable domain ${domain}",
+
+  "add_receiver" : "Добавить получателя (необязательно)"
 }

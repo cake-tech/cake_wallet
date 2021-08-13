@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Ilość",
   "transaction_details_fee" : "Opłata",
   "transaction_details_copied" : "${title} skopiowane do schowka",
-  "transaction_details_recipient_address" : "Adres odbiorcy",
+  "transaction_details_recipient_address" : "Adresy odbiorców",
 
 
   "wallet_list_title" : "Portfel Monero",
@@ -492,5 +492,7 @@
   "coin_control" : "Kontrola monet (opcjonalnie)",
 
   "address_detected" : "Wykryto adres",
-  "address_from_domain" : "Dostałeś adres od unstoppable domain ${domain}"
+  "address_from_domain" : "Dostałeś adres od unstoppable domain ${domain}",
+
+  "add_receiver" : "Dodaj kolejny odbiornik (opcjonalnie)"
 }
