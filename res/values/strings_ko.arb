@@ -494,5 +494,5 @@
   "address_detected" : "주소 감지",
   "address_from_domain" : "주소는 unstoppable domain ${domain}",
 
-  "add_receiver" : "수신기 추가"
+  "add_receiver" : "다른 수신기 추가(선택 사항)"
 }

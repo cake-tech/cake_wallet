@@ -494,5 +494,5 @@
   "address_detected" : "Виявлено адресу",
   "address_from_domain" : "Ви отримали адресу від unstoppable domain ${domain}",
 
-  "add_receiver" : "Додати одержувача"
+  "add_receiver" : "Додати одержувача (необов'язково)"
 }

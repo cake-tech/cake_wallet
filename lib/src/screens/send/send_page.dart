@@ -3,7 +3,7 @@ import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_a
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
-import 'package:cake_wallet/view_model/send/send_item.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -55,16 +55,16 @@ class SendPage extends BasePage {
         onPressed: () {
           var pageToJump = controller.page.round() - 1;
           pageToJump = pageToJump > 0 ? pageToJump : 0;
-          final item = _defineCurrentSendItem();
-          sendViewModel.removeSendItem(item);
+          final output = _defineCurrentOutput();
+          sendViewModel.removeOutput(output);
           controller.jumpToPage(pageToJump);
         })
         : TrailButton(
         caption: S.of(context).clear,
         onPressed: () {
-          final item = _defineCurrentSendItem();
+          final output = _defineCurrentOutput();
           _formKey.currentState.reset();
-          item.reset();
+          output.reset();
         });
   });
 
@@ -79,19 +79,19 @@ class SendPage extends BasePage {
           content: Column(
             children: <Widget>[
               Container(
-                  height: sendViewModel.isElectrumWallet ? 470 : 445,
+                  height: sendViewModel.isElectrumWallet ? 490 : 465,
                   child: Observer(
                     builder: (_) {
                       return PageView.builder(
                           scrollDirection: Axis.horizontal,
                           controller: controller,
-                          itemCount: sendViewModel.sendItemList.length,
+                          itemCount: sendViewModel.outputs.length,
                           itemBuilder: (context, index) {
-                            final item = sendViewModel.sendItemList[index];
+                            final output = sendViewModel.outputs[index];
 
                             return SendCard(
-                              key: item.key,
-                              item: item,
+                              key: output.key,
+                              output: output,
                               sendViewModel: sendViewModel,
                             );
                           }
@@ -104,7 +104,7 @@ class SendPage extends BasePage {
                   child: Container(
                       height: 10,
                       child: Observer(builder: (_) {
-                        final count = sendViewModel.sendItemList.length;
+                        final count = sendViewModel.outputs.length;
 
                         return count > 1
                           ? SmoothPageIndicator(
@@ -488,11 +488,11 @@ class SendPage extends BasePage {
                                 amount: template.amount,
                                 from: template.cryptoCurrency,
                                 onTap: () async {
-                                  final item = _defineCurrentSendItem();
-                                  item.address =
+                                  final output = _defineCurrentOutput();
+                                  output.address =
                                       template.address;
-                                  item.setCryptoAmount(template.amount);
-                                  final parsedAddress = await item
+                                  output.setCryptoAmount(template.amount);
+                                  final parsedAddress = await output
                                       .applyOpenaliasOrUnstoppableDomains();
                                   showAddressAlert(context, parsedAddress);
                                 },
@@ -540,27 +540,38 @@ class SendPage extends BasePage {
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
                   onPressed: () {
-                    sendViewModel.addSendItem();
+                    sendViewModel.addOutput();
+                    Future.delayed(const Duration(milliseconds: 250), () {
+                      controller.jumpToPage(sendViewModel.outputs.length - 1);
+                    });
                   },
                   text: S.of(context).add_receiver,
-                  color: Colors.green,
-                  textColor: Colors.white,
+                  color: Colors.transparent,
+                  textColor: Theme.of(context)
+                      .accentTextTheme
+                      .display2
+                      .decorationColor,
+                  isDottedBorder: true,
+                  borderColor: Theme.of(context)
+                      .primaryTextTheme
+                      .display2
+                      .decorationColor,
                 )
               ),
               Observer(builder: (_) {
                 return LoadingPrimaryButton(
                   onPressed: () async {
                     if (!_formKey.currentState.validate()) {
-                      if (sendViewModel.sendItemList.length > 1) {
+                      if (sendViewModel.outputs.length > 1) {
                         showErrorValidationAlert(context);
                       }
 
                       return;
                     }
 
-                    final notValidItems = sendViewModel.sendItemList
+                    final notValidItems = sendViewModel.outputs
                         .where((item) =>
-                    item.address.isEmpty || item.cryptoAmount.isEmpty)
+                        item.address.isEmpty || item.cryptoAmount.isEmpty)
                         .toList();
 
                     if (notValidItems?.isNotEmpty ?? false) {
@@ -620,7 +631,7 @@ class SendPage extends BasePage {
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
                     feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmount
                         +  ' ' + sendViewModel.fiat.title,
-                    sendItemList: sendViewModel.sendItemList,
+                    outputs: sendViewModel.outputs,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
                     actionRightButton: () {
@@ -658,7 +669,7 @@ class SendPage extends BasePage {
 
       if (state is TransactionCommitted) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          sendViewModel.clearSendItemList();
+          sendViewModel.clearOutputs();
         });
       }
     });
@@ -666,9 +677,9 @@ class SendPage extends BasePage {
     _effectsInstalled = true;
   }
 
-  SendItem _defineCurrentSendItem() {
+  Output _defineCurrentOutput() {
     final itemCount = controller.page.round();
-    return sendViewModel.sendItemList[itemCount];
+    return sendViewModel.outputs[itemCount];
   }
 
   void showErrorValidationAlert(BuildContext context) async {

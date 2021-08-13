@@ -1,4 +1,4 @@
-import 'package:cake_wallet/view_model/send/send_item.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/store/templates/send_template_store.dart';
@@ -21,10 +21,10 @@ abstract class SendTemplateViewModelBase with Store {
   SendTemplateViewModelBase(this._wallet, this._settingsStore,
       this._sendTemplateStore, this._fiatConversationStore) {
 
-    sendItem = SendItem(_wallet, _settingsStore, _fiatConversationStore);
+    output = Output(_wallet, _settingsStore, _fiatConversationStore);
   }
 
-  SendItem sendItem;
+  Output output;
 
   Validator get amountValidator => AmountValidator(type: _wallet.type);
 

@@ -494,5 +494,5 @@
   "address_detected" : "पता लग गया",
   "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है",
 
-  "add_receiver" : "रिसीवर जोड़ें"
+  "add_receiver" : "एक और रिसीवर जोड़ें (वैकल्पिक)"
 }
