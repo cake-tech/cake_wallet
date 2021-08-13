@@ -104,10 +104,12 @@ class DarkTheme extends ThemeBase {
           ),
           display2: TextStyle(
               color: Colors.white, // estimated fee (send page)
+              backgroundColor: PaletteDark.cyanBlue, // dot color for indicator on send page
               decorationColor: PaletteDark.darkCyanBlue // template dotted border (send page)
           ),
           display3: TextStyle(
               color: PaletteDark.darkCyanBlue, // template new text (send page)
+              backgroundColor: Colors.white, // active dot color for indicator on send page
               decorationColor: PaletteDark.darkVioletBlue // template background color (send page)
           ),
           display4: TextStyle(
