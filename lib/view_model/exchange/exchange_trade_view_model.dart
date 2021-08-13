@@ -79,8 +79,11 @@ abstract class ExchangeTradeViewModelBase with Store {
       return;
     }
 
-    sendViewModel.address = trade.inputAddress;
-    sendViewModel.setCryptoAmount(trade.amount);
+    sendViewModel.clearSendItemList();
+    final item = sendViewModel.sendItemList.first;
+
+    item.address = trade.inputAddress;
+    item.setCryptoAmount(trade.amount);
     await sendViewModel.createTransaction();
   }
 

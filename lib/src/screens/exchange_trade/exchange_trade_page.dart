@@ -385,9 +385,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             .pendingTransactionFiatAmount +
                         ' ' +
                         widget.exchangeTradeViewModel.sendViewModel.fiat.title,
-                    recipientTitle: S.of(context).recipient_address,
-                    recipientAddress:
-                        widget.exchangeTradeViewModel.sendViewModel.address);
+                    sendItemList: widget.exchangeTradeViewModel.sendViewModel
+                                 .sendItemList);
               });
         });
       }

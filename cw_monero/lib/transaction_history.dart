@@ -26,6 +26,10 @@ final transactionCreateNative = moneroApi
     .lookup<NativeFunction<transaction_create>>('transaction_create')
     .asFunction<TransactionCreate>();
 
+final transactionCreateMultDestNative = moneroApi
+    .lookup<NativeFunction<transaction_create_mult_dest>>('transaction_create_mult_dest')
+    .asFunction<TransactionCreateMultDest>();
+
 final transactionCommitNative = moneroApi
     .lookup<NativeFunction<transaction_commit>>('transaction_commit')
     .asFunction<TransactionCommit>();
@@ -102,6 +106,59 @@ PendingTransactionDescription createTransactionSync(
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
+PendingTransactionDescription createTransactionMultDestSync(
+    {List<String> addresses,
+      String paymentId,
+      List<String> amounts,
+      int size,
+      int priorityRaw,
+      int accountIndex = 0}) {
+  final List<Pointer<Utf8>> addressesPointers = addresses.map(Utf8.toUtf8).toList();
+  final Pointer<Pointer<Utf8>> addressesPointerPointer = allocate(count: size);
+
+  final List<Pointer<Utf8>> amountsPointers = amounts.map(Utf8.toUtf8).toList();
+  final Pointer<Pointer<Utf8>> amountsPointerPointer = allocate(count: size);
+
+  for (int i = 0; i < size; i++) {
+    addressesPointerPointer[ i ] = addressesPointers[ i ];
+    amountsPointerPointer[ i ] = amountsPointers[ i ];
+  }
+
+  final paymentIdPointer = Utf8.toUtf8(paymentId);
+  final errorMessagePointer = allocate<Utf8Box>();
+  final pendingTransactionRawPointer = allocate<PendingTransactionRaw>();
+  final created = transactionCreateMultDestNative(
+      addressesPointerPointer,
+      paymentIdPointer,
+      amountsPointerPointer,
+      size,
+      priorityRaw,
+      accountIndex,
+      errorMessagePointer,
+      pendingTransactionRawPointer) !=
+      0;
+
+  free(addressesPointerPointer);
+  free(amountsPointerPointer);
+
+  addressesPointers.forEach((element) => free(element));
+  amountsPointers.forEach((element) => free(element));
+
+  free(paymentIdPointer);
+
+  if (!created) {
+    final message = errorMessagePointer.ref.getValue();
+    free(errorMessagePointer);
+    throw CreationTransactionException(message: message);
+  }
+
+  return PendingTransactionDescription(
+      amount: pendingTransactionRawPointer.ref.amount,
+      fee: pendingTransactionRawPointer.ref.fee,
+      hash: pendingTransactionRawPointer.ref.getHash(),
+      pointerAddress: pendingTransactionRawPointer.address);
+}
+
 void commitTransactionFromPointerAddress({int address}) => commitTransaction(
     transactionPointer: Pointer<PendingTransactionRaw>.fromAddress(address));
 
@@ -132,6 +189,23 @@ PendingTransactionDescription _createTransactionSync(Map args) {
       accountIndex: accountIndex);
 }
 
+PendingTransactionDescription _createTransactionMultDestSync(Map args) {
+  final addresses = args['addresses'] as List<String>;
+  final paymentId = args['paymentId'] as String;
+  final amounts = args['amounts'] as List<String>;
+  final size = args['size'] as int;
+  final priorityRaw = args['priorityRaw'] as int;
+  final accountIndex = args['accountIndex'] as int;
+
+  return createTransactionMultDestSync(
+      addresses: addresses,
+      paymentId: paymentId,
+      amounts: amounts,
+      size: size,
+      priorityRaw: priorityRaw,
+      accountIndex: accountIndex);
+}
+
 Future<PendingTransactionDescription> createTransaction(
         {String address,
         String paymentId,
@@ -142,6 +216,22 @@ Future<PendingTransactionDescription> createTransaction(
       'address': address,
       'paymentId': paymentId,
       'amount': amount,
+      'priorityRaw': priorityRaw,
+      'accountIndex': accountIndex
+    });
+
+Future<PendingTransactionDescription> createTransactionMultDest(
+    {List<String> addresses,
+      String paymentId,
+      List<String> amounts,
+      int size,
+      int priorityRaw,
+      int accountIndex = 0}) =>
+    compute(_createTransactionMultDestSync, {
+      'addresses': addresses,
+      'paymentId': paymentId,
+      'amounts': amounts,
+      'size': size,
       'priorityRaw': priorityRaw,
       'accountIndex': accountIndex
     });
