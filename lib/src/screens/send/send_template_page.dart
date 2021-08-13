@@ -148,46 +148,45 @@ class SendTemplatePage extends BasePage {
                                     .decorationColor),
                           ),
                         ),
-                        Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: BaseTextFormField(
-                                focusNode: _cryptoAmountFocus,
-                                controller: _cryptoAmountController,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    signed: false, decimal: true),
-                                inputFormatters: [
-                                  BlacklistingTextInputFormatter(
-                                      RegExp('[\\-|\\ ]'))
-                                ],
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(top: 9),
-                                  child:
-                                  Text(sendTemplateViewModel
-                                      .currency.title + ':',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      )),
-                                ),
-                                hintText: '0.0000',
-                                borderColor: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .color,
-                                textStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
-                                placeholderTextStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headline
-                                        .decorationColor,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14),
-                                validator: sendTemplateViewModel
-                                    .amountValidator)),
+                        Observer(builder: (_) {
+                          return Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: BaseTextFormField(
+                                  focusNode: _cryptoAmountFocus,
+                                  controller: _cryptoAmountController,
+                                  keyboardType: TextInputType.numberWithOptions(
+                                      signed: false, decimal: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                  ],
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(top: 9),
+                                    child:
+                                        Text(sendViewModel.currency.title + ':',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            )),
+                                  ),
+                                  hintText: '0.0000',
+                                  borderColor: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline
+                                      .color,
+                                  textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                  placeholderTextStyle: TextStyle(
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .headline
+                                          .decorationColor,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14),
+                                  validator: sendViewModel.amountValidator));
+                        }),
                         Padding(
                             padding: const EdgeInsets.only(top: 20),
                             child: BaseTextFormField(
@@ -196,8 +195,7 @@ class SendTemplatePage extends BasePage {
                               keyboardType: TextInputType.numberWithOptions(
                                   signed: false, decimal: true),
                               inputFormatters: [
-                                BlacklistingTextInputFormatter(
-                                    RegExp('[\\-|\\ ]'))
+                                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
                               ],
                               prefixIcon: Padding(
                                 padding: EdgeInsets.only(top: 9),

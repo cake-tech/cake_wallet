@@ -121,48 +121,325 @@ class SendPage extends BasePage {
                                     .backgroundColor,
                                 activeDotColor: Theme.of(context)
                                     .primaryTextTheme
-                                    .display3
-                                    .backgroundColor
-                            )
-                          )
-                          : Offstage();
-                      })
-                  )
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 24, bottom: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      S.of(context).send_templates,
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .display4
-                              .color),
-                    )
-                  ],
-                ),
-              ),
-              Container(
-                height: 40,
-                width: double.infinity,
-                padding: EdgeInsets.only(left: 24),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () => Navigator.of(context)
-                            .pushNamed(Routes.sendTemplate),
-                        child: Container(
-                          padding: EdgeInsets.only(left: 1, right: 10),
-                          child: DottedBorder(
-                              borderType: BorderType.RRect,
-                              dashPattern: [6, 4],
+                                    .headline
+                                    .color,
+                                textStyle: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                                hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .decorationColor),
+                                validator: sendViewModel.addressValidator,
+                                onPushPasteButton: (context) {
+                                  applyOpenaliasOrUnstoppableDomains(context);
+                                },
+                              ),
+                              Observer(
+                                  builder: (_) => Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: Stack(
+                                        children: [
+                                          BaseTextFormField(
+                                            focusNode: _cryptoAmountFocus,
+                                            controller: _cryptoAmountController,
+                                            keyboardType:
+                                            TextInputType.numberWithOptions(
+                                                signed: false, decimal: true),
+                                            inputFormatters: [
+                                              FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                            ],
+                                            prefixIcon: Padding(
+                                              padding: EdgeInsets.only(top: 9),
+                                              child: Text(
+                                                  sendViewModel.currency.title +
+                                                      ':',
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white,
+                                                  )),
+                                            ),
+                                            suffixIcon: SizedBox(
+                                              width: prefixIconWidth,
+                                            ),
+                                            hintText: '0.0000',
+                                            borderColor: Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .headline
+                                                  .color,
+                                            textStyle: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Colors.white),
+                                            placeholderTextStyle: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .headline
+                                                      .decorationColor,
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 14),
+                                            validator: sendViewModel.sendAll
+                                              ? sendViewModel.allAmountValidator
+                                              : sendViewModel
+                                              .amountValidator),
+                                          Positioned(
+                                            top: 2,
+                                            right: 0,
+                                            child: Container(
+                                              width: prefixIconWidth,
+                                              height: prefixIconHeight,
+                                              child: InkWell(
+                                                onTap: () async =>
+                                                    sendViewModel.setSendAll(),
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                           .primaryTextTheme
+                                                           .display1
+                                                           .color,
+                                                    borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(6))),
+                                                    child: Center(
+                                                      child: Text(
+                                                        S.of(context).all,
+                                                        textAlign:
+                                                          TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                          FontWeight.bold,
+                                                          color:
+                                                            Theme.of(context)
+                                                            .primaryTextTheme
+                                                            .display1
+                                                            .decorationColor))),
+                                                ))))])
+                                  )),
+                              Observer(
+                                  builder: (_) => Padding(
+                                        padding: EdgeInsets.only(top: 10),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.max,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: <Widget>[
+                                            Expanded(
+                                                child: Text(
+                                              S.of(context).available_balance +
+                                                  ':',
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .headline
+                                                      .decorationColor),
+                                            )),
+                                            Text(
+                                              sendViewModel.balance,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Theme.of(context)
+                                                      .primaryTextTheme
+                                                      .headline
+                                                      .decorationColor),
+                                            )
+                                          ],
+                                        ),
+                                      )),
+                              Padding(
+                                  padding: const EdgeInsets.only(top: 20),
+                                  child: BaseTextFormField(
+                                    focusNode: _fiatAmountFocus,
+                                    controller: _fiatAmountController,
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                            signed: false, decimal: true),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                    ],
+                                    prefixIcon: Padding(
+                                      padding: EdgeInsets.only(top: 9),
+                                      child:
+                                          Text(sendViewModel.fiat.title + ':',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.white,
+                                              )),
+                                    ),
+                                    hintText: '0.00',
+                                    borderColor: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .color,
+                                    textStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                    placeholderTextStyle: TextStyle(
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .headline
+                                            .decorationColor,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14),
+                                  )),
+                              Padding(
+                                  padding: EdgeInsets.only(top: 20),
+                                  child: BaseTextFormField(
+                                    controller: _noteController,
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                    borderColor: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .color,
+                                    textStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white),
+                                    hintText: S.of(context).note_optional,
+                                    placeholderTextStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .headline
+                                            .decorationColor),
+                                  ),
+                              ),
+                              Observer(
+                                  builder: (_) => GestureDetector(
+                                        onTap: () =>
+                                            _setTransactionPriority(context),
+                                        child: Container(
+                                          padding: EdgeInsets.only(top: 24),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(
+                                                  S
+                                                      .of(context)
+                                                      .send_estimated_fee,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                      color: Colors.white)),
+                                              Container(
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: <Widget>[
+                                                    Column(
+                                                      mainAxisAlignment: MainAxisAlignment.start,
+                                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                                      children: [
+                                                        Text(
+                                                            sendViewModel
+                                                                .estimatedFee
+                                                                .toString() +
+                                                                ' ' +
+                                                                sendViewModel
+                                                                .currency.title,
+                                                            style: TextStyle(
+                                                                fontSize: 12,
+                                                                fontWeight:
+                                                                FontWeight.w600,
+                                                                //color: Theme.of(context).primaryTextTheme.display2.color,
+                                                                color:
+                                                                Colors.white)),
+                                                        Padding(
+                                                          padding:
+                                                          EdgeInsets.only(top: 5),
+                                                          child: Text(
+                                                            sendViewModel
+                                                            .estimatedFeeFiatAmount
+                                                            +  ' ' +
+                                                           sendViewModel
+                                                           .fiat.title,
+                                                           style: TextStyle(
+                                                             fontSize: 12,
+                                                             fontWeight:
+                                                             FontWeight.w600,
+                                                             color: Theme
+                                                               .of(context)
+                                                               .primaryTextTheme
+                                                               .headline
+                                                               .decorationColor))
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          top: 2,
+                                                          left: 5),
+                                                      child: Icon(
+                                                        Icons.arrow_forward_ios,
+                                                        size: 12,
+                                                        color: Colors.white,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      )),
+                              if (sendViewModel.isElectrumWallet) Padding(
+                                padding: EdgeInsets.only(top: 6),
+                                child: GestureDetector(
+                                    onTap: () => Navigator.of(context)
+                                        .pushNamed(Routes.unspentCoinsList),
+                                    child: Container(
+                                      color: Colors.transparent,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                              S.of(context).coin_control,
+                                              style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: Colors.white)),
+                                          Icon(
+                                            Icons.arrow_forward_ios,
+                                            size: 12,
+                                            color: Colors.white,
+                                          )
+                                        ],
+                                      )
+                                    )
+                                )
+                              )
+                            ],
+                          ),
+                        )
+                      ]),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          S.of(context).send_templates,
+                          style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
                               color: Theme.of(context)
                                   .primaryTextTheme
                                   .display2
