@@ -163,8 +163,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     }
 
     if (hasMultiDestination) {
-      if (outputs.any((item) => item.sendAll) ||
-          outputs.any((item) => item.formattedCryptoAmount <= 0)) {
+      if (outputs.any((item) => item.sendAll
+          || item.formattedCryptoAmount <= 0)) {
         throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
       }
 
