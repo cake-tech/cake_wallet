@@ -556,7 +556,9 @@ Future setup(
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>((Trade trade, _) =>
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
-  getIt.registerFactory(() => BuyAmountViewModel());
+  getIt.registerFactory(() => BuyAmountViewModel(
+    settingsStore: getIt.get<SettingsStore>()
+  ));
 
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
