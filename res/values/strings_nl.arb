@@ -492,7 +492,7 @@
   "coin_control" : "Muntcontrole (optioneel)",
 
   "address_detected" : "Adres gedetecteerd",
-  "address_from_domain" : "Je adres is van unstoppable domain ${domain}",
+  "address_from_domain" : "Dit adres is van ${domain} op Unstoppable Domains",
 
   "add_receiver" : "Nog een ontvanger toevoegen (optioneel)"
 }

@@ -492,7 +492,7 @@
   "coin_control" : "コインコントロール（オプション）",
 
   "address_detected" : "アドレスが検出されました",
-  "address_from_domain" : "あなたはからアドレスを得ました unstoppable domain ${domain}",
+  "address_from_domain" : "このアドレスは ${domain} からのものです Unstoppable Domains",
 
   "add_receiver" : "別のレシーバーを追加します（オプション）"
 }

@@ -492,7 +492,7 @@
   "coin_control" : "Контроль монет (необов’язково)",
 
   "address_detected" : "Виявлено адресу",
-  "address_from_domain" : "Ви отримали адресу від unstoppable domain ${domain}",
+  "address_from_domain" : "Ця адреса від ${domain} на Unstoppable Domains",
 
   "add_receiver" : "Додати одержувача (необов'язково)"
 }

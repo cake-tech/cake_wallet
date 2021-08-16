@@ -492,7 +492,7 @@
   "coin_control" : "Kontrola novca (nije obavezno)",
 
   "address_detected" : "Adresa je otkrivena",
-  "address_from_domain" : "Dobili ste adresu od unstoppable domain ${domain}",
+  "address_from_domain" : "To je adresa od ${domain} na Unstoppable Domains",
 
   "add_receiver" : "Dodajte drugi prijemnik (izborno)"
 }

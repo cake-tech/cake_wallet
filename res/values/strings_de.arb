@@ -492,7 +492,7 @@
   "coin_control" : "Münzkontrolle (optional)",
 
   "address_detected" : "Adresse erkannt",
-  "address_from_domain" : "Sie haben die Adresse von der unaufhaltsamen Domain ${domain} erhalten",
+  "address_from_domain" : "Diese Adresse ist von ${domain} auf Unstoppable Domains",
 
   "add_receiver" : "Fügen Sie einen weiteren Empfänger hinzu (optional)"
 }
