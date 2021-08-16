@@ -492,7 +492,7 @@
   "coin_control" : "Controle de moedas (opcional)",
 
   "address_detected" : "Endereço detectado",
-  "address_from_domain" : "Você obteve o endereço de unstoppable domain ${domain}",
+  "address_from_domain" : "Este endereço é de ${domain} em Unstoppable Domains",
 
   "add_receiver" : "Adicione outro receptor (opcional)"
 }

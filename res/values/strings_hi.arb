@@ -492,7 +492,7 @@
   "coin_control" : "सिक्का नियंत्रण (वैकल्पिक)",
 
   "address_detected" : "पता लग गया",
-  "address_from_domain" : "आपको अजेय डोमेन ${domain} से पता मिला है",
+  "address_from_domain" : "यह पता ${domain} से है Unstoppable Domains",
 
   "add_receiver" : "एक और रिसीवर जोड़ें (वैकल्पिक)"
 }
