@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'package:cw_monero/convert_utf8_to_string.dart';
+import 'package:cw_monero/monero_output.dart';
 import 'package:cw_monero/structs/ut8_box.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,10 @@ final transactionsGetAllNative = moneroApi
 final transactionCreateNative = moneroApi
     .lookup<NativeFunction<transaction_create>>('transaction_create')
     .asFunction<TransactionCreate>();
+
+final transactionCreateMultDestNative = moneroApi
+    .lookup<NativeFunction<transaction_create_mult_dest>>('transaction_create_mult_dest')
+    .asFunction<TransactionCreateMultDest>();
 
 final transactionCommitNative = moneroApi
     .lookup<NativeFunction<transaction_commit>>('transaction_commit')
@@ -102,6 +107,59 @@ PendingTransactionDescription createTransactionSync(
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
+PendingTransactionDescription createTransactionMultDestSync(
+    {List<MoneroOutput> outputs,
+      String paymentId,
+      int priorityRaw,
+      int accountIndex = 0}) {
+  final int size = outputs.length;
+  final List<Pointer<Utf8>> addressesPointers = outputs.map((output) =>
+      Utf8.toUtf8(output.address)).toList();
+  final Pointer<Pointer<Utf8>> addressesPointerPointer = allocate(count: size);
+  final List<Pointer<Utf8>> amountsPointers = outputs.map((output) =>
+      Utf8.toUtf8(output.amount)).toList();
+  final Pointer<Pointer<Utf8>> amountsPointerPointer = allocate(count: size);
+
+  for (int i = 0; i < size; i++) {
+    addressesPointerPointer[i] = addressesPointers[i];
+    amountsPointerPointer[i] = amountsPointers[i];
+  }
+
+  final paymentIdPointer = Utf8.toUtf8(paymentId);
+  final errorMessagePointer = allocate<Utf8Box>();
+  final pendingTransactionRawPointer = allocate<PendingTransactionRaw>();
+  final created = transactionCreateMultDestNative(
+      addressesPointerPointer,
+      paymentIdPointer,
+      amountsPointerPointer,
+      size,
+      priorityRaw,
+      accountIndex,
+      errorMessagePointer,
+      pendingTransactionRawPointer) !=
+      0;
+
+  free(addressesPointerPointer);
+  free(amountsPointerPointer);
+
+  addressesPointers.forEach((element) => free(element));
+  amountsPointers.forEach((element) => free(element));
+
+  free(paymentIdPointer);
+
+  if (!created) {
+    final message = errorMessagePointer.ref.getValue();
+    free(errorMessagePointer);
+    throw CreationTransactionException(message: message);
+  }
+
+  return PendingTransactionDescription(
+      amount: pendingTransactionRawPointer.ref.amount,
+      fee: pendingTransactionRawPointer.ref.fee,
+      hash: pendingTransactionRawPointer.ref.getHash(),
+      pointerAddress: pendingTransactionRawPointer.address);
+}
+
 void commitTransactionFromPointerAddress({int address}) => commitTransaction(
     transactionPointer: Pointer<PendingTransactionRaw>.fromAddress(address));
 
@@ -132,9 +190,22 @@ PendingTransactionDescription _createTransactionSync(Map args) {
       accountIndex: accountIndex);
 }
 
+PendingTransactionDescription _createTransactionMultDestSync(Map args) {
+  final outputs = args['outputs'] as List<MoneroOutput>;
+  final paymentId = args['paymentId'] as String;
+  final priorityRaw = args['priorityRaw'] as int;
+  final accountIndex = args['accountIndex'] as int;
+
+  return createTransactionMultDestSync(
+      outputs: outputs,
+      paymentId: paymentId,
+      priorityRaw: priorityRaw,
+      accountIndex: accountIndex);
+}
+
 Future<PendingTransactionDescription> createTransaction(
         {String address,
-        String paymentId,
+        String paymentId = '',
         String amount,
         int priorityRaw,
         int accountIndex = 0}) =>
@@ -142,6 +213,18 @@ Future<PendingTransactionDescription> createTransaction(
       'address': address,
       'paymentId': paymentId,
       'amount': amount,
+      'priorityRaw': priorityRaw,
+      'accountIndex': accountIndex
+    });
+
+Future<PendingTransactionDescription> createTransactionMultDest(
+    {List<MoneroOutput> outputs,
+      String paymentId = '',
+      int priorityRaw,
+      int accountIndex = 0}) =>
+    compute(_createTransactionMultDestSync, {
+      'outputs': outputs,
+      'paymentId': paymentId,
       'priorityRaw': priorityRaw,
       'accountIndex': accountIndex
     });

@@ -4,17 +4,19 @@ class CakeScrollbar extends StatelessWidget {
   CakeScrollbar({
     @required this.backgroundHeight,
     @required this.thumbHeight,
-    @required this.fromTop
+    @required this.fromTop,
+    this.rightOffset = 6
   });
 
   final double backgroundHeight;
   final double thumbHeight;
   final double fromTop;
+  final double rightOffset;
 
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        right: 6,
+        right: rightOffset,
         child: Container(
           height: backgroundHeight,
           width: 6,

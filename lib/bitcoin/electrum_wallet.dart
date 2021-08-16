@@ -158,9 +158,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     const minAmount = 546;
     final transactionCredentials = credentials as BitcoinTransactionCredentials;
     final inputs = <BitcoinUnspent>[];
-    final credentialsAmount = transactionCredentials.amount != null
-      ? stringDoubleToBitcoinAmount(transactionCredentials.amount)
-      : 0;
+    final outputs = transactionCredentials.outputs;
+    final hasMultiDestination = outputs.length > 1;
     var allInputsAmount = 0;
 
     if (unspentCoins.isEmpty) {
@@ -174,28 +173,60 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
     }
 
-    if (inputs.isEmpty ||
-        (credentialsAmount > 0 && allInputsAmount < credentialsAmount)) {
+    if (inputs.isEmpty) {
       throw BitcoinTransactionNoInputsException();
     }
 
-    final allAmountFee =
-      feeAmountForPriority(transactionCredentials.priority, inputs.length, 1);
+    final allAmountFee = feeAmountForPriority(
+        transactionCredentials.priority, inputs.length, outputs.length);
     final allAmount = allInputsAmount - allAmountFee;
 
-    final amount = transactionCredentials.amount == null ||
-        allAmount - credentialsAmount < minAmount
-        ? allAmount
-        : credentialsAmount;
-    final fee = transactionCredentials.amount == null || amount == allAmount
-        ? allAmountFee
-        : calculateEstimatedFee(transactionCredentials.priority, amount);
+    var credentialsAmount = 0;
+    var amount = 0;
+    var fee = 0;
+
+    if (hasMultiDestination) {
+      if (outputs.any((item) => item.sendAll
+          || item.formattedCryptoAmount <= 0)) {
+        throw BitcoinTransactionWrongBalanceException(currency);
+      }
+
+      credentialsAmount = outputs.fold(0, (acc, value) =>
+          acc + value.formattedCryptoAmount);
+
+      if (allAmount - credentialsAmount < minAmount) {
+        throw BitcoinTransactionWrongBalanceException(currency);
+      }
+
+      amount = credentialsAmount;
+
+      fee = calculateEstimatedFee(transactionCredentials.priority, amount,
+          outputsCount: outputs.length + 1);
+    } else {
+      final output = outputs.first;
+
+      credentialsAmount = !output.sendAll
+          ? output.formattedCryptoAmount
+          : 0;
+
+      if (credentialsAmount > allAmount) {
+        throw BitcoinTransactionWrongBalanceException(currency);
+      }
+
+      amount = output.sendAll || allAmount - credentialsAmount < minAmount
+          ? allAmount
+          : credentialsAmount;
+
+      fee = output.sendAll || amount == allAmount
+          ? allAmountFee
+          : calculateEstimatedFee(transactionCredentials.priority, amount);
+    }
 
     if (fee == 0) {
       throw BitcoinTransactionWrongBalanceException(currency);
     }
 
-    final totalAmount =  amount + fee;
+    final totalAmount = amount + fee;
 
     if (totalAmount > balance.confirmed || totalAmount > allInputsAmount) {
       throw BitcoinTransactionWrongBalanceException(currency);
@@ -234,8 +265,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       if (input.isP2wpkh) {
         final p2wpkh = bitcoin
             .P2WPKH(
-                data: generatePaymentData(hd: hd, index: input.address.index),
-                network: networkType)
+            data: generatePaymentData(hd: hd, index: input.address.index),
+            network: networkType)
             .data;
 
         txb.addInput(input.hash, input.vout, null, p2wpkh.output);
@@ -244,11 +275,18 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
     });
 
-    txb.addOutput(
-        addressToOutputScript(transactionCredentials.address, networkType),
-        amount);
+    outputs.forEach((item) {
+      final outputAmount = hasMultiDestination
+          ? item.formattedCryptoAmount
+          : amount;
 
-    final estimatedSize = estimatedTransactionSize(inputs.length, 2);
+      txb.addOutput(
+          addressToOutputScript(item.address, networkType),
+          outputAmount);
+    });
+
+    final estimatedSize =
+      estimatedTransactionSize(inputs.length, outputs.length + 1);
     final feeAmount = feeRate(transactionCredentials.priority) * estimatedSize;
     final changeValue = totalInputAmount - amount - feeAmount;
 
@@ -293,7 +331,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       feeRate(priority) * estimatedTransactionSize(inputsCount, outputsCount);
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int amount) {
+  int calculateEstimatedFee(TransactionPriority priority, int amount,
+  {int outputsCount}) {
     if (priority is BitcoinTransactionPriority) {
       int inputsCount = 0;
 
@@ -321,8 +360,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
 
       // If send all, then we have no change value
+      final _outputsCount = outputsCount ?? (amount != null ? 2 : 1);
+
       return feeAmountForPriority(
-          priority, inputsCount, amount != null ? 2 : 1);
+          priority, inputsCount, _outputsCount);
     }
 
     return 0;
