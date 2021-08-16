@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/monero/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_monero/wallet_manager.dart' as monero_wallet_manager;
 import 'package:cw_monero/wallet.dart' as monero_wallet;
@@ -55,31 +56,22 @@ class MoneroWalletService extends WalletService<
   MoneroWalletService(this.walletInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
-
-  static Future<void> _removeCache(String name) async {
-    final path = await pathForWallet(name: name, type: WalletType.monero);
-    final cacheFile = File(path);
-
-    if (cacheFile.existsSync()) {
-      cacheFile.deleteSync();
-    }
-  }
-
+  
   static bool walletFilesExist(String path) =>
       !File(path).existsSync() && !File('$path.keys').existsSync();
 
   @override
+  WalletType getType() => WalletType.monero;
+
+  @override
   Future<MoneroWallet> create(MoneroNewWalletCredentials credentials) async {
     try {
-      final path =
-          await pathForWallet(name: credentials.name, type: WalletType.monero);
+      final path = await pathForWallet(name: credentials.name, type: getType());
       await monero_wallet_manager.createWallet(
           path: path,
           password: credentials.password,
           language: credentials.language);
-      final wallet = MoneroWallet(
-          filename: monero_wallet.getFilename(),
-          walletInfo: credentials.walletInfo);
+      final wallet = MoneroWallet(walletInfo: credentials.walletInfo);
       await wallet.init();
 
       return wallet;
@@ -93,7 +85,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<bool> isWalletExit(String name) async {
     try {
-      final path = await pathForWallet(name: name, type: WalletType.monero);
+      final path = await pathForWallet(name: name, type: getType());
       return monero_wallet_manager.isWalletExist(path: path);
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
@@ -105,7 +97,7 @@ class MoneroWalletService extends WalletService<
   @override
   Future<MoneroWallet> openWallet(String name, String password) async {
     try {
-      final path = await pathForWallet(name: name, type: WalletType.monero);
+      final path = await pathForWallet(name: name, type: getType());
 
       if (walletFilesExist(path)) {
         await repairOldAndroidWallet(name);
@@ -114,14 +106,13 @@ class MoneroWalletService extends WalletService<
       await monero_wallet_manager
           .openWalletAsync({'path': path, 'password': password});
       final walletInfo = walletInfoSource.values.firstWhere(
-          (info) => info.id == WalletBase.idFor(name, WalletType.monero),
+          (info) => info.id == WalletBase.idFor(name, getType()),
           orElse: () => null);
-      final wallet = MoneroWallet(
-          filename: monero_wallet.getFilename(), walletInfo: walletInfo);
-      final isValid = wallet.validate();
+      final wallet = MoneroWallet(walletInfo: walletInfo);
+      final isValid = wallet.walletAddresses.validate();
 
       if (!isValid) {
-        await _removeCache(name);
+        await restoreOrResetWalletFiles(name);
         wallet.close();
         return openWallet(name, password);
       }
@@ -136,7 +127,7 @@ class MoneroWalletService extends WalletService<
           (e is WalletOpeningException &&
               (e.message == 'std::bad_alloc' ||
                   e.message.contains('bad_alloc')))) {
-        await _removeCache(name);
+        await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
 
@@ -146,7 +137,7 @@ class MoneroWalletService extends WalletService<
 
   @override
   Future<void> remove(String wallet) async {
-    final path = await pathForWalletDir(name: wallet, type: WalletType.monero);
+    final path = await pathForWalletDir(name: wallet, type: getType());
     final file = Directory(path);
     final isExist = file.existsSync();
 
@@ -159,8 +150,7 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromKeys(
       MoneroRestoreWalletFromKeysCredentials credentials) async {
     try {
-      final path =
-          await pathForWallet(name: credentials.name, type: WalletType.monero);
+      final path = await pathForWallet(name: credentials.name, type: getType());
       await monero_wallet_manager.restoreFromKeys(
           path: path,
           password: credentials.password,
@@ -169,9 +159,7 @@ class MoneroWalletService extends WalletService<
           address: credentials.address,
           viewKey: credentials.viewKey,
           spendKey: credentials.spendKey);
-      final wallet = MoneroWallet(
-          filename: monero_wallet.getFilename(),
-          walletInfo: credentials.walletInfo);
+      final wallet = MoneroWallet(walletInfo: credentials.walletInfo);
       await wallet.init();
 
       return wallet;
@@ -186,16 +174,13 @@ class MoneroWalletService extends WalletService<
   Future<MoneroWallet> restoreFromSeed(
       MoneroRestoreWalletFromSeedCredentials credentials) async {
     try {
-      final path =
-          await pathForWallet(name: credentials.name, type: WalletType.monero);
+      final path = await pathForWallet(name: credentials.name, type: getType());
       await monero_wallet_manager.restoreFromSeed(
           path: path,
           password: credentials.password,
           seed: credentials.mnemonic,
           restoreHeight: credentials.height);
-      final wallet = MoneroWallet(
-          filename: monero_wallet.getFilename(),
-          walletInfo: credentials.walletInfo);
+      final wallet = MoneroWallet(walletInfo: credentials.walletInfo);
       await wallet.init();
 
       return wallet;
@@ -221,14 +206,14 @@ class MoneroWalletService extends WalletService<
       }
 
       final newWalletDirPath =
-          await pathForWalletDir(name: name, type: WalletType.monero);
+          await pathForWalletDir(name: name, type: getType());
 
       dir.listSync().forEach((f) {
         final file = File(f.path);
         final name = f.path.split('/').last;
         final newPath = newWalletDirPath + '/$name';
         final newFile = File(newPath);
-        print(file.path);
+
         if (!newFile.existsSync()) {
           newFile.createSync();
         }

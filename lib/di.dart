@@ -1,13 +1,13 @@
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
+import 'package:cake_wallet/bitcoin/litecoin_wallet_service.dart';
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
-import 'package:cake_wallet/entities/load_current_wallet.dart';
-import 'package:cake_wallet/entities/order.dart';
+import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/entities/wyre_service.dart';
 import 'package:cake_wallet/monero/monero_wallet_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/node.dart';
@@ -15,7 +15,8 @@ import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
-
+import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
+import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
@@ -39,10 +40,11 @@ import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/trade_details/trade_details_page.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_page.dart';
+import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
+import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
-import 'package:cake_wallet/src/screens/wyre/wyre_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';
@@ -61,6 +63,8 @@ import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.d
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
+import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
+import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_view_model.dart';
 import 'package:cake_wallet/view_model/edit_backup_password_view_model.dart';
@@ -71,10 +75,14 @@ import 'package:cake_wallet/view_model/node_list/node_create_or_edit_view_model.
 import 'package:cake_wallet/view_model/order_details_view_model.dart';
 import 'package:cake_wallet/view_model/rescan_view_model.dart';
 import 'package:cake_wallet/view_model/restore_from_backup_view_model.dart';
+import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/setup_pin_code_view_model.dart';
 import 'package:cake_wallet/view_model/support_view_model.dart';
 import 'package:cake_wallet/view_model/transaction_details_view_model.dart';
 import 'package:cake_wallet/view_model/trade_details_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_details_view_model.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
+import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_edit_or_create_view_model.dart';
 import 'package:cake_wallet/view_model/auth_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
@@ -89,7 +97,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:cake_wallet/view_model/wyre_view_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -112,6 +119,7 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/entities/push_notifications_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -124,6 +132,7 @@ Box<Template> _templates;
 Box<ExchangeTemplate> _exchangeTemplates;
 Box<TransactionDescription> _transactionDescriptionBox;
 Box<Order> _ordersSource;
+Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
 
 Future setup(
     {Box<WalletInfo> walletInfoSource,
@@ -133,7 +142,8 @@ Future setup(
     Box<Template> templates,
     Box<ExchangeTemplate> exchangeTemplates,
     Box<TransactionDescription> transactionDescriptionBox,
-    Box<Order> ordersSource}) async {
+    Box<Order> ordersSource,
+    Box<UnspentCoinsInfo> unspentCoinsInfoSource}) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
   _contactSource = contactSource;
@@ -142,6 +152,7 @@ Future setup(
   _exchangeTemplates = exchangeTemplates;
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
+  _unspentCoinsInfoSource = unspentCoinsInfoSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
@@ -151,6 +162,7 @@ Future setup(
   final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
       (secrets.wyreApiKey?.isNotEmpty ?? false) &&
       (secrets.wyreAccountId?.isNotEmpty ?? false);
+
   final settingsStore = await SettingsStoreBase.load(
       nodeSource: _nodeSource, isBitcoinBuyEnabled: isBitcoinBuyEnabled);
 
@@ -231,6 +243,9 @@ Future setup(
       settingsStore: getIt.get<SettingsStore>(),
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
+
+  getIt.registerFactory(() => PushNotificationsService());
+
   getIt.registerFactory(() => DashboardViewModel(
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
@@ -238,9 +253,8 @@ Future setup(
       tradeFilterStore: getIt.get<TradeFilterStore>(),
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
       settingsStore: settingsStore,
-      ordersSource: _ordersSource,
       ordersStore: getIt.get<OrdersStore>(),
-      wyreViewModel: getIt.get<WyreViewModel>()));
+      pushNotificationsService: getIt.get<PushNotificationsService>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
       secureStorage: getIt.get<FlutterSecureStorage>(),
@@ -303,10 +317,17 @@ Future setup(
           addressEditOrCreateViewModel:
               getIt.get<WalletAddressEditOrCreateViewModel>(param1: item)));
 
-  getIt.registerFactory<SendViewModel>(() => SendViewModel(
+  getIt.registerFactory<SendTemplateViewModel>(() => SendTemplateViewModel(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateStore>(),
+      getIt.get<FiatConversionStore>()
+  ));
+
+  getIt.registerFactory<SendViewModel>(() => SendViewModel(
+      getIt.get<AppStore>().wallet,
+      getIt.get<AppStore>().settingsStore,
+      getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
       _transactionDescriptionBox));
 
@@ -314,7 +335,8 @@ Future setup(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
   getIt.registerFactory(
-      () => SendTemplatePage(sendViewModel: getIt.get<SendViewModel>()));
+      () => SendTemplatePage(
+          sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       _walletInfoSource,
@@ -357,7 +379,8 @@ Future setup(
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel,
           AccountListItem, void>(
       (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
-          (getIt.get<AppStore>().wallet as MoneroWallet).accountList,
+          (getIt.get<AppStore>().wallet as MoneroWallet).walletAddresses.accountList,
+          wallet: getIt.get<AppStore>().wallet,
           accountListItem: account));
 
   getIt.registerFactoryParam<MoneroAccountEditOrCreatePage, AccountListItem,
@@ -441,7 +464,11 @@ Future setup(
 
   getIt.registerFactory(() => MoneroWalletService(_walletInfoSource));
 
-  getIt.registerFactory(() => BitcoinWalletService(_walletInfoSource));
+  getIt.registerFactory(() =>
+      BitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource));
+
+  getIt.registerFactory(() =>
+      LitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource));
 
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
@@ -450,6 +477,8 @@ Future setup(
         return getIt.get<MoneroWalletService>();
       case WalletType.bitcoin:
         return getIt.get<BitcoinWalletService>();
+      case WalletType.litecoin:
+        return getIt.get<LitecoinWalletService>();
       default:
         return null;
     }
@@ -482,10 +511,14 @@ Future setup(
 
   getIt
       .registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
-          (TransactionInfo transactionInfo, _) => TransactionDetailsViewModel(
-              transactionInfo: transactionInfo,
-              transactionDescriptionBox: _transactionDescriptionBox,
-              settingsStore: getIt.get<SettingsStore>()));
+          (TransactionInfo transactionInfo, _) {
+            final wallet = getIt.get<AppStore>().wallet;
+            return TransactionDetailsViewModel(
+                transactionInfo: transactionInfo,
+                transactionDescriptionBox: _transactionDescriptionBox,
+                wallet: wallet,
+                settingsStore: getIt.get<SettingsStore>());
+          });
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
@@ -532,24 +565,37 @@ Future setup(
   getIt.registerFactoryParam<TradeDetailsPage, Trade, void>((Trade trade, _) =>
       TradeDetailsPage(getIt.get<TradeDetailsViewModel>(param1: trade)));
 
+  getIt.registerFactory(() => BuyAmountViewModel());
+
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
-    return WyreService(wallet: wallet);
+
+    return BuyViewModel(_ordersSource, getIt.get<OrdersStore>(),
+        getIt.get<SettingsStore>(), getIt.get<BuyAmountViewModel>(),
+        wallet: wallet);
   });
 
   getIt.registerFactory(() {
-    return WyreViewModel(ordersSource, getIt.get<OrdersStore>(),
-        wyreService: getIt.get<WyreService>());
+    return PreOrderPage(buyViewModel: getIt.get<BuyViewModel>());
   });
 
-  getIt.registerFactoryParam<WyrePage, String, void>((String url, _) =>
-      WyrePage(getIt.get<WyreViewModel>(),
-          ordersStore: getIt.get<OrdersStore>(), url: url));
+  getIt.registerFactoryParam<BuyWebViewPage, List, void>(
+          (List args, _) {
+            final url = args.first as String;
+            final buyViewModel = args[1] as BuyViewModel;
+
+            return BuyWebViewPage(buyViewModel: buyViewModel,
+                ordersStore: getIt.get<OrdersStore>(), url: url);
+          });
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
-          (order, _) => OrderDetailsViewModel(
-          wyreViewModel: getIt.get<WyreViewModel>(),
-          orderForDetails: order));
+          (order, _) {
+            final wallet = getIt.get<AppStore>().wallet;
+
+            return OrderDetailsViewModel(
+                wallet: wallet,
+                orderForDetails: order);
+          });
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
@@ -557,6 +603,36 @@ Future setup(
   getIt.registerFactory(() => SupportViewModel());
 
   getIt.registerFactory(() => SupportPage(getIt.get<SupportViewModel>()));
+
+  getIt.registerFactory(() {
+    final wallet = getIt.get<AppStore>().wallet;
+
+    return UnspentCoinsListViewModel(
+        wallet: wallet,
+        unspentCoinsInfo: _unspentCoinsInfoSource);
+  });
+
+  getIt.registerFactory(() => UnspentCoinsListPage(
+    unspentCoinsListViewModel: getIt.get<UnspentCoinsListViewModel>()
+  ));
+
+  getIt.registerFactoryParam<UnspentCoinsDetailsViewModel,
+      UnspentCoinsItem, UnspentCoinsListViewModel>((item, model) =>
+      UnspentCoinsDetailsViewModel(
+          unspentCoinsItem: item,
+          unspentCoinsListViewModel: model));
+
+  getIt.registerFactoryParam<UnspentCoinsDetailsPage, List, void>(
+        (List args, _) {
+        final item = args.first as UnspentCoinsItem;
+        final unspentCoinsListViewModel = args[1] as UnspentCoinsListViewModel;
+
+        return UnspentCoinsDetailsPage(
+            unspentCoinsDetailsViewModel:
+              getIt.get<UnspentCoinsDetailsViewModel>(
+                  param1: item,
+                  param2: unspentCoinsListViewModel));
+  });
 
   _isSetupFinished = true;
 }

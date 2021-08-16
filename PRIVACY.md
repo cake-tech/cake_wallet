@@ -1,6 +1,6 @@
 Privacy Policy
 
-Last modified: February 23, 2021
+Last modified: May 21, 2021
 
 Introduction
 ============
@@ -22,7 +22,7 @@ Definitions
 
 	- "App" means the software program provided by the Company, downloaded by You on any electronic device, named Cake Wallet.
 	- "Device" means any device that can access the App, such as a cell phone or tablet device.
-	- "Node" means a full Monero or Bitcoin Node, which transmits data to your App for processing and synchronization, and to which your Device transmits transactions which you would like to submit to the Monero or Bitcoin networks.
+	- "Node" means a full Monero or Bitcoin or Litecoin Node, which transmits data to your App for processing and synchronization, and to which your Device transmits transactions which you would like to submit to the Monero or Bitcoin or Litecoin networks.
 	- "Cake Wallet Nodes" refers to the set of cryptocurrency nodes operated and maintained by Cake Technologies.
 	- "Service" refers to the App.
 	- "Third-party Service" refers to any service integrated into the Cake Wallet Application. This includes ChangeNow.
@@ -34,7 +34,7 @@ Information We Collect About You and How We Collect It
 
 	We collect several types of information from and about users of our App, including information:
 		- By which you may be personally identified, such as name, e-mail address, or and a/any other identifier by which you may be contacted online or offline ("personal information" or "Personal Data”), ONLY when you provide it to us;
-		- Device IP address, the block height to which your wallet is synchronized, and any transactions which you use our Node to submit to the Monero or Bitcoin networks.
+		- Device IP address, the block height to which your wallet is synchronized, and any transactions which you use our Node to submit to the Monero or Bitcoin or Litecoin networks.
 	We collect this information:
 		- Directly from you when you provide it to us.
 		- Automatically as you use the App, if you use one of the Cake Wallet Nodes. Information collected automatically may include IP address and block height.
@@ -45,7 +45,7 @@ Information We Collect About You and How We Collect It
 
 	Data relating to your funds, and their security and privacy, remains on your device at ALL times. Your private keys, seeds, backup files, and wallet passcode are your own responsibility. This data is not received, collected, or stored by Cake Technologies at any time, for any reason.
 
-	Personal Data collected through the Cake Wallet Nodes is limited to your device's IP address, the block height to which your wallet is synchronized, and any transactions which you use our Node to submit to the Monero or Bitcoin networks. Personal Data received by Cake Technologies in this manner is not stored for any length of time, and thus Cake Technologies is both unwilling to and incapable of sharing this data, or using it for any purpose beyond ensuring your appropriate connection to our Nodes.
+	Personal Data collected through the Cake Wallet Nodes is limited to your device's IP address, the block height to which your wallet is synchronized, and any transactions which you use our Node to submit to the Monero or Bitcoin or Litecoin networks. Personal Data received by Cake Technologies in this manner is not stored for any length of time, and thus Cake Technologies is both unwilling to and incapable of sharing this data, or using it for any purpose beyond ensuring your appropriate connection to our Nodes.
 
 	If you decide to use a Node offered by any third party, some of which we offer by default in the Cake Wallet Application, said third party will receive this Personal Data instead of Cake Technologies. We take no responsibility for the actions of any third-party Node offered within the Application. If you decide to synchronize your Wallet using your own Node, neither Cake Technologies nor any third party will have access to this Personal Data.
 

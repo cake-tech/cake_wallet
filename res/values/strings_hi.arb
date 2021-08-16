@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "बटुआ विवरण पुनर्स्थापित करें",
   "restore_new_seed" : "नया बीज",
   "restore_active_seed" : "सक्रिय बीज",
-  "restore_bitcoin_description_from_seed" : "12 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें",
+  "restore_bitcoin_description_from_seed" : "24 शब्द संयोजन कोड से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_description_from_keys" : "अपने निजी कुंजी से उत्पन्न WIF स्ट्रिंग से अपने वॉलेट को पुनर्स्थापित करें",
   "restore_bitcoin_title_from_keys" : "WIF से पुनर्स्थापित करें",
   "restore_from_date_or_blockheight" : "कृपया इस वॉलेट को बनाने से कुछ दिन पहले एक तारीख दर्ज करें। या यदि आप ब्लॉकचेट जानते हैं, तो कृपया इसके बजाय इसे दर्ज करें",
@@ -284,7 +284,7 @@
   "transaction_details_amount" : "रकम",
   "transaction_details_fee" : "शुल्क",
   "transaction_details_copied" : "${title} क्लिपबोर्ड पर नकल",
-  "transaction_details_recipient_address" : "प्राप्तकर्ता का पता",
+  "transaction_details_recipient_address" : "प्राप्तकर्ता के पते",
 
 
   "wallet_list_title" : "Monero बटुआ",
@@ -469,5 +469,30 @@
   "unconfirmed" : "अपुष्ट",
   "displayable" : "प्रदर्शन योग्य",
 
-  "submit_request" : "एक अनुरोध सबमिट करें"
+  "submit_request" : "एक अनुरोध सबमिट करें",
+
+  "buy_alert_content" : "वर्तमान में हम केवल बिटकॉइन और लिटकोइन की खरीद का समर्थन करते हैं। बिटकॉइन या लाइटकोइन खरीदने के लिए, कृपया अपना बिटकॉइन या लाइटकोइन वॉलेट बनाएं या स्विच करें।",
+
+  "outdated_electrum_wallet_description" : "केक में बनाए गए नए बिटकॉइन वॉलेट में अब 24-शब्द का बीज है। यह अनिवार्य है कि आप एक नया बिटकॉइन वॉलेट बनाएं और अपने सभी फंड को नए 24-शब्द वाले वॉलेट में स्थानांतरित करें, और 12-शब्द बीज वाले वॉलेट का उपयोग करना बंद करें। कृपया अपने धन को सुरक्षित करने के लिए इसे तुरंत करें।",
+  "understand" : "मुझे समझ",
+
+  "apk_update" : "APK अद्यतन",
+
+  "buy_bitcoin" : "बिटकॉइन खरीदें",
+  "buy_with" : "के साथ खरीदें",
+  "moonpay_alert_text" : "राशि का मूल्य अधिक है या करने के लिए बराबर होना चाहिए ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "अगर इस वॉलेट में 12 शब्दों का बीज है और इसे केक में बनाया गया है, तो इस वॉलेट में बिटकॉइन जमा न करें। इस वॉलेट में स्थानांतरित किया गया कोई भी बीटीसी खो सकता है। एक नया 24-शब्द वॉलेट बनाएं (ऊपर दाईं ओर स्थित मेनू पर टैप करें, वॉलेट चुनें, नया वॉलेट बनाएं चुनें, फिर बिटकॉइन चुनें) और तुरंत अपना बीटीसी वहां ले जाएं। केक से नए (24-शब्द) बीटीसी वॉलेट सुरक्षित हैं",
+  "do_not_show_me": "मुझे यह फिर न दिखाएं",
+
+  "unspent_coins_title" : "खर्च न किए गए सिक्के",
+  "unspent_coins_details_title" : "अव्ययित सिक्कों का विवरण",
+  "freeze" : "फ्रीज",
+  "frozen" : "जमा हुआ",
+  "coin_control" : "सिक्का नियंत्रण (वैकल्पिक)",
+
+  "address_detected" : "पता लग गया",
+  "address_from_domain" : "यह पता ${domain} से है Unstoppable Domains",
+
+  "add_receiver" : "एक और रिसीवर जोड़ें (वैकल्पिक)"
 }

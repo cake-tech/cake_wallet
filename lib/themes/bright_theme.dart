@@ -105,14 +105,17 @@ class BrightTheme extends ThemeBase {
           ),
           display2: TextStyle(
               color: Colors.white.withOpacity(0.5), // estimated fee (send page)
+              backgroundColor: PaletteDark.darkCyanBlue.withOpacity(0.67), // dot color for indicator on send page
               decorationColor: Palette.shadowWhite // template dotted border (send page)
           ),
           display3: TextStyle(
               color: Palette.darkBlueCraiola, // template new text (send page)
+              backgroundColor: PaletteDark.darkNightBlue, // active dot color for indicator on send page
               decorationColor: Palette.shadowWhite // template background color (send page)
           ),
           display4: TextStyle(
               color: Palette.darkBlueCraiola, // template title (send page)
+              backgroundColor: Colors.white, // icon color on order row (moonpay)
               decorationColor: Palette.niagara // receive amount text (exchange page)
           ),
           subtitle: TextStyle(
@@ -179,6 +182,7 @@ class BrightTheme extends ThemeBase {
         ),
         display4: TextStyle(
             color: Palette.darkGray, // switch background (settings page)
+            backgroundColor: Colors.black, // icon color on support page (moonpay, github)
             decorationColor: Colors.white.withOpacity(0.4) // hint text (exchange page)
         ),
         body1: TextStyle(

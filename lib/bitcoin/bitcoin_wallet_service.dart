@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_mnemonic_is_incorrect_exception.dart';
-import 'package:cake_wallet/bitcoin/file.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/core/wallet_service.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
@@ -15,48 +15,39 @@ class BitcoinWalletService extends WalletService<
     BitcoinNewWalletCredentials,
     BitcoinRestoreWalletFromSeedCredentials,
     BitcoinRestoreWalletFromWIFCredentials> {
-  BitcoinWalletService(this.walletInfoSource);
+  BitcoinWalletService(this.walletInfoSource, this.unspentCoinsInfoSource);
 
   final Box<WalletInfo> walletInfoSource;
+  final Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+
+  @override
+  WalletType getType() => WalletType.bitcoin;
 
   @override
   Future<BitcoinWallet> create(BitcoinNewWalletCredentials credentials) async {
-    final dirPath = await pathForWalletDir(
-        type: WalletType.bitcoin, name: credentials.name);
-    final wallet = BitcoinWalletBase.build(
-        dirPath: dirPath,
-        mnemonic: generateMnemonic(),
+    final wallet = BitcoinWallet(
+        mnemonic: await generateMnemonic(),
         password: credentials.password,
-        name: credentials.name,
-        walletInfo: credentials.walletInfo);
+        walletInfo: credentials.walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
-
     return wallet;
   }
 
   @override
   Future<bool> isWalletExit(String name) async =>
-      File(await pathForWallet(name: name, type: WalletType.bitcoin))
-          .existsSync();
+      File(await pathForWallet(name: name, type: getType())).existsSync();
 
   @override
   Future<BitcoinWallet> openWallet(String name, String password) async {
-    final walletDirPath =
-        await pathForWalletDir(name: name, type: WalletType.bitcoin);
-    final walletPath = '$walletDirPath/$name';
-    final walletJSONRaw = await read(path: walletPath, password: password);
     final walletInfo = walletInfoSource.values.firstWhere(
-            (info) => info.id == WalletBase.idFor(name, WalletType.bitcoin),
+        (info) => info.id == WalletBase.idFor(name, getType()),
         orElse: () => null);
-    final wallet = BitcoinWalletBase.fromJSON(
-        password: password,
-        name: name,
-        dirPath: walletDirPath,
-        jsonSource: walletJSONRaw,
-        walletInfo: walletInfo);
+    final wallet = await BitcoinWalletBase.open(
+        password: password, name: name, walletInfo: walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.init();
-
     return wallet;
   }
 
@@ -67,10 +58,8 @@ class BitcoinWalletService extends WalletService<
 
   @override
   Future<BitcoinWallet> restoreFromKeys(
-      BitcoinRestoreWalletFromWIFCredentials credentials) async {
-    // TODO: implement restoreFromKeys
-    throw UnimplementedError();
-  }
+          BitcoinRestoreWalletFromWIFCredentials credentials) async =>
+      throw UnimplementedError();
 
   @override
   Future<BitcoinWallet> restoreFromSeed(
@@ -79,17 +68,13 @@ class BitcoinWalletService extends WalletService<
       throw BitcoinMnemonicIsIncorrectException();
     }
 
-    final dirPath = await pathForWalletDir(
-        type: WalletType.bitcoin, name: credentials.name);
-    final wallet = BitcoinWalletBase.build(
-        dirPath: dirPath,
-        name: credentials.name,
+    final wallet = BitcoinWallet(
         password: credentials.password,
         mnemonic: credentials.mnemonic,
-        walletInfo: credentials.walletInfo);
+        walletInfo: credentials.walletInfo,
+        unspentCoinsInfo: unspentCoinsInfoSource);
     await wallet.save();
     await wallet.init();
-
     return wallet;
   }
 }

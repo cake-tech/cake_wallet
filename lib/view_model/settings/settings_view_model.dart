@@ -1,10 +1,3 @@
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/themes/theme_list.dart';
-import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -25,6 +18,15 @@ import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
+import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
+import 'package:cake_wallet/core/transaction_history.dart';
+import 'package:cake_wallet/entities/balance.dart';
+import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/themes/theme_list.dart';
+import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 
 part 'settings_view_model.g.dart';
 
@@ -36,13 +38,19 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return MoneroTransactionPriority.all;
     case WalletType.bitcoin:
       return BitcoinTransactionPriority.all;
+    case WalletType.litecoin:
+      return LitecoinTransactionPriority.all;
     default:
       return [];
   }
 }
 
 abstract class SettingsViewModelBase with Store {
-  SettingsViewModelBase(this._settingsStore, WalletBase<Balance> wallet)
+  SettingsViewModelBase(
+      this._settingsStore,
+      WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
+              TransactionInfo>
+          wallet)
       : itemHeaders = {},
         _walletType = wallet.type,
         _biometricAuth = BiometricAuth() {
@@ -77,9 +85,9 @@ abstract class SettingsViewModelBase with Store {
             displayItem: (dynamic priority) {
               final _priority = priority as TransactionPriority;
 
-              if (wallet is BitcoinWallet) {
+              if (wallet is ElectrumWallet) {
                 final rate = wallet.feeRate(_priority);
-                return '${priority.toString()} ($rate sat/byte)';
+                return '${priority.labelWithRate(rate)}';
               }
 
               return priority.toString();

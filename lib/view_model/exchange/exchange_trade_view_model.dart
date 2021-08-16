@@ -45,7 +45,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
     _updateTrade();
 
-    _timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
+    timer = Timer.periodic(Duration(seconds: 20), (_) async => _updateTrade());
   }
 
   final WalletBase wallet;
@@ -71,7 +71,7 @@ abstract class ExchangeTradeViewModelBase with Store {
 
   ExchangeProvider _provider;
 
-  Timer _timer;
+  Timer timer;
 
   @action
   Future confirmSending() async {
@@ -79,8 +79,11 @@ abstract class ExchangeTradeViewModelBase with Store {
       return;
     }
 
-    sendViewModel.address = trade.inputAddress;
-    sendViewModel.setCryptoAmount(trade.amount);
+    sendViewModel.clearOutputs();
+    final output = sendViewModel.outputs.first;
+
+    output.address = trade.inputAddress;
+    output.setCryptoAmount(trade.amount);
     await sendViewModel.createTransaction();
   }
 

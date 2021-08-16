@@ -99,6 +99,12 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    widget.exchangeTradeViewModel.timer?.cancel();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final copyImage = Image.asset('assets/images/copy_content.png',
         height: 16,
@@ -379,9 +385,8 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                             .pendingTransactionFiatAmount +
                         ' ' +
                         widget.exchangeTradeViewModel.sendViewModel.fiat.title,
-                    recipientTitle: S.of(context).recipient_address,
-                    recipientAddress:
-                        widget.exchangeTradeViewModel.sendViewModel.address);
+                    outputs: widget.exchangeTradeViewModel.sendViewModel
+                                 .outputs);
               });
         });
       }

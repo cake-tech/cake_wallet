@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "ウォレットの復元",
   "restore_new_seed" : "新しい種",
   "restore_active_seed" : "アクティブシード",
-  "restore_bitcoin_description_from_seed" : "12ワードの組み合わせコードからウォレットを復元する",
+  "restore_bitcoin_description_from_seed" : "24ワードの組み合わせコードからウォレットを復元する",
   "restore_bitcoin_description_from_keys" : "秘密鍵から生成されたWIF文字列からウォレットを復元します",
   "restore_bitcoin_title_from_keys" : "WIFから復元",
   "restore_from_date_or_blockheight" : "このウォレットを作成する数日前に日付を入力してください。 または、ブロックの高さがわかっている場合は、代わりに入力してください",
@@ -284,7 +284,7 @@
   "transaction_details_amount" : "量",
   "transaction_details_fee" : "費用",
   "transaction_details_copied" : "${title} クリップボードにコピーしました",
-  "transaction_details_recipient_address" : "受取人の住所",
+  "transaction_details_recipient_address" : "受信者のアドレス",
 
 
   "wallet_list_title" : "Monero 財布",
@@ -469,5 +469,30 @@
   "unconfirmed" : "未確認",
   "displayable" : "表示可能",
 
-  "submit_request" : "リクエストを送信する"
+  "submit_request" : "リクエストを送信する",
+
+  "buy_alert_content" : "現在、ビットコインとライトコインの購入のみをサポートしています。 ビットコインまたはライトコインを購入するには、ビットコインまたはライトコインのウォレットを作成するか、ウォレットに切り替えてください。",
+
+  "outdated_electrum_wallet_description" : "Cakeで作成された新しいビットコインウォレットには、24ワードのシードがあります。 新しいビットコインウォレットを作成し、すべての資金を新しい24ワードのウォレットに転送し、12ワードのシードを持つウォレットの使用を停止することが必須です。 あなたの資金を確保するためにこれをすぐに行ってください。",
+  "understand" : "わかります",
+
+  "apk_update" : "APKアップデート",
+
+  "buy_bitcoin" : "ビットコインを購入する",
+  "buy_with" : "で購入",
+  "moonpay_alert_text" : "金額の値は以上でなければなりません ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "このウォレットに 12 ワードのシードがあり、Cake で作成された場合、このウォレットにビットコインを入金しないでください。 このウォレットに転送された BTC は失われる可能性があります。 新しい 24 ワードのウォレットを作成し (右上のメニューをタップし、[ウォレット]、[新しいウォレットの作成]、[ビットコイン] の順に選択)、すぐに BTC をそこに移動します。 Cake の新しい (24 ワード) BTC ウォレットは安全です",
+  "do_not_show_me": "また僕にこれを見せないでください",
+
+  "unspent_coins_title" : "未使用のコイン",
+  "unspent_coins_details_title" : "未使用のコインの詳細",
+  "freeze" : "氷結",
+  "frozen" : "凍った",
+  "coin_control" : "コインコントロール（オプション）",
+
+  "address_detected" : "アドレスが検出されました",
+  "address_from_domain" : "このアドレスは ${domain} からのものです Unstoppable Domains",
+
+  "add_receiver" : "別のレシーバーを追加します（オプション）"
 }

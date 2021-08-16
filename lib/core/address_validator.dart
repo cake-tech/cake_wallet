@@ -72,7 +72,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.eth:
         return [42];
       case CryptoCurrency.ltc:
-        return [34];
+        return [34, 43];
       case CryptoCurrency.nano:
         return [64, 65];
       case CryptoCurrency.trx:

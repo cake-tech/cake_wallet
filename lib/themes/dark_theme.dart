@@ -104,14 +104,17 @@ class DarkTheme extends ThemeBase {
           ),
           display2: TextStyle(
               color: Colors.white, // estimated fee (send page)
+              backgroundColor: PaletteDark.cyanBlue, // dot color for indicator on send page
               decorationColor: PaletteDark.darkCyanBlue // template dotted border (send page)
           ),
           display3: TextStyle(
               color: PaletteDark.darkCyanBlue, // template new text (send page)
+              backgroundColor: Colors.white, // active dot color for indicator on send page
               decorationColor: PaletteDark.darkVioletBlue // template background color (send page)
           ),
           display4: TextStyle(
               color: PaletteDark.cyanBlue, // template title (send page)
+              backgroundColor: Colors.white, // icon color on order row (moonpay)
               decorationColor: PaletteDark.darkCyanBlue // receive amount text (exchange page)
           ),
           subtitle: TextStyle(
@@ -178,6 +181,7 @@ class DarkTheme extends ThemeBase {
         ),
         display4: TextStyle(
             color: PaletteDark.deepVioletBlue, // switch background (settings page)
+            backgroundColor: Colors.white, // icon color on support page (moonpay, github)
             decorationColor: PaletteDark.lightBlueGrey // hint text (exchange page)
         ),
         body1: TextStyle(

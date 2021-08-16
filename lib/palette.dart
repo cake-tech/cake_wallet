@@ -23,6 +23,7 @@ class Palette {
   static const Color persianRed = Color.fromRGBO(206, 55, 55, 1.0);
   static const Color blueCraiola = Color.fromRGBO(69, 110, 255, 1.0);
   static const Color blueGreyCraiola = Color.fromRGBO(106, 177, 207, 1.0);
+  static const Color greyBlueCraiola = Color.fromRGBO(116, 139, 219, 1.0);
   static const Color darkBlueCraiola = Color.fromRGBO(53, 86, 136, 1.0);
   static const Color pinkFlamingo = Color.fromRGBO(240, 60, 243, 1.0);
   static const Color redHat = Color.fromRGBO(209, 68, 37, 1.0);
@@ -44,6 +45,7 @@ class Palette {
   static const Color dullGray = Color.fromRGBO(98, 98, 98, 1.0);
   static const Color protectiveBlue = Color.fromRGBO(33, 148, 255, 1.0);
   static const Color darkBlue = Color.fromRGBO(109, 128, 178, 1.0);
+  static const Color paleCornflowerBlue = Color.fromRGBO(185, 196, 237, 1.0);
 }
 
 class PaletteDark {

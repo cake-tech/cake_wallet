@@ -170,7 +170,7 @@
   "restore_wallet_restore_description" : "Описание восстановления кошелька",
   "restore_new_seed" : "Новая мнемоническая фраза",
   "restore_active_seed" : "Активная мнемоническая фраза",
-  "restore_bitcoin_description_from_seed" : "Вы можете восстановить кошелёк используя 12-ти значную мнемоническую фразу",
+  "restore_bitcoin_description_from_seed" : "Вы можете восстановить кошелёк используя 24-ти значную мнемоническую фразу",
   "restore_bitcoin_description_from_keys" : "Вы можете восстановить кошелёк с помощью WIF",
   "restore_bitcoin_title_from_keys" : "Восстановить с помощью WIF",
   "restore_from_date_or_blockheight" : "Пожалуйста, введите дату за несколько дней до создания этого кошелька. Или, если вы знаете высоту блока, введите ее значение",
@@ -284,7 +284,7 @@
   "transaction_details_amount" : "Сумма",
   "transaction_details_fee" : "Комиссия",
   "transaction_details_copied" : "${title} скопировано в буфер обмена",
-  "transaction_details_recipient_address" : "Адрес получателя",
+  "transaction_details_recipient_address" : "Адреса получателей",
 
 
   "wallet_list_title" : "Monero Кошелёк",
@@ -469,5 +469,30 @@
   "unconfirmed" : "Неподтвержденный",
   "displayable" : "Отображаемый",
 
-  "submit_request" : "отправить запрос"
+  "submit_request" : "отправить запрос",
+
+  "buy_alert_content" : "В настоящее время мы поддерживаем только покупку Bitcoin и Litecoin. Чтобы купить Bitcoin или Litecoin, создайте или переключитесь на свой Bitcoin или Litecoin кошелек.",
+
+  "outdated_electrum_wallet_description" : "Новые биткойн-кошельки, созданные в Cake, теперь содержат мнемоническую фразу из 24 слов. Вы обязательно должны создать новый биткойн-кошелек и перевести все свои средства в новый кошелек из 24 слов, а также прекратить использование кошельков с мнемонической фразой из 12 слов. Пожалуйста, сделайте это немедленно, чтобы обезопасить свои средства.",
+  "understand" : "Понятно",
+
+  "apk_update" : "Обновление APK",
+
+  "buy_bitcoin" : "Купить Bitcoin",
+  "buy_with" : "Купить с помощью",
+  "moonpay_alert_text" : "Сумма должна быть больше или равна ${minAmount} ${fiatCurrency}",
+
+  "outdated_electrum_wallet_receive_warning": "Если этот кошелек имеет мнемоническую фразу из 12 слов и был создан в Cake, НЕ переводите биткойны на этот кошелек. Любые BTC, переведенные на этот кошелек, могут быть потеряны. Создайте новый кошелек с мнемоническои фразы из 24 слов (коснитесь меню в правом верхнем углу, выберите «Кошельки», выберите «Создать новый кошелек», затем выберите «Bitcoin») и НЕМЕДЛЕННО переведите туда свои BTC. Новые (24 слова) кошельки BTC от Cake безопасны",
+  "do_not_show_me": "Не показывай мне это больше",
+
+  "unspent_coins_title" : "Неизрасходованные монеты",
+  "unspent_coins_details_title" : "Сведения о неизрасходованных монетах",
+  "freeze" : "Заморозить",
+  "frozen" : "Заморожено",
+  "coin_control" : "Контроль монет (необязательно)",
+
+  "address_detected" : "Обнаружен адрес",
+  "address_from_domain" : "Этот адрес от ${domain} на Unstoppable Domains",
+
+  "add_receiver" : "Добавить получателя (необязательно)"
 }
