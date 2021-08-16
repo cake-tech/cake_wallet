@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/buy/buy_item.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -58,7 +59,7 @@ class PreOrderPage extends BasePage {
   final TextEditingController _amountController;
 
   @override
-  String get title => S.current.buy + ' ' + walletTypeToString(buyViewModel.wallet.type);
+  String get title => S.current.buy + ' ' + walletTypeToString(buyViewModel.type);
 
   @override
   Color get titleColor => Colors.white;
@@ -194,52 +195,87 @@ class PreOrderPage extends BasePage {
                       ),
                     )
                 ),
-                if (buyViewModel.isShowProviderButtons)
-                  ...buyViewModel.items.map(
-                        (item) => Observer(builder: (_) =>
-                        FutureBuilder<BuyAmount>(
-                        future: item.buyAmount,
-                        builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
-                          double sourceAmount;
-                          double destAmount;
-                          int minAmount;
+                FutureBuilder<List<BuyItem>>(
+                    future: buyViewModel.items,
+                    builder: (context, AsyncSnapshot<List<BuyItem>> snapshot) {
+                      if (snapshot.hasData) {
+                        final items = snapshot.data;
+                        return Observer(builder: (_) {
+                          return buyViewModel.isShowProviderButtons
+                              ? ListView.builder(
+                              padding: EdgeInsets.only(top: 0),
+                              itemCount: items.length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                final item = items[index];
 
-                          if (snapshot.hasData) {
-                            sourceAmount = snapshot.data.sourceAmount;
-                            destAmount = snapshot.data.destAmount;
-                            minAmount = snapshot.data.minAmount;
-                          } else {
-                            sourceAmount = 0.0;
-                            destAmount = 0.0;
-                            minAmount = 0;
-                          }
+                                return Observer(builder: (_) =>
+                                    FutureBuilder<BuyAmount>(
+                                        future: item.buyAmount,
+                                        builder: (context,
+                                            AsyncSnapshot<BuyAmount> snapshot) {
+                                          double sourceAmount;
+                                          double destAmount;
+                                          int minAmount;
 
-                          return Padding(
-                              padding:
-                              EdgeInsets.only(left: 15, top: 20, right: 15),
-                              child: Observer(builder: (_) {
-                                return BuyListItem(
-                                    selectedProvider:
-                                      buyViewModel.selectedProvider,
-                                    provider: item.provider,
-                                    sourceAmount: sourceAmount,
-                                    sourceCurrency: buyViewModel.fiatCurrency,
-                                    destAmount: destAmount,
-                                    destCurrency: buyViewModel.cryptoCurrency,
-                                    onTap: ((buyViewModel.doubleAmount != 0.0)
-                                        && (snapshot.hasData)) ? () =>
-                                        onSelectBuyProvider(
-                                          context: context,
-                                          provider: item.provider,
-                                          sourceAmount: sourceAmount,
-                                          minAmount: minAmount
-                                        ) : null
-                                );
-                              })
-                          );
-                        }
-                    ))
-                )
+                                          if (snapshot.hasData) {
+                                            sourceAmount = snapshot
+                                                .data
+                                                .sourceAmount;
+                                            destAmount = snapshot
+                                                .data
+                                                .destAmount;
+                                            minAmount = snapshot.data.minAmount;
+                                          } else {
+                                            sourceAmount = 0.0;
+                                            destAmount = 0.0;
+                                            minAmount = 0;
+                                          }
+
+                                          return Padding(
+                                              padding:
+                                              EdgeInsets.only(
+                                                  left: 15,
+                                                  top: 20,
+                                                  right: 15),
+                                              child: Observer(builder: (_) {
+                                                return BuyListItem(
+                                                    selectedProvider:
+                                                    buyViewModel
+                                                        .selectedProvider,
+                                                    provider: item.provider,
+                                                    sourceAmount: sourceAmount,
+                                                    sourceCurrency: buyViewModel
+                                                        .fiatCurrency,
+                                                    destAmount: destAmount,
+                                                    destCurrency: buyViewModel
+                                                        .cryptoCurrency,
+                                                    onTap: ((buyViewModel
+                                                        .doubleAmount != 0.0)
+                                                        && (snapshot.hasData))
+                                                        ? () =>
+                                                        onSelectBuyProvider(
+                                                          context: context,
+                                                          provider: item.provider,
+                                                          sourceAmount: sourceAmount,
+                                                          minAmount: minAmount
+                                                        )
+                                                        : null
+                                                );
+                                              })
+                                          );
+                                        }
+                                    ));
+                              }
+                              )
+                              : Offstage();
+                        });
+                      } else {
+                        return Offstage();
+                      }
+                    }
+                ),
               ],
             )),
             bottomSectionPadding:

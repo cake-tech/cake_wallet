@@ -562,11 +562,8 @@ Future setup(
   ));
 
   getIt.registerFactory(() {
-    final wallet = getIt.get<AppStore>().wallet;
-
     return BuyViewModel(_ordersSource, getIt.get<OrdersStore>(),
-        getIt.get<SettingsStore>(), getIt.get<BuyAmountViewModel>(),
-        wallet: wallet);
+        getIt.get<SettingsStore>(), getIt.get<BuyAmountViewModel>());
   });
 
   getIt.registerFactory(() {

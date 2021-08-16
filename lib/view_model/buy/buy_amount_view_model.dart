@@ -10,13 +10,6 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 
 part 'buy_amount_view_model.g.dart';
 
-class CurrentFiatForProvider {
-  CurrentFiatForProvider(this.provider, this.isFiatEnabled);
-
-  final BuyProvider provider;
-  final bool isFiatEnabled;
-}
-
 class BuyAmountViewModel = BuyAmountViewModelBase with _$BuyAmountViewModel;
 
 abstract class BuyAmountViewModelBase with Store {
@@ -27,7 +20,6 @@ abstract class BuyAmountViewModelBase with Store {
           WyreBuyProvider(wallet: wallet),
           MoonPayBuyProvider(wallet: wallet)] {
 
-    fiatForProvider = [];
     currentProviders = _fetchBuyProviders();
   }
 
@@ -43,22 +35,17 @@ abstract class BuyAmountViewModelBase with Store {
 
   Future<List<BuyProvider>> currentProviders;
 
-  List<CurrentFiatForProvider> fiatForProvider;
-
   @computed
   Future<FiatCurrency> get currentFiatCurrency async {
-    bool isFiatEnabled = false;
+    for (var provider in providerList) {
+      final isFiatSupported =
+        await _isProviderSupportFiat(provider, savedFiatCurrency);
+      if (!isFiatSupported) {
+        return defaultFiatCurrency;
+      }
+    }
 
-    fiatForProvider.clear();
-
-    providerList.forEach((provider) async {
-      isFiatEnabled = await _isProviderEnabledForFiat(provider);
-      fiatForProvider.add(CurrentFiatForProvider(provider, isFiatEnabled));
-    });
-    
-    return fiatForProvider.any((item) => !item.isFiatEnabled)
-        ? defaultFiatCurrency
-        : savedFiatCurrency;
+    return savedFiatCurrency;
   }
 
   FiatCurrency get defaultFiatCurrency => FiatCurrency.usd;
@@ -81,7 +68,7 @@ abstract class BuyAmountViewModelBase with Store {
   Future<List<BuyProvider>> _fetchBuyProviders() async {
     final List<BuyProvider> _providerList = [];
 
-    providerList.forEach((provider) async {
+    for (var provider in providerList) {
       switch (provider.description) {
         case BuyProviderDescription.wyre:
           if (wallet.type == WalletType.bitcoin) {
@@ -96,9 +83,6 @@ abstract class BuyAmountViewModelBase with Store {
             isMoonPayEnabled = false;
             print(e.toString());
           }
-
-          print('MOONPAY: $isMoonPayEnabled');
-
           if (isMoonPayEnabled) {
             _providerList.add(provider);
           }
@@ -106,22 +90,24 @@ abstract class BuyAmountViewModelBase with Store {
         default:
           break;
       }
-    });
+    }
 
     return _providerList;
   }
 
-  Future<bool> _isProviderEnabledForFiat(BuyProvider provider) async {
+  Future<bool> _isProviderSupportFiat(BuyProvider provider,
+      FiatCurrency currency) async {
     bool result;
     try {
       final testAmount = '1';
       final buyAmount =
-        await provider.calculateAmount(testAmount, savedFiatCurrency.title);
+        await provider.calculateAmount(testAmount, currency.title);
       result = buyAmount.destAmount > 0 ? true : false;
     } catch (e) {
       print(e.toString);
       result = false;
     }
+
     return result;
   }
 }

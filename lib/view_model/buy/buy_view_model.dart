@@ -1,17 +1,13 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
 import 'package:cake_wallet/entities/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_item.dart';
-import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
 import 'buy_amount_view_model.dart';
 
 part 'buy_view_model.g.dart';
@@ -20,10 +16,7 @@ class BuyViewModel = BuyViewModelBase with _$BuyViewModel;
 
 abstract class BuyViewModelBase with Store {
   BuyViewModelBase(this.ordersSource, this.ordersStore, this.settingsStore,
-      this.buyAmountViewModel, {@required this.wallet}) {
-
-    _fetchBuyItems();
-
+      this.buyAmountViewModel) {
     isRunning = false;
     isDisabled = true;
     isShowProviderButtons = false;
@@ -33,13 +26,18 @@ abstract class BuyViewModelBase with Store {
   final OrdersStore ordersStore;
   final SettingsStore settingsStore;
   final BuyAmountViewModel buyAmountViewModel;
-  final WalletBase wallet;
 
   @observable
   BuyProvider selectedProvider;
 
-  @observable
-  List<BuyItem> items;
+  @computed
+  Future<List<BuyItem>> get items async {
+    final currentProviders = await buyAmountViewModel.currentProviders;
+
+    return currentProviders.map((provider) =>
+        BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
+        .toList();
+  }
 
   @observable
   bool isRunning;
@@ -50,7 +48,7 @@ abstract class BuyViewModelBase with Store {
   @observable
   bool isShowProviderButtons;
 
-  WalletType get type => wallet.type;
+  WalletType get type => buyAmountViewModel.wallet.type;
 
   double get doubleAmount => buyAmountViewModel.doubleAmount;
 
@@ -86,13 +84,5 @@ abstract class BuyViewModelBase with Store {
   void reset() {
     buyAmountViewModel.amount = '';
     selectedProvider = null;
-  }
-
-  Future<void> _fetchBuyItems() async {
-    final currentProviders = await buyAmountViewModel.currentProviders;
-
-    items = currentProviders.map((provider) =>
-        BuyItem(provider: provider, buyAmountViewModel: buyAmountViewModel))
-        .toList();
   }
 }
