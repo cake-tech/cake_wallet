@@ -41,11 +41,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     balance = MoneroBalance(
         fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
         unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
-    _lastAutosaveTimestamp = 0;
-    _lastSaveTimestamp = 0;
-    _isSavingAfterSync = false;
-    _isSavingAfterNewTransaction = false;
     _isTransactionUpdating = false;
+    _hasSyncAfterStartup = false;
     walletAddresses = MoneroWalletAddresses(walletInfo);
     _onAccountChangeReaction = reaction((_) => walletAddresses.account,
             (Account account) {
@@ -57,7 +54,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     });
   }
 
-  static const int _autoAfterSyncSaveInterval = 60000;
+  static const int _autoSaveInterval = 30;
 
   @override
   MoneroWalletAddresses walletAddresses;
@@ -82,11 +79,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   SyncListener _listener;
   ReactionDisposer _onAccountChangeReaction;
-  int _lastAutosaveTimestamp;
-  bool _isSavingAfterSync;
-  bool _isSavingAfterNewTransaction;
   bool _isTransactionUpdating;
-  int _lastSaveTimestamp;
+  bool _hasSyncAfterStartup;
+  Timer _autoSaveTimer;
 
   Future<void> init() async {
     await walletAddresses.init();
@@ -105,12 +100,17 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
             height: walletInfo.restoreHeight);
       }
     }
+
+    _autoSaveTimer = Timer.periodic(
+       Duration(seconds: _autoSaveInterval),
+       (_) async => await save());
   }
 
   @override
   void close() {
     _listener?.stop();
     _onAccountChangeReaction?.reaction?.dispose();
+    _autoSaveTimer?.cancel();
   }
 
   @override
@@ -240,15 +240,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<void> save() async {
     await walletAddresses.updateAddressesInBox();
-
-    final now = DateTime.now().millisecondsSinceEpoch;
-
-    if (now - _lastSaveTimestamp < Duration(seconds: 10).inMilliseconds) {
-      return;
-    }
-
     await backupWalletFiles(name);
-    _lastSaveTimestamp = now;
     await monero_wallet.store();
   }
 
@@ -373,46 +365,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   int _getUnlockedBalance() =>
       monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id);
 
-  Future<void> _afterSyncSave() async {
-    try {
-      if (_isSavingAfterSync) {
-        return;
-      }
-
-      _isSavingAfterSync = true;
-
-      final nowTimestamp = DateTime.now().millisecondsSinceEpoch;
-      final sum = _lastAutosaveTimestamp + _autoAfterSyncSaveInterval;
-
-      if (_lastAutosaveTimestamp > 0 && sum < nowTimestamp) {
-        return;
-      }
-
-      await save();
-      _lastAutosaveTimestamp = nowTimestamp + _autoAfterSyncSaveInterval;
-    } catch (e) {
-      print(e.toString());
-    }
-
-    _isSavingAfterSync = false;
-  }
-
-  Future<void> _afterNewTransactionSave() async {
-    try {
-      if (_isSavingAfterNewTransaction) {
-        return;
-      }
-
-      _isSavingAfterNewTransaction = true;
-
-      await save();
-    } catch (e) {
-      print(e.toString());
-    }
-
-    _isSavingAfterNewTransaction = false;
-  }
-
   void _onNewBlock(int height, int blocksLeft, double ptc) async {
     try {
       if (walletInfo.isRecovery) {
@@ -426,7 +378,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         _askForUpdateBalance();
         walletAddresses.accountList.update();
         syncStatus = SyncedSyncStatus();
-        await _afterSyncSave();
+
+        if (!_hasSyncAfterStartup) {
+           _hasSyncAfterStartup = true;
+           await save();
+         }
 
         if (walletInfo.isRecovery) {
           await setAsRecovered();
@@ -444,7 +400,6 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       await _askForUpdateTransactionHistory();
       _askForUpdateBalance();
       await Future<void>.delayed(Duration(seconds: 1));
-      await _afterNewTransactionSave();
     } catch (e) {
       print(e.toString());
     }
