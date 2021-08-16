@@ -164,6 +164,9 @@ class SendCardState extends State<SendCard>
                                       keyboardType:
                                       TextInputType.numberWithOptions(
                                           signed: false, decimal: true),
+                                      inputFormatters: [
+                                        FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                      ],
                                       prefixIcon: Padding(
                                         padding: EdgeInsets.only(top: 9),
                                         child: Text(
@@ -273,6 +276,9 @@ class SendCardState extends State<SendCard>
                           keyboardType:
                           TextInputType.numberWithOptions(
                               signed: false, decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                          ],
                           prefixIcon: Padding(
                             padding: EdgeInsets.only(top: 9),
                             child:
