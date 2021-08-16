@@ -2,7 +2,17 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 
-const topLevelDomain = 'crypto';
+const unstoppableDomains = [
+   'crypto',
+   'zil',
+   'x',
+   'coin',
+   'wallet',
+   'bitcoin',
+   '888',
+   'nft',
+   'dao',
+   'blockchain'];
 
 Future<ParsedAddress> parseAddressFromDomain(
     String domain, String ticker) async {
@@ -15,7 +25,7 @@ Future<ParsedAddress> parseAddressFromDomain(
       return ParsedAddress(address: domain);
     }
 
-    if (name.contains(topLevelDomain)) {
+    if (unstoppableDomains.any((domain) => name.contains(domain))) {
       final address =
         await fetchUnstoppableDomainAddress(domain, ticker);
 
