@@ -37,7 +37,7 @@
   "xmr_available_balance" : "可用余额 ",
   "xmr_full_balance" : "全部余额",
   "send" : "发送",
-  "receive" : "接收",
+  "receive" : "收款",
   "transactions" : "交易情况",
   "incoming" : "收到",
   "outgoing" : "发送",
@@ -215,12 +215,12 @@
   "send_success" : "您的${crypto}已成功发送",
 
 
-  "settings_title" : "设定值",
+  "settings_title" : "设置",
   "settings_nodes" : "节点数",
   "settings_current_node" : "当前节点",
   "settings_wallets" : "钱包",
   "settings_display_balance_as" : "将余额显示为",
-  "settings_currency" : "货币",
+  "settings_currency" : "货币类型",
   "settings_fee_priority" : "交易优先级",
   "settings_save_recipient_address" : "保存收件人地址",
   "settings_personal" : "个人",
@@ -236,7 +236,7 @@
   "settings_only_transactions" : "仅交易",
   "settings_none" : "没有",
   "settings_support" : "帮助",
-  "settings_terms_and_conditions" : "条款和条件",
+  "settings_terms_and_conditions" : "使用条款与条件",
   "pin_is_incorrect" : "PIN码不正确",
 
 
@@ -427,12 +427,12 @@
   "use_ssl" : "使用SSL",
 
   "color_theme" : "主题",
-  "light_theme" : "艳丽",
-  "bright_theme" : "明亮",
+  "light_theme" : "明亮",
+  "bright_theme" : "艳丽",
   "dark_theme" : "黑暗",
-  "enter_your_note" : "输入您的笔记...",
+  "enter_your_note" : "输入您的备注...",
   "note_optional" : "注释（可选）",
-  "note_tap_to_change" : "注释（轻按即可更改）",
+  "note_tap_to_change" : "注释（点击即可更改）",
   "transaction_key" : "交易密码",
   "confirmations" : "确认",
   "recipient_address" : "收件人地址",
@@ -451,7 +451,7 @@
 
   "edit_backup_password" : "编辑备份密码",
   "save_backup_password_alert" : "保存备份密码",
-  "change_backup_password_alert" : "您以前的备份文件将无法使用新的备份密码導入。 新的备份密码将仅用于新的备份文件。 您确定要更改备份密码吗？",
+  "change_backup_password_alert" : "您以前的备份文件将无法使用新的备份密码导入。 新的备份密码将仅用于新的备份文件。 您确定要更改备份密码吗？",
 
   "enter_backup_password" : "在此处输入備用密码",
   "select_backup_file" : "选择备份文件",
@@ -467,7 +467,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "如果要从Cake Wallet Monero余额中兑换XMR，请先切换到Monero钱包。",
   "confirmed" : "已确认",
   "unconfirmed" : "未经证实",
-  "displayable" : "可显示",
+  "displayable" : "显示",
 
   "submit_request" : "提交请求",
 
@@ -485,14 +485,14 @@
   "outdated_electrum_wallet_receive_warning": "如果这个钱包有一个 12 字的种子并且是在 Cake 中创建的，不要将比特币存入这个钱包。 任何转移到此钱包的 BTC 都可能丢失。 创建一个新的 24 字钱包（点击右上角的菜单，选择钱包，选择创建新钱包，然后选择比特币）并立即将您的 BTC 移到那里。 Cake 的新（24 字）BTC 钱包是安全的",
   "do_not_show_me": "不再提示",
 
-  "unspent_coins_title" : "未使用的硬幣",
-  "unspent_coins_details_title" : "未使用代幣詳情",
-  "freeze" : "凍結",
-  "frozen" : "凍結的",
-  "coin_control" : "硬幣控制（可選）",
+  "unspent_coins_title" : "未使用的代币",
+  "unspent_coins_details_title" : "未使用代币详情",
+  "freeze" : "冻结",
+  "frozen" : "已冻结",
+  "coin_control" : "代币控制（可选）",
 
-  "address_detected" : "檢測到地址",
-  "address_from_domain" : "此地址來自 Unstoppable Domains 上的 ${domain}",
+  "address_detected" : "检测到地址",
+  "address_from_domain" : "此地址来自 Unstoppable Domains 上的 ${domain}",
 
-  "add_receiver" : "添加另一個接收器（可選）"
+  "add_receiver" : "添加另一个接收器（可选）"
 }
