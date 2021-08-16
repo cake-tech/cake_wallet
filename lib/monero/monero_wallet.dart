@@ -5,6 +5,7 @@ import 'package:cake_wallet/monero/monero_transaction_creation_exception.dart';
 import 'package:cake_wallet/monero/monero_transaction_info.dart';
 import 'package:cake_wallet/monero/monero_wallet_addresses.dart';
 import 'package:cake_wallet/monero/monero_wallet_utils.dart';
+import 'package:cw_monero/structs/pending_transaction.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/transaction_history.dart'
@@ -12,6 +13,7 @@ import 'package:cw_monero/transaction_history.dart'
 import 'package:cw_monero/wallet.dart';
 import 'package:cw_monero/wallet.dart' as monero_wallet;
 import 'package:cw_monero/transaction_history.dart' as transaction_history;
+import 'package:cw_monero/monero_output.dart';
 import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
 import 'package:cake_wallet/monero/pending_monero_transaction.dart';
 import 'package:cake_wallet/monero/monero_wallet_keys.dart';
@@ -149,31 +151,66 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   @override
   Future<PendingTransaction> createTransaction(Object credentials) async {
     final _credentials = credentials as MoneroTransactionCreationCredentials;
-    final amount = _credentials.amount != null
-        ? moneroParseAmount(amount: _credentials.amount)
-        : null;
+    final outputs = _credentials.outputs;
+    final hasMultiDestination = outputs.length > 1;
     final unlockedBalance =
-        monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id);
+    monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id);
 
-    if ((amount != null && unlockedBalance < amount) ||
-        (amount == null && unlockedBalance <= 0)) {
-      final formattedBalance = moneroAmountToString(amount: unlockedBalance);
-
-      throw MoneroTransactionCreationException(
-          'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${_credentials.amount}.');
-    }
+    PendingTransactionDescription pendingTransactionDescription;
 
     if (!(syncStatus is SyncedSyncStatus)) {
       throw MoneroTransactionCreationException('The wallet is not synced.');
     }
 
-    final pendingTransactionDescription =
-        await transaction_history.createTransaction(
-            address: _credentials.address,
-            paymentId: _credentials.paymentId,
-            amount: _credentials.amount,
-            priorityRaw: _credentials.priority.serialize(),
-            accountIndex: walletAddresses.account.id);
+    if (hasMultiDestination) {
+      if (outputs.any((item) => item.sendAll
+          || item.formattedCryptoAmount <= 0)) {
+        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+      }
+
+      final int totalAmount = outputs.fold(0, (acc, value) =>
+          acc + value.formattedCryptoAmount);
+
+      if (unlockedBalance < totalAmount) {
+        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+      }
+
+      final moneroOutputs = outputs.map((output) =>
+          MoneroOutput(
+              address: output.address,
+              amount: output.cryptoAmount.replaceAll(',', '.')))
+          .toList();
+
+      pendingTransactionDescription =
+      await transaction_history.createTransactionMultDest(
+          outputs: moneroOutputs,
+          priorityRaw: _credentials.priority.serialize(),
+          accountIndex: walletAddresses.account.id);
+    } else {
+      final output = outputs.first;
+      final address = output.address;
+      final amount = output.sendAll
+          ? null
+          : output.cryptoAmount.replaceAll(',', '.');
+      final formattedAmount = output.sendAll
+          ? null
+          : output.formattedCryptoAmount;
+
+      if ((formattedAmount != null && unlockedBalance < formattedAmount) ||
+          (formattedAmount == null && unlockedBalance <= 0)) {
+        final formattedBalance = moneroAmountToString(amount: unlockedBalance);
+
+        throw MoneroTransactionCreationException(
+            'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
+      }
+
+      pendingTransactionDescription =
+      await transaction_history.createTransaction(
+          address: address,
+          amount: amount,
+          priorityRaw: _credentials.priority.serialize(),
+          accountIndex: walletAddresses.account.id);
+    }
 
     return PendingMoneroTransaction(pendingTransactionDescription);
   }

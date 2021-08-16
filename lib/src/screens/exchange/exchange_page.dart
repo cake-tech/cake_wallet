@@ -786,22 +786,7 @@ class ExchangePage extends BasePage {
       BuildContext context, String domain, String ticker) async {
     final parsedAddress = await parseAddressFromDomain(domain, ticker);
 
-    switch (parsedAddress.parseFrom) {
-      case ParseFrom.unstoppableDomains:
-        showAddressAlert(
-            context,
-            S.of(context).address_detected,
-            S.of(context).address_from_domain(parsedAddress.name));
-        break;
-      case ParseFrom.openAlias:
-        showAddressAlert(
-            context,
-            S.of(context).openalias_alert_title,
-            S.of(context).openalias_alert_content(parsedAddress.name));
-        break;
-      case ParseFrom.notParsed:
-        break;
-    }
+    showAddressAlert(context, parsedAddress);
 
     return parsedAddress.address;
   }

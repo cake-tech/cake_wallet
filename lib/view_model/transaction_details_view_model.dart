@@ -30,6 +30,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       this.settingsStore})
       : items = [] {
     showRecipientAddress = settingsStore?.shouldSaveRecipientAddress ?? false;
+    isRecipientAddressShown = false;
 
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
@@ -64,6 +65,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           final address =
             _wallet.getTransactionAddress(accountIndex, addressIndex);
           if (address?.isNotEmpty ?? false) {
+            isRecipientAddressShown = true;
             _items.add(
                 StandartListItem(
                     title: S.current.transaction_details_recipient_address,
@@ -101,7 +103,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       items.addAll(_items);
     }
 
-    if (showRecipientAddress) {
+    if (showRecipientAddress && !isRecipientAddressShown) {
       final recipientAddress = transactionDescriptionBox.values
           .firstWhere((val) => val.id == transactionInfo.id, orElse: () => null)
           ?.recipientAddress;
@@ -151,6 +153,7 @@ abstract class TransactionDetailsViewModelBase with Store {
 
   final List<TransactionDetailsListItem> items;
   bool showRecipientAddress;
+  bool isRecipientAddressShown;
 
   String _explorerUrl(WalletType type, String txId) {
     switch (type) {
