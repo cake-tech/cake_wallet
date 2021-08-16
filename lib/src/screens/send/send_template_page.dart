@@ -156,8 +156,7 @@ class SendTemplatePage extends BasePage {
                                 keyboardType: TextInputType.numberWithOptions(
                                     signed: false, decimal: true),
                                 inputFormatters: [
-                                  BlacklistingTextInputFormatter(
-                                      RegExp('[\\-|\\ ]'))
+                                  FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
                                 ],
                                 prefixIcon: Padding(
                                   padding: EdgeInsets.only(top: 9),
@@ -196,8 +195,7 @@ class SendTemplatePage extends BasePage {
                               keyboardType: TextInputType.numberWithOptions(
                                   signed: false, decimal: true),
                               inputFormatters: [
-                                BlacklistingTextInputFormatter(
-                                    RegExp('[\\-|\\ ]'))
+                                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
                               ],
                               prefixIcon: Padding(
                                 padding: EdgeInsets.only(top: 9),

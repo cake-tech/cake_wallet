@@ -16,24 +16,12 @@ double bitcoinAmountToDouble({int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: bitcoinAmountDivider);
 
 int stringDoubleToBitcoinAmount(String amount) {
-  final splitted = amount.split('');
-  final dotIndex = amount.indexOf('.');
   int result = 0;
 
-
-  for (var i = 0; i < splitted.length; i++) {
-    try {
-      if (dotIndex == i) {
-        continue;
-      }
-
-      final char = splitted[i];
-      final multiplier = dotIndex < i
-          ? bitcoinAmountDivider ~/ pow(10, (i - dotIndex))
-          : (bitcoinAmountDivider * pow(10, (dotIndex - i -1))).toInt();
-      final num = int.parse(char) * multiplier;
-      result += num;
-    } catch (_) {}
+  try {
+    result = (double.parse(amount) * bitcoinAmountDivider).toInt();
+  } catch (e) {
+    result = 0;
   }
 
   return result;
