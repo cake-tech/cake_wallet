@@ -66,7 +66,7 @@ class QRWidget extends StatelessWidget {
         ]),
         if (isAmountFieldShow)
             Padding(
-                padding: EdgeInsets.only(top: 20),
+                padding: EdgeInsets.only(top: 10),
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -101,7 +101,7 @@ class QRWidget extends StatelessWidget {
                 ),
               ),
         Padding(
-          padding: EdgeInsets.only(top: 20, bottom: 20),
+          padding: EdgeInsets.only(top: 16, bottom: 16),
           child: Builder(
               builder: (context) => Observer(
                   builder: (context) => GestureDetector(
@@ -133,7 +133,47 @@ class QRWidget extends StatelessWidget {
                           ],
                         ),
                       ))),
-        )
+        ),
+        Observer(builder: (_) {
+          return addressListViewModel.yatAddress.isNotEmpty
+          ? Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: Builder(
+                builder: (context) => GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(ClipboardData(
+                        text: addressListViewModel.yatAddress));
+                    showBar<void>(
+                        context, S.of(context).copied_to_clipboard);
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Yat Address',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.normal,
+                            color: Theme.of(context).accentTextTheme.
+                            display3.backgroundColor),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 5),
+                        child: Text(
+                          addressListViewModel.yatAddress,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 13,
+                          ),
+                        )
+                      )
+                    ]
+                  )
+                )),
+          )
+          : Container();
+        })
       ],
     );
   }

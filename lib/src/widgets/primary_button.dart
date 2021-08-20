@@ -110,6 +110,9 @@ class PrimaryIconButton extends StatelessWidget {
     @required this.borderColor,
     @required this.iconColor,
     @required this.iconBackgroundColor,
+    @required this.textColor,
+    this.mainAxisAlignment = MainAxisAlignment.start,
+    this.radius = 26
   });
 
   final VoidCallback onPressed;
@@ -119,40 +122,44 @@ class PrimaryIconButton extends StatelessWidget {
   final Color iconColor;
   final Color iconBackgroundColor;
   final String text;
+  final MainAxisAlignment mainAxisAlignment;
+  final Color textColor;
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
     return ButtonTheme(
         minWidth: double.infinity,
-        height: 56.0,
+        height: 52.0,
         child: FlatButton(
           onPressed: onPressed,
           color: color,
           shape: RoundedRectangleBorder(
               side: BorderSide(color: borderColor),
-              borderRadius: BorderRadius.circular(10.0)),
+              borderRadius: BorderRadius.circular(radius)),
           child: Stack(
             children: <Widget>[
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: mainAxisAlignment,
                 children: <Widget>[
                   Container(
-                    width: 28.0,
-                    height: 56.0,
+                    width: 26.0,
+                    height: 52.0,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle, color: iconBackgroundColor),
-                    child: Icon(iconData, color: iconColor, size: 22.0),
+                    child: Center(
+                        child: Icon(iconData, color: iconColor, size: 22.0)
+                    ),
                   ),
                 ],
               ),
               Container(
-                height: 56.0,
+                height: 52.0,
                 child: Center(
                   child: Text(text,
                       style: TextStyle(
                           fontSize: 16.0,
-                          color:
-                              Theme.of(context).primaryTextTheme.button.color)),
+                          color: textColor)),
                 ),
               )
             ],
