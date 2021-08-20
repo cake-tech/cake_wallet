@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/screens/yat/yat_alert.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -154,6 +156,16 @@ abstract class SettingsViewModelBase with Store {
                 _settingsStore.currentTheme = theme)
       ],
       [
+        RegularListItem(
+          title: 'Manage Yats',
+          handler: (BuildContext context) async {
+            await showPopUp<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return YatAlert();
+                });
+          },
+        ),
         RegularListItem(
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>

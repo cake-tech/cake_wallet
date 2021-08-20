@@ -1,3 +1,4 @@
+import 'package:cake_wallet/store/yat_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
@@ -59,7 +60,10 @@ class BitcoinURI extends PaymentURI {
 }
 
 abstract class WalletAddressListViewModelBase with Store {
-  WalletAddressListViewModelBase({@required AppStore appStore}) {
+  WalletAddressListViewModelBase({
+    @required AppStore appStore,
+    @required this.yatStore
+  }) {
     _appStore = appStore;
     _wallet = _appStore.wallet;
     hasAccounts = _wallet?.type == WalletType.monero;
@@ -150,6 +154,9 @@ abstract class WalletAddressListViewModelBase with Store {
   @computed
   bool get hasAddressList => _wallet.type == WalletType.monero;
 
+  @computed
+  String get yatAddress => yatStore.yatAddress;
+
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
       _wallet;
@@ -157,6 +164,8 @@ abstract class WalletAddressListViewModelBase with Store {
   List<ListItem> _baseItems;
 
   AppStore _appStore;
+
+  final YatStore yatStore;
 
   ReactionDisposer _onWalletChangeReaction;
 
