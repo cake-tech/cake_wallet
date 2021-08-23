@@ -123,10 +123,13 @@ class MoneroWalletService extends WalletService<
     } catch (e) {
       // TODO: Implement Exception for wallet list service.
 
-      if (e.toString().contains('bad_alloc') ||
+      if ((e.toString().contains('bad_alloc') ||
           (e is WalletOpeningException &&
               (e.message == 'std::bad_alloc' ||
-                  e.message.contains('bad_alloc')))) {
+                  e.message.contains('bad_alloc')))) ||
+          (e.toString().contains('does not correspond') ||
+          (e is WalletOpeningException &&
+            e.message.contains('does not correspond')))) {
         await restoreOrResetWalletFiles(name);
         return openWallet(name, password);
       }
