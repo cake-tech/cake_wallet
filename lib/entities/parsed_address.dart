@@ -1,4 +1,4 @@
-enum ParseFrom {unstoppableDomains, openAlias, notParsed}
+enum ParseFrom {unstoppableDomains, openAlias, yatRecord, notParsed}
 
 class ParsedAddress {
   ParsedAddress({

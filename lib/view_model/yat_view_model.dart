@@ -4,6 +4,7 @@ import 'package:mobx/mobx.dart';
 import 'dart:convert';
 import 'package:cake_wallet/yat/yat_exception.dart';
 import 'package:http/http.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
 part 'yat_view_model.g.dart';
 
@@ -15,23 +16,24 @@ abstract class YatViewModelBase with Store {
   final YatStore yatStore;
 
   Future<void> fetchCartInfo() async {
-    const _apiKey = ''; // FIXME
-
-    final url = 'https://api.y.at/cart';
+    final url = 'https://a.y.at/cart';
+    final _apiKey = secrets.yatApiToken;
 
     final response = await get(
         url,
         headers: {
-          'Accept': '*/*',
-          'Authorization,X-Api-Key': _apiKey
+          'Accept':'*/*',
+          'X-Api-Key': _apiKey
         }
     );
 
-    if (response.statusCode != 200) {
+    print('RESPONSE = ${response.body.toString()}');
+
+    /*if (response.statusCode != 200) {
       throw YatException(text: response.body.toString());
     }
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    yatStore.yatAddress = responseJSON[''] as String; // FIXME
+    yatStore.yatAddress = responseJSON[''] as String;*/ // FIXME
   }
 }
