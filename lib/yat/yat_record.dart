@@ -2,8 +2,15 @@ import 'dart:convert';
 import 'package:cake_wallet/yat/yat_exception.dart';
 import 'package:http/http.dart';
 
-Future<String> fetchYatAddress(String emojiId) async {
+Future<String> fetchYatAddress(String emojiId, String ticker) async {
   const _requestURL = 'https://a.y.at/emoji_id/';
+  final classValue = '0x10';
+  final tagValues = {'xmr' : ['01', '02'], 'btc' : ['03'], 'eth' : ['04']};
+  final tagValue = tagValues[ticker];
+
+  if (tagValue == null) {
+    return '';
+  }
 
   final url = _requestURL + emojiId;
   final response = await get(url);
@@ -13,6 +20,25 @@ Future<String> fetchYatAddress(String emojiId) async {
   }
 
   final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-  final yatAddress = responseJSON['result'][2]['data'] as String;
-  return yatAddress;
+  final result = responseJSON['result'] as List<dynamic>;
+
+  if (result == null) {
+    return '';
+  }
+
+  for (var value in tagValue) {
+    for (int i = 0; i < result.length; i++) {
+      final record = result[i] as Map<String, dynamic>;
+      final tag = record['tag'] as String;
+      if (tag?.contains(classValue + value) ?? false) {
+        final yatAddress = record['data'] as String;
+        return yatAddress;
+      }
+    }
+  }
+
+  return '';
+
+  //final yatAddress = responseJSON['result'][2]['data'] as String;
+  //return yatAddress;
 }
