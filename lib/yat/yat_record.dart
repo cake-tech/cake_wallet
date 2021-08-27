@@ -4,8 +4,8 @@ import 'package:http/http.dart';
 
 Future<String> fetchYatAddress(String emojiId, String ticker) async {
   const _requestURL = 'https://a.y.at/emoji_id/';
-  final classValue = '0x10';
-  final tagValues = {'xmr' : ['01', '02'], 'btc' : ['03'], 'eth' : ['04']};
+  const classValue = '0x10';
+  const tagValues = {'xmr' : ['01', '02'], 'btc' : ['03'], 'eth' : ['04']};
   final tagValue = tagValues[ticker];
 
   if (tagValue == null) {
