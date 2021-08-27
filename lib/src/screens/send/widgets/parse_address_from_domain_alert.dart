@@ -17,6 +17,10 @@ void showAddressAlert(BuildContext context, ParsedAddress parsedAddress) async {
       title = S.of(context).openalias_alert_title;
       content = S.of(context).openalias_alert_content(parsedAddress.name);
       break;
+    case ParseFrom.yatRecord:
+      title = 'Address detected';
+      content = 'This address is from ${parsedAddress.name} on Yat';
+      break;
     case ParseFrom.notParsed:
       return;
   }
