@@ -24,7 +24,7 @@ Future<ParsedAddress> parseAddressFromDomain(
 
     if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
       try {
-        final address = await fetchYatAddress(domain);
+        final address = await fetchYatAddress(domain, ticker);
 
         if (address?.isEmpty ?? true) {
           return ParsedAddress(address: domain);
