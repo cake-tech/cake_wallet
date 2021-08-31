@@ -1,29 +1,27 @@
-# /bin/bash
+#!/bin/sh
 
-export WORKDIR=/opt/android
-export ICONV_FILENAME=libiconv-1.15.tar.gz
+. ./config.sh
+export ICONV_FILENAME=libiconv-1.16.tar.gz
 export ICONV_FILE_PATH=$WORKDIR/$ICONV_FILENAME
-export ICONV_SRC_DIR=$WORKDIR/libiconv-1.15
+export ICONV_SRC_DIR=$WORKDIR/libiconv-1.16
+ICONV_SHA256="e6a1b1b589654277ee790cce3734f07876ac4ccfaecbee8afa0b649cf529cc04"
 
-wget http://ftp.gnu.org/pub/gnu/libiconv/$ICONV_FILENAME -O $ICONV_FILE_PATH
-
-ORIGINAL_PATH=$PATH
-TOOLCHAIN_BASE_DIR=${WORKDIR}/toolchain
+curl http://ftp.gnu.org/pub/gnu/libiconv/$ICONV_FILENAME -o $ICONV_FILE_PATH
+echo $ICONV_SHA256 $ICONV_FILE_PATH | sha256sum -c - || exit 1
 
 for arch in aarch aarch64 i686 x86_64
 do
 
 PREFIX=${WORKDIR}/prefix_${arch}
-PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
 case $arch in
 	"aarch"	)
-		CLANG=arm-linux-androideabi-clang
-		CXXLANG=arm-linux-androideabi-clang++
-		HOST="arm-linux-android";;
+		CLANG=armv7a-linux-androideabi${API}-clang
+		CXXLANG=armv7a-linux-androideabi${API}-clang++
+		HOST="arm";;
 	*		)
-		CLANG=${arch}-linux-android-clang
-		CXXLANG=${arch}-linux-android-clang++
+		CLANG=${arch}-linux-android${API}-clang
+		CXXLANG=${arch}-linux-android${API}-clang++
 		HOST="${arch}-linux-android";;
 esac 
 
@@ -36,3 +34,4 @@ make
 make install
 
 done
+
