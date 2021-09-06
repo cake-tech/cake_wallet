@@ -57,6 +57,7 @@ dependencies:
   smooth_page_indicator: ^0.2.0
   webview_flutter: ^2.0.2
   flutter_spinkit: ^5.0.0
+  uni_links: ^0.4.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
