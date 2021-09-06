@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/store/yat_store.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
@@ -29,6 +33,7 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
+import 'package:uni_links/uni_links.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 
@@ -168,7 +173,108 @@ Future<void> initialSetup(
   monero_wallet.onStartup();
 }
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
+  @override
+  AppState createState() => AppState();
+}
+
+class AppState extends State<App> with SingleTickerProviderStateMixin {
+  AppState() {
+    yatStore = getIt.get<YatStore>();
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  }
+
+  YatStore yatStore;
+  StreamSubscription stream;
+
+  @override
+  void initState() {
+    super.initState();
+    _handleIncomingLinks(yatStore);
+    _handleInitialUri(yatStore);
+  }
+
+  @override
+  void dispose() {
+    stream?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _handleInitialUri(YatStore yatStore) async {
+    try {
+      final uri = await getInitialUri();
+      if (uri == null) {
+        print('Error: no initial uri');
+        return;
+      }
+      print('got initial uri: $uri');
+      if (!mounted) return;
+      yatStore.yatAddress = 'Yat address'; // FIXME
+    } catch (e) {
+      if (!mounted) return;
+      print(e.toString());
+    }
+  }
+
+  void _handleIncomingLinks(YatStore yatStore) {
+    if (!kIsWeb) {
+      stream = getUriLinksStream().listen((Uri uri) {
+        if (!mounted) return;
+        print('got uri: $uri');
+        yatStore.yatAddress = 'Yat address'; // FIXME
+      }, onError: (Object error) {
+        if (!mounted) return;
+        print('Error: $error');
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(builder: (BuildContext context) {
+      final settingsStore = getIt.get<AppStore>().settingsStore;
+      final statusBarColor = Colors.transparent;
+      final authenticationStore = getIt.get<AuthenticationStore>();
+      final initialRoute =
+      authenticationStore.state == AuthenticationState.denied
+          ? Routes.disclaimer
+          : Routes.login;
+      final currentTheme = settingsStore.currentTheme;
+      final statusBarBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      final statusBarIconBrightness = currentTheme.type == ThemeType.dark
+          ? Brightness.light
+          : Brightness.dark;
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+          statusBarColor: statusBarColor,
+          statusBarBrightness: statusBarBrightness,
+          statusBarIconBrightness: statusBarIconBrightness));
+
+      return Root(
+          authenticationStore: authenticationStore,
+          navigatorKey: navigatorKey,
+          child: MaterialApp(
+            navigatorKey: navigatorKey,
+            debugShowCheckedModeBanner: false,
+            theme: settingsStore.theme,
+            localizationsDelegates: [
+              S.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
+            supportedLocales: S.delegate.supportedLocales,
+            locale: Locale(settingsStore.languageCode),
+            onGenerateRoute: (settings) => Router.createRoute(settings),
+            initialRoute: initialRoute,
+          ));
+    });
+  }
+}
+
+/*class App extends StatelessWidget {
   App() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
@@ -216,4 +322,4 @@ class App extends StatelessWidget {
           ));
     });
   }
-}
+}*/

@@ -69,7 +69,7 @@ class YatWebViewPageBodyState extends State<YatWebViewPageBody> {
     super.initState();
     _webViewkey = GlobalKey();
     if (Platform.isAndroid) WebView.platform = SurfaceAndroidWebView();
-    _fetchYatInfo();
+    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
   }
 
   @override
@@ -88,6 +88,10 @@ class YatWebViewPageBodyState extends State<YatWebViewPageBody> {
             setState(() => _webViewController = controller));
   }
 
+  void _afterLayout(dynamic _) {
+    _fetchYatInfo();
+  }
+
   void _fetchYatInfo() {
     final keyword = 'dashboard';
     _timer?.cancel();
@@ -103,6 +107,7 @@ class YatWebViewPageBodyState extends State<YatWebViewPageBody> {
         if (url.contains(keyword)) {
           timer.cancel();
           await yatViewModel.fetchCartInfo();
+          Navigator.of(context).pop();
         }
       } catch (e) {
         print(e);

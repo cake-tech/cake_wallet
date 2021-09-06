@@ -6,9 +6,13 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class YatAlert extends StatelessWidget {
   static const aspectRatioImage = 1.133;
+  static const _baseUrl = 'https://yat.fyi';
+  static const _signInSuffix = '/sign-in';
+  static const _createSuffix = '/create';
   final image = Image.asset('assets/images/yat_crypto.png');
 
   @override
@@ -81,8 +85,12 @@ class YatAlert extends StatelessWidget {
                     iconData: CupertinoIcons
                         .arrow_up_right_square,
                     mainAxisAlignment: MainAxisAlignment.end,
-                    onPressed: () => Navigator.of(context)
-                        .popAndPushNamed(Routes.yat, arguments: YatMode.create)),
+                    onPressed: () {
+                      //Navigator.of(context)
+                      //    .popAndPushNamed(Routes.yat, arguments: YatMode.create);
+                      final url = _baseUrl + _createSuffix;
+                      launch(url);
+                    }),
                 Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: PrimaryIconButton(
@@ -95,8 +103,12 @@ class YatAlert extends StatelessWidget {
                       iconData: CupertinoIcons
                           .arrow_up_right_square,
                       mainAxisAlignment: MainAxisAlignment.end,
-                      onPressed: () => Navigator.of(context)
-                        .popAndPushNamed(Routes.yat, arguments: YatMode.connect))
+                      onPressed: () {
+                        //Navigator.of(context)
+                        //    .popAndPushNamed(Routes.yat, arguments: YatMode.connect);
+                        final url = _baseUrl + _signInSuffix;
+                        launch(url);
+                      })
                 )
               ]
           ),
