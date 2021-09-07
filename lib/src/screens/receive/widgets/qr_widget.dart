@@ -135,14 +135,14 @@ class QRWidget extends StatelessWidget {
                       ))),
         ),
         Observer(builder: (_) {
-          return addressListViewModel.yatAddress.isNotEmpty
+          return addressListViewModel.emoji.isNotEmpty
           ? Padding(
             padding: EdgeInsets.only(bottom: 10),
             child: Builder(
                 builder: (context) => GestureDetector(
                   onTap: () {
                     Clipboard.setData(ClipboardData(
-                        text: addressListViewModel.yatAddress));
+                        text: addressListViewModel.emoji));
                     showBar<void>(
                         context, S.of(context).copied_to_clipboard);
                   },
@@ -161,7 +161,7 @@ class QRWidget extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(top: 5),
                         child: Text(
-                          addressListViewModel.yatAddress,
+                          addressListViewModel.emoji,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 13,

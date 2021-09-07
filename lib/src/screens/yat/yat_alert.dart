@@ -10,8 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 
 class YatAlert extends StatelessWidget {
   static const aspectRatioImage = 1.133;
-  static const _baseUrl = 'https://yat.fyi';
-  static const _signInSuffix = '/sign-in';
+  static const _baseUrl = 'https://y.at';
+  static const _signInSuffix = '/partner/CW/link';
   static const _createSuffix = '/create';
   final image = Image.asset('assets/images/yat_crypto.png');
 

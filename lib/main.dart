@@ -210,7 +210,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       }
       print('got initial uri: $uri');
       if (!mounted) return;
-      yatStore.yatAddress = 'Yat address'; // FIXME
+      _fetchEmojiFromUri(uri, yatStore);
     } catch (e) {
       if (!mounted) return;
       print(e.toString());
@@ -222,12 +222,24 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       stream = getUriLinksStream().listen((Uri uri) {
         if (!mounted) return;
         print('got uri: $uri');
-        yatStore.yatAddress = 'Yat address'; // FIXME
+        _fetchEmojiFromUri(uri, yatStore);
       }, onError: (Object error) {
         if (!mounted) return;
         print('Error: $error');
       });
     }
+  }
+
+  void _fetchEmojiFromUri(Uri uri, YatStore yatStore) {
+    final queryParameters = uri.queryParameters;
+    if (queryParameters == null || queryParameters.isEmpty) {
+      return;
+    }
+    final emoji = queryParameters['eid'];
+    if (emoji == null || emoji.isEmpty) {
+      return;
+    }
+    yatStore.emoji = emoji;
   }
 
   @override
