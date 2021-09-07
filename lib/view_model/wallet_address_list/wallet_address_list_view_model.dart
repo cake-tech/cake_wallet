@@ -155,7 +155,7 @@ abstract class WalletAddressListViewModelBase with Store {
   bool get hasAddressList => _wallet.type == WalletType.monero;
 
   @computed
-  String get yatAddress => yatStore.yatAddress;
+  String get emoji => yatStore.emoji;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
