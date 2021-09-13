@@ -165,7 +165,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
-  cw_monero: 78f369253cc913efc23db9cf6be81a11eaf40fe1
+  cw_monero: c79d5530b828b8013c1db421f1be8bab687f7b7e
   devicelocale: b22617f40038496deffba44747101255cee005b0
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
