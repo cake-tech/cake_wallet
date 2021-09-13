@@ -1,7 +1,7 @@
 #!/bin/sh
 
 . ./config.sh
-MONERO_BRANCH=v0.17.1.9-android
+MONERO_BRANCH=v0.17.2.3-android
 MONERO_SRC_DIR=${WORKDIR}/monero
 CMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake"
 
