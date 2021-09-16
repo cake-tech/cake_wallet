@@ -1,17 +1,22 @@
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat/widgets/yat_bar.dart';
-import 'package:cake_wallet/src/screens/yat/yat_webview_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class YatAlert extends StatelessWidget {
+  YatAlert({this.isYatDevMode = false})
+      : baseUrl = isYatDevMode ? _baseDevUrl : _baseReleaseUrl;
+
+  final bool isYatDevMode;
+  final String baseUrl;
   static const aspectRatioImage = 1.133;
-  static const _baseUrl = 'https://y.at';
-  static const _signInSuffix = '/partner/CW/link';
+  static const _baseDevUrl = 'https://yat.fyi';
+  static const _baseReleaseUrl = 'https://y.at';
+  static const _signInSuffix = '/partner/CW/link-email';
   static const _createSuffix = '/create';
   final image = Image.asset('assets/images/yat_crypto.png');
 
@@ -42,7 +47,7 @@ class YatAlert extends StatelessWidget {
                   child: Column(
                       children: [
                         Text(
-                            'Send and receive crypto more easily with Yat',
+                            S.of(context).yat_alert_title,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 24,
@@ -55,7 +60,7 @@ class YatAlert extends StatelessWidget {
                         Padding(
                             padding: EdgeInsets.only(top: 20),
                             child: Text(
-                                'Cake Wallet users can now send and receive all their favorite currencies with a one-of-a-kind emoji-based username.',
+                                S.of(context).yat_alert_content,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
@@ -76,7 +81,7 @@ class YatAlert extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 PrimaryIconButton(
-                    text: 'Get your Yat',
+                    text: S.of(context).get_your_yat,
                     textColor: Colors.white,
                     color: Palette.protectiveBlue,
                     borderColor: Palette.protectiveBlue,
@@ -86,15 +91,13 @@ class YatAlert extends StatelessWidget {
                         .arrow_up_right_square,
                     mainAxisAlignment: MainAxisAlignment.end,
                     onPressed: () {
-                      //Navigator.of(context)
-                      //    .popAndPushNamed(Routes.yat, arguments: YatMode.create);
-                      final url = _baseUrl + _createSuffix;
+                      final url = baseUrl + _createSuffix;
                       launch(url);
                     }),
                 Padding(
                     padding: EdgeInsets.only(top: 24),
                     child: PrimaryIconButton(
-                      text: 'Connect an existing Yat',
+                      text: S.of(context).connect_an_existing_yat,
                       textColor: Colors.black,
                       color: Palette.blueAlice,
                       borderColor: Palette.blueAlice,
@@ -104,9 +107,7 @@ class YatAlert extends StatelessWidget {
                           .arrow_up_right_square,
                       mainAxisAlignment: MainAxisAlignment.end,
                       onPressed: () {
-                        //Navigator.of(context)
-                        //    .popAndPushNamed(Routes.yat, arguments: YatMode.connect);
-                        final url = _baseUrl + _signInSuffix;
+                        final url = baseUrl + _signInSuffix;
                         launch(url);
                       })
                 )

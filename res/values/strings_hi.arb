@@ -494,5 +494,13 @@
   "address_detected" : "पता लग गया",
   "address_from_domain" : "यह पता ${domain} से है Unstoppable Domains",
 
-  "add_receiver" : "एक और रिसीवर जोड़ें (वैकल्पिक)"
+  "add_receiver" : "एक और रिसीवर जोड़ें (वैकल्पिक)",
+
+  "manage_yats" : "Yats प्रबंधित करें",
+  "yat_alert_title" : "के साथ अधिक आसानी से क्रिप्टो भेजें और प्राप्त करें Yat",
+  "yat_alert_content" : "Cake Wallet उपयोगकर्ता अब अपनी सभी पसंदीदा मुद्राओं को एक-एक तरह के इमोजी-आधारित उपयोगकर्ता नाम के साथ भेज और प्राप्त कर सकते हैं।",
+  "get_your_yat" : "अपना प्राप्त करें Yat",
+  "connect_an_existing_yat" : "मौजूदा Yat कनेक्ट करें",
+  "yat_address" : "Yat पता",
+  "address_from_yat" : "यह पता ${emoji} से है Yat"
 }

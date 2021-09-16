@@ -494,5 +494,13 @@
   "address_detected" : "檢測到地址",
   "address_from_domain" : "此地址來自 Unstoppable Domains 上的 ${domain}",
 
-  "add_receiver" : "添加另一個接收器（可選）"
+  "add_receiver" : "添加另一個接收器（可選）",
+
+  "manage_yats" : "管理 Yats",
+  "yat_alert_title" : "使用 Yat 更輕鬆地發送和接收加密貨幣",
+  "yat_alert_content" : "Cake Wallet 用戶現在可以使用獨一無二的基於表情符號的用戶名發送和接收他們喜歡的所有貨幣。",
+  "get_your_yat" : "得到你的 Yat",
+  "connect_an_existing_yat" : "連接現有 Yat",
+  "yat_address" : "Yat 地址",
+  "address_from_yat" : "此地址來自 Yat 上的 ${emoji}"
 }

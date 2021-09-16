@@ -13,7 +13,6 @@ import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
-import 'package:cake_wallet/src/screens/yat/yat_webview_page.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
@@ -379,11 +378,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<UnspentCoinsDetailsPage>(
                   param1: args));
-
-    case Routes.yat:
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<YatWebViewPage>(param1: settings.arguments as YatMode));
 
     default:
       return MaterialPageRoute<void>(

@@ -494,5 +494,13 @@
   "address_detected" : "Adresa je otkrivena",
   "address_from_domain" : "To je adresa od ${domain} na Unstoppable Domains",
 
-  "add_receiver" : "Dodajte drugi prijemnik (izborno)"
+  "add_receiver" : "Dodajte drugi prijemnik (izborno)",
+
+  "manage_yats" : "Upravljanje Yat",
+  "yat_alert_title" : "Lakše šaljite i primajte kriptovalute s Yatom",
+  "yat_alert_content" : "Korisnici Cake Wallet sada mogu slati i primati sve svoje omiljene valute s jedinstvenim korisničkim imenom na temelju emojija.",
+  "get_your_yat" : "Uzmi svoj Yat",
+  "connect_an_existing_yat" : "Povežite postojeći Yat",
+  "yat_address" : "Yat adresa",
+  "address_from_yat" : "To je adresa od ${emoji} na Yat"
 }
