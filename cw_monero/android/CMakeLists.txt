@@ -91,6 +91,10 @@ add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcryptonote_basic.a)
 
+add_library(cryptonote_format_utils_basic STATIC IMPORTED)
+set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcryptonote_format_utils_basic.a)        
+
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libmnemonics.a)
@@ -189,6 +193,7 @@ target_link_libraries(  cw_monero
                         wallet
                         cryptonote_core
                         cryptonote_basic
+                        cryptonote_format_utils_basic
                         mnemonics
                         ringct
                         ringct_basic
