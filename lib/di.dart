@@ -45,7 +45,6 @@ import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.da
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
-import 'package:cake_wallet/src/screens/yat/yat_webview_page.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:cake_wallet/store/node_list_store.dart';
 import 'package:cake_wallet/store/secret_store.dart';
@@ -99,7 +98,6 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:cake_wallet/view_model/yat_view_model.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -635,16 +633,6 @@ Future setup(
                   param1: item,
                   param2: unspentCoinsListViewModel));
   });
-
-  getIt.registerFactory(() => YatViewModel(
-    yatStore: getIt.get<YatStore>()
-  ));
-
-  getIt.registerFactoryParam<YatWebViewPage, YatMode, void>((YatMode mode, _) =>
-      YatWebViewPage(
-        mode: mode,
-        yatViewModel: getIt.get<YatViewModel>(),
-      ));
 
   _isSetupFinished = true;
 }

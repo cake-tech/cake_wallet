@@ -157,12 +157,12 @@ abstract class SettingsViewModelBase with Store {
       ],
       [
         RegularListItem(
-          title: 'Manage Yats',
+          title: S.current.manage_yats,
           handler: (BuildContext context) async {
             await showPopUp<void>(
                 context: context,
                 builder: (BuildContext context) {
-                  return YatAlert();
+                  return YatAlert(isYatDevMode: true);
                 });
           },
         ),

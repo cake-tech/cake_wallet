@@ -150,7 +150,7 @@ class QRWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Yat Address',
+                        S.of(context).yat_address,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 13,

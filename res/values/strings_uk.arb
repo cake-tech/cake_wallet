@@ -494,5 +494,13 @@
   "address_detected" : "Виявлено адресу",
   "address_from_domain" : "Ця адреса від ${domain} на Unstoppable Domains",
 
-  "add_receiver" : "Додати одержувача (необов'язково)"
+  "add_receiver" : "Додати одержувача (необов'язково)",
+
+  "manage_yats" : "Керувати Yat",
+  "yat_alert_title" : "За допомогою Yat легше надсилати та отримувати криптовалюту",
+  "yat_alert_content" : "Користувачі Cake Wallet тепер можуть надсилати та отримувати криптовалюту за допомогою унікального імені користувача на основі смайликів.",
+  "get_your_yat" : "Одержати свій Yat",
+  "connect_an_existing_yat" : "Підключити існуючий Yat",
+  "yat_address" : "Yat адреса",
+  "address_from_yat" : "Ця адреса від ${emoji} на Yat"
 }

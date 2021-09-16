@@ -494,5 +494,13 @@
   "address_detected" : "アドレスが検出されました",
   "address_from_domain" : "このアドレスは ${domain} からのものです Unstoppable Domains",
 
-  "add_receiver" : "別のレシーバーを追加します（オプション）"
+  "add_receiver" : "別のレシーバーを追加します（オプション）",
+
+  "manage_yats" : "Yatsを管理する",
+  "yat_alert_title" : "Yatで暗号をより簡単に送受信できます",
+  "yat_alert_content" : "Cake Walletユーザーは、独自の絵文字ベースのユーザー名を使用して、お気に入りのすべての通貨を送受信できるようになりました。",
+  "get_your_yat" : "あなたのYatを入手してください",
+  "connect_an_existing_yat" : "既存のYatを接続します",
+  "yat_address" : "Yat 住所",
+  "address_from_yat" : "このアドレスは ${emoji} からのものです Yat"
 }

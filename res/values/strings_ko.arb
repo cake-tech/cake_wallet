@@ -494,5 +494,13 @@
   "address_detected" : "주소 감지",
   "address_from_domain" : "이 주소는 ${domain} 의 주소입니다 Unstoppable Domains",
 
-  "add_receiver" : "다른 수신기 추가(선택 사항)"
+  "add_receiver" : "다른 수신기 추가(선택 사항)",
+
+  "manage_yats" : "관리하다 Yats",
+  "yat_alert_title" : "Yat으로 더 쉽게 암호화폐를 보내고 받으십시오.",
+  "yat_alert_content" : "Cake Wallet 사용자는 이제 독특한 이모티콘 기반 사용자 이름으로 좋아하는 모든 통화를 보내고 받을 수 있습니다.",
+  "get_your_yat" : "당신의 Yat를 얻으십시오",
+  "connect_an_existing_yat" : "기존 Yat 연결",
+  "yat_address" : "Yat 주소",
+  "address_from_yat" : "이 주소는 ${emoji} 의 주소입니다 Yat"
 }
