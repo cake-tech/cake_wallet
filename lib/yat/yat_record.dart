@@ -15,7 +15,7 @@ Future<String> fetchYatAddress(String emojiId, String ticker) async {
   final responseJSON = json.decode(response.body) as Map<String, dynamic>;
   final result = responseJSON['result'] as List<dynamic>;
 
-  if (result == null || result.isEmpty) {
+  if (result?.isEmpty ?? true) {
     return '';
   }
 
