@@ -228,11 +228,11 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
 
   void _fetchEmojiFromUri(Uri uri, YatStore yatStore) {
     final queryParameters = uri.queryParameters;
-    if (queryParameters == null || queryParameters.isEmpty) {
+    if (queryParameters?.isEmpty ?? true) {
       return;
     }
     final emoji = queryParameters['eid'];
-    if (emoji == null || emoji.isEmpty) {
+    if (emoji?.isEmpty ?? true) {
       return;
     }
     yatStore.emoji = emoji;

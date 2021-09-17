@@ -20,5 +20,10 @@ Future<String> fetchYatAddress(String emojiId, String ticker) async {
   }
 
   final yatAddress = result.first['data'] as String;
+
+  if (yatAddress?.isEmpty ?? true) {
+    return '';
+  }
+
   return yatAddress;
 }
