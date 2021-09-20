@@ -147,10 +147,11 @@ class SendCardState extends State<SendCard>
                               .headline
                               .decorationColor),
                       onPushPasteButton: (context) async {
-                        final parsedAddress =
-                        await output.applyOpenaliasOrUnstoppableDomains();
-                        showAddressAlert(context, parsedAddress);
+                        output.resetParsedAddress();
+                        await output.fetchParsedAddress(context);
                       },
+                      onPushAddressBookButton: (context) =>
+                          output.resetParsedAddress(),
                       validator: sendViewModel.addressValidator,
                     ),
                     Observer(
@@ -531,8 +532,8 @@ class SendCardState extends State<SendCard>
 
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
-        final parsedAddress = await output.applyOpenaliasOrUnstoppableDomains();
-        showAddressAlert(context, parsedAddress);
+        output.resetParsedAddress();
+        await output.fetchParsedAddress(context);
       }
     });
 

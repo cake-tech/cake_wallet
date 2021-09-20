@@ -4,25 +4,64 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-void showAddressAlert(BuildContext context, ParsedAddress parsedAddress) async {
+import 'choose_yat_address_alert.dart';
+
+Future<String> defineAddress(
+    BuildContext context,
+    ParsedAddress parsedAddress) async {
   var title = '';
   var content = '';
+  var address = '';
 
   switch (parsedAddress.parseFrom) {
     case ParseFrom.unstoppableDomains:
       title = S.of(context).address_detected;
       content = S.of(context).address_from_domain(parsedAddress.name);
+      address = parsedAddress.addresses.first;
       break;
     case ParseFrom.openAlias:
       title = S.of(context).openalias_alert_title;
       content = S.of(context).openalias_alert_content(parsedAddress.name);
+      address = parsedAddress.addresses.first;
       break;
     case ParseFrom.yatRecord:
+      if (parsedAddress.name.isEmpty) {
+        title = 'Yat error';
+        content = 'No addresses linked with this Yat. Try another Yat';
+        address = parsedAddress.addresses.first;
+        break;
+      }
+
       title = S.of(context).address_detected;
       content = S.of(context).address_from_yat(parsedAddress.name);
-      break;
+
+      if (parsedAddress.addresses.length == 1) {
+        address = parsedAddress.addresses.first;
+        break;
+      }
+
+      content += '\nPlease choose the address:';
+
+      address = await showPopUp<String>(
+          context: context,
+          builder: (BuildContext context) {
+
+            return WillPopScope(
+              child: ChooseYatAddressAlert(
+                alertTitle: title,
+                alertContent: content,
+                addresses: parsedAddress.addresses),
+              onWillPop: () async => false);
+          });
+
+      if (address?.isEmpty ?? true) {
+        return parsedAddress.name;
+      }
+
+      return address;
     case ParseFrom.notParsed:
-      return;
+      address = parsedAddress.addresses.first;
+      return address;
   }
 
   await showPopUp<void>(
@@ -35,4 +74,6 @@ void showAddressAlert(BuildContext context, ParsedAddress parsedAddress) async {
             buttonText: S.of(context).ok,
             buttonAction: () => Navigator.of(context).pop());
       });
+
+  return address;
 }

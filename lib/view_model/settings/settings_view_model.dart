@@ -162,7 +162,7 @@ abstract class SettingsViewModelBase with Store {
             await showPopUp<void>(
                 context: context,
                 builder: (BuildContext context) {
-                  return YatAlert(isYatDevMode: true);
+                  return YatAlert(wallet: wallet, isYatDevMode: true);
                 });
           },
         ),

@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
+import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -45,6 +46,8 @@ abstract class OutputBase with Store {
 
   @observable
   bool sendAll;
+
+  ParsedAddress parsedAddress;
 
   @computed
   int get formattedCryptoAmount {
@@ -127,6 +130,11 @@ abstract class OutputBase with Store {
     fiatAmount = '';
     address = '';
     note = '';
+    resetParsedAddress();
+  }
+
+  void resetParsedAddress() {
+    parsedAddress = ParsedAddress(addresses: []);
   }
 
   @action
@@ -194,13 +202,10 @@ abstract class OutputBase with Store {
     _cryptoNumberFormat.maximumFractionDigits = maximumFractionDigits;
   }
 
-  Future<ParsedAddress> applyOpenaliasOrUnstoppableDomains() async {
+  Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final ticker = _wallet.currency.title.toLowerCase();
-    final parsedAddress = await parseAddressFromDomain(domain, ticker);
-
-    address = parsedAddress.address;
-
-    return parsedAddress;
+    parsedAddress = await parseAddressFromDomain(domain, ticker);
+    address = await defineAddress(context, parsedAddress);
   }
 }

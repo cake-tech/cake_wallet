@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/src/screens/yat/widgets/yat_bar.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -8,16 +10,20 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class YatAlert extends StatelessWidget {
-  YatAlert({this.isYatDevMode = false})
-      : baseUrl = isYatDevMode ? _baseDevUrl : _baseReleaseUrl;
+  YatAlert({@required this.wallet, this.isYatDevMode = false})
+      : baseUrl = isYatDevMode ? _baseDevUrl : _baseReleaseUrl,
+        address = wallet.walletAddresses.address;
 
+  final WalletBase wallet;
   final bool isYatDevMode;
+  final String address;
   final String baseUrl;
   static const aspectRatioImage = 1.133;
   static const _baseDevUrl = 'https://yat.fyi';
   static const _baseReleaseUrl = 'https://y.at';
   static const _signInSuffix = '/partner/CW/link-email';
   static const _createSuffix = '/create';
+  static const _queryParameter = '?addresses=';
   final image = Image.asset('assets/images/yat_crypto.png');
 
   @override
@@ -107,7 +113,8 @@ class YatAlert extends StatelessWidget {
                           .arrow_up_right_square,
                       mainAxisAlignment: MainAxisAlignment.end,
                       onPressed: () {
-                        final url = baseUrl + _signInSuffix;
+                        final url = baseUrl + _signInSuffix + _queryParameter +
+                             _defineTag() + '%3D' + address;
                         launch(url);
                       })
                 )
@@ -115,5 +122,25 @@ class YatAlert extends StatelessWidget {
           ),
         )
     );
+  }
+
+  String _defineTag() {
+    String tag;
+    switch (wallet.type) {
+      case WalletType.monero:
+        tag = address.startsWith('4')
+            ? '0x1001'
+            : '0x1002';
+        break;
+      case WalletType.bitcoin:
+        tag = '0x1003';
+        break;
+      case WalletType.litecoin:
+        tag = '0x3fff';
+        break;
+      default:
+        tag = '0x3fff';
+    }
+    return tag;
   }
 }

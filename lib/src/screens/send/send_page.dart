@@ -215,9 +215,8 @@ class SendPage extends BasePage {
                                   output.address =
                                       template.address;
                                   output.setCryptoAmount(template.amount);
-                                  final parsedAddress = await output
-                                      .applyOpenaliasOrUnstoppableDomains();
-                                  showAddressAlert(context, parsedAddress);
+                                  output.resetParsedAddress();
+                                  await output.fetchParsedAddress(context);
                                 },
                                 onRemove: () {
                                   showPopUp<void>(

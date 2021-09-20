@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
@@ -276,15 +277,32 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 final _address = item.address;
                                 final _amount =
                                 item.cryptoAmount.replaceAll(',', '.');
+                                final isParsedAddress =
+                                    item.parsedAddress.parseFrom !=
+                                        ParseFrom.notParsed;
 
                                 return Column(
                                   children: [
+                                    if (isParsedAddress) Padding(
+                                        padding: EdgeInsets.only(top: 8),
+                                        child: Text(
+                                          item.parsedAddress.name,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Lato',
+                                            color: PaletteDark.pigeonBlue,
+                                            decoration: TextDecoration.none,
+                                          ),
+                                        )
+                                    ),
                                     Padding(
                                         padding: EdgeInsets.only(top: 8),
                                         child: Text(
                                           _address,
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 10,
                                             fontWeight: FontWeight.w600,
                                             fontFamily: 'Lato',
                                             color: PaletteDark.pigeonBlue,
@@ -301,7 +319,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                             Text(
                                               _amount,
                                               style: TextStyle(
-                                                fontSize: 12,
+                                                fontSize: 10,
                                                 fontWeight: FontWeight.w600,
                                                 fontFamily: 'Lato',
                                                 color: PaletteDark.pigeonBlue,
@@ -314,18 +332,37 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                   ],
                                 );
                               })
-                              : Padding(
-                                padding: EdgeInsets.only(top: 8),
-                                child: Text(
-                                  outputs.first.address,
-                                  style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Lato',
-                                  color: PaletteDark.pigeonBlue,
-                                  decoration: TextDecoration.none,
-                              ),
-                            ),
+                              : Column(
+                              children: [
+                                if (outputs.first.parsedAddress.parseFrom !=
+                                    ParseFrom.notParsed) Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      outputs.first.parsedAddress.name,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Lato',
+                                        color: PaletteDark.pigeonBlue,
+                                        decoration: TextDecoration.none,
+                                      ),
+                                    )
+                                ),
+                                Padding(
+                                    padding: EdgeInsets.only(top: 8),
+                                    child: Text(
+                                      outputs.first.address,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        fontFamily: 'Lato',
+                                        color: PaletteDark.pigeonBlue,
+                                        decoration: TextDecoration.none,
+                                      ),
+                                    )
+                                ),
+                              ]
                           )
                         ],
                       ),
