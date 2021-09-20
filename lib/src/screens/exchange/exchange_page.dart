@@ -232,7 +232,7 @@ class ExchangePage extends BasePage {
                                   final ticker = exchangeViewModel
                                       .depositCurrency.title.toLowerCase();
                                   exchangeViewModel.depositAddress =
-                                    await applyOpenaliasOrUnstoppableDomains(
+                                    await fetchParsedAddress(
                                         context, domain, ticker);
                                 },
                               ),
@@ -288,7 +288,7 @@ class ExchangePage extends BasePage {
                                     final ticker = exchangeViewModel
                                         .receiveCurrency.title.toLowerCase();
                                     exchangeViewModel.receiveAddress =
-                                      await applyOpenaliasOrUnstoppableDomains(
+                                      await fetchParsedAddress(
                                           context, domain, ticker);
                                   },
                                 )),
@@ -518,12 +518,12 @@ class ExchangePage extends BasePage {
     var domain = template.depositAddress;
     var ticker = template.depositCurrency.toLowerCase();
     exchangeViewModel.depositAddress =
-      await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
+      await fetchParsedAddress(context, domain, ticker);
 
     domain = template.receiveAddress;
     ticker = template.receiveCurrency.toLowerCase();
     exchangeViewModel.receiveAddress =
-      await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
+      await fetchParsedAddress(context, domain, ticker);
   }
 
   void _setReactions(
@@ -696,7 +696,7 @@ class ExchangePage extends BasePage {
         final domain = depositAddressController.text;
         final ticker = exchangeViewModel.depositCurrency.title.toLowerCase();
         exchangeViewModel.depositAddress =
-          await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
+          await fetchParsedAddress(context, domain, ticker);
       }
     });
 
@@ -706,7 +706,7 @@ class ExchangePage extends BasePage {
         final domain = receiveAddressController.text;
         final ticker = exchangeViewModel.receiveCurrency.title.toLowerCase();
         exchangeViewModel.receiveAddress =
-          await applyOpenaliasOrUnstoppableDomains(context, domain, ticker);
+          await fetchParsedAddress(context, domain, ticker);
       }
     });
 
@@ -782,12 +782,10 @@ class ExchangePage extends BasePage {
     }
   }
 
-  Future<String> applyOpenaliasOrUnstoppableDomains(
+  Future<String> fetchParsedAddress(
       BuildContext context, String domain, String ticker) async {
     final parsedAddress = await parseAddressFromDomain(domain, ticker);
-
-    showAddressAlert(context, parsedAddress);
-
-    return parsedAddress.address;
+    final address = await defineAddress(context, parsedAddress);
+    return address;
   }
 }

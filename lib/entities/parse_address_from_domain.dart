@@ -24,18 +24,20 @@ Future<ParsedAddress> parseAddressFromDomain(
 
     if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
       try {
-        final address = await fetchYatAddress(domain, ticker);
+        final addresses = await fetchYatAddress(domain, ticker);
 
-        if (address?.isEmpty ?? true) {
-          return ParsedAddress(address: domain);
+        if (addresses?.isEmpty ?? true) {
+          return ParsedAddress(
+              addresses: [domain],
+              parseFrom: ParseFrom.yatRecord);
         }
 
         return ParsedAddress(
-            address: address,
+            addresses: addresses,
             name: domain,
             parseFrom: ParseFrom.yatRecord);
       } catch (e) {
-        return ParsedAddress(address: domain);
+        return ParsedAddress(addresses: [domain]);
       }
     }
 
@@ -44,11 +46,11 @@ Future<ParsedAddress> parseAddressFromDomain(
         await fetchUnstoppableDomainAddress(domain, ticker);
 
       if (address?.isEmpty ?? true) {
-        return ParsedAddress(address: domain);
+        return ParsedAddress(addresses: [domain]);
       }
 
       return ParsedAddress(
-          address: address,
+          addresses: [address],
           name: domain,
           parseFrom: ParseFrom.unstoppableDomains);
     }
@@ -56,16 +58,16 @@ Future<ParsedAddress> parseAddressFromDomain(
     final record = await OpenaliasRecord.fetchAddressAndName(formattedName);
 
     if (record == null || record.address.contains(formattedName)) {
-      return ParsedAddress(address: domain);
+      return ParsedAddress(addresses: [domain]);
     }
 
     return ParsedAddress(
-        address: record.address,
+        addresses: [record.address],
         name: record.name,
         parseFrom: ParseFrom.openAlias);
   } catch (e) {
     print(e.toString());
   }
 
-  return ParsedAddress(address: domain);
+  return ParsedAddress(addresses: [domain]);
 }

@@ -25,7 +25,8 @@ class AddressTextField extends StatelessWidget {
       this.textStyle,
       this.hintStyle,
       this.validator,
-      this.onPushPasteButton});
+      this.onPushPasteButton,
+      this.onPushAddressBookButton});
 
   static const prefixIconWidth = 34.0;
   static const prefixIconHeight = 34.0;
@@ -45,6 +46,7 @@ class AddressTextField extends StatelessWidget {
   final TextStyle hintStyle;
   final FocusNode focusNode;
   final Function(BuildContext context) onPushPasteButton;
+  final Function(BuildContext context) onPushAddressBookButton;
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +218,7 @@ class AddressTextField extends StatelessWidget {
 
     if (contact is ContactBase && contact.address != null) {
       controller.text = contact.address;
+      onPushAddressBookButton?.call(context);
     }
   }
 
