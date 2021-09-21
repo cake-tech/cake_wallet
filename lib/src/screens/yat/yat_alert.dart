@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:lottie/lottie.dart';
 
 class YatAlert extends StatelessWidget {
   YatAlert({@required this.wallet, this.isYatDevMode = false})
@@ -25,6 +26,7 @@ class YatAlert extends StatelessWidget {
   static const _createSuffix = '/create';
   static const _queryParameter = '?addresses=';
   final image = Image.asset('assets/images/yat_crypto.png');
+  final anim = Lottie.asset('assets/animation/anim1.json');
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +42,15 @@ class YatAlert extends StatelessWidget {
           content: Column(
             children: [
               Container(
-                  height: 90,
+                  height: 45, // 90
                   padding: EdgeInsets.only(left: 24, right: 24),
                   child: YatBar(onClose: () => Navigator.of(context).pop())
               ),
-              AspectRatio(
-                  aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: image, fit: BoxFit.fill)
-              ),
+              anim,
+              // AspectRatio(
+              //     aspectRatio: aspectRatioImage,
+              //     child: FittedBox(child: image, fit: BoxFit.fill)
+              // ),
               Container(
                   padding: EdgeInsets.only(left: 30, right: 30),
                   child: Column(
