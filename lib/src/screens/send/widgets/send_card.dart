@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -38,6 +37,7 @@ class SendCardState extends State<SendCard>
         cryptoAmountController = TextEditingController(),
         fiatAmountController = TextEditingController(),
         noteController = TextEditingController(),
+        extractedAddressController = TextEditingController(),
         cryptoAmountFocus = FocusNode(),
         fiatAmountFocus = FocusNode(),
         addressFocusNode = FocusNode();
@@ -52,6 +52,7 @@ class SendCardState extends State<SendCard>
   final TextEditingController cryptoAmountController;
   final TextEditingController fiatAmountController;
   final TextEditingController noteController;
+  final TextEditingController extractedAddressController;
   final FocusNode cryptoAmountFocus;
   final FocusNode fiatAmountFocus;
   final FocusNode addressFocusNode;
@@ -101,58 +102,80 @@ class SendCardState extends State<SendCard>
           child: Padding(
             padding: EdgeInsets.fromLTRB(24, 100, 24, 32),
             child: SingleChildScrollView(
-                child: Column(
+                child: Observer(builder: (_) => Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    AddressTextField(
-                      focusNode: addressFocusNode,
-                      controller: addressController,
-                      onURIScanned: (uri) {
-                        var address = '';
-                        var amount = '';
+                    Observer(builder: (_) {
+                      final validator = output.isParsedAddress
+                          ? sendViewModel.textValidator
+                          : sendViewModel.addressValidator;
 
-                        if (uri != null) {
-                          address = uri.path;
-                          amount = uri.queryParameters['tx_amount'] ??
-                              uri.queryParameters['amount'];
-                        } else {
-                          address = uri.toString();
-                        }
+                      return AddressTextField(
+                        focusNode: addressFocusNode,
+                        controller: addressController,
+                        onURIScanned: (uri) {
+                          var address = '';
+                          var amount = '';
 
-                        addressController.text = address;
-                        cryptoAmountController.text = amount;
-                      },
-                      options: [
-                        AddressTextFieldOption.paste,
-                        AddressTextFieldOption.qrCode,
-                        AddressTextFieldOption.addressBook
-                      ],
-                      buttonColor: Theme.of(context)
-                          .primaryTextTheme
-                          .display1
-                          .color,
-                      borderColor: Theme.of(context)
-                          .primaryTextTheme
-                          .headline
-                          .color,
-                      textStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white),
-                      hintStyle: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .headline
-                              .decorationColor),
-                      onPushPasteButton: (context) async {
-                        output.resetParsedAddress();
-                        await output.fetchParsedAddress(context);
-                      },
-                      onPushAddressBookButton: (context) =>
-                          output.resetParsedAddress(),
-                      validator: sendViewModel.addressValidator,
+                          if (uri != null) {
+                            address = uri.path;
+                            amount = uri.queryParameters['tx_amount'] ??
+                                uri.queryParameters['amount'];
+                          } else {
+                            address = uri.toString();
+                          }
+
+                          addressController.text = address;
+                          cryptoAmountController.text = amount;
+                        },
+                        options: [
+                          AddressTextFieldOption.paste,
+                          AddressTextFieldOption.qrCode,
+                          AddressTextFieldOption.addressBook
+                        ],
+                        buttonColor: Theme.of(context)
+                            .primaryTextTheme
+                            .display1
+                            .color,
+                        borderColor: Theme.of(context)
+                            .primaryTextTheme
+                            .headline
+                            .color,
+                        textStyle: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white),
+                        hintStyle: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context)
+                                .primaryTextTheme
+                                .headline
+                                .decorationColor),
+                        onPushPasteButton: (context) async {
+                          output.resetParsedAddress();
+                          await output.fetchParsedAddress(context);
+                        },
+                        onPushAddressBookButton: (context) =>
+                            output.resetParsedAddress(),
+                        validator: validator,
+                      );
+                    }),
+                    if (output.isParsedAddress) Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: BaseTextFormField(
+                        controller: extractedAddressController,
+                        readOnly: true,
+                        borderColor: Theme.of(context)
+                            .primaryTextTheme
+                            .headline
+                            .color,
+                        textStyle: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white),
+                        validator: sendViewModel.addressValidator
+                      )
                     ),
                     Observer(
                         builder: (_) => Padding(
@@ -440,7 +463,7 @@ class SendCardState extends State<SendCard>
                         )
                     )
                   ],
-                )
+                ))
             ),
           ),
         )
@@ -453,6 +476,7 @@ class SendCardState extends State<SendCard>
     cryptoAmountController.text = output.cryptoAmount;
     fiatAmountController.text = output.fiatAmount;
     noteController.text = output.note;
+    extractedAddressController.text = output.extractedAddress;
 
     if (_effectsInstalled) {
       return;
@@ -520,6 +544,7 @@ class SendCardState extends State<SendCard>
       final address = addressController.text;
 
       if (output.address != address) {
+        output.resetParsedAddress();
         output.address = address;
       }
     });
@@ -532,9 +557,12 @@ class SendCardState extends State<SendCard>
 
     addressFocusNode.addListener(() async {
       if (!addressFocusNode.hasFocus && addressController.text.isNotEmpty) {
-        output.resetParsedAddress();
         await output.fetchParsedAddress(context);
       }
+    });
+
+    reaction((_) => output.extractedAddress, (String extractedAddress) {
+      extractedAddressController.text = extractedAddress;
     });
 
     _effectsInstalled = true;

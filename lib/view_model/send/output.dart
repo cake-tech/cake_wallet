@@ -47,7 +47,15 @@ abstract class OutputBase with Store {
   @observable
   bool sendAll;
 
+  @observable
   ParsedAddress parsedAddress;
+
+  @observable
+  String extractedAddress;
+
+  @computed
+  bool get isParsedAddress => parsedAddress.parseFrom != ParseFrom.notParsed
+      && parsedAddress.name.isNotEmpty;
 
   @computed
   int get formattedCryptoAmount {
@@ -134,6 +142,7 @@ abstract class OutputBase with Store {
   }
 
   void resetParsedAddress() {
+    extractedAddress = '';
     parsedAddress = ParsedAddress(addresses: []);
   }
 
@@ -206,6 +215,6 @@ abstract class OutputBase with Store {
     final domain = address;
     final ticker = _wallet.currency.title.toLowerCase();
     parsedAddress = await parseAddressFromDomain(domain, ticker);
-    address = await defineAddress(context, parsedAddress);
+    extractedAddress = await defineAddress(context, parsedAddress);
   }
 }

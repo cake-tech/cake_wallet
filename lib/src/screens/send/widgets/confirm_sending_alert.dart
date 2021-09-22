@@ -1,4 +1,3 @@
-import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/material.dart';
@@ -274,16 +273,15 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               itemCount: itemCount,
                               itemBuilder: (context, index) {
                                 final item = outputs[index];
-                                final _address = item.address;
+                                final _address = item.isParsedAddress
+                                    ? item.extractedAddress
+                                    : item.address;
                                 final _amount =
                                 item.cryptoAmount.replaceAll(',', '.');
-                                final isParsedAddress =
-                                    item.parsedAddress.parseFrom !=
-                                        ParseFrom.notParsed;
 
                                 return Column(
                                   children: [
-                                    if (isParsedAddress) Padding(
+                                    if (item.isParsedAddress) Padding(
                                         padding: EdgeInsets.only(top: 8),
                                         child: Text(
                                           item.parsedAddress.name,
@@ -334,8 +332,7 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                               })
                               : Column(
                               children: [
-                                if (outputs.first.parsedAddress.parseFrom !=
-                                    ParseFrom.notParsed) Padding(
+                                if (outputs.first.isParsedAddress) Padding(
                                     padding: EdgeInsets.only(top: 8),
                                     child: Text(
                                       outputs.first.parsedAddress.name,
@@ -352,7 +349,9 @@ class ConfirmSendingAlertContentState extends State<ConfirmSendingAlertContent> 
                                 Padding(
                                     padding: EdgeInsets.only(top: 8),
                                     child: Text(
-                                      outputs.first.address,
+                                      outputs.first.isParsedAddress
+                                          ? outputs.first.extractedAddress
+                                          : outputs.first.address,
                                       style: TextStyle(
                                         fontSize: 10,
                                         fontWeight: FontWeight.w600,
