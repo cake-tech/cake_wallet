@@ -280,8 +280,12 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
           ? item.formattedCryptoAmount
           : amount;
 
+      final outputAddress = item.isParsedAddress
+          ? item.extractedAddress
+          : item.address;
+
       txb.addOutput(
-          addressToOutputScript(item.address, networkType),
+          addressToOutputScript(outputAddress, networkType),
           outputAmount);
     });
 

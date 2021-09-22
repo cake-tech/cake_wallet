@@ -117,6 +117,8 @@ abstract class SendViewModelBase with Store {
 
   Validator get addressValidator => AddressValidator(type: _wallet.currency);
 
+  Validator get textValidator => TextValidator();
+
   @observable
   PendingTransaction pendingTransaction;
 

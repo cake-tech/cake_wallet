@@ -175,11 +175,15 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
         throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
       }
 
-      final moneroOutputs = outputs.map((output) =>
-          MoneroOutput(
-              address: output.address,
-              amount: output.cryptoAmount.replaceAll(',', '.')))
-          .toList();
+      final moneroOutputs = outputs.map((output) {
+        final outputAddress = output.isParsedAddress
+            ? output.extractedAddress
+            : output.address;
+
+        return MoneroOutput(
+            address: outputAddress,
+            amount: output.cryptoAmount.replaceAll(',', '.'));
+      }).toList();
 
       pendingTransactionDescription =
       await transaction_history.createTransactionMultDest(
@@ -188,7 +192,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
           accountIndex: walletAddresses.account.id);
     } else {
       final output = outputs.first;
-      final address = output.address;
+      final address = output.isParsedAddress
+          ? output.extractedAddress
+          : output.address;
       final amount = output.sendAll
           ? null
           : output.cryptoAmount.replaceAll(',', '.');
