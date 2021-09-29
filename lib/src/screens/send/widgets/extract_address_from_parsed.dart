@@ -3,10 +3,9 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-
 import 'choose_yat_address_alert.dart';
 
-Future<String> defineAddress(
+Future<String> extractAddressFromParsed(
     BuildContext context,
     ParsedAddress parsedAddress) async {
   var title = '';

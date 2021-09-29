@@ -4,7 +4,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/monero/monero_amount_format.dart';
-import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
+import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -215,6 +215,6 @@ abstract class OutputBase with Store {
     final domain = address;
     final ticker = _wallet.currency.title.toLowerCase();
     parsedAddress = await parseAddressFromDomain(domain, ticker);
-    extractedAddress = await defineAddress(context, parsedAddress);
+    extractedAddress = await extractAddressFromParsed(context, parsedAddress);
   }
 }

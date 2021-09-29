@@ -3,7 +3,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/sync_status.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
-import 'package:cake_wallet/src/screens/send/widgets/parse_address_from_domain_alert.dart';
+import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/cupertino.dart';
@@ -785,7 +785,7 @@ class ExchangePage extends BasePage {
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, String ticker) async {
     final parsedAddress = await parseAddressFromDomain(domain, ticker);
-    final address = await defineAddress(context, parsedAddress);
+    final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }
 }
