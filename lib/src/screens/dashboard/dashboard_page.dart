@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/yat/yat_popup.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -145,7 +146,7 @@ class DashboardPage extends BasePage {
     ));
   }
 
-  void _setEffects(BuildContext context) {
+  void _setEffects(BuildContext context) async {
     if (_isEffectsInstalled) {
       return;
     }
@@ -154,6 +155,15 @@ class DashboardPage extends BasePage {
               walletViewModel: walletViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
+
+    await Future<void>.delayed(Duration(seconds: 1));
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return YatPopup(
+              dashboardViewModel: walletViewModel,
+              onClose: () => Navigator.of(context).pop());
+        });
 
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet) {

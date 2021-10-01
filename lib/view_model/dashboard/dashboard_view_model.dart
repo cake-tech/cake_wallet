@@ -12,6 +12,7 @@ import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
+import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cake_wallet/view_model/dashboard/filter_item.dart';
@@ -46,6 +47,7 @@ abstract class DashboardViewModelBase with Store {
       this.tradeFilterStore,
       this.transactionFilterStore,
       this.settingsStore,
+      this.yatStore,
       this.ordersStore}) {
     filterItems = {
       S.current.transactions: [
@@ -86,6 +88,9 @@ abstract class DashboardViewModelBase with Store {
     type = wallet.type;
     isOutdatedElectrumWallet =
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
+    isShowFirstYatIntroduction = false;
+    isShowSecondYatIntroduction = false;
+    isShowThirdYatIntroduction = false;
     final _wallet = wallet;
 
     if (_wallet is MoneroWallet) {
@@ -147,6 +152,15 @@ abstract class DashboardViewModelBase with Store {
   @observable
   String subname;
 
+  @observable
+  bool isShowFirstYatIntroduction;
+
+  @observable
+  bool isShowSecondYatIntroduction;
+
+  @observable
+  bool isShowThirdYatIntroduction;
+
   @computed
   String get address => wallet.walletAddresses.address;
 
@@ -207,6 +221,8 @@ abstract class DashboardViewModelBase with Store {
   AppStore appStore;
 
   SettingsStore settingsStore;
+
+  YatStore yatStore;
 
   TradesStore tradesStore;
 
