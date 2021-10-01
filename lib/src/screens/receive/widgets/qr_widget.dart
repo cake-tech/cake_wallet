@@ -101,7 +101,7 @@ class QRWidget extends StatelessWidget {
                 ),
               ),
         Padding(
-          padding: EdgeInsets.only(top: 16, bottom: 16),
+          padding: EdgeInsets.only(top: 10, bottom: 10),
           child: Builder(
               builder: (context) => Observer(
                   builder: (context) => GestureDetector(
@@ -164,7 +164,7 @@ class QRWidget extends StatelessWidget {
                           addressListViewModel.emoji,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 26,
                           ),
                         )
                       )

@@ -156,8 +156,10 @@ class SendCardState extends State<SendCard>
                           output.resetParsedAddress();
                           await output.fetchParsedAddress(context);
                         },
-                        onPushAddressBookButton: (context) =>
-                            output.resetParsedAddress(),
+                        onPushAddressBookButton: (context) async {
+                          output.resetParsedAddress();
+                          await output.fetchParsedAddress(context);
+                        },
                         validator: validator,
                       );
                     }),

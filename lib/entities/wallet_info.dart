@@ -7,7 +7,8 @@ part 'wallet_info.g.dart';
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
   WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
-      this.timestamp, this.dirPath, this.path, this.address);
+      this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
+        this.yatRefreshToken);
 
   factory WalletInfo.external(
       {@required String id,
@@ -18,9 +19,12 @@ class WalletInfo extends HiveObject {
       @required DateTime date,
       @required String dirPath,
       @required String path,
-      @required String address}) {
+      @required String address,
+      String yatEid ='',
+      String yatRefreshToken = ''}) {
     return WalletInfo(id, name, type, isRecovery, restoreHeight,
-        date.millisecondsSinceEpoch ?? 0, dirPath, path, address);
+        date.millisecondsSinceEpoch ?? 0, dirPath, path, address,
+        yatEid, yatRefreshToken);
   }
 
   static const typeId = 4;
@@ -55,6 +59,16 @@ class WalletInfo extends HiveObject {
 
   @HiveField(10)
   Map<String, String> addresses;
+
+  @HiveField(11)
+  String yatEid;
+
+  @HiveField(12)
+  String yatRefreshToken;
+
+  String get yatEmojiId => yatEid ?? '';
+
+  String get yatToken => yatRefreshToken ?? '';
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 }

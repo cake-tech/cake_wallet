@@ -235,6 +235,15 @@ class ExchangePage extends BasePage {
                                     await fetchParsedAddress(
                                         context, domain, ticker);
                                 },
+                                onPushAddressBookButton: (context) async {
+                                  final domain =
+                                      exchangeViewModel.depositAddress;
+                                  final ticker = exchangeViewModel
+                                      .depositCurrency.title.toLowerCase();
+                                  exchangeViewModel.depositAddress =
+                                  await fetchParsedAddress(
+                                      context, domain, ticker);
+                                },
                               ),
                             ),
                           ),
@@ -290,6 +299,15 @@ class ExchangePage extends BasePage {
                                     exchangeViewModel.receiveAddress =
                                       await fetchParsedAddress(
                                           context, domain, ticker);
+                                  },
+                                  onPushAddressBookButton: (context) async {
+                                    final domain =
+                                        exchangeViewModel.receiveAddress;
+                                    final ticker = exchangeViewModel
+                                        .receiveCurrency.title.toLowerCase();
+                                    exchangeViewModel.receiveAddress =
+                                    await fetchParsedAddress(
+                                        context, domain, ticker);
                                   },
                                 )),
                           )

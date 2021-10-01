@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
@@ -97,8 +98,9 @@ class ContactPage extends BasePage {
                       buttonColor: Theme.of(context).accentTextTheme.display2.color,
                       iconColor: PaletteDark.gray,
                       borderColor: Theme.of(context).primaryTextTheme.title.backgroundColor,
-                      validator: AddressValidator(
-                          type: contactViewModel.currency),
+                      validator: TextValidator()
+                      // AddressValidator(
+                      //     type: contactViewModel.currency),
                     )),
               )
             ],

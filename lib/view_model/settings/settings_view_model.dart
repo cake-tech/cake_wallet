@@ -1,4 +1,5 @@
 import 'package:cake_wallet/src/screens/yat/yat_alert.dart';
+import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
@@ -50,6 +51,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
 abstract class SettingsViewModelBase with Store {
   SettingsViewModelBase(
       this._settingsStore,
+      this._yatStore,
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
               TransactionInfo>
           wallet)
@@ -162,7 +164,7 @@ abstract class SettingsViewModelBase with Store {
             await showPopUp<void>(
                 context: context,
                 builder: (BuildContext context) {
-                  return YatAlert(wallet: wallet, isYatDevMode: true);
+                  return YatAlert(_yatStore);
                 });
           },
         ),
@@ -213,6 +215,7 @@ abstract class SettingsViewModelBase with Store {
   final Map<String, String> itemHeaders;
   List<List<SettingsListItem>> sections;
   final SettingsStore _settingsStore;
+  final YatStore _yatStore;
   final WalletType _walletType;
   final BiometricAuth _biometricAuth;
 

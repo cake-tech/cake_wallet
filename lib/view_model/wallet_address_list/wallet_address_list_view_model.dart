@@ -1,4 +1,4 @@
-import 'package:cake_wallet/store/yat_store.dart';
+import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';

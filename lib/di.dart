@@ -62,7 +62,7 @@ import 'package:cake_wallet/src/screens/send/send_page.dart';
 import 'package:cake_wallet/src/screens/subaddress/address_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/wallet_list/wallet_list_page.dart';
 import 'package:cake_wallet/store/wallet_list_store.dart';
-import 'package:cake_wallet/store/yat_store.dart';
+import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/backup_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
@@ -193,7 +193,9 @@ Future setup(
       SendTemplateStore(templateSource: _templates));
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
-  getIt.registerSingleton<YatStore>(YatStore());
+  getIt.registerSingleton<YatStore>(YatStore(
+    appStore: getIt.get<AppStore>()
+  ));
 
   final secretStore =
       await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());
@@ -254,6 +256,7 @@ Future setup(
       tradeFilterStore: getIt.get<TradeFilterStore>(),
       transactionFilterStore: getIt.get<TransactionFilterStore>(),
       settingsStore: settingsStore,
+      yatStore: getIt.get<YatStore>(),
       ordersStore: getIt.get<OrdersStore>()));
 
   getIt.registerFactory<AuthService>(() => AuthService(
@@ -391,7 +394,8 @@ Future setup(
 
   getIt.registerFactory(() {
     final appStore = getIt.get<AppStore>();
-    return SettingsViewModel(appStore.settingsStore, appStore.wallet);
+    final yatStore = getIt.get<YatStore>();
+    return SettingsViewModel(appStore.settingsStore, yatStore, appStore.wallet);
   });
 
   getIt.registerFactory(() => SettingsPage(getIt.get<SettingsViewModel>()));

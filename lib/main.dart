@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/store/yat_store.dart';
+import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -190,8 +190,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _handleIncomingLinks(yatStore);
-    _handleInitialUri(yatStore);
+    _handleIncomingLinks();
+    _handleInitialUri();
   }
 
   @override
@@ -200,25 +200,25 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> _handleInitialUri(YatStore yatStore) async {
+  Future<void> _handleInitialUri() async {
     try {
       final uri = await getInitialUri();
       if (uri == null) {
         return;
       }
       if (!mounted) return;
-      _fetchEmojiFromUri(uri, yatStore);
+      _fetchEmojiFromUri(uri);
     } catch (e) {
       if (!mounted) return;
       print(e.toString());
     }
   }
 
-  void _handleIncomingLinks(YatStore yatStore) {
+  void _handleIncomingLinks() {
     if (!kIsWeb) {
       stream = getUriLinksStream().listen((Uri uri) {
         if (!mounted) return;
-        _fetchEmojiFromUri(uri, yatStore);
+        _fetchEmojiFromUri(uri);
       }, onError: (Object error) {
         if (!mounted) return;
         print('Error: $error');
@@ -226,16 +226,18 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     }
   }
 
-  void _fetchEmojiFromUri(Uri uri, YatStore yatStore) {
+  void _fetchEmojiFromUri(Uri uri) {
     final queryParameters = uri.queryParameters;
     if (queryParameters?.isEmpty ?? true) {
       return;
     }
     final emoji = queryParameters['eid'];
-    if (emoji?.isEmpty ?? true) {
+    final refreshToken = queryParameters['refresh_token'];
+    if ((emoji?.isEmpty ?? true)||(refreshToken?.isEmpty ?? true)) {
       return;
     }
     yatStore.emoji = emoji;
+    yatStore.refreshToken = refreshToken;
   }
 
   @override

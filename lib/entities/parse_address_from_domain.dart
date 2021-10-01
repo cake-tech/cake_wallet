@@ -1,7 +1,7 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
-import 'package:cake_wallet/yat/yat_record.dart';
+import 'package:cake_wallet/store/yat/yat_store.dart';
 
 const unstoppableDomains = [
    'crypto',
