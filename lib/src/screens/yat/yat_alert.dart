@@ -11,7 +11,9 @@ import 'package:lottie/lottie.dart';
 
 class YatAlert extends StatelessWidget {
   YatAlert(this.yatStore)
-      : baseUrl = isYatDevMode ? baseDevUrl : baseReleaseUrl;
+      : baseUrl = YatLink.isDevMode
+          ? YatLink.baseDevUrl
+          : YatLink.baseReleaseUrl;
 
   final YatStore yatStore;
   final String baseUrl;
@@ -86,7 +88,7 @@ class YatAlert extends StatelessWidget {
                         .arrow_up_right_square,
                     mainAxisAlignment: MainAxisAlignment.end,
                     onPressed: () {
-                      final url = baseUrl + createSuffix;
+                      final url = baseUrl + YatLink.createSuffix;
                       launch(url);
                     }),
                 Padding(
@@ -102,11 +104,11 @@ class YatAlert extends StatelessWidget {
                           .arrow_up_right_square,
                       mainAxisAlignment: MainAxisAlignment.end,
                       onPressed: () {
-                        String url = baseUrl + signInSuffix;
+                        String url = baseUrl + YatLink.signInSuffix;
                         final parameters =
                             yatStore.defineQueryParameters();
                         if (parameters.isNotEmpty) {
-                          url += queryParameter + parameters;
+                          url += YatLink.queryParameter + parameters;
                         }
                         launch(url);
                       })

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/base_alert_dialog.dart';
 
@@ -22,51 +23,98 @@ class ChooseYatAddressAlert extends BaseAlertDialog {
   bool get barrierDismissible => false;
 
   @override
-  Widget actionButtons(BuildContext context) {
-    return Container(
-      width: 300,
-      height: 105,
-      color: Theme.of(context).accentTextTheme.body1.backgroundColor,
-      child: ListView.separated(
-          padding: EdgeInsets.all(0),
-          itemCount: addresses.length,
-          separatorBuilder: (_, __) => Container(
-            height: 1,
-            color: Theme.of(context).dividerColor,
-          ),
-          itemBuilder: (context, index) {
-            final address = addresses[index];
+  Widget actionButtons(BuildContext context) =>
+      ChooseYatAddressButtons(addresses);
+}
 
-            return GestureDetector(
-              onTap: () => Navigator.of(context).pop<String>(address),
-              child: Container(
-                width: 300,
-                height: 52,
-                padding: EdgeInsets.only(left: 24, right: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        address,
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          fontFamily: 'Lato',
-                          color: Theme.of(context).primaryTextTheme.title.color,
-                          decoration: TextDecoration.none,
-                        ),
-                      )
-                    )
-                  ],
-                )
-              ),
-            );
-          })
+class ChooseYatAddressButtons extends StatefulWidget {
+  ChooseYatAddressButtons(this.addresses);
+
+  final List<String> addresses;
+
+  @override
+  ChooseYatAddressButtonsState createState() =>
+      ChooseYatAddressButtonsState(addresses);
+}
+
+class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
+  ChooseYatAddressButtonsState(this.addresses)
+      : itemCount = addresses?.length ?? 0;
+
+  final List<String> addresses;
+  final int itemCount;
+  final double backgroundHeight = 118;
+  final double thumbHeight = 72;
+  ScrollController controller = ScrollController();
+  double fromTop = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    controller.addListener(() {
+      fromTop = controller.hasClients
+          ? (controller.offset / controller.position.maxScrollExtent *
+          (backgroundHeight - thumbHeight))
+          : 0;
+      setState(() {});
+    });
+
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+            width: 300,
+            height: 158,
+            color: Theme.of(context).accentTextTheme.body1.backgroundColor,
+            child: ListView.separated(
+                controller: controller,
+                padding: EdgeInsets.all(0),
+                itemCount: itemCount,
+                separatorBuilder: (_, __) => Container(
+                  height: 1,
+                  color: Theme.of(context).dividerColor,
+                ),
+                itemBuilder: (context, index) {
+                  final address = addresses[index];
+
+                  return GestureDetector(
+                    onTap: () => Navigator.of(context).pop<String>(address),
+                    child: Container(
+                        width: 300,
+                        height: 52,
+                        padding: EdgeInsets.only(left: 24, right: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                                child: Text(
+                                  address,
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    fontFamily: 'Lato',
+                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                    decoration: TextDecoration.none,
+                                  ),
+                                )
+                            )
+                          ],
+                        )
+                    ),
+                  );
+                })
+        ),
+        if (itemCount > 3) CakeScrollbar(
+            backgroundHeight: backgroundHeight,
+            thumbHeight: thumbHeight,
+            fromTop: fromTop,
+            //rightOffset: -15
+        )
+      ]
     );
   }
 }

@@ -156,14 +156,17 @@ class DashboardPage extends BasePage {
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
-    await Future<void>.delayed(Duration(seconds: 1));
-    await showPopUp<void>(
-        context: context,
-        builder: (BuildContext context) {
-          return YatPopup(
-              dashboardViewModel: walletViewModel,
-              onClose: () => Navigator.of(context).pop());
-        });
+    if (walletViewModel.shouldShowYatPopup) {
+      await Future<void>.delayed(Duration(seconds: 1));
+      await showPopUp<void>(
+          context: context,
+          builder: (BuildContext context) {
+            return YatPopup(
+                dashboardViewModel: walletViewModel,
+                onClose: () => Navigator.of(context).pop());
+          });
+      walletViewModel.furtherShowYatPopup(false);
+    }
 
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet) {

@@ -5,7 +5,7 @@ class YatBar extends StatelessWidget {
   YatBar({this.onClose});
 
   final VoidCallback onClose;
-  final image = Image.asset('assets/images/yat_logo.png');
+  final image = Image.asset('assets/images/yat_logo.png', width: 81, height: 28);
 
   @override
   Widget build(BuildContext context) {

@@ -15,18 +15,24 @@ import 'package:http/http.dart';
 
 part 'yat_store.g.dart';
 
-const baseDevUrl = 'https://yat.fyi';
-const baseReleaseUrl = 'https://y.at';
-const signInSuffix = '/partner/CW/link-email';
-const createSuffix = '/create';
-const queryParameter = '?addresses=';
-const requestDevUrl = 'https://a.yat.fyi/emoji_id/';
-const requestReleaseUrl = 'https://a.y.at/emoji_id/';
-const isYatDevMode = true;
+class YatLink {
+  static const baseDevUrl = 'https://yat.fyi';
+  static const baseReleaseUrl = 'https://y.at';
+  static const signInSuffix = '/partner/CW/link-email';
+  static const createSuffix = '/create';
+  static const queryParameter = '?addresses=';
+  static const requestDevUrl = 'https://a.yat.fyi/emoji_id/';
+  static const requestReleaseUrl = 'https://a.y.at/emoji_id/';
+  static const isDevMode = true;
+  static const tags = <String, List<String>>{"XMR" : ['0x1001', '0x1002'],
+    "BTC" : ['0x1003'], "LTC" : ['0x3fff']};
+}
 
 Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
-  final requestURL = isYatDevMode ? requestDevUrl : requestReleaseUrl;
-  final url = requestURL + emojiId + '/' + ticker.toUpperCase();
+  final requestURL = YatLink.isDevMode
+      ? YatLink.requestDevUrl
+      : YatLink.requestReleaseUrl;
+  final url = requestURL + emojiId;
   final response = await get(url);
 
   if (response.statusCode != 200) {
@@ -41,11 +47,18 @@ Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
   }
 
   final List<String> addresses = [];
+  final currency = ticker.toUpperCase();
 
   for (var elem in result) {
-    final yatAddress = elem['data'] as String;
-    if (yatAddress?.isNotEmpty ?? false) {
-      addresses.add(yatAddress);
+    final tag = elem['tag'] as String;
+    if (tag?.isEmpty ?? true) {
+      continue;
+    }
+    if (YatLink.tags[currency]?.contains(tag) ?? false) {
+      final yatAddress = elem['data'] as String;
+      if (yatAddress?.isNotEmpty ?? false) {
+        addresses.add(yatAddress);
+      }
     }
   }
 
@@ -123,8 +136,8 @@ abstract class YatStoreBase with Store {
             }
 
             parameters += subaddress.address.startsWith('4')
-                ? '0x1001%3D'
-                : '0x1002%3D';
+                ? YatLink.tags["XMR"].first + '%3D'
+                : YatLink.tags["XMR"].last + '%3D';
 
             parameters += subaddress.address;
           });
@@ -141,7 +154,7 @@ abstract class YatStoreBase with Store {
             isFirstAddress = !isFirstAddress;
           }
 
-          parameters += '0x1003%3D' + record.address;
+          parameters += YatLink.tags["BTC"].first + '%3D' + record.address;
         });
         break;
       case WalletType.litecoin:
@@ -155,7 +168,7 @@ abstract class YatStoreBase with Store {
             isFirstAddress = !isFirstAddress;
           }
 
-          parameters += '0x3fff%3D' + record.address;
+          parameters += YatLink.tags["LTC"].first + '%3D' + record.address;
         });
         break;
       default:
