@@ -236,6 +236,12 @@ abstract class DashboardViewModelBase with Store {
 
   bool get isBuyEnabled => settingsStore.isBitcoinBuyEnabled;
 
+  bool get shouldShowYatPopup => settingsStore.shouldShowYatPopup;
+
+  @action
+  void furtherShowYatPopup(bool shouldShow) =>
+      settingsStore.shouldShowYatPopup = shouldShow;
+
   ReactionDisposer _onMoneroAccountChangeReaction;
 
   ReactionDisposer _onMoneroBalanceChangeReaction;

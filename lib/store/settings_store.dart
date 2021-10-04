@@ -38,6 +38,7 @@ abstract class SettingsStoreBase with Store {
       @required Map<WalletType, Node> nodes,
       @required TransactionPriority initialBitcoinTransactionPriority,
       @required TransactionPriority initialMoneroTransactionPriority,
+      @required this.shouldShowYatPopup,
       @required this.isBitcoinBuyEnabled,
       this.actionlistDisplayMode}) {
     fiatCurrency = initialFiatCurrency;
@@ -58,6 +59,11 @@ abstract class SettingsStoreBase with Store {
         (_) => fiatCurrency,
         (FiatCurrency fiatCurrency) => sharedPreferences.setString(
             PreferencesKey.currentFiatCurrencyKey, fiatCurrency.serialize()));
+
+    reaction(
+        (_) => shouldShowYatPopup,
+        (bool shouldShowYatPopup) => sharedPreferences
+             .setBool(PreferencesKey.shouldShowYatPopup, shouldShowYatPopup));
 
     priority.observe((change) {
       final key = change.key == WalletType.monero
@@ -109,6 +115,9 @@ abstract class SettingsStoreBase with Store {
 
   @observable
   FiatCurrency fiatCurrency;
+
+  @observable
+  bool shouldShowYatPopup;
 
   @observable
   ObservableList<ActionListDisplayMode> actionlistDisplayMode;
@@ -217,6 +226,8 @@ abstract class SettingsStoreBase with Store {
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final packageInfo = await PackageInfo.fromPlatform();
+    final shouldShowYatPopup =
+        sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
 
     return SettingsStore(
         sharedPreferences: sharedPreferences,
@@ -236,7 +247,8 @@ abstract class SettingsStoreBase with Store {
         initialPinLength: pinLength,
         initialLanguageCode: savedLanguageCode,
         initialMoneroTransactionPriority: moneroTransactionPriority,
-        initialBitcoinTransactionPriority: bitcoinTransactionPriority);
+        initialBitcoinTransactionPriority: bitcoinTransactionPriority,
+        shouldShowYatPopup: shouldShowYatPopup);
   }
 
   Future<void> reload(
@@ -270,6 +282,7 @@ abstract class SettingsStoreBase with Store {
     pinCodeLength = settings.pinCodeLength;
     languageCode = settings.languageCode;
     appVersion = settings.appVersion;
+    shouldShowYatPopup = settings.shouldShowYatPopup;
   }
 
   Future<void> _saveCurrentNode(Node node, WalletType walletType) async {

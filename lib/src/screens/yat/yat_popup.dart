@@ -14,7 +14,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 class YatPopup extends StatelessWidget {
   YatPopup({this.dashboardViewModel, this.onClose})
-      : baseUrl = isYatDevMode ? baseDevUrl : baseReleaseUrl;
+      : baseUrl = YatLink.isDevMode
+          ? YatLink.baseDevUrl
+          : YatLink.baseReleaseUrl;
 
   static const durationInMilliseconds = 250;
 
@@ -157,15 +159,15 @@ class YatPopup extends StatelessWidget {
             child: ThirdIntroduction(
                 onClose: onClose,
                 onGet: () {
-                  final url = baseUrl + createSuffix;
+                  final url = baseUrl + YatLink.createSuffix;
                   launch(url);
                 },
                 onConnect: () {
-                  String url = baseUrl + signInSuffix;
+                  String url = baseUrl + YatLink.signInSuffix;
                   final parameters = dashboardViewModel
                       .yatStore.defineQueryParameters();
                   if (parameters.isNotEmpty) {
-                    url += queryParameter + parameters;
+                    url += YatLink.queryParameter + parameters;
                   }
                   launch(url);
                 }
