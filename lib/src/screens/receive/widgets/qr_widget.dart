@@ -101,7 +101,7 @@ class QRWidget extends StatelessWidget {
                 ),
               ),
         Padding(
-          padding: EdgeInsets.only(top: 10, bottom: 10),
+          padding: EdgeInsets.only(top: 8, bottom: 8),
           child: Builder(
               builder: (context) => Observer(
                   builder: (context) => GestureDetector(

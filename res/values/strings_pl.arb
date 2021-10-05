@@ -502,5 +502,15 @@
   "get_your_yat" : "Zdobądź swój Yat",
   "connect_an_existing_yat" : "Podłącz istniejący Yat",
   "yat_address" : "Adres Yat",
-  "address_from_yat" : "Ten adres jest od ${emoji} na Yat"
+  "address_from_yat" : "Ten adres jest od ${emoji} na Yat",
+  "yat_error" : "Pomyłka Yata",
+  "yat_error_content" : "Brak adresów powiązanych z tym Yat. Wypróbuj inny Yat",
+  "choose_address" : "\n\nWybierz adres:",
+  "yat_popup_title" : "Twój adres portfela może być emojified.",
+  "yat_popup_content" : "Możesz teraz wysyłać i odbierać krypto w Cake Wallet za pomocą swojego Yat – krótkiej nazwy użytkownika opartej na emotikonach. Zarządzaj Yats w dowolnym momencie na ekranie ustawień",
+  "second_intro_title" : "Jeden adres emoji, aby rządzić nimi wszystkimi",
+  "second_intro_content" : "Twój Yat to jeden unikalny adres emoji, który zastępuje wszystkie Twoje długie adresy szesnastkowe dla wszystkich Twoich walut.",
+  "third_intro_title" : "Yat ładnie bawi się z innymi",
+  "third_intro_content" : "Yats mieszkają również poza Cake Wallet. Każdy adres portfela na ziemi można zastąpić Yat!",
+  "learn_more" : "Ucz się więcej"
 }

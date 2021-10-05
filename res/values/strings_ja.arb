@@ -501,6 +501,16 @@
   "yat_alert_content" : "Cake Walletユーザーは、独自の絵文字ベースのユーザー名を使用して、お気に入りのすべての通貨を送受信できるようになりました。",
   "get_your_yat" : "あなたのYatを入手してください",
   "connect_an_existing_yat" : "既存のYatを接続します",
-  "yat_address" : "Yat 住所",
-  "address_from_yat" : "このアドレスは ${emoji} からのものです Yat"
+  "yat_address" : "Yat住所",
+  "address_from_yat" : "このアドレスは ${emoji} からのものです Yat",
+  "yat_error" : "Yatエラー",
+  "yat_error_content" : "このYatにリンクされているアドレスはありません。別のYatを試してください",
+  "choose_address" : "\n\n住所を選択してください：",
+  "yat_popup_title" : "あなたの財布のアドレスは絵文字であることができます。",
+  "yat_popup_content" : "Yat（短い絵文字ベースのユーザー名）を使用して、CakeWalletで暗号を送受信できるようになりました。 設定画面でいつでもYatsを管理",
+  "second_intro_title" : "それらすべてを支配する1つの絵文字アドレス",
+  "second_intro_content" : "Yatは、すべての通貨のすべての長い16進アドレスを置き換える単一の一意の絵文字アドレスです。",
+  "third_intro_title" : "Yatは他の人とうまく遊ぶ",
+  "third_intro_content" : "YatsはCakeWalletの外にも住んでいます。 地球上のどのウォレットアドレスもYatに置き換えることができます！",
+  "learn_more" : "もっと詳しく知る"
 }

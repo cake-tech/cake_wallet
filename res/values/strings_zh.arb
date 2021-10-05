@@ -502,5 +502,15 @@
   "get_your_yat" : "得到你的 Yat",
   "connect_an_existing_yat" : "連接現有 Yat",
   "yat_address" : "Yat 地址",
-  "address_from_yat" : "此地址來自 Yat 上的 ${emoji}"
+  "address_from_yat" : "此地址來自 Yat 上的 ${emoji}",
+  "yat_error" : "Yat 誤差",
+  "yat_error_content" : "沒有與此 Yat 相關聯的地址。 嘗試另一個 Yat",
+  "choose_address" : "\n\n請選擇地址：",
+  "yat_popup_title" : "您的錢包地址可以被表情化。",
+  "yat_popup_content" : "您現在可以使用 Yat 在 Cake Wallet 中發送和接收加密貨幣 - 一個基於表情符號的簡短用戶名。 在設置屏幕上隨時管理 Yats",
+  "second_intro_title" : "一個表情符號地址來統治他們",
+  "second_intro_content" : "您的 Yat 是一個唯一的表情符號地址，可替換您所有貨幣的所有長十六進制地址。",
+  "third_intro_title" : "Yat 和別人玩得很好",
+  "third_intro_content" : "Yats 也住在 Cake Wallet 之外。 地球上任何一個錢包地址都可以用一個Yat來代替！",
+  "learn_more" : "了解更多"
 }

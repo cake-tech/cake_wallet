@@ -502,5 +502,15 @@
   "get_your_yat" : "Haal je Yato",
   "connect_an_existing_yat" : "Verbind een bestaande Yat",
   "yat_address" : "Yat-adres",
-  "address_from_yat" : "Dit adres is van ${emoji} op Yat"
+  "address_from_yat" : "Dit adres is van ${emoji} op Yat",
+  "yat_error" : "Yat fout",
+  "yat_error_content" : "Geen adressen gekoppeld aan deze Yat. Probeer een andere Yato",
+  "choose_address" : "\n\nKies het adres:",
+  "yat_popup_title" : "Uw portemonnee-adres kan worden ge-emojiificeerd.",
+  "yat_popup_content" : "Je kunt nu crypto verzenden en ontvangen in Cake Wallet met je Yat - een korte, op emoji gebaseerde gebruikersnaam. Beheer Yats op elk moment op het instellingenscherm",
+  "second_intro_title" : "Eén emoji-adres om ze allemaal te regeren",
+  "second_intro_content" : "Je Yat is een enkel uniek emoji-adres dat al je lange hexadecimale adressen vervangt voor al je valuta's.",
+  "third_intro_title" : "Yat speelt leuk met anderen",
+  "third_intro_content" : "Yats wonen ook buiten Cake Wallet. Elk portemonnee-adres op aarde kan worden vervangen door een Yat!",
+  "learn_more" : "Kom meer te weten"
 }

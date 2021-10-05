@@ -502,5 +502,15 @@
   "get_your_yat" : "Uzmi svoj Yat",
   "connect_an_existing_yat" : "Povežite postojeći Yat",
   "yat_address" : "Yat adresa",
-  "address_from_yat" : "To je adresa od ${emoji} na Yat"
+  "address_from_yat" : "To je adresa od ${emoji} na Yat",
+  "yat_error" : "Yat pogreška",
+  "yat_error_content" : "Nema adresa povezanih s ovim Yat -om. Pokušajte s drugim Yat -om",
+  "choose_address" : "\n\nOdaberite adresu:",
+  "yat_popup_title" : "Adresa vašeg novčanika može biti emojificirana.",
+  "yat_popup_content" : "Sada možete slati i primati kriptovalute u Cake Wallet s vašim Yat - kratkim korisničkim imenom zasnovanim na emojijima. Upravljajte Yatsom u bilo kojem trenutku na zaslonu postavki",
+  "second_intro_title" : "Jedna adresa emojija koja će svima njima vladati",
+  "second_intro_content" : "Vaš Yat jedinstvena je adresa emojija koja zamjenjuje sve vaše duge heksadecimalne adrese za sve vaše valute.",
+  "third_intro_title" : "Yat se lijepo igra s drugima",
+  "third_intro_content" : "Yats žive i izvan Cake Wallet -a. Bilo koja adresa novčanika na svijetu može se zamijeniti Yat!",
+  "learn_more" : "Saznajte više"
 }

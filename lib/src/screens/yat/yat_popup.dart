@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class YatPopup extends StatelessWidget {
   YatPopup({this.dashboardViewModel, this.onClose})
@@ -91,7 +92,7 @@ class YatPopup extends StatelessWidget {
                           child: Column(
                               children: [
                                 Text(
-                                    'Your wallet address can be emojified.',
+                                    S.of(context).yat_popup_title,
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 24,
@@ -104,7 +105,7 @@ class YatPopup extends StatelessWidget {
                                 Padding(
                                     padding: EdgeInsets.only(top: 20),
                                     child: Text(
-                                        'You can now send and receive crypto in Cake Wallet with your Yat - a short, emoji-based username. Manage Yats at any time on the settings screen',
+                                        S.of(context).yat_popup_content,
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontSize: 16,
@@ -119,7 +120,7 @@ class YatPopup extends StatelessWidget {
                           )
                       ),
                       PrimaryButton(
-                          text: 'Learn More',
+                          text: S.of(context).learn_more,
                           textColor: Colors.white,
                           color: Palette.protectiveBlue,
                           onPressed: () => dashboardViewModel

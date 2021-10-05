@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class ThirdIntroduction extends StatelessWidget {
   ThirdIntroduction({this.onClose, this.onGet, this.onConnect});
@@ -39,7 +40,7 @@ class ThirdIntroduction extends StatelessWidget {
                   child: Column(
                       children: [
                         Text(
-                            'Yat plays nicely with others',
+                            S.of(context).third_intro_title,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 24,
@@ -52,7 +53,7 @@ class ThirdIntroduction extends StatelessWidget {
                         Padding(
                             padding: EdgeInsets.only(top: 20),
                             child: Text(
-                                'Yats live outside of Cake Wallet, too. Any wallet address on earth can be replaced with a Yat!',
+                                S.of(context).third_intro_content,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 16,
@@ -73,7 +74,7 @@ class ThirdIntroduction extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 PrimaryIconButton(
-                    text: 'Get your Yat',
+                    text: S.of(context).get_your_yat,
                     textColor: Colors.white,
                     color: Palette.protectiveBlue,
                     borderColor: Palette.protectiveBlue,
@@ -86,7 +87,7 @@ class ThirdIntroduction extends StatelessWidget {
                 Padding(
                     padding: EdgeInsets.only(top: 12),
                     child: PrimaryIconButton(
-                        text: 'Connect an existing Yat',
+                        text: S.of(context).connect_an_existing_yat,
                         textColor: Colors.black,
                         color: Palette.blueAlice,
                         borderColor: Palette.blueAlice,
