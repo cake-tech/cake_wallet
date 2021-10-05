@@ -111,8 +111,7 @@ class ChooseYatAddressButtonsState extends State<ChooseYatAddressButtons> {
         if (itemCount > 3) CakeScrollbar(
             backgroundHeight: backgroundHeight,
             thumbHeight: thumbHeight,
-            fromTop: fromTop,
-            //rightOffset: -15
+            fromTop: fromTop
         )
       ]
     );

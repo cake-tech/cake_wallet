@@ -25,8 +25,8 @@ Future<String> extractAddressFromParsed(
       break;
     case ParseFrom.yatRecord:
       if (parsedAddress.name.isEmpty) {
-        title = 'Yat error';
-        content = 'No addresses linked with this Yat. Try another Yat';
+        title = S.of(context).yat_error;
+        content = S.of(context).yat_error_content;
         address = parsedAddress.addresses.first;
         break;
       }
@@ -39,7 +39,7 @@ Future<String> extractAddressFromParsed(
         break;
       }
 
-      content += '\nPlease choose the address:';
+      content += S.of(context).choose_address;
 
       address = await showPopUp<String>(
           context: context,

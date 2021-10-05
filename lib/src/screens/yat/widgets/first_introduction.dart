@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class FirstIntroduction extends StatelessWidget {
   FirstIntroduction({this.onClose, this.onNext});
@@ -39,7 +40,7 @@ class FirstIntroduction extends StatelessWidget {
                     child: Column(
                         children: [
                           Text(
-                              'Send and receive crypto more easily with Yat',
+                              S.of(context).yat_alert_title,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 24,
@@ -52,7 +53,7 @@ class FirstIntroduction extends StatelessWidget {
                           Padding(
                               padding: EdgeInsets.only(top: 20),
                               child: Text(
-                                  'Cake Wallet users can now send and receive all their favorite currencies with a one-of-a-kind emoji-based username.',
+                                  S.of(context).yat_alert_content,
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -73,7 +74,7 @@ class FirstIntroduction extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 PrimaryButton(
-                    text: 'Next',
+                    text: S.of(context).restore_next,
                     textColor: Colors.white,
                     color: Palette.protectiveBlue,
                     onPressed: onNext

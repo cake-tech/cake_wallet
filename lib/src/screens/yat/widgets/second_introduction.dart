@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:lottie/lottie.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 
 class SecondIntroduction extends StatelessWidget {
   SecondIntroduction({this.onClose, this.onNext});
@@ -38,7 +39,7 @@ class SecondIntroduction extends StatelessWidget {
                 child: Column(
                     children: [
                       Text(
-                          'One emoji address to rule them all',
+                          S.of(context).second_intro_title,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24,
@@ -51,7 +52,7 @@ class SecondIntroduction extends StatelessWidget {
                       Padding(
                           padding: EdgeInsets.only(top: 20),
                           child: Text(
-                              'Your Yat is a single unique emoji address that replaces all of your long hexadecimal addresses for all of your currencies.',
+                              S.of(context).second_intro_content,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 16,
@@ -72,7 +73,7 @@ class SecondIntroduction extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 PrimaryButton(
-                    text: 'Next',
+                    text: S.of(context).restore_next,
                     textColor: Colors.white,
                     color: Palette.protectiveBlue,
                     onPressed: onNext

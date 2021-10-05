@@ -502,5 +502,15 @@
   "get_your_yat" : "अपना प्राप्त करें Yat",
   "connect_an_existing_yat" : "मौजूदा Yat कनेक्ट करें",
   "yat_address" : "Yat पता",
-  "address_from_yat" : "यह पता ${emoji} से है Yat"
+  "address_from_yat" : "यह पता ${emoji} से है Yat",
+  "yat_error" : "Yat त्रुटि",
+  "yat_error_content" : "इसके साथ कोई पता लिंक नहीं है Yat. कोई दूसरा आज़माएं Yat",
+  "choose_address" : "\n\nकृपया पता चुनें:",
+  "yat_popup_title" : "आपका वॉलेट पता इमोजी किया जा सकता है।",
+  "yat_popup_content" : "अब आप क्रिप्टो भेज और प्राप्त कर सकते हैं Cake Wallet अपने Yat के साथ - एक छोटा, इमोजी-आधारित उपयोगकर्ता नाम। सेटिंग स्क्रीन पर किसी भी समय Yats को प्रबंधित करें",
+  "second_intro_title" : "उन सभी पर राज करने के लिए एक इमोजी पता",
+  "second_intro_content" : "आपका Yat एक अद्वितीय इमोजी पता है जो आपकी सभी मुद्राओं के लिए आपके सभी लंबे हेक्साडेसिमल पतों को बदल देता है।",
+  "third_intro_title" : "Yat दूसरों के साथ अच्छा खेलता है",
+  "third_intro_content" : "Yats Cake Wallet के बाहर भी रहता है। धरती पर किसी भी वॉलेट पते को Yat से बदला जा सकता है!",
+  "learn_more" : "और अधिक जानें"
 }
