@@ -8,13 +8,14 @@
 #include "thread"
 #include "CwWalletListener.h"
 #if __APPLE__
-#include "../External/android/monero/include/wallet2_api.h"
+// Fix for randomx on ios
+void __clear_cache(void* start, void* end) { }
+#include "../External/ios/include/wallet2_api.h"
 #else
 #include "../External/android/x86/include/wallet2_api.h"
 #endif
 
 using namespace std::chrono_literals;
-
 #ifdef __cplusplus
 extern "C"
 {
