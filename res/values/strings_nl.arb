@@ -502,6 +502,8 @@
   "get_your_yat" : "Haal je Yato",
   "connect_an_existing_yat" : "Verbind een bestaande Yat",
   "yat_address" : "Yat-adres",
+  "yat" : "Yat",
+  "connect_yats": "Verbind Yats",
   "address_from_yat" : "Dit adres is van ${emoji} op Yat",
   "yat_error" : "Yat fout",
   "yat_error_content" : "Geen adressen gekoppeld aan deze Yat. Probeer een andere Yato",

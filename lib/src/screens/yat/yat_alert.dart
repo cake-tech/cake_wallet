@@ -10,13 +10,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:lottie/lottie.dart';
 
 class YatAlert extends StatelessWidget {
-  YatAlert(this.yatStore)
-      : baseUrl = YatLink.isDevMode
-          ? YatLink.baseDevUrl
-          : YatLink.baseReleaseUrl;
+  YatAlert(this.yatStore);
 
   final YatStore yatStore;
-  final String baseUrl;
   static const aspectRatioImage = 1.133;
   final animation = Lottie.asset('assets/animation/anim1.json');
 
@@ -88,8 +84,15 @@ class YatAlert extends StatelessWidget {
                         .arrow_up_right_square,
                     mainAxisAlignment: MainAxisAlignment.end,
                     onPressed: () {
-                      final url = baseUrl + YatLink.createSuffix;
-                      launch(url);
+                      var createNewYatUrl = YatLink.startFlowUrl;
+                      final createNewYatUrlParameters =
+                          yatStore.defineQueryParameters();
+                      
+                      if (createNewYatUrlParameters.isNotEmpty) {
+                        createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
+                      }
+                      
+                      launch(createNewYatUrl, forceSafariVC: false);
                     }),
                 Padding(
                     padding: EdgeInsets.only(top: 24),
@@ -104,13 +107,13 @@ class YatAlert extends StatelessWidget {
                           .arrow_up_right_square,
                       mainAxisAlignment: MainAxisAlignment.end,
                       onPressed: () {
-                        String url = baseUrl + YatLink.signInSuffix;
+                        String url = YatLink.baseUrl + YatLink.signInSuffix;
                         final parameters =
                             yatStore.defineQueryParameters();
                         if (parameters.isNotEmpty) {
                           url += YatLink.queryParameter + parameters;
                         }
-                        launch(url);
+                        launch(url, forceSafariVC: false);
                       })
                 )
               ]

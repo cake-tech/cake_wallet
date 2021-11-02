@@ -502,6 +502,8 @@
   "get_your_yat" : "अपना प्राप्त करें Yat",
   "connect_an_existing_yat" : "मौजूदा Yat कनेक्ट करें",
   "yat_address" : "Yat पता",
+  "yat" : "Yat",
+  "connect_yats": "कनेक्ट Yats",
   "address_from_yat" : "यह पता ${emoji} से है Yat",
   "yat_error" : "Yat त्रुटि",
   "yat_error_content" : "इसके साथ कोई पता लिंक नहीं है Yat. कोई दूसरा आज़माएं Yat",

@@ -502,6 +502,8 @@
   "get_your_yat" : "あなたのYatを入手してください",
   "connect_an_existing_yat" : "既存のYatを接続します",
   "yat_address" : "Yat住所",
+  "yat" : "Yat",
+  "connect_yats": "Yatsを接続します",
   "address_from_yat" : "このアドレスは ${emoji} からのものです Yat",
   "yat_error" : "Yatエラー",
   "yat_error_content" : "このYatにリンクされているアドレスはありません。別のYatを試してください",

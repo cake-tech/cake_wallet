@@ -502,6 +502,8 @@
   "get_your_yat" : "得到你的 Yat",
   "connect_an_existing_yat" : "連接現有 Yat",
   "yat_address" : "Yat 地址",
+  "yat" : "Yat",
+  "connect_yats": "连接 Yats",
   "address_from_yat" : "此地址來自 Yat 上的 ${emoji}",
   "yat_error" : "Yat 誤差",
   "yat_error_content" : "沒有與此 Yat 相關聯的地址。 嘗試另一個 Yat",

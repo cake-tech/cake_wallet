@@ -12,20 +12,28 @@ import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'dart:convert';
 import 'package:cake_wallet/store/yat/yat_exception.dart';
 import 'package:http/http.dart';
+import 'dart:async';
 
 part 'yat_store.g.dart';
 
 class YatLink {
+  static const partnerId = 'CW';
   static const baseDevUrl = 'https://yat.fyi';
   static const baseReleaseUrl = 'https://y.at';
-  static const signInSuffix = '/partner/CW/link-email';
+  static const signInSuffix = '/partner/$partnerId/link-email';
   static const createSuffix = '/create';
+  static const managePath = '/partner/$partnerId/manage';
   static const queryParameter = '?addresses=';
   static const requestDevUrl = 'https://a.yat.fyi/emoji_id/';
   static const requestReleaseUrl = 'https://a.y.at/emoji_id/';
-  static const isDevMode = true;
+  static const startFlowUrl = 'https://www.y03btrk.com/4RQSJ/55M6S/';
+  static const isDevMode = false;
   static const tags = <String, List<String>>{"XMR" : ['0x1001', '0x1002'],
     "BTC" : ['0x1003'], "LTC" : ['0x3fff']};
+
+  static String get baseUrl => YatLink.isDevMode
+          ? YatLink.baseDevUrl
+          : YatLink.baseReleaseUrl;
 }
 
 Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
@@ -65,6 +73,18 @@ Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
   return addresses;
 }
 
+Future<String> visualisationForEmojiId(String emojiId) async {
+  final requestURL = YatLink.isDevMode
+      ? YatLink.requestDevUrl
+      : YatLink.requestReleaseUrl;
+  final url = requestURL + emojiId + '/json/VisualizerFileLocations';
+  final response = await get(url);
+  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+  final data = responseJSON['data'] as Map<String, dynamic>;
+  final result = data['gif'] as String ?? '';
+  return result;
+}
+
 class YatStore = YatStoreBase with _$YatStore;
 
 abstract class YatStoreBase with Store {
@@ -74,6 +94,7 @@ abstract class YatStoreBase with Store {
     refreshToken = _wallet?.walletInfo?.yatToken ?? '';
     reaction((_) => appStore.wallet, _onWalletChange);
     reaction((_) => emoji, (String emoji) => _onEmojiChange());
+    emojiIncommingSC = StreamController<String>();
   }
 
   AppStore appStore;
@@ -83,6 +104,10 @@ abstract class YatStoreBase with Store {
 
   @observable
   String refreshToken;
+
+  StreamController<String> emojiIncommingSC;
+
+  Stream<String> get emojiIncommingStream => emojiIncommingSC.stream;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>

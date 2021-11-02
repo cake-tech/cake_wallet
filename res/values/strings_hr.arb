@@ -502,6 +502,8 @@
   "get_your_yat" : "Uzmi svoj Yat",
   "connect_an_existing_yat" : "Povežite postojeći Yat",
   "yat_address" : "Yat adresa",
+  "yat" : "Yat",
+  "connect_yats": "Povežite Yats",
   "address_from_yat" : "To je adresa od ${emoji} na Yat",
   "yat_error" : "Yat pogreška",
   "yat_error_content" : "Nema adresa povezanih s ovim Yat -om. Pokušajte s drugim Yat -om",
