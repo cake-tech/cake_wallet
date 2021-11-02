@@ -25,6 +25,7 @@ import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
+import 'package:cake_wallet/entities/parsed_address.dart';
 
 part 'send_view_model.g.dart';
 
@@ -133,6 +134,11 @@ abstract class SendViewModelBase with Store {
 
   @computed
   bool get isElectrumWallet => _wallet is ElectrumWallet;
+
+  bool get hasYat 
+    => outputs.any((out) => out.isParsedAddress 
+      && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
+  
 
   WalletType get walletType => _wallet.type;
   final WalletBase _wallet;

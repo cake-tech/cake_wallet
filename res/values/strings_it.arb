@@ -502,6 +502,8 @@
   "get_your_yat" : "Ottieni il tuo Yat",
   "connect_an_existing_yat" : "Collegare un Yat esistente",
   "yat_address" : "Indirizzo Yat",
+  "yat" : "Yat",
+  "connect_yats": "Connetti Yats",
   "address_from_yat" : "Questo indirizzo è da ${emoji} in poi Yat",
   "yat_error" : "Yat errore",
   "yat_error_content" : "Nessun indirizzo collegato a questo Yat. Prova un altro Yat",

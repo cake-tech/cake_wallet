@@ -1,6 +1,7 @@
 import 'package:cake_wallet/src/screens/yat/yat_alert.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -69,6 +70,31 @@ abstract class SettingsViewModelBase with Store {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
 
+    var connectYatUrl = YatLink.baseUrl + YatLink.signInSuffix;
+    final connectYatUrlParameters =
+        _yatStore.defineQueryParameters();
+    
+    if (connectYatUrlParameters.isNotEmpty) {
+      connectYatUrl += YatLink.queryParameter + connectYatUrlParameters;
+    }
+
+    var manageYatUrl = YatLink.baseUrl + YatLink.managePath;
+    final manageYatUrlParameters =
+        _yatStore.defineQueryParameters();
+    
+    if (manageYatUrlParameters.isNotEmpty) {
+      manageYatUrl += YatLink.queryParameter + manageYatUrlParameters;
+    }
+
+    var createNewYatUrl = YatLink.startFlowUrl;
+    final createNewYatUrlParameters =
+        _yatStore.defineQueryParameters();
+    
+    if (createNewYatUrlParameters.isNotEmpty) {
+      createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
+    }
+
+    
     sections = [
       [
         PickerListItem(
@@ -158,16 +184,23 @@ abstract class SettingsViewModelBase with Store {
                 _settingsStore.currentTheme = theme)
       ],
       [
-        RegularListItem(
-          title: S.current.manage_yats,
-          handler: (BuildContext context) async {
-            await showPopUp<void>(
-                context: context,
-                builder: (BuildContext context) {
-                  return YatAlert(_yatStore);
-                });
-          },
-        ),
+        if (_yatStore.emoji.isNotEmpty) ...[
+          LinkListItem(
+              title: S.current.manage_yats,
+              link: manageYatUrl,
+              linkTitle: ''),
+        ] else ...[
+        LinkListItem(
+          title: S.current.connect_yats,
+          link: connectYatUrl,
+          linkTitle: ''),
+        LinkListItem(
+          title: 'Create new Yats',
+          link: createNewYatUrl,
+          linkTitle: '')
+        ]
+      ],
+      [
         RegularListItem(
           title: S.current.settings_terms_and_conditions,
           handler: (BuildContext context) =>

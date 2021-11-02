@@ -502,6 +502,8 @@
   "get_your_yat" : "당신의 Yat를 얻으십시오",
   "connect_an_existing_yat" : "기존 Yat 연결",
   "yat_address" : "Yat 주소",
+  "yat" : "Yat",
+  "connect_yats": "야츠 연결",
   "address_from_yat" : "이 주소는 ${emoji} 의 주소입니다 Yat",
   "yat_error" : "Yat 오류",
   "yat_error_content" : "이 Yat와 연결된 주소가 없습니다. 다른 Yat 시도",

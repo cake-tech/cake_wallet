@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/yat/yat_popup.dart';
+import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -20,6 +22,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:cake_wallet/main.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -78,6 +81,7 @@ class DashboardPage extends BasePage {
 
   var pages = <Widget>[];
   bool _isEffectsInstalled = false;
+  StreamSubscription<bool> _onInactiveSub;
 
   @override
   Widget body(BuildContext context) {
@@ -156,6 +160,8 @@ class DashboardPage extends BasePage {
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
 
+    _isEffectsInstalled = true;
+
     if (walletViewModel.shouldShowYatPopup) {
       await Future<void>.delayed(Duration(seconds: 1));
       await showPopUp<void>(
@@ -186,7 +192,29 @@ class DashboardPage extends BasePage {
           });
     });
 
-    _isEffectsInstalled = true;
+    var needToPresentYat = false;
+    var isInactive = false;
+
+    _onInactiveSub = rootKey.currentState.isInactive.listen((inactive) {
+      isInactive = inactive;
+
+      if (needToPresentYat) {
+        Future<void>.delayed(Duration(milliseconds: 500)).then((_) {
+          showPopUp<void>(
+            context: navigatorKey.currentContext,
+            builder: (_) => YatEmojiId(walletViewModel.yatStore.emoji));
+          needToPresentYat = false;
+        });
+      }
+    });
+
+    walletViewModel.yatStore.emojiIncommingStream.listen((String emoji) {
+      if (!_isEffectsInstalled || emoji.isEmpty) {
+        return;
+      }
+
+      needToPresentYat = true;
+    });
   }
 
   Future<void> _onClickBuyButton(BuildContext context) async {

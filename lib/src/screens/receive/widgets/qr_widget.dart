@@ -150,7 +150,7 @@ class QRWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        S.of(context).yat_address,
+                        S.of(context).yat,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 13,
@@ -160,14 +160,21 @@ class QRWidget extends StatelessWidget {
                       ),
                       Padding(
                         padding: EdgeInsets.only(top: 5),
-                        child: Text(
-                          addressListViewModel.emoji,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 26,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Expanded(child:Text(
+                              addressListViewModel.emoji,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: 26))),
+                            Padding(
+                              padding: EdgeInsets.only(left: 12),
+                              child: copyImage,
+                            )]
                           ),
                         )
-                      )
                     ]
                   )
                 )),

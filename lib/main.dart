@@ -2,7 +2,9 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +37,7 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+final rootKey = GlobalKey<RootState>();
 
 Future<void> main() async {
   try {
@@ -106,6 +109,9 @@ Future<void> main() async {
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
     final unspentCoinsInfoSource =
       await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    
+    await visualisationForEmojiId('%E2%98%A0%EF%B8%8F%F0%9F%90%99%E2%98%A0%EF%B8%8F');
+    
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
         nodes: nodes,
@@ -203,6 +209,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   Future<void> _handleInitialUri() async {
     try {
       final uri = await getInitialUri();
+      print('uri: $uri');
       if (uri == null) {
         return;
       }
@@ -217,6 +224,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   void _handleIncomingLinks() {
     if (!kIsWeb) {
       stream = getUriLinksStream().listen((Uri uri) {
+        print('uri: $uri');
         if (!mounted) return;
         _fetchEmojiFromUri(uri);
       }, onError: (Object error) {
@@ -238,6 +246,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     }
     yatStore.emoji = emoji;
     yatStore.refreshToken = refreshToken;
+    yatStore.emojiIncommingSC.add(emoji);
   }
 
   @override
@@ -263,6 +272,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
           statusBarIconBrightness: statusBarIconBrightness));
 
       return Root(
+          key: rootKey,
           authenticationStore: authenticationStore,
           navigatorKey: navigatorKey,
           child: MaterialApp(

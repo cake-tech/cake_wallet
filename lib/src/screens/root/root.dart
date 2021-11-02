@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -24,11 +25,14 @@ class Root extends StatefulWidget {
 }
 
 class RootState extends State<Root> with WidgetsBindingObserver {
+  Stream<bool> get isInactive => _isInactiveController.stream;
+  StreamController<bool> _isInactiveController;
   bool _isInactive;
   bool _postFrameCallback;
 
   @override
   void initState() {
+    _isInactiveController = StreamController<bool>();
     _isInactive = false;
     _postFrameCallback = false;
     WidgetsBinding.instance.addObserver(this);
@@ -45,7 +49,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
         if (!_isInactive &&
             widget.authenticationStore.state == AuthenticationState.allowed) {
-          setState(() => _isInactive = true);
+          setState(() => _setInactive(true));
         }
 
         break;
@@ -77,7 +81,12 @@ class RootState extends State<Root> with WidgetsBindingObserver {
   void _reset() {
     setState(() {
       _postFrameCallback = false;
-      _isInactive = false;
+      _setInactive(false);
     });
+  }
+
+  void _setInactive(bool value) {
+    _isInactive = value;
+    _isInactiveController.add(value);
   }
 }

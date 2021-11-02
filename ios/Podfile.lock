@@ -85,6 +85,8 @@ PODS:
     - Flutter
   - SwiftProtobuf (1.12.0)
   - SwiftyGif (5.3.0)
+  - uni_links (0.0.1):
+    - Flutter
   - UnstoppableDomainsResolution (2.0.1):
     - BigInt
     - CryptoSwift
@@ -109,6 +111,7 @@ DEPENDENCIES:
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - share (from `.symlinks/plugins/share/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - uni_links (from `.symlinks/plugins/uni_links/ios`)
   - UnstoppableDomainsResolution (~> 2.0.1)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
   - webview_flutter (from `.symlinks/plugins/webview_flutter/ios`)
@@ -155,6 +158,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/share/ios"
   shared_preferences:
     :path: ".symlinks/plugins/shared_preferences/ios"
+  uni_links:
+    :path: ".symlinks/plugins/uni_links/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
   webview_flutter:
@@ -184,10 +189,11 @@ SPEC CHECKSUMS:
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   SwiftProtobuf: 4ef85479c18ca85b5482b343df9c319c62bda699
   SwiftyGif: e466e86c660d343357ab944a819a101c4127cb40
+  uni_links: d97da20c7701486ba192624d99bffaaffcfc298a
   UnstoppableDomainsResolution: 856ba43f08b31f3f34157c7257092bd0c6e31cf8
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
-  webview_flutter: 9f491a9b5a66f2573946a389b2677987b0ff8c0b
+  webview_flutter: 3603125dfd3bcbc9d8d418c3f80aeecf331c068b
 
 PODFILE CHECKSUM: bc2591d23316907c9c90ca1cd2fce063fd866508
 
-COCOAPODS: 1.10.2
+COCOAPODS: 1.9.3
