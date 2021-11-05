@@ -19,7 +19,7 @@ class SettingsLinkProviderCell extends StandardListRow {
 
   @override
   Widget buildLeading(BuildContext context) =>
-      icon != null ? Image.asset(icon, color: iconColor) : null;
+      icon != null ? Image.asset(icon, color: iconColor, height: 30, width: 30) : null;
 
   @override
   Widget buildTrailing(BuildContext context) => Text(linkTitle,
