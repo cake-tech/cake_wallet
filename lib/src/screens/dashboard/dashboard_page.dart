@@ -23,6 +23,7 @@ import 'package:mobx/mobx.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cake_wallet/main.dart';
+import 'package:cake_wallet/router.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -159,11 +160,16 @@ class DashboardPage extends BasePage {
               walletViewModel: walletViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
-
     _isEffectsInstalled = true;
-
+    
     if (walletViewModel.shouldShowYatPopup) {
       await Future<void>.delayed(Duration(seconds: 1));
+    
+      if (currentRouteSettings.name == Routes.preSeed
+          || currentRouteSettings.name == Routes.seed) {
+        return;
+      }
+
       await showPopUp<void>(
           context: context,
           builder: (BuildContext context) {

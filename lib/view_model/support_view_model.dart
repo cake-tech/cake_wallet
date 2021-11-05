@@ -59,7 +59,13 @@ abstract class SupportViewModelBase with Store {
           icon: 'assets/images/moonpay.png',
           hasIconColor: true,
           linkTitle: S.current.submit_request,
-          link: 'https://support.moonpay.com/hc/en-gb/requests/new')
+          link: 'https://support.moonpay.com/hc/en-gb/requests/new'),
+      LinkListItem(
+          title: 'Yat',
+          icon: 'assets/images/yat_mini_logo.png',
+          hasIconColor: true,
+          linkTitle: 'support@y.at',
+          link: 'mailto:support@y.at')
     ];
   }
   static const url = 'https://cakewallet.com/guide/';

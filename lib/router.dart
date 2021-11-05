@@ -68,7 +68,11 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart'
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 
+RouteSettings currentRouteSettings;
+
 Route<dynamic> createRoute(RouteSettings settings) {
+  currentRouteSettings = settings;
+  
   switch (settings.name) {
     case Routes.welcome:
       return MaterialPageRoute<void>(builder: (_) => createWelcomePage());
