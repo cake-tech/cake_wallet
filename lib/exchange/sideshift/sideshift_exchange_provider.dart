@@ -16,10 +16,13 @@ import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 
 class SideShiftExchangeProvider extends ExchangeProvider {
   SideShiftExchangeProvider({this.trade})
-      : super(pairList: [
-          ExchangePair(from: CryptoCurrency.xmr, to: CryptoCurrency.btc),
-          ExchangePair(from: CryptoCurrency.btc, to: CryptoCurrency.xmr)
-        ]);
+      : super(
+            pairList: CryptoCurrency.sideshift
+                .map((i) => CryptoCurrency.sideshift
+                    .map((k) => ExchangePair(from: i, to: k, reverse: true))
+                    .where((c) => c != null))
+                .expand((i) => i)
+                .toList());
 
   static const apiUri = 'https://sideshift.ai/api/v1';
   static const accountId = secrets.sideshiftAccountId;
@@ -119,10 +122,12 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         ordersResponseJSON["depositAddress"]["address"] as String;
     final expired = expiredAt.isBefore(DateTime.now());
     final deposit = ordersResponseJSON["deposits"] as List;
-    final status = deposit.isNotEmpty ? deposit[0]["status"] as String : 'created';
+    final status =
+        deposit.isNotEmpty ? deposit[0]["status"] as String : 'created';
     final state = status == 'created' && expired ? 'expired' : status;
-    final settleTx =
-        deposit.isNotEmpty ? deposit[0]["settleTx"] as Map<String, dynamic> : null;
+    final settleTx = deposit.isNotEmpty
+        ? deposit[0]["settleTx"] as Map<String, dynamic>
+        : null;
     final outputTransaction =
         settleTx != null ? settleTx["txHash"] as String : null;
     final amount = trade.amount;

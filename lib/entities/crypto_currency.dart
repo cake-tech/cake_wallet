@@ -25,6 +25,18 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.xlm,
     CryptoCurrency.xrp
   ];
+  static const sideshift = [
+    CryptoCurrency.xmr,
+    CryptoCurrency.bch,
+    CryptoCurrency.btc,
+    CryptoCurrency.dai,
+    CryptoCurrency.dash,
+    CryptoCurrency.eth,
+    CryptoCurrency.ltc,
+    CryptoCurrency.usdterc20,
+    CryptoCurrency.xlm,
+    CryptoCurrency.xrp
+  ];
   static const xmr = CryptoCurrency(title: 'XMR', raw: 0);
   static const ada = CryptoCurrency(title: 'ADA', raw: 1);
   static const bch = CryptoCurrency(title: 'BCH', raw: 2);
