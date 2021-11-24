@@ -87,6 +87,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       final fixedOrderResponseJSON =
           json.decode(fixedOrderResponse.body) as Map<String, dynamic>;
 
+      final memo = fixedOrderResponseJSON["depositAddress"]["memo"] as String;
+      final destinationTag =
+          fixedOrderResponseJSON["depositAddress"]["destinationTag"] as String;
+
       return Trade(
           id: fixedOrderResponseJSON["id"] as String,
           from: _request.depositMethod,
@@ -95,7 +99,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
           provider: description,
           inputAddress:
               fixedOrderResponseJSON["depositAddress"]["address"] as String,
-          extraId: fixedOrderResponseJSON["depositAddress"]["memo"] as String,
+          extraId: memo ?? destinationTag,
           refundAddress: _request.refundAddress,
           createdAt: DateTime.now(),
           state: TradeState.created);
