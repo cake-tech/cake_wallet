@@ -161,7 +161,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final quoteBody = {
       'depositMethod': transcribeCurrencyCode(from),
       'settleMethod': transcribeCurrencyCode(to),
-      'depositAmount': amount.toString()
+      'depositAmount': amount.toString(),
+      'affiliateId': secrets.sideshiftAccountId
     };
 
     final quoteResponse = await post(quoteUrl,
