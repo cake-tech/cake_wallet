@@ -194,8 +194,9 @@ Future setup(
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(YatStore(
-    appStore: getIt.get<AppStore>()
-  ));
+    appStore: getIt.get<AppStore>(),
+    secureStorage: getIt.get<FlutterSecureStorage>())
+    ..init());
 
   final secretStore =
       await SecretStoreBase.load(getIt.get<FlutterSecureStorage>());

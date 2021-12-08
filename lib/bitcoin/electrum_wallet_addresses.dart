@@ -14,19 +14,23 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ElectrumWalletAddressesBase(WalletInfo walletInfo,
       {@required List<BitcoinAddressRecord> initialAddresses,
       int accountIndex = 0,
-      @required bitcoin.HDWallet hd})
+      this.mainHd,
+      this.sideHd})
       : super(walletInfo) {
-    this.hd = hd;
     this.accountIndex = accountIndex;
     addresses = ObservableList<BitcoinAddressRecord>.of(
         (initialAddresses ?? []).toSet());
   }
 
+  static const regularAddressesCount = 22;
+  static const hiddenAddressesCount = 17;
+
   @override
   @observable
   String address;
 
-  bitcoin.HDWallet hd;
+  bitcoin.HDWallet mainHd;
+  bitcoin.HDWallet sideHd;
 
   ObservableList<BitcoinAddressRecord> addresses;
 
@@ -53,19 +57,36 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   Future<void> generateAddresses() async {
-    if (addresses.length < 33) {
-      final addressesCount = 33 - addresses.length;
+    final regularAddresses = <BitcoinAddressRecord>[];
+    final hiddenAddresses = <BitcoinAddressRecord>[];
+
+    addresses.forEach((addr) {
+      if (addr.isHidden) {
+        hiddenAddresses.add(addr);
+        return;
+      }
+
+      regularAddresses.add(addr);
+    });
+
+    if (regularAddresses.length < regularAddressesCount) {
+      final addressesCount = regularAddressesCount - regularAddresses.length;
       await generateNewAddresses(addressesCount,
-          startIndex: addresses.length, hd: hd);
+          startIndex: regularAddresses.length, hd: mainHd, isHidden: false);
+    }
+
+    if (hiddenAddresses.length < hiddenAddressesCount) {
+      final addressesCount = hiddenAddressesCount - hiddenAddresses.length;
+      await generateNewAddresses(addressesCount,
+          startIndex: hiddenAddresses.length, hd: sideHd, isHidden: true);
     }
   }
 
   Future<BitcoinAddressRecord> generateNewAddress(
       {bool isHidden = false, bitcoin.HDWallet hd}) async {
     accountIndex += 1;
-    final _hd = hd ?? this.hd;
     final address = BitcoinAddressRecord(
-        getAddress(index: accountIndex, hd: _hd),
+        getAddress(index: accountIndex, hd: hd),
         index: accountIndex,
         isHidden: isHidden);
     addresses.add(address);
@@ -79,6 +100,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(getAddress(index: i, hd: hd),
           index: i, isHidden: isHidden);
+      print(address.address);
       list.add(address);
     }
 

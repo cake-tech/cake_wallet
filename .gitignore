@@ -109,3 +109,7 @@ ios/Flutter/.last_build_id
 ios/build
 *.sublime-workspace
 *.sublime-project
+
+shared_external/**
+cw_shared_external/**
+cw_haven/**

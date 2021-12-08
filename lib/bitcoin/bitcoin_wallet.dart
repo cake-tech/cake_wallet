@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -35,7 +36,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         walletInfo,
         initialAddresses: initialAddresses,
         accountIndex: accountIndex,
-        hd: hd,
+        mainHd: hd,
+        sideHd: bitcoin.HDWallet.fromSeed(
+                mnemonicToSeedBytes(mnemonic), network: networkType)
+              .derivePath("m/0'/1"),
         networkType: networkType);
   }
 

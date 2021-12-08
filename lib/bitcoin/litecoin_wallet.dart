@@ -1,3 +1,4 @@
+import 'package:cake_wallet/bitcoin/bitcoin_mnemonic.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
 import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
 import 'package:cake_wallet/bitcoin/litecoin_wallet_addresses.dart';
@@ -11,6 +12,7 @@ import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/bitcoin/bitcoin_address_record.dart';
 import 'package:cake_wallet/bitcoin/electrum_balance.dart';
 import 'package:cake_wallet/bitcoin/litecoin_network.dart';
+import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 
 part 'litecoin_wallet.g.dart';
 
@@ -37,9 +39,11 @@ abstract class LitecoinWalletBase extends ElectrumWallet with Store {
         walletInfo,
         initialAddresses: initialAddresses,
         accountIndex: accountIndex,
-        hd: hd,
-        networkType: networkType,
-        mnemonic: mnemonic);
+        mainHd: hd,
+        sideHd: bitcoin.HDWallet
+                .fromSeed(mnemonicToSeedBytes(mnemonic), network: networkType)
+                .derivePath("m/0'/1"),
+        networkType: networkType,);
   }
 
   static Future<LitecoinWallet> open({

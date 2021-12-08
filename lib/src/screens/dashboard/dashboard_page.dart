@@ -98,6 +98,10 @@ class DashboardPage extends BasePage {
         height: 22.24,
         width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final sellImage = Image.asset('assets/images/restore_wallet_image.png',
+        height: 22.24,
+        width: 24,
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
     _setEffects(context);
 
     return SafeArea(
@@ -143,6 +147,12 @@ class DashboardPage extends BasePage {
                   title: S.of(context).buy,
                   onClick: () async =>
                     await _onClickBuyButton(context),
+              ),
+              ActionButton(
+                  image: sellImage,
+                  title: 'Sell',
+                  onClick: () async =>
+                    await _onClickSellButton(context),
               ),
             ],
           ),
@@ -227,7 +237,13 @@ class DashboardPage extends BasePage {
     final walletType = walletViewModel.type;
 
     switch (walletType) {
-      case WalletType.monero:
+      case WalletType.bitcoin:
+        Navigator.of(context).pushNamed(Routes.preOrder);
+        break;
+      case WalletType.litecoin:
+        Navigator.of(context).pushNamed(Routes.preOrder);
+        break;
+      default:
         await showPopUp<void>(
             context: context,
             builder: (BuildContext context) {
@@ -237,10 +253,29 @@ class DashboardPage extends BasePage {
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop());
             });
-        break;
-      default:
+    }
+  }
+
+  Future<void> _onClickSellButton(BuildContext context) async {
+    final walletType = walletViewModel.type;
+
+    switch (walletType) {
+      case WalletType.bitcoin:
         Navigator.of(context).pushNamed(Routes.preOrder);
         break;
+      case WalletType.litecoin:
+        Navigator.of(context).pushNamed(Routes.preOrder);
+        break;
+      default:
+        await showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).buy,
+                  alertContent: S.of(context).buy_alert_content,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
     }
   }
 }

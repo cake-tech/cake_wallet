@@ -14,6 +14,7 @@ import 'package:cake_wallet/core/transaction_history.dart';
 import 'package:cake_wallet/entities/balance.dart';
 import 'package:cake_wallet/entities/transaction_info.dart';
 import 'package:cake_wallet/store/app_store.dart';
+import 'dart:async';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -66,7 +67,31 @@ abstract class WalletAddressListViewModelBase with Store {
   }) {
     _appStore = appStore;
     _wallet = _appStore.wallet;
+    emoji = '';
     hasAccounts = _wallet?.type == WalletType.monero;
+    reaction((_) => _wallet.walletAddresses.address, (String address) {
+      if (address == _wallet.walletInfo.yatLastUsedAddress) {
+        emoji = yatStore.emoji;  
+      } else {
+        emoji = '';
+      }
+    });
+
+    reaction((_) => yatStore.emoji, (String emojiId) => this.emoji = emojiId);
+
+    _onLastUsedYatAddressSubscription =
+      _wallet.walletInfo.yatLastUsedAddressStream.listen((String yatAddress) {
+        if (yatAddress == _wallet.walletAddresses.address) {
+          emoji = yatStore.emoji;  
+        } else {
+          emoji = '';
+        }
+    });
+
+    if (_wallet.walletAddresses.address == _wallet.walletInfo.yatLastUsedAddress) {
+      emoji = yatStore.emoji;
+    }
+
     _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<
             Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
         wallet) {
@@ -154,8 +179,8 @@ abstract class WalletAddressListViewModelBase with Store {
   @computed
   bool get hasAddressList => _wallet.type == WalletType.monero;
 
-  @computed
-  String get emoji => yatStore.emoji;
+  @observable
+  String emoji;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
@@ -168,6 +193,9 @@ abstract class WalletAddressListViewModelBase with Store {
   final YatStore yatStore;
 
   ReactionDisposer _onWalletChangeReaction;
+
+  StreamSubscription<String> _onLastUsedYatAddressSubscription;
+  StreamSubscription<String> _onEmojiIdChangeSubscription;
 
   @action
   void setAddress(WalletAddressListItem address) =>

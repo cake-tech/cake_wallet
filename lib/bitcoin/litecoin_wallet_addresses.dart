@@ -18,18 +18,18 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
       WalletInfo walletInfo,
       {@required List<BitcoinAddressRecord> initialAddresses,
         int accountIndex = 0,
-        @required bitcoin.HDWallet hd,
-        @required this.networkType,
-        @required this.mnemonic})
+        @required bitcoin.HDWallet mainHd,
+        @required bitcoin.HDWallet sideHd,
+        @required this.networkType})
       : super(
       walletInfo,
       initialAddresses: initialAddresses,
       accountIndex: accountIndex,
-      hd: hd);
+      mainHd: mainHd,
+      sideHd: sideHd);
 
   bitcoin.NetworkType networkType;
 
-  final String mnemonic;
 
   @override
   String getAddress({@required int index, @required bitcoin.HDWallet hd}) =>
@@ -40,15 +40,9 @@ abstract class LitecoinWalletAddressesBase extends ElectrumWalletAddresses
     if (addresses.length < 33) {
       final addressesCount = 22 - addresses.length;
       await generateNewAddresses(addressesCount,
-          hd: hd, startIndex: addresses.length);
-
-      final changeRoot = bitcoin.HDWallet.fromSeed(
-          mnemonicToSeedBytes(mnemonic),
-          network: networkType)
-          .derivePath("m/0'/1");
-
+          hd: mainHd, startIndex: addresses.length);
       await generateNewAddresses(11,
-          startIndex: 0, hd: changeRoot, isHidden: true);
+          startIndex: 0, hd: sideHd, isHidden: true);
     }
   }
 }

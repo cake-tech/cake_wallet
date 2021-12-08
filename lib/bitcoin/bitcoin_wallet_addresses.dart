@@ -17,13 +17,15 @@ abstract class BitcoinWalletAddressesBase extends ElectrumWalletAddresses
       WalletInfo walletInfo,
       {@required List<BitcoinAddressRecord> initialAddresses,
         int accountIndex = 0,
-        @required bitcoin.HDWallet hd,
+        @required bitcoin.HDWallet mainHd,
+        @required bitcoin.HDWallet sideHd,
         @required this.networkType})
       : super(
         walletInfo,
         initialAddresses: initialAddresses,
         accountIndex: accountIndex,
-        hd: hd);
+        mainHd: mainHd,
+        sideHd: sideHd);
 
   bitcoin.NetworkType networkType;
 

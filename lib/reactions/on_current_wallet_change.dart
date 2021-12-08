@@ -13,14 +13,38 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/fiat_conversion_service.dart';
 import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cake_wallet/store/yat/yat_store.dart';
 
 ReactionDisposer _onCurrentWalletChangeReaction;
 ReactionDisposer _onCurrentWalletChangeFiatRateUpdateReaction;
+ReactionDisposer _onCurrentWalletAddressChangeReaction;
 
 void startCurrentWalletChangeReaction(AppStore appStore,
     SettingsStore settingsStore, FiatConversionStore fiatConversionStore) {
   _onCurrentWalletChangeReaction?.reaction?.dispose();
   _onCurrentWalletChangeFiatRateUpdateReaction?.reaction?.dispose();
+  _onCurrentWalletAddressChangeReaction?.reaction?.dispose();
+
+  _onCurrentWalletAddressChangeReaction = reaction((_) => appStore.wallet.walletAddresses.address,
+    (String address) async {
+      if (address == appStore.wallet.walletInfo.yatLastUsedAddress) {
+        return;
+      }
+
+      try {
+        final yatStore = getIt.get<YatStore>();
+        await updateEmojiIdAddress(
+          appStore.wallet.walletInfo.yatEmojiId,
+          appStore.wallet.walletAddresses.address,
+          yatStore.apiKey,
+          appStore.wallet.type
+        );
+        appStore.wallet.walletInfo.yatLastUsedAddress = address;
+        await appStore.wallet.walletInfo.save();
+      } catch (e) {
+        print(e.toString());
+      }
+  });
 
   _onCurrentWalletChangeReaction = reaction((_) => appStore.wallet, (WalletBase<
           Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>

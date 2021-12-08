@@ -13,6 +13,7 @@ import 'dart:convert';
 import 'package:cake_wallet/store/yat/yat_exception.dart';
 import 'package:http/http.dart';
 import 'dart:async';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 part 'yat_store.g.dart';
 
@@ -23,13 +24,21 @@ class YatLink {
   static const signInSuffix = '/partner/$partnerId/link-email';
   static const createSuffix = '/create';
   static const managePath = '/partner/$partnerId/manage';
-  static const queryParameter = '?addresses=';
+  static const queryParameter = '?address_json=';
+  static const apiDevUrl = 'https://a.yat.fyi';
+  static const apiReleaseUrl = 'https://a.y.at';
   static const requestDevUrl = 'https://a.yat.fyi/emoji_id/';
   static const requestReleaseUrl = 'https://a.y.at/emoji_id/';
-  static const startFlowUrl = 'https://www.y03btrk.com/4RQSJ/55M6S/';
-  static const isDevMode = false;
+  static const startFlowUrl = 'https://www.y03btrk.com/4RQSJ/6JHXF/';
+  static const isDevMode = true;
   static const tags = <String, List<String>>{"XMR" : ['0x1001', '0x1002'],
     "BTC" : ['0x1003'], "LTC" : ['0x3fff']};
+
+  static String get apiUrl => YatLink.isDevMode
+      ? YatLink.apiDevUrl
+      : YatLink.apiReleaseUrl;
+
+  static String get emojiIdUrl => apiUrl + '/emoji_id/';
 
   static String get baseUrl => YatLink.isDevMode
           ? YatLink.baseDevUrl
@@ -37,47 +46,113 @@ class YatLink {
 }
 
 Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
-  final requestURL = YatLink.isDevMode
-      ? YatLink.requestDevUrl
-      : YatLink.requestReleaseUrl;
-  final url = requestURL + emojiId;
+  final url = YatLink.emojiIdUrl + emojiId + '/payment';
   final response = await get(url);
-
+  
   if (response.statusCode != 200) {
     throw YatException(text: response.body.toString());
   }
-
-  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-  final result = responseJSON['result'] as List<dynamic>;
-
-  if (result?.isEmpty ?? true) {
-    return [];
-  }
-
-  final List<String> addresses = [];
+  
+  final addresses = <String>[];
   final currency = ticker.toUpperCase();
-
-  for (var elem in result) {
-    final tag = elem['tag'] as String;
-    if (tag?.isEmpty ?? true) {
-      continue;
-    }
+  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+  final result = responseJSON['result'] as Map<dynamic, dynamic>;
+  result.forEach((dynamic key, dynamic value) {
+    final tag = key as String ?? '';
+    final record = value as Map<String, dynamic>;
+  
     if (YatLink.tags[currency]?.contains(tag) ?? false) {
-      final yatAddress = elem['data'] as String;
-      if (yatAddress?.isNotEmpty ?? false) {
-        addresses.add(yatAddress);
+      final address = record['address'] as String;
+      if (address?.isNotEmpty ?? false) {
+        addresses.add(address);
       }
     }
-  }
+  });
 
   return addresses;
 }
 
+Future<String> fetchYatAccessToken(String refreshToken) async {
+  try {
+    final url = YatLink.apiUrl + '/auth/token/refresh';
+    final bodyJson = json.encode({'refresh_token': refreshToken});
+    final response = await post(
+      url,
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': '*/*'
+      },
+      body: bodyJson);
+    
+    if (response.statusCode != 200) {
+      throw YatException(text: response.body.toString());
+    }
+    
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    return  responseJSON['access_token'] as String;
+  }catch(_) {
+    return '';
+  }
+}
+
+Future<String> fetchYatApiKey(String accessKey) async {
+  try {
+    final url = YatLink.apiUrl + '/api_keys';
+    final bodyJson = json.encode({'name': 'CW'});
+    final response = await post(
+      url,
+      headers: <String, String>{
+        'Authorization': 'Bearer $accessKey',
+        'Content-Type': 'application/json',
+        'Accept': '*/*'
+      },
+      body: bodyJson);
+
+    if (response.statusCode != 200) {
+      throw YatException(text: response.body.toString());
+    }
+    
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    return  responseJSON['api_key'] as String;
+  }catch(_) {
+    return '';
+  }
+}
+
+Future<void> updateEmojiIdAddress(String emojiId, String address, String apiKey, WalletType type) async {
+  final url = YatLink.emojiIdUrl + emojiId;
+  final cur = walletTypeToCryptoCurrency(type);
+  final curFormatted = cur.toString().toUpperCase();
+  var tag = '';
+
+  if (type == WalletType.monero && !address.startsWith('4')) {
+    tag = YatLink.tags[curFormatted].last;
+  } else {
+    tag = YatLink.tags[curFormatted].first;
+  }
+
+  final bodyJson = json.encode({
+    'insert': [{
+      'data': address,
+      'tag': tag
+    }]
+  });
+  final response = await patch(
+    url,
+    headers: <String, String>{
+      'x-api-key': apiKey,
+      'Content-Type': 'application/json',
+      'Accept': '*/*'
+    },
+    body: bodyJson);
+
+  if (response.statusCode != 200) {
+    throw YatException(text: response.body.toString());
+  }
+}
+
 Future<String> visualisationForEmojiId(String emojiId) async {
-  final requestURL = YatLink.isDevMode
-      ? YatLink.requestDevUrl
-      : YatLink.requestReleaseUrl;
-  final url = requestURL + emojiId + '/json/VisualizerFileLocations';
+  final url = YatLink.emojiIdUrl + emojiId + '/json/VisualizerFileLocations';
   final response = await get(url);
   final responseJSON = json.decode(response.body) as Map<String, dynamic>;
   final data = responseJSON['data'] as Map<String, dynamic>;
@@ -88,22 +163,38 @@ Future<String> visualisationForEmojiId(String emojiId) async {
 class YatStore = YatStoreBase with _$YatStore;
 
 abstract class YatStoreBase with Store {
-  YatStoreBase({@required this.appStore}) {
+  YatStoreBase({@required this.appStore, @required this.secureStorage}) {
     _wallet ??= appStore.wallet;
     emoji = _wallet?.walletInfo?.yatEmojiId ?? '';
-    refreshToken = _wallet?.walletInfo?.yatToken ?? '';
     reaction((_) => appStore.wallet, _onWalletChange);
-    reaction((_) => emoji, (String emoji) => _onEmojiChange());
-    emojiIncommingSC = StreamController<String>();
+    reaction((_) => emoji, (String _) => _onEmojiChange());
+    reaction((_) => refreshToken, (String _) => _onRefreshTokenChange());
+    emojiIncommingSC = StreamController<String>.broadcast();
   }
 
+  static const yatRefreshTokenKeyBase = 'yat_refresh_token';
+  static const yatAccessTokenKeyBase = 'yat_access_token';
+  static const yatApiKeyBase = 'yat_api_key';
+
+  static String yatRefreshTokenKey(String name) => '${yatRefreshTokenKeyBase}_$name';
+  static String yatAccessTokenKey(String name) => '${yatAccessTokenKeyBase}_$name';
+  static String yatApiKey(String name) => '${yatApiKeyBase}_$name';
+
   AppStore appStore;
+
+  FlutterSecureStorage secureStorage;
 
   @observable
   String emoji;
 
   @observable
   String refreshToken;
+
+  @observable
+  String accessToken;
+
+  @observable
+  String apiKey;
 
   StreamController<String> emojiIncommingSC;
 
@@ -113,6 +204,16 @@ abstract class YatStoreBase with Store {
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
   _wallet;
 
+  Future<void> init() async {
+    if (_wallet == null) {
+      return;
+    }
+
+    refreshToken = await secureStorage.read(key: yatRefreshTokenKey(_wallet.walletInfo.name));
+    accessToken = await secureStorage.read(key: yatAccessTokenKey(_wallet.walletInfo.name));
+    apiKey = await secureStorage.read(key: yatApiKey(_wallet.walletInfo.name));
+  }
+ 
   @action
   void _onWalletChange(
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
@@ -120,7 +221,7 @@ abstract class YatStoreBase with Store {
       wallet) {
     this._wallet = wallet;
     emoji = wallet?.walletInfo?.yatEmojiId ?? '';
-    refreshToken = wallet?.walletInfo?.yatToken ?? '';
+    init();
   }
 
   @action
@@ -133,7 +234,6 @@ abstract class YatStoreBase with Store {
       }
 
       walletInfo.yatEid = emoji;
-      walletInfo.yatRefreshToken = refreshToken;
 
       if (walletInfo.isInBox) {
         walletInfo.save();
@@ -143,62 +243,32 @@ abstract class YatStoreBase with Store {
     }
   }
 
-  String defineQueryParameters() {
-    String parameters = '';
-    switch (_wallet.type) {
-      case WalletType.monero:
-        final wallet = _wallet as MoneroWallet;
-        final subaddressList = MoneroSubaddressList();
-        var isFirstAddress = true;
-
-        wallet.walletAddresses.accountList.accounts.forEach((account) {
-          subaddressList.update(accountIndex: account.id);
-          subaddressList.subaddresses.forEach((subaddress) {
-            if (!isFirstAddress) {
-              parameters += '%7C';
-            } else {
-              isFirstAddress = !isFirstAddress;
-            }
-
-            parameters += subaddress.address.startsWith('4')
-                ? YatLink.tags["XMR"].first + '%3D'
-                : YatLink.tags["XMR"].last + '%3D';
-
-            parameters += subaddress.address;
-          });
-        });
-        break;
-      case WalletType.bitcoin:
-        final wallet = _wallet as ElectrumWallet;
-        var isFirstAddress = true;
-
-        wallet.walletAddresses.addresses.forEach((record) {
-          if (!isFirstAddress) {
-            parameters += '%7C';
-          } else {
-            isFirstAddress = !isFirstAddress;
-          }
-
-          parameters += YatLink.tags["BTC"].first + '%3D' + record.address;
-        });
-        break;
-      case WalletType.litecoin:
-        final wallet = _wallet as ElectrumWallet;
-        var isFirstAddress = true;
-
-        wallet.walletAddresses.addresses.forEach((record) {
-          if (!isFirstAddress) {
-            parameters += '%7C';
-          } else {
-            isFirstAddress = !isFirstAddress;
-          }
-
-          parameters += YatLink.tags["LTC"].first + '%3D' + record.address;
-        });
-        break;
-      default:
-        parameters = '';
+  @action
+  Future<void> _onRefreshTokenChange() async {
+    try {
+      await secureStorage.write(key: yatRefreshTokenKey(_wallet.walletInfo.name), value: refreshToken);
+      accessToken = await fetchYatAccessToken(refreshToken);
+      await secureStorage.write(key: yatAccessTokenKey(_wallet.walletInfo.name), value: accessToken);
+      apiKey = await fetchYatApiKey(accessToken);
+      await secureStorage.write(key: yatApiKey(_wallet.walletInfo.name), value: accessToken);
+    } catch (e) {
+      print(e.toString());
     }
-    return parameters;
+  }
+
+  String defineQueryParameters() {
+    final result = <String, String>{};
+    final tags = YatLink.tags[_wallet.currency.toString().toUpperCase()];
+    String tag =  tags.first;
+    
+    if (_wallet.type == WalletType.monero
+      && _wallet.walletAddresses.address.startsWith('4')) {
+      tag = tags.last;
+    }
+    result[tag] = '${_wallet.walletAddresses.address}|${_wallet.name}';
+    final addressJson = json.encode([result]);
+    final addressJsonBytes = utf8.encode(addressJson);
+    
+    return base64.encode(addressJsonBytes);
   }
 }

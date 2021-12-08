@@ -110,8 +110,6 @@ Future<void> main() async {
     final unspentCoinsInfoSource =
       await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     
-    await visualisationForEmojiId('%E2%98%A0%EF%B8%8F%F0%9F%90%99%E2%98%A0%EF%B8%8F');
-    
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
         nodes: nodes,

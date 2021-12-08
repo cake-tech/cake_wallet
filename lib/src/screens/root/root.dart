@@ -32,7 +32,7 @@ class RootState extends State<Root> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    _isInactiveController = StreamController<bool>();
+    _isInactiveController = StreamController<bool>.broadcast();
     _isInactive = false;
     _postFrameCallback = false;
     WidgetsBinding.instance.addObserver(this);

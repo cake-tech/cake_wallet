@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
+import 'dart:async';
 
 part 'wallet_info.g.dart';
 
@@ -8,7 +9,8 @@ part 'wallet_info.g.dart';
 class WalletInfo extends HiveObject {
   WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
       this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
-        this.yatRefreshToken);
+        this.yatLastUsedAddressRaw)
+      : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
       {@required String id,
@@ -21,10 +23,10 @@ class WalletInfo extends HiveObject {
       @required String path,
       @required String address,
       String yatEid ='',
-      String yatRefreshToken = ''}) {
+      String yatLastUsedAddressRaw = ''}) {
     return WalletInfo(id, name, type, isRecovery, restoreHeight,
         date.millisecondsSinceEpoch ?? 0, dirPath, path, address,
-        yatEid, yatRefreshToken);
+        yatEid, yatLastUsedAddressRaw);
   }
 
   static const typeId = 4;
@@ -64,11 +66,20 @@ class WalletInfo extends HiveObject {
   String yatEid;
 
   @HiveField(12)
-  String yatRefreshToken;
+  String yatLastUsedAddressRaw;
+
+  String get yatLastUsedAddress => yatLastUsedAddressRaw;
+
+  set yatLastUsedAddress(String address) {
+    yatLastUsedAddressRaw = address;
+    _yatLastUsedAddressController.add(address);
+  }
 
   String get yatEmojiId => yatEid ?? '';
 
-  String get yatToken => yatRefreshToken ?? '';
-
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
+
+  Stream<String> get yatLastUsedAddressStream => _yatLastUsedAddressController.stream;
+
+  StreamController<String> _yatLastUsedAddressController;
 }
