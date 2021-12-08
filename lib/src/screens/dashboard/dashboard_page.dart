@@ -24,6 +24,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/router.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -261,10 +263,11 @@ class DashboardPage extends BasePage {
 
     switch (walletType) {
       case WalletType.bitcoin:
-        Navigator.of(context).pushNamed(Routes.preOrder);
-        break;
-      case WalletType.litecoin:
-        Navigator.of(context).pushNamed(Routes.preOrder);
+        final moonPaySellProvider = MoonPaySellProvider();
+        final uri = await moonPaySellProvider.requestUrl(
+          currency: walletViewModel.wallet.currency,
+          refundWalletAddress: walletViewModel.wallet.walletAddresses.address);
+        await launch(uri);
         break;
       default:
         await showPopUp<void>(

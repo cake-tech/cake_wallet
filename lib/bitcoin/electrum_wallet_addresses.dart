@@ -100,7 +100,6 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     for (var i = startIndex; i < count + startIndex; i++) {
       final address = BitcoinAddressRecord(getAddress(index: i, hd: hd),
           index: i, isHidden: isHidden);
-      print(address.address);
       list.add(address);
     }
 

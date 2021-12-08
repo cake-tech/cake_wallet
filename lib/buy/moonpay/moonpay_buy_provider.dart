@@ -10,6 +10,42 @@ import 'package:cake_wallet/core/wallet_base.dart';
 import 'package:cake_wallet/entities/wallet_type.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/entities/crypto_currency.dart';
+
+class MoonPaySellProvider {
+  MoonPaySellProvider({this.isTest = false})
+    : baseUrl = isTest ? _baseTestUrl : _baseProductUrl;
+
+  static const _baseTestUrl = 'sell-staging.moonpay.com';
+  static const _baseProductUrl = 'sell.moonpay.com';
+  static String get _apiKey =>  secrets.moonPayApiKey;
+  static String get _secretKey =>  secrets.moonPaySecretKey;
+  final bool isTest;
+  final String baseUrl;
+
+  Future<String> requestUrl({CryptoCurrency currency, String refundWalletAddress}) async {
+    final originalUri = Uri.https(
+      baseUrl, '', <String, dynamic>{
+        'apiKey': _apiKey,
+        'defaultBaseCurrencyCode': currency.toString().toLowerCase(),
+        'refundWalletAddress': refundWalletAddress
+    });
+    final messageBytes = utf8.encode('?${originalUri.query}');
+    final key = utf8.encode(_secretKey);
+    final hmac = Hmac(sha256, key);
+    final digest = hmac.convert(messageBytes);
+    final signature = base64.encode(digest.bytes);
+
+    if (isTest) {
+      return originalUri.toString();
+    }
+
+    final query = Map<String, dynamic>.from(originalUri.queryParameters);
+    query['signature'] = signature;
+    final signedUri = originalUri.replace(queryParameters: query);
+    return signedUri.toString();
+  }
+}
 
 class MoonPayBuyProvider extends BuyProvider {
   MoonPayBuyProvider({WalletBase wallet, bool isTestEnvironment = false})

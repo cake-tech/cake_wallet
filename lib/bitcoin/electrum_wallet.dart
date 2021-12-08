@@ -90,6 +90,11 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       .map((addr) => scriptHash(addr.address, networkType: networkType))
       .toList();
 
+  List<String> get publicScriptHashes => walletAddresses.addresses
+    .where((addr) => !addr.isHidden)
+    .map((addr) => scriptHash(addr.address, networkType: networkType))
+    .toList();
+
   String get xpub => hd.base58;
 
   @override
@@ -476,7 +481,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
     final histories =
-        scriptHashes.map((scriptHash) => electrumClient.getHistory(scriptHash));
+        publicScriptHashes.map((scriptHash) => electrumClient.getHistory(scriptHash));
     final _historiesWithDetails = await Future.wait(histories)
         .then((histories) => histories.expand((i) => i).toList())
         .then((histories) => histories.map((tx) => fetchTransactionInfo(

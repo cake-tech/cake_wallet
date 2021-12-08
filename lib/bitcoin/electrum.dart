@@ -318,11 +318,15 @@ class ElectrumClient {
       {@required String id,
       @required String method,
       List<Object> params = const []}) {
-    final subscription = BehaviorSubject<T>();
-    _regisrySubscription(id, subscription);
-    socket.write(jsonrpc(method: method, id: _id, params: params));
+    try {
+      final subscription = BehaviorSubject<T>();
+      _regisrySubscription(id, subscription);
+      socket.write(jsonrpc(method: method, id: _id, params: params));
 
-    return subscription;
+      return subscription;
+    } catch(e) {
+      print(e.toString());
+    }
   }
 
   Future<dynamic> call({String method, List<Object> params = const []}) async {
@@ -339,18 +343,22 @@ class ElectrumClient {
       {String method,
       List<Object> params = const [],
       int timeout = 2000}) async {
-    final completer = Completer<dynamic>();
-    _id += 1;
-    final id = _id;
-    _registryTask(id, completer);
-    socket.write(jsonrpc(method: method, id: id, params: params));
-    Timer(Duration(milliseconds: timeout), () {
-      if (!completer.isCompleted) {
-        completer.completeError(RequestFailedTimeoutException(method, id));
-      }
-    });
+    try {
+      final completer = Completer<dynamic>();
+      _id += 1;
+      final id = _id;
+      _registryTask(id, completer);
+      socket.write(jsonrpc(method: method, id: id, params: params));
+      Timer(Duration(milliseconds: timeout), () {
+        if (!completer.isCompleted) {
+          completer.completeError(RequestFailedTimeoutException(method, id));
+        }
+      });
 
-    return completer.future;
+      return completer.future;
+    } catch(e) {
+      print(e.toString());
+    }
   }
 
   Future<void> close() async {
