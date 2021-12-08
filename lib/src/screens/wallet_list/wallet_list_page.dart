@@ -42,6 +42,8 @@ class WalletListBodyState extends State<WalletListBody> {
       Image.asset('assets/images/bitcoin.png', height: 24, width: 24);
   final litecoinIcon =
       Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
+  final nonWalletTypeIcon =
+      Image.asset('assets/images/close.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void> _progressBar;
@@ -198,7 +200,7 @@ class WalletListBodyState extends State<WalletListBody> {
       case WalletType.litecoin:
         return litecoinIcon;
       default:
-        return null;
+        return nonWalletTypeIcon;
     }
   }
 
