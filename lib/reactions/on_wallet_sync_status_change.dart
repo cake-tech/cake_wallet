@@ -1,9 +1,9 @@
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/sync_status.dart';
 
 ReactionDisposer _onWalletSyncStatusChangeReaction;
 

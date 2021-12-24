@@ -1,6 +1,6 @@
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 
 class AmountValidator extends TextValidator {
   AmountValidator({WalletType type, bool isAutovalidate = false})

@@ -1,14 +1,11 @@
-import 'package:cake_wallet/bitcoin/electrum_transaction_info.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/monero/monero_transaction_info.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/textfield_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/transaction_details_list_item.dart';
 import 'package:cake_wallet/src/screens/transaction_details/blockexplorer_list_item.dart';
-import 'package:cake_wallet/entities/transaction_direction.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/utils/date_formatter.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:hive/hive.dart';
@@ -35,7 +32,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
 
-    if (tx is MoneroTransactionInfo) {
+    if (wallet.type == WalletType.monero) {
       final _items = [
         StandartListItem(
             title: S.current.transaction_details_transaction_id, value: tx.id),
@@ -51,35 +48,34 @@ abstract class TransactionDetailsViewModelBase with Store {
             title: S.current.transaction_details_fee, value: tx.feeFormatted()),
       ];
 
-      if (tx.key?.isNotEmpty ?? null) {
-        _items.add(
-            StandartListItem(title: S.current.transaction_key, value: tx.key));
-      }
+      //if (tx.key?.isNotEmpty ?? null) {
+      //  _items.add(
+      //      StandartListItem(title: S.current.transaction_key, value: tx.key));
+      //}
 
-      if ((tx.direction == TransactionDirection.incoming)&&
-          (wallet is MoneroWallet)) {
-        try {
-          final accountIndex = tx.accountIndex;
-          final addressIndex = tx.addressIndex;
-          final _wallet = wallet as MoneroWallet;
-          final address =
-            _wallet.getTransactionAddress(accountIndex, addressIndex);
-          if (address?.isNotEmpty ?? false) {
-            isRecipientAddressShown = true;
-            _items.add(
-                StandartListItem(
-                    title: S.current.transaction_details_recipient_address,
-                    value: address));
-          }
-        } catch (e) {
-          print(e.toString());
-        }
-      }
+      //if (tx.direction == TransactionDirection.incoming) {
+      //  try {
+      //    final accountIndex = tx.accountIndex;
+      //    final addressIndex = tx.addressIndex;
+          //final address = moneroUtils.getTransactionAddress(wallet, accountIndex, addressIndex);
+
+          //if (address?.isNotEmpty ?? false) {
+          //  isRecipientAddressShown = true;
+          //  _items.add(
+          //      StandartListItem(
+          //          title: S.current.transaction_details_recipient_address,
+          //          value: address));
+          //}
+      //  } catch (e) {
+      //    print(e.toString());
+      //  }
+      //}
 
       items.addAll(_items);
     }
 
-    if (tx is ElectrumTransactionInfo) {
+    if (wallet.type == WalletType.bitcoin
+        || wallet.type == WalletType.litecoin) {
       final _items = [
         StandartListItem(
             title: S.current.transaction_details_transaction_id, value: tx.id),
@@ -115,13 +111,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       }
     }
 
-    WalletType type;
-
-    if (tx is MoneroTransactionInfo) {
-      type = WalletType.monero;
-    } else if (tx is ElectrumTransactionInfo) {
-      type = tx.type;
-    }
+    final type = wallet.type;
 
     items.add(BlockExplorerListItem(
         title: "View in Block Explorer",

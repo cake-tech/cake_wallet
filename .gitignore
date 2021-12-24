@@ -113,3 +113,6 @@ ios/build
 shared_external/**
 cw_shared_external/**
 cw_haven/**
+
+lib/bitcoin/bitcoin.dart
+lib/monero/monero.dart

@@ -1,7 +1,8 @@
-import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
-import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+//import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+//import 'package:cw_bitcoin/electrum_wallet.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
@@ -13,24 +14,22 @@ class UnspentCoinsListViewModel = UnspentCoinsListViewModelBase with _$UnspentCo
 
 abstract class UnspentCoinsListViewModelBase with Store {
   UnspentCoinsListViewModelBase({
-    @required WalletBase wallet,
+    @required this.wallet,
     @required Box<UnspentCoinsInfo> unspentCoinsInfo}) {
     _unspentCoinsInfo = unspentCoinsInfo;
-    _wallet = wallet as ElectrumWallet;
-    _wallet.updateUnspent();
+    bitcoin.updateUnspents(wallet);
   }
 
-  ElectrumWallet _wallet;
+  WalletBase wallet;
   Box<UnspentCoinsInfo> _unspentCoinsInfo;
 
   @computed
-  ObservableList<UnspentCoinsItem> get items =>
-    ObservableList.of(_wallet.unspentCoins.map((elem) {
-      final amount = bitcoinAmountToString(amount: elem.value) +
-          ' ${_wallet.currency.title}';
+  ObservableList<UnspentCoinsItem> get items => ObservableList.of(bitcoin.getUnspents(wallet).map((elem) {
+      final amount = bitcoin.formatterBitcoinAmountToString(amount: elem.value) +
+          ' ${wallet.currency.title}';
 
       return UnspentCoinsItem(
-          address: elem.address.address,
+          address: elem.address,
           amount: amount,
           hash: elem.hash,
           isFrozen: elem.isFrozen,
@@ -42,7 +41,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
   Future<void> saveUnspentCoinInfo(UnspentCoinsItem item) async {
     try {
       final info = _unspentCoinsInfo.values
-          .firstWhere((element) => element.walletId.contains(_wallet.id) &&
+          .firstWhere((element) => element.walletId.contains(wallet.id) &&
           element.hash.contains(item.hash));
 
       info.isFrozen = item.isFrozen;
@@ -50,7 +49,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
       info.note = item.note;
 
       await info.save();
-      await _wallet.updateUnspent();
+      bitcoin.updateUnspents(wallet);
     } catch (e) {
       print(e.toString());
     }

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 class AddressValidator extends TextValidator {
   AddressValidator({@required CryptoCurrency type})

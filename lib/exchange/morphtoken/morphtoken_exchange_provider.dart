@@ -4,7 +4,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_pair.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';

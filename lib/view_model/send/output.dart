@@ -1,20 +1,18 @@
-import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/monero/monero_amount_format.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 
 part 'output.g.dart';
 
@@ -67,13 +65,13 @@ abstract class OutputBase with Store {
         int _amount = 0;
         switch (walletType) {
           case WalletType.monero:
-            _amount = moneroParseAmount(amount: _cryptoAmount);
+            _amount = monero.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.bitcoin:
-            _amount = stringDoubleToBitcoinAmount(_cryptoAmount);
+            _amount = bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.litecoin:
-            _amount = stringDoubleToBitcoinAmount(_cryptoAmount);
+            _amount = bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           default:
             break;
@@ -96,12 +94,13 @@ abstract class OutputBase with Store {
       final fee = _wallet.calculateEstimatedFee(
           _settingsStore.priority[_wallet.type], formattedCryptoAmount);
 
-      if (_wallet is ElectrumWallet) {
-        return bitcoinAmountToDouble(amount: fee);
+      if (_wallet.type == WalletType.bitcoin
+          || _wallet.type == WalletType.litecoin) {
+        return bitcoin.formatterBitcoinAmountToDouble(amount: fee);
       }
 
-      if (_wallet is MoneroWallet) {
-        return moneroAmountToDouble(amount: fee);
+      if (_wallet.type == WalletType.monero) {
+        return monero.formatterMoneroAmountToDouble(amount: fee);
       }
     } catch (e) {
       print(e.toString());

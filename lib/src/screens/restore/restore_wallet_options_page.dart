@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/screens/restore/widgets/restore_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class RestoreWalletOptionsPage extends BasePage {

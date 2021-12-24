@@ -13,7 +13,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/core/seed_validator.dart';
 import 'package:cake_wallet/core/mnemonic_length.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';

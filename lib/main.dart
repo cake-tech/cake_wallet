@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
@@ -15,7 +15,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cw_monero/wallet.dart' as monero_wallet;
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/router.dart' as Router;
 import 'package:cake_wallet/routes.dart';
@@ -26,15 +25,17 @@ import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/entities/default_settings_migration.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cake_wallet/monero/monero.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -81,10 +82,6 @@ Future<void> main() async {
 
     if (!Hive.isAdapterRegistered(Order.typeId)) {
       Hive.registerAdapter(OrderAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
-      Hive.registerAdapter(UnspentCoinsInfoAdapter());
     }
 
     final secureStorage = FlutterSecureStorage();
@@ -173,7 +170,7 @@ Future<void> initialSetup(
       ordersSource: ordersSource,
       unspentCoinsInfoSource: unspentCoinsInfoSource);
   await bootstrap(navigatorKey);
-  monero_wallet.onStartup();
+  monero?.onStartup();
 }
 
 class App extends StatefulWidget {

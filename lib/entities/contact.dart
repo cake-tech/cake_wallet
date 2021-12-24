@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/utils/mobx.dart';
+import 'package:cw_core/keyable.dart';
 
 part 'contact.g.dart';
 

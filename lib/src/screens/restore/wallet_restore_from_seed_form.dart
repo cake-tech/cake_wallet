@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

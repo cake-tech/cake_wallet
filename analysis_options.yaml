@@ -2,10 +2,7 @@ analyzer:
   strong-mode:
     implicit-casts: false
     implicit-dynamic: false
-  exclude:
-    - "build/**"
-    - "lib/generated/*.dart"
-    - "**.g.dart"
+  exclude: [build/**, lib/generated/*.dart, lib/**.g.dart, cw_monero/ios/External/**, cw_shared_external/**, shared_external/**]
 
 linter:
   rules:

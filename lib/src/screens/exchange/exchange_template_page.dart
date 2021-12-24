@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/xmrto/xmrto_exchange_provider.dart';
 // import 'package:cake_wallet/exchange/exchange_trade_state.dart';
 // import 'package:cake_wallet/exchange/limits_state.dart';

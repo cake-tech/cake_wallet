@@ -2,11 +2,11 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/core/wallet_credentials.dart';
-import 'package:cake_wallet/entities/pathForWallet.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/pathForWallet.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 

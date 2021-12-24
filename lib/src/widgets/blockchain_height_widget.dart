@@ -2,7 +2,7 @@ import 'package:cake_wallet/utils/date_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/get_height_by_date.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
@@ -117,7 +117,7 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
         lastDate: now);
 
     if (date != null) {
-      final height = getHeigthByDate(date: date);
+      final height = monero.getHeigthByDate(date: date);
 
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);

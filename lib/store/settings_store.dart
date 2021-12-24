@@ -1,6 +1,6 @@
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:flutter/foundation.dart';
@@ -9,13 +9,13 @@ import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
+import 'package:cw_core/node.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 
@@ -166,23 +166,28 @@ abstract class SettingsStoreBase with Store {
       {@required Box<Node> nodeSource,
       @required bool isBitcoinBuyEnabled,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      MoneroTransactionPriority initialMoneroTransactionPriority =
-          MoneroTransactionPriority.slow,
-      BitcoinTransactionPriority initialBitcoinTransactionPriority =
-          BitcoinTransactionPriority.medium,
+      TransactionPriority initialMoneroTransactionPriority,
+      TransactionPriority initialBitcoinTransactionPriority,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
+    if (initialBitcoinTransactionPriority == null) {
+        initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
+    }
+
+    if (initialMoneroTransactionPriority == null) {
+        initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
+    }
+
     final sharedPreferences = await getIt.getAsync<SharedPreferences>();
     final currentFiatCurrency = FiatCurrency(
         symbol:
             sharedPreferences.getString(PreferencesKey.currentFiatCurrencyKey));
     final savedMoneroTransactionPriority =
-        MoneroTransactionPriority.deserialize(
+        monero?.deserializeMoneroTransactionPriority(
             raw: sharedPreferences
                 .getInt(PreferencesKey.moneroTransactionPriority));
     final savedBitcoinTransactionPriority =
-        BitcoinTransactionPriority.deserialize(
-            raw: sharedPreferences
+        bitcoin?.deserializeBitcoinTransactionPriority(sharedPreferences
                 .getInt(PreferencesKey.bitcoinTransactionPriority));
     final moneroTransactionPriority =
         savedMoneroTransactionPriority ?? initialMoneroTransactionPriority;
@@ -254,12 +259,18 @@ abstract class SettingsStoreBase with Store {
   Future<void> reload(
       {@required Box<Node> nodeSource,
       FiatCurrency initialFiatCurrency = FiatCurrency.usd,
-      MoneroTransactionPriority initialMoneroTransactionPriority =
-          MoneroTransactionPriority.slow,
-      BitcoinTransactionPriority initialBitcoinTransactionPriority =
-          BitcoinTransactionPriority.medium,
+      TransactionPriority initialMoneroTransactionPriority,
+      TransactionPriority initialBitcoinTransactionPriority,
       BalanceDisplayMode initialBalanceDisplayMode =
           BalanceDisplayMode.availableBalance}) async {
+    if (initialBitcoinTransactionPriority == null) {
+        initialBitcoinTransactionPriority = bitcoin?.getMediumTransactionPriority();
+    }
+
+    if (initialMoneroTransactionPriority == null) {
+        initialMoneroTransactionPriority = monero?.getDefaultTransactionPriority();
+    }
+
     final isBitcoinBuyEnabled = (secrets.wyreSecretKey?.isNotEmpty ?? false) &&
         (secrets.wyreApiKey?.isNotEmpty ?? false) &&
         (secrets.wyreAccountId?.isNotEmpty ?? false);

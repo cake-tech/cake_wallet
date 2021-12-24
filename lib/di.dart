@@ -1,16 +1,15 @@
-import 'package:cake_wallet/bitcoin/bitcoin_wallet_service.dart';
-import 'package:cake_wallet/bitcoin/litecoin_wallet_service.dart';
-import 'package:cake_wallet/bitcoin/unspent_coins_info.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
-import 'package:cake_wallet/core/wallet_service.dart';
+import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/monero/monero_wallet_service.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/entities/node.dart';
+import 'package:cw_core/node.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/reactions/on_authentication_state_change.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
@@ -51,8 +50,7 @@ import 'package:cake_wallet/store/secret_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/core/auth_service.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_list_page.dart';
 import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_create_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -108,7 +106,7 @@ import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
@@ -354,7 +352,7 @@ Future setup(
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
 
-    if (wallet is MoneroWallet) {
+    if (wallet.type == WalletType.monero) {
       return MoneroAccountListViewModel(wallet);
     }
 
@@ -383,7 +381,7 @@ Future setup(
   getIt.registerFactoryParam<MoneroAccountEditOrCreateViewModel,
           AccountListItem, void>(
       (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
-          (getIt.get<AppStore>().wallet as MoneroWallet).walletAddresses.accountList,
+          monero.getAccountList(getIt.get<AppStore>().wallet),
           wallet: getIt.get<AppStore>().wallet,
           accountListItem: account));
 
@@ -467,23 +465,15 @@ Future setup(
   getIt.registerFactory(
       () => ExchangeTemplatePage(getIt.get<ExchangeViewModel>()));
 
-  getIt.registerFactory(() => MoneroWalletService(_walletInfoSource));
-
-  getIt.registerFactory(() =>
-      BitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource));
-
-  getIt.registerFactory(() =>
-      LitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource));
-
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
     switch (param1) {
       case WalletType.monero:
-        return getIt.get<MoneroWalletService>();
+        return monero.createMoneroWalletService(_walletInfoSource);
       case WalletType.bitcoin:
-        return getIt.get<BitcoinWalletService>();
+        return bitcoin.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.litecoin:
-        return getIt.get<LitecoinWalletService>();
+        return bitcoin.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
       default:
         return null;
     }

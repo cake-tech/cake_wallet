@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cake_wallet/core/sync_status_title.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cw_core/sync_status.dart';
 
 class SyncIndicator extends StatelessWidget {
   SyncIndicator({@required this.dashboardViewModel});
@@ -15,7 +16,7 @@ class SyncIndicator extends StatelessWidget {
       builder: (_) {
         final syncIndicatorWidth = 237.0;
         final status = dashboardViewModel.status;
-        final statusText = status != null ? status.title() : '';
+        final statusText = status != null ? syncStatusTitle(status) : '';
         final progress = status != null ? status.progress() : 0.0;
         final indicatorOffset = progress * syncIndicatorWidth;
         final indicatorWidth = progress < 1

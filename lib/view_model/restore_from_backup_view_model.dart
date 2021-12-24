@@ -5,7 +5,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/core/backup_service.dart';
-import 'package:cake_wallet/entities/node.dart';
+import 'package:cw_core/node.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/store/authentication_store.dart';
 

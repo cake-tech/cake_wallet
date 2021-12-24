@@ -1,7 +1,5 @@
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
 import 'package:cake_wallet/view_model/settings/settings_view_model.dart';
@@ -10,22 +8,21 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
-import 'package:cake_wallet/core/pending_transaction.dart';
+import 'package:cw_core/pending_transaction.dart';
 import 'package:cake_wallet/core/validator.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_credentials.dart';
-import 'package:cake_wallet/monero/monero_transaction_creation_credentials.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/dashboard/fiat_conversion_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 
 part 'send_view_model.g.dart';
 
@@ -133,7 +130,7 @@ abstract class SendViewModelBase with Store {
   ObservableList<Template> get templates => sendTemplateViewModel.templates;
 
   @computed
-  bool get isElectrumWallet => _wallet is ElectrumWallet;
+  bool get isElectrumWallet => _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
 
   bool get hasYat 
     => outputs.any((out) => out.isParsedAddress 
@@ -203,19 +200,19 @@ abstract class SendViewModelBase with Store {
       case WalletType.bitcoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return BitcoinTransactionCredentials(
-            outputs, priority as BitcoinTransactionPriority);
+        return bitcoin.createBitcoinTransactionCredentials(
+            outputs, priority);
       case WalletType.litecoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return BitcoinTransactionCredentials(
-            outputs, priority as BitcoinTransactionPriority);
+        return bitcoin.createBitcoinTransactionCredentials(
+            outputs, priority);
       case WalletType.monero:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return MoneroTransactionCreationCredentials(
+        return monero.createMoneroTransactionCreationCredentials(
             outputs: outputs,
-            priority: priority as MoneroTransactionPriority);
+            priority: priority);
       default:
         return null;
     }
@@ -225,8 +222,8 @@ abstract class SendViewModelBase with Store {
     final _priority = priority as TransactionPriority;
     final wallet = _wallet;
 
-    if (wallet is ElectrumWallet) {
-      final rate = wallet.feeRate(_priority);
+    if (isElectrumWallet) {
+      final rate = bitcoin.getFeeRate(wallet, _priority);
       return '${priority.labelWithRate(rate)}';
     }
 

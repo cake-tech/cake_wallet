@@ -1,21 +1,21 @@
 import 'dart:io' show File, Platform;
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cake_wallet/entities/pathForWallet.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/pathForWallet.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/entities/node.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/node.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/node_list.dart';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/entities/fs_migration.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 
@@ -55,7 +55,7 @@ Future defaultSettingsMigration(
               FiatCurrency.usd.toString());
           await sharedPreferences.setInt(
               PreferencesKey.currentTransactionPriorityKeyLegacy,
-              MoneroTransactionPriority.standard.raw);
+              monero.getDefaultTransactionPriority().raw);
           await sharedPreferences.setInt(
               PreferencesKey.currentBalanceDisplayModeKey,
               BalanceDisplayMode.availableBalance.raw);
@@ -308,7 +308,7 @@ Future<void> changeTransactionPriorityAndFeeRateKeys(
   await sharedPreferences.setInt(
       PreferencesKey.moneroTransactionPriority, legacyTransactionPriority);
   await sharedPreferences.setInt(PreferencesKey.bitcoinTransactionPriority,
-      BitcoinTransactionPriority.medium.serialize());
+      bitcoin.getMediumTransactionPriority().serialize());
 }
 
 Future<void> changeDefaultMoneroNode(

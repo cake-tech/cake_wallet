@@ -1,5 +1,5 @@
 import 'package:cake_wallet/core/seed_validator.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class Annotation extends Comparable<Annotation> {
