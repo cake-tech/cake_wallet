@@ -21,6 +21,8 @@ class SecretKey {
     SecretKey('wyreSecretKey', () => ''),
     SecretKey('wyreApiKey', () => ''),
     SecretKey('wyreAccountId', () => ''),
+    SecretKey('moonPayApiKey', () => ''),
+    SecretKey('moonPaySecretKey', () => ''),
   ];
 
   final String name;

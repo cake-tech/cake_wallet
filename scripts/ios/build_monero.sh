@@ -49,9 +49,9 @@ cmake -D IOS=ON \
     -DUSE_DEVICE_TREZOR=OFF \
 	../..
 make -j4 && make install
-cp external/randomx/librandomx.a ${DEST_LIB}
-cp src/cryptonote_basic/libcryptonote_basic.a ${DEST_LIB}
-cp src/cryptonote_basic/libcryptonote_format_utils_basic.a ${DEST_LIB}
+cp external/randomx/librandomx.a ${DEST_LIB}/
+cp src/cryptonote_basic/libcryptonote_basic.a ${DEST_LIB}/
+cp src/cryptonote_basic/libcryptonote_format_utils_basic.a ${DEST_LIB}/
 popd
 
 done
