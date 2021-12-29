@@ -17,9 +17,9 @@ PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
 case $arch in
 	"aarch"	)
-		CLANG=armv7a-linux-androideabi-clang
-		CXXLANG=arm-linux-androideabi-clang++
-		HOST="arm-linux-android";;
+		CLANG=arm-linux-androideabi-clang
+        CXXLANG=arm-linux-androideabi-clang++
+        HOST="arm-linux-android";;
 	*		)
 		CLANG=${arch}-linux-android-clang
 		CXXLANG=${arch}-linux-android-clang++
