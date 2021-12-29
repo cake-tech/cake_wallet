@@ -13,15 +13,16 @@ for arch in aarch aarch64 i686 x86_64
 do
 
 PREFIX=${WORKDIR}/prefix_${arch}
+PATH="${TOOLCHAIN_BASE_DIR}_${arch}/bin:${ORIGINAL_PATH}"
 
 case $arch in
 	"aarch"	)
-		CLANG=armv7a-linux-androideabi${API}-clang
-		CXXLANG=armv7a-linux-androideabi${API}-clang++
-		HOST="arm";;
+		CLANG=armv7a-linux-androideabi-clang
+		CXXLANG=arm-linux-androideabi-clang++
+		HOST="arm-linux-android";;
 	*		)
-		CLANG=${arch}-linux-android${API}-clang
-		CXXLANG=${arch}-linux-android${API}-clang++
+		CLANG=${arch}-linux-android-clang
+		CXXLANG=${arch}-linux-android-clang++
 		HOST="${arch}-linux-android";;
 esac 
 

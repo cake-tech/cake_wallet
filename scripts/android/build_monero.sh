@@ -3,7 +3,6 @@
 . ./config.sh
 MONERO_BRANCH=v0.17.2.3-android
 MONERO_SRC_DIR=${WORKDIR}/monero
-CMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake"
 
 git clone https://github.com/cake-tech/monero.git ${MONERO_SRC_DIR} --branch ${MONERO_BRANCH}
 cd $MONERO_SRC_DIR
@@ -18,36 +17,38 @@ DEST_LIB_DIR=${PREFIX}/lib/monero
 DEST_INCLUDE_DIR=${PREFIX}/include
 export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"
+ANDROID_STANDALONE_TOOLCHAIN_PATH="${TOOLCHAIN_BASE_DIR}_${arch}"
+PATH="${ANDROID_STANDALONE_TOOLCHAIN_PATH}/bin:${ORIGINAL_PATH}"
 
 mkdir -p $DEST_LIB_DIR
 mkdir -p $DEST_INCLUDE_DIR
 
 case $arch in
 	"aarch"	)
-		ANDROID_CLANG=armv7a-linux-androideabi${API}-clang
-		ANDROID_CLANGPP=armv7a-linux-androideabi${API}-clang++
+		CLANG=arm-linux-androideabi-clang
+ 		CXXLANG=arm-linux-androideabi-clang++
 		BUILD_64=OFF
 		TAG="android-armv7"
 		ARCH="armv7-a"
 		ARCH_ABI="armeabi-v7a"
 		FLAGS="-D CMAKE_ANDROID_ARM_MODE=ON -D NO_AES=true";;
 	"aarch64"	)
-		ANDROID_CLANG=aarch64-linux-androideabi${API}-clang
-		ANDROID_CLANGPP=aarch64-linux-androideabi${API}-clang++
+		CLANG=aarch64-linux-androideabi-clang
+ 		CXXLANG=aarch64-linux-androideabi-clang++
 		BUILD_64=ON
 		TAG="android-armv8"
 		ARCH="armv8-a"
 		ARCH_ABI="arm64-v8a";;
 	"i686"		)
-		ANDROID_CLANG=i686-linux-androideabi${API}-clang
-		ANDROID_CLANGPP=i686-linux-androideabi${API}-clang++
+		CLANG=i686-linux-androideabi-clang
+ 		CXXLANG=i686-linux-androideabi-clang++
 		BUILD_64=OFF
 		TAG="android-x86"
 		ARCH="i686"
 		ARCH_ABI="x86";;
 	"x86_64"	)  
-		ANDROID_CLANG=x86_64-linux-androideabi${API}-clang
-		ANDROID_CLANGPP=x86_64-linux-androideabi${API}-clang++
+		CLANG=x86_64-linux-androideabi-clang
+ 		CXXLANG=x86_64-linux-androideabi-clang++
 		BUILD_64=ON
 		TAG="android-x86_64"
 		ARCH="x86-64"
@@ -58,24 +59,7 @@ cd $MONERO_SRC_DIR
 rm -rf ./build/release
 mkdir -p ./build/release
 cd ./build/release
-    cmake \
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} \
-    -DCMAKE_PREFIX_PATH="${PREFIX}" \
-    -DCMAKE_FIND_ROOT_PATH="${PREFIX}" \
-    -DCMAKE_BUILD_TYPE=release \
-    -DARCH=$ARCH \
-    -DANDROID=true \
-    -DANDROID_NATIVE_API_LEVEL=$API \
-    -DANDROID_ABI=$ARCH_ABI \
-    -DANDROID_TOOLCHAIN=clang \
-    -DLRELEASE_PATH="${PREFIX}/bin" \
-    -DSTATIC=ON \
-    -DBUILD_64=$BUILD_64 \
-    -DINSTALL_VENDORED_LIBUNBOUND=ON \
-    -DUSE_DEVICE_TREZOR=OFF \
-    -DBUILD_GUI_DEPS=1 \
-    -DBUILD_TESTS=OFF \
-    ${FLAGS} ../..
+CC=${CLANG} CXX=${CXXLANG} cmake -D USE_DEVICE_TREZOR=OFF -D BUILD_GUI_DEPS=1 -D BUILD_TESTS=OFF -D ARCH=${ARCH} -D STATIC=ON -D BUILD_64=${BUILD_64} -D CMAKE_BUILD_TYPE=release -D ANDROID=true -D INSTALL_VENDORED_LIBUNBOUND=ON -D BUILD_TAG=${TAG} -D CMAKE_SYSTEM_NAME="Android" -D CMAKE_ANDROID_STANDALONE_TOOLCHAIN="${ANDROID_STANDALONE_TOOLCHAIN_PATH}" -D CMAKE_ANDROID_ARCH_ABI=${ARCH_ABI} $FLAGS ../..
     
 make wallet_api -j4
 find . -path ./lib -prune -o -name '*.a' -exec cp '{}' lib \;
