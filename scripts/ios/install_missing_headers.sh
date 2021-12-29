@@ -27,6 +27,10 @@ if [ ! -f ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOTypes.h ]; then
   cp /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/IOKit.framework/Versions/A/Headers/IOTypes.h  ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOTypes.h
 fi
 
+if [ ! -f ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOMapTypes.h ]; then
+  cp /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/IOKit.framework/Versions/A/Headers/IOMapTypes.h  ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOMapTypes.h
+fi
+
 if [ ! -f ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOKitLib.h ]; then
   cp /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/IOKit.framework/Versions/A/Headers/IOKitLib.h ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOKitLib.h
 fi
