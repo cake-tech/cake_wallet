@@ -6,7 +6,9 @@
   "create_new" : "创建新钱包",
   "restore_wallet" : "恢复钱包",
 
-
+  "monero_com": "Monero.com",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+  
   "accounts" : "账户",
   "edit" : "编辑",
   "account" : "帐户",

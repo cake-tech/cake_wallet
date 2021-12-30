@@ -6,7 +6,9 @@
   "create_new" : "Создать новый кошелёк",
   "restore_wallet" : "Восстановить кошелёк",
 
-
+  "monero_com": "Monero.com",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+  
   "accounts" : "Аккаунты",
   "edit" : "Редактировать",
   "account" : "Аккаунт",

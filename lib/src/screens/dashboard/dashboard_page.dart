@@ -26,6 +26,7 @@ import 'package:cake_wallet/main.dart';
 import 'package:cake_wallet/router.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
@@ -144,17 +145,19 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
-              ActionButton(
-                  image: buyImage,
-                  title: S.of(context).buy,
-                  onClick: () async =>
-                    await _onClickBuyButton(context),
-              ),
-              ActionButton(
-                  image: sellImage,
-                  title: 'Sell',
-                  onClick: () async =>
-                    await _onClickSellButton(context),
+	      if (isMoneroOnly)
+              	 ActionButton(
+		   image: buyImage,
+                     title: S.of(context).buy,
+                     onClick: () async =>
+                     	      await _onClickBuyButton(context),
+              	 ),
+	      if (isMoneroOnly)
+		ActionButton(
+			image: sellImage,
+			title: 'Sell',
+			onClick: () async =>
+                   	    await _onClickSellButton(context),
               ),
             ],
           ),
@@ -174,23 +177,23 @@ class DashboardPage extends BasePage {
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;
     
-    if (walletViewModel.shouldShowYatPopup) {
-      await Future<void>.delayed(Duration(seconds: 1));
+    //if (walletViewModel.shouldShowYatPopup) {
+    //  await Future<void>.delayed(Duration(seconds: 1));
     
-      if (currentRouteSettings.name == Routes.preSeed
-          || currentRouteSettings.name == Routes.seed) {
-        return;
-      }
+    //  if (currentRouteSettings.name == Routes.preSeed
+    //      || currentRouteSettings.name == Routes.seed) {
+    //    return;
+    //  }
 
-      await showPopUp<void>(
-          context: context,
-          builder: (BuildContext context) {
-            return YatPopup(
-                dashboardViewModel: walletViewModel,
-                onClose: () => Navigator.of(context).pop());
-          });
-      walletViewModel.furtherShowYatPopup(false);
-    }
+    //  await showPopUp<void>(
+    //      context: context,
+    //      builder: (BuildContext context) {
+    //        return YatPopup(
+    //            dashboardViewModel: walletViewModel,
+    //            onClose: () => Navigator.of(context).pop());
+    //      });
+    //  walletViewModel.furtherShowYatPopup(false);
+    //}
 
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet) {

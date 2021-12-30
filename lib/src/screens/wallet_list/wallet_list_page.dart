@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
   WalletListPage({this.walletListViewModel});
@@ -181,8 +182,17 @@ class WalletListBodyState extends State<WalletListBody> {
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(Routes.restoreWalletType),
+                onPressed: () {
+		    if (isMoneroOnly) {
+                       Navigator
+			.of(context)
+		       	.pushNamed(
+				Routes.restoreWallet,
+				arguments: widget.walletListViewModel.currentWalletType);
+		    } else {
+		      Navigator.of(context).pushNamed(Routes.restoreWalletType); 
+		    }
+		},
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).accentTextTheme.caption.color,

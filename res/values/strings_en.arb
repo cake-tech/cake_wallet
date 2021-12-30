@@ -6,6 +6,9 @@
   "create_new" : "Create New Wallet",
   "restore_wallet" : "Restore Wallet",
 
+  "monero_com": "Monero.com",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+
 
   "accounts" : "Accounts",
   "edit" : "Edit",

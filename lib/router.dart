@@ -111,6 +111,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(param1: callback));
 
+    case Routes.moneroRestoreWalletFromWelcome:
+     return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SetupPinCodePage>(
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
+                  Navigator.pushNamed(
+                      context.context, Routes.restoreWallet, arguments: WalletType.monero)),
+          fullscreenDialog: true);
+
     case Routes.restoreWalletType:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(

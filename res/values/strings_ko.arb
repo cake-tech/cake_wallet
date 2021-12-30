@@ -6,7 +6,9 @@
   "create_new" : "새 월렛 만들기",
   "restore_wallet" : "월렛 복원",
 
-
+  "monero_com": "Monero.com",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+  
   "accounts" : "계정",
   "edit" : "편집하다",
   "account" : "계정",

@@ -183,23 +183,23 @@ abstract class SettingsViewModelBase with Store {
             onItemSelected: (ThemeBase theme) =>
                 _settingsStore.currentTheme = theme)
       ],
-      [
-        if (_yatStore.emoji.isNotEmpty) ...[
-          LinkListItem(
-              title: S.current.manage_yats,
-              link: manageYatUrl,
-              linkTitle: ''),
-        ] else ...[
-        LinkListItem(
-          title: S.current.connect_yats,
-          link: connectYatUrl,
-          linkTitle: ''),
-        LinkListItem(
-          title: 'Create new Yats',
-          link: createNewYatUrl,
-          linkTitle: '')
-        ]
-      ],
+      //[
+        //if (_yatStore.emoji.isNotEmpty) ...[
+        //  LinkListItem(
+        //      title: S.current.manage_yats,
+        //      link: manageYatUrl,
+        //      linkTitle: ''),
+        //] else ...[
+        //LinkListItem(
+        //  title: S.current.connect_yats,
+        //  link: connectYatUrl,
+        //  linkTitle: ''),
+        //LinkListItem(
+        //  title: 'Create new Yats',
+        //  link: createNewYatUrl,
+        //  linkTitle: '')
+        //]
+      //],
       [
         RegularListItem(
           title: S.current.settings_terms_and_conditions,

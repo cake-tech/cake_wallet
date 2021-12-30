@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'support_view_model.g.dart';
 
@@ -49,23 +50,25 @@ abstract class SupportViewModelBase with Store {
           icon: 'assets/images/change_now.png',
           linkTitle: 'support@changenow.io',
           link: 'mailto:support@changenow.io'),
-      LinkListItem(
-          title: 'Wyre',
-          icon: 'assets/images/wyre.png',
-          linkTitle: S.current.submit_request,
-          link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new'),
-      LinkListItem(
-          title: 'MoonPay',
-          icon: 'assets/images/moonpay.png',
-          hasIconColor: true,
-          linkTitle: S.current.submit_request,
-          link: 'https://support.moonpay.com/hc/en-gb/requests/new'),
-      LinkListItem(
-          title: 'Yat',
-          icon: 'assets/images/yat_mini_logo.png',
-          hasIconColor: true,
-          linkTitle: 'support@y.at',
-          link: 'mailto:support@y.at')
+      if (!isMoneroOnly) ... [	  
+      	 LinkListItem(
+		 title: 'Wyre',
+          	 icon: 'assets/images/wyre.png',
+          	 linkTitle: S.current.submit_request,
+          	 link: 'https://wyre-support.zendesk.com/hc/en-us/requests/new'),
+ 	 LinkListItem(
+		 title: 'MoonPay',
+          	 icon: 'assets/images/moonpay.png',
+          	 hasIconColor: true,
+          	 linkTitle: S.current.submit_request,
+          	 link: 'https://support.moonpay.com/hc/en-gb/requests/new')
+	  ]
+      //LinkListItem(
+      //    title: 'Yat',
+      //    icon: 'assets/images/yat_mini_logo.png',
+      //    hasIconColor: true,
+      //    linkTitle: 'support@y.at',
+      //    link: 'mailto:support@y.at')
     ];
   }
   static const url = 'https://cakewallet.com/guide/';

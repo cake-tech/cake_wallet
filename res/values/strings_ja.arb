@@ -6,7 +6,9 @@
   "create_new" : "新しいウォレットを作成",
   "restore_wallet" : "ウォレットを復元",
 
-
+  "monero_com": "Monero.com",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+  
   "accounts" : "アカウント",
   "edit" : "編集",
   "account" : "アカウント",

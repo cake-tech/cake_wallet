@@ -6,6 +6,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 // FIXME: terrible design
 
@@ -37,12 +38,13 @@ class WalletMenu {
           title: S.current.address_book_menu,
           image: Image.asset('assets/images/open_book_menu.png',
               height: 16, width: 16)),
-      WalletMenuItem(
-          title: S.current.backup,
-          image: Image.asset('assets/images/restore_wallet.png',
-              height: 16,
-              width: 16,
-              color: Palette.darkBlue)),
+      if(!isMonerOnly)
+	WalletMenuItem(
+		  title: S.current.backup,
+          	  image: Image.asset('assets/images/restore_wallet.png',
+              	  height: 16,
+              	  width: 16,
+              	  color: Palette.darkBlue)),
       WalletMenuItem(
           title: S.current.settings_title,
           image: Image.asset('assets/images/settings_menu.png',
