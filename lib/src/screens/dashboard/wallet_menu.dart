@@ -38,7 +38,7 @@ class WalletMenu {
           title: S.current.address_book_menu,
           image: Image.asset('assets/images/open_book_menu.png',
               height: 16, width: 16)),
-      if(!isMonerOnly)
+      if(!isMoneroOnly)
 	WalletMenuItem(
 		  title: S.current.backup,
           	  image: Image.asset('assets/images/restore_wallet.png',
