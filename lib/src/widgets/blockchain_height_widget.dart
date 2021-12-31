@@ -118,7 +118,6 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
 
     if (date != null) {
       final height = monero.getHeigthByDate(date: date);
-
       setState(() {
         dateController.text = DateFormat('yyyy-MM-dd').format(date);
         restoreHeightController.text = '$height';

@@ -104,7 +104,22 @@ class WalletRestorePage extends BasePage {
           .dateController.text = '';
     });
 
-    return Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+    return KeyboardActions(
+    config: KeyboardActionsConfig(
+            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+            keyboardBarColor: Theme.of(context).accentTextTheme.body2
+                .backgroundColor,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                focusNode: _blockHeightFocusNode,
+                toolbarButtons: [(_) => KeyboardDoneButton()],
+              )
+            ]),
+    child: Container(
+          height: 0,
+          color: Theme.of(context).backgroundColor,
+	  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
       Expanded(
           child: PageView.builder(
               onPageChanged: (page) {
@@ -146,7 +161,7 @@ class WalletRestorePage extends BasePage {
               );
             },
           ))
-    ]);
+    ])));
   }
 
   Map<String, dynamic> _credentials() {

@@ -63,20 +63,10 @@ abstract class DashboardViewModelBase with Store {
       ],
       S.current.trades: [
         FilterItem(
-            value: () => tradeFilterStore.displayXMRTO,
-            caption: 'XMR.TO',
-            onChanged: (value) => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.xmrto)),
-        FilterItem(
             value: () => tradeFilterStore.displayChangeNow,
             caption: 'Change.NOW',
             onChanged: (value) => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-        FilterItem(
-            value: () => tradeFilterStore.displayMorphToken,
-            caption: 'MorphToken',
-            onChanged: (value) => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.morphToken)),
       ]
     };
 

@@ -144,7 +144,8 @@ class CWMonero extends Monero {
 	}
 
 	TransactionHistoryBase getTransactionHistory(Object wallet) {
-		return MoneroTransactionHistory();
+		final moneroWallet = wallet as MoneroWallet;
+		return moneroWallet.transactionHistory;
 	}
 
 	MoneroWalletDetails getMoneroWalletDetails(Object wallet) {
@@ -152,7 +153,7 @@ class CWMonero extends Monero {
 	}
 
 	int getHeigthByDate({DateTime date}) {
-		return getHeigthByDate(date: date);
+		return getMoneroHeigthByDate(date: date);
 	}
 	
 	TransactionPriority getDefaultTransactionPriority() {
