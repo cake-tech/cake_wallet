@@ -60,7 +60,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
     _stateReaction ??=
         reaction((_) => _walletNewVM.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(context).pushNamed(Routes.seed, arguments: true);
+        Navigator.of(context).pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
       }
 
       if (state is FailureState) {

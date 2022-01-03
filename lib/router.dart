@@ -67,6 +67,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dar
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -80,9 +81,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWalletFromWelcome:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.of(context.context)
-                      .pushNamed(Routes.newWalletType)),
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
+	      	  if (isMoneroOnly) {    
+                      Navigator.of(context.context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
+		  } else {
+		      Navigator.of(context.context).pushNamed(Routes.newWalletType);
+		  }
+		  }),
           fullscreenDialog: true);
 
     case Routes.newWalletType:

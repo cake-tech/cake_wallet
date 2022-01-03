@@ -173,8 +173,13 @@ class WalletListBodyState extends State<WalletListBody> {
               EdgeInsets.only(bottom: 24, right: 24, left: 24),
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(Routes.newWalletType),
+              onPressed: () {
+	      	  if (isMoneroOnly) {
+		    Navigator.of(context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
+		  } else {
+		    Navigator.of(context).pushNamed(Routes.newWalletType);
+		  }
+	      },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.body2.color,
