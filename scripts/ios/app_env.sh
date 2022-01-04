@@ -1,4 +1,4 @@
-#!/bin/sh
+scripts/ios/app_env.sh#!/bin/sh
 
 APP_IOS_NAME=""
 APP_IOS_VERSION=""
@@ -26,7 +26,7 @@ if ! [[ " ${TYPES[*]} " =~ " ${APP_IOS_TYPE} " ]]; then
     exit 1
 fi
 
-case $APP_TYPE in
+case $APP_IOS_TYPE in
 	$MONERO_COM)
 		APP_IOS_NAME=$MONERO_COM_NAME
 		APP_IOS_VERSION=$MONERO_COM_VERSION
