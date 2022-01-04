@@ -38,13 +38,13 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.cakewallet.cake_wallet"
+        applicationId System.getenv('APP_ANDROID_ID')
         minSdkVersion 21
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+	manifestPlaceholders = [APP_NAME: System.getenv('APP_ANDROID_NAME')]
 
         externalNativeBuild {
             cmake {

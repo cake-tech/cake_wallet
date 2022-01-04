@@ -8,7 +8,7 @@
 
     <application
         android:name=".Application"
-        android:label="Cake Wallet"
+        android:label="${APP_NAME}"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
