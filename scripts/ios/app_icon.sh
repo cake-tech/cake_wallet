@@ -13,8 +13,6 @@ case $APP_IOS_TYPE in
         ICON_180_PATH=`pwd`/../../assets/images/cakewallet_icon_180.png;;
 esac
 
-echo $ICON_120_PATH
-echo $ICON_180_PATH
 rm $DEST_DIR_PATH/app_icon_120.png
 rm $DEST_DIR_PATH/app_icon_180.png
 ln -s $ICON_120_PATH $DEST_DIR_PATH/app_icon_120.png
