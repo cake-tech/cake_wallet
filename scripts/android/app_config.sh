@@ -7,3 +7,4 @@ fi
 
 sed -i "0,/version:/{s/version:.*/version: ${APP_ANDROID_VERSION}+${APP_ANDROID_BUILD_NUMBER}/}" ./../../pubspec.yaml 
 sed -i "0,/version:/{s/__APP_PACKAGE__/${APP_ANDROID_PACKAGE}/}" ./../../android/app/src/main/AndroidManifest.xml
+./app_icon.sh
