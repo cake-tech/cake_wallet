@@ -51,6 +51,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword(type);
     final height = options['height'] as int;
+    name = options['name'] as String;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;

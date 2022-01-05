@@ -175,10 +175,10 @@ class WalletListBodyState extends State<WalletListBody> {
             PrimaryImageButton(
               onPressed: () {
 	      	  if (isMoneroOnly) {
-		    Navigator.of(context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
-		  } else {
-		    Navigator.of(context).pushNamed(Routes.newWalletType);
-		  }
+      		    Navigator.of(context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
+      		  } else {
+      		    Navigator.of(context).pushNamed(Routes.newWalletType);
+      		  }
 	      },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
@@ -188,16 +188,16 @@ class WalletListBodyState extends State<WalletListBody> {
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () {
-		    if (isMoneroOnly) {
+		              if (isMoneroOnly) {
                        Navigator
-			.of(context)
-		       	.pushNamed(
-				Routes.restoreWallet,
-				arguments: widget.walletListViewModel.currentWalletType);
-		    } else {
-		      Navigator.of(context).pushNamed(Routes.restoreWalletType); 
-		    }
-		},
+                        .of(context)
+		       	            .pushNamed(
+                  				Routes.restoreWallet,
+                  				arguments: widget.walletListViewModel.currentWalletType);
+          		    } else {
+          		      Navigator.of(context).pushNamed(Routes.restoreWalletType); 
+          		    }
+		            },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).accentTextTheme.caption.color,

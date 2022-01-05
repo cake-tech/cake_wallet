@@ -10,6 +10,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 class DisclaimerPage extends BasePage {
   DisclaimerPage({this.isReadOnly = false});
@@ -48,7 +49,10 @@ class DisclaimerBodyState extends State<DisclaimerPageBody> {
   }
 
   Future getFileLines() async {
-    _fileText = await rootBundle.loadString('assets/text/Terms_of_Use.txt');
+    _fileText = await rootBundle.loadString(
+      isMoneroOnly
+      ? 'assets/text/Monerocom_Terms_of_Use.txt'
+      : 'assets/text/Terms_of_Use.txt' );
     setState(() {});
   }
 

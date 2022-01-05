@@ -7,6 +7,9 @@ import 'package:cake_wallet/src/screens/seed_language/widgets/seed_language_pick
 import 'package:cake_wallet/src/widgets/seed_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/core/validator.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm(
@@ -33,11 +36,13 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   WalletRestoreFromSeedFormState(this.language)
       : seedWidgetStateKey = GlobalKey<SeedWidgetState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
-        languageController = TextEditingController();
+        languageController = TextEditingController(),
+        nameTextEditingController = TextEditingController();
 
   final GlobalKey<SeedWidgetState> seedWidgetStateKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
   final TextEditingController languageController;
+  final TextEditingController nameTextEditingController;
   String language;
 
   @override
@@ -51,6 +56,11 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     return Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Column(children: [
+          BaseTextFormField(
+              controller: nameTextEditingController,
+              hintText: S.of(context).wallet_name,
+              validator:  WalletNameValidator()),
+          Container(height: 20),
           SeedWidget(
               key: seedWidgetStateKey, language: language, type: widget.type),
           if (widget.displayLanguageSelector)

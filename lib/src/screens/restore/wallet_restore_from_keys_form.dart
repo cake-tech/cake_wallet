@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/core/validator.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
   WalletRestoreFromKeysFrom({Key key, this.onHeightOrDateEntered})
@@ -23,7 +26,8 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
         nameController = TextEditingController(),
         addressController = TextEditingController(),
         viewKeyController = TextEditingController(),
-        spendKeyController = TextEditingController();
+        spendKeyController = TextEditingController(),
+        nameTextEditingController = TextEditingController();
 
   final GlobalKey<FormState> formKey;
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
@@ -31,6 +35,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
   final TextEditingController addressController;
   final TextEditingController viewKeyController;
   final TextEditingController spendKeyController;
+  final TextEditingController nameTextEditingController;
 
   @override
   void dispose() {
@@ -48,6 +53,11 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
         child: Form(
           key: formKey,
           child: Column(children: <Widget>[
+            BaseTextFormField(
+              controller: nameTextEditingController,
+              hintText: S.of(context).wallet_name,
+              validator:  WalletNameValidator()),
+            Container(height: 20),
             BaseTextFormField(
                 controller: addressController,
                 keyboardType: TextInputType.multiline,

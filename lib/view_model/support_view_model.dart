@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'support_view_model.g.dart';
 
@@ -25,16 +26,18 @@ abstract class SupportViewModelBase with Store {
           title: 'Email',
           linkTitle: 'support@cakewallet.com',
           link: 'mailto:support@cakewallet.com'),
-      LinkListItem(
-          title: 'Website',
-          linkTitle: 'cakewallet.com',
-          link: 'https://cakewallet.com'),
-      LinkListItem(
-          title: 'GitHub',
-          icon: 'assets/images/github.png',
-          hasIconColor: true,
-          linkTitle: S.current.apk_update,
-          link: 'https://github.com/cake-tech/cake_wallet/releases'),
+      if (!isMoneroOnly)
+        LinkListItem(
+            title: 'Website',
+            linkTitle: 'cakewallet.com',
+            link: 'https://cakewallet.com'),
+      if (!isMoneroOnly)      
+        LinkListItem(
+            title: 'GitHub',
+            icon: 'assets/images/github.png',
+            hasIconColor: true,
+            linkTitle: S.current.apk_update,
+            link: 'https://github.com/cake-tech/cake_wallet/releases'),
       LinkListItem(
           title: 'Telegram',
           icon: 'assets/images/Telegram.png',

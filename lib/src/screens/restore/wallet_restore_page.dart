@@ -15,6 +15,9 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_from_keys_form.da
 import 'package:cake_wallet/src/screens/restore/wallet_restore_from_seed_form.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
@@ -97,11 +100,13 @@ class WalletRestorePage extends BasePage {
           .restoreHeightController.text = '';
       walletRestoreFromSeedFormKey.currentState.blockchainHeightKey.currentState
           .dateController.text = '';
+      walletRestoreFromSeedFormKey.currentState.nameTextEditingController.text = '';
 
       walletRestoreFromKeysFormKey.currentState.blockchainHeightKey.currentState
           .restoreHeightController.text = '';
       walletRestoreFromKeysFormKey.currentState.blockchainHeightKey.currentState
           .dateController.text = '';
+      walletRestoreFromKeysFormKey.currentState.nameTextEditingController.text = '';
     });
 
     return KeyboardActions(
@@ -175,6 +180,8 @@ class WalletRestorePage extends BasePage {
         credentials['height'] = walletRestoreFromSeedFormKey
             .currentState.blockchainHeightKey.currentState.height;
       }
+
+      credentials['name'] = walletRestoreFromSeedFormKey.currentState.nameTextEditingController.text;
     } else {
       credentials['address'] =
           walletRestoreFromKeysFormKey.currentState.addressController.text;
@@ -184,6 +191,7 @@ class WalletRestorePage extends BasePage {
           walletRestoreFromKeysFormKey.currentState.spendKeyController.text;
       credentials['height'] = walletRestoreFromKeysFormKey
           .currentState.blockchainHeightKey.currentState.height;
+      credentials['name'] = walletRestoreFromKeysFormKey.currentState.nameTextEditingController.text;
     }
 
     return credentials;
