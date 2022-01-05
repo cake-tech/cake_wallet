@@ -44,7 +44,8 @@ android {
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-	manifestPlaceholders = [APP_NAME: System.getenv('APP_ANDROID_NAME')]
+        manifestPlaceholders = [APP_NAME: System.getenv('APP_ANDROID_NAME'),
+                                APP_PACKAGE: System.getenv('APP_ANDROID_PACKAGE')]
 
         externalNativeBuild {
             cmake {
