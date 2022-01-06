@@ -156,4 +156,4 @@ Finally build mobx models for the app:
 
 `$ flutter build apk —release`
 
-Copyright (c) 2021 Cake Technologies LLC.
+Copyright (c) 2022 Cake Technologies LLC.
