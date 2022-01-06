@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/node.dart';
+import 'package:cw_core/node.dart';
 import 'package:cake_wallet/utils/mobx.dart';
 
 part 'node_list_store.g.dart';

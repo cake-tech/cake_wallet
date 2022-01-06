@@ -1,8 +1,8 @@
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/monero/monero_account_list.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 
 part 'monero_account_edit_or_create_view_model.g.dart';
@@ -37,9 +37,13 @@ abstract class MoneroAccountEditOrCreateViewModelBase with Store {
 
       if (_accountListItem != null) {
         await _moneroAccountList.setLabelAccount(
-            accountIndex: _accountListItem.id, label: label);
+            _wallet,
+            accountIndex: _accountListItem.id,
+            label: label);
       } else {
-        await _moneroAccountList.addAccount(label: label);
+        await _moneroAccountList.addAccount(
+          _wallet,
+          label: label);
       }
 
       await _wallet.save();

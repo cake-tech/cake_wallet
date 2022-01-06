@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';

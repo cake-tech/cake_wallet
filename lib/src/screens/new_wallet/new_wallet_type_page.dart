@@ -1,12 +1,12 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:flushbar/flushbar.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/screens/new_wallet/widgets/select_button.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 
 class NewWalletTypePage extends BasePage {
   NewWalletTypePage(this.walletNewVM, {this.onTypeSelected, this.isNewWallet});
@@ -71,7 +72,7 @@ class WalletTypeFormState extends State<WalletTypeForm> {
 
   @override
   void initState() {
-    types = [WalletType.bitcoin, WalletType.monero, WalletType.litecoin];
+    types = availableWalletTypes;
     super.initState();
   }
 

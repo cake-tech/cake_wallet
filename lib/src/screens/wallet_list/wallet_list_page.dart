@@ -9,12 +9,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WalletListPage extends BasePage {
   WalletListPage({this.walletListViewModel});
@@ -172,8 +173,13 @@ class WalletListBodyState extends State<WalletListBody> {
               EdgeInsets.only(bottom: 24, right: 24, left: 24),
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
-              onPressed: () =>
-                  Navigator.of(context).pushNamed(Routes.newWalletType),
+              onPressed: () {
+	      	  if (isMoneroOnly) {
+      		    Navigator.of(context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
+      		  } else {
+      		    Navigator.of(context).pushNamed(Routes.newWalletType);
+      		  }
+	      },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.body2.color,
@@ -181,8 +187,17 @@ class WalletListBodyState extends State<WalletListBody> {
             ),
             SizedBox(height: 10.0),
             PrimaryImageButton(
-                onPressed: () =>
-                    Navigator.of(context).pushNamed(Routes.restoreWalletType),
+                onPressed: () {
+		              if (isMoneroOnly) {
+                       Navigator
+                        .of(context)
+		       	            .pushNamed(
+                  				Routes.restoreWallet,
+                  				arguments: widget.walletListViewModel.currentWalletType);
+          		    } else {
+          		      Navigator.of(context).pushNamed(Routes.restoreWalletType); 
+          		    }
+		            },
                 image: restoreWalletImage,
                 text: S.of(context).wallet_list_restore_wallet,
                 color: Theme.of(context).accentTextTheme.caption.color,

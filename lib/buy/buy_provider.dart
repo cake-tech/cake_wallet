@@ -1,8 +1,8 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/wallet_type.dart';
 
 abstract class BuyProvider {
   BuyProvider({this.wallet, this.isTestEnvironment});

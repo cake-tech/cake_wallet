@@ -1,15 +1,12 @@
-import 'package:cake_wallet/bitcoin/bitcoin_amount_format.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/limits.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/exchange/limits_state.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:intl/intl.dart';
@@ -126,7 +123,7 @@ abstract class ExchangeViewModelBase with Store {
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
 
-  bool get isMoneroWallet  => wallet is MoneroWallet;
+  bool get isMoneroWallet  => wallet.type == WalletType.monero;
 
   List<CryptoCurrency> receiveCurrencies;
 
@@ -324,10 +321,9 @@ abstract class ExchangeViewModelBase with Store {
 
   @action
   void calculateDepositAllAmount() {
-    if (wallet is BitcoinWallet) {
+    if (wallet.type == WalletType.bitcoin) {
       final availableBalance = wallet.balance.available;
-      final priority =
-          _settingsStore.priority[wallet.type] as BitcoinTransactionPriority;
+      final priority = _settingsStore.priority[wallet.type];
       final fee = wallet.calculateEstimatedFee(priority, null);
 
       if (availableBalance < fee || availableBalance == 0) {
@@ -335,7 +331,7 @@ abstract class ExchangeViewModelBase with Store {
       }
 
       final amount = availableBalance - fee;
-      changeDepositAmount(amount: bitcoinAmountToString(amount: amount));
+      changeDepositAmount(amount: bitcoin.formatterBitcoinAmountToString(amount: amount));
     }
   }
 

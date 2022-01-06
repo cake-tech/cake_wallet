@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:cake_wallet/entities/wallet_contact.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/entities/contact_record.dart';

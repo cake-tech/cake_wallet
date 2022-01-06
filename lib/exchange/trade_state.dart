@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:cake_wallet/entities/enumerable_item.dart';
+import 'package:cw_core/enumerable_item.dart';
 
 class TradeState extends EnumerableItem<String> with Serializable<String> {
   const TradeState({@required String raw, @required String title})

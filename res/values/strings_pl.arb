@@ -6,7 +6,9 @@
   "create_new" : "Utwórz nowy portfel",
   "restore_wallet" : "Przywróć portfel",
 
-
+  "monero_com": "Monero.com by Cake Wallet",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+  
   "accounts" : "Konta",
   "edit" : "Edytować",
   "account" : "Konto",

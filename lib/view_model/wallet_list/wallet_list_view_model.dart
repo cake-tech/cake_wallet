@@ -4,9 +4,10 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/core/wallet_service.dart';
+import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -26,6 +27,8 @@ abstract class WalletListViewModelBase with Store {
   final Box<WalletInfo> _walletInfoSource;
   final KeyService _keyService;
   final WalletNewVM walletNewVM;
+
+  WalletType get currentWalletType => _appStore.wallet.type;
 
   @action
   Future<void> loadWallet(WalletListItem wallet) async {

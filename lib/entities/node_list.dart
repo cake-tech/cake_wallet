@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import "package:yaml/yaml.dart";
-import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/node.dart';
+import 'package:cw_core/wallet_type.dart';
 
 Future<List<Node>> loadDefaultNodes() async {
   final nodesRaw = await rootBundle.loadString('assets/node_list.yml');

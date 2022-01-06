@@ -1,20 +1,20 @@
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/utils/list_item.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_account_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_header.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_item.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
-import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'dart:async';
+import 'package:cake_wallet/monero/monero.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -113,11 +113,11 @@ abstract class WalletAddressListViewModelBase with Store {
 
   @computed
   PaymentURI get uri {
-    if (_wallet is MoneroWallet) {
+    if (_wallet.type == WalletType.monero) {
       return MoneroURI(amount: amount, address: address.address);
     }
 
-    if (_wallet is BitcoinWallet) {
+    if (_wallet.type == WalletType.bitcoin) {
       return BitcoinURI(amount: amount, address: address.address);
     }
 
@@ -133,10 +133,11 @@ abstract class WalletAddressListViewModelBase with Store {
     final wallet = _wallet;
     final addressList = ObservableList<ListItem>();
 
-    if (wallet is MoneroWallet) {
-      final primaryAddress =
-          wallet.walletAddresses.subaddressList.subaddresses.first;
-      addressList.addAll(wallet.walletAddresses.subaddressList.subaddresses
+    if (wallet.type == WalletType.monero) {
+      final primaryAddress = monero.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = monero
+        .getSubaddressList(wallet)
+        .subaddresses
           .map((subaddress) {
         final isPrimary = subaddress == primaryAddress;
 
@@ -145,16 +146,17 @@ abstract class WalletAddressListViewModelBase with Store {
             isPrimary: isPrimary,
             name: subaddress.label,
             address: subaddress.address);
-      }));
+      });
+      addressList.addAll(addressItems);
     }
 
-    if (wallet is BitcoinWallet) {
-      final primaryAddress = wallet.walletAddresses.addresses.first;
-      final bitcoinAddresses = wallet.walletAddresses.addresses.map((addr) {
+    if (wallet.type == WalletType.bitcoin) {
+      final primaryAddress = bitcoin.getAddress(wallet);
+      final bitcoinAddresses = bitcoin.getAddresses(wallet).map((addr) {
         final isPrimary = addr == primaryAddress;
 
         return WalletAddressListItem(
-            isPrimary: isPrimary, name: null, address: addr.address);
+            isPrimary: isPrimary, name: null, address: addr);
       });
       addressList.addAll(bitcoinAddresses);
     }
@@ -169,8 +171,8 @@ abstract class WalletAddressListViewModelBase with Store {
   String get accountLabel {
     final wallet = _wallet;
 
-    if (wallet is MoneroWallet) {
-      return wallet.walletAddresses.account.label;
+    if (wallet.type == WalletType.monero) {
+      return monero.getCurrentAccount(wallet).label;
     }
 
     return null;
@@ -204,7 +206,7 @@ abstract class WalletAddressListViewModelBase with Store {
   void _init() {
     _baseItems = [];
 
-    if (_wallet is MoneroWallet) {
+    if (_wallet.type == WalletType.monero) {
       _baseItems.add(WalletAccountListHeader());
     }
 
@@ -215,8 +217,9 @@ abstract class WalletAddressListViewModelBase with Store {
   void nextAddress() {
     final wallet = _wallet;
 
-    if (wallet is ElectrumWallet) {
-      wallet.walletAddresses.nextAddress();
+    if (wallet.type == WalletType.bitcoin
+      || wallet.type == WalletType.litecoin) {
+      bitcoin.nextAddress(wallet);
       wallet.save();
     }
   }

@@ -3,11 +3,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
-import 'package:cake_wallet/core/wallet_credentials.dart';
-import 'package:cake_wallet/core/wallet_service.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:cw_core/wallet_type.dart';
 
 class WalletCreationService {
   WalletCreationService(

@@ -28,8 +28,8 @@ import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/exchange/trade.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/dashboard/dashboard_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
@@ -67,6 +67,7 @@ import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dar
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -80,9 +81,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWalletFromWelcome:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.of(context.context)
-                      .pushNamed(Routes.newWalletType)),
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
+	      	  if (isMoneroOnly) {    
+                      Navigator.of(context.context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
+		  } else {
+		      Navigator.of(context.context).pushNamed(Routes.newWalletType);
+		  }
+		  }),
           fullscreenDialog: true);
 
     case Routes.newWalletType:
@@ -110,6 +115,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(param1: callback));
+
+    case Routes.moneroRestoreWalletFromWelcome:
+     return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<SetupPinCodePage>(
+              param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
+                  Navigator.pushNamed(
+                      context.context, Routes.restoreWallet, arguments: WalletType.monero)),
+          fullscreenDialog: true);
 
     case Routes.restoreWalletType:
       return CupertinoPageRoute<void>(

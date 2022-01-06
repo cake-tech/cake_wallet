@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:cake_wallet/utils/mobx.dart';
 import 'package:hive/hive.dart';
+import 'package:cw_core/keyable.dart';
 
 abstract class Record<T extends HiveObject> with Keyable {
   Record(this._source, this.original) {

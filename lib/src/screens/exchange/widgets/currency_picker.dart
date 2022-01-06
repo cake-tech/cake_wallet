@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';

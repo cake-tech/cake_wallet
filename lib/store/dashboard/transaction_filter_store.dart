@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/transaction_direction.dart';
+import 'package:cw_core/transaction_direction.dart';
 import 'package:cake_wallet/view_model/dashboard/transaction_list_item.dart';
 
 part 'transaction_filter_store.g.dart';

@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 
 class WalletDescription {
   WalletDescription({this.name, this.type});

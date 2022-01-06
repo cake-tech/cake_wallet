@@ -1,14 +1,10 @@
-import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/entities/balance.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/balance.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_history.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/monero/account.dart';
-import 'package:cake_wallet/monero/monero_balance.dart';
-import 'package:cake_wallet/monero/monero_transaction_info.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
@@ -25,15 +21,16 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/store/dashboard/trade_filter_store.dart';
 import 'package:cake_wallet/store/dashboard/transaction_filter_store.dart';
 import 'package:cake_wallet/view_model/dashboard/formatted_item_list.dart';
+import 'package:cake_wallet/monero/monero.dart';
 
 part 'dashboard_view_model.g.dart';
 
@@ -66,20 +63,10 @@ abstract class DashboardViewModelBase with Store {
       ],
       S.current.trades: [
         FilterItem(
-            value: () => tradeFilterStore.displayXMRTO,
-            caption: 'XMR.TO',
-            onChanged: (value) => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.xmrto)),
-        FilterItem(
             value: () => tradeFilterStore.displayChangeNow,
             caption: 'Change.NOW',
             onChanged: (value) => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-        FilterItem(
-            value: () => tradeFilterStore.displayMorphToken,
-            caption: 'MorphToken',
-            onChanged: (value) => tradeFilterStore
-                .toggleDisplayExchange(ExchangeProviderDescription.morphToken)),
       ]
     };
 
@@ -93,18 +80,18 @@ abstract class DashboardViewModelBase with Store {
     isShowThirdYatIntroduction = false;
     final _wallet = wallet;
 
-    if (_wallet is MoneroWallet) {
-      subname = _wallet.walletAddresses.account?.label;
+    if (_wallet.type == WalletType.monero) {
+      subname = monero.getCurrentAccount(_wallet)?.label;
 
-      _onMoneroAccountChangeReaction = reaction((_) => _wallet.walletAddresses
+      _onMoneroAccountChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet)
           .account, (Account account) => _onMoneroAccountChange(_wallet));
 
-      _onMoneroBalanceChangeReaction = reaction((_) => _wallet.balance,
+      _onMoneroBalanceChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet).balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(_wallet));
 
       final _accountTransactions = _wallet
           .transactionHistory.transactions.values
-          .where((tx) => tx.accountIndex == _wallet.walletAddresses.account.id)
+          .where((tx) => monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id)
           .toList();
 
       transactions = ObservableList.of(_accountTransactions.map((transaction) =>
@@ -132,8 +119,8 @@ abstract class DashboardViewModelBase with Store {
             settingsStore: appStore.settingsStore),
         filter: (TransactionInfo tx) {
       final wallet = _wallet;
-      if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
-        return tx.accountIndex == wallet.walletAddresses.account.id;
+      if (wallet.type == WalletType.monero) {
+        return monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -265,16 +252,16 @@ abstract class DashboardViewModelBase with Store {
     isOutdatedElectrumWallet =
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
 
-    if (wallet is MoneroWallet) {
-      subname = wallet.walletAddresses.account?.label;
+    if (wallet.type == WalletType.monero) {
+      subname = monero.getCurrentAccount(wallet)?.label;
 
       _onMoneroAccountChangeReaction?.reaction?.dispose();
       _onMoneroBalanceChangeReaction?.reaction?.dispose();
 
-      _onMoneroAccountChangeReaction = reaction((_) => wallet.walletAddresses
+      _onMoneroAccountChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet)
           .account, (Account account) => _onMoneroAccountChange(wallet));
 
-      _onMoneroBalanceChangeReaction = reaction((_) => wallet.balance,
+      _onMoneroBalanceChangeReaction = reaction((_) => monero.getMoneroWalletDetails(wallet).balance,
           (MoneroBalance balance) => _onMoneroTransactionsUpdate(wallet));
 
       _onMoneroTransactionsUpdate(wallet);
@@ -298,8 +285,8 @@ abstract class DashboardViewModelBase with Store {
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore),
         filter: (TransactionInfo tx) {
-      if (tx is MoneroTransactionInfo && wallet is MoneroWallet) {
-        return tx.accountIndex == wallet.walletAddresses.account.id;
+      if (wallet.type == WalletType.monero) {
+        return monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id;
       }
 
       return true;
@@ -307,17 +294,17 @@ abstract class DashboardViewModelBase with Store {
   }
 
   @action
-  void _onMoneroAccountChange(MoneroWallet wallet) {
-    subname = wallet.walletAddresses.account?.label;
+  void _onMoneroAccountChange(WalletBase wallet) {
+    subname = monero.getCurrentAccount(wallet)?.label;
     _onMoneroTransactionsUpdate(wallet);
   }
 
   @action
-  void _onMoneroTransactionsUpdate(MoneroWallet wallet) {
+  void _onMoneroTransactionsUpdate(WalletBase wallet) {
     transactions.clear();
 
-    final _accountTransactions = wallet.transactionHistory.transactions.values
-        .where((tx) => tx.accountIndex == wallet.walletAddresses.account.id)
+    final _accountTransactions = monero.getTransactionHistory(wallet).transactions.values
+        .where((tx) => monero.getTransactionInfoAccountId(tx) == monero.getCurrentAccount(wallet).id)
         .toList();
 
     transactions.addAll(_accountTransactions.map((transaction) =>

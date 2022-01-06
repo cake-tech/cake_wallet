@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cakewallet.cake_wallet">
+    package="__APP_PACKAGE__">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.USE_FINGERPRINT"/>
@@ -8,7 +8,7 @@
 
     <application
         android:name=".Application"
-        android:label="Cake Wallet"
+        android:label="${APP_NAME}"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"

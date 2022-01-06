@@ -57,4 +57,6 @@ class Routes {
   static const buyWebView = '/buy_web_view';
   static const unspentCoinsList = '/unspent_coins_list';
   static const unspentCoinsDetails = '/unspent_coins_details';
+  static const moneroRestoreWalletFromWelcome = '/monero_restore_wallet';
+  static const moneroNewWalletFromWelcome = '/monero_new_wallet';
 }

@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/widgets/validable_annotated_editable_text.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:flutter/cupertino.dart';

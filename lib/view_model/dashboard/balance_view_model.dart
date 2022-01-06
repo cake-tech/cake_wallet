@@ -1,12 +1,10 @@
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/crypto_currency.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -26,15 +24,7 @@ abstract class BalanceViewModelBase with Store {
       @required this.fiatConvertationStore}) {
     isReversing = false;
     wallet ??= appStore.wallet;
-    final _wallet = wallet;
-
-    if (_wallet is MoneroWallet) {
-      balance = _wallet.balance;
-    }
-
-    if (_wallet is BitcoinWallet) {
-      balance = _wallet.balance;
-    }
+    balance = wallet.balance;
 
     reaction((_) => appStore.wallet, _onWalletChange);
 

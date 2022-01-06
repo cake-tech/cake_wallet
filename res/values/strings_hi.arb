@@ -6,7 +6,9 @@
   "create_new" : "नया बटुआ बनाएँ",
   "restore_wallet" : "वॉलेट को पुनर्स्थापित करें",
 
-
+  "monero_com": "Monero.com by Cake Wallet",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+  
   "accounts" : "हिसाब किताब",
   "edit" : "संपादित करें",
   "account" : "लेखा",

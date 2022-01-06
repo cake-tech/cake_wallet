@@ -4,6 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 class WelcomePage extends BasePage {
   static const aspectRatioImage = 1.25;
@@ -82,9 +83,9 @@ class WelcomePage extends BasePage {
                         Padding(
                           padding: EdgeInsets.only(top: 5),
                           child: Text(
-                            S
-                                .of(context)
-                                .cake_wallet,
+                            isMoneroOnly
+				? S.of(context).monero_com
+				: S.of(context).cake_wallet,
                             style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
@@ -100,9 +101,9 @@ class WelcomePage extends BasePage {
                         Padding(
                           padding: EdgeInsets.only(top: 5),
                           child: Text(
-                            S
-                                .of(context)
-                                .first_wallet_text,
+                            isMoneroOnly
+				? S.of(context).monero_com_wallet_text
+				: S.of(context).first_wallet_text,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
@@ -159,9 +160,14 @@ class WelcomePage extends BasePage {
                         Padding(
                           padding: EdgeInsets.only(top: 10),
                           child: PrimaryImageButton(
-                              onPressed: () =>
-                                  Navigator.pushNamed(context,
-                                      Routes.restoreOptions),
+                              onPressed: () {
+			          if (isMoneroOnly) {
+				    Navigator.of(context).pushNamed(Routes.moneroRestoreWalletFromWelcome);
+				  } else {
+				    Navigator.pushNamed(context,
+                                      Routes.restoreOptions);
+				  }
+			      },
                               image: restoreWalletImage,
                               text: S
                                   .of(context)

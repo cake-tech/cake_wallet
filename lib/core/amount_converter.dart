@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 class AmountConverter {
   static const _moneroAmountLength = 12;

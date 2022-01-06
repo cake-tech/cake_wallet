@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 
 class XMRTOTradeRequest extends TradeRequest {

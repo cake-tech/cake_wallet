@@ -1,16 +1,16 @@
-import 'package:cake_wallet/bitcoin/bitcoin_wallet_creation_credentials.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/app_store.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/core/generate_wallet_password.dart';
 import 'package:cake_wallet/core/wallet_creation_service.dart';
-import 'package:cake_wallet/core/wallet_credentials.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
-import 'package:cake_wallet/monero/monero_wallet_service.dart';
+import 'package:cake_wallet/monero/monero.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
@@ -51,20 +51,28 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword(type);
     final height = options['height'] as int;
+    name = options['name'] as String;
 
     if (mode == WalletRestoreMode.seed) {
       final seed = options['seed'] as String;
 
       switch (type) {
         case WalletType.monero:
-          return MoneroRestoreWalletFromSeedCredentials(
-              name: name, height: height, mnemonic: seed, password: password);
+          return monero.createMoneroRestoreWalletFromSeedCredentials(
+              name: name,
+              height: height,
+              mnemonic: seed,
+              password: password);
         case WalletType.bitcoin:
-          return BitcoinRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+          return bitcoin.createBitcoinRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password);
         case WalletType.litecoin:
-          return BitcoinRestoreWalletFromSeedCredentials(
-              name: name, mnemonic: seed, password: password);
+          return bitcoin.createBitcoinRestoreWalletFromSeedCredentials(
+            name: name,
+            mnemonic: seed,
+            password: password);
         default:
           break;
       }
@@ -75,7 +83,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       final spendKey = options['spendKey'] as String;
       final address = options['address'] as String;
 
-      return MoneroRestoreWalletFromKeysCredentials(
+      return monero.createMoneroRestoreWalletFromKeysCredentials(
           name: name,
           height: height,
           spendKey: spendKey,

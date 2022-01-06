@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:mobx/mobx.dart';
 
 part 'rescan_view_model.g.dart';

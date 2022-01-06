@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 abstract class ContactBase {
   String name;

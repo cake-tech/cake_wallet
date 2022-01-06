@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:connectivity/connectivity.dart';
 

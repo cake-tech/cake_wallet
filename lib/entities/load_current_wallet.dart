@@ -2,9 +2,9 @@ import 'package:cake_wallet/di.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/core/key_service.dart';
-import 'package:cake_wallet/core/wallet_service.dart';
+import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/entities/preferences_key.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 
 Future<void> loadCurrentWallet() async {
   final appStore = getIt.get<AppStore>();

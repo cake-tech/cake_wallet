@@ -7,14 +7,14 @@ import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/entities/biometric_auth.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/node.dart';
-import 'package:cake_wallet/entities/monero_transaction_priority.dart';
+import 'package:cw_core/node.dart';
+import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
@@ -22,12 +22,11 @@ import 'package:cake_wallet/view_model/settings/regular_list_item.dart';
 import 'package:cake_wallet/view_model/settings/settings_list_item.dart';
 import 'package:cake_wallet/view_model/settings/switcher_list_item.dart';
 import 'package:cake_wallet/src/screens/auth/auth_page.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_transaction_priority.dart';
-import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
-import 'package:cake_wallet/core/transaction_history.dart';
-import 'package:cake_wallet/entities/balance.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -39,11 +38,11 @@ class SettingsViewModel = SettingsViewModelBase with _$SettingsViewModel;
 List<TransactionPriority> priorityForWalletType(WalletType type) {
   switch (type) {
     case WalletType.monero:
-      return MoneroTransactionPriority.all;
+      return monero.getTransactionPriorities();
     case WalletType.bitcoin:
-      return BitcoinTransactionPriority.all;
+      return bitcoin.getTransactionPriorities();
     case WalletType.litecoin:
-      return LitecoinTransactionPriority.all;
+      return bitcoin.getTransactionPriorities();
     default:
       return [];
   }
@@ -115,8 +114,9 @@ abstract class SettingsViewModelBase with Store {
             displayItem: (dynamic priority) {
               final _priority = priority as TransactionPriority;
 
-              if (wallet is ElectrumWallet) {
-                final rate = wallet.feeRate(_priority);
+              if (wallet.type == WalletType.bitcoin
+                  || wallet.type == WalletType.litecoin) {
+                final rate = bitcoin.getFeeRate(wallet, _priority);
                 return '${priority.labelWithRate(rate)}';
               }
 
@@ -183,23 +183,23 @@ abstract class SettingsViewModelBase with Store {
             onItemSelected: (ThemeBase theme) =>
                 _settingsStore.currentTheme = theme)
       ],
-      [
-        if (_yatStore.emoji.isNotEmpty) ...[
-          LinkListItem(
-              title: S.current.manage_yats,
-              link: manageYatUrl,
-              linkTitle: ''),
-        ] else ...[
-        LinkListItem(
-          title: S.current.connect_yats,
-          link: connectYatUrl,
-          linkTitle: ''),
-        LinkListItem(
-          title: 'Create new Yats',
-          link: createNewYatUrl,
-          linkTitle: '')
-        ]
-      ],
+      //[
+        //if (_yatStore.emoji.isNotEmpty) ...[
+        //  LinkListItem(
+        //      title: S.current.manage_yats,
+        //      link: manageYatUrl,
+        //      linkTitle: ''),
+        //] else ...[
+        //LinkListItem(
+        //  title: S.current.connect_yats,
+        //  link: connectYatUrl,
+        //  linkTitle: ''),
+        //LinkListItem(
+        //  title: 'Create new Yats',
+        //  link: createNewYatUrl,
+        //  linkTitle: '')
+        //]
+      //],
       [
         RegularListItem(
           title: S.current.settings_terms_and_conditions,

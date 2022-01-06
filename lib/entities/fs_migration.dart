@@ -6,15 +6,15 @@ import 'package:hive/hive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:cake_wallet/core/key_service.dart';
 import 'package:cake_wallet/entities/contact.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/encrypt.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/entities/ios_legacy_helper.dart'
     as ios_legacy_helper;
 import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
-import 'package:cake_wallet/entities/wallet_info.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;

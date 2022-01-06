@@ -6,7 +6,9 @@
   "create_new" : "Crear nueva billetera",
   "restore_wallet" : "Restaurar billetera",
 
-
+  "monero_com": "Monero.com by Cake Wallet",
+  "monero_com_wallet_text": "Awesome wallet for Monero",
+  
   "accounts" : "Cuentas",
   "edit" : "Editar",
   "account" : "Cuenta",

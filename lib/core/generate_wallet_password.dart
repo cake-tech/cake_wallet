@@ -1,6 +1,6 @@
 import 'package:uuid/uuid.dart';
-import 'package:cake_wallet/bitcoin/key.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/key.dart';
+import 'package:cw_core/wallet_type.dart';
 
 String generateWalletPassword(WalletType type) {
   switch (type) {

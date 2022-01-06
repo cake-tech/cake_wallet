@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/entities/transaction_info.dart';
+import 'package:cw_core/transaction_info.dart';
 
 abstract class TransactionHistory {
   Observable<List<TransactionInfo>> transactions;

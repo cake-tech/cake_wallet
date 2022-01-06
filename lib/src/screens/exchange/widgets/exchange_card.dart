@@ -5,7 +5,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/address_text_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker.dart';

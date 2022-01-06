@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 
 const bitcoinMnemonicLength = 12;
 const moneroMnemonicLength = 25;

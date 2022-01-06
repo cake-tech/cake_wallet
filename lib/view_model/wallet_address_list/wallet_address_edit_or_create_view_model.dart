@@ -1,9 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
-import 'package:cake_wallet/bitcoin/electrum_wallet.dart';
-import 'package:cake_wallet/bitcoin/bitcoin_wallet.dart';
-import 'package:cake_wallet/monero/monero_wallet.dart';
+import 'package:flutter/foundation.dart';
+import 'package:cw_core/wallet_base.dart';
+import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cw_core/wallet_type.dart';
 
 part 'wallet_address_edit_or_create_view_model.g.dart';
 
@@ -63,16 +63,19 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
   Future<void> _createNew() async {
     final wallet = _wallet;
 
-    if (wallet is ElectrumWallet) {
-      await wallet.walletAddresses.generateNewAddress();
+    if (wallet.type == WalletType.bitcoin
+        || wallet.type == WalletType.litecoin) {
+      await bitcoin.generateNewAddress(wallet);
       await wallet.save();
     }
 
-    if (wallet is MoneroWallet) {
-      await wallet.walletAddresses.subaddressList
+    if (wallet.type == WalletType.monero) {
+      await monero
+          .getSubaddressList(wallet)
           .addSubaddress(
-          accountIndex: wallet.walletAddresses.account.id,
-          label: label);
+            wallet,
+            accountIndex: monero.getCurrentAccount(wallet).id,
+            label: label);
       await wallet.save();
     }
   }
@@ -85,9 +88,12 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
       await wallet.save();
     }*/
 
-    if (wallet is MoneroWallet) {
-      await wallet.walletAddresses.subaddressList.setLabelSubaddress(
-          accountIndex: wallet.walletAddresses.account.id,
+    if (wallet.type == WalletType.monero) {
+      await monero
+        .getSubaddressList(wallet)
+        .setLabelSubaddress(
+          wallet,
+          accountIndex: monero.getCurrentAccount(wallet).id,
           addressIndex: _item.id as int,
           label: label);
       await wallet.save();

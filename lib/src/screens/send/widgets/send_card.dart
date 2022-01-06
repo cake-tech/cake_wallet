@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/transaction_priority.dart';
+import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';

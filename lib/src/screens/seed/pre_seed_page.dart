@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/cupertino.dart';

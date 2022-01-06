@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/parsed_address.dart';
-import 'package:cake_wallet/entities/sync_status.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/sync_status.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cake_wallet/src/widgets/standard_checkbox.dart';
@@ -22,7 +22,7 @@ import 'package:cake_wallet/src/widgets/trail_button.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/exchange_card.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';

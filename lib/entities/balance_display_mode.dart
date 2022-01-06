@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/enumerable_item.dart';
+import 'package:cw_core/enumerable_item.dart';
 
 class BalanceDisplayMode extends EnumerableItem<int> with Serializable<int> {
   const BalanceDisplayMode({@required String title, @required int raw})

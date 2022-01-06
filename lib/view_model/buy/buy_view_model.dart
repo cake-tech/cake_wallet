@@ -1,9 +1,9 @@
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/buy/wyre/wyre_buy_provider.dart';
-import 'package:cake_wallet/entities/crypto_currency.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/entities/wallet_type.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/buy/buy_item.dart';
 import 'package:flutter/foundation.dart';
@@ -11,7 +11,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/store/dashboard/orders_store.dart';
 import 'package:mobx/mobx.dart';
-import 'package:cake_wallet/core/wallet_base.dart';
+import 'package:cw_core/wallet_base.dart';
 import 'buy_amount_view_model.dart';
 
 part 'buy_view_model.g.dart';

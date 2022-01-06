@@ -1,7 +1,7 @@
 import 'package:cake_wallet/buy/buy_provider_description.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
-import 'package:cake_wallet/entities/format_amount.dart';
+import 'package:cw_core/format_amount.dart';
 
 part 'order.g.dart';
 
