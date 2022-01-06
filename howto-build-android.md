@@ -97,6 +97,17 @@ Proceed into the source code before proceeding with the next steps:
 
 ### 8. Execute Build & Setup Commands for CakeWallet
 
+We need to generate project settings like app name, app icon, package name, etc. For this need to setup environment variables and configure project files. 
+
+Please pick what app you want to build: cakewallet or monero.com.
+
+`$ ./app_env.sh <cakewallet OR monero.com>`
+(it should be like `$ ./app_env.sh cakewallet` or `$ ./app_env.sh monero.com`)
+
+Then run configuration script for setup app name, app icon and etc:
+
+`$ ./app_config.sh`  
+
 Build the Monero libraries and their dependencies:
 
 `$ ./build_all.sh`
@@ -128,6 +139,16 @@ Then we need to generate localization files.
 `$ flutter packages pub run tool/generate_localization.dart`
 
 Lastly, we will generate mobx models for the project.
+
+Generate mobx models for `cw_core`:
+
+`cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs`
+
+Then get back to project root directory:
+
+`cd ..`
+
+Finally build mobx models for the app:
 
 `$ flutter packages pub run build_runner build --delete-conflicting-outputs`
 
