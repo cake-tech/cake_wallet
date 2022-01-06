@@ -142,11 +142,15 @@ Lastly, we will generate mobx models for the project.
 
 Generate mobx models for `cw_core`:
 
-`cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs`
+`cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
-Then get back to project root directory:
+Generate mobx models for `cw_monero`:
 
-`cd ..`
+`cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
+
+Generate mobx models for `cw_bitcoin`:
+
+`cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
 
 Finally build mobx models for the app:
 
