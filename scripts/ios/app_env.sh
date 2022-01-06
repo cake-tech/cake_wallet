@@ -1,4 +1,4 @@
-scripts/ios/app_env.sh#!/bin/sh
+#!/bin/sh
 
 APP_IOS_NAME=""
 APP_IOS_VERSION=""
