@@ -1,6 +1,6 @@
 name: cake_wallet
 description: Cake Wallet.
-version: 4.2.7+62
+version: 4.2.8+66
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
