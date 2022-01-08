@@ -95,8 +95,8 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<NewWalletTypePage>(
               param1: (BuildContext context, WalletType type) =>
                   Navigator.of(context)
-                      .pushNamed(Routes.preSeed, arguments: type),
-              param2: true));
+                      .pushNamed(Routes.newWallet, arguments: type),
+              param2: false));
 
     case Routes.newWallet:
       final type = settings.arguments as WalletType;

@@ -36,6 +36,7 @@ import 'package:cake_wallet/src/screens/root/root.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final rootKey = GlobalKey<RootState>();
@@ -82,6 +83,10 @@ Future<void> main() async {
 
     if (!Hive.isAdapterRegistered(Order.typeId)) {
       Hive.registerAdapter(OrderAdapter());
+    }
+
+    if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
+      Hive.registerAdapter(UnspentCoinsInfoAdapter());
     }
 
     final secureStorage = FlutterSecureStorage();
