@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 APP_ANDROID_NAME=""
 APP_ANDROID_VERSION=""

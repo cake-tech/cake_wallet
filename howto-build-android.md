@@ -101,8 +101,8 @@ We need to generate project settings like app name, app icon, package name, etc.
 
 Please pick what app you want to build: cakewallet or monero.com.
 
-`$ ./app_env.sh <cakewallet OR monero.com>`
-(it should be like `$ ./app_env.sh cakewallet` or `$ ./app_env.sh monero.com`)
+`$ source ./app_env.sh <cakewallet OR monero.com>`
+(it should be like `$ source ./app_env.sh cakewallet` or `$ source ./app_env.sh monero.com`)
 
 Then run configuration script for setup app name, app icon and etc:
 
@@ -158,6 +158,6 @@ Finally build mobx models for the app:
 
 ### 9. Build!
 
-`$ flutter build apk —release`
+`$ flutter build apk --release`
 
 Copyright (c) 2022 Cake Technologies LLC.
