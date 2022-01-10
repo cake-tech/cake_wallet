@@ -122,5 +122,5 @@ ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
 android/app/src/main/res/
 assets/images/app_logo.png
 
-pubspec.yaml
-pubspec.lock
+/pubspec.yaml
+/pubspec.lock
