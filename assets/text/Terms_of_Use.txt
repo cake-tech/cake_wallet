@@ -34,7 +34,7 @@ Intellectual Property Rights
 	The App and its entire contents, features, and functionality (including but not limited to all information, software, text, displays, images, video, and audio, and the design, selection, and arrangement thereof) are owned by the Company, its licensors, or other providers of such material and are protected by United States and international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.
 		
 	These Terms of Use permit you to use the App for your personal and commercial use. You are permitted to download, store, publicly display, publicly perform, republish and transmit any of the code in our App. 
-	You are also permitted to reproduce, distribute, modify, or create derivative works of, any of the code in our App, under the condition that any derivative work of this App remains under an open source license.
+	You are also permitted to reproduce, distribute, modify, or create derivative works of, any of the code in our App, under the license conditions published with the accompanying code. If there is no license offered for the specific code, then you must contact us for a license for that specific code.
 
 	You must not:
 		- Modify copies of any images from the Application.
