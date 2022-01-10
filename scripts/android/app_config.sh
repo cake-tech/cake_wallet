@@ -21,4 +21,5 @@ case $APP_ANDROID_TYPE in
 esac
 
 cd ../..
+flutter pub get
 flutter packages pub run tool/configure.dart $CONFIG_ARGS
