@@ -279,7 +279,7 @@ Future<void> generatePubspec({bool hasMonero, bool hasBitcoin}) async {
   cw_bitcoin:
     path: ./cw_bitcoin
   """;
-  final inputFile = File(pubspecDefaultPath);
+  final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
   final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
