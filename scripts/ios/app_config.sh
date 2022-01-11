@@ -25,8 +25,10 @@ case $APP_IOS_TYPE in
 		;;
 esac
 
+cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
 flutter pub run tool/generate_pubspec.dart
+flutter pub get
 flutter packages pub run tool/configure.dart $CONFIG_ARGS
 cd $DIR
 $DIR/app_icon.sh
