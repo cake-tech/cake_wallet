@@ -1,8 +1,8 @@
-Last Modified: December 30, 2021
+Last Modified: January 11, 2022
 
 Acceptance of the Terms of Use
 ==============================
-	These terms of use are entered into by and between You and Cake Labs LLC ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Cake Wallet and Monero.com apps, including any content, functionality, and services offered on or through the Cake Wallet app and the Monero.com app, as applicable (the “App").
+	These terms of use are entered into by and between You and Cake Labs LLC, a limited liability company formed under the laws of Nevis ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Cake Wallet and Monero.com apps, including any content, functionality, and services offered on or through the Cake Wallet app and the Monero.com app, as applicable (the “App").
 	Please read the Terms of Use carefully before you start to use the App. By using the App you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, incorporated herein by reference. If you do not wish to agree to these Terms of Use or the Privacy Policy, you must not access or use the App.
 
 Changes to the Terms of Use
@@ -90,7 +90,7 @@ Links from the App
 Geographic Restrictions
 =======================
 
-	The owner of the App is based in Nevis. Please consult with qualified legal counsel to assess the appropriate use of the App or any of its contents in the jurisdiction(s) you intend to use the App. The owner of the App makes no representation or warranty as to the suitability for use, compliance or other matter of law with respect to use in any jurisdiction. If you access the App from outside Nevis, you do so on your own initiative and are responsible for compliance with local laws and regulations.
+	Please consult with qualified legal counsel to assess the appropriate use of the App or any of its contents in the jurisdiction(s) you intend to use the App. The owner of the App makes no representation or warranty as to the suitability for use, compliance or other matter of law with respect to use in any jurisdiction. If you access the App, you do so on your own initiative and are responsible for compliance with local laws and regulations.
 
 Translations
 ============

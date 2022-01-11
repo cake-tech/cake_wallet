@@ -1,6 +1,6 @@
 Privacy Policy
 
-Last modified: December 30, 2021
+Last modified: January 11, 2022
 
 Introduction
 ============
