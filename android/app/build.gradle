@@ -30,6 +30,12 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 
+def appProperties = new Properties()
+def appPropertiesFile = rootProject.file('app.properties')
+if (appPropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(appPropertiesFile))
+}
+
 android {
     compileSdkVersion 29
 
@@ -38,13 +44,13 @@ android {
     }
 
     defaultConfig {
-        applicationId System.getenv('APP_ANDROID_ID')
+        applicationId appProperties['id']
         minSdkVersion 21
         targetSdkVersion 29
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        manifestPlaceholders = [APP_NAME: System.getenv('APP_ANDROID_NAME')]
+        manifestPlaceholders = [APP_NAME: appProperties['name']]
 
         externalNativeBuild {
             cmake {

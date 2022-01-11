@@ -129,3 +129,4 @@ assets/images/app_logo.png
 
 /pubspec.yaml
 /pubspec.lock
+/android/app.properties

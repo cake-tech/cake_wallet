@@ -5,6 +5,7 @@ if [ -z "$APP_ANDROID_TYPE" ]; then
         exit 1
 fi
 
+./app_properties.sh
 ./app_icon.sh
 
 CONFIG_ARGS=""
