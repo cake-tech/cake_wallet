@@ -22,4 +22,5 @@ esac
 
 cd ../..
 flutter pub get
+flutter pub run tool/generate_pubspec.dart
 flutter packages pub run tool/configure.dart $CONFIG_ARGS
