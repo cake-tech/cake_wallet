@@ -33,7 +33,7 @@ if (keystorePropertiesFile.exists()) {
 def appProperties = new Properties()
 def appPropertiesFile = rootProject.file('app.properties')
 if (appPropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(appPropertiesFile))
+    appProperties.load(new FileInputStream(appPropertiesFile))
 }
 
 android {
