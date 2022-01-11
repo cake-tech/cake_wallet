@@ -110,8 +110,8 @@ Future<void> main() async {
     final exchangeTemplates =
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
     final unspentCoinsInfoSource =
-      await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
-    
+        await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
         nodes: nodes,
@@ -128,16 +128,20 @@ Future<void> main() async {
         initialMigrationVersion: 15);
     runApp(App());
   } catch (e) {
-    runApp(MaterialApp(
+    runApp(
+      MaterialApp(
         debugShowCheckedModeBanner: true,
         home: Scaffold(
-            body: Container(
-                margin:
-                    EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-                child: Text(
-                  'Error:\n${e.toString()}',
-                  style: TextStyle(fontSize: 22),
-                )))));
+          body: Container(
+            margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
+            child: Text(
+              'Error:\n${e.toString()}',
+              style: TextStyle(fontSize: 22),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -241,7 +245,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
     }
     final emoji = queryParameters['eid'];
     final refreshToken = queryParameters['refresh_token'];
-    if ((emoji?.isEmpty ?? true)||(refreshToken?.isEmpty ?? true)) {
+    if ((emoji?.isEmpty ?? true) || (refreshToken?.isEmpty ?? true)) {
       return;
     }
     yatStore.emoji = emoji;
@@ -256,9 +260,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute =
-      authenticationStore.state == AuthenticationState.denied
-          ? Routes.disclaimer
-          : Routes.login;
+          authenticationStore.state == AuthenticationState.denied
+              ? Routes.disclaimer
+              : Routes.login;
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness = currentTheme.type == ThemeType.dark
           ? Brightness.light
