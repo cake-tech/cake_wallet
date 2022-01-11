@@ -1,6 +1,6 @@
 name: cake_wallet
 description: Cake Wallet.
-version: 4.2.8+69
+version: 4.2.7+62
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -11,6 +11,9 @@ dependencies:
     
   cw_monero:
     path: ./cw_monero
+  
+  cw_bitcoin:
+    path: ./cw_bitcoin
   
   flutter:
     sdk: flutter
