@@ -119,6 +119,8 @@ lib/monero/monero.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
+ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png
+ios/Runner/Info.plist
 android/app/src/main/res/mipmap-*
 android/app/src/main/res/drawable/ic_launcher.png
 !android/app/src/main/res/drawable/launch_background.xml 
