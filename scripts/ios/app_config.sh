@@ -10,6 +10,7 @@ if [ -z "$APP_IOS_TYPE" ]; then
 fi
 
 cd ../.. # go to root
+cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${APP_IOS_NAME}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier ${APP_IOS_BUNDLE_ID}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_IOS_VERSION}" ./ios/Runner/Info.plist
