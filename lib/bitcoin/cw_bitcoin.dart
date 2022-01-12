@@ -21,7 +21,7 @@ class CWBitcoin extends Bitcoin {
 
 	@override
 	Map<String, String> getWalletKeys(Object wallet) {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		final keys = bitcoinWallet.keys;
 		
 		return <String, String>{
@@ -41,25 +41,25 @@ class CWBitcoin extends Bitcoin {
 
 	@override
 	int getFeeRate(Object wallet, TransactionPriority priority) {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.feeRate(priority);
 	}
 
 	@override
 	Future<void> generateNewAddress(Object wallet) async {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		await bitcoinWallet.walletAddresses.generateNewAddress();
 	}
 
 	@override
 	Future<void> nextAddress(Object wallet) {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		bitcoinWallet.walletAddresses.nextAddress();
 	}
 
 	@override
 	Future<void> randomAddress(Object wallet) {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		bitcoinWallet.walletAddresses.randomizeAddress();
 	}
 	
@@ -80,7 +80,7 @@ class CWBitcoin extends Bitcoin {
 
 	@override
 	List<String> getAddresses(Object wallet) {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.walletAddresses.addresses
 			.map((BitcoinAddressRecord addr) => addr.address)
 			.toList();
@@ -88,7 +88,7 @@ class CWBitcoin extends Bitcoin {
 
 	@override
 	String getAddress(Object wallet) {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.walletAddresses.address;
 	}
 
@@ -106,7 +106,7 @@ class CWBitcoin extends Bitcoin {
 
 	@override
 	List<Unspent> getUnspents(Object wallet) {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		return bitcoinWallet.unspentCoins
 			.map((BitcoinUnspent bitcoinUnspent) => Unspent(
 				bitcoinUnspent.address.address,
@@ -117,7 +117,7 @@ class CWBitcoin extends Bitcoin {
 	}
 
 	void updateUnspents(Object wallet) async {
-		final bitcoinWallet = wallet as BitcoinWallet;
+		final bitcoinWallet = wallet as ElectrumWallet;
 		await bitcoinWallet.updateUnspent();
 	}
 
