@@ -10,6 +10,7 @@ if [ -z "$APP_IOS_TYPE" ]; then
 fi
 
 cd ../.. # go to root
+cp -rf ./ios/Runner/InfoBase.plist ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName ${APP_IOS_NAME}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier ${APP_IOS_BUNDLE_ID}" ./ios/Runner/Info.plist
 /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString ${APP_IOS_VERSION}" ./ios/Runner/Info.plist
@@ -25,8 +26,10 @@ case $APP_IOS_TYPE in
 		;;
 esac
 
+cp -rf pubspec_description.yaml pubspec.yaml
 flutter pub get
 flutter pub run tool/generate_pubspec.dart
+flutter pub get
 flutter packages pub run tool/configure.dart $CONFIG_ARGS
 cd $DIR
 $DIR/app_icon.sh

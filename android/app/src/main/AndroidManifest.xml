@@ -11,7 +11,6 @@
         android:label="${APP_NAME}"
         android:allowBackup="false"
         android:fullBackupContent="false"
-        android:icon="@mipmap/ic_launcher"
         android:requestLegacyExternalStorage="true">
         <activity
             android:name=".MainActivity"
