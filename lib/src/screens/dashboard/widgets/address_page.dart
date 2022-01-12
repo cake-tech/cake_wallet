@@ -27,7 +27,6 @@ class AddressPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    addressListViewModel.generateRandomAddress();
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet
         || !walletViewModel.settingsStore.shouldShowReceiveWarning) {
