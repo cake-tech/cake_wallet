@@ -196,8 +196,8 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _handleIncomingLinks();
-    _handleInitialUri();
+    //_handleIncomingLinks();
+    //_handleInitialUri();
   }
 
   @override
@@ -214,7 +214,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         return;
       }
       if (!mounted) return;
-      _fetchEmojiFromUri(uri);
+      //_fetchEmojiFromUri(uri);
     } catch (e) {
       if (!mounted) return;
       print(e.toString());
@@ -226,7 +226,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       stream = getUriLinksStream().listen((Uri uri) {
         print('uri: $uri');
         if (!mounted) return;
-        _fetchEmojiFromUri(uri);
+        //_fetchEmojiFromUri(uri);
       }, onError: (Object error) {
         if (!mounted) return;
         print('Error: $error');
@@ -235,18 +235,18 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   }
 
   void _fetchEmojiFromUri(Uri uri) {
-    final queryParameters = uri.queryParameters;
-    if (queryParameters?.isEmpty ?? true) {
-      return;
-    }
-    final emoji = queryParameters['eid'];
-    final refreshToken = queryParameters['refresh_token'];
-    if ((emoji?.isEmpty ?? true)||(refreshToken?.isEmpty ?? true)) {
-      return;
-    }
-    yatStore.emoji = emoji;
-    yatStore.refreshToken = refreshToken;
-    yatStore.emojiIncommingSC.add(emoji);
+    //final queryParameters = uri.queryParameters;
+    //if (queryParameters?.isEmpty ?? true) {
+    //  return;
+    //}
+    //final emoji = queryParameters['eid'];
+    //final refreshToken = queryParameters['refresh_token'];
+    //if ((emoji?.isEmpty ?? true)||(refreshToken?.isEmpty ?? true)) {
+    //  return;
+    //}
+    //yatStore.emoji = emoji;
+    //yatStore.refreshToken = refreshToken;
+    //yatStore.emojiIncommingSC.add(emoji);
   }
 
   @override

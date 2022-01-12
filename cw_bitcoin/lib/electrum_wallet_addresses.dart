@@ -4,6 +4,7 @@ import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
+import 'dart:math';
 
 part 'electrum_wallet_addresses.g.dart';
 
@@ -128,5 +129,10 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     } catch (e) {
       print(e.toString());
     }
+  }
+
+  void randomizeAddress() {
+    final random = Random();
+    address = addresses[random.nextInt(addresses.length)].address;
   }
 }

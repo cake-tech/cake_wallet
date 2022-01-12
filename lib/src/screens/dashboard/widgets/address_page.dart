@@ -27,6 +27,7 @@ class AddressPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    addressListViewModel.generateRandomAddress();
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet
         || !walletViewModel.settingsStore.shouldShowReceiveWarning) {
@@ -124,15 +125,15 @@ class AddressPage extends StatelessWidget {
                             ],
                           ),
                         ),
-                      )
-                    : PrimaryButton(
-                        onPressed: () => addressListViewModel.nextAddress(),
-                        text: 'Next address',
-                        color: Theme.of(context).buttonColor,
-                        textColor: Theme.of(context)
-                            .accentTextTheme
-                            .display3
-                            .backgroundColor);
+                      ) : Container();
+                    //: PrimaryButton(
+                    //    onPressed: () => addressListViewModel.nextAddress(),
+                    //    text: 'Next address',
+                    //    color: Theme.of(context).buttonColor,
+                    //    textColor: Theme.of(context)
+                    //        .accentTextTheme
+                    //        .display3
+                    //        .backgroundColor);
               })
             ],
           ),
