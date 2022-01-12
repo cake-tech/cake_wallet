@@ -516,5 +516,7 @@
   "second_intro_content" : "귀하의 Yat는 귀하의 모든 통화에 대해 긴 16진수 주소를 모두 대체하는 고유한 단일 이모지 주소입니다.",
   "third_intro_title" : "Yat는 다른 사람들과 잘 놉니다.",
   "third_intro_content" : "Yats는 Cake Wallet 밖에서도 살고 있습니다. 지구상의 모든 지갑 주소는 Yat!",
-  "learn_more" : "더 알아보기"
+  "learn_more" : "더 알아보기",
+
+  "new_template" : "새 템플릿"
 }
