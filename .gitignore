@@ -130,3 +130,4 @@ assets/images/app_logo.png
 /pubspec.yaml
 /pubspec.lock
 /android/app.properties
+/android/app/src/main/AndroidManifest.xml

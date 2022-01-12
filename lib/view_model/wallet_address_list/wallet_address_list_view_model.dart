@@ -77,16 +77,16 @@ abstract class WalletAddressListViewModelBase with Store {
       }
     });
 
-    reaction((_) => yatStore.emoji, (String emojiId) => this.emoji = emojiId);
+    //reaction((_) => yatStore.emoji, (String emojiId) => this.emoji = emojiId);
 
-    _onLastUsedYatAddressSubscription =
-      _wallet.walletInfo.yatLastUsedAddressStream.listen((String yatAddress) {
-        if (yatAddress == _wallet.walletAddresses.address) {
-          emoji = yatStore.emoji;  
-        } else {
-          emoji = '';
-        }
-    });
+    //_onLastUsedYatAddressSubscription =
+    //  _wallet.walletInfo.yatLastUsedAddressStream.listen((String yatAddress) {
+    //    if (yatAddress == _wallet.walletAddresses.address) {
+    //      emoji = yatStore.emoji;  
+    //    } else {
+    //      emoji = '';
+    //    }
+    //});
 
     if (_wallet.walletAddresses.address == _wallet.walletInfo.yatLastUsedAddress) {
       emoji = yatStore.emoji;
@@ -222,5 +222,16 @@ abstract class WalletAddressListViewModelBase with Store {
       bitcoin.nextAddress(wallet);
       wallet.save();
     }
+  }
+
+  @action
+  void generateRandomAddress() {
+    final wallet = _wallet;
+
+    if (wallet.type == WalletType.bitcoin
+      || wallet.type == WalletType.litecoin) {
+      bitcoin.randomAddress(wallet);
+      wallet.save();
+    } 
   }
 }

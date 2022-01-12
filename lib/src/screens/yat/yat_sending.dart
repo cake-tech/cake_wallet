@@ -66,28 +66,28 @@ class YatSending extends BasePage {
             color: Colors.black,
             child: Stack(
               children: [
-                Center(
-                  child:FutureBuilder<String>(
-                      future: visualisationForEmojiId(sendViewModel.outputs.first.address),
-                      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-                         switch (snapshot.connectionState) {
-                          case ConnectionState.done:
-                            if (snapshot.hasError || snapshot.data.isEmpty) {
-                              return Image.asset('assets/images/yat_logo.png', width: screenWidth, color: Colors.white);
-                            }
+                //Center(
+                //  child:FutureBuilder<String>(
+                //      future: visualisationForEmojiId(sendViewModel.outputs.first.address),
+                //      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                //         switch (snapshot.connectionState) {
+                //          case ConnectionState.done:
+                //            if (snapshot.hasError || snapshot.data.isEmpty) {
+                //              return Image.asset('assets/images/yat_logo.png', width: screenWidth, color: Colors.white);
+                //            }
 
-                            return Image.network(
-                                snapshot.data,
-                                scale: 0.7,
-                                loadingBuilder: (Object z, Widget child, ImageChunkEvent loading)
-                                  => loading != null
-                                    ?  CupertinoActivityIndicator(animating: true)
-                                    : child);
-                         default:
-                          return Image.asset('assets/images/yat_logo.png', width: screenWidth, color: Colors.white);
-                        }
-                      }),
-                    ),
+                //            return Image.network(
+                //                snapshot.data,
+                //                scale: 0.7,
+                //                loadingBuilder: (Object z, Widget child, ImageChunkEvent loading)
+                //                  => loading != null
+                //                    ?  CupertinoActivityIndicator(animating: true)
+                //                    : child);
+                //         default:
+                //          return Image.asset('assets/images/yat_logo.png', width: screenWidth, color: Colors.white);
+                //        }
+                //      }),
+                //    ),
                 Positioned(
                   bottom: 20,
                   child: Container(

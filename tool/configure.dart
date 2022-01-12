@@ -29,6 +29,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:hive/hive.dart';""";
   const bitcoinCWHeaders = """
+import 'package:cw_bitcoin/electrum_wallet.dart';
 import 'package:cw_bitcoin/bitcoin_unspent.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_priority.dart';
@@ -69,10 +70,12 @@ abstract class Bitcoin {
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
+  List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
   Future<void> nextAddress(Object wallet);
+  Future<void> randomAddress(Object wallet);
   Object createBitcoinTransactionCredentials(List<Output> outputs, TransactionPriority priority);
 
   List<String> getAddresses(Object wallet);

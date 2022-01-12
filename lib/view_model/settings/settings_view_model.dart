@@ -42,7 +42,7 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
     case WalletType.bitcoin:
       return bitcoin.getTransactionPriorities();
     case WalletType.litecoin:
-      return bitcoin.getTransactionPriorities();
+      return bitcoin.getLitecoinTransactionPriorities();
     default:
       return [];
   }
@@ -69,29 +69,29 @@ abstract class SettingsViewModelBase with Store {
       _settingsStore.priority[wallet.type] = priorities.first;
     }
 
-    var connectYatUrl = YatLink.baseUrl + YatLink.signInSuffix;
-    final connectYatUrlParameters =
-        _yatStore.defineQueryParameters();
+    //var connectYatUrl = YatLink.baseUrl + YatLink.signInSuffix;
+    //final connectYatUrlParameters =
+    //    _yatStore.defineQueryParameters();
     
-    if (connectYatUrlParameters.isNotEmpty) {
-      connectYatUrl += YatLink.queryParameter + connectYatUrlParameters;
-    }
+    //if (connectYatUrlParameters.isNotEmpty) {
+    //  connectYatUrl += YatLink.queryParameter + connectYatUrlParameters;
+    //}
 
-    var manageYatUrl = YatLink.baseUrl + YatLink.managePath;
-    final manageYatUrlParameters =
-        _yatStore.defineQueryParameters();
+    //var manageYatUrl = YatLink.baseUrl + YatLink.managePath;
+    //final manageYatUrlParameters =
+    //    _yatStore.defineQueryParameters();
     
-    if (manageYatUrlParameters.isNotEmpty) {
-      manageYatUrl += YatLink.queryParameter + manageYatUrlParameters;
-    }
+    //if (manageYatUrlParameters.isNotEmpty) {
+    //  manageYatUrl += YatLink.queryParameter + manageYatUrlParameters;
+    //}
 
-    var createNewYatUrl = YatLink.startFlowUrl;
-    final createNewYatUrlParameters =
-        _yatStore.defineQueryParameters();
+    //var createNewYatUrl = YatLink.startFlowUrl;
+    //final createNewYatUrlParameters =
+    //    _yatStore.defineQueryParameters();
     
-    if (createNewYatUrlParameters.isNotEmpty) {
-      createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
-    }
+    //if (createNewYatUrlParameters.isNotEmpty) {
+    //  createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
+    //}
 
     
     sections = [
