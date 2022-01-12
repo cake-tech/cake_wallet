@@ -132,7 +132,16 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   }
 
   void randomizeAddress() {
+    const minCountOfVisibleAddresses = 5;
     final random = Random();
-    address = addresses[random.nextInt(addresses.length)].address;
+    var availableAddresses = addresses
+      .where((addr) => !addr.isHidden)
+      .toList();
+
+    if (availableAddresses.length < minCountOfVisibleAddresses) {
+      availableAddresses = addresses;
+    }
+
+    address = availableAddresses[random.nextInt(availableAddresses.length)].address;
   }
 }
