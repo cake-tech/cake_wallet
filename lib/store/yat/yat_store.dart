@@ -15,18 +15,18 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 part 'yat_store.g.dart';
 
 class YatLink {
-  static const partnerId = 'CW';
-  static const baseDevUrl = 'https://yat.fyi';
-  static const baseReleaseUrl = 'https://y.at';
-  static const signInSuffix = '/partner/$partnerId/link-email';
-  static const createSuffix = '/create';
-  static const managePath = '/partner/$partnerId/manage';
-  static const queryParameter = '?address_json=';
-  static const apiDevUrl = 'https://a.yat.fyi';
-  static const apiReleaseUrl = 'https://a.y.at';
-  static const requestDevUrl = 'https://a.yat.fyi/emoji_id/';
-  static const requestReleaseUrl = 'https://a.y.at/emoji_id/';
-  static const startFlowUrl = 'https://www.y03btrk.com/4RQSJ/6JHXF/';
+  static const partnerId = ''; // 'CW';
+  static const baseDevUrl = ''; // 'https://yat.fyi';
+  static const baseReleaseUrl = ''; // 'https://y.at';
+  static const signInSuffix = ''; // '/partner/$partnerId/link-email';
+  static const createSuffix = ''; // '/create';
+  static const managePath = ''; // '/partner/$partnerId/manage';
+  static const queryParameter = ''; // '?address_json=';
+  static const apiDevUrl = ''; // 'https://a.yat.fyi';
+  static const apiReleaseUrl = ''; // 'https://a.y.at';
+  static const requestDevUrl = ''; // 'https://a.yat.fyi/emoji_id/';
+  static const requestReleaseUrl = ''; //'https://a.y.at/emoji_id/';
+  static const startFlowUrl = ''; // 'https://www.y03btrk.com/4RQSJ/6JHXF/';
   static const isDevMode = true;
   static const tags = <String, List<String>>{"XMR" : ['0x1001', '0x1002'],
     "BTC" : ['0x1003'], "LTC" : ['0x3fff']};
@@ -43,118 +43,122 @@ class YatLink {
 }
 
 Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
-  final url = YatLink.emojiIdUrl + emojiId + '/payment';
-  final response = await get(url);
+  //final url = YatLink.emojiIdUrl + emojiId + '/payment';
+  //final response = await get(url);
   
-  if (response.statusCode != 200) {
-    throw YatException(text: response.body.toString());
-  }
+  //if (response.statusCode != 200) {
+  //  throw YatException(text: response.body.toString());
+  //}
   
-  final addresses = <String>[];
-  final currency = ticker.toUpperCase();
-  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-  final result = responseJSON['result'] as Map<dynamic, dynamic>;
-  result.forEach((dynamic key, dynamic value) {
-    final tag = key as String ?? '';
-    final record = value as Map<String, dynamic>;
+  //final addresses = <String>[];
+  //final currency = ticker.toUpperCase();
+  //final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+  //final result = responseJSON['result'] as Map<dynamic, dynamic>;
+  //result.forEach((dynamic key, dynamic value) {
+  //  final tag = key as String ?? '';
+  //  final record = value as Map<String, dynamic>;
   
-    if (YatLink.tags[currency]?.contains(tag) ?? false) {
-      final address = record['address'] as String;
-      if (address?.isNotEmpty ?? false) {
-        addresses.add(address);
-      }
-    }
-  });
+  //  if (YatLink.tags[currency]?.contains(tag) ?? false) {
+  //    final address = record['address'] as String;
+  //    if (address?.isNotEmpty ?? false) {
+  //      addresses.add(address);
+  //    }
+  //  }
+  //});
 
-  return addresses;
+  //return addresses;
+  return [];
 }
 
 Future<String> fetchYatAccessToken(String refreshToken) async {
-  try {
-    final url = YatLink.apiUrl + '/auth/token/refresh';
-    final bodyJson = json.encode({'refresh_token': refreshToken});
-    final response = await post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/json',
-        'Accept': '*/*'
-      },
-      body: bodyJson);
+  //try {
+  //  final url = YatLink.apiUrl + '/auth/token/refresh';
+  //  final bodyJson = json.encode({'refresh_token': refreshToken});
+  //  final response = await post(
+  //    url,
+  //    headers: <String, String>{
+  //      'Content-Type': 'application/json',
+  //      'Accept': '*/*'
+  //    },
+  //    body: bodyJson);
     
-    if (response.statusCode != 200) {
-      throw YatException(text: response.body.toString());
-    }
+  //  if (response.statusCode != 200) {
+  //    throw YatException(text: response.body.toString());
+  //  }
     
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    return  responseJSON['access_token'] as String;
-  }catch(_) {
-    return '';
-  }
+  //  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+  //  return  responseJSON['access_token'] as String;
+  //}catch(_) {
+  //  return '';
+  //}
+  return '';
 }
 
 Future<String> fetchYatApiKey(String accessKey) async {
-  try {
-    final url = YatLink.apiUrl + '/api_keys';
-    final bodyJson = json.encode({'name': 'CW'});
-    final response = await post(
-      url,
-      headers: <String, String>{
-        'Authorization': 'Bearer $accessKey',
-        'Content-Type': 'application/json',
-        'Accept': '*/*'
-      },
-      body: bodyJson);
+  //try {
+  //  final url = YatLink.apiUrl + '/api_keys';
+  //  final bodyJson = json.encode({'name': 'CW'});
+  //  final response = await post(
+  //    url,
+  //    headers: <String, String>{
+  //      'Authorization': 'Bearer $accessKey',
+  //      'Content-Type': 'application/json',
+  //      'Accept': '*/*'
+  //    },
+  //    body: bodyJson);
 
-    if (response.statusCode != 200) {
-      throw YatException(text: response.body.toString());
-    }
+  //  if (response.statusCode != 200) {
+  //    throw YatException(text: response.body.toString());
+  //  }
     
-    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-    return  responseJSON['api_key'] as String;
-  }catch(_) {
-    return '';
-  }
+  //  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+  //  return  responseJSON['api_key'] as String;
+  //}catch(_) {
+  //  return '';
+  //}
+  return '';
 }
 
 Future<void> updateEmojiIdAddress(String emojiId, String address, String apiKey, WalletType type) async {
-  final url = YatLink.emojiIdUrl + emojiId;
-  final cur = walletTypeToCryptoCurrency(type);
-  final curFormatted = cur.toString().toUpperCase();
-  var tag = '';
+  //final url = YatLink.emojiIdUrl + emojiId;
+  //final cur = walletTypeToCryptoCurrency(type);
+  //final curFormatted = cur.toString().toUpperCase();
+  //var tag = '';
 
-  if (type == WalletType.monero && !address.startsWith('4')) {
-    tag = YatLink.tags[curFormatted].last;
-  } else {
-    tag = YatLink.tags[curFormatted].first;
-  }
+  //if (type == WalletType.monero && !address.startsWith('4')) {
+  //  tag = YatLink.tags[curFormatted].last;
+  //} else {
+  //  tag = YatLink.tags[curFormatted].first;
+  //}
 
-  final bodyJson = json.encode({
-    'insert': [{
-      'data': address,
-      'tag': tag
-    }]
-  });
-  final response = await patch(
-    url,
-    headers: <String, String>{
-      'x-api-key': apiKey,
-      'Content-Type': 'application/json',
-      'Accept': '*/*'
-    },
-    body: bodyJson);
+  //final bodyJson = json.encode({
+  //  'insert': [{
+  //    'data': address,
+  //    'tag': tag
+  //  }]
+  //});
+  //final response = await patch(
+  //  url,
+  //  headers: <String, String>{
+  //    'x-api-key': apiKey,
+  //    'Content-Type': 'application/json',
+  //    'Accept': '*/*'
+  //  },
+  //  body: bodyJson);
 
-  if (response.statusCode != 200) {
-    throw YatException(text: response.body.toString());
-  }
+  //if (response.statusCode != 200) {
+  //  throw YatException(text: response.body.toString());
+  //}
 }
 
 Future<String> visualisationForEmojiId(String emojiId) async {
-  final url = YatLink.emojiIdUrl + emojiId + '/json/VisualizerFileLocations';
-  final response = await get(url);
-  final responseJSON = json.decode(response.body) as Map<String, dynamic>;
-  final data = responseJSON['data'] as Map<String, dynamic>;
-  final result = data['gif'] as String ?? '';
-  return result;
+  //final url = YatLink.emojiIdUrl + emojiId + '/json/VisualizerFileLocations';
+  //final response = await get(url);
+  //final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+  //final data = responseJSON['data'] as Map<String, dynamic>;
+  //final result = data['gif'] as String ?? '';
+  //return result;
+  return '';
 }
 
 class YatStore = YatStoreBase with _$YatStore;
@@ -254,18 +258,19 @@ abstract class YatStoreBase with Store {
   }
 
   String defineQueryParameters() {
-    final result = <String, String>{};
-    final tags = YatLink.tags[_wallet.currency.toString().toUpperCase()];
-    String tag =  tags.first;
+    //final result = <String, String>{};
+    //final tags = YatLink.tags[_wallet.currency.toString().toUpperCase()];
+    //String tag =  tags.first;
     
-    if (_wallet.type == WalletType.monero
-      && _wallet.walletAddresses.address.startsWith('4')) {
-      tag = tags.last;
-    }
-    result[tag] = '${_wallet.walletAddresses.address}|${_wallet.name}';
-    final addressJson = json.encode([result]);
-    final addressJsonBytes = utf8.encode(addressJson);
+    //if (_wallet.type == WalletType.monero
+    //  && _wallet.walletAddresses.address.startsWith('4')) {
+    //  tag = tags.last;
+    //}
+    //result[tag] = '${_wallet.walletAddresses.address}|${_wallet.name}';
+    //final addressJson = json.encode([result]);
+    //final addressJsonBytes = utf8.encode(addressJson);
     
-    return base64.encode(addressJsonBytes);
+    //return base64.encode(addressJsonBytes);
+    return '';
   }
 }

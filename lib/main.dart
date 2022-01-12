@@ -196,7 +196,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _handleIncomingLinks();
+    //_handleIncomingLinks();
     //_handleInitialUri();
   }
 
@@ -214,7 +214,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
         return;
       }
       if (!mounted) return;
-      _fetchEmojiFromUri(uri);
+      //_fetchEmojiFromUri(uri);
     } catch (e) {
       if (!mounted) return;
       print(e.toString());
@@ -226,7 +226,7 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       stream = getUriLinksStream().listen((Uri uri) {
         print('uri: $uri');
         if (!mounted) return;
-        _fetchEmojiFromUri(uri);
+        //_fetchEmojiFromUri(uri);
       }, onError: (Object error) {
         if (!mounted) return;
         print('Error: $error');
