@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -238,7 +239,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
 
     final txb = bitcoin.TransactionBuilder(network: networkType);
-    final changeAddress = walletAddresses.address;
+    final changeAddress = getChangeAddress();
     var leftAmount = totalAmount;
     var totalInputAmount = 0;
 
@@ -544,5 +545,19 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   Future<void> _updateBalance() async {
     balance = await _fetchBalances();
     await save();
+  }
+
+  String getChangeAddress() {
+    const minCountOfHiddenAddresses = 5;
+    final random = Random();
+    var addresses = walletAddresses.addresses
+      .where((addr) => addr.isHidden)
+      .toList();
+
+    if (addresses.length < minCountOfHiddenAddresses) {
+      addresses = walletAddresses.addresses.toList();
+    }
+
+    return addresses[random.nextInt(addresses.length)].address;
   }
 }

@@ -56,6 +56,12 @@ class CWBitcoin extends Bitcoin {
 		final bitcoinWallet = wallet as BitcoinWallet;
 		bitcoinWallet.walletAddresses.nextAddress();
 	}
+
+	@override
+	Future<void> randomAddress(Object wallet) {
+		final bitcoinWallet = wallet as BitcoinWallet;
+		bitcoinWallet.walletAddresses.randomizeAddress();
+	}
 	
 	@override
 	Object createBitcoinTransactionCredentials(List<Output> outputs, TransactionPriority priority)
