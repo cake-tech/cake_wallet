@@ -35,24 +35,35 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
 
   ObservableList<BitcoinAddressRecord> addresses;
 
+  List<BitcoinAddressRecord> get availableAddresses => addresses
+      .where((addr) => addr.isHidden)
+      .toList();
+
   int accountIndex;
 
   @override
   Future<void> init() async {
     await generateAddresses();
-    address = addresses[accountIndex].address;
+    final _availableAddresses = availableAddresses;
+
+    if (accountIndex >= _availableAddresses.length) {
+      accountIndex = 0;
+    }
+
+    address = _availableAddresses[accountIndex].address;
     await updateAddressesInBox();
   }
 
   @action
   Future<void> nextAddress() async {
     accountIndex += 1;
+    final _availableAddresses = availableAddresses;
 
-    if (accountIndex >= addresses.length) {
+    if (accountIndex >= _availableAddresses.length) {
       accountIndex = 0;
     }
 
-    address = addresses[accountIndex].address;
+    address = _availableAddresses[accountIndex].address;
 
     await updateAddressesInBox();
   }

@@ -239,7 +239,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
 
     final txb = bitcoin.TransactionBuilder(network: networkType);
-    final changeAddress = getChangeAddress();
+    final changeAddress = walletAddresses.addresses.last.address;
     var leftAmount = totalAmount;
     var totalInputAmount = 0;
 
