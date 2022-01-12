@@ -516,5 +516,7 @@
   "second_intro_content" : "Seu Yat é um endereço de emoji único e exclusivo que substitui todos os seus endereços hexadecimais longos para todas as suas moedas.",
   "third_intro_title" : "Yat joga bem com os outros",
   "third_intro_content" : "Yats também mora fora da Cake Wallet. Qualquer endereço de carteira na Terra pode ser substituído por um Yat!",
-  "learn_more" : "Saber mais"
+  "learn_more" : "Saber mais",
+
+  "new_template" : "Novo modelo"
 }

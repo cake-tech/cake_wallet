@@ -516,5 +516,7 @@
   "second_intro_content" : "Vaš Yat jedinstvena je adresa emojija koja zamjenjuje sve vaše duge heksadecimalne adrese za sve vaše valute.",
   "third_intro_title" : "Yat se lijepo igra s drugima",
   "third_intro_content" : "Yats žive i izvan Cake Wallet -a. Bilo koja adresa novčanika na svijetu može se zamijeniti Yat!",
-  "learn_more" : "Saznajte više"
+  "learn_more" : "Saznajte više",
+
+  "new_template" : "novi predložak"
 }
