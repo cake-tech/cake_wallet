@@ -18,7 +18,12 @@ dependencies:
   intl: ^0.17.0
   cw_core:
     path: ../cw_core
-
+  bitcoin_flutter:
+    git:
+      url: https://github.com/cake-tech/bitcoin_flutter.git
+      ref: cake
+  rxdart: ^0.26.0
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter

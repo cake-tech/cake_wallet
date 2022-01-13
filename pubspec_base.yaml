@@ -45,10 +45,6 @@ dependencies:
   crypto: ^2.1.5
   password: ^1.0.0
   basic_utils: ^2.0.3
-  bitcoin_flutter:
-    git:
-      url: https://github.com/cake-tech/bitcoin_flutter.git
-      ref: cake
   get_it: ^6.0.0
   connectivity: ^3.0.3
   keyboard_actions: ^3.3.0
