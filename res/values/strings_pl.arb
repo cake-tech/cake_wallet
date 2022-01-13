@@ -394,6 +394,7 @@
 
   "card_address" : "Adres:",
   "buy" : "Kup",
+  "sell": "Sprzedać",
 
   "placeholder_transactions" : "Twoje transakcje zostaną wyświetlone tutaj",
   "placeholder_contacts" : "Twoje kontakty zostaną wyświetlone tutaj",
@@ -474,6 +475,7 @@
   "submit_request" : "złożyć wniosek",
 
   "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoin i Litecoin. Aby kupić Bitcoin lub Litecoin, utwórz lub przełącz się na swój portfel Bitcoin lub Litecoin.",
+  "sell_alert_content": "Obecnie obsługujemy tylko sprzedaż Bitcoina. Aby sprzedać Bitcoin, utwórz lub przełącz się na swój portfel Bitcoin.",
 
   "outdated_electrum_wallet_description" : "Nowe portfele Bitcoin utworzone w Cake mają teraz ziarno składające się z 24 słów. Konieczne jest utworzenie nowego portfela Bitcoin i przeniesienie wszystkich środków do nowego portfela na 24 słowa oraz zaprzestanie korzystania z portfeli z zalążkiem na 12 słów. Zrób to natychmiast, aby zabezpieczyć swoje fundusze.",
   "understand" : "Rozumiem",

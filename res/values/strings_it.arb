@@ -394,6 +394,7 @@
 
   "card_address" : "Indirizzo:",
   "buy" : "Compra",
+  "sell": "Vendere",
 
   "placeholder_transactions" : "Le tue transazioni saranno mostrate qui",
   "placeholder_contacts" : "I tuoi contatti saranno mostrati qui",
@@ -474,7 +475,8 @@
   "submit_request" : "invia una richiesta",
 
   "buy_alert_content" : "Attualmente supportiamo solo l'acquisto di Bitcoin e Litecoin. Per acquistare Bitcoin o Litecoin, crea o passa al tuo portafoglio Bitcoin o Litecoin.",
-  
+  "sell_alert_content": "Al momento supportiamo solo la vendita di Bitcoin. Per vendere Bitcoin, crea o passa al tuo portafoglio Bitcoin.",
+ 
   "outdated_electrum_wallet_description" : "I nuovi portafogli Bitcoin creati in Cake ora hanno un seme di 24 parole. È obbligatorio creare un nuovo portafoglio Bitcoin e trasferire tutti i fondi nel nuovo portafoglio di 24 parole e smettere di usare portafogli con un seme di 12 parole. Ti preghiamo di farlo immediatamente per proteggere i tuoi fondi.",
   "understand" : "Capisco",
 

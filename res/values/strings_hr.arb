@@ -394,6 +394,7 @@
 
   "card_address" : "Adresa:",
   "buy" : "Kupi",
+  "sell": "Prodavati",
 
   "placeholder_transactions" : "Vaše će transakcije biti prikazane ovdje",
   "placeholder_contacts" : "Vaši će kontakti biti prikazani ovdje",
@@ -474,6 +475,7 @@
   "submit_request" : "podnesi zahtjev",
 
   "buy_alert_content" : "Trenutno podržavamo samo kupnju Bitcoina i Litecoina. Da biste kupili Bitcoin ili Litecoin, stvorite ili pređite na svoj Bitcoin ili Litecoin novčanik.",
+  "sell_alert_content": "Trenutno podržavamo samo prodaju Bitcoina. Da biste prodali Bitcoin, stvorite ili prijeđite na svoj Bitcoin novčanik.",
 
   "outdated_electrum_wallet_description" : "Novi Bitcoin novčanici stvoreni u Cakeu sada imaju sjeme od 24 riječi. Obavezno je stvoriti novi Bitcoin novčanik i prenijeti sva svoja sredstva u novi novčanik od 24 riječi te prestati koristiti novčanike s sjemenkom od 12 riječi. Učinite to odmah kako biste osigurali svoja sredstva.",
   "understand" : "Razumijem",
