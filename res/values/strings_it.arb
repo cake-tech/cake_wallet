@@ -1,7 +1,7 @@
 {
   "welcome" : "Benvenuto",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Fantastico portafoglio per Monero e Bitcoin",
+  "first_wallet_text" : "Portafoglio fantastico per Monero, Bitcoin e Litecoin",
   "please_make_selection" : "Gentilmente seleziona se vuoi generare o recuperare il tuo portafoglio.",
   "create_new" : "Genera nuovo Portafoglio",
   "restore_wallet" : "Recupera Portafoglio",
