@@ -21,7 +21,7 @@ MONERO_COM_PACKAGE="com.monero.app"
 CAKEWALLET_NAME="Cake Wallet"
 CAKEWALLET_VERSION="4.3.0"
 CAKEWALLET_BUILD_NUMBER=71
-CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
+CAKEWALLET_BUNDLE_ID="com.cakewallet.cake_wallet"
 CAKEWALLET_PACKAGE="com.cakewallet.cake_wallet"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_ANDROID_TYPE} " ]]; then

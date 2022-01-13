@@ -329,11 +329,15 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       });
 
   int feeRate(TransactionPriority priority) {
-    if (priority is BitcoinTransactionPriority) {
-      return _feeRates[priority.raw];
-    }
+    try {
+      if (priority is BitcoinTransactionPriority) {
+        return _feeRates[priority.raw];
+      }
 
-    return 0;
+      return 0;
+    } catch(_) {
+      return 0;
+    }
   }
 
   int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount,
