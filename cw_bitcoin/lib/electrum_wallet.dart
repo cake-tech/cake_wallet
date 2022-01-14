@@ -307,7 +307,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
       final keyPair = generateKeyPair(
-          hd: hd, index: input.address.index, network: networkType);
+          hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: input.address.index,
+          network: networkType);
       final witnessValue = input.isP2wpkh ? input.value : null;
 
       txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
