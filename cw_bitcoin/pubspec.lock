@@ -29,6 +29,38 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.5.0"
+  bech32:
+    dependency: transitive
+    description:
+      path: "."
+      ref: cake
+      resolved-ref: "02fef082f20af13de00b4e64efb93a2c1e5e1cf2"
+      url: "https://github.com/cake-tech/bech32.git"
+    source: git
+    version: "0.2.0"
+  bip32:
+    dependency: transitive
+    description:
+      name: bip32
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.7"
+  bip39:
+    dependency: transitive
+    description:
+      name: bip39
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.3"
+  bitcoin_flutter:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: cake
+      resolved-ref: cbabfd87b6ce3cae6051a3e86ddb56e7a934e188
+      url: "https://github.com/cake-tech/bitcoin_flutter.git"
+    source: git
+    version: "2.0.2"
   boolean_selector:
     dependency: transitive
     description:
@@ -36,6 +68,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
+  bs58check:
+    dependency: transitive
+    description:
+      name: bs58check
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.1"
   build:
     dependency: transitive
     description:
@@ -147,14 +186,14 @@ packages:
       name: convert
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "2.1.1"
   crypto:
     dependency: transitive
     description:
       name: crypto
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "2.1.5"
   cw_core:
     dependency: "direct main"
     description:
@@ -175,7 +214,7 @@ packages:
       name: dartx
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.0"
+    version: "0.5.0"
   fake_async:
     dependency: transitive
     description:
@@ -235,13 +274,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.0"
+  hex:
+    dependency: transitive
+    description:
+      name: hex
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.2"
   hive:
     dependency: transitive
     description:
       name: hive
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.6.0-nullsafety.2"
+    version: "1.4.4+1"
   hive_generator:
     dependency: "direct dev"
     description:
@@ -410,6 +456,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.3"
+  pointycastle:
+    dependency: transitive
+    description:
+      name: pointycastle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.2"
   pool:
     dependency: transitive
     description:
@@ -438,6 +491,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.8"
+  rxdart:
+    dependency: "direct main"
+    description:
+      name: rxdart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.26.0"
   shelf:
     dependency: transitive
     description:
@@ -519,7 +579,7 @@ packages:
       name: time
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "1.4.1"
   timing:
     dependency: transitive
     description:

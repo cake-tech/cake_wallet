@@ -36,7 +36,7 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   ObservableList<BitcoinAddressRecord> addresses;
 
   List<BitcoinAddressRecord> get availableAddresses => addresses
-      .where((addr) => addr.isHidden)
+      .where((addr) => !addr.isHidden)
       .toList();
 
   int accountIndex;

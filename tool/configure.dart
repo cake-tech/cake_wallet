@@ -70,6 +70,7 @@ abstract class Bitcoin {
   List<String> getWordList();
   Map<String, String> getWalletKeys(Object wallet);
   List<TransactionPriority> getTransactionPriorities();
+  List<TransactionPriority> getLitecoinTransactionPriorities();
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);

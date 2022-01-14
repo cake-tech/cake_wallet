@@ -43,6 +43,7 @@ class YatLink {
 }
 
 Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
+  throw Exception();
   //final url = YatLink.emojiIdUrl + emojiId + '/payment';
   //final response = await get(url);
   
@@ -71,6 +72,7 @@ Future<List<String>> fetchYatAddress(String emojiId, String ticker) async {
 }
 
 Future<String> fetchYatAccessToken(String refreshToken) async {
+  throw Exception();
   //try {
   //  final url = YatLink.apiUrl + '/auth/token/refresh';
   //  final bodyJson = json.encode({'refresh_token': refreshToken});
@@ -95,6 +97,7 @@ Future<String> fetchYatAccessToken(String refreshToken) async {
 }
 
 Future<String> fetchYatApiKey(String accessKey) async {
+  throw Exception();
   //try {
   //  final url = YatLink.apiUrl + '/api_keys';
   //  final bodyJson = json.encode({'name': 'CW'});
@@ -120,6 +123,7 @@ Future<String> fetchYatApiKey(String accessKey) async {
 }
 
 Future<void> updateEmojiIdAddress(String emojiId, String address, String apiKey, WalletType type) async {
+  throw Exception();
   //final url = YatLink.emojiIdUrl + emojiId;
   //final cur = walletTypeToCryptoCurrency(type);
   //final curFormatted = cur.toString().toUpperCase();
@@ -152,6 +156,7 @@ Future<void> updateEmojiIdAddress(String emojiId, String address, String apiKey,
 }
 
 Future<String> visualisationForEmojiId(String emojiId) async {
+  throw Exception();
   //final url = YatLink.emojiIdUrl + emojiId + '/json/VisualizerFileLocations';
   //final response = await get(url);
   //final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -167,9 +172,9 @@ abstract class YatStoreBase with Store {
   YatStoreBase({@required this.appStore, @required this.secureStorage}) {
     _wallet ??= appStore.wallet;
     emoji = _wallet?.walletInfo?.yatEmojiId ?? '';
-    reaction((_) => appStore.wallet, _onWalletChange);
-    reaction((_) => emoji, (String _) => _onEmojiChange());
-    reaction((_) => refreshToken, (String _) => _onRefreshTokenChange());
+    //reaction((_) => appStore.wallet, _onWalletChange);
+    //reaction((_) => emoji, (String _) => _onEmojiChange());
+    //reaction((_) => refreshToken, (String _) => _onRefreshTokenChange());
     emojiIncommingSC = StreamController<String>.broadcast();
   }
 
@@ -246,18 +251,21 @@ abstract class YatStoreBase with Store {
 
   @action
   Future<void> _onRefreshTokenChange() async {
-    try {
-      await secureStorage.write(key: yatRefreshTokenKey(_wallet.walletInfo.name), value: refreshToken);
-      accessToken = await fetchYatAccessToken(refreshToken);
-      await secureStorage.write(key: yatAccessTokenKey(_wallet.walletInfo.name), value: accessToken);
-      apiKey = await fetchYatApiKey(accessToken);
-      await secureStorage.write(key: yatApiKey(_wallet.walletInfo.name), value: accessToken);
-    } catch (e) {
-      print(e.toString());
-    }
+    throw Exception();
+    
+    //try {
+    //  await secureStorage.write(key: yatRefreshTokenKey(_wallet.walletInfo.name), value: refreshToken);
+    //  accessToken = await fetchYatAccessToken(refreshToken);
+    //  await secureStorage.write(key: yatAccessTokenKey(_wallet.walletInfo.name), value: accessToken);
+    //  apiKey = await fetchYatApiKey(accessToken);
+    //  await secureStorage.write(key: yatApiKey(_wallet.walletInfo.name), value: accessToken);
+    //} catch (e) {
+    //  print(e.toString());
+    //}
   }
 
   String defineQueryParameters() {
+    throw Exception();
     //final result = <String, String>{};
     //final tags = YatLink.tags[_wallet.currency.toString().toUpperCase()];
     //String tag =  tags.first;
