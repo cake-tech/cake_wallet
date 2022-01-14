@@ -1,9 +1,9 @@
-Last Modified: May 21, 2021
+Last Modified: January 11, 2022
 
 Acceptance of the Terms of Use
 ==============================
-	These terms of use are entered into by and between You and Cake Technologies LLC ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Cake Wallet app, including any content, functionality, and services offered on or through the Cake Wallet app (the “App").
-	Please read the Terms of Use carefully before you start to use the App. By using the App you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, , incorporated herein by reference. If you do not wish to agree to these Terms of Use or the Privacy Policy, you must not access or use the App. 
+	These terms of use are entered into by and between You and Cake Labs LLC, a limited liability company formed under the laws of Nevis ("Company," "we," or "us"). The following terms and conditions "Terms of Use") govern your access to and use of the Cake Wallet and Monero.com apps, including any content, functionality, and services offered on or through the Cake Wallet app and the Monero.com app, as applicable (the “App").
+	Please read the Terms of Use carefully before you start to use the App. By using the App you accept and agree to be bound and abide by these Terms of Use and our Privacy Policy, incorporated herein by reference. If you do not wish to agree to these Terms of Use or the Privacy Policy, you must not access or use the App.
 
 Changes to the Terms of Use
 ===========================
@@ -26,7 +26,7 @@ Accessing the App and Security
 
 		- If you choose, or are provided with, a seed or private keys for any wallet within the App, you MUST treat such information as confidential, and you MUST NOT disclose it to any other person or entity.
 
-		- You MUST keep the app up to date. Failure to update the Cake Wallet application means you will not be receiving the latest security fixes and features.
+		- You MUST keep the app up to date. Failure to update the application means you will not be receiving the latest security fixes and features.
 
 Intellectual Property Rights
 ============================
@@ -34,13 +34,13 @@ Intellectual Property Rights
 	The App and its entire contents, features, and functionality (including but not limited to all information, software, text, displays, images, video, and audio, and the design, selection, and arrangement thereof) are owned by the Company, its licensors, or other providers of such material and are protected by United States and international copyright, trademark, patent, trade secret, and other intellectual property or proprietary rights laws.
 		
 	These Terms of Use permit you to use the App for your personal and commercial use. You are permitted to download, store, publicly display, publicly perform, republish and transmit any of the code in our App. 
-	You are also permitted to reproduce, distribute, modify, or create derivative works of, any of the code in our App, under the condition that any derivative work of this App remains under an open source license.
+	You are also permitted to reproduce, distribute, modify, or create derivative works of, any of the code in our App, under the license conditions published with the accompanying code. If there is no license offered for the specific code, then you must contact us for a license for that specific code.
 
 	You must not:
 		- Modify copies of any images from the Application.
 		- Use any illustrations, photographs, video or audio sequences, or any graphics separately from the accompanying text.
 		- Delete or modify any copyright, trademark, or other rights notices from copies of materials from this site.
-		- Claim ownership of any code, image, text or any other information authored or created by Cake Technologies.
+		- Claim ownership of any code, image, text or any other information authored or created by Cake Labs.
 
 Trademarks
 ==========
@@ -67,15 +67,15 @@ Prohibited Uses
 
 		- Use any manual process to monitor or copy any of the material on the App, or for any other purpose not expressly authorized in these Terms of Use, without our prior written consent.
 
-		- Use any device, software, or routine that interferes with the proper working of the App or the Nodes operated by Cake Technologies.
+		- Use any device, software, or routine that interferes with the proper working of the App or the Nodes operated by Cake Labs.
 
 		- Introduce any viruses, Trojan horses, worms, logic bombs, or other material that is malicious or technologically harmful.
 
 		- Attempt to gain unauthorized access to, interfere with, damage, or disrupt any parts of the App, or any node, server, computer, or database connected to the App. 
 
-		- Attack the App or the Nodes operated by Cake Technologies via a denial-of-service attack or a distributed denial-of-service attack.
+		- Attack the App or the Nodes operated by Cake Labs via a denial-of-service attack or a distributed denial-of-service attack.
 
-		- Otherwise attempt to interfere with the proper working of the App or the Nodes operated by Cake Technologies.
+		- Otherwise attempt to interfere with the proper working of the App or the Nodes operated by Cake Labs.
 
 Information About You and Your Visits to the App
 ================================================
@@ -90,7 +90,7 @@ Links from the App
 Geographic Restrictions
 =======================
 
-	The owner of the App is based in the State of Florida in the United States. Please consult with qualified legal counsel to assess the appropriate use of the App or any of its contents in the jurisdiction(s) you intend to use the App. The owner of the App makes no representation or warranty as to the suitability for use, compliance or other matter of law with respect to use in any jurisdiction. If you access the App from outside the United States, you do so on your own initiative and are responsible for compliance with local laws and regulations.
+	Please consult with qualified legal counsel to assess the appropriate use of the App or any of its contents in the jurisdiction(s) you intend to use the App. The owner of the App makes no representation or warranty as to the suitability for use, compliance or other matter of law with respect to use in any jurisdiction. If you access the App, you do so on your own initiative and are responsible for compliance with local laws and regulations.
 
 Translations
 ============
@@ -102,30 +102,30 @@ Risks Related to the use of the App
 
 	The App, the Company and the Company’s owners, partners, employees, contributors, and any affiliates will not be responsible for any losses, damages or claims arising from:
 
-		- Mistakes made by the user of any Monero-related and/or Bitcoin-related and/or Litecoin-related software or service, e.g., forgotten passwords, payments sent to wrong Monero and/or Bitcoin and/or Litecoin addresses, or accidental deletion of wallets;
+		- Mistakes made by the user of any cryptocurrency-related software or service, e.g., forgotten passwords, payments sent to wrong cryptocurrency addresses, or accidental deletion of wallets;
 
-		- Software problems of the App and/or any Monero-related or Bitcoin-related or Litecoin-related oftware or service, e.g., corrupted wallet file, incorrectly constructed transactions, unsafe cryptographic libraries, malware affecting the App and/or any Monero-related or Bitcoin-related or Litecoin-related software or service;
+		- Software problems of the App and/or any cryptocurrency-related software or service, e.g., corrupted wallet file, incorrectly constructed transactions, unsafe cryptographic libraries, malware affecting the App and/or any cryptocurrency-related software or service;
 
-		- Technical failures in the hardware of the user of any Monero-related and/or Bitcoin-related and/or Litecoin-related software or service, e.g., data loss due to a faulty or damaged storage device;
+		- Technical failures in the hardware of the user of any cryptocurrency-related software or service, e.g., data loss due to a faulty or damaged storage device;
 
-		- Security problems experienced by the user of any Monero-related and/or Bitcoin-related and/or Litecoin-related software or service, e.g., unauthorized access to users' wallets and/or accounts; or
+		- Security problems experienced by the user of any cryptocurrency-related software or service, e.g., unauthorized access to users' wallets and/or accounts; or
 
 		- Actions or inactions of third parties and/or events experienced by third parties, e.g., bankruptcy of service providers, information security attacks on service providers, and fraud conducted by third parties.
 
 Investment Risks
 ================
 
-	All investments, including investments in Monero, Litecoin and Bitcoin, are speculative in nature and involve substantial risk of loss. We encourage investors to invest carefully. We also encourage investors to get personal advice from professional investment advisors and to make independent investigations before making any investment. We do not in any way guarantee the success of any action you take with respect to investments on the App or otherwise. Past performance is not necessarily indicative of future results. All investments, including investments in Monero, Litecoin or Bitcoin, carry risk and all investment decisions of an individual remain the responsibility of that individual. Do not enter any investment without fully understanding the worst-case scenario of that investment, including but not limited to, large market fluctuations or total loss.
+	All investments, including investments in Monero, Litecoin and Bitcoin, are speculative in nature and involve substantial risk of loss. We encourage investors to invest carefully. We also encourage investors to get personal advice from professional investment advisors and to make independent investigations before making any investment. We do not in any way guarantee the success of any action you take with respect to investments on the App or otherwise. Past performance is not necessarily indicative of future results. All investments, including investments in Monero, Litecoin or Bitcoin, carry risk and all investment decisions of an individual remain the responsibility of that individual. Do not enter any investment without fully understanding the worst-case scenario of that investment, including but not limited to, large market fluctuations or total loss. Cake Labs does not provide investment advice.
 
 Tax Matters
 ===========
 
-	The users of the App are solely responsible in determining what, if any, taxes apply to their Monero, Litecoin and/or Bitcoin transactions. Cake Technologies is not responsible for determining any taxes that apply to such transactions. You agree not to hold Cake Technologies responsible for any issues relating to the taxation of purchases, sale, exchanges, transfers, or any other transactions related to any cryptocurrency.
+	The users of the App are solely responsible in determining what, if any, taxes apply to their cryptocurrency transactions. Cake Labs is not responsible for determining any taxes that apply to such transactions. You agree not to hold Cake Labs responsible for any issues relating to the taxation of purchases, sale, exchanges, transfers, or any other transactions related to any cryptocurrency.
 
-Monero, Bitcoin & Litecoin Transactions
+Cryptocurrency Transactions
 =======================================
 
-	The App does not store Monero, Litecoin or Bitcoin. Monero, Litecoin and Bitcoin exist only by virtue of the ownership record maintained in the Monero, Litecoin and Bitcoin networks. Any transfer of title in Monero, Litecoin or Bitcoin occurs within a decentralized Monero, Litecoin or Bitcoin network, and not in the App.
+	The App does not store cryptocurrencies, including Monero, Litecoin or Bitcoin. Cryptocurrencies exist only by virtue of the ownership record maintained in their respective networks. Any transfer of title in cryptocurrency occurs within a decentralized cryptocurrency network, and not in the App.
 
 Disclaimer of Warranties
 ========================
@@ -179,10 +179,10 @@ Waiver and Severability
 Entire Agreement
 ================
 
-	The Terms of Use and our Privacy Policy constitute the sole and entire agreement between you and Cake Technologies Inc. regarding the App and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, both written and oral, regarding the App. 
+	The Terms of Use and our Privacy Policy constitute the sole and entire agreement between you and Cake Labs LLC regarding the App and supersede all prior and contemporaneous understandings, agreements, representations, and warranties, both written and oral, regarding the App.
 
 Your Comments and Concerns
 ==========================
 
-	This App is operated by Cake Technologies Inc.
+	This App is operated by Cake Labs LLC.
 	All feedback, comments, and other communications relating to the App should be directed to info@cakewallet.com. All requests for technical support should be directed to support@cakewallet.com.

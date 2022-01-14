@@ -394,6 +394,7 @@
 
   "card_address" : "Dirección:",
   "buy" : "Comprar",
+  "sell": "Vender",
 
   "placeholder_transactions" : "Sus transacciones se mostrarán aquí",
   "placeholder_contacts" : "Tus contactos se mostrarán aquí",
@@ -474,6 +475,7 @@
   "submit_request" : "presentar una solicitud",
 
   "buy_alert_content" : "Actualmente solo apoyamos la compra de Bitcoin y Litecoin. Para comprar Bitcoin o Litecoin, cree o cambie a su billetera Bitcoin o Litecoin.",
+  "sell_alert_content": "Actualmente solo admitimos la venta de Bitcoin. Para vender Bitcoin, cree o cambie a su billetera Bitcoin.",
 
   "outdated_electrum_wallet_description" : "Las nuevas carteras de Bitcoin creadas en Cake ahora tienen una semilla de 24 palabras. Es obligatorio que cree una nueva billetera de Bitcoin y transfiera todos sus fondos a la nueva billetera de 24 palabras, y deje de usar billeteras con una semilla de 12 palabras. Haga esto de inmediato para asegurar sus fondos.",
   "understand" : "Entiendo",
@@ -516,5 +518,7 @@
   "second_intro_content" : "Tu Yat es una única dirección emoji única que reemplaza todas tus direcciones hexadecimales largas para todas tus monedas.",
   "third_intro_title" : "Yat juega muy bien con otras",
   "third_intro_content" : "Los Yats también viven fuera de Cake Wallet. Cualquier dirección de billetera en la tierra se puede reemplazar con un Yat!",
-  "learn_more" : "Aprende más"
+  "learn_more" : "Aprende más",
+
+  "new_template" : "Nueva plantilla"
 }

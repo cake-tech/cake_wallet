@@ -394,6 +394,7 @@
 
   "card_address" : "Adresse:",
   "buy" : "Kaufen",
+  "sell": "Verkaufen",
 
   "placeholder_transactions" : "Ihre Transaktionen werden hier angezeigt",
   "placeholder_contacts" : "Ihre Kontakte werden hier angezeigt",
@@ -474,7 +475,8 @@
   "submit_request" : "Eine Anfrage stellen",
 
   "buy_alert_content" : "Derzeit unterstützen wir nur den Kauf von Bitcoin und Litecoin. Um Bitcoin oder Litecoin zu kaufen, erstellen oder wechseln Sie bitte zu Ihrem Bitcoin- oder Litecoin-Wallet.",
-
+  "sell_alert_content": "Wir unterstützen derzeit nur den Verkauf von Bitcoin. Um Bitcoin zu verkaufen, erstellen Sie bitte Ihre Bitcoin-Wallet oder wechseln Sie zu ihr.",
+  
   "outdated_electrum_wallet_description" : "Neue Bitcoin-Wallets, die in Cake erstellt wurden, haben jetzt einen 24-Wort-Seed. Sie müssen eine neue Bitcoin-Wallet erstellen, Ihr gesamtes Geld in die neue 24-Wort-Wallet überweisen und keine Wallet mit einem 12-Wort-Seed mehr verwenden. Bitte tun Sie dies sofort, um Ihr Geld zu sichern.",
   "understand" : "Ich verstehe",
 
@@ -516,5 +518,7 @@
   "second_intro_content" : "Ihr Yat ist eine einzige eindeutige Emoji-Adresse, die alle Ihre langen hexadezimalen Adressen für alle Ihre Währungen ersetzt.",
   "third_intro_title" : "Yat spielt gut mit anderen",
   "third_intro_content" : "Yats leben auch außerhalb von Cake Wallet. Jede Wallet-Adresse auf der Welt kann durch ein Yat ersetzt werden!",
-  "learn_more" : "Erfahren Sie mehr"
+  "learn_more" : "Erfahren Sie mehr",
+
+  "new_template" : "neue Vorlage"
 }

@@ -394,6 +394,7 @@
 
   "card_address" : "주소:",
   "buy" : "구입",
+  "sell": "팔다",
 
   "placeholder_transactions" : "거래가 여기에 표시됩니다",
   "placeholder_contacts" : "연락처가 여기에 표시됩니다",
@@ -474,6 +475,7 @@
   "submit_request" : "요청을 제출",
 
   "buy_alert_content" : "현재 우리는 비트 코인과 라이트 코인 구매 만 지원합니다. 비트 코인 또는 라이트 코인을 구매하려면 비트 코인 또는 라이트 코인 지갑을 생성하거나 전환하십시오.",
+  "sell_alert_content": "현재 비트코인 ​​판매만 지원합니다. 비트코인을 판매하려면 비트코인 ​​지갑을 생성하거나 전환하세요.",
 
   "outdated_electrum_wallet_description" : "Cake에서 생성 된 새로운 비트 코인 지갑에는 이제 24 단어 시드가 있습니다. 새로운 비트 코인 지갑을 생성하고 모든 자금을 새로운 24 단어 지갑으로 이체하고 12 단어 시드가있는 지갑 사용을 중지해야합니다. 자금을 확보하려면 즉시이 작업을 수행하십시오.",
   "understand" : "이해 했어요",
@@ -516,5 +518,7 @@
   "second_intro_content" : "귀하의 Yat는 귀하의 모든 통화에 대해 긴 16진수 주소를 모두 대체하는 고유한 단일 이모지 주소입니다.",
   "third_intro_title" : "Yat는 다른 사람들과 잘 놉니다.",
   "third_intro_content" : "Yats는 Cake Wallet 밖에서도 살고 있습니다. 지구상의 모든 지갑 주소는 Yat!",
-  "learn_more" : "더 알아보기"
+  "learn_more" : "더 알아보기",
+
+  "new_template" : "새 템플릿"
 }
