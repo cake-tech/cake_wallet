@@ -154,7 +154,7 @@ class DashboardPage extends BasePage {
               if (!isMoneroOnly)
                 ActionButton(
                   image: sellImage,
-                  title: 'Sell',
+                  title: S.of(context).sell,
                   onClick: () async => await _onClickSellButton(context),
                 ),
             ],
