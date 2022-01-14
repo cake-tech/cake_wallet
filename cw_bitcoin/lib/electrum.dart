@@ -326,6 +326,7 @@ class ElectrumClient {
       return subscription;
     } catch(e) {
       print(e.toString());
+      return null;
     }
   }
 
