@@ -1,7 +1,7 @@
 {
   "welcome" : "Welkom bij",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Geweldige portemonnee voor Monero en Bitcoin",
+  "first_wallet_text" : "Geweldige portemonnee voor Monero, Bitcoin en Litecoin",
   "please_make_selection" : "Maak hieronder uw keuze tot maak of herstel je portemonnee.",
   "create_new" : "Maak een nieuwe portemonnee",
   "restore_wallet" : "Portemonnee herstellen",
@@ -394,6 +394,7 @@
 
   "card_address" : "Adres:",
   "buy" : "Kopen",
+  "sell": "Verkopen",
 
   "placeholder_transactions" : "Uw transacties worden hier weergegeven",
   "placeholder_contacts" : "Je contacten worden hier weergegeven",
@@ -474,6 +475,7 @@
   "submit_request" : "een verzoek indienen",
 
   "buy_alert_content" : "Momenteel ondersteunen we alleen de aankoop van Bitcoin en Litecoin. Om Bitcoin of Litecoin te kopen, maakt u uw Bitcoin- of Litecoin-portemonnee aan of schakelt u over naar deze.",
+  "sell_alert_content": "We ondersteunen momenteel alleen de verkoop van Bitcoin. Om Bitcoin te verkopen, maakt u uw Bitcoin-portemonnee aan of schakelt u over naar deze.",
 
   "outdated_electrum_wallet_description" : "Nieuwe Bitcoin-portefeuilles die in Cake zijn gemaakt, hebben nu een zaadje van 24 woorden. Het is verplicht dat u een nieuwe Bitcoin-portemonnee maakt en al uw geld overmaakt naar de nieuwe portemonnee van 24 woorden, en stopt met het gebruik van wallets met een seed van 12 woorden. Doe dit onmiddellijk om uw geld veilig te stellen.",
   "understand" : "Ik begrijp het",
@@ -516,5 +518,7 @@
   "second_intro_content" : "Je Yat is een enkel uniek emoji-adres dat al je lange hexadecimale adressen vervangt voor al je valuta's.",
   "third_intro_title" : "Yat speelt leuk met anderen",
   "third_intro_content" : "Yats wonen ook buiten Cake Wallet. Elk portemonnee-adres op aarde kan worden vervangen door een Yat!",
-  "learn_more" : "Kom meer te weten"
+  "learn_more" : "Kom meer te weten",
+
+  "new_template" : "Nieuwe sjabloon"
 }

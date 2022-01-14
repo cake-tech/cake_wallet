@@ -1,7 +1,7 @@
 {
   "welcome" : "欢迎使用",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "很棒的门罗币和比特币钱包",
+  "first_wallet_text" : "门罗币、比特币和莱特币的超棒钱包",
   "please_make_selection" : "请在下面进行选择 创建或恢复您的钱包.",
   "create_new" : "创建新钱包",
   "restore_wallet" : "恢复钱包",
@@ -516,5 +516,7 @@
   "second_intro_content" : "您的 Yat 是一個唯一的表情符號地址，可替換您所有貨幣的所有長十六進制地址。",
   "third_intro_title" : "Yat 和別人玩得很好",
   "third_intro_content" : "Yats 也住在 Cake Wallet 之外。 地球上任何一個錢包地址都可以用一個Yat來代替！",
-  "learn_more" : "了解更多"
+  "learn_more" : "了解更多",
+
+  "new_template" : "新模板"
 }

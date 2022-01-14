@@ -1,7 +1,7 @@
 {
   "welcome" : "Witamy w",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Niesamowity portfel dla Monero i Bitcoin",
+  "first_wallet_text" : "Świetny portfel na Monero, Bitcoin i Litecoin",
   "please_make_selection" : "Wybierz poniżej, aby cutwórz lub odzyskaj swój portfel.",
   "create_new" : "Utwórz nowy portfel",
   "restore_wallet" : "Przywróć portfel",
@@ -394,6 +394,7 @@
 
   "card_address" : "Adres:",
   "buy" : "Kup",
+  "sell": "Sprzedać",
 
   "placeholder_transactions" : "Twoje transakcje zostaną wyświetlone tutaj",
   "placeholder_contacts" : "Twoje kontakty zostaną wyświetlone tutaj",
@@ -474,6 +475,7 @@
   "submit_request" : "złożyć wniosek",
 
   "buy_alert_content" : "Obecnie obsługujemy tylko zakup Bitcoin i Litecoin. Aby kupić Bitcoin lub Litecoin, utwórz lub przełącz się na swój portfel Bitcoin lub Litecoin.",
+  "sell_alert_content": "Obecnie obsługujemy tylko sprzedaż Bitcoina. Aby sprzedać Bitcoin, utwórz lub przełącz się na swój portfel Bitcoin.",
 
   "outdated_electrum_wallet_description" : "Nowe portfele Bitcoin utworzone w Cake mają teraz ziarno składające się z 24 słów. Konieczne jest utworzenie nowego portfela Bitcoin i przeniesienie wszystkich środków do nowego portfela na 24 słowa oraz zaprzestanie korzystania z portfeli z zalążkiem na 12 słów. Zrób to natychmiast, aby zabezpieczyć swoje fundusze.",
   "understand" : "Rozumiem",
@@ -516,5 +518,7 @@
   "second_intro_content" : "Twój Yat to jeden unikalny adres emoji, który zastępuje wszystkie Twoje długie adresy szesnastkowe dla wszystkich Twoich walut.",
   "third_intro_title" : "Yat ładnie bawi się z innymi",
   "third_intro_content" : "Yats mieszkają również poza Cake Wallet. Każdy adres portfela na ziemi można zastąpić Yat!",
-  "learn_more" : "Ucz się więcej"
+  "learn_more" : "Ucz się więcej",
+
+  "new_template" : "Nowy szablon"
 }

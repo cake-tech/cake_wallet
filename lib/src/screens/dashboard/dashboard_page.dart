@@ -145,20 +145,18 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
-	      if (!isMoneroOnly)
-              	 ActionButton(
-		   image: buyImage,
-                     title: S.of(context).buy,
-                     onClick: () async =>
-                     	      await _onClickBuyButton(context),
-              	 ),
-	      if (!isMoneroOnly)
-		ActionButton(
-			image: sellImage,
-			title: 'Sell',
-			onClick: () async =>
-                   	    await _onClickSellButton(context),
-              ),
+              if (!isMoneroOnly)
+                ActionButton(
+                  image: buyImage,
+                  title: S.of(context).buy,
+                  onClick: () async => await _onClickBuyButton(context),
+                ),
+              if (!isMoneroOnly)
+                ActionButton(
+                  image: sellImage,
+                  title: S.of(context).sell,
+                  onClick: () async => await _onClickSellButton(context),
+                ),
             ],
           ),
         )
@@ -171,15 +169,16 @@ class DashboardPage extends BasePage {
       return;
     }
 
-    pages.add(AddressPage(addressListViewModel: addressListViewModel,
-              walletViewModel: walletViewModel));
+    pages.add(AddressPage(
+        addressListViewModel: addressListViewModel,
+        walletViewModel: walletViewModel));
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;
-    
+
     //if (walletViewModel.shouldShowYatPopup) {
     //  await Future<void>.delayed(Duration(seconds: 1));
-    
+
     //  if (currentRouteSettings.name == Routes.preSeed
     //      || currentRouteSettings.name == Routes.seed) {
     //    return;
@@ -222,8 +221,8 @@ class DashboardPage extends BasePage {
       if (needToPresentYat) {
         Future<void>.delayed(Duration(milliseconds: 500)).then((_) {
           showPopUp<void>(
-            context: navigatorKey.currentContext,
-            builder: (_) => YatEmojiId(walletViewModel.yatStore.emoji));
+              context: navigatorKey.currentContext,
+              builder: (_) => YatEmojiId(walletViewModel.yatStore.emoji));
           needToPresentYat = false;
         });
       }
@@ -268,8 +267,9 @@ class DashboardPage extends BasePage {
       case WalletType.bitcoin:
         final moonPaySellProvider = MoonPaySellProvider();
         final uri = await moonPaySellProvider.requestUrl(
-          currency: walletViewModel.wallet.currency,
-          refundWalletAddress: walletViewModel.wallet.walletAddresses.address);
+            currency: walletViewModel.wallet.currency,
+            refundWalletAddress:
+                walletViewModel.wallet.walletAddresses.address);
         await launch(uri);
         break;
       default:
@@ -277,8 +277,8 @@ class DashboardPage extends BasePage {
             context: context,
             builder: (BuildContext context) {
               return AlertWithOneAction(
-                  alertTitle: S.of(context).buy,
-                  alertContent: S.of(context).buy_alert_content,
+                  alertTitle: S.of(context).sell,
+                  alertContent: S.of(context).sell_alert_content,
                   buttonText: S.of(context).ok,
                   buttonAction: () => Navigator.of(context).pop());
             });

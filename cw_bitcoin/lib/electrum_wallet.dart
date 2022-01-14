@@ -12,7 +12,6 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
@@ -271,7 +270,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       if (input.isP2wpkh) {
         final p2wpkh = bitcoin
             .P2WPKH(
-            data: generatePaymentData(hd: hd, index: input.address.index),
+            data: generatePaymentData(
+              hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+              index: input.address.index),
             network: networkType)
             .data;
 
@@ -307,7 +308,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
       final keyPair = generateKeyPair(
-          hd: hd, index: input.address.index, network: networkType);
+          hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: input.address.index,
+          network: networkType);
       final witnessValue = input.isP2wpkh ? input.value : null;
 
       txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);

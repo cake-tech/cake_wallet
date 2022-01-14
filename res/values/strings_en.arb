@@ -1,7 +1,7 @@
 {
   "welcome" : "Welcome to",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Awesome wallet for Monero and Bitcoin",
+  "first_wallet_text" : "Awesome wallet for Monero, Bitcoin and Litecoin",
   "please_make_selection" : "Please make a selection below to create or recover your wallet.",
   "create_new" : "Create New Wallet",
   "restore_wallet" : "Restore Wallet",
@@ -395,6 +395,7 @@
 
   "card_address" : "Address:",
   "buy" : "Buy",
+  "sell": "Sell",
 
   "placeholder_transactions" : "Your transactions will be displayed here",
   "placeholder_contacts" : "Your contacts will be displayed here",
@@ -475,6 +476,7 @@
   "submit_request" : "submit a request",
 
   "buy_alert_content" : "Currently we only support the purchase of Bitcoin and Litecoin. To buy Bitcoin or Litecoin, please create or switch to your Bitcoin or Litecoin wallet.",
+  "sell_alert_content": "We currently only support the sale of Bitcoin. To sell Bitcoin, please create or switch to your Bitcoin wallet.",
 
   "outdated_electrum_wallet_description" : "New Bitcoin wallets created in Cake now have a 24-word seed. It is mandatory that you create a new Bitcoin wallet and transfer all of your funds to the new 24-word wallet, and stop using wallets with a 12-word seed. Please do this immediately to secure your funds.",
   "understand" : "I understand",
@@ -517,5 +519,7 @@
   "second_intro_content" : "Your Yat is a single unique emoji address that replaces all of your long hexadecimal addresses for all of your currencies.",
   "third_intro_title" : "Yat plays nicely with others",
   "third_intro_content" : "Yats live outside of Cake Wallet, too. Any wallet address on earth can be replaced with a Yat!",
-  "learn_more" : "Learn More"
+  "learn_more" : "Learn More",
+
+  "new_template" : "New Template"
 }
