@@ -270,7 +270,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       if (input.isP2wpkh) {
         final p2wpkh = bitcoin
             .P2WPKH(
-            data: generatePaymentData(hd: hd, index: input.address.index),
+            data: generatePaymentData(
+              hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+              index: input.address.index),
             network: networkType)
             .data;
 
