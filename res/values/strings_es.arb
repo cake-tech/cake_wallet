@@ -1,7 +1,7 @@
 {
   "welcome" : "Bienvenido",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Impresionante billetera para Monero y Bitcoin",
+  "first_wallet_text" : "Impresionante billetera para Monero, Bitcoin y Litecoin",
   "please_make_selection" : "Seleccione a continuación para crear o recuperar su billetera.",
   "create_new" : "Crear nueva billetera",
   "restore_wallet" : "Restaurar billetera",
