@@ -518,5 +518,7 @@
   "second_intro_content" : "Tu Yat es una única dirección emoji única que reemplaza todas tus direcciones hexadecimales largas para todas tus monedas.",
   "third_intro_title" : "Yat juega muy bien con otras",
   "third_intro_content" : "Los Yats también viven fuera de Cake Wallet. Cualquier dirección de billetera en la tierra se puede reemplazar con un Yat!",
-  "learn_more" : "Aprende más"
+  "learn_more" : "Aprende más",
+
+  "new_template" : "Nueva plantilla"
 }

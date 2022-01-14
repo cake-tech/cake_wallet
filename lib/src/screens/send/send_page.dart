@@ -26,7 +26,7 @@ import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/src/screens/yat/yat_sending.dart';
 
 class SendPage extends BasePage {
-  SendPage({@required this.sendViewModel}) :_formKey = GlobalKey<FormState>();
+  SendPage({@required this.sendViewModel}) : _formKey = GlobalKey<FormState>();
 
   final SendViewModel sendViewModel;
   final GlobalKey<FormState> _formKey;
@@ -51,24 +51,24 @@ class SendPage extends BasePage {
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
-    return sendViewModel.isBatchSending
-        ? TrailButton(
-        caption: S.of(context).remove,
-        onPressed: () {
-          var pageToJump = controller.page.round() - 1;
-          pageToJump = pageToJump > 0 ? pageToJump : 0;
-          final output = _defineCurrentOutput();
-          sendViewModel.removeOutput(output);
-          controller.jumpToPage(pageToJump);
-        })
-        : TrailButton(
-        caption: S.of(context).clear,
-        onPressed: () {
-          final output = _defineCurrentOutput();
-          _formKey.currentState.reset();
-          output.reset();
-        });
-  });
+        return sendViewModel.isBatchSending
+            ? TrailButton(
+                caption: S.of(context).remove,
+                onPressed: () {
+                  var pageToJump = controller.page.round() - 1;
+                  pageToJump = pageToJump > 0 ? pageToJump : 0;
+                  final output = _defineCurrentOutput();
+                  sendViewModel.removeOutput(output);
+                  controller.jumpToPage(pageToJump);
+                })
+            : TrailButton(
+                caption: S.of(context).clear,
+                onPressed: () {
+                  final output = _defineCurrentOutput();
+                  _formKey.currentState.reset();
+                  output.reset();
+                });
+      });
 
   @override
   Widget body(BuildContext context) {
@@ -96,57 +96,39 @@ class SendPage extends BasePage {
                               output: output,
                               sendViewModel: sendViewModel,
                             );
-                          }
-                      );
+                          });
                     },
-                  )
-              ),
+                  )),
               Padding(
-                  padding: EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
-                  child: Container(
-                      height: 10,
-                      child: Observer(builder: (_) {
-                        final count = sendViewModel.outputs.length;
+                padding:
+                    EdgeInsets.only(top: 10, left: 24, right: 24, bottom: 10),
+                child: Container(
+                  height: 10,
+                  child: Observer(
+                    builder: (_) {
+                      final count = sendViewModel.outputs.length;
 
-                        return count > 1
+                      return count > 1
                           ? SmoothPageIndicator(
-                            controller: controller,
-                            count: count,
-                            effect: ScrollingDotsEffect(
-                                spacing: 6.0,
-                                radius: 6.0,
-                                dotWidth: 6.0,
-                                dotHeight: 6.0,
-                                dotColor: Theme.of(context)
-                                    .primaryTextTheme
-                                    .display2
-                                    .backgroundColor,
-                                activeDotColor: Theme.of(context)
-                                    .primaryTextTheme
-                                    .display3
-                                    .backgroundColor
+                              controller: controller,
+                              count: count,
+                              effect: ScrollingDotsEffect(
+                                  spacing: 6.0,
+                                  radius: 6.0,
+                                  dotWidth: 6.0,
+                                  dotHeight: 6.0,
+                                  dotColor: Theme.of(context)
+                                      .primaryTextTheme
+                                      .display2
+                                      .backgroundColor,
+                                  activeDotColor: Theme.of(context)
+                                      .primaryTextTheme
+                                      .display3
+                                      .backgroundColor),
                             )
-                          )
                           : Offstage();
-                      })
-                  )
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 24, bottom: 24),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      S.of(context).send_templates,
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .display4
-                              .color),
-                    )
-                  ],
+                    },
+                  ),
                 ),
               ),
               Container(
@@ -155,51 +137,60 @@ class SendPage extends BasePage {
                 padding: EdgeInsets.only(left: 24),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: <Widget>[
-                      GestureDetector(
-                        onTap: () => Navigator.of(context)
-                            .pushNamed(Routes.sendTemplate),
-                        child: Container(
-                          padding: EdgeInsets.only(left: 1, right: 10),
-                          child: DottedBorder(
-                              borderType: BorderType.RRect,
-                              dashPattern: [6, 4],
-                              color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .display2
-                                  .decorationColor,
-                              strokeWidth: 2,
-                              radius: Radius.circular(20),
-                              child: Container(
-                                height: 34,
-                                width: 75,
-                                padding:
-                                EdgeInsets.only(left: 10, right: 10),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  borderRadius:
-                                  BorderRadius.all(Radius.circular(20)),
-                                  color: Colors.transparent,
-                                ),
-                                child: Text(
-                                  S.of(context).send_new,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .display3
-                                          .color),
-                                ),
-                              )),
-                        ),
-                      ),
-                      Observer(builder: (_) {
-                        final templates = sendViewModel.templates;
-                        final itemCount = templates.length;
+                  child: Observer(
+                    builder: (_) {
+                      final templates = sendViewModel.templates;
+                      final itemCount = templates.length;
 
-                        return ListView.builder(
+                      return Row(
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () => Navigator.of(context)
+                                .pushNamed(Routes.sendTemplate),
+                            child: Container(
+                              padding: EdgeInsets.only(left: 1, right: 10),
+                              child: DottedBorder(
+                                borderType: BorderType.RRect,
+                                dashPattern: [6, 4],
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .headline2
+                                    .decorationColor,
+                                strokeWidth: 2,
+                                radius: Radius.circular(20),
+                                child: Container(
+                                  height: 34,
+                                  padding: EdgeInsets.only(left: 10, right: 10),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20)),
+                                    color: Colors.transparent,
+                                  ),
+                                  child: templates.length >= 1
+                                      ? Icon(
+                                          Icons.add,
+                                          color: Theme.of(context)
+                                              .primaryTextTheme
+                                              .display3
+                                              .color,
+                                        )
+                                      : Text(
+                                          S.of(context).new_template,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: Theme.of(context)
+                                                .primaryTextTheme
+                                                .display3
+                                                .color,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          ListView.builder(
                             scrollDirection: Axis.horizontal,
                             shrinkWrap: true,
                             physics: NeverScrollableScrollPhysics(),
@@ -214,109 +205,108 @@ class SendPage extends BasePage {
                                 from: template.cryptoCurrency,
                                 onTap: () async {
                                   final output = _defineCurrentOutput();
-                                  output.address =
-                                      template.address;
+                                  output.address = template.address;
                                   output.setCryptoAmount(template.amount);
                                   output.resetParsedAddress();
                                   await output.fetchParsedAddress(context);
                                 },
                                 onRemove: () {
                                   showPopUp<void>(
-                                      context: context,
-                                      builder: (dialogContext) {
-                                        return AlertWithTwoActions(
-                                            alertTitle:
-                                            S.of(context).template,
-                                            alertContent: S
-                                                .of(context)
-                                                .confirm_delete_template,
-                                            rightButtonText:
-                                            S.of(context).delete,
-                                            leftButtonText:
-                                            S.of(context).cancel,
-                                            actionRightButton: () {
+                                    context: context,
+                                    builder: (dialogContext) {
+                                      return AlertWithTwoActions(
+                                          alertTitle: S.of(context).template,
+                                          alertContent: S
+                                              .of(context)
+                                              .confirm_delete_template,
+                                          rightButtonText: S.of(context).delete,
+                                          leftButtonText: S.of(context).cancel,
+                                          actionRightButton: () {
+                                            Navigator.of(dialogContext).pop();
+                                            sendViewModel.sendTemplateViewModel
+                                                .removeTemplate(
+                                                    template: template);
+                                          },
+                                          actionLeftButton: () =>
                                               Navigator.of(dialogContext)
-                                                  .pop();
-                                              sendViewModel
-                                                  .sendTemplateViewModel
-                                                  .removeTemplate(
-                                                  template: template);
-                                            },
-                                            actionLeftButton: () =>
-                                                Navigator.of(dialogContext)
-                                                    .pop());
-                                      });
+                                                  .pop());
+                                    },
+                                  );
                                 },
                               );
-                            });
-                      })
-                    ],
+                            },
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ),
               )
             ],
           ),
           bottomSectionPadding:
-          EdgeInsets.only(left: 24, right: 24, bottom: 24),
+              EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 12),
-                child: PrimaryButton(
-                  onPressed: () {
-                    sendViewModel.addOutput();
-                    Future.delayed(const Duration(milliseconds: 250), () {
-                      controller.jumpToPage(sendViewModel.outputs.length - 1);
-                    });
-                  },
-                  text: S.of(context).add_receiver,
-                  color: Colors.transparent,
-                  textColor: Theme.of(context)
-                      .accentTextTheme
-                      .display2
-                      .decorationColor,
-                  isDottedBorder: true,
-                  borderColor: Theme.of(context)
-                      .primaryTextTheme
-                      .display2
-                      .decorationColor,
-                )
-              ),
-              Observer(builder: (_) {
-                return LoadingPrimaryButton(
-                  onPressed: () async {
-                    if (!_formKey.currentState.validate()) {
-                      if (sendViewModel.outputs.length > 1) {
-                        showErrorValidationAlert(context);
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: PrimaryButton(
+                    onPressed: () {
+                      sendViewModel.addOutput();
+                      Future.delayed(const Duration(milliseconds: 250), () {
+                        controller.jumpToPage(sendViewModel.outputs.length - 1);
+                      });
+                    },
+                    text: S.of(context).add_receiver,
+                    color: Colors.transparent,
+                    textColor: Theme.of(context)
+                        .accentTextTheme
+                        .display2
+                        .decorationColor,
+                    isDottedBorder: true,
+                    borderColor: Theme.of(context)
+                        .primaryTextTheme
+                        .display2
+                        .decorationColor,
+                  )),
+              Observer(
+                builder: (_) {
+                  return LoadingPrimaryButton(
+                    onPressed: () async {
+                      if (!_formKey.currentState.validate()) {
+                        if (sendViewModel.outputs.length > 1) {
+                          showErrorValidationAlert(context);
+                        }
+
+                        return;
                       }
 
-                      return;
-                    }
+                      final notValidItems = sendViewModel.outputs
+                          .where((item) =>
+                              item.address.isEmpty || item.cryptoAmount.isEmpty)
+                          .toList();
 
-                    final notValidItems = sendViewModel.outputs
-                        .where((item) =>
-                        item.address.isEmpty || item.cryptoAmount.isEmpty)
-                        .toList();
+                      if (notValidItems?.isNotEmpty ?? false) {
+                        showErrorValidationAlert(context);
+                        return;
+                      }
 
-                    if (notValidItems?.isNotEmpty ?? false) {
-                      showErrorValidationAlert(context);
-                      return;
-                    }
+                      await sendViewModel.createTransaction();
 
-                    await sendViewModel.createTransaction();
-
-                    if (!sendViewModel.isBatchSending && sendViewModel.hasYat) {
-                      Navigator.of(context).push<void>(YatSending.createRoute(sendViewModel));
-                    }
-                  },
-                  text: S.of(context).send,
-                  color: Theme.of(context).accentTextTheme.body2.color,
-                  textColor: Colors.white,
-                  isLoading: sendViewModel.state is IsExecutingState ||
-                      sendViewModel.state is TransactionCommitting,
-                  isDisabled: !sendViewModel.isReadyForSend,
-                );
-              },
+                      if (!sendViewModel.isBatchSending &&
+                          sendViewModel.hasYat) {
+                        Navigator.of(context)
+                            .push<void>(YatSending.createRoute(sendViewModel));
+                      }
+                    },
+                    text: S.of(context).send,
+                    color: Theme.of(context).accentTextTheme.body2.color,
+                    textColor: Colors.white,
+                    isLoading: sendViewModel.state is IsExecutingState ||
+                        sendViewModel.state is TransactionCommitting,
+                    isDisabled: !sendViewModel.isReadyForSend,
+                  );
+                },
               )
             ],
           )),
@@ -343,8 +333,8 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is ExecutedSuccessfullyState
-        && !(!sendViewModel.isBatchSending && sendViewModel.hasYat)) {
+      if (state is ExecutedSuccessfullyState &&
+          !(!sendViewModel.isBatchSending && sendViewModel.hasYat)) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
@@ -353,13 +343,17 @@ class SendPage extends BasePage {
                     alertTitle: S.of(context).confirm_sending,
                     amount: S.of(context).send_amount,
                     amountValue:
-                    sendViewModel.pendingTransaction.amountFormatted,
-                    fiatAmountValue: sendViewModel.pendingTransactionFiatAmount
-                        +  ' ' + sendViewModel.fiat.title,
+                        sendViewModel.pendingTransaction.amountFormatted,
+                    fiatAmountValue:
+                        sendViewModel.pendingTransactionFiatAmount +
+                            ' ' +
+                            sendViewModel.fiat.title,
                     fee: S.of(context).send_fee,
                     feeValue: sendViewModel.pendingTransaction.feeFormatted,
-                    feeFiatAmount: sendViewModel.pendingTransactionFeeFiatAmount
-                        +  ' ' + sendViewModel.fiat.title,
+                    feeFiatAmount:
+                        sendViewModel.pendingTransactionFeeFiatAmount +
+                            ' ' +
+                            sendViewModel.fiat.title,
                     outputs: sendViewModel.outputs,
                     rightButtonText: S.of(context).ok,
                     leftButtonText: S.of(context).cancel,
@@ -380,8 +374,7 @@ class SendPage extends BasePage {
                                 return AlertWithOneAction(
                                     alertTitle: '',
                                     alertContent: S.of(context).send_success(
-                                        sendViewModel.currency
-                                            .toString()),
+                                        sendViewModel.currency.toString()),
                                     buttonText: S.of(context).ok,
                                     buttonAction: () =>
                                         Navigator.of(context).pop());
@@ -419,8 +412,7 @@ class SendPage extends BasePage {
               alertTitle: S.of(context).error,
               alertContent: 'Please, check receiver forms',
               buttonText: S.of(context).ok,
-              buttonAction: () =>
-                  Navigator.of(context).pop());
+              buttonAction: () => Navigator.of(context).pop());
         });
   }
 }

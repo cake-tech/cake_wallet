@@ -518,5 +518,7 @@
   "second_intro_content" : "Yatは、すべての通貨のすべての長い16進アドレスを置き換える単一の一意の絵文字アドレスです。",
   "third_intro_title" : "Yatは他の人とうまく遊ぶ",
   "third_intro_content" : "YatsはCakeWalletの外にも住んでいます。 地球上のどのウォレットアドレスもYatに置き換えることができます！",
-  "learn_more" : "もっと詳しく知る"
+  "learn_more" : "もっと詳しく知る",
+
+  "new_template" : "新しいテンプレート" 
 }

@@ -519,5 +519,7 @@
   "second_intro_content" : "Your Yat is a single unique emoji address that replaces all of your long hexadecimal addresses for all of your currencies.",
   "third_intro_title" : "Yat plays nicely with others",
   "third_intro_content" : "Yats live outside of Cake Wallet, too. Any wallet address on earth can be replaced with a Yat!",
-  "learn_more" : "Learn More"
+  "learn_more" : "Learn More",
+
+  "new_template" : "New Template"
 }
