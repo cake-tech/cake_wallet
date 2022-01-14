@@ -2,18 +2,20 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cw_core/wallet_type.dart';
 
 const unstoppableDomains = [
-   'crypto',
-   'zil',
-   'x',
-   'coin',
-   'wallet',
-   'bitcoin',
-   '888',
-   'nft',
-   'dao',
-   'blockchain'];
+  'crypto',
+  'zil',
+  'x',
+  'coin',
+  'wallet',
+  'bitcoin',
+  '888',
+  'nft',
+  'dao',
+  'blockchain'
+];
 
 Future<ParsedAddress> parseAddressFromDomain(
     String domain, String ticker) async {
@@ -28,22 +30,18 @@ Future<ParsedAddress> parseAddressFromDomain(
 
         if (addresses?.isEmpty ?? true) {
           return ParsedAddress(
-              addresses: [domain],
-              parseFrom: ParseFrom.yatRecord);
+              addresses: [domain], parseFrom: ParseFrom.yatRecord);
         }
 
         return ParsedAddress(
-            addresses: addresses,
-            name: domain,
-            parseFrom: ParseFrom.yatRecord);
+            addresses: addresses, name: domain, parseFrom: ParseFrom.yatRecord);
       } catch (e) {
         return ParsedAddress(addresses: [domain]);
       }
     }
 
     if (unstoppableDomains.any((domain) => name.contains(domain))) {
-      final address =
-        await fetchUnstoppableDomainAddress(domain, ticker);
+      final address = await fetchUnstoppableDomainAddress(domain, ticker);
 
       if (address?.isEmpty ?? true) {
         return ParsedAddress(addresses: [domain]);
@@ -55,7 +53,8 @@ Future<ParsedAddress> parseAddressFromDomain(
           parseFrom: ParseFrom.unstoppableDomains);
     }
 
-    final record = await OpenaliasRecord.fetchAddressAndName(formattedName);
+    final record = await OpenaliasRecord.fetchAddressAndName(
+        formattedName: formattedName, ticker: ticker);
 
     if (record == null || record.address.contains(formattedName)) {
       return ParsedAddress(addresses: [domain]);
