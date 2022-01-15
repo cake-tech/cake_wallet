@@ -83,7 +83,26 @@ You must be logged into a free Apple Developer account to build CakeWallet with 
 
 ![Navigate to the Accounts Button](howto-add-account-xcode.png)
 
-### 7. Flutter Commands
+### 7. Prepare the project
+
+```
+$ cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs
+$ cd ..
+$ cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs
+$ cd ..
+$ cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs
+$ cd ..
+```
+
+Now it is time to pick your build product. The following three commands will allow you to specify `monero.com` or `cakewallet` as your build product for the source code.
+
+```
+$ cd scripts/ios
+$ source ./app_env.sh <monero.com OR cakewallet>
+$ ./app_config.sh
+```
+
+### 8. Flutter Commands
 
 Install Flutter package dependencies with this command:
 
@@ -101,7 +120,7 @@ Lastly, we will generate mobx models for the project.
 
 `$ flutter packages pub run build_runner build --delete-conflicting-outputs`
 
-### 8. Build!
+### 9. Build!
 
 `$ flutter build ios --release`
 
