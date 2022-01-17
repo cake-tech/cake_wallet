@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -31,6 +32,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/electrum.dart';
+import 'package:hex/hex.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -479,11 +481,35 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
   }
 
+  Future<ElectrumTransactionBundle> getTransactionExpanded(
+      {@required String hash, @required int height}) async {
+    final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+    final transactionHex = verboseTransaction['hex'] as String;
+    final original = bitcoin.Transaction.fromHex(transactionHex);
+    final ins = <bitcoin.Transaction>[];
+    final time = verboseTransaction['time'] as int;
+    final confirmations = verboseTransaction['time'] as int;
+
+    for (final vin in original.ins) {
+      final id = HEX.encode(vin.hash.reversed.toList());
+      final txHex = await electrumClient.getTransactionHex(hash: id);
+      final tx = bitcoin.Transaction.fromHex(txHex);
+      ins.add(tx);
+    }
+
+    return ElectrumTransactionBundle(
+      original,
+      ins: ins,
+      time: time,
+      confirmations: confirmations);
+  }
+
   Future<ElectrumTransactionInfo> fetchTransactionInfo(
       {@required String hash, @required int height}) async {
-    final tx = await electrumClient.getTransactionExpanded(hash: hash);
-    return ElectrumTransactionInfo.fromElectrumVerbose(tx, walletInfo.type,
-        height: height, addresses: walletAddresses.addresses);
+    final tx = await getTransactionExpanded(hash: hash, height: height);
+    final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
+    return ElectrumTransactionInfo.fromElectrumBundle(
+      tx,walletInfo.type, addresses: addresses, height: height);
   }
 
   @override
@@ -524,7 +550,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     scriptHashes.forEach((sh) async {
       await _scripthashesUpdateSubject[sh]?.close();
       _scripthashesUpdateSubject[sh] = electrumClient.scripthashUpdate(sh);
-      _scripthashesUpdateSubject[sh].listen((event) async {
+      _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
           await _updateBalance();
           await updateUnspent();

@@ -217,23 +217,16 @@ class ElectrumClient {
         return <String, Object>{};
       });
 
-  Future<Map<String, Object>> getTransactionExpanded(
-      {@required String hash}) async {
-    try {
-      final originalTx = await getTransactionRaw(hash: hash);
-      final vins = originalTx['vin'] as List<Object>;
-
-      for (dynamic vin in vins) {
-        if (vin is Map<String, Object>) {
-          vin['tx'] = await getTransactionRaw(hash: vin['txid'] as String);
+  Future<String> getTransactionHex(
+          {@required String hash}) async =>
+      call(method: 'blockchain.transaction.get', params: [hash, false])
+          .then((dynamic result) {
+        if (result is String) {
+          return result;
         }
-      }
 
-      return originalTx;
-    } catch (_) {
-      return {};
-    }
-  }
+        return '';
+      });
 
   Future<String> broadcastTransaction(
           {@required String transactionRaw}) async =>
