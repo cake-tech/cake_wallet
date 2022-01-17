@@ -7,6 +7,4 @@ class LanguageList {
   static const portuguese = 'Portuguese';
   static const russian = 'Russian';
   static const spanish = 'Spanish';
-  // static const french = 'French';
-  // static const italian = 'Italian';
 }
