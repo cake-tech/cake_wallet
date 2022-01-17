@@ -195,6 +195,8 @@
   "seed_language_portuguese" : "ポルトガル語",
   "seed_language_russian" : "ロシア",
   "seed_language_spanish" : "スペイン語",
+  "seed_language_french": "フランス語",
+  "seed_language_italian": "イタリア語",
 
 
   "send_title" : "を送信",

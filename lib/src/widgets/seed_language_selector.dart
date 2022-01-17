@@ -25,7 +25,9 @@ class SeedLanguageSelectorState extends State<SeedLanguageSelector> {
     S.current.seed_language_japanese,
     S.current.seed_language_portuguese,
     S.current.seed_language_russian,
-    S.current.seed_language_spanish
+    S.current.seed_language_spanish,
+    S.current.seed_language_french,
+    S.current.seed_language_italian,
   ];
   String selected;
   final _pickerKey = GlobalKey<SeedLanguagePickerState>();
