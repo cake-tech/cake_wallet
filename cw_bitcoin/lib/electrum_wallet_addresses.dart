@@ -53,6 +53,14 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
       .where((addr) => addr.isHidden && !addr.isUsed)
       .toList();
 
+  List<BitcoinAddressRecord> get totalReceiveAddresses => addresses
+      .where((addr) => !addr.isHidden)
+      .toList();
+
+  List<BitcoinAddressRecord> get totalChangeAddresses => addresses
+      .where((addr) => addr.isHidden)
+      .toList();
+
   Future<void> discoverAddresses() async {
     await _discoverAddresses(mainHd, false);
     await _discoverAddresses(sideHd, true);
@@ -64,11 +72,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
     await _generateInitialAddresses();
 
     if (receiveAddresses.isEmpty) {
-      final count = currentReceiveAddressIndex + gap;
       final newAddresses = await _createNewAddresses(
-        count,
+        gap,
         hd: mainHd,
-        startIndex: currentReceiveAddressIndex,
+        startIndex: totalReceiveAddresses.length > 0 
+          ? totalReceiveAddresses.length - 1
+          : 0,
         isHidden: false);
       _addAddresses(newAddresses);
     } else if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -82,11 +91,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   Future<void> nextReceiveAddress() async {
     if (receiveAddresses.isEmpty) {
-      final count = currentReceiveAddressIndex + gap;
       final newAddresses = await _createNewAddresses(
-        count,
-        hd: sideHd,
-        startIndex: currentReceiveAddressIndex,
+        gap,
+        hd: mainHd,
+        startIndex: totalReceiveAddresses.length > 0 
+          ? totalReceiveAddresses.length - 1
+          : 0,
         isHidden: false);
       _addAddresses(newAddresses);
     } else if (currentReceiveAddressIndex >= receiveAddresses.length) {
@@ -101,10 +111,12 @@ abstract class ElectrumWalletAddressesBase extends WalletAddresses with Store {
   @action
   Future<String> getChangeAddress() async {
     if (changeAddresses.isEmpty) {
-      final count = currentChangeAddressIndex + gap;
       final newAddresses = await _createNewAddresses(
-        count,
-        startIndex: currentChangeAddressIndex,
+        gap,
+        hd: sideHd,
+        startIndex: totalChangeAddresses.length > 0
+          ? totalChangeAddresses.length -  1
+          : 0,
         isHidden: true);
       _addAddresses(newAddresses);
     } else if (currentChangeAddressIndex >= changeAddresses.length) {
