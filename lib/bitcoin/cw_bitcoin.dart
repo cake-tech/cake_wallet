@@ -57,7 +57,7 @@ class CWBitcoin extends Bitcoin {
 	@override
 	Future<void> nextAddress(Object wallet) {
 		final bitcoinWallet = wallet as ElectrumWallet;
-		bitcoinWallet.walletAddresses.nextAddress();
+		bitcoinWallet.walletAddresses.nextReceiveAddress();
 	}
 
 	@override

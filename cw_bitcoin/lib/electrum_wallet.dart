@@ -125,6 +125,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   Future<void> startSync() async {
     try {
       syncStatus = StartingSyncStatus();
+      await walletAddresses.discoverAddresses();
       await updateTransactions();
       _subscribeForUpdates();
       await _updateBalance();
@@ -206,12 +207,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
 
       amount = credentialsAmount;
-
       fee = calculateEstimatedFee(transactionCredentials.priority, amount,
           outputsCount: outputs.length + 1);
     } else {
       final output = outputs.first;
-
       credentialsAmount = !output.sendAll
           ? output.formattedCryptoAmount
           : 0;
@@ -223,7 +222,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       amount = output.sendAll || allAmount - credentialsAmount < minAmount
           ? allAmount
           : credentialsAmount;
-
       fee = output.sendAll || amount == allAmount
           ? allAmountFee
           : calculateEstimatedFee(transactionCredentials.priority, amount);
@@ -240,7 +238,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
 
     final txb = bitcoin.TransactionBuilder(network: networkType);
-    final changeAddress = walletAddresses.addresses.last.address;
+    final changeAddress = await walletAddresses.getChangeAddress();
     var leftAmount = totalAmount;
     var totalInputAmount = 0;
 
@@ -267,7 +265,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
 
     txb.setVersion(1);
-
     inputs.forEach((input) {
       if (input.isP2wpkh) {
         final p2wpkh = bitcoin
@@ -288,11 +285,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       final outputAmount = hasMultiDestination
           ? item.formattedCryptoAmount
           : amount;
-
       final outputAddress = item.isParsedAddress
           ? item.extractedAddress
           : item.address;
-
       txb.addOutput(
           addressToOutputScript(outputAddress, networkType),
           outputAmount);
@@ -328,7 +323,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
-        'account_index': walletAddresses.accountIndex.toString(),
+        'account_index': walletAddresses.currentReceiveAddressIndex.toString(),
+        'change_address_index': walletAddresses.currentChangeAddressIndex.toString(),
         'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
         'balance': balance?.toJSON()
       });
@@ -563,16 +559,34 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   }
 
   Future<ElectrumBalance> _fetchBalances() async {
-    final balances = await Future.wait(
-        scriptHashes.map((sh) => electrumClient.getBalance(sh)));
-    final balance = balances.fold(
-        ElectrumBalance(confirmed: 0, unconfirmed: 0),
-        (ElectrumBalance acc, val) => ElectrumBalance(
-            confirmed: (val['confirmed'] as int ?? 0) + (acc.confirmed ?? 0),
-            unconfirmed:
-                (val['unconfirmed'] as int ?? 0) + (acc.unconfirmed ?? 0)));
+    final addresses = walletAddresses.addresses.toList();
+    final balanceFutures = <Future<Map<String, dynamic>>>[];
 
-    return balance;
+    for (var i = 0; i < addresses.length; i++) {
+      final addressRecord = addresses[i];
+      final sh = scriptHash(addressRecord.address, networkType: networkType);
+      final balanceFuture = electrumClient.getBalance(sh);
+      balanceFutures.add(balanceFuture);
+    } 
+
+    final balances = await Future.wait(balanceFutures);
+    var totalConfirmed = 0;
+    var totalUnconfirmed = 0;
+
+    for (var i = 0; i < balances.length; i++) {
+      final addressRecord = addresses[i];
+      final balance = balances[i];
+      final confirmed = balance['confirmed'] as int ?? 0;
+      final unconfirmed = balance['unconfirmed'] as int ?? 0;
+      totalConfirmed += confirmed;
+      totalUnconfirmed += unconfirmed;
+
+      if (confirmed > 0 || unconfirmed > 0) {
+        addressRecord.setAsUsed();
+      }
+    }
+
+    return ElectrumBalance(confirmed: totalConfirmed, unconfirmed: totalUnconfirmed);
   }
 
   Future<void> _updateBalance() async {
