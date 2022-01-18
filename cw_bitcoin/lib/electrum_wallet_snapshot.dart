@@ -15,7 +15,8 @@ class ElectrumWallletSnapshot {
   String mnemonic;
   List<BitcoinAddressRecord> addresses;
   ElectrumBalance balance;
-  int accountIndex;
+  int regularAddressIndex;
+  int changeAddressIndex;
 
   Future<void> load() async {
     try {
@@ -30,10 +31,12 @@ class ElectrumWallletSnapshot {
           .toList();
       balance = ElectrumBalance.fromJSON(data['balance'] as String) ??
           ElectrumBalance(confirmed: 0, unconfirmed: 0);
-      accountIndex = 0;
+      regularAddressIndex = 0;
+      changeAddressIndex = 0;
 
       try {
-        accountIndex = int.parse(data['account_index'] as String);
+        regularAddressIndex = int.parse(data['account_index'] as String);
+        changeAddressIndex = int.parse(data['change_address_index'] as String);
       } catch (_) {}
     } catch (e) {
       print(e);

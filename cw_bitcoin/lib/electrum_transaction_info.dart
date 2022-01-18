@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
@@ -7,6 +8,34 @@ import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/wallet_type.dart';
+
+String addressFromOutput(Uint8List script) {
+  try {
+    return bitcoin.P2PKH(
+        data: PaymentData(output: script),
+        network: bitcoin.bitcoin)
+      .data
+      .address;
+  } catch (_) {}
+
+  try {
+    return bitcoin.P2WPKH(
+        data: PaymentData(output: script),
+        network: bitcoin.bitcoin)
+      .data
+      .address;
+  } catch(_) {}
+
+  return null;
+}
+
+class ElectrumTransactionBundle {
+  ElectrumTransactionBundle(this.originalTransaction, {this.ins, this.time, this.confirmations});
+  final bitcoin.Transaction originalTransaction;
+  final List<bitcoin.Transaction> ins;
+  final int time;
+  final int confirmations;
+}
 
 class ElectrumTransactionInfo extends TransactionInfo {
   ElectrumTransactionInfo(this.type,
@@ -82,6 +111,49 @@ class ElectrumTransactionInfo extends TransactionInfo {
         amount: amount,
         date: date,
         confirmations: confirmations);
+  }
+
+  factory ElectrumTransactionInfo.fromElectrumBundle(
+      ElectrumTransactionBundle bundle, WalletType type,
+      {@required Set<String> addresses, int height}) {
+    final date = DateTime.fromMillisecondsSinceEpoch(bundle.time * 1000);
+    var direction = TransactionDirection.incoming;
+    var amount = 0;
+    var inputAmount = 0;
+    var totalOutAmount = 0;
+
+    for (var i = 0; i < bundle.originalTransaction.ins.length; i++) {
+      final input = bundle.originalTransaction.ins[i];
+      final inputTransaction = bundle.ins[i];
+      final vout = input.index;
+      final outTransaction = inputTransaction.outs[vout];
+      final address = addressFromOutput(outTransaction.script);
+      inputAmount += outTransaction.value;
+      if (addresses.contains(address)) {
+        direction = TransactionDirection.outgoing;
+      }
+    }
+
+    for (final out in bundle.originalTransaction.outs) {
+      totalOutAmount += out.value;
+      final address = addressFromOutput(out.script);
+      final addressExists = addresses.contains(address);
+      if ((direction == TransactionDirection.incoming && addressExists) ||
+          (direction == TransactionDirection.outgoing && !addressExists)) {
+        amount += out.value;
+      }
+    }
+
+    final fee = inputAmount - totalOutAmount;
+    return ElectrumTransactionInfo(type,
+        id: bundle.originalTransaction.getId(),
+        height: height,
+        isPending: false,
+        fee: fee,
+        direction: direction,
+        amount: amount,
+        date: date,
+        confirmations: bundle.confirmations);
   }
 
   factory ElectrumTransactionInfo.fromHexAndHeader(WalletType type, String hex,
