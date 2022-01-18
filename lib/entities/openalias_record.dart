@@ -3,10 +3,15 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 
 class OpenaliasRecord {
-  OpenaliasRecord({this.address, this.name});
+  OpenaliasRecord({
+    this.address,
+    this.name,
+    this.description,
+  });
 
   final String name;
   final String address;
+  final String description;
 
   static String formatDomainName(String name) {
     String formattedName = name;
@@ -24,6 +29,7 @@ class OpenaliasRecord {
   }) async {
     String address = formattedName;
     String name = formattedName;
+    String note = '';
 
     if (formattedName.contains(".")) {
       try {
@@ -60,6 +66,17 @@ class OpenaliasRecord {
                 name = recipientName.replaceAll("recipient_name=", "");
               }
 
+              final description = dataList
+                  .where((item) => (item.contains("tx_description")))
+                  .toString()
+                  .replaceAll("(", "")
+                  .replaceAll(")", "")
+                  .trim();
+
+              if (description.isNotEmpty) {
+                note = description.replaceAll("tx_description=", "");
+              }
+
               break;
             }
           }
@@ -69,6 +86,6 @@ class OpenaliasRecord {
       }
     }
 
-    return OpenaliasRecord(address: address, name: name);
+    return OpenaliasRecord(address: address, name: name, description: note);
   }
 }

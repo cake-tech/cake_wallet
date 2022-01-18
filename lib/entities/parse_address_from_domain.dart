@@ -63,6 +63,7 @@ Future<ParsedAddress> parseAddressFromDomain(
     return ParsedAddress(
         addresses: [record.address],
         name: record.name,
+        description: record.description,
         parseFrom: ParseFrom.openAlias);
   } catch (e) {
     print(e.toString());

@@ -22,7 +22,7 @@ class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
   OutputBase(this._wallet, this._settingsStore, this._fiatConversationStore)
-      :_cryptoNumberFormat = NumberFormat(cryptoNumberPattern) {
+      : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern) {
     reset();
     _setCryptoNumMaximumFractionDigits();
     key = UniqueKey();
@@ -52,8 +52,9 @@ abstract class OutputBase with Store {
   String extractedAddress;
 
   @computed
-  bool get isParsedAddress => parsedAddress.parseFrom != ParseFrom.notParsed
-      && parsedAddress.name.isNotEmpty;
+  bool get isParsedAddress =>
+      parsedAddress.parseFrom != ParseFrom.notParsed &&
+      parsedAddress.name.isNotEmpty;
 
   @computed
   int get formattedCryptoAmount {
@@ -68,10 +69,12 @@ abstract class OutputBase with Store {
             _amount = monero.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
           case WalletType.bitcoin:
-            _amount = bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            _amount =
+                bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           case WalletType.litecoin:
-            _amount = bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
+            _amount =
+                bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
           default:
             break;
@@ -81,7 +84,7 @@ abstract class OutputBase with Store {
           amount = _amount;
         }
       }
-    } catch(e) {
+    } catch (e) {
       amount = 0;
     }
 
@@ -94,8 +97,8 @@ abstract class OutputBase with Store {
       final fee = _wallet.calculateEstimatedFee(
           _settingsStore.priority[_wallet.type], formattedCryptoAmount);
 
-      if (_wallet.type == WalletType.bitcoin
-          || _wallet.type == WalletType.litecoin) {
+      if (_wallet.type == WalletType.bitcoin ||
+          _wallet.type == WalletType.litecoin) {
         return bitcoin.formatterBitcoinAmountToDouble(amount: fee);
       }
 
@@ -215,5 +218,6 @@ abstract class OutputBase with Store {
     final ticker = _wallet.currency.title.toLowerCase();
     parsedAddress = await parseAddressFromDomain(domain, ticker);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
+    note = parsedAddress.description;
   }
 }
