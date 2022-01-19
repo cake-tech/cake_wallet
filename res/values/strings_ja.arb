@@ -1,7 +1,7 @@
 {
   "welcome" : "ようこそ に",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Moneroとビットコインのための素晴らしい財布",
+  "first_wallet_text" : "Monero、Bitcoin、Litecoin用の素晴らしいウォレット",
   "please_make_selection" : "以下を選択してください ウォレットを作成または回復する.",
   "create_new" : "新しいウォレットを作成",
   "restore_wallet" : "ウォレットを復元",
@@ -394,6 +394,7 @@
 
   "card_address" : "住所:",
   "buy" : "購入",
+  "sell": "売る",
 
   "placeholder_transactions" : "あなたの取引はここに表示されます",
   "placeholder_contacts" : "連絡先はここに表示されます",
@@ -474,6 +475,7 @@
   "submit_request" : "リクエストを送信する",
 
   "buy_alert_content" : "現在、ビットコインとライトコインの購入のみをサポートしています。 ビットコインまたはライトコインを購入するには、ビットコインまたはライトコインのウォレットを作成するか、ウォレットに切り替えてください。",
+  "sell_alert_content": "現在、ビットコインの販売のみをサポートしています。ビットコインを販売するには、ビットコインウォレットを作成するか切り替えてください。",
 
   "outdated_electrum_wallet_description" : "Cakeで作成された新しいビットコインウォレットには、24ワードのシードがあります。 新しいビットコインウォレットを作成し、すべての資金を新しい24ワードのウォレットに転送し、12ワードのシードを持つウォレットの使用を停止することが必須です。 あなたの資金を確保するためにこれをすぐに行ってください。",
   "understand" : "わかります",
@@ -516,5 +518,7 @@
   "second_intro_content" : "Yatは、すべての通貨のすべての長い16進アドレスを置き換える単一の一意の絵文字アドレスです。",
   "third_intro_title" : "Yatは他の人とうまく遊ぶ",
   "third_intro_content" : "YatsはCakeWalletの外にも住んでいます。 地球上のどのウォレットアドレスもYatに置き換えることができます！",
-  "learn_more" : "もっと詳しく知る"
+  "learn_more" : "もっと詳しく知る",
+
+  "new_template" : "新しいテンプレート" 
 }

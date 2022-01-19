@@ -9,6 +9,7 @@
     <application
         android:name=".Application"
         android:label="${APP_NAME}"
+        android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:requestLegacyExternalStorage="true">

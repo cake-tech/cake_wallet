@@ -1,8 +1,9 @@
 name: cw_core
 description: A new Flutter package project.
 version: 0.0.1
-author:
-homepage:
+publish_to: none
+author: Cake Wallet
+homepage: https://cakewallet.com
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -16,6 +17,7 @@ dependencies:
   mobx: ^1.2.1+2
   flutter_mobx: ^1.1.0+2
   intl: ^0.17.0
+  encrypt: ^4.0.0
 
 dev_dependencies:
   flutter_test:

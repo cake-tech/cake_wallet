@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -12,7 +13,6 @@ import 'package:cw_bitcoin/electrum_transaction_info.dart';
 import 'package:cw_core/pathForWallet.dart';
 import 'package:cw_bitcoin/address_to_output_script.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
-import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_bitcoin/electrum_balance.dart';
 import 'package:cw_bitcoin/bitcoin_mnemonic.dart';
 import 'package:cw_bitcoin/bitcoin_transaction_credentials.dart';
@@ -32,6 +32,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/electrum.dart';
+import 'package:hex/hex.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -124,6 +125,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   Future<void> startSync() async {
     try {
       syncStatus = StartingSyncStatus();
+      await walletAddresses.discoverAddresses();
       await updateTransactions();
       _subscribeForUpdates();
       await _updateBalance();
@@ -205,12 +207,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       }
 
       amount = credentialsAmount;
-
       fee = calculateEstimatedFee(transactionCredentials.priority, amount,
           outputsCount: outputs.length + 1);
     } else {
       final output = outputs.first;
-
       credentialsAmount = !output.sendAll
           ? output.formattedCryptoAmount
           : 0;
@@ -222,7 +222,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       amount = output.sendAll || allAmount - credentialsAmount < minAmount
           ? allAmount
           : credentialsAmount;
-
       fee = output.sendAll || amount == allAmount
           ? allAmountFee
           : calculateEstimatedFee(transactionCredentials.priority, amount);
@@ -239,7 +238,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
 
     final txb = bitcoin.TransactionBuilder(network: networkType);
-    final changeAddress = walletAddresses.addresses.last.address;
+    final changeAddress = await walletAddresses.getChangeAddress();
     var leftAmount = totalAmount;
     var totalInputAmount = 0;
 
@@ -266,12 +265,13 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
 
     txb.setVersion(1);
-
     inputs.forEach((input) {
       if (input.isP2wpkh) {
         final p2wpkh = bitcoin
             .P2WPKH(
-            data: generatePaymentData(hd: hd, index: input.address.index),
+            data: generatePaymentData(
+              hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+              index: input.address.index),
             network: networkType)
             .data;
 
@@ -285,11 +285,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       final outputAmount = hasMultiDestination
           ? item.formattedCryptoAmount
           : amount;
-
       final outputAddress = item.isParsedAddress
           ? item.extractedAddress
           : item.address;
-
       txb.addOutput(
           addressToOutputScript(outputAddress, networkType),
           outputAmount);
@@ -307,7 +305,9 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     for (var i = 0; i < inputs.length; i++) {
       final input = inputs[i];
       final keyPair = generateKeyPair(
-          hd: hd, index: input.address.index, network: networkType);
+          hd: input.address.isHidden ? walletAddresses.sideHd : walletAddresses.mainHd,
+          index: input.address.index,
+          network: networkType);
       final witnessValue = input.isP2wpkh ? input.value : null;
 
       txb.sign(vin: i, keyPair: keyPair, witnessValue: witnessValue);
@@ -323,17 +323,22 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   String toJSON() => json.encode({
         'mnemonic': mnemonic,
-        'account_index': walletAddresses.accountIndex.toString(),
+        'account_index': walletAddresses.currentReceiveAddressIndex.toString(),
+        'change_address_index': walletAddresses.currentChangeAddressIndex.toString(),
         'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
         'balance': balance?.toJSON()
       });
 
   int feeRate(TransactionPriority priority) {
-    if (priority is BitcoinTransactionPriority) {
-      return _feeRates[priority.raw];
-    }
+    try {
+      if (priority is BitcoinTransactionPriority) {
+        return _feeRates[priority.raw];
+      }
 
-    return 0;
+      return 0;
+    } catch(_) {
+      return 0;
+    }
   }
 
   int feeAmountForPriority(BitcoinTransactionPriority priority, int inputsCount,
@@ -472,11 +477,35 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     }
   }
 
+  Future<ElectrumTransactionBundle> getTransactionExpanded(
+      {@required String hash, @required int height}) async {
+    final verboseTransaction = await electrumClient.getTransactionRaw(hash: hash);
+    final transactionHex = verboseTransaction['hex'] as String;
+    final original = bitcoin.Transaction.fromHex(transactionHex);
+    final ins = <bitcoin.Transaction>[];
+    final time = verboseTransaction['time'] as int;
+    final confirmations = verboseTransaction['time'] as int;
+
+    for (final vin in original.ins) {
+      final id = HEX.encode(vin.hash.reversed.toList());
+      final txHex = await electrumClient.getTransactionHex(hash: id);
+      final tx = bitcoin.Transaction.fromHex(txHex);
+      ins.add(tx);
+    }
+
+    return ElectrumTransactionBundle(
+      original,
+      ins: ins,
+      time: time,
+      confirmations: confirmations);
+  }
+
   Future<ElectrumTransactionInfo> fetchTransactionInfo(
       {@required String hash, @required int height}) async {
-    final tx = await electrumClient.getTransactionExpanded(hash: hash);
-    return ElectrumTransactionInfo.fromElectrumVerbose(tx, walletInfo.type,
-        height: height, addresses: walletAddresses.addresses);
+    final tx = await getTransactionExpanded(hash: hash, height: height);
+    final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
+    return ElectrumTransactionInfo.fromElectrumBundle(
+      tx,walletInfo.type, addresses: addresses, height: height);
   }
 
   @override
@@ -517,7 +546,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     scriptHashes.forEach((sh) async {
       await _scripthashesUpdateSubject[sh]?.close();
       _scripthashesUpdateSubject[sh] = electrumClient.scripthashUpdate(sh);
-      _scripthashesUpdateSubject[sh].listen((event) async {
+      _scripthashesUpdateSubject[sh]?.listen((event) async {
         try {
           await _updateBalance();
           await updateUnspent();
@@ -530,16 +559,34 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   }
 
   Future<ElectrumBalance> _fetchBalances() async {
-    final balances = await Future.wait(
-        scriptHashes.map((sh) => electrumClient.getBalance(sh)));
-    final balance = balances.fold(
-        ElectrumBalance(confirmed: 0, unconfirmed: 0),
-        (ElectrumBalance acc, val) => ElectrumBalance(
-            confirmed: (val['confirmed'] as int ?? 0) + (acc.confirmed ?? 0),
-            unconfirmed:
-                (val['unconfirmed'] as int ?? 0) + (acc.unconfirmed ?? 0)));
+    final addresses = walletAddresses.addresses.toList();
+    final balanceFutures = <Future<Map<String, dynamic>>>[];
 
-    return balance;
+    for (var i = 0; i < addresses.length; i++) {
+      final addressRecord = addresses[i];
+      final sh = scriptHash(addressRecord.address, networkType: networkType);
+      final balanceFuture = electrumClient.getBalance(sh);
+      balanceFutures.add(balanceFuture);
+    } 
+
+    final balances = await Future.wait(balanceFutures);
+    var totalConfirmed = 0;
+    var totalUnconfirmed = 0;
+
+    for (var i = 0; i < balances.length; i++) {
+      final addressRecord = addresses[i];
+      final balance = balances[i];
+      final confirmed = balance['confirmed'] as int ?? 0;
+      final unconfirmed = balance['unconfirmed'] as int ?? 0;
+      totalConfirmed += confirmed;
+      totalUnconfirmed += unconfirmed;
+
+      if (confirmed > 0 || unconfirmed > 0) {
+        addressRecord.setAsUsed();
+      }
+    }
+
+    return ElectrumBalance(confirmed: totalConfirmed, unconfirmed: totalUnconfirmed);
   }
 
   Future<void> _updateBalance() async {

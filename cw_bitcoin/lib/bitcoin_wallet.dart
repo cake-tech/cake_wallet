@@ -23,7 +23,8 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
       @required Box<UnspentCoinsInfo> unspentCoinsInfo,
       List<BitcoinAddressRecord> initialAddresses,
       ElectrumBalance initialBalance,
-      int accountIndex = 0})
+      int initialRegularAddressIndex = 0,
+      int initialChangeAddressIndex = 0})
       : super(
             mnemonic: mnemonic,
             password: password,
@@ -34,8 +35,10 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
             initialBalance: initialBalance) {
     walletAddresses = BitcoinWalletAddresses(
         walletInfo,
+        electrumClient: electrumClient,
         initialAddresses: initialAddresses,
-        accountIndex: accountIndex,
+        initialRegularAddressIndex: initialRegularAddressIndex,
+        initialChangeAddressIndex: initialChangeAddressIndex,
         mainHd: hd,
         sideHd: bitcoin.HDWallet.fromSeed(
                 mnemonicToSeedBytes(mnemonic), network: networkType)
@@ -58,6 +61,7 @@ abstract class BitcoinWalletBase extends ElectrumWallet with Store {
         unspentCoinsInfo: unspentCoinsInfo,
         initialAddresses: snp.addresses,
         initialBalance: snp.balance,
-        accountIndex: snp.accountIndex);
+        initialRegularAddressIndex: snp.regularAddressIndex,
+        initialChangeAddressIndex: snp.changeAddressIndex);
   }
 }

@@ -1,7 +1,7 @@
 {
   "welcome" : "Dobrodošli na",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Odličan novčanik za Monero i Bitcoin",
+  "first_wallet_text" : "Odličan novčanik za Monero, Bitcoin i Litecoin",
   "please_make_selection" : "Molimo odaberite opcije niže za izradu novog novčanika ili za oporavak postojećeg.",
   "create_new" : "Izradi novi novčanik",
   "restore_wallet" : "Oporavi novčanik",
@@ -394,6 +394,7 @@
 
   "card_address" : "Adresa:",
   "buy" : "Kupi",
+  "sell": "Prodavati",
 
   "placeholder_transactions" : "Vaše će transakcije biti prikazane ovdje",
   "placeholder_contacts" : "Vaši će kontakti biti prikazani ovdje",
@@ -474,6 +475,7 @@
   "submit_request" : "podnesi zahtjev",
 
   "buy_alert_content" : "Trenutno podržavamo samo kupnju Bitcoina i Litecoina. Da biste kupili Bitcoin ili Litecoin, stvorite ili pređite na svoj Bitcoin ili Litecoin novčanik.",
+  "sell_alert_content": "Trenutno podržavamo samo prodaju Bitcoina. Da biste prodali Bitcoin, stvorite ili prijeđite na svoj Bitcoin novčanik.",
 
   "outdated_electrum_wallet_description" : "Novi Bitcoin novčanici stvoreni u Cakeu sada imaju sjeme od 24 riječi. Obavezno je stvoriti novi Bitcoin novčanik i prenijeti sva svoja sredstva u novi novčanik od 24 riječi te prestati koristiti novčanike s sjemenkom od 12 riječi. Učinite to odmah kako biste osigurali svoja sredstva.",
   "understand" : "Razumijem",
@@ -516,5 +518,7 @@
   "second_intro_content" : "Vaš Yat jedinstvena je adresa emojija koja zamjenjuje sve vaše duge heksadecimalne adrese za sve vaše valute.",
   "third_intro_title" : "Yat se lijepo igra s drugima",
   "third_intro_content" : "Yats žive i izvan Cake Wallet -a. Bilo koja adresa novčanika na svijetu može se zamijeniti Yat!",
-  "learn_more" : "Saznajte više"
+  "learn_more" : "Saznajte više",
+
+  "new_template" : "novi predložak"
 }

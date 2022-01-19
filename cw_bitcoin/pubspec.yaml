@@ -1,8 +1,9 @@
 name: cw_bitcoin
 description: A new Flutter package project.
 version: 0.0.1
-author:
-homepage:
+publish_to: none
+author: Cake Wallet
+homepage: https://cakewallet.com
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -23,6 +24,9 @@ dependencies:
       url: https://github.com/cake-tech/bitcoin_flutter.git
       ref: cake
   rxdart: ^0.26.0
+  unorm_dart: ^0.2.0
+  cryptography: ^1.4.0
+  encrypt: ^4.0.0
   
 dev_dependencies:
   flutter_test:
