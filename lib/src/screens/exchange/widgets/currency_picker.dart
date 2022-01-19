@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'currency_picker_widget.dart';
 
 class CurrencyPicker extends StatefulWidget {
   CurrencyPicker({
@@ -27,13 +27,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   CurrencyPickerState(this.items) : itemsCount = items.length;
 
   List<CryptoCurrency> items;
-  final int crossAxisCount = 2;
-  final int maxNumberItemsInAlert = 12;
   int itemsCount;
-  final double backgroundHeight = 280;
-  final double thumbHeight = 72;
-  ScrollController controller = ScrollController();
-  double fromTop = 0;
   bool isSearchBarActive = false;
   String textFieldValue = '';
   List<String> subItems = [];
@@ -44,13 +38,6 @@ class CurrencyPickerState extends State<CurrencyPicker> {
       fontFamily: 'Lato',
       backgroundColor: Colors.transparent,
       color: Colors.white);
-
-  void pickListItem(int index) {
-    setState(() {
-      widget.selectedAtIndex = index;
-    });
-    Navigator.of(context).pop();
-  }
 
   void searchByTextFieldValue(String subString, List<CryptoCurrency> list) {
     subItems = [];
@@ -90,15 +77,6 @@ class CurrencyPickerState extends State<CurrencyPicker> {
     final double bottomPickerPadding = height * 0.02;
     final double bottomBarHeight = height * 0.09;
 
-    controller.addListener(() {
-      fromTop = controller.hasClients
-          ? (controller.offset /
-              controller.position.maxScrollExtent *
-              (backgroundHeight - thumbHeight))
-          : 0;
-      setState(() {});
-    });
-
     return AlertBackground(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -122,6 +100,8 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                           onTap: () {
                             setState(() {
                               isSearchBarActive = false;
+                              textFieldValue = '';
+                              itemsCount = items.length;
                             });
                           }),
                     ),
@@ -166,76 +146,17 @@ class CurrencyPickerState extends State<CurrencyPicker> {
         ),
         body: Column(
           children: [
-            Container(
+            CurrencyPickerWidget(
+              textFieldValue: textFieldValue,
+              subCryptoCurrencyList: subCryptoCurrencyList,
+              subItems: subItems,
+              crossAxisCount: 2,
               height: pickerHeight,
               width: width * 0.9,
-              decoration: BoxDecoration(
-                color:
-                    Theme.of(context).accentTextTheme.headline6.backgroundColor,
-                borderRadius: BorderRadius.circular(14.0),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(14.0),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    GridView.count(
-                      padding: EdgeInsets.all(0),
-                      controller: controller,
-                      crossAxisCount: crossAxisCount,
-                      childAspectRatio: (width * 0.9 / 2) / (height * 0.75 / 9),
-                      crossAxisSpacing: 1,
-                      mainAxisSpacing: 1,
-                      children: List.generate(
-                          itemsCount < 18
-                              ? itemsCount + (18 - itemsCount)
-                              : itemsCount,
-                          (index) => index < itemsCount
-                              ? GestureDetector(
-                                  onTap: () {
-                                    pickListItem(index);
-                                    widget.onItemSelected(textFieldValue.isEmpty
-                                        ? items[index]
-                                        : subCryptoCurrencyList[index]);
-                                  },
-                                  child: Container(
-                                    color: index == widget.selectedAtIndex
-                                        ? Theme.of(context)
-                                            .textTheme
-                                            .bodyText1
-                                            .color
-                                        : Theme.of(context)
-                                            .accentTextTheme
-                                            .headline6
-                                            .color,
-                                    child: Center(
-                                        child: Text(
-                                      textFieldValue.isEmpty
-                                          ? items[index].toString()
-                                          : subItems[index],
-                                      style: TextStyle(
-                                          color: index == widget.selectedAtIndex
-                                              ? Palette.blueCraiola
-                                              : Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .title
-                                                  .color,
-                                          fontSize: 18.0),
-                                    )),
-                                  ),
-                                )
-                              : Container(
-                                  color: Colors.white,
-                                )),
-                    ),
-                    if (itemsCount > 18)
-                      CakeScrollbar(
-                          backgroundHeight: backgroundHeight,
-                          thumbHeight: thumbHeight,
-                          fromTop: fromTop)
-                  ],
-                ),
-              ),
+              selectedAtIndex: widget.selectedAtIndex,
+              cryptoCurrencyList: widget.items,
+              itemsCount: itemsCount,
+              onItemSelected: widget.onItemSelected,
             ),
             SizedBox(
               height: bottomPickerPadding,
