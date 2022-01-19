@@ -1,4 +1,5 @@
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/core/mnemonic_length.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -35,17 +36,24 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     _walletCreationService.changeWalletType(type: type);
   }
 
+  static const moneroSeedMnemonicLength = 25;
+  static const electrumSeedMnemonicLength = 24;
+
+  final List<WalletRestoreMode> availableModes;
+  final bool hasSeedLanguageSelector;
+  final bool hasBlockchainHeightLanguageSelector;
+  final WalletCreationService _walletCreationService;
+
   @observable
   WalletRestoreMode mode;
 
   @observable
   bool isButtonEnabled;
 
-  final List<WalletRestoreMode> availableModes;
-  final bool hasSeedLanguageSelector;
-  final bool hasBlockchainHeightLanguageSelector;
-
-  final WalletCreationService _walletCreationService;
+  int get seedMnemonicLength =>
+    type == WalletType.monero
+    ? moneroSeedMnemonicLength
+    : electrumSeedMnemonicLength;
 
   @override
   WalletCredentials getCredentials(dynamic options) {
