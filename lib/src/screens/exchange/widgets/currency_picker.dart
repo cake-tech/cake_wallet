@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -94,7 +95,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                       padding: EdgeInsets.only(left: width * 0.05),
                       child: InkWell(
                           child: Text(
-                            'Cancel',
+                            S.of(context).cancel,
                             style: appBarTextStyle,
                           ),
                           onTap: () {
@@ -109,7 +110,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                       width: 100.0,
                       child: CupertinoTextField(
                           autofocus: true,
-                          placeholder: 'Search...',
+                          placeholder: S.of(context).search + '...',
                           placeholderStyle: appBarTextStyle,
                           decoration: BoxDecoration(color: Colors.transparent),
                           cursorColor: Colors.white,
@@ -148,13 +149,12 @@ class CurrencyPickerState extends State<CurrencyPicker> {
           children: [
             CurrencyPickerWidget(
               textFieldValue: textFieldValue,
-              subCryptoCurrencyList: subCryptoCurrencyList,
-              subItems: subItems,
               crossAxisCount: 2,
               height: pickerHeight,
               width: width * 0.9,
               selectedAtIndex: widget.selectedAtIndex,
-              cryptoCurrencyList: widget.items,
+              cryptoCurrencyList:
+                  textFieldValue.isEmpty ? widget.items : subCryptoCurrencyList,
               itemsCount: itemsCount,
               onItemSelected: widget.onItemSelected,
             ),

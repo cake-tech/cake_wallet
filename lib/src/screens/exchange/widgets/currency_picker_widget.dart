@@ -10,22 +10,21 @@ class CurrencyPickerWidget extends StatefulWidget {
       @required this.crossAxisCount,
       @required this.cryptoCurrencyList,
       @required this.selectedAtIndex,
-      @required this.subCryptoCurrencyList,
       @required this.itemsCount,
-      @required this.textFieldValue,
-      @required this.subItems,
-      @required this.onItemSelected});
+      @required this.onItemSelected,
+      this.textFieldValue});
 
   final double height;
   final double width;
   final int crossAxisCount;
   final List<CryptoCurrency> cryptoCurrencyList;
-  final List<CryptoCurrency> subCryptoCurrencyList;
   int selectedAtIndex;
   final int itemsCount;
   final String textFieldValue;
-  final List<String> subItems;
   final Function onItemSelected;
+
+  List<String> prefixCryptoCurrencyIconList;
+  List<String> postfixCryptoCurrencyIconList;
 
   @override
   _CurrencyPickerWidgetState createState() => _CurrencyPickerWidgetState();
@@ -82,9 +81,8 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
                       ? GestureDetector(
                           onTap: () {
                             pickListItem(index);
-                            widget.onItemSelected(widget.textFieldValue.isEmpty
-                                ? widget.cryptoCurrencyList[index]
-                                : widget.subCryptoCurrencyList[index]);
+                            widget.onItemSelected(
+                                widget.cryptoCurrencyList[index]);
                           },
                           child: Container(
                             color: index == widget.selectedAtIndex
@@ -94,19 +92,29 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
                                     .headline6
                                     .color,
                             child: Center(
-                              child: Text(
-                                widget.textFieldValue.isEmpty
-                                    ? '${widget.cryptoCurrencyList[index]}'
-                                        .toString()
-                                    : widget.subItems[index].toString(),
-                                style: TextStyle(
-                                    color: index == widget.selectedAtIndex
-                                        ? Palette.blueCraiola
-                                        : Theme.of(context)
-                                            .primaryTextTheme
-                                            .title
-                                            .color,
-                                    fontSize: 18.0),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(),
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      widget.cryptoCurrencyList[index]
+                                          .toString(),
+                                      style: TextStyle(
+                                          color: index == widget.selectedAtIndex
+                                              ? Palette.blueCraiola
+                                              : Theme.of(context)
+                                                  .primaryTextTheme
+                                                  .title
+                                                  .color,
+                                          fontSize: 18.0),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
