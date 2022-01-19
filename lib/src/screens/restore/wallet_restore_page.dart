@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -46,15 +47,19 @@ class WalletRestorePage extends BasePage {
                 }
               },
               onSeedChange: (String seed) {
-                final hasHeight = walletRestoreFromSeedFormKey
-                    .currentState
-                    .blockchainHeightKey
-                    .currentState
-                    .restoreHeightController
-                    .text
-                    .isNotEmpty;
-                if (hasHeight) {
-                  walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+                  final hasHeight = walletRestoreFromSeedFormKey
+                      .currentState
+                      .blockchainHeightKey
+                      .currentState
+                      .restoreHeightController
+                      .text
+                      .isNotEmpty;
+                  if (hasHeight) {
+                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+                  }
+                } else {
+                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
                 }
               },
               onLanguageChange: (_) {
@@ -209,8 +214,16 @@ class WalletRestorePage extends BasePage {
       .currentState
       .text
       .split(' ');
+
+    if (walletRestoreViewModel.type == WalletType.monero &&
+        seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
+      return false;
+    }
     
-    if (seedWords.length != walletRestoreViewModel.seedMnemonicLength) {
+    if ((walletRestoreViewModel.type == WalletType.bitcoin ||
+        walletRestoreViewModel.type == WalletType.litecoin) && 
+      (seedWords.length != WalletRestoreViewModelBase.electrumSeedMnemonicLength &&
+        seedWords.length != WalletRestoreViewModelBase.electrumShortSeedMnemonicLength)) {
       return false;
     }
 

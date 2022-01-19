@@ -38,6 +38,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   static const moneroSeedMnemonicLength = 25;
   static const electrumSeedMnemonicLength = 24;
+  static const electrumShortSeedMnemonicLength = 12;
 
   final List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
@@ -49,12 +50,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
   @observable
   bool isButtonEnabled;
-
-  int get seedMnemonicLength =>
-    type == WalletType.monero
-    ? moneroSeedMnemonicLength
-    : electrumSeedMnemonicLength;
-
+  
   @override
   WalletCredentials getCredentials(dynamic options) {
     final password = generateWalletPassword(type);
