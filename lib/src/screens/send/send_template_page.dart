@@ -35,9 +35,6 @@ class SendTemplatePage extends BasePage {
   Color get titleColor => Colors.white;
 
   @override
-  bool get resizeToAvoidBottomInset => false;
-
-  @override
   bool get extendBodyBehindAppBar => true;
 
   @override
@@ -50,8 +47,8 @@ class SendTemplatePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
+            keyboardBarColor:
+                Theme.of(context).accentTextTheme.body2.backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -71,8 +68,9 @@ class SendTemplatePage extends BasePage {
             content: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(24),
-                    bottomRight: Radius.circular(24)),
+                  bottomLeft: Radius.circular(24),
+                  bottomRight: Radius.circular(24),
+                ),
                 gradient: LinearGradient(colors: [
                   Theme.of(context).primaryTextTheme.subhead.color,
                   Theme.of(context).primaryTextTheme.subhead.decorationColor,
@@ -80,57 +78,15 @@ class SendTemplatePage extends BasePage {
               ),
               child: Form(
                 key: _formKey,
-                child: Column(children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
-                    child: Column(
-                      children: <Widget>[
-                        BaseTextFormField(
-                          controller: _nameController,
-                          hintText: S.of(context).send_name,
-                          borderColor:
-                              Theme.of(context).primaryTextTheme.headline.color,
-                          textStyle: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white),
-                          placeholderTextStyle: TextStyle(
-                              color: Theme.of(context)
-                                  .primaryTextTheme
-                                  .headline
-                                  .decorationColor,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14),
-                          validator: sendTemplateViewModel.templateValidator,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 20),
-                          child: AddressTextField(
-                            controller: _addressController,
-                            onURIScanned: (uri) {
-                              var address = '';
-                              var amount = '';
-
-                              if (uri != null) {
-                                address = uri.path;
-                                amount = uri.queryParameters['tx_amount'] ??
-                                    uri.queryParameters['amount'];
-                              } else {
-                                address = uri.toString();
-                              }
-
-                              _addressController.text = address;
-                              _cryptoAmountController.text = amount;
-                            },
-                            options: [
-                              AddressTextFieldOption.paste,
-                              AddressTextFieldOption.qrCode,
-                              AddressTextFieldOption.addressBook
-                            ],
-                            buttonColor: Theme.of(context)
-                                .primaryTextTheme
-                                .display1
-                                .color,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
+                      child: Column(
+                        children: <Widget>[
+                          BaseTextFormField(
+                            controller: _nameController,
+                            hintText: S.of(context).send_name,
                             borderColor: Theme.of(context)
                                 .primaryTextTheme
                                 .headline
@@ -139,37 +95,122 @@ class SendTemplatePage extends BasePage {
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white),
-                            hintStyle: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                            placeholderTextStyle: TextStyle(
                                 color: Theme.of(context)
                                     .primaryTextTheme
                                     .headline
-                                    .decorationColor),
+                                    .decorationColor,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14),
+                            validator: sendTemplateViewModel.templateValidator,
                           ),
-                        ),
-                        Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: BaseTextFormField(
-                                focusNode: _cryptoAmountFocus,
-                                controller: _cryptoAmountController,
+                          Padding(
+                            padding: EdgeInsets.only(top: 20),
+                            child: AddressTextField(
+                              controller: _addressController,
+                              onURIScanned: (uri) {
+                                var address = '';
+                                var amount = '';
+
+                                if (uri != null) {
+                                  address = uri.path;
+                                  amount = uri.queryParameters['tx_amount'] ??
+                                      uri.queryParameters['amount'];
+                                } else {
+                                  address = uri.toString();
+                                }
+
+                                _addressController.text = address;
+                                _cryptoAmountController.text = amount;
+                              },
+                              options: [
+                                AddressTextFieldOption.paste,
+                                AddressTextFieldOption.qrCode,
+                                AddressTextFieldOption.addressBook
+                              ],
+                              buttonColor: Theme.of(context)
+                                  .primaryTextTheme
+                                  .display1
+                                  .color,
+                              borderColor: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline
+                                  .color,
+                              textStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white),
+                              hintStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline
+                                      .decorationColor),
+                            ),
+                          ),
+                          Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: BaseTextFormField(
+                                  focusNode: _cryptoAmountFocus,
+                                  controller: _cryptoAmountController,
+                                  keyboardType: TextInputType.numberWithOptions(
+                                      signed: false, decimal: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.deny(
+                                        RegExp('[\\-|\\ ]'))
+                                  ],
+                                  prefixIcon: Padding(
+                                    padding: EdgeInsets.only(top: 9),
+                                    child: Text(
+                                        sendTemplateViewModel.currency.title +
+                                            ':',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.white,
+                                        )),
+                                  ),
+                                  hintText: '0.0000',
+                                  borderColor: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline
+                                      .color,
+                                  textStyle: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                  placeholderTextStyle: TextStyle(
+                                      color: Theme.of(context)
+                                          .primaryTextTheme
+                                          .headline
+                                          .decorationColor,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14),
+                                  validator:
+                                      sendTemplateViewModel.amountValidator)),
+                          Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: BaseTextFormField(
+                                focusNode: _fiatAmountFocus,
+                                controller: _fiatAmountController,
                                 keyboardType: TextInputType.numberWithOptions(
                                     signed: false, decimal: true),
                                 inputFormatters: [
-                                  FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
+                                  FilteringTextInputFormatter.deny(
+                                      RegExp('[\\-|\\ ]'))
                                 ],
                                 prefixIcon: Padding(
                                   padding: EdgeInsets.only(top: 9),
-                                  child:
-                                  Text(sendTemplateViewModel
-                                      .currency.title + ':',
+                                  child: Text(
+                                      sendTemplateViewModel.fiat.title + ':',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
                                       )),
                                 ),
-                                hintText: '0.0000',
+                                hintText: '0.00',
                                 borderColor: Theme.of(context)
                                     .primaryTextTheme
                                     .headline
@@ -185,49 +226,12 @@ class SendTemplatePage extends BasePage {
                                         .decorationColor,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 14),
-                                validator: sendTemplateViewModel
-                                    .amountValidator)),
-                        Padding(
-                            padding: const EdgeInsets.only(top: 20),
-                            child: BaseTextFormField(
-                              focusNode: _fiatAmountFocus,
-                              controller: _fiatAmountController,
-                              keyboardType: TextInputType.numberWithOptions(
-                                  signed: false, decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.deny(RegExp('[\\-|\\ ]'))
-                              ],
-                              prefixIcon: Padding(
-                                padding: EdgeInsets.only(top: 9),
-                                child: Text(sendTemplateViewModel
-                                    .fiat.title + ':',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    )),
-                              ),
-                              hintText: '0.00',
-                              borderColor: Theme.of(context)
-                                  .primaryTextTheme
-                                  .headline
-                                  .color,
-                              textStyle: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white),
-                              placeholderTextStyle: TextStyle(
-                                  color: Theme.of(context)
-                                      .primaryTextTheme
-                                      .headline
-                                      .decorationColor,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 14),
-                            )),
-                      ],
-                    ),
-                  )
-                ]),
+                              )),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               ),
             ),
             bottomSectionPadding:
