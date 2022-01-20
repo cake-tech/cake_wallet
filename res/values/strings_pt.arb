@@ -195,6 +195,8 @@
   "seed_language_portuguese" : "Português",
   "seed_language_russian" : "Russa",
   "seed_language_spanish" : "Espanhola",
+  "seed_language_french": "Francesa/Francês",
+  "seed_language_italian": "Italiana/Italiano",
 
 
   "send_title" : "Enviar",

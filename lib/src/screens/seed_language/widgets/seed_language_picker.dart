@@ -15,6 +15,8 @@ List<Image> flagImages = [
   Image.asset('assets/images/portugal.png'),
   Image.asset('assets/images/russia.png'),
   Image.asset('assets/images/spain.png'),
+  Image.asset('assets/images/france.png'),
+  Image.asset('assets/images/italy.png'),
 ];
 
 const List<String> languageCodes = [
@@ -26,6 +28,8 @@ const List<String> languageCodes = [
   'Por',
   'Rus',
   'Esp',
+  'Fre',
+  'Ita',
 ];
 
 const defaultSeedLanguage = 'English';
@@ -38,7 +42,9 @@ const List<String> seedLanguages = [
   'Japanese',
   'Portuguese',
   'Russian',
-  'Spanish'
+  'Spanish',
+  'French',
+  'Italian',
 ];
 
 enum Places { topLeft, topRight, bottomLeft, bottomRight, inside }
@@ -64,86 +70,80 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
   Widget build(BuildContext context) {
     return AlertBackground(
         child: Stack(
-          alignment: Alignment.center,
+      alignment: Alignment.center,
+      children: <Widget>[
+        Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(left: 24, right: 24),
-                  child: Text(
-                    S.of(context).seed_choose,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Lato',
-                        decoration: TextDecoration.none,
-                        color: Colors.white
-                    ),
+            Container(
+              padding: EdgeInsets.only(left: 24, right: 24),
+              child: Text(
+                S.of(context).seed_choose,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Lato',
+                    decoration: TextDecoration.none,
+                    color: Colors.white),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 24),
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(14)),
+                child: Container(
+                  height: 300,
+                  width: 300,
+                  color:
+                      Theme.of(context).accentTextTheme.title.backgroundColor,
+                  child: GridView.count(
+                    padding: EdgeInsets.all(0),
+                    shrinkWrap: true,
+                    crossAxisCount: 3,
+                    childAspectRatio: 4 / 3,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisSpacing: 1,
+                    mainAxisSpacing: 1,
+                    children: List.generate(11, (index) {
+                      if (index == 10) {
+                        return gridTile(
+                            isCurrent: false,
+                            image: null,
+                            text: '',
+                            onTap: null);
+                      }
+
+                      final code = languageCodes[index];
+                      final flag = flagImages[index];
+                      final isCurrent =
+                          index == seedLanguages.indexOf(selected);
+
+                      return gridTile(
+                          isCurrent: isCurrent,
+                          image: flag,
+                          text: code,
+                          onTap: () {
+                            selected = seedLanguages[index];
+                            Navigator.of(context).pop(selected);
+                          });
+                    }),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
-                    child: Container(
-                      height: 300,
-                      width: 300,
-                      color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                      child: GridView.count(
-                        padding: EdgeInsets.all(0),
-                        shrinkWrap: true,
-                        crossAxisCount: 3,
-                        childAspectRatio: 1,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: 1,
-                        mainAxisSpacing: 1,
-                        children: List.generate(9, (index) {
-
-                          if (index == 8) {
-
-                            return gridTile(
-                                isCurrent: false,
-                                image: null,
-                                text: '',
-                                onTap: null);
-
-                          }
-
-                          final code = languageCodes[index];
-                          final flag = flagImages[index];
-                          final isCurrent =
-                              index == seedLanguages.indexOf(selected);
-
-                          return gridTile(
-                              isCurrent: isCurrent,
-                              image: flag,
-                              text: code,
-                              onTap: () {
-                                selected = seedLanguages[index];
-                                Navigator.of(context).pop(selected);
-                              }
-                          );
-                        }),
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-            AlertCloseButton(image: closeButton)
+              ),
+            )
           ],
-        )
-    );
+        ),
+        AlertCloseButton(image: closeButton)
+      ],
+    ));
   }
 
-  Widget gridTile({
-    @required bool isCurrent,
-    @required Image image,
-    @required String text,
-    @required VoidCallback onTap}) {
-
+  Widget gridTile(
+      {@required bool isCurrent,
+      @required Image image,
+      @required String text,
+      @required VoidCallback onTap}) {
     final color = isCurrent
         ? Theme.of(context).textTheme.body2.color
         : Theme.of(context).accentTextTheme.title.color;
@@ -174,14 +174,12 @@ class SeedLanguagePickerState extends State<SeedLanguagePicker> {
                         fontWeight: FontWeight.w600,
                         fontFamily: 'Lato',
                         decoration: TextDecoration.none,
-                        color: textColor
-                    ),
+                        color: textColor),
                   ),
                 )
               ],
             ),
           ),
-        )
-    );
+        ));
   }
 }

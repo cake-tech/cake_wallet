@@ -195,6 +195,8 @@
   "seed_language_portuguese" : "葡萄牙文",
   "seed_language_russian" : "俄文",
   "seed_language_spanish" : "西班牙文",
+  "seed_language_french": "法语",
+  "seed_language_italian": "意大利语",
 
 
   "send_title" : "发送",

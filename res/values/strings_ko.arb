@@ -195,6 +195,8 @@
   "seed_language_portuguese" : "포르투갈 인",
   "seed_language_russian" : "러시아인",
   "seed_language_spanish" : "스페인의",
+  "seed_language_french": "프랑스 국민",
+  "seed_language_italian": "이탈리아 사람",
 
 
   "send_title" : "보내다",

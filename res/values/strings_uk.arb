@@ -195,7 +195,8 @@
   "seed_language_portuguese" : "Португальська",
   "seed_language_russian" : "Російська",
   "seed_language_spanish" : "Іспанська",
-
+  "seed_language_french": "французький",
+  "seed_language_italian": "італійська",
 
   "send_title" : "Відправити",
   "send_your_wallet" : "Ваш гаманець",
