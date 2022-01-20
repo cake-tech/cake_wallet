@@ -31,8 +31,6 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   int itemsCount;
   bool isSearchBarActive = false;
   String textFieldValue = '';
-  List<String> subItems = [];
-  List<int> subItemsIndexList = [];
   List<CryptoCurrency> subCryptoCurrencyList = [];
   TextStyle appBarTextStyle = TextStyle(
       fontSize: 20,
@@ -40,31 +38,18 @@ class CurrencyPickerState extends State<CurrencyPicker> {
       backgroundColor: Colors.transparent,
       color: Colors.white);
 
-  void searchByTextFieldValue(String subString, List<CryptoCurrency> list) {
-    subItems = [];
+  void currencySearchBySubstring(String subString, List<CryptoCurrency> list) {
+    subCryptoCurrencyList = [];
     setState(() {
       if (subString.isNotEmpty) {
-        list.forEach((dynamic element) {
-          subItems.add(element.toString());
-        });
-
-        subItemsIndexList = [];
-        subItems.forEach((element) {
-          if (element.contains(textFieldValue.toUpperCase())) {
-            subItemsIndexList.add(subItems.indexOf(element));
+        items.forEach((element) {
+          if (element.title.contains(subString.toUpperCase())) {
+            subCryptoCurrencyList.add(element);
           }
         });
-
-        for (var i = 0; i < subItemsIndexList.length; i++) {
-          subCryptoCurrencyList.add(list[subItemsIndexList[i]]);
-        }
-
-        subItems = (subItems.where(
-            (item) => item.contains(textFieldValue.toUpperCase()))).toList();
-
-        itemsCount = subItems.length;
+        itemsCount = subCryptoCurrencyList.length;
       } else {
-        itemsCount = items.length;
+        itemsCount = list.length;
       }
     });
   }
@@ -118,7 +103,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                           style: appBarTextStyle,
                           onChanged: (value) {
                             this.textFieldValue = value;
-                            searchByTextFieldValue(
+                            currencySearchBySubstring(
                                 textFieldValue, widget.items);
                           }),
                     ),

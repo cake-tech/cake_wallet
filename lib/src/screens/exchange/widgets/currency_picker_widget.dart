@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/palette.dart';
+import 'pickerItem.dart';
 
 class CurrencyPickerWidget extends StatefulWidget {
   CurrencyPickerWidget(
@@ -76,52 +77,55 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
               children: List.generate(
                   widget.itemsCount < 18
                       ? widget.itemsCount + (18 - widget.itemsCount)
-                      : widget.itemsCount,
-                  (index) => index < widget.itemsCount
-                      ? GestureDetector(
-                          onTap: () {
-                            pickListItem(index);
-                            widget.onItemSelected(
-                                widget.cryptoCurrencyList[index]);
-                          },
-                          child: Container(
-                            color: index == widget.selectedAtIndex
-                                ? Theme.of(context).textTheme.bodyText1.color
-                                : Theme.of(context)
-                                    .accentTextTheme
-                                    .headline6
-                                    .color,
-                            child: Center(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Container(),
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      widget.cryptoCurrencyList[index]
-                                          .toString(),
-                                      style: TextStyle(
-                                          color: index == widget.selectedAtIndex
-                                              ? Palette.blueCraiola
-                                              : Theme.of(context)
-                                                  .primaryTextTheme
-                                                  .title
-                                                  .color,
-                                          fontSize: 18.0),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Container(),
-                                  ),
-                                ],
+                      : widget.itemsCount, (index) {
+                if (index < widget.itemsCount) {
+                  return GestureDetector(
+                    onTap: () {
+                      pickListItem(index);
+                      widget.onItemSelected(widget.cryptoCurrencyList[index]);
+                    },
+                    child: Container(
+                      color: index == widget.selectedAtIndex
+                          ? Theme.of(context).textTheme.bodyText1.color
+                          : Theme.of(context).accentTextTheme.headline6.color,
+                      child: Center(
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                child: Image.asset(
+                                  PickerItem(
+                                          currencyIndex: widget
+                                              .cryptoCurrencyList[index].raw)
+                                      .leftIcon,
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      : Container(
-                          color: Colors.white,
-                        )),
+                            Expanded(
+                              flex: 3,
+                              child: Text(
+                                widget.cryptoCurrencyList[index].toString(),
+                                style: TextStyle(
+                                    color: index == widget.selectedAtIndex
+                                        ? Palette.blueCraiola
+                                        : Theme.of(context)
+                                            .primaryTextTheme
+                                            .title
+                                            .color,
+                                    fontSize: 18.0),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                } else {
+                  return Container(
+                    color: Colors.white,
+                  );
+                }
+              }),
             ),
             if (widget.itemsCount > 18)
               CakeScrollbar(
