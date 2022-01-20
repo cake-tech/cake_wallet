@@ -24,15 +24,17 @@ class NewWalletPage extends BasePage {
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
   final walletNameLightImage =
-    Image.asset('assets/images/wallet_name_light.png');
+      Image.asset('assets/images/wallet_name_light.png');
 
   @override
   String get title => S.current.new_wallet;
 
   @override
-  Widget body(BuildContext context) => WalletNameForm(_walletNewVM,
+  Widget body(BuildContext context) => WalletNameForm(
+      _walletNewVM,
       currentTheme.type == ThemeType.dark
-          ? walletNameImage : walletNameLightImage);
+          ? walletNameImage
+          : walletNameLightImage);
 }
 
 class WalletNameForm extends StatefulWidget {
@@ -60,7 +62,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
     _stateReaction ??=
         reaction((_) => _walletNewVM.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(context).pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
+        Navigator.of(context)
+            .pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
       }
 
       if (state is FailureState) {
@@ -92,7 +95,8 @@ class _WalletNameFormState extends State<WalletNameForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+                  child:
+                      FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 24),

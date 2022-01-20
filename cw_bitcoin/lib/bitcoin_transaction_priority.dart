@@ -1,5 +1,5 @@
 import 'package:cw_core/transaction_priority.dart';
-import 'package:cake_wallet/generated/i18n.dart';
+//import 'package:cake_wallet/generated/i18n.dart';
 
 class BitcoinTransactionPriority extends TransactionPriority {
   const BitcoinTransactionPriority({String title, int raw})
@@ -34,13 +34,13 @@ class BitcoinTransactionPriority extends TransactionPriority {
 
     switch (this) {
       case BitcoinTransactionPriority.slow:
-        label = '${S.current.transaction_priority_slow} ~24hrs';
+        label = 'Slow ~24hrs'; // '${S.current.transaction_priority_slow} ~24hrs';
         break;
       case BitcoinTransactionPriority.medium:
-        label = S.current.transaction_priority_medium;
+        label = 'Medium'; // S.current.transaction_priority_medium;
         break;
       case BitcoinTransactionPriority.fast:
-        label = S.current.transaction_priority_fast;
+        label = 'Fast'; // S.current.transaction_priority_fast;
         break;
       default:
         break;
@@ -86,13 +86,13 @@ class LitecoinTransactionPriority extends BitcoinTransactionPriority {
 
     switch (this) {
       case LitecoinTransactionPriority.slow:
-        label = S.current.transaction_priority_slow;
+        label = 'Slow'; // S.current.transaction_priority_slow;
         break;
       case LitecoinTransactionPriority.medium:
-        label = S.current.transaction_priority_medium;
+        label = 'Medium'; // S.current.transaction_priority_medium;
         break;
       case LitecoinTransactionPriority.fast:
-        label = S.current.transaction_priority_fast;
+        label = 'Fast'; // S.current.transaction_priority_fast;
         break;
       default:
         break;

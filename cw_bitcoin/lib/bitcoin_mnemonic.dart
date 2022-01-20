@@ -4,7 +4,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:unorm_dart/unorm_dart.dart' as unorm;
 import 'package:cryptography/cryptography.dart' as cryptography;
-import 'package:cake_wallet/core/sec_random_native.dart';
+import 'package:cw_core/sec_random_native.dart';
 
 const segwit = '100';
 final wordlist = englishWordlist;
