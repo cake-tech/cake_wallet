@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -24,15 +25,17 @@ class NewWalletPage extends BasePage {
   final walletNameImage = Image.asset('assets/images/wallet_name.png');
 
   final walletNameLightImage =
-    Image.asset('assets/images/wallet_name_light.png');
+      Image.asset('assets/images/wallet_name_light.png');
 
   @override
   String get title => S.current.new_wallet;
 
   @override
-  Widget body(BuildContext context) => WalletNameForm(_walletNewVM,
+  Widget body(BuildContext context) => WalletNameForm(
+      _walletNewVM,
       currentTheme.type == ThemeType.dark
-          ? walletNameImage : walletNameLightImage);
+          ? walletNameImage
+          : walletNameLightImage);
 }
 
 class WalletNameForm extends StatefulWidget {
@@ -55,12 +58,15 @@ class _WalletNameFormState extends State<WalletNameForm> {
   ReactionDisposer _stateReaction;
   final WalletNewVM _walletNewVM;
 
+  final TextEditingController _controller = TextEditingController();
+
   @override
   void initState() {
     _stateReaction ??=
         reaction((_) => _walletNewVM.state, (ExecutionState state) {
       if (state is ExecutedSuccessfullyState) {
-        Navigator.of(context).pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
+        Navigator.of(context)
+            .pushNamed(Routes.preSeed, arguments: _walletNewVM.type);
       }
 
       if (state is FailureState) {
@@ -92,44 +98,59 @@ class _WalletNameFormState extends State<WalletNameForm> {
               padding: EdgeInsets.only(left: 12, right: 12),
               child: AspectRatio(
                   aspectRatio: aspectRatioImage,
-                  child: FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
+                  child:
+                      FittedBox(child: widget.walletImage, fit: BoxFit.fill)),
             ),
             Padding(
               padding: EdgeInsets.only(top: 24),
               child: Form(
-                  key: _formKey,
-                  child: TextFormField(
-                      onChanged: (value) => _walletNewVM.name = value,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w600,
-                          color:
-                              Theme.of(context).primaryTextTheme.title.color),
-                      decoration: InputDecoration(
-                          hintStyle: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .display3
-                                  .color),
-                          hintText: S.of(context).wallet_name,
-                          focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context)
-                                      .accentTextTheme
-                                      .display3
-                                      .decorationColor,
-                                  width: 1.0)),
-                          enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(
-                                  color: Theme.of(context)
-                                      .accentTextTheme
-                                      .display3
-                                      .decorationColor,
-                                  width: 1.0))),
-                      validator: WalletNameValidator())),
+                key: _formKey,
+                child: TextFormField(
+                  onChanged: (value) => _walletNewVM.name = value,
+                  controller: _controller,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).primaryTextTheme.title.color),
+                  decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                      onPressed: () async {
+                        final String rName = await generateName();
+
+                        print(rName);
+                        setState(() {
+                          _controller.text = rName;
+                          _walletNewVM.name = rName;
+                        });
+                      },
+                      icon: Icon(Icons.refresh),
+                    ),
+                    hintStyle: TextStyle(
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.w500,
+                        color:
+                            Theme.of(context).accentTextTheme.display3.color),
+                    hintText: S.of(context).wallet_name,
+                    focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Theme.of(context)
+                                .accentTextTheme
+                                .display3
+                                .decorationColor,
+                            width: 1.0)),
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                          color: Theme.of(context)
+                              .accentTextTheme
+                              .display3
+                              .decorationColor,
+                          width: 1.0),
+                    ),
+                  ),
+                  validator: WalletNameValidator(),
+                ),
+              ),
             ),
             if (_walletNewVM.hasLanguageSelector) ...[
               Padding(

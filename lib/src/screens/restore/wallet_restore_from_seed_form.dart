@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -57,9 +58,21 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Column(children: [
           BaseTextFormField(
-              controller: nameTextEditingController,
-              hintText: S.of(context).wallet_name,
-              validator:  WalletNameValidator()),
+            controller: nameTextEditingController,
+            hintText: S.of(context).wallet_name,
+            validator: WalletNameValidator(),
+            suffixIcon: IconButton(
+              onPressed: () async {
+                final String rName = await generateName();
+
+                print(rName);
+                setState(() {
+                  nameTextEditingController.text = rName;
+                });
+              },
+              icon: Icon(Icons.refresh),
+            ),
+          ),
           Container(height: 20),
           SeedWidget(
               key: seedWidgetStateKey, language: language, type: widget.type),

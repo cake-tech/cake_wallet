@@ -20,5 +20,6 @@ Future<String> generateName() async {
   final chosenNoun = nouns[randomThing.nextInt(nouns.length)];
   final returnString =
       chosenAdjective.capitalized() + ' ' + chosenNoun.capitalized();
+    
   return returnString;
 }
