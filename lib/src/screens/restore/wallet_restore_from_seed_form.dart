@@ -68,9 +68,14 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 print(rName);
                 setState(() {
                   nameTextEditingController.text = rName;
+                  nameTextEditingController.selection =
+                      TextSelection.fromPosition(TextPosition(
+                          offset: nameTextEditingController.text.length));
                 });
               },
-              icon: Icon(Icons.refresh),
+              icon: Image.asset(
+                'assets/images/refresh_icon.png',
+              ),
             ),
           ),
           Container(height: 20),

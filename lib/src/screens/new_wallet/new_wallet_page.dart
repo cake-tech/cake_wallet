@@ -122,9 +122,13 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         setState(() {
                           _controller.text = rName;
                           _walletNewVM.name = rName;
+                          _controller.selection = TextSelection.fromPosition(
+                              TextPosition(offset: _controller.text.length));
                         });
                       },
-                      icon: Icon(Icons.refresh),
+                      icon: Image.asset(
+                        'assets/images/refresh_icon.png',
+                      ),
                     ),
                     hintStyle: TextStyle(
                         fontSize: 18.0,
