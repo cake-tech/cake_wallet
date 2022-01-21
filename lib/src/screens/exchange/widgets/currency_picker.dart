@@ -1,11 +1,11 @@
 import 'dart:ui';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'currency_picker_widget.dart';
 
 class CurrencyPicker extends StatefulWidget {
   CurrencyPicker({
@@ -15,162 +15,160 @@ class CurrencyPicker extends StatefulWidget {
     @required this.onItemSelected,
   });
 
-  final int selectedAtIndex;
+  int selectedAtIndex;
   final List<CryptoCurrency> items;
   final String title;
-  final Function(CryptoCurrency) onItemSelected;
+  final Function onItemSelected;
 
   @override
-  CurrencyPickerState createState() => CurrencyPickerState(
-    selectedAtIndex,
-    items,
-    title,
-    onItemSelected
-  );
+  CurrencyPickerState createState() => CurrencyPickerState(items);
 }
 
 class CurrencyPickerState extends State<CurrencyPicker> {
-  CurrencyPickerState(
-      this.selectedAtIndex,
-      this.items,
-      this.title,
-      this.onItemSelected): itemsCount = items.length;
+  CurrencyPickerState(this.items) : itemsCount = items.length;
 
-  final int selectedAtIndex;
-  final List<CryptoCurrency> items;
-  final String title;
-  final Function(CryptoCurrency) onItemSelected;
+  List<CryptoCurrency> items;
+  int itemsCount;
+  bool isSearchBarActive = false;
+  String textFieldValue = '';
+  List<CryptoCurrency> subCryptoCurrencyList = [];
+  TextStyle appBarTextStyle = TextStyle(
+      fontSize: 20,
+      fontFamily: 'Lato',
+      backgroundColor: Colors.transparent,
+      color: Colors.white);
 
-  final closeButton = Image.asset('assets/images/close.png',
-    color: Palette.darkBlueCraiola,
-  );
-  final int crossAxisCount = 3;
-  final int maxNumberItemsInAlert = 12;
-  final int itemsCount;
-  final double backgroundHeight = 280;
-  final double thumbHeight = 72;
-  ScrollController controller = ScrollController();
-  double fromTop = 0;
+  void currencySearchBySubstring(String subString, List<CryptoCurrency> list) {
+    subCryptoCurrencyList = [];
+    setState(() {
+      if (subString.isNotEmpty) {
+        items.forEach((element) {
+          if (element.title.contains(subString.toUpperCase())) {
+            subCryptoCurrencyList.add(element);
+          }
+        });
+        itemsCount = subCryptoCurrencyList.length;
+      } else {
+        itemsCount = list.length;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    controller.addListener(() {
-      fromTop = controller.hasClients
-          ? (controller.offset / controller.position.maxScrollExtent * (backgroundHeight - thumbHeight))
-          : 0;
-      setState(() {});
-    });
+    final double height = MediaQuery.of(context).size.height;
+    final double width = MediaQuery.of(context).size.width;
+    final double toolbarHeight = height * 0.1;
+    final double pickerHeight = height * 0.7;
+    final double bottomPickerPadding = height * 0.02;
+    final double bottomBarHeight = height * 0.09;
 
     return AlertBackground(
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(left: 24, right: 24),
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none,
-                        color: Colors.white
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          toolbarHeight: toolbarHeight,
+          automaticallyImplyLeading: false,
+          elevation: 0,
+          title: isSearchBarActive
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: width * 0.05),
+                      child: InkWell(
+                          child: Text(
+                            S.of(context).cancel,
+                            style: appBarTextStyle,
+                          ),
+                          onTap: () {
+                            setState(() {
+                              isSearchBarActive = false;
+                              textFieldValue = '';
+                              itemsCount = items.length;
+                            });
+                          }),
                     ),
+                    Container(
+                      width: 100.0,
+                      child: CupertinoTextField(
+                          autofocus: true,
+                          placeholder: S.of(context).search + '...',
+                          placeholderStyle: appBarTextStyle,
+                          decoration: BoxDecoration(color: Colors.transparent),
+                          cursorColor: Colors.white,
+                          cursorHeight: 23.0,
+                          style: appBarTextStyle,
+                          onChanged: (value) {
+                            this.textFieldValue = value;
+                            currencySearchBySubstring(
+                                textFieldValue, widget.items);
+                          }),
+                    ),
+                  ],
+                )
+              : Text(
+                  widget.title,
+                  style: appBarTextStyle,
+                ),
+          centerTitle: !isSearchBarActive,
+          actions: [
+            Padding(
+              padding: EdgeInsets.only(right: width * 0.05),
+              child: IconButton(
+                icon: Icon(Icons.search, color: Colors.white),
+                padding: EdgeInsets.zero,
+                constraints: BoxConstraints(),
+                onPressed: () {
+                  setState(() {
+                    isSearchBarActive = true;
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            CurrencyPickerWidget(
+              textFieldValue: textFieldValue,
+              crossAxisCount: 2,
+              height: pickerHeight,
+              width: width * 0.9,
+              selectedAtIndex: widget.selectedAtIndex,
+              cryptoCurrencyList:
+                  textFieldValue.isEmpty ? widget.items : subCryptoCurrencyList,
+              itemsCount: itemsCount,
+              onItemSelected: widget.onItemSelected,
+            ),
+            SizedBox(
+              height: bottomPickerPadding,
+              width: width,
+            ),
+            Container(
+              height: bottomBarHeight,
+              width: 42.0,
+              alignment: Alignment.topCenter,
+              child: FittedBox(
+                child: FloatingActionButton(
+                  elevation: 0,
+                  backgroundColor: Colors.white,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(
+                    Icons.close_outlined,
+                    color: Palette.darkBlueCraiola,
+                    size: 30.0,
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: GestureDetector(
-                    onTap: () => null,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(14)),
-                      child: Container(
-                          height: 320,
-                          width: 300,
-                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: <Widget>[
-                              GridView.count(
-                                padding: EdgeInsets.all(0),
-                                  controller: controller,
-                                  crossAxisCount: crossAxisCount,
-                                  childAspectRatio: 1.25,
-                                  crossAxisSpacing: 1,
-                                  mainAxisSpacing: 1,
-                                  children: List.generate(
-                                      itemsCount
-                                          + getExtraEmptyTilesCount(crossAxisCount, itemsCount),
-                                          (index) {
-
-                                        if (index >= itemsCount) {
-                                          return Container(
-                                            color: Theme.of(context).accentTextTheme.title.color,
-                                          );
-                                        }
-
-                                        final item = items[index];
-                                        final isItemSelected = index == selectedAtIndex;
-
-                                        final color = isItemSelected
-                                            ? Theme.of(context).textTheme.body2.color
-                                            : Theme.of(context).accentTextTheme.title.color;
-                                        final textColor = isItemSelected
-                                            ? Palette.blueCraiola
-                                            : Theme.of(context).primaryTextTheme.title.color;
-
-                                        return GestureDetector(
-                                          onTap: () {
-                                            if (onItemSelected == null) {
-                                              return;
-                                            }
-                                            Navigator.of(context).pop();
-                                            onItemSelected(item);
-                                          },
-                                          child: Container(
-                                            color: color,
-                                            child: Center(
-                                              child: Text(
-                                                item.toString(),
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontFamily: 'Lato',
-                                                    fontWeight: FontWeight.w600,
-                                                    decoration: TextDecoration.none,
-                                                    color: textColor
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      })
-                              ),
-                              if (itemsCount > maxNumberItemsInAlert)
-                              CakeScrollbar(
-                                  backgroundHeight: backgroundHeight,
-                                  thumbHeight: thumbHeight,
-                                  fromTop: fromTop
-                              )
-                            ],
-                          )
-                      ),
-                    ),
-                  ),
-                )
-              ],
+              ),
             ),
-            AlertCloseButton(image: closeButton)
           ],
-        )
+        ),
+      ),
     );
-  }
-
-  int getExtraEmptyTilesCount(int crossAxisCount, int itemsCount) {
-    final int tilesInNewRowCount = itemsCount % crossAxisCount;
-    return tilesInNewRowCount == 0 ? 0 : crossAxisCount - tilesInNewRowCount;
   }
 }
