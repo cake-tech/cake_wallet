@@ -73,9 +73,21 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                           offset: nameTextEditingController.text.length));
                 });
               },
-              icon: Image.asset(
-                'assets/images/refresh_icon.png',
-              ),
+              icon:Container(
+                        padding: const EdgeInsets.all(7)
+                        ,
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6.0),
+                            color: Color.fromRGBO(91, 112, 146, 1),),
+                        width: 27.0,
+                        height: 27.0,
+                        
+                        child: Image.asset(
+                          'assets/images/refresh_icon.png',
+                          width: 14,
+                          height: 13,
+                        ),
+                      ),
             ),
           ),
           Container(height: 20),
