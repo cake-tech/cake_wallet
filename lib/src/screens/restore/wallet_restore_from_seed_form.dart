@@ -61,33 +61,33 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             controller: nameTextEditingController,
             hintText: S.of(context).wallet_name,
             validator: WalletNameValidator(),
-            suffixIcon: IconButton(
-              onPressed: () async {
-                final String rName = await generateName();
+            suffixIcon: Container(
+              width: 12,
+              height: 14,
+              margin: const EdgeInsets.only( bottom: 15, left: 13),
+              child: InkWell(
+                onTap: () async {
+                  final String rName = await generateName();
 
-                print(rName);
-                setState(() {
-                  nameTextEditingController.text = rName;
-                  nameTextEditingController.selection =
-                      TextSelection.fromPosition(TextPosition(
-                          offset: nameTextEditingController.text.length));
-                });
-              },
-              icon:Container(
-                        padding: const EdgeInsets.all(7)
-                        ,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(6.0),
-                            color: Color.fromRGBO(91, 112, 146, 1),),
-                        width: 27.0,
-                        height: 27.0,
-                        
-                        child: Image.asset(
-                          'assets/images/refresh_icon.png',
-                          width: 14,
-                          height: 13,
-                        ),
-                      ),
+                  print(rName);
+                  setState(() {
+                    nameTextEditingController.text = rName;
+                    nameTextEditingController.selection =
+                        TextSelection.fromPosition(TextPosition(
+                            offset: nameTextEditingController.text.length));
+                  });
+                },
+                child: Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).hintColor,
+                        borderRadius: BorderRadius.all(Radius.circular(6))),
+                    child: Image.asset('assets/images/refresh_icon.png',
+                        color: Theme.of(context)
+                            .primaryTextTheme
+                            .display1
+                            .decorationColor)),
+              ),
             ),
           ),
           Container(height: 20),

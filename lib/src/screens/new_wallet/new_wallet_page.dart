@@ -127,17 +127,19 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         });
                       },
                       icon: Container(
-                        padding: const EdgeInsets.all(7),
+                        padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6.0),
-                          color: Color.fromRGBO(91, 112, 146, 1),
+                          color: Theme.of(context).hintColor,
                         ),
-                        width: 27.0,
-                        height: 27.0,
+                        width: 34,
+                        height: 34,
                         child: Image.asset(
                           'assets/images/refresh_icon.png',
-                          width: 14,
-                          height: 13,
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .display1
+                              .decorationColor,
                         ),
                       ),
                     ),
