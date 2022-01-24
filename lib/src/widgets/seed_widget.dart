@@ -12,10 +12,11 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/widgets.dart';
 
 class SeedWidget extends StatefulWidget {
-  SeedWidget({Key key, this.language, this.type}) : super(key: key);
+  SeedWidget({Key key, this.language, this.type, this.onSeedChange}) : super(key: key);
 
   final String language;
   final WalletType type;
+  final void Function(String) onSeedChange;
 
   @override
   SeedWidgetState createState() => SeedWidgetState(language, type);
@@ -25,8 +26,7 @@ class SeedWidgetState extends State<SeedWidget> {
   SeedWidgetState(String language, this.type)
       : controller = TextEditingController(),
         focusNode = FocusNode(),
-        words = SeedValidator.getWordList(
-            type:type, language: language) {
+        words = SeedValidator.getWordList(type: type, language: language) {
     focusNode.addListener(() {
       setState(() {
         if (!focusNode.hasFocus && controller.text.isEmpty) {
@@ -52,12 +52,12 @@ class SeedWidgetState extends State<SeedWidget> {
   void initState() {
     super.initState();
     _showPlaceholder = true;
+    controller.addListener(() => widget.onSeedChange?.call(text));
   }
 
   void changeSeedLanguage(String language) {
     setState(() {
-      words = SeedValidator.getWordList(
-          type: type, language: language);
+      words = SeedValidator.getWordList(type: type, language: language);
     });
   }
 

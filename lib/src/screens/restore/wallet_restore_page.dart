@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
@@ -18,6 +19,7 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/core/seed_validator.dart';
 
 class WalletRestorePage extends BasePage {
   WalletRestorePage(this.walletRestoreViewModel)
@@ -39,8 +41,44 @@ class WalletRestorePage extends BasePage {
               type: walletRestoreViewModel.type,
               key: walletRestoreFromSeedFormKey,
               blockHeightFocusNode: _blockHeightFocusNode,
-              onHeightOrDateEntered: (value) =>
-                  walletRestoreViewModel.isButtonEnabled = value));
+              onHeightOrDateEntered: (value) {
+                if (_isValidSeed()) {
+                  walletRestoreViewModel.isButtonEnabled = value;
+                }
+              },
+              onSeedChange: (String seed) {
+                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+                  final hasHeight = walletRestoreFromSeedFormKey
+                      .currentState
+                      .blockchainHeightKey
+                      .currentState
+                      .restoreHeightController
+                      .text
+                      .isNotEmpty;
+                  if (hasHeight) {
+                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+                  }
+                } else {
+                    walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+                }
+              },
+              onLanguageChange: (_) {
+                if (walletRestoreViewModel.hasBlockchainHeightLanguageSelector) {
+                  final hasHeight = walletRestoreFromSeedFormKey
+                    .currentState
+                    .blockchainHeightKey
+                    .currentState
+                    .restoreHeightController
+                    .text
+                    .isNotEmpty;
+
+                  if (hasHeight) {
+                    walletRestoreViewModel.isButtonEnabled = _isValidSeed(); 
+                  }
+                } else {
+                  walletRestoreViewModel.isButtonEnabled = _isValidSeed();
+                }
+              }));
           break;
         case WalletRestoreMode.keys:
           _pages.add(WalletRestoreFromKeysFrom(
@@ -167,6 +205,39 @@ class WalletRestorePage extends BasePage {
             },
           ))
     ])));
+  }
+
+  bool _isValidSeed() {
+    final seedWords = walletRestoreFromSeedFormKey
+      .currentState
+      .seedWidgetStateKey
+      .currentState
+      .text
+      .split(' ');
+
+    if (walletRestoreViewModel.type == WalletType.monero &&
+        seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
+      return false;
+    }
+    
+    if ((walletRestoreViewModel.type == WalletType.bitcoin ||
+        walletRestoreViewModel.type == WalletType.litecoin) && 
+      (seedWords.length != WalletRestoreViewModelBase.electrumSeedMnemonicLength &&
+        seedWords.length != WalletRestoreViewModelBase.electrumShortSeedMnemonicLength)) {
+      return false;
+    }
+
+    final words = walletRestoreFromSeedFormKey
+      .currentState
+      .seedWidgetStateKey
+      .currentState
+      .words
+      .toSet();
+    return seedWords
+      .toSet()
+      .difference(words)
+      .toSet()
+      .isEmpty;
   }
 
   Map<String, dynamic> _credentials() {
