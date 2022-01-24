@@ -109,8 +109,11 @@ Future<void> main() async {
     final templates = await Hive.openBox<Template>(Template.boxName);
     final exchangeTemplates =
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
-    final unspentCoinsInfoSource =
-      await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    Box<UnspentCoinsInfo> unspentCoinsInfoSource;
+    
+    if (!isMoneroOnly) {
+      unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+    }
     
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
