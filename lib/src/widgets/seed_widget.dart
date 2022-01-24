@@ -26,8 +26,7 @@ class SeedWidgetState extends State<SeedWidget> {
   SeedWidgetState(String language, this.type)
       : controller = TextEditingController(),
         focusNode = FocusNode(),
-        words = SeedValidator.getWordList(
-            type:type, language: language) {
+        words = SeedValidator.getWordList(type: type, language: language) {
     focusNode.addListener(() {
       setState(() {
         if (!focusNode.hasFocus && controller.text.isEmpty) {
@@ -58,8 +57,7 @@ class SeedWidgetState extends State<SeedWidget> {
 
   void changeSeedLanguage(String language) {
     setState(() {
-      words = SeedValidator.getWordList(
-          type: type, language: language);
+      words = SeedValidator.getWordList(type: type, language: language);
     });
   }
 
