@@ -315,21 +315,6 @@ class ExchangePage extends BasePage {
                       ),
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 12, left: 24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            StandardCheckbox(
-                              key: checkBoxKey,
-                              value: exchangeViewModel.isFixedRateMode,
-                              caption: S.of(context).fixed_rate,
-                              onChanged: (value) =>
-                              exchangeViewModel.isFixedRateMode = value,
-                            ),
-                          ],
-                        )
-                    ),
-                    Padding(
                       padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
