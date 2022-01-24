@@ -522,5 +522,6 @@
   "third_intro_content" : "Los Yats también viven fuera de Cake Wallet. Cualquier dirección de billetera en la tierra se puede reemplazar con un Yat!",
   "learn_more" : "Aprende más",
 
-  "new_template" : "Nueva plantilla"
+  "new_template" : "Nueva plantilla",
+  "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando"
 }

@@ -212,26 +212,4 @@ abstract class WalletAddressListViewModelBase with Store {
 
     _baseItems.add(WalletAddressListHeader());
   }
-
-  @action
-  void nextAddress() {
-    final wallet = _wallet;
-
-    if (wallet.type == WalletType.bitcoin
-      || wallet.type == WalletType.litecoin) {
-      bitcoin.nextAddress(wallet);
-      wallet.save();
-    }
-  }
-
-  @action
-  void generateRandomAddress() {
-    final wallet = _wallet;
-
-    if (wallet.type == WalletType.bitcoin
-      || wallet.type == WalletType.litecoin) {
-      bitcoin.randomAddress(wallet);
-      wallet.save();
-    } 
-  }
 }

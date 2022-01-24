@@ -522,5 +522,6 @@
   "third_intro_content" : "Anche Yats vive fuori da Cake Wallet. Qualsiasi indirizzo di portafoglio sulla terra può essere sostituito con un Yat!",
   "learn_more" : "Impara di più",
 
-  "new_template" : "Nuovo modello"
+  "new_template" : "Nuovo modello",
+  "electrum_address_disclaimer": "Generiamo nuovi indirizzi ogni volta che ne utilizzi uno, ma gli indirizzi precedenti continuano a funzionare"
 }

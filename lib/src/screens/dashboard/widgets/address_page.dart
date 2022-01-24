@@ -125,14 +125,15 @@ class AddressPage extends StatelessWidget {
                           ),
                         ),
                       )
-                    : PrimaryButton(
-                        onPressed: () => addressListViewModel.nextAddress(),
-                        text: 'Next address',
-                        color: Theme.of(context).buttonColor,
-                        textColor: Theme.of(context)
-                            .accentTextTheme
-                            .display3
-                            .backgroundColor);
+                    : Text(
+                        S.of(context).electrum_address_disclaimer,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            color: Theme.of(context)
+                              .accentTextTheme
+                              .display2
+                              .backgroundColor));
               })
             ],
           ),

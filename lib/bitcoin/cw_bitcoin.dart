@@ -53,18 +53,6 @@ class CWBitcoin extends Bitcoin {
 		final bitcoinWallet = wallet as ElectrumWallet;
 		await bitcoinWallet.walletAddresses.generateNewAddress();
 	}
-
-	@override
-	Future<void> nextAddress(Object wallet) {
-		final bitcoinWallet = wallet as ElectrumWallet;
-		bitcoinWallet.walletAddresses.nextReceiveAddress();
-	}
-
-	@override
-	Future<void> randomAddress(Object wallet) {
-		final bitcoinWallet = wallet as ElectrumWallet;
-		bitcoinWallet.walletAddresses.randomizeAddress();
-	}
 	
 	@override
 	Object createBitcoinTransactionCredentials(List<Output> outputs, TransactionPriority priority)

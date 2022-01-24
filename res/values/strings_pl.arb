@@ -522,5 +522,6 @@
   "third_intro_content" : "Yats mieszkają również poza Cake Wallet. Każdy adres portfela na ziemi można zastąpić Yat!",
   "learn_more" : "Ucz się więcej",
 
-  "new_template" : "Nowy szablon"
+  "new_template" : "Nowy szablon",
+  "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają"
 }

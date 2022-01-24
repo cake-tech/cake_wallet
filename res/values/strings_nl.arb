@@ -522,5 +522,6 @@
   "third_intro_content" : "Yats wonen ook buiten Cake Wallet. Elk portemonnee-adres op aarde kan worden vervangen door een Yat!",
   "learn_more" : "Kom meer te weten",
 
-  "new_template" : "Nieuwe sjabloon"
+  "new_template" : "Nieuwe sjabloon",
+  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
 }

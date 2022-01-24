@@ -523,5 +523,6 @@
   "third_intro_content" : "Yats live outside of Cake Wallet, too. Any wallet address on earth can be replaced with a Yat!",
   "learn_more" : "Learn More",
 
-  "new_template" : "New Template"
+  "new_template" : "New Template",
+  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
 }

@@ -520,5 +520,6 @@
   "third_intro_content" : "Yats 也住在 Cake Wallet 之外。 地球上任何一個錢包地址都可以用一個Yat來代替！",
   "learn_more" : "了解更多",
 
-  "new_template" : "新模板"
+  "new_template" : "新模板",
+  "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效"
 }

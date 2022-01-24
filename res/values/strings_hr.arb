@@ -522,5 +522,6 @@
   "third_intro_content" : "Yats žive i izvan Cake Wallet -a. Bilo koja adresa novčanika na svijetu može se zamijeniti Yat!",
   "learn_more" : "Saznajte više",
 
-  "new_template" : "novi predložak"
+  "new_template" : "novi predložak",
+  "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek"
 }

@@ -74,8 +74,6 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
-  Future<void> nextAddress(Object wallet);
-  Future<void> randomAddress(Object wallet);
   Object createBitcoinTransactionCredentials(List<Output> outputs, TransactionPriority priority);
 
   List<String> getAddresses(Object wallet);
