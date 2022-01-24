@@ -92,33 +92,38 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
                           ? Theme.of(context).textTheme.bodyText1.color
                           : Theme.of(context).accentTextTheme.headline6.color,
                       child: Center(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                child: Image.asset(
-                                  PickerItem(
-                                          currencyIndex: widget
-                                              .cryptoCurrencyList[index].raw)
-                                      .leftIcon,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  child: Image.asset(
+                                    PickerItem(
+                                            currencyIndex: widget
+                                                .cryptoCurrencyList[index].raw)
+                                        .leftIcon,
+                                    height: 32.0,
+                                    width: 32.0,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 3,
-                              child: Text(
-                                widget.cryptoCurrencyList[index].toString(),
-                                style: TextStyle(
-                                    color: index == widget.selectedAtIndex
-                                        ? Palette.blueCraiola
-                                        : Theme.of(context)
-                                            .primaryTextTheme
-                                            .title
-                                            .color,
-                                    fontSize: 18.0),
+                              Expanded(
+                                child: Text(
+                                  widget.cryptoCurrencyList[index].toString(),
+                                  style: TextStyle(
+                                      color: index == widget.selectedAtIndex
+                                          ? Palette.blueCraiola
+                                          : Theme.of(context)
+                                              .primaryTextTheme
+                                              .title
+                                              .color,
+                                      fontSize: 18.0),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
