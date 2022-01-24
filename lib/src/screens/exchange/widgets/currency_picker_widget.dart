@@ -28,12 +28,15 @@ class CurrencyPickerWidget extends StatefulWidget {
   List<String> postfixCryptoCurrencyIconList;
 
   @override
-  _CurrencyPickerWidgetState createState() => _CurrencyPickerWidgetState();
+  _CurrencyPickerWidgetState createState() =>
+      _CurrencyPickerWidgetState(height);
 }
 
 class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
-  final double backgroundHeight = 280;
-  final double thumbHeight = 72;
+  _CurrencyPickerWidgetState(this.height) : backgroundHeight = height * 0.95;
+  double height;
+  double backgroundHeight;
+  final double thumbHeight = 170;
   ScrollController controller = ScrollController();
   double fromTop = 0;
 
@@ -127,11 +130,10 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
                 }
               }),
             ),
-            if (widget.itemsCount > 18)
-              CakeScrollbar(
-                  backgroundHeight: backgroundHeight,
-                  thumbHeight: thumbHeight,
-                  fromTop: fromTop)
+            CakeScrollbar(
+                backgroundHeight: backgroundHeight,
+                thumbHeight: thumbHeight,
+                fromTop: fromTop)
           ],
         ),
       ),
