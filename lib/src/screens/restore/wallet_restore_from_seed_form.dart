@@ -64,12 +64,10 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             suffixIcon: Container(
               width: 12,
               height: 14,
-              margin: const EdgeInsets.only( bottom: 15, left: 13),
+              margin: const EdgeInsets.only(bottom: 15, left: 13),
               child: InkWell(
                 onTap: () async {
-                  final String rName = await generateName();
-
-                  print(rName);
+                  final rName = await generateName();
                   setState(() {
                     nameTextEditingController.text = rName;
                     nameTextEditingController.selection =

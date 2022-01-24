@@ -116,9 +116,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                   decoration: InputDecoration(
                     suffixIcon: IconButton(
                       onPressed: () async {
-                        final String rName = await generateName();
-
-                        print(rName);
+                        final rName = await generateName();
                         setState(() {
                           _controller.text = rName;
                           _walletNewVM.name = rName;
