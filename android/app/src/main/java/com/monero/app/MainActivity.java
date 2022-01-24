@@ -42,11 +42,11 @@ public class MainActivity extends FlutterFragmentActivity {
             switch (call.method) {
                 case "enableWakeScreen":
                     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                    handler.post(() -> result.success("screen wake turned ON"));
+                    handler.post(() -> result.success(true));
                     break;
                 case "disableWakeScreen":
                     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                    handler.post(() -> result.success("screen wake turned ON"));
+                    handler.post(() -> result.success(true));
                     break;
                 case "sec_random":
                     int count = call.argument("count");

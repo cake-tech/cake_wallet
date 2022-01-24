@@ -14,7 +14,7 @@ void startWalletSyncStatusChangeReaction(
     WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
             TransactionInfo>
         wallet) {
-  final WakeLock _wakeLock = getIt.get<WakeLock>();
+  final _wakeLock = getIt.get<WakeLock>();
   _onWalletSyncStatusChangeReaction?.reaction?.dispose();
   _onWalletSyncStatusChangeReaction =
       reaction((_) => wallet.syncStatus, (SyncStatus status) async {

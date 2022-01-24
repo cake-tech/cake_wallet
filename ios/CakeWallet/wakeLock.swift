@@ -8,13 +8,13 @@
 import Foundation
 import UIKit
 
-func enableWakeScreen() -> String {
+func enableWakeScreen() -> Bool{
     UIApplication.shared.isIdleTimerDisabled = true
 
-    return "screen wake turned ON"
+    return true
 }
 
-func disableWakeScreen() -> String{
+func disableWakeScreen() -> Bool{
     UIApplication.shared.isIdleTimerDisabled = false
-    return "screen wake turned OFF"
+    return true
 }
