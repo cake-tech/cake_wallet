@@ -130,7 +130,7 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
                   );
                 } else {
                   return Container(
-                    color: Colors.white,
+                    color: Theme.of(context).accentTextTheme.headline6.color,
                   );
                 }
               }),

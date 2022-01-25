@@ -3,9 +3,11 @@ class PickerItem {
     this.currencyIndex,
   }) {
     leftIcon = leftIcons[currencyIndex];
+    currencyName = currencyNames[currencyIndex];
   }
   final int currencyIndex;
   String leftIcon;
+  String currencyName;
 
   List<String> leftIcons = [
     'assets/images/monero_icon.png',
@@ -24,5 +26,24 @@ class PickerItem {
     'assets/images/usdterc20_icon.png',
     'assets/images/xlm_icon.png',
     'assets/images/xrp_icon.png',
+  ];
+
+  List<String> currencyNames = [
+    'monero',
+    'cardano',
+    'bitcoin cash',
+    'binance',
+    'bitcoin',
+    'dai',
+    'dash',
+    'eos',
+    'ethereum',
+    'litecoin',
+    'nano',
+    'tron',
+    'tether',
+    'tether ERC20',
+    'lumens',
+    'ripple',
   ];
 }

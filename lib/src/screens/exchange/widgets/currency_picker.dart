@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/pickerItem.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -43,7 +44,10 @@ class CurrencyPickerState extends State<CurrencyPicker> {
     setState(() {
       if (subString.isNotEmpty) {
         items.forEach((element) {
-          if (element.title.contains(subString.toUpperCase())) {
+          if (element.title.contains(subString.toUpperCase()) ||
+              PickerItem(currencyIndex: element.raw)
+                  .currencyName
+                  .contains(subString.toLowerCase())) {
             subCryptoCurrencyList.add(element);
           }
         });
