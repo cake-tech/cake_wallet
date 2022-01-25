@@ -5,7 +5,7 @@ class WakeLock {
 
   Future<void> enableWake() async {
     try {
-      await _utils.invokeMethod<String>('enableWakeScreen');
+      await _utils.invokeMethod<bool>('enableWakeScreen');
     } on PlatformException catch (_) {
       print('Failed enabling screen wakelock');
     }
@@ -13,7 +13,7 @@ class WakeLock {
 
   Future<void> disableWake() async {
     try {
-      await _utils.invokeMethod<String>('disableWakeScreen');
+      await _utils.invokeMethod<bool>('disableWakeScreen');
     } on PlatformException catch (_) {
       print('Failed enabling screen wakelock');
     }
