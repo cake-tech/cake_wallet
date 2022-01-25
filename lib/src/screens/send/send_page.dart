@@ -197,7 +197,7 @@ class SendPage extends BasePage {
                             itemCount: itemCount,
                             itemBuilder: (context, index) {
                               final template = templates[index];
-
+                              print(template.cryptoCurrency);
                               return TemplateTile(
                                 key: UniqueKey(),
                                 to: template.name,
