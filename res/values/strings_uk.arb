@@ -390,7 +390,7 @@
   "biometric_auth_reason" : "Відскануйте свій відбиток пальця для аутентифікації",
   "version" : "Версія ${currentVersion}",
 
-  "openalias_alert_title" : "Отримувача XMR виявлено",
+  "openalias_alert_title" : "Виявлено адресу",
   "openalias_alert_content" : "Ви будете відправляти кошти\n${recipient_name}",
 
   "card_address" : "Адреса:",
