@@ -7,12 +7,16 @@ class ChangeNowRequest extends TradeRequest {
       {@required this.from,
       @required this.to,
       @required this.address,
-      @required this.amount,
-      @required this.refundAddress});
+      @required this.fromAmount,
+      @required this.toAmount,
+      @required this.refundAddress,
+      @required this.isReverse});
 
   CryptoCurrency from;
   CryptoCurrency to;
   String address;
-  String amount;
+  String fromAmount;
+  String toAmount;
   String refundAddress;
+  bool isReverse;
 }
