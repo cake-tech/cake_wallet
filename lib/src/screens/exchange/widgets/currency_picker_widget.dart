@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cake_wallet/palette.dart';
 import 'pickerItem.dart';
+import 'currency_pickerItem_widget.dart';
 
 class CurrencyPickerWidget extends StatefulWidget {
   CurrencyPickerWidget(
@@ -23,9 +23,6 @@ class CurrencyPickerWidget extends StatefulWidget {
   final int itemsCount;
   final String textFieldValue;
   final Function onItemSelected;
-
-  List<String> prefixCryptoCurrencyIconList;
-  List<String> postfixCryptoCurrencyIconList;
 
   @override
   _CurrencyPickerWidgetState createState() =>
@@ -87,45 +84,20 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
                       pickListItem(index);
                       widget.onItemSelected(widget.cryptoCurrencyList[index]);
                     },
-                    child: Container(
-                      color: index == widget.selectedAtIndex
-                          ? Theme.of(context).textTheme.bodyText1.color
-                          : Theme.of(context).accentTextTheme.headline6.color,
-                      child: Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  child: Image.asset(
-                                    PickerItem(
-                                            currencyIndex: widget
-                                                .cryptoCurrencyList[index].raw)
-                                        .leftIcon,
-                                    height: 32.0,
-                                    width: 32.0,
-                                  ),
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  widget.cryptoCurrencyList[index].toString(),
-                                  style: TextStyle(
-                                      color: index == widget.selectedAtIndex
-                                          ? Palette.blueCraiola
-                                          : Theme.of(context)
-                                              .primaryTextTheme
-                                              .title
-                                              .color,
-                                      fontSize: 18.0),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    child: PickerItemWidget(
+                      pickerItemTitle: PickerItem(
+                              currencyIndex:
+                                  widget.cryptoCurrencyList[index].raw)
+                          .pickerTitle,
+                      leftIconImage: PickerItem(
+                              currencyIndex:
+                                  widget.cryptoCurrencyList[index].raw)
+                          .leftIcon,
+                      isSelected: index == widget.selectedAtIndex,
+                      tagName: PickerItem(
+                              currencyIndex:
+                                  widget.cryptoCurrencyList[index].raw)
+                          .tagName,
                     ),
                   );
                 } else {
