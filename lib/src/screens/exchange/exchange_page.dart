@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
@@ -44,6 +45,8 @@ class ExchangePage extends BasePage {
   final _depositAddressFocus = FocusNode();
   final _receiveAmountFocus = FocusNode();
   final _receiveAddressFocus = FocusNode();
+  final _receiveAmountDebounce = Debounce(Duration(milliseconds: 500));
+  final _depositAmountDebounce = Debounce(Duration(milliseconds: 500));
   var _isReactionsSet = false;
 
   @override
@@ -99,6 +102,7 @@ class ExchangePage extends BasePage {
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
     return KeyboardActions(
+        disableScroll: true,
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor:
@@ -113,7 +117,6 @@ class ExchangePage extends BasePage {
                   toolbarButtons: [(_) => KeyboardDoneButton()])
             ]),
         child: Container(
-          height: 1,
           color: Theme.of(context).backgroundColor,
           child: Form(
               key: _formKey,
@@ -313,6 +316,21 @@ class ExchangePage extends BasePage {
                           )
                         ],
                       ),
+                    ),
+                    Padding(
+                        padding: EdgeInsets.only(top: 12, left: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            StandardCheckbox(
+                              key: checkBoxKey,
+                              value: exchangeViewModel.isFixedRateMode,
+                              caption: S.of(context).fixed_rate,
+                              onChanged: (value) =>
+                              exchangeViewModel.isFixedRateMode = value,
+                            ),
+                          ],
+                        )
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
@@ -548,7 +566,9 @@ class ExchangePage extends BasePage {
       final max = limitsState.limits.max != null
           ? limitsState.limits.max.toString()
           : null;
-      final key = depositKey;
+      final key = exchangeViewModel.isFixedRateMode
+        ? receiveKey
+        : depositKey;
       key.currentState.changeLimits(min: min, max: max);
     }
 
@@ -656,8 +676,13 @@ class ExchangePage extends BasePage {
         max = '...';
       }
 
-      depositKey.currentState.changeLimits(min: min, max: max);
-      receiveKey.currentState.changeLimits(min: null, max: null);
+      if (exchangeViewModel.isFixedRateMode) {
+        depositKey.currentState.changeLimits(min: null, max: null);
+        receiveKey.currentState.changeLimits(min: min, max: max);
+      } else {
+        depositKey.currentState.changeLimits(min: min, max: max);
+        receiveKey.currentState.changeLimits(min: null, max: null);
+      }
     });
 
     depositAddressController.addListener(
@@ -665,9 +690,11 @@ class ExchangePage extends BasePage {
 
     depositAmountController.addListener(() {
       if (depositAmountController.text != exchangeViewModel.depositAmount) {
-        exchangeViewModel.changeDepositAmount(
-            amount: depositAmountController.text);
-        exchangeViewModel.isReceiveAmountEntered = false;
+        _depositAmountDebounce.run(() { 
+          exchangeViewModel.changeDepositAmount(
+              amount: depositAmountController.text);
+          exchangeViewModel.isReceiveAmountEntered = false;
+        });
       }
     });
 
@@ -676,9 +703,11 @@ class ExchangePage extends BasePage {
 
     receiveAmountController.addListener(() {
       if (receiveAmountController.text != exchangeViewModel.receiveAmount) {
-        exchangeViewModel.changeReceiveAmount(
-            amount: receiveAmountController.text);
-        exchangeViewModel.isReceiveAmountEntered = true;
+        _receiveAmountDebounce.run(() {
+          exchangeViewModel.changeReceiveAmount(
+              amount: receiveAmountController.text);
+          exchangeViewModel.isReceiveAmountEntered = true;
+        });
       }
     });
 

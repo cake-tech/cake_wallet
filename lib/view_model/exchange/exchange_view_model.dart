@@ -57,10 +57,14 @@ abstract class ExchangeViewModelBase with Store {
     receiveCurrencies = CryptoCurrency.all
       .where((cryptoCurrency) => !excludeCurrencies.contains(cryptoCurrency))
       .toList();
-    _defineIsReceiveAmountEditable();
+    isReverse = false;
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
+    _defineIsReceiveAmountEditable();
     loadLimits();
+    reaction(
+      (_) => isFixedRateMode,
+      (Object _) => _defineIsReceiveAmountEditable());
   }
 
   final WalletBase wallet;
@@ -129,6 +133,8 @@ abstract class ExchangeViewModelBase with Store {
 
   Limits limits;
 
+  bool isReverse;
+
   NumberFormat _cryptoNumberFormat;
 
   SettingsStore _settingsStore;
@@ -164,6 +170,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void changeReceiveAmount({String amount}) {
     receiveAmount = amount;
+    isReverse = true;
 
     if (amount == null || amount.isEmpty) {
       depositAmount = '';
@@ -190,6 +197,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void changeDepositAmount({String amount}) {
     depositAmount = amount;
+    isReverse = false;
 
     if (amount == null || amount.isEmpty) {
       depositAmount = '';
@@ -217,9 +225,15 @@ abstract class ExchangeViewModelBase with Store {
     limitsState = LimitsIsLoading();
 
     try {
+      final from = isFixedRateMode
+        ? receiveCurrency
+        : depositCurrency;
+      final to = isFixedRateMode
+        ? depositCurrency
+        : receiveCurrency;
       limits = await provider.fetchLimits(
-          from: depositCurrency,
-          to: receiveCurrency,
+          from: from,
+          to: to,
           isFixedRateMode: isFixedRateMode);
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
@@ -250,10 +264,12 @@ abstract class ExchangeViewModelBase with Store {
       request = ChangeNowRequest(
           from: depositCurrency,
           to: receiveCurrency,
-          amount: depositAmount?.replaceAll(',', '.'),
+          fromAmount: depositAmount?.replaceAll(',', '.'),
+          toAmount: receiveAmount?.replaceAll(',', '.'),
           refundAddress: depositAddress,
-          address: receiveAddress);
-      amount = depositAmount;
+          address: receiveAddress,
+          isReverse: isReverse);
+      amount = isReverse ? receiveAmount : depositAmount;
       currency = depositCurrency;
     }
 
@@ -422,6 +438,7 @@ abstract class ExchangeViewModelBase with Store {
     } else {
       isReceiveAmountEditable = false;
     }*/
-    isReceiveAmountEditable = false;
+    //isReceiveAmountEditable = false;
+    isReceiveAmountEditable = (isFixedRateMode ?? false) && provider is ChangeNowExchangeProvider;
   }
 }
