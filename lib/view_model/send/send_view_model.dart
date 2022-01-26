@@ -130,10 +130,9 @@ abstract class SendViewModelBase with Store {
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
 
   @computed
-  ObservableList<Template> get templates => sendTemplateViewModel.templates
+  List<Template> get templates => sendTemplateViewModel.templates
       .where((template) => template.cryptoCurrency == _wallet.currency.title)
-      .toList()
-      .asObservable();
+      .toList();
 
   @computed
   bool get isElectrumWallet =>
