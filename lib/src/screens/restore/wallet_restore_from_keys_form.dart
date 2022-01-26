@@ -37,6 +37,13 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
   final TextEditingController viewKeyController;
   final TextEditingController spendKeyController;
   final TextEditingController nameTextEditingController;
+  bool buttonPressed;
+
+  @override
+  void initState() {
+    super.initState();
+    buttonPressed = false;
+  }
 
   @override
   void dispose() {
@@ -54,17 +61,19 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
         child: Form(
           key: formKey,
           child: Column(children: <Widget>[
-            BaseTextFormField(
-              controller: nameTextEditingController,
-              hintText: S.of(context).wallet_name,
-              validator: WalletNameValidator(),
-              suffixIcon: Container(
-                width: 12,
-                height: 14,
-                margin: const EdgeInsets.only(bottom: 15, left: 13),
-                child: InkWell(
-                  onTap: () async {
+            Stack(
+              alignment: Alignment.centerRight,
+              children: [
+                BaseTextFormField(
+                  controller: nameTextEditingController,
+                  hintText: S.of(context).wallet_name,
+                  validator: WalletNameValidator(),
+                ),
+                IconButton(
+                  onPressed: () async {
                     final rName = await generateName();
+                    FocusManager.instance.primaryFocus?.unfocus();
+
                     setState(() {
                       nameTextEditingController.text = rName;
                       nameTextEditingController.selection =
@@ -72,18 +81,24 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                               offset: nameTextEditingController.text.length));
                     });
                   },
-                  child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).hintColor,
-                          borderRadius: BorderRadius.all(Radius.circular(6))),
-                      child: Image.asset('assets/images/refresh_icon.png',
-                          color: Theme.of(context)
-                              .primaryTextTheme
-                              .display1
-                              .decorationColor)),
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(6.0),
+                      color: Theme.of(context).hintColor,
+                    ),
+                    width: 34,
+                    height: 34,
+                    child: Image.asset(
+                      'assets/images/refresh_icon.png',
+                      color: Theme.of(context)
+                          .primaryTextTheme
+                          .display1
+                          .decorationColor,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
             Container(height: 20),
             BaseTextFormField(
