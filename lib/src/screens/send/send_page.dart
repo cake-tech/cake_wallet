@@ -131,117 +131,7 @@ class SendPage extends BasePage {
                   ),
                 ),
               ),
-              Container(
-                height: 40,
-                width: double.infinity,
-                padding: EdgeInsets.only(left: 24),
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Observer(
-                    builder: (_) {
-                      final templates = sendViewModel.templates;
-                      final itemCount = templates.length;
-
-                      return Row(
-                        children: <Widget>[
-                          GestureDetector(
-                            onTap: () => Navigator.of(context)
-                                .pushNamed(Routes.sendTemplate),
-                            child: Container(
-                              padding: EdgeInsets.only(left: 1, right: 10),
-                              child: DottedBorder(
-                                borderType: BorderType.RRect,
-                                dashPattern: [6, 4],
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline2
-                                    .decorationColor,
-                                strokeWidth: 2,
-                                radius: Radius.circular(20),
-                                child: Container(
-                                  height: 34,
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(20)),
-                                    color: Colors.transparent,
-                                  ),
-                                  child: templates.length >= 1
-                                      ? Icon(
-                                          Icons.add,
-                                          color: Theme.of(context)
-                                              .primaryTextTheme
-                                              .display3
-                                              .color,
-                                        )
-                                      : Text(
-                                          S.of(context).new_template,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600,
-                                            color: Theme.of(context)
-                                                .primaryTextTheme
-                                                .display3
-                                                .color,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemCount: itemCount,
-                            itemBuilder: (context, index) {
-                              final template = templates[index];
-
-                              return TemplateTile(
-                                key: UniqueKey(),
-                                to: template.name,
-                                amount: template.amount,
-                                from: template.cryptoCurrency,
-                                onTap: () async {
-                                  final output = _defineCurrentOutput();
-                                  output.address = template.address;
-                                  output.setCryptoAmount(template.amount);
-                                  output.resetParsedAddress();
-                                  await output.fetchParsedAddress(context);
-                                },
-                                onRemove: () {
-                                  showPopUp<void>(
-                                    context: context,
-                                    builder: (dialogContext) {
-                                      return AlertWithTwoActions(
-                                          alertTitle: S.of(context).template,
-                                          alertContent: S
-                                              .of(context)
-                                              .confirm_delete_template,
-                                          rightButtonText: S.of(context).delete,
-                                          leftButtonText: S.of(context).cancel,
-                                          actionRightButton: () {
-                                            Navigator.of(dialogContext).pop();
-                                            sendViewModel.sendTemplateViewModel
-                                                .removeTemplate(
-                                                    template: template);
-                                          },
-                                          actionLeftButton: () =>
-                                              Navigator.of(dialogContext)
-                                                  .pop());
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              )
+              _buildTemplateSection(context)
             ],
           ),
           bottomSectionPadding:
@@ -310,6 +200,116 @@ class SendPage extends BasePage {
               )
             ],
           )),
+    );
+  }
+
+  Widget _buildTemplateSection(BuildContext context) {
+    return Container(
+      height: 40,
+      width: double.infinity,
+      padding: EdgeInsets.only(left: 24),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Observer(
+          builder: (_) {
+            final templates = sendViewModel.templates;
+            final itemCount = templates.length;
+
+            return Row(
+              children: <Widget>[
+                GestureDetector(
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Routes.sendTemplate),
+                  child: Container(
+                    padding: EdgeInsets.only(left: 1, right: 10),
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
+                      dashPattern: [6, 4],
+                      color: Theme.of(context)
+                          .primaryTextTheme
+                          .headline2
+                          .decorationColor,
+                      strokeWidth: 2,
+                      radius: Radius.circular(20),
+                      child: Container(
+                        height: 34,
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Colors.transparent,
+                        ),
+                        child: templates.length >= 1
+                            ? Icon(
+                                Icons.add,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .display3
+                                    .color,
+                              )
+                            : Text(
+                                S.of(context).new_template,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .display3
+                                      .color,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+                ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: itemCount,
+                  itemBuilder: (context, index) {
+                    final template = templates[index];
+
+                    return TemplateTile(
+                      key: UniqueKey(),
+                      to: template.name,
+                      amount: template.amount,
+                      from: template.cryptoCurrency,
+                      onTap: () async {
+                        final output = _defineCurrentOutput();
+                        output.address = template.address;
+                        output.setCryptoAmount(template.amount);
+                        output.resetParsedAddress();
+                        await output.fetchParsedAddress(context);
+                      },
+                      onRemove: () {
+                        showPopUp<void>(
+                          context: context,
+                          builder: (dialogContext) {
+                            return AlertWithTwoActions(
+                                alertTitle: S.of(context).template,
+                                alertContent:
+                                    S.of(context).confirm_delete_template,
+                                rightButtonText: S.of(context).delete,
+                                leftButtonText: S.of(context).cancel,
+                                actionRightButton: () {
+                                  Navigator.of(dialogContext).pop();
+                                  sendViewModel.sendTemplateViewModel
+                                      .removeTemplate(template: template);
+                                },
+                                actionLeftButton: () =>
+                                    Navigator.of(dialogContext).pop());
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
