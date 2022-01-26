@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cw_core/wallet_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -59,68 +60,84 @@ class ContactListPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     return Container(
-        padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
-        child: Observer(
-          builder: (_) {
-            return SectionStandardList(
-              context: context,
-              sectionCount: 2,
-              sectionTitleBuilder: (_, int sectionIndex) {
-                var title = 'Contacts';
+      padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+      child: Observer(builder: (_) {
+        final walletInfo = contactListViewModel.walletContacts;
+        final contacts = contactListViewModel.contacts;
+        return Column(
+          children: [
+            ExpansionTile(
+              title: Container(
+                padding: EdgeInsets.only(left: 24, bottom: 20),
+                child: Text(
+                  'My Wallets',
+                  style: TextStyle(fontSize: 36, color: Colors.grey[800]),
+                ),
+              ),
+              children: [
+                for (var i = 0; i < walletInfo.length; i++)
+                  Container(
+                      child: generateRaw(context, walletInfo[i]),
+                      decoration: BoxDecoration(
+                          border: Border(
+                              top: BorderSide(
+                        color: Colors.grey[350],
+                      )))),
+              ],
+            ),
+            ExpansionTile(
+              trailing: Icon(Icons.expand_more_sharp, color: Colors.grey[800]),
+              title: Container(
+                padding: EdgeInsets.only(left: 24, bottom: 20),
+                child: Text(
+                  'Contacts',
+                  style: TextStyle(fontSize: 36, color: Colors.grey[800]),
+                ),
+              ),
+              children: [
+                for (var i = 0; i < contacts.length; i++)
+                  !isEditable
+                      ? Container(
+                          child: generateRaw(context, contacts[i]),
+                          decoration: BoxDecoration(
+                              border: Border(
+                                  top: BorderSide(
+                            color: Colors.grey[350],
+                          ))))
+                      : Slidable(
+                          key: Key('${contacts[i].key}'),
+                          actionPane: SlidableDrawerActionPane(),
+                          child: generateRaw(context, contacts[i]),
+                          secondaryActions: <Widget>[
+                              IconSlideAction(
+                                caption: S.of(context).edit,
+                                color: Colors.blue,
+                                icon: Icons.edit,
+                                onTap: () async => await Navigator.of(context)
+                                    .pushNamed(Routes.addressBookAddContact,
+                                        arguments: contacts[i]),
+                              ),
+                              IconSlideAction(
+                                caption: S.of(context).delete,
+                                color: Colors.red,
+                                icon: CupertinoIcons.delete,
+                                onTap: () async {
+                                  final isDelete =
+                                      await showAlertDialog(context) ?? false;
 
-                if (sectionIndex == 0) {
-                  title = 'My wallets';
-                }
-
-                return Container(
-                    padding: EdgeInsets.only(left: 24, bottom: 20),
-                    child: Text(title, style: TextStyle(fontSize: 36)));
-              },
-              itemCounter: (int sectionIndex) => sectionIndex == 0
-                  ? contactListViewModel.walletContacts.length
-                  : contactListViewModel.contacts.length,
-              itemBuilder: (_, sectionIndex, index) {
-                if (sectionIndex == 0) {
-                  final walletInfo = contactListViewModel.walletContacts[index];
-                  return generateRaw(context, walletInfo);
-                }
-
-                final contact = contactListViewModel.contacts[index];
-                final content = generateRaw(context, contact);
-
-                return !isEditable
-                    ? content
-                    : Slidable(
-                        key: Key('${contact.key}'),
-                        actionPane: SlidableDrawerActionPane(),
-                        child: content,
-                        secondaryActions: <Widget>[
-                            IconSlideAction(
-                              caption: S.of(context).edit,
-                              color: Colors.blue,
-                              icon: Icons.edit,
-                              onTap: () async => await Navigator.of(context)
-                                  .pushNamed(Routes.addressBookAddContact,
-                                      arguments: contact),
-                            ),
-                            IconSlideAction(
-                              caption: S.of(context).delete,
-                              color: Colors.red,
-                              icon: CupertinoIcons.delete,
-                              onTap: () async {
-                                final isDelete =
-                                    await showAlertDialog(context) ?? false;
-
-                                if (isDelete) {
-                                  await contactListViewModel.delete(contact);
-                                }
-                              },
-                            ),
-                          ]);
-              },
-            );
-          },
-        ));
+                                  if (isDelete) {
+                                    await contactListViewModel
+                                        .delete(contacts[i]);
+                                  }
+                                },
+                              ),
+                            ])
+              ],
+            ),
+          ],
+        );
+      }),
+    );
   }
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
@@ -152,19 +169,18 @@ class ContactListPage extends BasePage {
           children: <Widget>[
             image ?? Offstage(),
             Expanded(
-              child: Padding(
-                padding: image != null
-                    ? EdgeInsets.only(left: 12)
-                    : EdgeInsets.only(left: 0),
-                child: Text(
-                  contact.name,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).primaryTextTheme.title.color),
-                ),
-              )
-            )
+                child: Padding(
+              padding: image != null
+                  ? EdgeInsets.only(left: 12)
+                  : EdgeInsets.only(left: 0),
+              child: Text(
+                contact.name,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).primaryTextTheme.title.color),
+              ),
+            ))
           ],
         ),
       ),

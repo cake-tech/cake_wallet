@@ -73,7 +73,7 @@ RouteSettings currentRouteSettings;
 
 Route<dynamic> createRoute(RouteSettings settings) {
   currentRouteSettings = settings;
-  
+
   switch (settings.name) {
     case Routes.welcome:
       return MaterialPageRoute<void>(builder: (_) => createWelcomePage());
@@ -81,13 +81,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.newWalletFromWelcome:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
-	      	  if (isMoneroOnly) {    
-                      Navigator.of(context.context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
-		  } else {
-		      Navigator.of(context.context).pushNamed(Routes.newWalletType);
-		  }
-		  }),
+                  param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
+                if (isMoneroOnly) {
+                  Navigator.of(context.context).pushNamed(Routes.newWallet,
+                      arguments: WalletType.monero);
+                } else {
+                  Navigator.of(context.context).pushNamed(Routes.newWalletType);
+                }
+              }),
           fullscreenDialog: true);
 
     case Routes.newWalletType:
@@ -117,11 +118,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<SetupPinCodePage>(param1: callback));
 
     case Routes.moneroRestoreWalletFromWelcome:
-     return CupertinoPageRoute<void>(
+      return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.pushNamed(
-                      context.context, Routes.restoreWallet, arguments: WalletType.monero)),
+                  Navigator.pushNamed(context.context, Routes.restoreWallet,
+                      arguments: WalletType.monero)),
           fullscreenDialog: true);
 
     case Routes.restoreWalletType:
@@ -322,16 +323,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
               getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.preOrder:
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<PreOrderPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<PreOrderPage>());
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
 
       return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<BuyWebViewPage>(param1: args));
+          builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
 
     case Routes.restoreWalletFromSeedDetails:
       final args = settings.arguments as List;
@@ -381,8 +379,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportPage>());
 
     case Routes.unspentCoinsList:
       return MaterialPageRoute<void>(
@@ -392,9 +389,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final args = settings.arguments as List;
 
       return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<UnspentCoinsDetailsPage>(
-                  param1: args));
+          builder: (_) => getIt.get<UnspentCoinsDetailsPage>(param1: args));
 
     default:
       return MaterialPageRoute<void>(
