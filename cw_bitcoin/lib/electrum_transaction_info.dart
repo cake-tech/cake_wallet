@@ -1,33 +1,13 @@
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:bitcoin_flutter/bitcoin_flutter.dart' as bitcoin;
 import 'package:bitcoin_flutter/src/payments/index.dart' show PaymentData;
+import 'package:cw_bitcoin/address_from_output.dart';
 import 'package:cw_bitcoin/bitcoin_address_record.dart';
 import 'package:cw_bitcoin/bitcoin_amount_format.dart';
 import 'package:cw_core/transaction_direction.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/format_amount.dart';
 import 'package:cw_core/wallet_type.dart';
-
-String addressFromOutput(Uint8List script) {
-  try {
-    return bitcoin.P2PKH(
-        data: PaymentData(output: script),
-        network: bitcoin.bitcoin)
-      .data
-      .address;
-  } catch (_) {}
-
-  try {
-    return bitcoin.P2WPKH(
-        data: PaymentData(output: script),
-        network: bitcoin.bitcoin)
-      .data
-      .address;
-  } catch(_) {}
-
-  return null;
-}
 
 class ElectrumTransactionBundle {
   ElectrumTransactionBundle(this.originalTransaction, {this.ins, this.time, this.confirmations});
@@ -114,8 +94,11 @@ class ElectrumTransactionInfo extends TransactionInfo {
   }
 
   factory ElectrumTransactionInfo.fromElectrumBundle(
-      ElectrumTransactionBundle bundle, WalletType type,
-      {@required Set<String> addresses, int height}) {
+      ElectrumTransactionBundle bundle,
+      WalletType type,
+      bitcoin.NetworkType networkType,
+      {@required Set<String> addresses,
+        int height}) {
     final date = bundle.time != null
       ? DateTime.fromMillisecondsSinceEpoch(bundle.time * 1000)
       : DateTime.now();
@@ -129,7 +112,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
       final inputTransaction = bundle.ins[i];
       final vout = input.index;
       final outTransaction = inputTransaction.outs[vout];
-      final address = addressFromOutput(outTransaction.script);
+      final address = addressFromOutput(outTransaction.script, networkType);
       inputAmount += outTransaction.value;
       if (addresses.contains(address)) {
         direction = TransactionDirection.outgoing;
@@ -138,7 +121,7 @@ class ElectrumTransactionInfo extends TransactionInfo {
 
     for (final out in bundle.originalTransaction.outs) {
       totalOutAmount += out.value;
-      final address = addressFromOutput(out.script);
+      final address = addressFromOutput(out.script, networkType);
       final addressExists = addresses.contains(address);
       if ((direction == TransactionDirection.incoming && addressExists) ||
           (direction == TransactionDirection.outgoing && !addressExists)) {

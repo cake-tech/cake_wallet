@@ -318,21 +318,6 @@ class ExchangePage extends BasePage {
                       ),
                     ),
                     Padding(
-                        padding: EdgeInsets.only(top: 12, left: 24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            StandardCheckbox(
-                              key: checkBoxKey,
-                              value: exchangeViewModel.isFixedRateMode,
-                              caption: S.of(context).fixed_rate,
-                              onChanged: (value) =>
-                              exchangeViewModel.isFixedRateMode = value,
-                            ),
-                          ],
-                        )
-                    ),
-                    Padding(
                       padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
@@ -743,42 +728,15 @@ class ExchangePage extends BasePage {
     });
 
     _receiveAmountFocus.addListener(() {
-      if (_receiveAmountFocus.hasFocus && !exchangeViewModel.isFixedRateMode) {
-        showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithTwoActions(
-                  alertTitle: S.of(context).exchange,
-                  alertContent: S.of(context).fixed_rate_alert,
-                  leftButtonText: S.of(context).cancel,
-                  rightButtonText: S.of(context).ok,
-                  actionLeftButton: () {
-                    FocusScope.of(context).unfocus();
-                    Navigator.of(context).pop();
-                  },
-                  actionRightButton: () {
-                    exchangeViewModel.isFixedRateMode = true;
-                    checkBoxKey.currentState
-                        .changeValue(exchangeViewModel.isFixedRateMode);
-                    Navigator.of(context).pop();
-                  });
-            });
-      }
+      exchangeViewModel.isFixedRateMode = true;
+      exchangeViewModel.changeReceiveAmount(
+        amount: receiveAmountController.text);
     });
 
-    reaction((_) => exchangeViewModel.isFixedRateMode, (bool isFixedRateMode) {
-      if ((_receiveAmountFocus.hasFocus ||
-           exchangeViewModel.isReceiveAmountEntered) && !isFixedRateMode) {
-        FocusScope.of(context).unfocus();
-        receiveAmountController.text = '';
-      } else {
-        exchangeViewModel.changeDepositAmount(
-            amount: depositAmountController.text);
-      }
-
-      checkBoxKey.currentState
-          .changeValue(exchangeViewModel.isFixedRateMode);
-      exchangeViewModel.loadLimits();
+    _depositAmountFocus.addListener(() {
+      exchangeViewModel.isFixedRateMode = false;
+      exchangeViewModel.changeDepositAmount(
+        amount: depositAmountController.text);
     });
 
     _isReactionsSet = true;

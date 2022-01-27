@@ -64,7 +64,7 @@ abstract class ExchangeViewModelBase with Store {
     loadLimits();
     reaction(
       (_) => isFixedRateMode,
-      (Object _) => _defineIsReceiveAmountEditable());
+      (Object _) => loadLimits());
   }
 
   final WalletBase wallet;
@@ -439,6 +439,6 @@ abstract class ExchangeViewModelBase with Store {
       isReceiveAmountEditable = false;
     }*/
     //isReceiveAmountEditable = false;
-    isReceiveAmountEditable = (isFixedRateMode ?? false) && provider is ChangeNowExchangeProvider;
+    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
   }
 }
