@@ -101,6 +101,10 @@ import UnstoppableDomainsResolution
 
             case "disableWakeScreen":
                 result(disableWakeScreen())
+            
+            case "requestAppReview":
+                AppStoreReviewManager.requestReviewIfAppropriate()
+                result(nil)
 
             default:
                 result(FlutterMethodNotImplemented)

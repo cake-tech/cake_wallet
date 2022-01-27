@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/request_review.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -23,6 +24,9 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'send_view_model.g.dart';
 
@@ -44,6 +48,8 @@ abstract class SendViewModelBase with Store {
       ..add(Output(_wallet, _settingsStore, _fiatConversationStore));
   }
 
+  static const transactionsBeforeReview = 20;
+  
   @observable
   ExecutionState state;
 
@@ -156,7 +162,7 @@ abstract class SendViewModelBase with Store {
   }
 
   @action
-  Future<void> commitTransaction() async {
+  Future<void> commitTransaction() async {   
     String address = outputs.fold('', (acc, value) {
       return value.isParsedAddress
           ? acc + value.address + '\n' + value.extractedAddress + '\n\n'
@@ -184,7 +190,7 @@ abstract class SendViewModelBase with Store {
             : await transactionDescriptionBox.add(TransactionDescription(
                 id: pendingTransaction.id, transactionNote: note));
       }
-
+      await _reviewApp();
       state = TransactionCommitted();
     } catch (e) {
       state = FailureState(e.toString());
@@ -228,5 +234,17 @@ abstract class SendViewModelBase with Store {
     }
 
     return priority.toString();
+  }
+
+  Future<void> _reviewApp()async{
+      final sharedPref = getIt
+        .get<SharedPreferences>();
+       int transactionsCommitted = sharedPref.getInt(PreferencesKey.transactionsCommitted) ?? 0;
+   print(transactionsCommitted);
+    if (
+        transactionsCommitted / transactionsBeforeReview == 0) {
+     await startReview();
+    }
+   await sharedPref.setInt(PreferencesKey.transactionsCommitted, transactionsCommitted++);
   }
 }
