@@ -116,7 +116,9 @@ class ElectrumTransactionInfo extends TransactionInfo {
   factory ElectrumTransactionInfo.fromElectrumBundle(
       ElectrumTransactionBundle bundle, WalletType type,
       {@required Set<String> addresses, int height}) {
-    final date = DateTime.fromMillisecondsSinceEpoch(bundle.time * 1000);
+    final date = bundle.time != null
+      ? DateTime.fromMillisecondsSinceEpoch(bundle.time * 1000)
+      : DateTime.now();
     var direction = TransactionDirection.incoming;
     var amount = 0;
     var inputAmount = 0;

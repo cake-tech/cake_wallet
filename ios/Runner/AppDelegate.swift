@@ -96,6 +96,12 @@ import UnstoppableDomainsResolution
                     
                     result(address)
                 }
+            case "enableWakeScreen":
+                result(enableWakeScreen())
+
+            case "disableWakeScreen":
+                result(disableWakeScreen())
+
             default:
                 result(FlutterMethodNotImplemented)
             }
