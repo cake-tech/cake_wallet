@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -192,8 +193,8 @@ Future setup(
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
   getIt.registerSingleton<YatStore>(YatStore(
-    appStore: getIt.get<AppStore>(),
-    secureStorage: getIt.get<FlutterSecureStorage>())
+      appStore: getIt.get<AppStore>(),
+      secureStorage: getIt.get<FlutterSecureStorage>())
     ..init());
 
   final secretStore =
@@ -237,11 +238,9 @@ Future setup(
         type: type, language: language);
   });
 
-  getIt.registerFactory<WalletAddressListViewModel>(
-      () => WalletAddressListViewModel(
-          appStore: getIt.get<AppStore>(),
-          yatStore: getIt.get<YatStore>()
-      ));
+  getIt.registerFactory<WalletAddressListViewModel>(() =>
+      WalletAddressListViewModel(
+          appStore: getIt.get<AppStore>(), yatStore: getIt.get<YatStore>()));
 
   getIt.registerFactory(() => BalanceViewModel(
       appStore: getIt.get<AppStore>(),
@@ -323,8 +322,7 @@ Future setup(
       getIt.get<AppStore>().wallet,
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateStore>(),
-      getIt.get<FiatConversionStore>()
-  ));
+      getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory<SendViewModel>(() => SendViewModel(
       getIt.get<AppStore>().wallet,
@@ -336,9 +334,8 @@ Future setup(
   getIt.registerFactory(
       () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(
-      () => SendTemplatePage(
-          sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
+  getIt.registerFactory(() => SendTemplatePage(
+      sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
 
   getIt.registerFactory(() => WalletListViewModel(
       _walletInfoSource,
@@ -471,9 +468,11 @@ Future setup(
       case WalletType.monero:
         return monero.createMoneroWalletService(_walletInfoSource);
       case WalletType.bitcoin:
-        return bitcoin.createBitcoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return bitcoin.createBitcoinWalletService(
+            _walletInfoSource, _unspentCoinsInfoSource);
       case WalletType.litecoin:
-        return bitcoin.createLitecoinWalletService(_walletInfoSource, _unspentCoinsInfoSource);
+        return bitcoin.createLitecoinWalletService(
+            _walletInfoSource, _unspentCoinsInfoSource);
       default:
         return null;
     }
@@ -507,13 +506,13 @@ Future setup(
   getIt
       .registerFactoryParam<TransactionDetailsViewModel, TransactionInfo, void>(
           (TransactionInfo transactionInfo, _) {
-            final wallet = getIt.get<AppStore>().wallet;
-            return TransactionDetailsViewModel(
-                transactionInfo: transactionInfo,
-                transactionDescriptionBox: _transactionDescriptionBox,
-                wallet: wallet,
-                settingsStore: getIt.get<SettingsStore>());
-          });
+    final wallet = getIt.get<AppStore>().wallet;
+    return TransactionDetailsViewModel(
+        transactionInfo: transactionInfo,
+        transactionDescriptionBox: _transactionDescriptionBox,
+        wallet: wallet,
+        settingsStore: getIt.get<SettingsStore>());
+  });
 
   getIt.registerFactoryParam<TransactionDetailsPage, TransactionInfo, void>(
       (TransactionInfo transactionInfo, _) => TransactionDetailsPage(
@@ -574,23 +573,21 @@ Future setup(
     return PreOrderPage(buyViewModel: getIt.get<BuyViewModel>());
   });
 
-  getIt.registerFactoryParam<BuyWebViewPage, List, void>(
-          (List args, _) {
-            final url = args.first as String;
-            final buyViewModel = args[1] as BuyViewModel;
+  getIt.registerFactoryParam<BuyWebViewPage, List, void>((List args, _) {
+    final url = args.first as String;
+    final buyViewModel = args[1] as BuyViewModel;
 
-            return BuyWebViewPage(buyViewModel: buyViewModel,
-                ordersStore: getIt.get<OrdersStore>(), url: url);
-          });
+    return BuyWebViewPage(
+        buyViewModel: buyViewModel,
+        ordersStore: getIt.get<OrdersStore>(),
+        url: url);
+  });
 
-  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>(
-          (order, _) {
-            final wallet = getIt.get<AppStore>().wallet;
+  getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) {
+    final wallet = getIt.get<AppStore>().wallet;
 
-            return OrderDetailsViewModel(
-                wallet: wallet,
-                orderForDetails: order);
-          });
+    return OrderDetailsViewModel(wallet: wallet, orderForDetails: order);
+  });
 
   getIt.registerFactoryParam<OrderDetailsPage, Order, void>((Order order, _) =>
       OrderDetailsPage(getIt.get<OrderDetailsViewModel>(param1: order)));
@@ -603,31 +600,28 @@ Future setup(
     final wallet = getIt.get<AppStore>().wallet;
 
     return UnspentCoinsListViewModel(
-        wallet: wallet,
-        unspentCoinsInfo: _unspentCoinsInfoSource);
+        wallet: wallet, unspentCoinsInfo: _unspentCoinsInfoSource);
   });
 
   getIt.registerFactory(() => UnspentCoinsListPage(
-    unspentCoinsListViewModel: getIt.get<UnspentCoinsListViewModel>()
-  ));
+      unspentCoinsListViewModel: getIt.get<UnspentCoinsListViewModel>()));
 
-  getIt.registerFactoryParam<UnspentCoinsDetailsViewModel,
-      UnspentCoinsItem, UnspentCoinsListViewModel>((item, model) =>
-      UnspentCoinsDetailsViewModel(
-          unspentCoinsItem: item,
-          unspentCoinsListViewModel: model));
+  getIt.registerFactoryParam<UnspentCoinsDetailsViewModel, UnspentCoinsItem,
+          UnspentCoinsListViewModel>(
+      (item, model) => UnspentCoinsDetailsViewModel(
+          unspentCoinsItem: item, unspentCoinsListViewModel: model));
 
   getIt.registerFactoryParam<UnspentCoinsDetailsPage, List, void>(
-        (List args, _) {
-        final item = args.first as UnspentCoinsItem;
-        final unspentCoinsListViewModel = args[1] as UnspentCoinsListViewModel;
+      (List args, _) {
+    final item = args.first as UnspentCoinsItem;
+    final unspentCoinsListViewModel = args[1] as UnspentCoinsListViewModel;
 
-        return UnspentCoinsDetailsPage(
-            unspentCoinsDetailsViewModel:
-              getIt.get<UnspentCoinsDetailsViewModel>(
-                  param1: item,
-                  param2: unspentCoinsListViewModel));
+    return UnspentCoinsDetailsPage(
+        unspentCoinsDetailsViewModel: getIt.get<UnspentCoinsDetailsViewModel>(
+            param1: item, param2: unspentCoinsListViewModel));
   });
+
+  getIt.registerFactory(() => WakeLock());
 
   _isSetupFinished = true;
 }

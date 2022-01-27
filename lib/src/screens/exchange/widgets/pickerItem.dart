@@ -7,6 +7,7 @@ class PickerItem {
     pickerTitle = pickerTitles[currencyIndex];
     tagName = getTagTitle(currencyIndex);
   }
+
   final int currencyIndex;
   String leftIcon;
   String currencyName;
@@ -68,6 +69,7 @@ class PickerItem {
     'XLM',
     'XRP',
   ];
+
   String getTagTitle(int currencyIndex) {
     switch (currencyIndex) {
       case 3:
