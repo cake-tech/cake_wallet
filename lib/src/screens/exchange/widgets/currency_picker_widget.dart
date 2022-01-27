@@ -75,42 +75,46 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
               crossAxisSpacing: 1,
               mainAxisSpacing: 1,
               children: List.generate(
-                  widget.itemsCount < 18
-                      ? widget.itemsCount + (18 - widget.itemsCount)
-                      : widget.itemsCount, (index) {
-                if (index < widget.itemsCount) {
-                  return GestureDetector(
-                    onTap: () {
-                      pickListItem(index);
-                      widget.onItemSelected(widget.cryptoCurrencyList[index]);
-                    },
-                    child: PickerItemWidget(
-                      pickerItemTitle: PickerItem(
-                              currencyIndex:
-                                  widget.cryptoCurrencyList[index].raw)
-                          .pickerTitle,
-                      leftIconImage: PickerItem(
-                              currencyIndex:
-                                  widget.cryptoCurrencyList[index].raw)
-                          .leftIcon,
-                      isSelected: index == widget.selectedAtIndex,
-                      tagName: PickerItem(
-                              currencyIndex:
-                                  widget.cryptoCurrencyList[index].raw)
-                          .tagName,
-                    ),
-                  );
-                } else {
-                  return Container(
-                    color: Theme.of(context).accentTextTheme.headline6.color,
-                  );
-                }
-              }),
+                widget.itemsCount < 16
+                    ? widget.itemsCount + (16 - widget.itemsCount)
+                    : widget.itemsCount,
+                (index) {
+                  if (index < widget.itemsCount) {
+                    return GestureDetector(
+                      onTap: () {
+                        pickListItem(index);
+                        widget.onItemSelected(widget.cryptoCurrencyList[index]);
+                      },
+                      child: PickerItemWidget(
+                        pickerItemTitle: PickerItem(
+                                currencyIndex:
+                                    widget.cryptoCurrencyList[index].raw)
+                            .pickerTitle,
+                        leftIconImage: PickerItem(
+                                currencyIndex:
+                                    widget.cryptoCurrencyList[index].raw)
+                            .leftIcon,
+                        isSelected: index == widget.selectedAtIndex,
+                        tagName: PickerItem(
+                                currencyIndex:
+                                    widget.cryptoCurrencyList[index].raw)
+                            .tagName,
+                      ),
+                    );
+                  } else {
+                    return Container(
+                      color: Theme.of(context).accentTextTheme.headline6.color,
+                    );
+                  }
+                },
+              ),
             ),
-            CakeScrollbar(
-                backgroundHeight: backgroundHeight,
-                thumbHeight: thumbHeight,
-                fromTop: fromTop)
+            widget.itemsCount > 16
+                ? CakeScrollbar(
+                    backgroundHeight: backgroundHeight,
+                    thumbHeight: thumbHeight,
+                    fromTop: fromTop)
+                : Container(),
           ],
         ),
       ),
