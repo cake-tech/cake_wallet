@@ -67,28 +67,42 @@ class ContactListPage extends BasePage {
         return Column(
           children: [
             ExpansionTile(
+              initiallyExpanded: true,
               title: Container(
-                padding: EdgeInsets.only(left: 24, bottom: 20),
+                padding: EdgeInsets.only(left: 8, bottom: 20, top: 20),
                 child: Text(
                   'My Wallets',
                   style: TextStyle(fontSize: 36, color: Colors.grey[800]),
                 ),
               ),
               children: [
+                Divider(
+                  thickness: 2,
+                ),
                 for (var i = 0; i < walletInfo.length; i++)
                   Container(
-                      child: generateRaw(context, walletInfo[i]),
-                      decoration: BoxDecoration(
-                          border: Border(
-                              top: BorderSide(
-                        color: Colors.grey[350],
-                      )))),
+                    child: Column(
+                      children: [
+                        generateRaw(context, walletInfo[i]),
+                        Container(
+                            width: MediaQuery.of(context).size.width * 0.9,
+                            decoration: BoxDecoration(
+                                border: Border(
+                                    top: BorderSide(
+                              color: Colors.grey[350],
+                            )))),
+                      ],
+                    ),
+                  ),
+                SizedBox(
+                  height: 20,
+                )
               ],
             ),
             ExpansionTile(
-              trailing: Icon(Icons.expand_more_sharp, color: Colors.grey[800]),
+              initiallyExpanded: true,
               title: Container(
-                padding: EdgeInsets.only(left: 24, bottom: 20),
+                padding: EdgeInsets.only(left: 8, bottom: 20),
                 child: Text(
                   'Contacts',
                   style: TextStyle(fontSize: 36, color: Colors.grey[800]),
@@ -98,12 +112,20 @@ class ContactListPage extends BasePage {
                 for (var i = 0; i < contacts.length; i++)
                   !isEditable
                       ? Container(
-                          child: generateRaw(context, contacts[i]),
-                          decoration: BoxDecoration(
-                              border: Border(
-                                  top: BorderSide(
-                            color: Colors.grey[350],
-                          ))))
+                          child: Column(
+                            children: [
+                              generateRaw(context, contacts[i]),
+                              Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.9,
+                                  decoration: BoxDecoration(
+                                      border: Border(
+                                          top: BorderSide(
+                                    color: Colors.grey[350],
+                                  )))),
+                            ],
+                          ),
+                        )
                       : Slidable(
                           key: Key('${contacts[i].key}'),
                           actionPane: SlidableDrawerActionPane(),
