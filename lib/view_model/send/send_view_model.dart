@@ -240,9 +240,7 @@ abstract class SendViewModelBase with Store {
       final sharedPref = getIt
         .get<SharedPreferences>();
        int transactionsCommitted = sharedPref.getInt(PreferencesKey.transactionsCommitted) ?? 0;
-   print(transactionsCommitted);
-    if (
-        transactionsCommitted / transactionsBeforeReview == 0) {
+    if (transactionsCommitted / transactionsBeforeReview == 0) {
      await startReview();
     }
    await sharedPref.setInt(PreferencesKey.transactionsCommitted, transactionsCommitted++);
