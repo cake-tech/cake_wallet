@@ -66,95 +66,125 @@ class ContactListPage extends BasePage {
         final contacts = contactListViewModel.contacts;
         return Column(
           children: [
-            ExpansionTile(
-              initiallyExpanded: true,
-              title: Container(
-                padding: EdgeInsets.only(left: 8, bottom: 20, top: 20),
-                child: Text(
-                  'My Wallets',
-                  style: TextStyle(fontSize: 36, color: Colors.grey[800]),
+            Theme(
+              data: ThemeData().copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                initiallyExpanded: true,
+                title: Container(
+                  padding: EdgeInsets.only(left: 8, bottom: 20, top: 20),
+                  child: Text(
+                    'My Wallets',
+                    style: TextStyle(fontSize: 36, color: Colors.grey[800]),
+                  ),
                 ),
-              ),
-              children: [
-                Divider(
-                  thickness: 2,
-                ),
-                for (var i = 0; i < walletInfo.length; i++)
+                children: [
                   Container(
-                    child: Column(
+                    margin: const EdgeInsets.only(left: 25, right: 0),
+                    decoration: BoxDecoration(
+                        border: Border(
+                            bottom: BorderSide(
+                                width: 2,
+                                color: Theme.of(context)
+                                    .accentTextTheme
+                                    .caption
+                                    .color))),
+                  ),
+                  for (var i = 0; i < walletInfo.length; i++)
+                    Column(
                       children: [
-                        generateRaw(context, walletInfo[i]),
                         Container(
-                            width: MediaQuery.of(context).size.width * 0.9,
+                          child: generateRaw(context, walletInfo[i]),
+                        ),
+                        Container(
+                            margin: const EdgeInsets.only(left: 25, right: 0),
                             decoration: BoxDecoration(
                                 border: Border(
-                                    top: BorderSide(
-                              color: Colors.grey[350],
-                            )))),
+                                    bottom: BorderSide(
+                                        width: 2,
+                                        color: Theme.of(context)
+                                            .accentTextTheme
+                                            .caption
+                                            .color)))),
                       ],
                     ),
-                  ),
-                SizedBox(
-                  height: 20,
-                )
-              ],
-            ),
-            ExpansionTile(
-              initiallyExpanded: true,
-              title: Container(
-                padding: EdgeInsets.only(left: 8, bottom: 20),
-                child: Text(
-                  'Contacts',
-                  style: TextStyle(fontSize: 36, color: Colors.grey[800]),
-                ),
+                ],
               ),
-              children: [
-                for (var i = 0; i < contacts.length; i++)
-                  !isEditable
-                      ? Container(
-                          child: Column(
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Theme(
+              data: ThemeData().copyWith(dividerColor: Colors.transparent),
+              child: ExpansionTile(
+                initiallyExpanded: true,
+                title: Container(
+                  padding: EdgeInsets.only(left: 8, bottom: 20),
+                  child: Text(
+                    'Contacts',
+                    style: TextStyle(fontSize: 36, color: Colors.grey[800]),
+                  ),
+                ),
+                children: [
+                  Container(
+                      margin: const EdgeInsets.only(left: 25, right: 0),
+                      decoration: BoxDecoration(
+                          border: Border(
+                              bottom: BorderSide(
+                                  width: 2,
+                                  color: Theme.of(context)
+                                      .accentTextTheme
+                                      .caption
+                                      .color)))),
+                  for (var i = 0; i < contacts.length; i++)
+                    !isEditable
+                        ? Column(
                             children: [
-                              generateRaw(context, contacts[i]),
                               Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.9,
+                                child: generateRaw(context, contacts[i]),
+                              ),
+                              Container(
+                                  margin:
+                                      const EdgeInsets.only(left: 25, right: 0),
                                   decoration: BoxDecoration(
                                       border: Border(
-                                          top: BorderSide(
-                                    color: Colors.grey[350],
-                                  )))),
+                                          bottom: BorderSide(
+                                              width: 1.5,
+                                              color: Theme.of(context)
+                                                  .accentTextTheme
+                                                  .caption
+                                                  .color))))
                             ],
-                          ),
-                        )
-                      : Slidable(
-                          key: Key('${contacts[i].key}'),
-                          actionPane: SlidableDrawerActionPane(),
-                          child: generateRaw(context, contacts[i]),
-                          secondaryActions: <Widget>[
-                              IconSlideAction(
-                                caption: S.of(context).edit,
-                                color: Colors.blue,
-                                icon: Icons.edit,
-                                onTap: () async => await Navigator.of(context)
-                                    .pushNamed(Routes.addressBookAddContact,
-                                        arguments: contacts[i]),
-                              ),
-                              IconSlideAction(
-                                caption: S.of(context).delete,
-                                color: Colors.red,
-                                icon: CupertinoIcons.delete,
-                                onTap: () async {
-                                  final isDelete =
-                                      await showAlertDialog(context) ?? false;
+                          )
+                        : Slidable(
+                            key: Key('${contacts[i].key}'),
+                            actionPane: SlidableDrawerActionPane(),
+                            child: generateRaw(context, contacts[i]),
+                            secondaryActions: <Widget>[
+                                IconSlideAction(
+                                  caption: S.of(context).edit,
+                                  color: Colors.blue,
+                                  icon: Icons.edit,
+                                  onTap: () async => await Navigator.of(context)
+                                      .pushNamed(Routes.addressBookAddContact,
+                                          arguments: contacts[i]),
+                                ),
+                                IconSlideAction(
+                                  caption: S.of(context).delete,
+                                  color: Colors.red,
+                                  icon: CupertinoIcons.delete,
+                                  onTap: () async {
+                                    final isDelete =
+                                        await showAlertDialog(context) ?? false;
 
-                                  if (isDelete) {
-                                    await contactListViewModel
-                                        .delete(contacts[i]);
-                                  }
-                                },
-                              ),
-                            ])
-              ],
+                                    if (isDelete) {
+                                      await contactListViewModel
+                                          .delete(contacts[i]);
+                                    }
+                                  },
+                                ),
+                              ])
+                ],
+              ),
             ),
           ],
         );
