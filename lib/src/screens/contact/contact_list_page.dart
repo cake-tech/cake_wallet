@@ -19,6 +19,7 @@ class ContactListPage extends BasePage {
 
   final ContactListViewModel contactListViewModel;
   final bool isEditable;
+  int counter = 0;
 
   @override
   String get title => S.current.address_book;
@@ -47,6 +48,7 @@ class ContactListPage extends BasePage {
               child: FlatButton(
                   shape: CircleBorder(),
                   onPressed: () async {
+                    counter = 0;
                     await Navigator.of(context)
                         .pushNamed(Routes.addressBookAddContact);
                   },
@@ -74,7 +76,55 @@ class ContactListPage extends BasePage {
 
                 return Container(
                     padding: EdgeInsets.only(left: 24, bottom: 20),
-                    child: Text(title, style: TextStyle(fontSize: 36)));
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(fontSize: 36),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(0, 10, 28, 0),
+                          child: sectionIndex == 0
+                              ? IconButton(
+                                  iconSize: 30,
+                                  splashRadius: 26,
+                                  icon: Icon(
+                                      contactListViewModel.isShownMyWallets
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .body1
+                                          .color),
+                                  onPressed: () {
+                                    contactListViewModel.isShownMyWallets =
+                                        !contactListViewModel.isShownMyWallets;
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                )
+                              : IconButton(
+                                  iconSize: 30,
+                                  splashRadius: 26,
+                                  icon: Icon(
+                                      contactListViewModel.isShownContacts
+                                          ? Icons.keyboard_arrow_up
+                                          : Icons.keyboard_arrow_down,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .body1
+                                          .color),
+                                  onPressed: () {
+                                    contactListViewModel.isShownContacts =
+                                        !contactListViewModel.isShownContacts;
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  constraints: BoxConstraints(),
+                                ),
+                        ),
+                      ],
+                    ));
               },
               itemCounter: (int sectionIndex) => sectionIndex == 0
                   ? contactListViewModel.walletContacts.length
@@ -125,7 +175,6 @@ class ContactListPage extends BasePage {
 
   Widget generateRaw(BuildContext context, ContactBase contact) {
     final image = _getCurrencyImage(contact.type);
-
     return GestureDetector(
       onTap: () async {
         if (!isEditable) {
@@ -142,6 +191,24 @@ class ContactListPage extends BasePage {
         }
       },
       child: Container(
+        height: (() {
+          if (counter >=
+              contactListViewModel.walletContacts.length +
+                  contactListViewModel.contacts.length) {
+            counter = 0;
+          }
+          if (contactListViewModel.walletContacts.length > counter) {
+            counter++;
+            return contactListViewModel.isShownMyWallets;
+          } else if (contactListViewModel.walletContacts.length +
+                  contactListViewModel.contacts.length >
+              counter) {
+            counter++;
+            return contactListViewModel.isShownContacts;
+          }
+        }())
+            ? null
+            : 0,
         color: Colors.transparent,
         padding:
             const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
@@ -152,19 +219,18 @@ class ContactListPage extends BasePage {
           children: <Widget>[
             image ?? Offstage(),
             Expanded(
-              child: Padding(
-                padding: image != null
-                    ? EdgeInsets.only(left: 12)
-                    : EdgeInsets.only(left: 0),
-                child: Text(
-                  contact.name,
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).primaryTextTheme.title.color),
-                ),
-              )
-            )
+                child: Padding(
+              padding: image != null
+                  ? EdgeInsets.only(left: 12)
+                  : EdgeInsets.only(left: 0),
+              child: Text(
+                contact.name,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.normal,
+                    color: Theme.of(context).primaryTextTheme.title.color),
+              ),
+            ))
           ],
         ),
       ),

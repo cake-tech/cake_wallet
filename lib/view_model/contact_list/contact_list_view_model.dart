@@ -20,14 +20,10 @@ abstract class ContactListViewModelBase with Store {
     walletInfoSource.values.forEach((info) {
       if (info.addresses?.isNotEmpty ?? false) {
         info.addresses?.forEach((address, label) {
-          final name = label.isNotEmpty
-            ? info.name + ' ($label)'
-            : info.name;
+          final name = label.isNotEmpty ? info.name + ' ($label)' : info.name;
 
           walletContacts.add(WalletContact(
-              address,
-              name,
-              walletTypeToCryptoCurrency(info.type)));
+              address, name, walletTypeToCryptoCurrency(info.type)));
         });
       }
     });
@@ -44,4 +40,10 @@ abstract class ContactListViewModelBase with Store {
   StreamSubscription<BoxEvent> _subscription;
 
   Future<void> delete(ContactRecord contact) async => contact.original.delete();
+
+  @observable
+  bool isShownMyWallets = true;
+
+  @observable
+  bool isShownContacts = true;
 }

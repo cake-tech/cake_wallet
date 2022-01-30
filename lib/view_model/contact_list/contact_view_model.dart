@@ -11,7 +11,7 @@ part 'contact_view_model.g.dart';
 class ContactViewModel = ContactViewModelBase with _$ContactViewModel;
 
 abstract class ContactViewModelBase with Store {
-  ContactViewModelBase(this._contacts,  {ContactRecord contact})
+  ContactViewModelBase(this._contacts, {ContactRecord contact})
       : state = InitialExecutionState(),
         currencies = CryptoCurrency.all,
         _contact = contact {
