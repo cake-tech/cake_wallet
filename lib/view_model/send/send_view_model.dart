@@ -131,7 +131,7 @@ abstract class SendViewModelBase with Store {
 
   @computed
   List<Template> get templates => sendTemplateViewModel.templates
-      .where((template) => template.cryptoCurrency == _wallet.currency.title)
+      .where((template) => _isEqualCurrency(template.cryptoCurrency))
       .toList();
 
   @computed
@@ -231,4 +231,7 @@ abstract class SendViewModelBase with Store {
 
     return priority.toString();
   }
+
+  bool _isEqualCurrency(String currency) => 
+      currency.toLowerCase() == _wallet.currency.title.toLowerCase();
 }
