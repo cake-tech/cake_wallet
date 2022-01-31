@@ -7,12 +7,13 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/entities/generate_name.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
   WalletRestoreFromKeysFrom({Key key, this.onHeightOrDateEntered})
       : super(key: key);
 
-  final Function (bool) onHeightOrDateEntered;
+  final Function(bool) onHeightOrDateEntered;
 
   @override
   WalletRestoreFromKeysFromState createState() =>
@@ -56,7 +57,34 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
             BaseTextFormField(
               controller: nameTextEditingController,
               hintText: S.of(context).wallet_name,
-              validator:  WalletNameValidator()),
+              validator: WalletNameValidator(),
+              suffixIcon: Container(
+                width: 12,
+                height: 14,
+                margin: const EdgeInsets.only(bottom: 15, left: 13),
+                child: InkWell(
+                  onTap: () async {
+                    final rName = await generateName();
+                    setState(() {
+                      nameTextEditingController.text = rName;
+                      nameTextEditingController.selection =
+                          TextSelection.fromPosition(TextPosition(
+                              offset: nameTextEditingController.text.length));
+                    });
+                  },
+                  child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).hintColor,
+                          borderRadius: BorderRadius.all(Radius.circular(6))),
+                      child: Image.asset('assets/images/refresh_icon.png',
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .display1
+                              .decorationColor)),
+                ),
+              ),
+            ),
             Container(height: 20),
             BaseTextFormField(
                 controller: addressController,

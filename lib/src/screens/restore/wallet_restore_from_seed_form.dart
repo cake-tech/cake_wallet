@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/generate_name.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,7 +19,9 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
       @required this.displayBlockHeightSelector,
       @required this.type,
       this.blockHeightFocusNode,
-      this.onHeightOrDateEntered})
+      this.onHeightOrDateEntered,
+      this.onSeedChange,
+      this.onLanguageChange})
       : super(key: key);
 
   final WalletType type;
@@ -26,6 +29,8 @@ class WalletRestoreFromSeedForm extends StatefulWidget {
   final bool displayBlockHeightSelector;
   final FocusNode blockHeightFocusNode;
   final Function(bool) onHeightOrDateEntered;
+  final void Function(String) onSeedChange;
+  final void Function(String) onLanguageChange;
 
   @override
   WalletRestoreFromSeedFormState createState() =>
@@ -57,12 +62,42 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Column(children: [
           BaseTextFormField(
-              controller: nameTextEditingController,
-              hintText: S.of(context).wallet_name,
-              validator:  WalletNameValidator()),
+            controller: nameTextEditingController,
+            hintText: S.of(context).wallet_name,
+            validator: WalletNameValidator(),
+            suffixIcon: Container(
+              width: 12,
+              height: 14,
+              margin: const EdgeInsets.only(bottom: 15, left: 13),
+              child: InkWell(
+                onTap: () async {
+                  final rName = await generateName();
+                  setState(() {
+                    nameTextEditingController.text = rName;
+                    nameTextEditingController.selection =
+                        TextSelection.fromPosition(TextPosition(
+                            offset: nameTextEditingController.text.length));
+                  });
+                },
+                child: Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).hintColor,
+                        borderRadius: BorderRadius.all(Radius.circular(6))),
+                    child: Image.asset('assets/images/refresh_icon.png',
+                        color: Theme.of(context)
+                            .primaryTextTheme
+                            .display1
+                            .decorationColor)),
+              ),
+            ),
+          ),
           Container(height: 20),
           SeedWidget(
-              key: seedWidgetStateKey, language: language, type: widget.type),
+              key: seedWidgetStateKey,
+              language: language,
+              type: widget.type,
+              onSeedChange: widget.onSeedChange),
           if (widget.displayLanguageSelector)
             GestureDetector(
                 onTap: () async {
@@ -98,6 +133,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
       this.language = language;
       seedWidgetStateKey.currentState.changeSeedLanguage(language);
       _setLanguageLabel(language);
+      widget.onLanguageChange?.call(language);
     });
   }
 

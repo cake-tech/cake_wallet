@@ -74,8 +74,6 @@ abstract class Bitcoin {
   TransactionPriority deserializeBitcoinTransactionPriority(int raw); 
   int getFeeRate(Object wallet, TransactionPriority priority);
   Future<void> generateNewAddress(Object wallet);
-  Future<void> nextAddress(Object wallet);
-  Future<void> randomAddress(Object wallet);
   Object createBitcoinTransactionCredentials(List<Output> outputs, TransactionPriority priority);
 
   List<String> getAddresses(Object wallet);
@@ -143,6 +141,8 @@ import 'package:cw_monero/mnemonics/japanese.dart';
 import 'package:cw_monero/mnemonics/russian.dart';
 import 'package:cw_monero/mnemonics/spanish.dart';
 import 'package:cw_monero/mnemonics/portuguese.dart';
+import 'package:cw_monero/mnemonics/french.dart';
+import 'package:cw_monero/mnemonics/italian.dart';
 """;
   const moneroCwPart = "part 'cw_monero.dart';";
   const moneroContent = """

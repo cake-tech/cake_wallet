@@ -484,7 +484,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final original = bitcoin.Transaction.fromHex(transactionHex);
     final ins = <bitcoin.Transaction>[];
     final time = verboseTransaction['time'] as int;
-    final confirmations = verboseTransaction['time'] as int;
+    final confirmations = verboseTransaction['confirmations'] as int ?? 0;
 
     for (final vin in original.ins) {
       final id = HEX.encode(vin.hash.reversed.toList());
@@ -510,13 +510,35 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   @override
   Future<Map<String, ElectrumTransactionInfo>> fetchTransactions() async {
+    final addressHashes = <String, BitcoinAddressRecord>{};
+    final normalizedHistories = <Map<String, dynamic>>[];
+    walletAddresses.addresses.forEach((addressRecord) {
+      if (addressRecord.isHidden) {
+        return;
+      }
+
+      final sh = scriptHash(addressRecord.address, networkType: networkType);
+      addressHashes[sh] = addressRecord;
+    });
     final histories =
-        publicScriptHashes.map((scriptHash) => electrumClient.getHistory(scriptHash));
-    final _historiesWithDetails = await Future.wait(histories)
-        .then((histories) => histories.expand((i) => i).toList())
-        .then((histories) => histories.map((tx) => fetchTransactionInfo(
-            hash: tx['tx_hash'] as String, height: tx['height'] as int)));
-    final historiesWithDetails = await Future.wait(_historiesWithDetails);
+        addressHashes.keys.map((scriptHash) => electrumClient
+          .getHistory(scriptHash)
+          .then((history) => {scriptHash: history}));
+    final historyResults = await Future.wait(histories);
+    historyResults.forEach((history) {
+      history.entries.forEach((historyItem) {
+        if (historyItem.value.isNotEmpty) {
+          final address = addressHashes[historyItem.key];
+          address.setAsUsed();
+          normalizedHistories.addAll(historyItem.value);
+        }
+      });
+    });
+    final historiesWithDetails = await Future.wait(
+      normalizedHistories
+        .map((transaction) => fetchTransactionInfo(
+            hash: transaction['tx_hash'] as String,
+            height: transaction['height'] as int)));
 
     return historiesWithDetails.fold<Map<String, ElectrumTransactionInfo>>(
         <String, ElectrumTransactionInfo>{}, (acc, tx) {
@@ -534,6 +556,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       _isTransactionUpdating = true;
       final transactions = await fetchTransactions();
       transactionHistory.addMany(transactions);
+      walletAddresses.updateReceiveAddresses();
       await transactionHistory.save();
       _isTransactionUpdating = false;
     } catch (e) {
