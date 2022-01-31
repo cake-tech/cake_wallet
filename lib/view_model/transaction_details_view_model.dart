@@ -13,6 +13,7 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/monero/monero.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -31,6 +32,9 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
+    final key = tx.additionalInfo['key'] as String;
+    final accountIndex = tx.additionalInfo['accountIndex'] as int;
+    final addressIndex = tx.additionalInfo['addressIndex'] as int;
 
     if (wallet.type == WalletType.monero) {
       final _items = [
@@ -46,30 +50,27 @@ abstract class TransactionDetailsViewModelBase with Store {
             value: tx.amountFormatted()),
         StandartListItem(
             title: S.current.transaction_details_fee, value: tx.feeFormatted()),
+        if (key?.isNotEmpty ?? false)
+          StandartListItem(title: S.current.transaction_key, value: key)
       ];
 
-      //if (tx.key?.isNotEmpty ?? null) {
-      //  _items.add(
-      //      StandartListItem(title: S.current.transaction_key, value: tx.key));
-      //}
+      if (tx.direction == TransactionDirection.incoming &&
+          accountIndex != null &&
+          addressIndex != null) {
+        try {
+          final address = monero.getTransactionAddress(wallet, accountIndex, addressIndex);
 
-      //if (tx.direction == TransactionDirection.incoming) {
-      //  try {
-      //    final accountIndex = tx.accountIndex;
-      //    final addressIndex = tx.addressIndex;
-          //final address = moneroUtils.getTransactionAddress(wallet, accountIndex, addressIndex);
-
-          //if (address?.isNotEmpty ?? false) {
-          //  isRecipientAddressShown = true;
-          //  _items.add(
-          //      StandartListItem(
-          //          title: S.current.transaction_details_recipient_address,
-          //          value: address));
-          //}
-      //  } catch (e) {
-      //    print(e.toString());
-      //  }
-      //}
+          if (address?.isNotEmpty ?? false) {
+            isRecipientAddressShown = true;
+            _items.add(
+                StandartListItem(
+                    title: S.current.transaction_details_recipient_address,
+                    value: address));
+          }
+        } catch (e) {
+          print(e.toString());
+        }
+      }
 
       items.addAll(_items);
     }
