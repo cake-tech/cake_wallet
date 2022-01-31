@@ -3,9 +3,13 @@ import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
+import 'package:keyboard_actions/keyboard_actions_config.dart';
+import 'package:keyboard_actions/keyboard_actions_item.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -28,6 +32,8 @@ class ExchangeTemplatePage extends BasePage {
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
   final _formKey = GlobalKey<FormState>();
+  final _depositAmountFocus = FocusNode();
+  final _receiveAmountFocus = FocusNode();
   var _isReactionsSet = false;
 
   @override
@@ -35,9 +41,6 @@ class ExchangeTemplatePage extends BasePage {
 
   @override
   Color get titleColor => Colors.white;
-
-  @override
-  bool get resizeToAvoidBottomInset => false;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -74,7 +77,22 @@ class ExchangeTemplatePage extends BasePage {
     WidgetsBinding.instance
         .addPostFrameCallback((_) => _setReactions(context, exchangeViewModel));
 
-    return Container(
+    return KeyboardActions(
+        disableScroll: true,
+        config: KeyboardActionsConfig(
+            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+            keyboardBarColor:
+                Theme.of(context).accentTextTheme.body2.backgroundColor,
+            nextFocus: false,
+            actions: [
+              KeyboardActionsItem(
+                  focusNode: _depositAmountFocus,
+                  toolbarButtons: [(_) => KeyboardDoneButton()]),
+              KeyboardActionsItem(
+                  focusNode: _receiveAmountFocus,
+                  toolbarButtons: [(_) => KeyboardDoneButton()])
+            ]),
+        child: Container(
         color: Theme.of(context).backgroundColor,
         child: Form(
             key: _formKey,
@@ -121,6 +139,7 @@ class ExchangeTemplatePage extends BasePage {
                       padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
                       child: Observer(
                         builder: (_) => ExchangeCard(
+                          amountFocusNode: _depositAmountFocus,
                           key: depositKey,
                           title: S.of(context).you_will_send,
                           initialCurrency:
@@ -160,6 +179,7 @@ class ExchangeTemplatePage extends BasePage {
                       padding: EdgeInsets.only(top: 29, left: 24, right: 24),
                       child: Observer(
                           builder: (_) => ExchangeCard(
+                            amountFocusNode: _receiveAmountFocus,
                             key: receiveKey,
                             title: S.of(context).you_will_get,
                             initialCurrency:
@@ -244,6 +264,7 @@ class ExchangeTemplatePage extends BasePage {
                     textColor: Colors.white),
               ]),
             ))
+      )
     );
   }
 

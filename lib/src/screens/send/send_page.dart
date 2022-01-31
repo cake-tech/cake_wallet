@@ -197,7 +197,6 @@ class SendPage extends BasePage {
                             itemCount: itemCount,
                             itemBuilder: (context, index) {
                               final template = templates[index];
-
                               return TemplateTile(
                                 key: UniqueKey(),
                                 to: template.name,
