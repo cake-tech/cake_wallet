@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'pickerItem.dart';
 import 'currency_pickerItem_widget.dart';
@@ -30,31 +29,20 @@ class CurrencyPickerWidget extends StatefulWidget {
 }
 
 class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
-  _CurrencyPickerWidgetState(this.height) : backgroundHeight = height * 0.95;
+  _CurrencyPickerWidgetState(this.height);
+
   double height;
-  double backgroundHeight;
-  final double thumbHeight = 170;
-  ScrollController controller = ScrollController();
-  double fromTop = 0;
 
   void pickListItem(int index) {
     setState(() {
       widget.selectedAtIndex = index;
+      widget.onItemSelected(widget.cryptoCurrencyList[index]);
     });
     Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
-    controller.addListener(() {
-      fromTop = controller.hasClients
-          ? (controller.offset /
-              controller.position.maxScrollExtent *
-              (backgroundHeight - thumbHeight))
-          : 0;
-      setState(() {});
-    });
-
     return Container(
       height: widget.height,
       width: widget.width,
@@ -64,58 +52,34 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14.0),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            GridView.count(
-              padding: EdgeInsets.all(0),
-              controller: controller,
-              crossAxisCount: widget.crossAxisCount,
-              childAspectRatio: (widget.width * 0.9 / 2) / (widget.height / 9),
-              crossAxisSpacing: 1,
-              mainAxisSpacing: 1,
-              children: List.generate(
-                widget.itemsCount < 16
-                    ? widget.itemsCount + (16 - widget.itemsCount)
-                    : widget.itemsCount,
-                (index) {
-                  if (index < widget.itemsCount) {
-                    return GestureDetector(
-                      onTap: () {
-                        pickListItem(index);
-                        widget.onItemSelected(widget.cryptoCurrencyList[index]);
-                      },
-                      child: PickerItemWidget(
-                        pickerItemTitle: PickerItem(
-                                currencyIndex:
-                                    widget.cryptoCurrencyList[index].raw)
-                            .pickerTitle,
-                        leftIconImage: PickerItem(
-                                currencyIndex:
-                                    widget.cryptoCurrencyList[index].raw)
-                            .leftIcon,
-                        isSelected: index == widget.selectedAtIndex,
-                        tagName: PickerItem(
-                                currencyIndex:
-                                    widget.cryptoCurrencyList[index].raw)
-                            .tagName,
-                      ),
-                    );
-                  } else {
-                    return Container(
-                      color: Theme.of(context).accentTextTheme.headline6.color,
-                    );
-                  }
-                },
-              ),
-            ),
-            widget.itemsCount > 16
-                ? CakeScrollbar(
-                    backgroundHeight: backgroundHeight,
-                    thumbHeight: thumbHeight,
-                    fromTop: fromTop)
-                : Container(),
-          ],
+        child: Scrollbar(
+          isAlwaysShown: true,
+          thickness: 6.0,
+          radius: Radius.circular(3),
+          child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 5 / 2,
+                  crossAxisSpacing: 1,
+                  mainAxisSpacing: 1),
+              itemCount: widget.cryptoCurrencyList.length,
+              itemBuilder: (BuildContext ctx, index) {
+                return PickerItemWidget(
+                  onTap: () {
+                    pickListItem(index);
+                  },
+                  pickerItemTitle: PickerItem(
+                          currencyIndex: widget.cryptoCurrencyList[index].raw)
+                      .pickerTitle,
+                  leftIconImage: PickerItem(
+                          currencyIndex: widget.cryptoCurrencyList[index].raw)
+                      .leftIcon,
+                  isSelected: index == widget.selectedAtIndex,
+                  tagName: PickerItem(
+                          currencyIndex: widget.cryptoCurrencyList[index].raw)
+                      .tagName,
+                );
+              }),
         ),
       ),
     );
