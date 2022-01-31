@@ -391,7 +391,7 @@ class ExchangePage extends BasePage {
         child: Observer(
           builder: (_) {
             final templates = exchangeViewModel.templates;
-            final itemCount = templates.length;
+      
             return Row(
               children: <Widget>[
                 GestureDetector(
@@ -443,7 +443,7 @@ class ExchangePage extends BasePage {
                   scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: itemCount,
+                  itemCount: templates.length,
                   itemBuilder: (context, index) {
                     final template = templates[index];
 
