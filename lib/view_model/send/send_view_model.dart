@@ -29,8 +29,11 @@ part 'send_view_model.g.dart';
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
-  SendViewModelBase(this._wallet, this._settingsStore,
-      this.sendTemplateViewModel, this._fiatConversationStore,
+  SendViewModelBase(
+      this._wallet,
+      this._settingsStore,
+      this.sendTemplateViewModel,
+      this._fiatConversationStore,
       this.transactionDescriptionBox)
       : state = InitialExecutionState() {
     final priority = _settingsStore.priority[_wallet.type];
@@ -127,15 +130,17 @@ abstract class SendViewModelBase with Store {
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
 
   @computed
-  ObservableList<Template> get templates => sendTemplateViewModel.templates;
+  List<Template> get templates => sendTemplateViewModel.templates
+      .where((template) => _isEqualCurrency(template.cryptoCurrency))
+      .toList();
 
   @computed
-  bool get isElectrumWallet => _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
+  bool get isElectrumWallet =>
+      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
 
-  bool get hasYat 
-    => outputs.any((out) => out.isParsedAddress 
-      && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
-  
+  bool get hasYat => outputs.any((out) =>
+      out.isParsedAddress &&
+      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
   final WalletBase _wallet;
@@ -200,19 +205,16 @@ abstract class SendViewModelBase with Store {
       case WalletType.bitcoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(
-            outputs, priority);
+        return bitcoin.createBitcoinTransactionCredentials(outputs, priority);
       case WalletType.litecoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(
-            outputs, priority);
+        return bitcoin.createBitcoinTransactionCredentials(outputs, priority);
       case WalletType.monero:
         final priority = _settingsStore.priority[_wallet.type];
 
         return monero.createMoneroTransactionCreationCredentials(
-            outputs: outputs,
-            priority: priority);
+            outputs: outputs, priority: priority);
       default:
         return null;
     }
@@ -229,4 +231,7 @@ abstract class SendViewModelBase with Store {
 
     return priority.toString();
   }
+
+  bool _isEqualCurrency(String currency) => 
+      currency.toLowerCase() == _wallet.currency.title.toLowerCase();
 }
