@@ -317,131 +317,11 @@ class ExchangePage extends BasePage {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            S.of(context).send_templates,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .display4
-                                    .color),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 24),
-                        child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.exchangeTemplate),
-                                  child: Container(
-                                    padding:
-                                    EdgeInsets.only(left: 1, right: 10),
-                                    child: DottedBorder(
-                                        borderType: BorderType.RRect,
-                                        dashPattern: [6, 4],
-                                        color: Theme.of(context)
-                                            .primaryTextTheme
-                                            .display2
-                                            .decorationColor,
-                                        strokeWidth: 2,
-                                        radius: Radius.circular(20),
-                                        child: Container(
-                                          height: 34,
-                                          width: 75,
-                                          padding: EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(20)),
-                                            color: Colors.transparent,
-                                          ),
-                                          child: Text(
-                                            S.of(context).send_new,
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .display3
-                                                    .color),
-                                          ),
-                                        )),
-                                  ),
-                                ),
-                                Observer(builder: (_) {
-                                  final templates = exchangeViewModel.templates;
-                                  final itemCount = templates.length;
-
-                                  return ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: itemCount,
-                                      itemBuilder: (context, index) {
-                                        final template = templates[index];
-
-                                        return TemplateTile(
-                                          key: UniqueKey(),
-                                          amount: template.amount,
-                                          from: template.depositCurrency,
-                                          to: template.receiveCurrency,
-                                          onTap: () {
-                                            applyTemplate(context,
-                                                exchangeViewModel, template);
-                                          },
-                                          onRemove: () {
-                                            showPopUp<void>(
-                                                context: context,
-                                                builder: (dialogContext) {
-                                                  return AlertWithTwoActions(
-                                                      alertTitle: S
-                                                          .of(context)
-                                                          .template,
-                                                      alertContent: S
-                                                          .of(context)
-                                                          .confirm_delete_template,
-                                                      rightButtonText:
-                                                      S.of(context).delete,
-                                                      leftButtonText:
-                                                      S.of(context).cancel,
-                                                      actionRightButton: () {
-                                                        Navigator.of(
-                                                            dialogContext)
-                                                            .pop();
-                                                        exchangeViewModel
-                                                            .removeTemplate(
-                                                            template:
-                                                            template);
-                                                        exchangeViewModel
-                                                            .updateTemplate();
-                                                      },
-                                                      actionLeftButton: () =>
-                                                          Navigator.of(
-                                                              dialogContext)
-                                                              .pop());
-                                                });
-                                          },
-                                        );
-                                      });
-                                }),
-                              ],
-                            )))
-                  ],
-                )),
+                    SizedBox(height: 30),
+                    _buildTemplateSection(context)
+                    ],
+                  ),
+                ),
                 bottomSectionPadding:
                     EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: Column(children: <Widget>[
@@ -499,6 +379,111 @@ class ExchangePage extends BasePage {
                 ]),
               )),
         ));
+  }
+
+  Widget _buildTemplateSection(BuildContext context) {
+    return Container(
+      height: 40,
+      width: double.infinity,
+      padding: EdgeInsets.only(left: 24),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Observer(
+          builder: (_) {
+            final templates = exchangeViewModel.templates;
+            final itemCount = templates.length;
+            return Row(
+              children: <Widget>[
+                GestureDetector(
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Routes.exchangeTemplate),
+                  child: Container(
+                    padding: EdgeInsets.only(left: 1, right: 10),
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
+                      dashPattern: [6, 4],
+                      color: Theme.of(context)
+                          .primaryTextTheme
+                          .display2
+                          .decorationColor,
+                      strokeWidth: 2,
+                      radius: Radius.circular(20),
+                      child: Container(
+                        height: 34,
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Colors.transparent,
+                        ),
+                        child: templates.length >= 1
+                            ? Icon(
+                                Icons.add,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .display3
+                                    .color,
+                              )
+                            : Text(
+                                S.of(context).new_template,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .display3
+                                      .color,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+                ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: itemCount,
+                  itemBuilder: (context, index) {
+                    final template = templates[index];
+
+                    return TemplateTile(
+                      key: UniqueKey(),
+                      amount: template.amount,
+                      from: template.depositCurrency,
+                      to: template.receiveCurrency,
+                      onTap: () {
+                        applyTemplate(context, exchangeViewModel, template);
+                      },
+                      onRemove: () {
+                        showPopUp<void>(
+                            context: context,
+                            builder: (dialogContext) {
+                              return AlertWithTwoActions(
+                                  alertTitle: S.of(context).template,
+                                  alertContent:
+                                      S.of(context).confirm_delete_template,
+                                  rightButtonText: S.of(context).delete,
+                                  leftButtonText: S.of(context).cancel,
+                                  actionRightButton: () {
+                                    Navigator.of(dialogContext).pop();
+                                    exchangeViewModel.removeTemplate(
+                                        template: template);
+                                    exchangeViewModel.updateTemplate();
+                                  },
+                                  actionLeftButton: () =>
+                                      Navigator.of(dialogContext).pop());
+                            });
+                      },
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 
   void applyTemplate(BuildContext context,
