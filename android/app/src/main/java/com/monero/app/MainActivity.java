@@ -15,6 +15,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.WindowManager;
 
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.tasks.Task;
+
 import com.unstoppabledomains.resolution.DomainResolution;
 import com.unstoppabledomains.resolution.Resolution;
 
@@ -40,6 +45,9 @@ public class MainActivity extends FlutterFragmentActivity {
 
         try {
             switch (call.method) {
+                 case "requestAppReview":
+                    requestReview(result);
+                    break;
                 case "enableWakeScreen":
                     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     handler.post(() -> result.success(true));
@@ -86,5 +94,28 @@ public class MainActivity extends FlutterFragmentActivity {
                 handler.post(() -> result.success(""));
             }
         });
+    }
+
+      private void requestReview(@NonNull MethodChannel.Result result) {
+      
+        final ReviewManager manager = ReviewManagerFactory.create(this);
+
+        final Task<ReviewInfo> request = manager.requestReviewFlow();
+
+        request.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // We can get the ReviewInfo object
+                ReviewInfo reviewInfo = task.getResult();
+                launchReviewFlow(result, manager, reviewInfo);
+            } else {
+                result.error("error", "In-App Review API unavailable", null);
+            }
+        });
+    }
+
+    private void launchReviewFlow(@NonNull MethodChannel.Result result, ReviewManager manager, ReviewInfo reviewInfo) {
+       
+        Task<Void> flow = manager.launchReviewFlow(this, reviewInfo);
+        flow.addOnCompleteListener(task -> result.success(null));
     }
 }
