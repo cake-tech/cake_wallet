@@ -115,12 +115,23 @@ class SectionStandardList extends StatelessWidget {
       @required this.sectionCount,
       this.sectionTitleBuilder,
       this.hasTopSeparator = false,
+      this.isShownMyWallets,
+      this.isShownContacts,
+      this.myWalletsCount,
+      this.myContactsCount,
+      this.isShown,
       BuildContext context})
       : totalRows = transform(hasTopSeparator, context, sectionCount,
             itemCounter, itemBuilder, sectionTitleBuilder);
 
   final int sectionCount;
   final bool hasTopSeparator;
+  final bool isShownMyWallets;
+  final bool isShownContacts;
+  bool isShown;
+  final int myWalletsCount;
+  final int myContactsCount;
+  int counter = 0;
   final int Function(int sectionIndex) itemCounter;
   final Widget Function(BuildContext context, int sectionIndex, int itemIndex)
       itemBuilder;
@@ -141,7 +152,11 @@ class SectionStandardList extends StatelessWidget {
 
     for (var sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
       if ((sectionIndex == 0) && (hasTopSeparator)) {
-        items.add(StandardListSeparator(padding: EdgeInsets.only(left: 24)));
+        items.add(StandardListSeparator(
+          padding: EdgeInsets.only(
+            left: 24,
+          ),
+        ));
       }
 
       if (sectionTitleBuilder != null) {
@@ -158,10 +173,22 @@ class SectionStandardList extends StatelessWidget {
 
       items.add(sectionIndex + 1 != sectionCount
           ? SectionHeaderListRow()
-          : StandardListSeparator(padding: EdgeInsets.only(left: 24)));
+          : StandardListSeparator(
+              padding: EdgeInsets.only(left: 24),
+            ));
     }
 
     return items;
+  }
+
+  bool getIsShown() {
+    if (myWalletsCount > counter) {
+      counter++;
+      return isShownMyWallets;
+    } else {
+      counter++;
+      return isShownContacts;
+    }
   }
 
   @override
@@ -182,7 +209,25 @@ class SectionStandardList extends StatelessWidget {
             return Container();
           }
 
-          return StandardListSeparator(padding: EdgeInsets.only(left: 24));
+          return (() {
+            if (isShown != null) {
+              if (getIsShown()) {
+                return StandardListSeparator(
+                  padding: EdgeInsets.only(
+                    left: 24,
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            } else {
+              return StandardListSeparator(
+                padding: EdgeInsets.only(
+                  left: 24,
+                ),
+              );
+            }
+          }());
         },
         itemCount: totalRows.length,
         itemBuilder: (_, index) => totalRows[index]);

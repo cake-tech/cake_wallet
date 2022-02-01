@@ -58,6 +58,23 @@ class ContactListPage extends BasePage {
         ));
   }
 
+  bool getIsShown() {
+    if (counter >=
+        contactListViewModel.walletContacts.length +
+            contactListViewModel.contacts.length) {
+      counter = 0;
+    }
+    if (contactListViewModel.walletContacts.length > counter) {
+      counter++;
+      return contactListViewModel.isShownMyWallets;
+    } else if (contactListViewModel.walletContacts.length +
+            contactListViewModel.contacts.length >
+        counter) {
+      counter++;
+      return contactListViewModel.isShownContacts;
+    }
+  }
+
   @override
   Widget body(BuildContext context) {
     return Container(
@@ -67,6 +84,11 @@ class ContactListPage extends BasePage {
             return SectionStandardList(
               context: context,
               sectionCount: 2,
+              isShown: true,
+              isShownMyWallets: contactListViewModel.isShownMyWallets,
+              isShownContacts: contactListViewModel.isShownContacts,
+              myWalletsCount: contactListViewModel.walletContacts.length,
+              myContactsCount: contactListViewModel.contacts.length,
               sectionTitleBuilder: (_, int sectionIndex) {
                 var title = 'Contacts';
 
@@ -191,24 +213,7 @@ class ContactListPage extends BasePage {
         }
       },
       child: Container(
-        height: (() {
-          if (counter >=
-              contactListViewModel.walletContacts.length +
-                  contactListViewModel.contacts.length) {
-            counter = 0;
-          }
-          if (contactListViewModel.walletContacts.length > counter) {
-            counter++;
-            return contactListViewModel.isShownMyWallets;
-          } else if (contactListViewModel.walletContacts.length +
-                  contactListViewModel.contacts.length >
-              counter) {
-            counter++;
-            return contactListViewModel.isShownContacts;
-          }
-        }())
-            ? null
-            : 0,
+        height: getIsShown() ? null : 0,
         color: Colors.transparent,
         padding:
             const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
