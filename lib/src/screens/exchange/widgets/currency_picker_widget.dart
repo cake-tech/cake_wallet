@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'pickerItem.dart';
-import 'currency_pickerItem_widget.dart';
+import 'picker_Item.dart';
+import 'currency_picker_Item_widget.dart';
 
 class CurrencyPickerWidget extends StatefulWidget {
   CurrencyPickerWidget(
-      {@required this.height,
-      @required this.width,
-      @required this.crossAxisCount,
+      {@required this.crossAxisCount,
       @required this.cryptoCurrencyList,
       @required this.selectedAtIndex,
       @required this.itemsCount,
       @required this.onItemSelected,
       this.textFieldValue});
 
-  final double height;
-  final double width;
   final int crossAxisCount;
   final List<CryptoCurrency> cryptoCurrencyList;
   int selectedAtIndex;
@@ -24,14 +20,11 @@ class CurrencyPickerWidget extends StatefulWidget {
   final Function onItemSelected;
 
   @override
-  _CurrencyPickerWidgetState createState() =>
-      _CurrencyPickerWidgetState(height);
+  _CurrencyPickerWidgetState createState() => _CurrencyPickerWidgetState();
 }
 
 class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
-  _CurrencyPickerWidgetState(this.height);
-
-  double height;
+  _CurrencyPickerWidgetState();
 
   void pickListItem(int index) {
     setState(() {
@@ -44,8 +37,6 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.height,
-      width: widget.width,
       decoration: BoxDecoration(
         color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
         borderRadius: BorderRadius.circular(14.0),
@@ -53,6 +44,7 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(14.0),
         child: Scrollbar(
+          showTrackOnHover: true,
           isAlwaysShown: true,
           thickness: 6.0,
           radius: Radius.circular(3),
