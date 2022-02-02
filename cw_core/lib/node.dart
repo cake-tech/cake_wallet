@@ -95,29 +95,19 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-    return false;
-    //try {
-    //  Map<String, dynamic> resBody;
-
-    //  if (login != null && password != null) {
-    //    final digestRequest = DigestRequest();
-    //    final response = await digestRequest.request(
-    //        uri: uri.toString(), login: login, password: password);
-    //    resBody = response.data as Map<String, dynamic>;
-    //  } else {
-    //    final rpcUri = Uri.http(uri.authority, '/json_rpc');
-    //    final headers = {'Content-type': 'application/json'};
-    //    final body =
-    //        json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
-    //    final response =
-    //        await http.post(rpcUri.toString(), headers: headers, body: body);
-    //    resBody = json.decode(response.body) as Map<String, dynamic>;
-    //  }
-
-    //  return !(resBody['result']['offline'] as bool);
-    //} catch (_) {
-    //  return false;
-    //}
+    try {
+     Map<String, dynamic> resBody;    
+       final rpcUri = Uri.http(uri.authority, '/json_rpc');
+       final headers = {'Content-type': 'application/json'};
+       final body =
+           json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
+       final response =
+           await http.post(rpcUri.toString(), headers: headers, body: body);
+       resBody = json.decode(response.body) as Map<String, dynamic>;
+     return !(resBody['result']['offline'] as bool);
+    } catch (_) {
+     return false;
+    }
   }
 
   Future<bool> requestElectrumServer() async {
