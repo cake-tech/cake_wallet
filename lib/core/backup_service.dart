@@ -14,6 +14,7 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/entities/secret_store_key.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/wallet_types.g.dart';
 
 class BackupService {
   BackupService(this._flutterSecureStorage, this._walletInfoSource,
@@ -29,6 +30,7 @@ class BackupService {
   final SharedPreferences _sharedPreferences;
   final Box<WalletInfo> _walletInfoSource;
   final KeyService _keyService;
+  List<WalletInfo> _correctWallets;
 
   Future<void> importBackup(Uint8List data, String password,
       {String nonce = secrets.backupSalt}) async {
@@ -118,8 +120,33 @@ class BackupService {
       }
     });
 
+    await _verifyWallets();
     await _importKeychainDump(password, nonce: nonce);
     await _importPreferencesDump();
+  }
+
+  Future<void> _verifyWallets() async {
+    final walletInfoSource = await _reloadHiveWalletInfoBox();
+    _correctWallets = walletInfoSource
+      .values
+      .where((info) => availableWalletTypes.contains(info.type))
+      .toList();
+
+    if (_correctWallets.isEmpty) {
+      throw Exception('Correct wallets not detected');
+    }
+  }
+
+  Future<Box<WalletInfo>> _reloadHiveWalletInfoBox() async {
+    final appDir = await getApplicationDocumentsDirectory();
+    await Hive.close();
+    Hive.init(appDir.path);
+
+    if (!Hive.isAdapterRegistered(WalletInfo.typeId)) {
+      Hive.registerAdapter(WalletInfoAdapter());
+    }
+
+    return await Hive.openBox<WalletInfo>(WalletInfo.boxName);
   }
 
   Future<void> _importPreferencesDump() async {
@@ -132,15 +159,26 @@ class BackupService {
 
     final data =
         json.decode(preferencesFile.readAsStringSync()) as Map<String, Object>;
+    String currentWalletName = data[PreferencesKey.currentWalletName] as String;
+    int currentWalletType = data[PreferencesKey.currentWalletType] as int;
+
+    final isCorrentCurrentWallet = _correctWallets
+      .any((info) => info.name == currentWalletName &&
+          info.type.index == currentWalletType);
+
+    if (!isCorrentCurrentWallet) {
+      currentWalletName = _correctWallets.first.name;
+      currentWalletType = _correctWallets.first.type.index;
+    }
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName,
-        data[PreferencesKey.currentWalletName] as String);
+        currentWalletName);
     await _sharedPreferences.setInt(PreferencesKey.currentNodeIdKey,
         data[PreferencesKey.currentNodeIdKey] as int);
     await _sharedPreferences.setInt(PreferencesKey.currentBalanceDisplayModeKey,
         data[PreferencesKey.currentBalanceDisplayModeKey] as int);
     await _sharedPreferences.setInt(PreferencesKey.currentWalletType,
-        data[PreferencesKey.currentWalletType] as int);
+        currentWalletType);
     await _sharedPreferences.setString(PreferencesKey.currentFiatCurrencyKey,
         data[PreferencesKey.currentFiatCurrencyKey] as String);
     await _sharedPreferences.setBool(

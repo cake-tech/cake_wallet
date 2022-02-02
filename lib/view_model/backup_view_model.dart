@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobx/mobx.dart';
 import 'package:intl/intl.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'backup_view_model.g.dart';
 
@@ -58,9 +59,10 @@ abstract class BackupViewModelBase with Store {
       state = ExecutedSuccessfullyState();
       final now = DateTime.now();
       final formatter = DateFormat('yyyy-MM-dd_Hm');
+      final snakeAppName = approximatedAppName.replaceAll(' ', '_').toLowerCase();
+      final fileName = '${snakeAppName}_backup_${formatter.format(now)}';
 
-      return BackupExportFile(backupContent.toList(),
-          name: 'cake_wallet_backup_${formatter.format(now)}');
+      return BackupExportFile(backupContent.toList(), name: fileName);
     } catch (e) {
       print(e.toString());
       state = FailureState(e.toString());

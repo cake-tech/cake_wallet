@@ -5,3 +5,9 @@ bool get isMoneroOnly {
      return availableWalletTypes.length == 1
      	    && availableWalletTypes.first == WalletType.monero;
 }
+
+String get approximatedAppName {
+     return isMoneroOnly
+     ? 'Monero.com'
+     : 'Cake Wallet';
+}
