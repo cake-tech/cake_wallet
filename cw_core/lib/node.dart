@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cw_core/digest_auth.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
@@ -95,20 +96,15 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-    try {
-     Map<String, dynamic> resBody;    
-       final rpcUri = Uri.http(uri.authority, '/json_rpc');
-       final headers = {'Content-type': 'application/json'};
-       final body =
-           json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
-       final response =
-           await http.post(rpcUri.toString(), headers: headers, body: body);
-       resBody = json.decode(response.body) as Map<String, dynamic>;
-     return !(resBody['result']['offline'] as bool);
-    } catch (_) {
+  final digestAuth = DigestAuth();
+  try {
+    final response = await digestAuth.request(uri: uri.authority, login: login, password: password);
+    final resBody = json.decode(response.body) as Map<String, dynamic>;
+    return !(resBody['result']['offline'] as bool);
+  } catch (_) {
      return false;
     }
-  }
+}
 
   Future<bool> requestElectrumServer() async {
     try {
