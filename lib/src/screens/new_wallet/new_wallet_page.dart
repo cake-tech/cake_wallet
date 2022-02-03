@@ -105,18 +105,50 @@ class _WalletNameFormState extends State<WalletNameForm> {
               padding: EdgeInsets.only(top: 24),
               child: Form(
                 key: _formKey,
-                child: TextFormField(
-                  onChanged: (value) => _walletNewVM.name = value,
-                  controller: _controller,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w600,
-                      color: Theme.of(context).primaryTextTheme.title.color),
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
+                child: Stack(
+                  alignment: Alignment.centerRight,
+                  children: [
+                    TextFormField(
+                      onChanged: (value) => _walletNewVM.name = value,
+                      controller: _controller,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w600,
+                          color:
+                              Theme.of(context).primaryTextTheme.title.color),
+                      decoration: InputDecoration(
+                        hintStyle: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context)
+                                .accentTextTheme
+                                .display3
+                                .color),
+                        hintText: S.of(context).wallet_name,
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: Theme.of(context)
+                                    .accentTextTheme
+                                    .display3
+                                    .decorationColor,
+                                width: 1.0)),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                              color: Theme.of(context)
+                                  .accentTextTheme
+                                  .display3
+                                  .decorationColor,
+                              width: 1.0),
+                        ),
+                      ),
+                      validator: WalletNameValidator(),
+                    ),
+                    IconButton(
                       onPressed: () async {
                         final rName = await generateName();
+                        FocusManager.instance.primaryFocus?.unfocus();
+
                         setState(() {
                           _controller.text = rName;
                           _walletNewVM.name = rName;
@@ -141,29 +173,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                         ),
                       ),
                     ),
-                    hintStyle: TextStyle(
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w500,
-                        color:
-                            Theme.of(context).accentTextTheme.display3.color),
-                    hintText: S.of(context).wallet_name,
-                    focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                            color: Theme.of(context)
-                                .accentTextTheme
-                                .display3
-                                .decorationColor,
-                            width: 1.0)),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .display3
-                              .decorationColor,
-                          width: 1.0),
-                    ),
-                  ),
-                  validator: WalletNameValidator(),
+                  ],
                 ),
               ),
             ),

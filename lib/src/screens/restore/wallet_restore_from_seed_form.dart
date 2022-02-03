@@ -61,36 +61,42 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     return Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Column(children: [
-          BaseTextFormField(
-            controller: nameTextEditingController,
-            hintText: S.of(context).wallet_name,
-            validator: WalletNameValidator(),
-            suffixIcon: Container(
-              width: 12,
-              height: 14,
-              margin: const EdgeInsets.only(bottom: 15, left: 13),
-              child: InkWell(
-                onTap: () async {
-                  final rName = await generateName();
-                  setState(() {
-                    nameTextEditingController.text = rName;
-                    nameTextEditingController.selection =
-                        TextSelection.fromPosition(TextPosition(
-                            offset: nameTextEditingController.text.length));
-                  });
-                },
-                child: Container(
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).hintColor,
-                        borderRadius: BorderRadius.all(Radius.circular(6))),
-                    child: Image.asset('assets/images/refresh_icon.png',
-                        color: Theme.of(context)
-                            .primaryTextTheme
-                            .display1
-                            .decorationColor)),
+          Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              BaseTextFormField(
+                controller: nameTextEditingController,
+                hintText: S.of(context).wallet_name,
+                validator: WalletNameValidator(),
               ),
-            ),
+              Container(
+                width: 34,
+                height: 34,
+                margin: const EdgeInsets.only(bottom: 15, left: 13),
+                child: InkWell(
+                  onTap: () async {
+                    final rName = await generateName();
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    setState(() {
+                      nameTextEditingController.text = rName;
+                      nameTextEditingController.selection =
+                          TextSelection.fromPosition(TextPosition(
+                              offset: nameTextEditingController.text.length));
+                    });
+                  },
+                  child: Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                          color: Theme.of(context).hintColor,
+                          borderRadius: BorderRadius.all(Radius.circular(6))),
+                      child: Image.asset('assets/images/refresh_icon.png',
+                          color: Theme.of(context)
+                              .primaryTextTheme
+                              .display1
+                              .decorationColor)),
+                ),
+              ),
+            ],
           ),
           Container(height: 20),
           SeedWidget(
