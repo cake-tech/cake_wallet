@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:cw_core/digest_auth.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:http/io_client.dart' as ioc;
 //import 'package:cake_wallet/entities/digest_request.dart';
 
 part 'node.g.dart';
@@ -96,9 +96,34 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-  final digestAuth = DigestAuth();
+  
   try {
-    final response = await digestAuth.request(uri: uri.authority, login: login, password: password);
+     final path = '/json_rpc';
+    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final realm = 'monero-rpc';
+    final body = {
+      'jsonrpc': '2.0', 
+      'id': '0', 
+      'method': 'get_info'
+    };
+    final authenticatingClient = HttpClient();
+   
+    authenticatingClient.addCredentials(
+        rpcUri,
+        realm, 
+        HttpClientDigestCredentials(login ?? '', password ?? ''),
+    );
+   
+    final http.Client client = ioc.IOClient(authenticatingClient);
+   
+    final response = await client.post(
+        rpcUri,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(body),
+    );
+   
+    client.close();
+
     final resBody = json.decode(response.body) as Map<String, dynamic>;
     return !(resBody['result']['offline'] as bool);
   } catch (_) {
