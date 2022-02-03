@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -168,7 +169,7 @@ class BackupService {
 
     if (!isCorrentCurrentWallet) {
       currentWalletName = _correctWallets.first.name;
-      currentWalletType = _correctWallets.first.type.index;
+      currentWalletType = serializeToInt(_correctWallets.first.type);
     }
 
     await _sharedPreferences.setString(PreferencesKey.currentWalletName,
