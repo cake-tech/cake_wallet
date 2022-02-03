@@ -32,11 +32,11 @@ abstract class TransactionDetailsViewModelBase with Store {
 
     final dateFormat = DateFormatter.withCurrentLocal();
     final tx = transactionInfo;
-    final key = tx.additionalInfo['key'] as String;
-    final accountIndex = tx.additionalInfo['accountIndex'] as int;
-    final addressIndex = tx.additionalInfo['addressIndex'] as int;
 
     if (wallet.type == WalletType.monero) {
+      final key = tx.additionalInfo['key'] as String;
+      final accountIndex = tx.additionalInfo['accountIndex'] as int;
+      final addressIndex = tx.additionalInfo['addressIndex'] as int;
       final _items = [
         StandartListItem(
             title: S.current.transaction_details_transaction_id, value: tx.id),
