@@ -97,15 +97,16 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestMoneroNode() async {
   
-  try {
-     final path = '/json_rpc';
-    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
-    final realm = 'monero-rpc';
-    final body = {
+  final path = '/json_rpc';
+  final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+  final realm = 'monero-rpc';
+  final body = {
       'jsonrpc': '2.0', 
       'id': '0', 
       'method': 'get_info'
-    };
+  };
+
+  try {
     final authenticatingClient = HttpClient();
    
     authenticatingClient.addCredentials(
@@ -127,8 +128,8 @@ class Node extends HiveObject with Keyable {
     final resBody = json.decode(response.body) as Map<String, dynamic>;
     return !(resBody['result']['offline'] as bool);
   } catch (_) {
-     return false;
-    }
+    return false;
+  }
 }
 
   Future<bool> requestElectrumServer() async {
