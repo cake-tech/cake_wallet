@@ -317,6 +317,21 @@ class ExchangePage extends BasePage {
                         ],
                       ),
                     ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 12, left: 24),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          StandardCheckbox(
+                            key: checkBoxKey,
+                            value: exchangeViewModel.isFixedRateMode,
+                            caption: S.of(context).fixed_rate,
+                            onChanged: (value) =>
+                            exchangeViewModel.isFixedRateMode = value,
+                          ),
+                        ],
+                      )
+                    ),
                     SizedBox(height: 30),
                     _buildTemplateSection(context)
                     ],
@@ -652,6 +667,12 @@ class ExchangePage extends BasePage {
       } else {
         depositKey.currentState.changeLimits(min: min, max: max);
         receiveKey.currentState.changeLimits(min: null, max: null);
+      }
+    });
+
+    reaction((_) => exchangeViewModel.isFixedRateMode, (bool value) {
+      if (checkBoxKey.currentState.value != exchangeViewModel.isFixedRateMode) {
+        checkBoxKey.currentState.value = exchangeViewModel.isFixedRateMode;
       }
     });
 
