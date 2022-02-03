@@ -37,13 +37,6 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
   final TextEditingController viewKeyController;
   final TextEditingController spendKeyController;
   final TextEditingController nameTextEditingController;
-  bool buttonPressed;
-
-  @override
-  void initState() {
-    super.initState();
-    buttonPressed = false;
-  }
 
   @override
   void dispose() {
