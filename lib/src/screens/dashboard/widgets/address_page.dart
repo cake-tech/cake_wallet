@@ -16,8 +16,7 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class AddressPage extends StatelessWidget {
-  AddressPage({@required this.addressListViewModel,
-                this.walletViewModel})
+  AddressPage({@required this.addressListViewModel, this.walletViewModel})
       : _cryptoAmountFocus = FocusNode();
 
   final WalletAddressListViewModel addressListViewModel;
@@ -28,8 +27,8 @@ class AddressPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     autorun((_) async {
-      if (!walletViewModel.isOutdatedElectrumWallet
-        || !walletViewModel.settingsStore.shouldShowReceiveWarning) {
+      if (!walletViewModel.isOutdatedElectrumWallet ||
+          !walletViewModel.settingsStore.shouldShowReceiveWarning) {
         return;
       }
 
@@ -39,12 +38,14 @@ class AddressPage extends StatelessWidget {
           builder: (BuildContext context) {
             return AlertWithTwoActions(
                 alertTitle: S.of(context).pre_seed_title,
-                alertContent: S.of(context).outdated_electrum_wallet_receive_warning,
+                alertContent:
+                    S.of(context).outdated_electrum_wallet_receive_warning,
                 leftButtonText: S.of(context).understand,
                 actionLeftButton: () => Navigator.of(context).pop(),
                 rightButtonText: S.of(context).do_not_show_me,
                 actionRightButton: () {
-                  walletViewModel.settingsStore.setShouldShowReceiveWarning(false);
+                  walletViewModel.settingsStore
+                      .setShouldShowReceiveWarning(false);
                   Navigator.of(context).pop();
                 });
           });
@@ -71,12 +72,17 @@ class AddressPage extends StatelessWidget {
           child: Column(
             children: <Widget>[
               Expanded(
-                  child: Observer(builder: (_) => QRWidget(
-                      addressListViewModel: addressListViewModel,
-                      amountTextFieldFocusNode: _cryptoAmountFocus,
-                      isAmountFieldShow: !addressListViewModel.hasAccounts,
-                      isBright: walletViewModel.settingsStore.currentTheme.type == ThemeType.bright))
-              ),
+                  child: Observer(
+                      builder: (_) => QRWidget(
+                          addressListViewModel: addressListViewModel,
+                          amountTextFieldFocusNode: _cryptoAmountFocus,
+                          isAmountFieldShow: !addressListViewModel.hasAccounts,
+                          // isBright:
+                          //     walletViewModel.settingsStore.currentTheme.type ==
+                          //         ThemeType.bright
+                          isLight:
+                              walletViewModel.settingsStore.currentTheme.type ==
+                                  ThemeType.light))),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
                     ? GestureDetector(
@@ -125,15 +131,14 @@ class AddressPage extends StatelessWidget {
                           ),
                         ),
                       )
-                    : Text(
-                        S.of(context).electrum_address_disclaimer,
+                    : Text(S.of(context).electrum_address_disclaimer,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                             fontSize: 15,
                             color: Theme.of(context)
-                              .accentTextTheme
-                              .display2
-                              .backgroundColor));
+                                .accentTextTheme
+                                .display2
+                                .backgroundColor));
               })
             ],
           ),

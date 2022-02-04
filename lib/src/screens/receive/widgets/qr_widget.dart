@@ -1,3 +1,4 @@
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,12 +11,13 @@ import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
 
 class QRWidget extends StatelessWidget {
-  QRWidget(
-      {@required this.addressListViewModel,
-      this.isAmountFieldShow = false,
-      this.amountTextFieldFocusNode,
-      this.isBright})
-      : amountController = TextEditingController(),
+  QRWidget({
+    @required this.addressListViewModel,
+    this.isAmountFieldShow = false,
+    this.amountTextFieldFocusNode,
+    // this.bright,
+    this.isLight,
+  })  : amountController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
     amountController.addListener(() => addressListViewModel.amount =
         _formKey.currentState.validate() ? amountController.text : '');
@@ -26,7 +28,8 @@ class QRWidget extends StatelessWidget {
   final TextEditingController amountController;
   final FocusNode amountTextFieldFocusNode;
   final GlobalKey<FormState> _formKey;
-  final bool isBright;
+  // final bool isBright;
+  final bool isLight;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +60,11 @@ class QRWidget extends StatelessWidget {
                                         .backgroundColor)),
                             child: QrImage(
                               data: addressListViewModel.uri.toString(),
-                              backgroundColor: Colors.black,
+                              // backgroundColor:
+                              //isBright ? Colors.black : Colors.transparent,
+                              backgroundColor:
+                                  isLight ? Colors.transparent : Colors.black,
+
                               foregroundColor: Theme.of(context)
                                   .accentTextTheme
                                   .display3

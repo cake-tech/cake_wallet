@@ -29,8 +29,8 @@ class ReceivePage extends BasePage {
   String get title => S.current.receive;
 
   @override
-  Color get backgroundLightColor => currentTheme.type == ThemeType.bright
-      ? Colors.transparent : Colors.white;
+  Color get backgroundLightColor =>
+      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
 
   @override
   Color get backgroundDarkColor => Colors.transparent;
@@ -42,9 +42,11 @@ class ReceivePage extends BasePage {
 
   @override
   Widget leading(BuildContext context) {
-    final _backButton = Icon(Icons.arrow_back_ios,
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
       color: Theme.of(context).accentTextTheme.display3.backgroundColor,
-      size: 16,);
+      size: 16,
+    );
 
     return SizedBox(
       height: 37,
@@ -86,9 +88,8 @@ class ReceivePage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    final shareImage =
-        Image.asset('assets/images/share.png',
-            color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final shareImage = Image.asset('assets/images/share.png',
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
 
     return SizedBox(
       height: 20.0,
@@ -111,8 +112,8 @@ class ReceivePage extends BasePage {
     return KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
+            keyboardBarColor:
+                Theme.of(context).accentTextTheme.body2.backgroundColor,
             nextFocus: false,
             actions: [
               KeyboardActionsItem(
@@ -126,10 +127,12 @@ class ReceivePage extends BasePage {
               Padding(
                 padding: EdgeInsets.fromLTRB(24, 80, 24, 24),
                 child: QRWidget(
-                    addressListViewModel: addressListViewModel,
-                    isAmountFieldShow: true,
-                    amountTextFieldFocusNode: _cryptoAmountFocus,
-                    isBright: currentTheme.type == ThemeType.bright),
+                  addressListViewModel: addressListViewModel,
+                  isAmountFieldShow: true,
+                  amountTextFieldFocusNode: _cryptoAmountFocus,
+                  //isBright: currentTheme.type == ThemeType.bright,
+                  isLight: currentTheme.type == ThemeType.light,
+                ),
               ),
               Observer(
                   builder: (_) => ListView.separated(
@@ -154,7 +157,7 @@ class ReceivePage extends BasePage {
                                 Icons.arrow_forward_ios,
                                 size: 14,
                                 color:
-                                Theme.of(context).textTheme.display1.color,
+                                    Theme.of(context).textTheme.display1.color,
                               ));
                         }
 
@@ -167,7 +170,7 @@ class ReceivePage extends BasePage {
                                 Icons.add,
                                 size: 20,
                                 color:
-                                Theme.of(context).textTheme.display1.color,
+                                    Theme.of(context).textTheme.display1.color,
                               ));
                         }
 
@@ -177,13 +180,13 @@ class ReceivePage extends BasePage {
                                 addressListViewModel.address.address;
                             final backgroundColor = isCurrent
                                 ? Theme.of(context)
-                                .textTheme
-                                .display3
-                                .decorationColor
+                                    .textTheme
+                                    .display3
+                                    .decorationColor
                                 : Theme.of(context)
-                                .textTheme
-                                .display2
-                                .decorationColor;
+                                    .textTheme
+                                    .display2
+                                    .decorationColor;
                             final textColor = isCurrent
                                 ? Theme.of(context).textTheme.display3.color
                                 : Theme.of(context).textTheme.display2.color;
@@ -192,7 +195,8 @@ class ReceivePage extends BasePage {
                                 isCurrent: isCurrent,
                                 backgroundColor: backgroundColor,
                                 textColor: textColor,
-                                onTap: (_) => addressListViewModel.setAddress(item),
+                                onTap: (_) =>
+                                    addressListViewModel.setAddress(item),
                                 onEdit: () => Navigator.of(context).pushNamed(
                                     Routes.newSubaddress,
                                     arguments: item));
@@ -202,11 +206,11 @@ class ReceivePage extends BasePage {
                         return index != 0
                             ? cell
                             : ClipRRect(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30)),
-                          child: cell,
-                        );
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(30),
+                                    topRight: Radius.circular(30)),
+                                child: cell,
+                              );
                       })),
             ],
           ),
