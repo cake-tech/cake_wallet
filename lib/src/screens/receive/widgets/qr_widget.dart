@@ -51,55 +51,59 @@ class QRWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                                 border: Border.all(
                                     width: 3,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor
-                                )
-                            ),
+                                    color: Theme.of(context)
+                                        .accentTextTheme
+                                        .display3
+                                        .backgroundColor)),
                             child: QrImage(
                               data: addressListViewModel.uri.toString(),
-                              backgroundColor: isBright ? Colors.black : Colors.transparent,
-                              foregroundColor: Theme.of(context).accentTextTheme.
-                              display3.backgroundColor,
+                              backgroundColor: Colors.black,
+                              foregroundColor: Theme.of(context)
+                                  .accentTextTheme
+                                  .display3
+                                  .backgroundColor,
                             ),
                           ))))),
           Spacer(flex: 3)
         ]),
         if (isAmountFieldShow)
-            Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Form(
-                            key: _formKey,
-                            child: BaseTextFormField(
-                                focusNode: amountTextFieldFocusNode,
-                                controller: amountController,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                inputFormatters: [
-                                  BlacklistingTextInputFormatter(
-                                      RegExp('[\\-|\\ ]'))
-                                ],
-                                textAlign: TextAlign.center,
-                                hintText: S.of(context).receive_amount,
-                                textColor: Theme.of(context).accentTextTheme.
-                                display3.backgroundColor,
-                                borderColor: Theme.of(context)
-                                    .textTheme
-                                    .headline
-                                    .decorationColor,
-                                validator: AmountValidator(
-                                    type: addressListViewModel.type,
-                                    isAutovalidate: true),
-                                autovalidate: true,
-                                placeholderTextStyle: TextStyle(
-                                    color: Theme.of(context).hoverColor,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500))))
-                  ],
-                ),
-              ),
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                    child: Form(
+                        key: _formKey,
+                        child: BaseTextFormField(
+                            focusNode: amountTextFieldFocusNode,
+                            controller: amountController,
+                            keyboardType:
+                                TextInputType.numberWithOptions(decimal: true),
+                            inputFormatters: [
+                              BlacklistingTextInputFormatter(
+                                  RegExp('[\\-|\\ ]'))
+                            ],
+                            textAlign: TextAlign.center,
+                            hintText: S.of(context).receive_amount,
+                            textColor: Theme.of(context)
+                                .accentTextTheme
+                                .display3
+                                .backgroundColor,
+                            borderColor: Theme.of(context)
+                                .textTheme
+                                .headline
+                                .decorationColor,
+                            validator: AmountValidator(
+                                type: addressListViewModel.type,
+                                isAutovalidate: true),
+                            autovalidate: true,
+                            placeholderTextStyle: TextStyle(
+                                color: Theme.of(context).hoverColor,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500))))
+              ],
+            ),
+          ),
         Padding(
           padding: EdgeInsets.only(top: 8, bottom: 8),
           child: Builder(
@@ -122,8 +126,10 @@ class QRWidget extends StatelessWidget {
                                 style: TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor),
+                                    color: Theme.of(context)
+                                        .accentTextTheme
+                                        .display3
+                                        .backgroundColor),
                               ),
                             ),
                             Padding(
@@ -136,50 +142,52 @@ class QRWidget extends StatelessWidget {
         ),
         Observer(builder: (_) {
           return addressListViewModel.emoji.isNotEmpty
-          ? Padding(
-            padding: EdgeInsets.only(bottom: 10),
-            child: Builder(
-                builder: (context) => GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(
-                        text: addressListViewModel.emoji));
-                    showBar<void>(
-                        context, S.of(context).copied_to_clipboard);
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        S.of(context).yat,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context).accentTextTheme.
-                            display3.backgroundColor),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(child:Text(
-                              addressListViewModel.emoji,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 26))),
-                            Padding(
-                              padding: EdgeInsets.only(left: 12),
-                              child: copyImage,
-                            )]
-                          ),
-                        )
-                    ]
-                  )
-                )),
-          )
-          : Container();
+              ? Padding(
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Builder(
+                      builder: (context) => GestureDetector(
+                          onTap: () {
+                            Clipboard.setData(ClipboardData(
+                                text: addressListViewModel.emoji));
+                            showBar<void>(
+                                context, S.of(context).copied_to_clipboard);
+                          },
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  S.of(context).yat,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.normal,
+                                      color: Theme.of(context)
+                                          .accentTextTheme
+                                          .display3
+                                          .backgroundColor),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(top: 5),
+                                  child: Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                            child: Text(
+                                                addressListViewModel.emoji,
+                                                textAlign: TextAlign.center,
+                                                style:
+                                                    TextStyle(fontSize: 26))),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 12),
+                                          child: copyImage,
+                                        )
+                                      ]),
+                                )
+                              ]))),
+                )
+              : Container();
         })
       ],
     );
