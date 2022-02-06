@@ -226,7 +226,7 @@ class ExchangeCardState extends State<ExchangeCard> {
                                   .display1
                                   .color,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(6))),
+                              BorderRadius.all(Radius.circular(6))),
                           child: InkWell(
                             onTap: () => widget.allAmount?.call(),
                             child: Center(
@@ -303,121 +303,126 @@ class ExchangeCardState extends State<ExchangeCard> {
             ? Padding(
                 padding: EdgeInsets.only(top: 20),
                 child: AddressTextField(
-                    focusNode: widget.addressFocusNode,
-                    controller: addressController,
-                    placeholder: widget.hasRefundAddress
-                        ? S.of(context).refund_address
-                        : null,
-                    options: [
-                      AddressTextFieldOption.paste,
-                      AddressTextFieldOption.qrCode,
-                      AddressTextFieldOption.addressBook,
-                    ],
-                    isBorderExist: false,
-                    textStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white),
-                    hintStyle: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context)
-                            .accentTextTheme
-                            .display4
-                            .decorationColor),
-                    buttonColor: widget.addressButtonsColor,
-                    validator: widget.addressTextFieldValidator,
-                    onPushPasteButton: widget.onPushPasteButton,
-                    onPushAddressBookButton: widget.onPushAddressBookButton),
+                  focusNode: widget.addressFocusNode,
+                  controller: addressController,
+                  placeholder: widget.hasRefundAddress
+                      ? S.of(context).refund_address
+                      : null,
+                  options: [
+                    AddressTextFieldOption.paste,
+                    AddressTextFieldOption.qrCode,
+                    AddressTextFieldOption.addressBook,
+                  ],
+                  isBorderExist: false,
+                  textStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white),
+                  hintStyle: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context)
+                          .accentTextTheme
+                          .display4
+                          .decorationColor),
+                  buttonColor: widget.addressButtonsColor,
+                  validator: widget.addressTextFieldValidator,
+                  onPushPasteButton: widget.onPushPasteButton,
+                  onPushAddressBookButton: widget.onPushAddressBookButton
+                ),
               )
             : Padding(
                 padding: EdgeInsets.only(top: 10),
                 child: Builder(
-                    builder: (context) => Stack(children: <Widget>[
-                          BaseTextFormField(
-                              controller: addressController,
-                              readOnly: true,
-                              borderColor: Colors.transparent,
-                              suffixIcon:
-                                  SizedBox(width: _isMoneroWallet ? 80 : 36),
-                              textStyle: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white),
-                              validator: widget.addressTextFieldValidator),
-                          Positioned(
-                              top: 2,
-                              right: 0,
-                              child: SizedBox(
-                                  width: _isMoneroWallet ? 80 : 36,
-                                  child: Row(children: <Widget>[
-                                    if (_isMoneroWallet)
-                                      Padding(
-                                        padding: EdgeInsets.only(left: 10),
-                                        child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            padding: EdgeInsets.only(top: 0),
-                                            child: InkWell(
-                                              onTap: () async {
-                                                final contact =
-                                                    await Navigator.of(context,
-                                                            rootNavigator: true)
-                                                        .pushNamed(Routes
-                                                            .pickerAddressBook);
+                    builder: (context) => Stack(
+                      children: <Widget> [
+                        BaseTextFormField(
+                            controller: addressController,
+                            readOnly: true,
+                            borderColor: Colors.transparent,
+                            suffixIcon: SizedBox(
+                              width: _isMoneroWallet ? 80 : 36
+                            ),
+                            textStyle: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white),
+                            validator: widget.addressTextFieldValidator
+                        ),
+                        Positioned(
+                            top: 2,
+                            right: 0,
+                            child: SizedBox(
+                              width: _isMoneroWallet ? 80 : 36,
+                              child: Row(
+                                children: <Widget>[
+                                  if (_isMoneroWallet) Padding(
+                                    padding: EdgeInsets.only(left: 10),
+                                    child: Container(
+                                        width: 34,
+                                        height: 34,
+                                        padding: EdgeInsets.only(top: 0),
+                                        child: InkWell(
+                                          onTap: () async {
+                                            final contact = await Navigator
+                                              .of(context, rootNavigator: true)
+                                              .pushNamed(
+                                                Routes.pickerAddressBook);
 
-                                                if (contact is ContactBase &&
-                                                    contact.address != null) {
-                                                  setState(() =>
-                                                      addressController.text =
-                                                          contact.address);
-                                                  widget.onPushAddressBookButton
-                                                      ?.call(context);
-                                                }
-                                              },
-                                              child: Container(
-                                                  padding: EdgeInsets.all(8),
-                                                  decoration: BoxDecoration(
-                                                      color: widget
-                                                          .addressButtonsColor,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  6))),
-                                                  child: Image.asset(
-                                                    'assets/images/open_book.png',
-                                                    color: Theme.of(context)
-                                                        .primaryTextTheme
-                                                        .display1
-                                                        .decorationColor,
-                                                  )),
-                                            )),
-                                      ),
-                                    Padding(
-                                        padding: EdgeInsets.only(left: 2),
-                                        child: Container(
-                                            width: 34,
-                                            height: 34,
-                                            padding: EdgeInsets.only(top: 0),
-                                            child: InkWell(
-                                              onTap: () {
-                                                Clipboard.setData(ClipboardData(
-                                                    text: addressController
-                                                        .text));
-                                                showBar<void>(
-                                                    context,
-                                                    S
-                                                        .of(context)
-                                                        .copied_to_clipboard);
-                                              },
-                                              child: Container(
-                                                  padding: EdgeInsets.fromLTRB(
-                                                      8, 8, 0, 8),
-                                                  color: Colors.transparent,
-                                                  child: copyImage),
-                                            )))
-                                  ])))
-                        ])),
+                                            if (contact is ContactBase &&
+                                                contact.address != null) {
+                                              setState(() =>
+                                              addressController.text =
+                                                  contact.address);
+                                              widget.onPushAddressBookButton
+                                                  ?.call(context);
+                                            }
+                                          },
+                                          child: Container(
+                                              padding: EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: widget
+                                                    .addressButtonsColor,
+                                                borderRadius: BorderRadius
+                                                    .all(Radius.circular(6))),
+                                              child: Image.asset(
+                                                'assets/images/open_book.png',
+                                                color: Theme.of(context)
+                                                    .primaryTextTheme
+                                                    .display1
+                                                    .decorationColor,
+                                              )),
+                                        )),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: 2),
+                                    child: Container(
+                                        width: 34,
+                                        height: 34,
+                                        padding: EdgeInsets.only(top: 0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            Clipboard.setData(
+                                                ClipboardData(
+                                                  text: addressController.text));
+                                            showBar<void>(
+                                                context, S.of(context)
+                                                .copied_to_clipboard);
+                                          },
+                                          child: Container(
+                                              padding: EdgeInsets
+                                                  .fromLTRB(8, 8, 0, 8),
+                                              color: Colors.transparent,
+                                              child: copyImage),
+                                        ))
+                                  )
+                                ]
+                              )
+                            )
+                        )
+                      ]
+                    )
+                ),
               ),
       ]),
     );
