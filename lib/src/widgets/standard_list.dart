@@ -69,10 +69,13 @@ class SectionHeaderListRow extends StatelessWidget {
 }
 
 class StandardListSeparator extends StatelessWidget {
+
   StandardListSeparator({this.padding,this.height=1});
 
   final EdgeInsets padding;
   final double height;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +102,7 @@ class StandardList extends StatelessWidget {
             StandardListSeparator(padding: EdgeInsets.only(left: 24)),
         itemCount: itemCount,
         itemBuilder: itemBuilder);
+
   }
 }
 
