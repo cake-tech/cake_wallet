@@ -6,11 +6,11 @@ class CakeScrollbar extends StatelessWidget {
     @required this.fromTop,
     this.rightOffset = 6
   });
+
   final double backgroundHeight;
   final double thumbHeight;
   final double fromTop;
   final double rightOffset;
-
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -21,6 +21,7 @@ class CakeScrollbar extends StatelessWidget {
           decoration: BoxDecoration(
             color: Theme.of(context).textTheme.body1.decorationColor,
             borderRadius: BorderRadius.all(Radius.circular(3))
+
           ),
           child: Stack(
             children: <Widget>[
@@ -33,6 +34,7 @@ class CakeScrollbar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Theme.of(context).textTheme.body1.color,
                     borderRadius: BorderRadius.all(Radius.circular(3))
+
                   ),
                 ),
               )
