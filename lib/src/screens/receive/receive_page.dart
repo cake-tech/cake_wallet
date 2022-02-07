@@ -129,7 +129,7 @@ class ReceivePage extends BasePage {
                     addressListViewModel: addressListViewModel,
                     isAmountFieldShow: true,
                     amountTextFieldFocusNode: _cryptoAmountFocus,
-                    isBright: currentTheme.type == ThemeType.bright),
+                    isLight: currentTheme.type == ThemeType.light),
               ),
               Observer(
                   builder: (_) => ListView.separated(
