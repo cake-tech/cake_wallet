@@ -99,7 +99,9 @@ class StandardList extends StatelessWidget {
     return ListView.separated(
         separatorBuilder: (_, __) => StandardListSeparator(
 
-            padding: EdgeInsets.only(left: 24)));
+            padding: EdgeInsets.only(left: 24)),
+        itemCount: itemCount,
+        itemBuilder: itemBuilder);
 
   }
 }
