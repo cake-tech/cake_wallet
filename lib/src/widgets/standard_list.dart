@@ -59,7 +59,7 @@ class StandardListRow extends StatelessWidget {
 class SectionHeaderListRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(children: [
-        StandardListSeparator(padding: EdgeInsets.only(left: 24),),
+        StandardListSeparator(padding: EdgeInsets.only(left: 24)),
         Container(
             width: double.infinity,
             height: 40,
@@ -72,7 +72,7 @@ class StandardListSeparator extends StatelessWidget {
   StandardListSeparator({this.padding,this.height=1});
 
   final EdgeInsets padding;
-   final double height;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -95,8 +95,8 @@ class StandardList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
-        separatorBuilder: (_, __) => StandardListSeparator(
-            padding: EdgeInsets.only(left: 24),),
+        separatorBuilder: (_, __) =>
+            StandardListSeparator(padding: EdgeInsets.only(left: 24)),
         itemCount: itemCount,
         itemBuilder: itemBuilder);
   }

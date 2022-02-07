@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-
 class CakeScrollbar extends StatelessWidget {
-  CakeScrollbar(
-      {@required this.backgroundHeight,
-      @required this.thumbHeight,
-      @required this.fromTop,
-      this.rightOffset = 6});
-
+  CakeScrollbar({
+    @required this.backgroundHeight,
+    @required this.thumbHeight,
+    @required this.fromTop,
+    this.rightOffset = 6
+  });
   final double backgroundHeight;
   final double thumbHeight;
   final double fromTop;
@@ -20,8 +19,9 @@ class CakeScrollbar extends StatelessWidget {
           height: backgroundHeight,
           width: 6,
           decoration: BoxDecoration(
-              color: Theme.of(context).textTheme.body1.decorationColor,
-              borderRadius: BorderRadius.all(Radius.circular(3))),
+            color: Theme.of(context).textTheme.body1.decorationColor,
+            borderRadius: BorderRadius.all(Radius.circular(3))
+          ),
           child: Stack(
             children: <Widget>[
               AnimatedPositioned(
@@ -31,12 +31,14 @@ class CakeScrollbar extends StatelessWidget {
                   height: thumbHeight,
                   width: 6.0,
                   decoration: BoxDecoration(
-                      color: Theme.of(context).textTheme.body1.color,
-                      borderRadius: BorderRadius.all(Radius.circular(3))),
+                    color: Theme.of(context).textTheme.body1.color,
+                    borderRadius: BorderRadius.all(Radius.circular(3))
+                  ),
                 ),
               )
             ],
           ),
-        ));
+        )
+    );
   }
 }

@@ -16,10 +16,10 @@ class CurrencyPicker extends StatefulWidget {
     @required this.onItemSelected,
   });
 
-  int selectedAtIndex;
+  final int selectedAtIndex;
   final List<CryptoCurrency> items;
   final String title;
-  final Function onItemSelected;
+  final Function(CryptoCurrency) onItemSelected;
 
   @override
   CurrencyPickerState createState() => CurrencyPickerState(items);
