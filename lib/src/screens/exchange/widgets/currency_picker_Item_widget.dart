@@ -3,16 +3,16 @@ import 'package:cake_wallet/palette.dart';
 
 class PickerItemWidget extends StatelessWidget {
   const PickerItemWidget(
-      {this.leftIconImage,
-      this.pickerItemTitle,
+      {this.iconPath,
+      this.title,
       this.isSelected,
-      this.tagName,
+      this.tag,
       this.onTap});
 
-  final String leftIconImage;
-  final String pickerItemTitle;
+  final String iconPath;
+  final String title;
   final bool isSelected;
-  final String tagName;
+  final String tag;
   final void Function() onTap;
 
   @override
@@ -32,7 +32,7 @@ class PickerItemWidget extends StatelessWidget {
                 Expanded(
                   child: Container(
                     child: Image.asset(
-                      leftIconImage,
+                      iconPath,
                       height: 32.0,
                       width: 32.0,
                     ),
@@ -44,7 +44,7 @@ class PickerItemWidget extends StatelessWidget {
                     alignment: Alignment.centerLeft,
                     children: [
                       Text(
-                        pickerItemTitle,
+                        title,
                         style: TextStyle(
                           color: isSelected
                               ? Palette.blueCraiola
@@ -53,7 +53,7 @@ class PickerItemWidget extends StatelessWidget {
                           fontFamily: 'Lato',
                         ),
                       ),
-                      tagName != null
+                      tag != null
                           ? Positioned(
                               top: -20.0,
                               right: 7.0,
@@ -62,7 +62,7 @@ class PickerItemWidget extends StatelessWidget {
                                 height: 18.0,
                                 child: Center(
                                   child: Text(
-                                    tagName,
+                                    tag,
                                     style: TextStyle(
                                         fontSize: 7.0,
                                         fontFamily: 'Lato',
