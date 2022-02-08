@@ -165,6 +165,7 @@ class DashboardPage extends BasePage {
   }
 
   void _setEffects(BuildContext context) async {
+    print('At the begins of the opening');
     if (_isEffectsInstalled) {
       return;
     }
@@ -176,23 +177,23 @@ class DashboardPage extends BasePage {
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;
 
-    //if (walletViewModel.shouldShowYatPopup) {
-    //  await Future<void>.delayed(Duration(seconds: 1));
+    if (walletViewModel.shouldShowYatPopup) {
+     await Future<void>.delayed(Duration(seconds: 1));
 
-    //  if (currentRouteSettings.name == Routes.preSeed
-    //      || currentRouteSettings.name == Routes.seed) {
-    //    return;
-    //  }
+     if (currentRouteSettings.name == Routes.preSeed
+         || currentRouteSettings.name == Routes.seed) {
+       return;
+     }
 
-    //  await showPopUp<void>(
-    //      context: context,
-    //      builder: (BuildContext context) {
-    //        return YatPopup(
-    //            dashboardViewModel: walletViewModel,
-    //            onClose: () => Navigator.of(context).pop());
-    //      });
-    //  walletViewModel.furtherShowYatPopup(false);
-    //}
+     await showPopUp<void>(
+         context: context,
+         builder: (BuildContext context) {
+           return YatPopup(
+               dashboardViewModel: walletViewModel,
+               onClose: () => Navigator.of(context).pop());
+         });
+     walletViewModel.furtherShowYatPopup(false);
+    }
 
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet) {

@@ -10,7 +10,6 @@ import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class YatPopup extends StatelessWidget {
@@ -160,24 +159,10 @@ class YatPopup extends StatelessWidget {
             child: ThirdIntroduction(
                 onClose: onClose,
                 onGet: () {
-                  var createNewYatUrl = YatLink.startFlowUrl;
-                  final createNewYatUrlParameters = dashboardViewModel.
-                      yatStore.defineQueryParameters();
-                  
-                  if (createNewYatUrlParameters.isNotEmpty) {
-                    createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
-                  }
-
-                  launch(createNewYatUrl, forceSafariVC: false);
+                 
                 },
                 onConnect: () {
-                  String url = baseUrl + YatLink.signInSuffix;
-                  final parameters = dashboardViewModel
-                      .yatStore.defineQueryParameters();
-                  if (parameters.isNotEmpty) {
-                    url += YatLink.queryParameter + parameters;
-                  }
-                  launch(url, forceSafariVC: false);
+                 
                 }
             ))
             : Container()
