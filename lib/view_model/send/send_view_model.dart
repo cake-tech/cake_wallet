@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -124,7 +125,12 @@ abstract class SendViewModelBase with Store {
   PendingTransaction pendingTransaction;
 
   @computed
-  String get balance => _wallet.balance.formattedAvailableBalance ?? '0.0';
+  String get balance {
+    if(_settingsStore.balanceDisplayMode == BalanceDisplayMode.hiddenBalance){
+      return '---';
+    }
+    return _wallet.balance.formattedAvailableBalance ?? '0.0' ;
+  } 
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
