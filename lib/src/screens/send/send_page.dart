@@ -24,6 +24,7 @@ import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart'
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/src/screens/yat/yat_sending.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class SendPage extends BasePage {
   SendPage({@required this.sendViewModel}) : _formKey = GlobalKey<FormState>();
@@ -48,6 +49,28 @@ class SendPage extends BasePage {
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  @override
+  Widget middle(BuildContext context)=> Observer(builder: (_) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right:8.0),
+          child: SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),
+        ),
+        Text(
+          title,
+          style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Lato',
+              color: titleColor ??
+                  Theme.of(context).primaryTextTheme.title.color),
+        ),
+      ],
+    );
+  });
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
