@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
+import 'package:cake_wallet/entities/yat_record.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cw_core/wallet_type.dart';
 
@@ -26,7 +27,7 @@ Future<ParsedAddress> parseAddressFromDomain(
 
     if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
       try {
-        final addresses = await fetchYatAddress(domain, ticker);
+        final addresses = await YatRecord.fetchYatAddress(domain, ticker);
 
         if (addresses?.isEmpty ?? true) {
           return ParsedAddress(
@@ -34,7 +35,7 @@ Future<ParsedAddress> parseAddressFromDomain(
         }
 
         return ParsedAddress(
-            addresses: addresses, name: domain, parseFrom: ParseFrom.yatRecord);
+            addresses: addresses.map((e) => e.address).toList(), name: domain, parseFrom: ParseFrom.yatRecord);
       } catch (e) {
         return ParsedAddress(addresses: [domain]);
       }
