@@ -4,38 +4,51 @@ import 'package:http/http.dart';
 
 /// Resolves YAT record
 class YatRecord {
-  String tag;
+  String category;
   String address;
 
+  static const yatBaseUrl = "https://a.y.at";
+
+  static String lookupEmojiUrl(String emojiId) =>
+      "$yatBaseUrl/emoji_id/$emojiId/payment";
+
   YatRecord({
-    this.tag,
+    this.category,
     this.address,
   });
 
   YatRecord.fromJson(Map<String, dynamic> json) {
-    tag = json['tag'] as String;
-    address = json['data'] as String;
+    address = json['address'] as String;
+    category = json['category'] as String;
   }
 
-  static const addressLookupUrl = "https://a.y.at/emoji_id";
+  static const tags = {
+    "XMR": '0x1001,0x1002',
+    "BTC": '0x1003',
+    "LTC": '0x3fff'
+  };
 
   static Future<List<YatRecord>> fetchYatAddress(
       String emojiId, String ticker) async {
     final formattedTicker = ticker.toUpperCase();
-    final url = YatRecord.addressLookupUrl + "/$emojiId/$formattedTicker";
-    final results = <YatRecord>[];
+    final formattedEmojiId = emojiId.replaceAll(' ', '');
+    final uri = Uri.parse(lookupEmojiUrl(formattedEmojiId)).replace(
+        queryParameters: <String, dynamic>{"tags": tags[formattedTicker]});
+
+    final yatRecords = <YatRecord>[];
 
     try {
-      final response = await get(url);
+      final response = await get(uri);
       final resBody = json.decode(response.body) as Map<String, dynamic>;
-      if (resBody["error"] == null) if (resBody["result"] != null) {
-        for (final result in resBody["result"]) {
-          results.add(YatRecord.fromJson(result as Map<String, dynamic>));
-        }
-      }
-      return results;
+
+      final results = resBody["result"] as Map<dynamic, dynamic>;
+      results.forEach((dynamic key, dynamic value) {
+        yatRecords.add(YatRecord.fromJson(value as Map<String, dynamic>));
+      });
+
+      return yatRecords;
     } catch (_) {
-      return results;
+      return yatRecords;
     }
   }
 }

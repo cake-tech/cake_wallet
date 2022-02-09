@@ -19,22 +19,9 @@ class YatSending extends BasePage {
 
   static Route createRoute(SendViewModel sendViewModel) {
     return PageRouteBuilder<void>(
-      transitionDuration: Duration(seconds: 1),
-      reverseTransitionDuration: Duration(seconds: 1),
       opaque: false,
       barrierDismissible: false,
       pageBuilder: (context, animation, secondaryAnimation) => YatSending(sendViewModel),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        final screenSize = MediaQuery.of(context).size;
-        final center = Offset(screenSize.width / 2, screenSize.height / 2);
-        final endRadius = screenSize.height * 1.2;
-        final tween = Tween(begin: 0.0, end: endRadius);
-
-        return ClipPath(
-          clipper: CircleClipper(center, animation.drive(tween).value),
-          child: child,
-        );
-      },
     );
   }
 
