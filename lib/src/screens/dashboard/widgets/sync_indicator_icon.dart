@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class SyncIndicatorIcon extends StatelessWidget {
-   SyncIndicatorIcon({this.isSynced});
+  SyncIndicatorIcon({this.isSynced});
 
-   final bool isSynced;
+  final bool isSynced;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -14,8 +15,7 @@ class SyncIndicatorIcon extends StatelessWidget {
           shape: BoxShape.circle,
           color: isSynced
               ? PaletteDark.brightGreen
-              : Theme.of(context).textTheme.caption.color
-      ),
+              : Theme.of(context).textTheme.caption.color),
     );
   }
 }

@@ -51,26 +51,15 @@ class SendPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  Widget middle(BuildContext context)=> Observer(builder: (_) {
-    return Row(
+  Widget middle(BuildContext context)=> Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.only(right:8.0),
-          child: SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),
-        ),
-        Text(
-          title,
-          style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
-              fontFamily: 'Lato',
-              color: titleColor ??
-                  Theme.of(context).primaryTextTheme.title.color),
-        ),
+          child: Observer(builder: (_)=>SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),),
+        ),super.middle(context),
       ],
     );
-  });
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
