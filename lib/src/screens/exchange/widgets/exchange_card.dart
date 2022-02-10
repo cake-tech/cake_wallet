@@ -247,7 +247,10 @@ class ExchangeCardState extends State<ExchangeCard> {
                 ),
               ],
             )),
-        Divider(height: 1),
+        Divider(height: 1,color: Theme.of(context)
+            .primaryTextTheme
+            .headline
+            .decorationColor),
         Padding(
           padding: EdgeInsets.only(top: 5),
           child: Container(
