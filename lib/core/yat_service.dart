@@ -13,13 +13,19 @@ class YatService {
 
   static String lookupEmojiUrl(String emojiId) =>
       "$apiUrl/emoji_id/$emojiId/payment";
+  
+  static const tags = {
+    'XMR': '0x1001,0x1002',
+    'BTC': '0x1003',
+    'LTC': '0x3fff'
+  };
 
   Future<List<YatRecord>> fetchYatAddress(String emojiId, String ticker) async {
     final formattedTicker = ticker.toUpperCase();
     final formattedEmojiId = emojiId.replaceAll(' ', '');
     final uri = Uri.parse(lookupEmojiUrl(formattedEmojiId)).replace(
         queryParameters: <String, dynamic>{
-          "tags": YatRecord.tags[formattedTicker]
+          "tags": tags[formattedTicker]
         });
 
     final yatRecords = <YatRecord>[];
