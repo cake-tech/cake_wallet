@@ -1,9 +1,9 @@
+import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
-import 'package:cake_wallet/entities/yat_record.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/entities/emoji_string_extension.dart';
 
 const unstoppableDomains = [
   'crypto',
@@ -25,17 +25,21 @@ Future<ParsedAddress> parseAddressFromDomain(
     final domainParts = formattedName.split('.');
     final name = domainParts.last;
 
+    final yatService = getIt.get<YatService>();
+
     if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
       try {
-        final addresses = await YatRecord.fetchYatAddress(domain, ticker);
-
-        if (addresses?.isEmpty ?? true) {
+        if (domain.hasOnlyEmojis()) {
+          final addresses = await yatService.fetchYatAddress(domain, ticker);
+          if(addresses?.isEmpty ?? true){
+            return ParsedAddress(addresses: [domain], parseFrom: ParseFrom.yatRecord);
+          }
           return ParsedAddress(
-              addresses: [domain]);
+              addresses: addresses.map((e) => e.address).toList(),
+              name: domain,
+              parseFrom: ParseFrom.yatRecord);
         }
-
-        return ParsedAddress(
-            addresses: addresses.map((e) => e.address).toList(), name: domain, parseFrom: ParseFrom.yatRecord);
+          return ParsedAddress(addresses: [domain]);
       } catch (e) {
         return ParsedAddress(addresses: [domain]);
       }
