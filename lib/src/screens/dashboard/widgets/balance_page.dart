@@ -45,13 +45,16 @@ class BalancePage extends StatelessWidget {
            
           ClipRRect(
              child:Container(
-               height: 199,
+               height: 200,
                width: 343,
+               margin: const EdgeInsets.only(left: 16, right: 16),
                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
+                  border: Border.all(color: Color.fromRGBO(255, 255, 255, 0.2), width: 1, ),
                   color:Theme.of(context).textTheme.title.backgroundColor
                 ),
                child: Container(
+                 
                  margin: const EdgeInsets.only(top: 16, bottom: 24, left: 24, right: 24),
                  child: Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
