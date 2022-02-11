@@ -31,7 +31,7 @@ Future<ParsedAddress> parseAddressFromDomain(
 
         if (addresses?.isEmpty ?? true) {
           return ParsedAddress(
-              addresses: [domain], parseFrom: ParseFrom.yatRecord);
+              addresses: [domain]);
         }
 
         return ParsedAddress(
