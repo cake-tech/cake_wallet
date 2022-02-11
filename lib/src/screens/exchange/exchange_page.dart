@@ -66,7 +66,7 @@ class ExchangePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  Widget middle(BuildContext context)=> Observer(builder: (_) {
+  Widget middle(BuildContext context) => Observer(builder: (_) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
