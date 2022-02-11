@@ -29,7 +29,7 @@ Future<ParsedAddress> parseAddressFromDomain(
 
     if (domainParts.length <= 1 || domainParts.first.isEmpty || name.isEmpty) {
       try {
-        if (domain.hasOnlyEmojis()) {
+        if (domain.hasOnlyEmojis) {
           final addresses = await yatService.fetchYatAddress(domain, ticker);
           if(addresses?.isEmpty ?? true){
             return ParsedAddress(addresses: [domain], parseFrom: ParseFrom.yatRecord);

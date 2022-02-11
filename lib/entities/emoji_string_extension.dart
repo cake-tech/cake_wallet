@@ -14,11 +14,12 @@ extension Emoji on String {
     unicode: true,
   );
 
-  /// Returns true if the given text contains only emojis.
-  bool hasOnlyEmojis() {
+  bool _hasOnlyEmojis() {
     final parsedText = this.replaceAll(' ', '');
     for (final c in Characters(parsedText))
       if (!REGEX_EMOJI.hasMatch(c)) return false;
     return true;
   }
+ /// Returns true if the given text contains only emojis.
+  bool get hasOnlyEmojis => _hasOnlyEmojis();
 }
