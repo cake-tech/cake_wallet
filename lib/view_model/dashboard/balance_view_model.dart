@@ -95,6 +95,19 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
+  String get asset {
+    if( appStore.wallet.currency == CryptoCurrency.btc){
+      return 'Bitcoin Assets';
+    }
+    else if(appStore.wallet.currency == CryptoCurrency.xmr){
+      return 'Monero Assets';
+    }
+    
+      return 'Litecoin Assets';
+    
+  }
+
+  @computed
   String get additionalBalance {
     final walletBalance = _walletBalance;
 
