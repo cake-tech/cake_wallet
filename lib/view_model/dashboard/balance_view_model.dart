@@ -58,6 +58,19 @@ abstract class BalanceViewModelBase with Store {
   @computed
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
 
+    @computed
+  String get asset {
+    if( appStore.wallet.currency == CryptoCurrency.btc){
+      return 'Bitcoin Assets';
+    }
+    else if(appStore.wallet.currency == CryptoCurrency.xmr){
+      return 'Monero Assets';
+    }
+    
+      return 'Litecoin Assets';
+    
+  }
+
   @computed
   BalanceDisplayMode get displayMode => isReversing
       ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
