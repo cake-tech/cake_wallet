@@ -25,8 +25,8 @@ class BalancePage extends StatelessWidget {
         children: [
           Container(
             alignment: Alignment.topLeft,
-            padding: const EdgeInsets.only(left: 24,),
-            margin: const EdgeInsets.only(bottom: 16),
+            
+            margin: const EdgeInsets.only(left: 24, bottom: 16),
             child: Observer(builder: (_) {
                   return AutoSizeText(
                       dashboardViewModel.balanceViewModel.asset,
