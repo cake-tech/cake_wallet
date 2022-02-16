@@ -66,18 +66,16 @@ class ExchangePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  Widget middle(BuildContext context) => Observer(builder: (_) {
-    return Row(
+  Widget middle(BuildContext context) => Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Padding(
           padding: const EdgeInsets.only(right:6.0),
-          child: SyncIndicatorIcon(isSynced: exchangeViewModel.status is SyncedSyncStatus),
+          child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: exchangeViewModel.status is SyncedSyncStatus),)
         ),
         PresentProviderPicker(exchangeViewModel: exchangeViewModel)
       ],
     );
-  });
 
 
   @override
