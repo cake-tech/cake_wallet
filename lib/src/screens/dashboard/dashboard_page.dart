@@ -93,6 +93,10 @@ class DashboardPage extends BasePage {
         height: 22.24,
         width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final receiveImage = Image.asset('assets/images/download.png',
+        height: 22.24,
+        width: 24,
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
     final exchangeImage = Image.asset('assets/images/transfer.png',
         height: 24.27,
         width: 22.25,
@@ -132,8 +136,17 @@ class DashboardPage extends BasePage {
                       .display1
                       .backgroundColor),
             )),
-        Container(
-          padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
+       ClipRect(
+         child:Container(
+           margin: const EdgeInsets.only(left: 16, right: 16, bottom: 38),
+           padding: EdgeInsets.only(left: 32, right: 32, bottom: 30, top: 16),
+           decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50.0),
+                  border: Border.all(color: Color.fromRGBO(255, 255, 255, 0.2), width: 1, ),
+                  color:Theme.of(context).textTheme.title.backgroundColor
+                ),
+          child: Container(
+          
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
@@ -141,6 +154,10 @@ class DashboardPage extends BasePage {
                   image: sendImage,
                   title: S.of(context).send,
                   route: Routes.send),
+              ActionButton(
+                  image: receiveImage,
+                  title: S.of(context).receive,
+                  route: Routes.receive),
               ActionButton(
                   image: exchangeImage,
                   title: S.of(context).exchange,
@@ -159,7 +176,7 @@ class DashboardPage extends BasePage {
                 ),
             ],
           ),
-        )
+        ),),),
       ],
     ));
   }

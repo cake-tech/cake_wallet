@@ -35,16 +35,16 @@ class ActionButton extends StatelessWidget {
               height: 60,
               width: 60,
               alignment: Alignment.center,
-              decoration: BoxDecoration(
-                  color: Theme.of(context).buttonColor, shape: BoxShape.circle),
+              decoration: BoxDecoration( 
+                  shape: BoxShape.circle),
               child: image,
             ),
           ),
-          SizedBox(height: 15),
+        
           Text(
             title,
             style: TextStyle(
-                fontSize: 14,
+                fontSize: 10,
                 color: Theme.of(context).accentTextTheme.display3
                     .backgroundColor),
           )
