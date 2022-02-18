@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/picker_Item.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -20,7 +20,6 @@ class CurrencyPicker extends StatefulWidget {
   final List<CryptoCurrency> items;
   final String title;
   final Function(CryptoCurrency) onItemSelected;
-
 
   @override
   CurrencyPickerState createState() => CurrencyPickerState(items);
@@ -44,6 +43,15 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   String textFieldValue;
   List<CryptoCurrency> subCryptoCurrencyList;
   TextStyle appBarTextStyle;
+  var pickerItemsList = CryptoCurrency.all
+      .map((CryptoCurrency cur) => PickerItem<CryptoCurrency>(
+            cur,
+            title: PickerItem.titleForCurrency(cur),
+            iconPath: PickerItem.iconPathForCurrency(cur),
+            tag: PickerItem.tagForCurrency(cur),
+            description: PickerItem.descriptionForCurrency(cur)
+          ))
+      .toList();
 
   void currencySearchBySubstring(String subString, List<CryptoCurrency> list) {
     subCryptoCurrencyList = [];
@@ -53,8 +61,8 @@ class CurrencyPickerState extends State<CurrencyPicker> {
       } else {
         items.forEach((element) {
           if (element.title.contains(subString.toUpperCase()) ||
-              PickerItem(currencyIndex: element.raw)
-                  .currencyName
+              pickerItemsList[element.raw]
+                  .title
                   .contains(subString.toLowerCase())) {
             subCryptoCurrencyList.add(element);
           }
@@ -147,6 +155,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                           : subCryptoCurrencyList,
                       itemsCount: itemsCount,
                       onItemSelected: widget.onItemSelected,
+                      pickerItemsList: pickerItemsList,
                     ),
                   ),
                 ),

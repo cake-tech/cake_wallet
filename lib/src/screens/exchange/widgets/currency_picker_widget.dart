@@ -1,7 +1,8 @@
+import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
-import 'picker_Item.dart';
-import 'currency_picker_Item_widget.dart';
+import 'picker_item.dart';
+import 'currency_picker_item_widget.dart';
 
 class CurrencyPickerWidget extends StatefulWidget {
   CurrencyPickerWidget(
@@ -10,6 +11,7 @@ class CurrencyPickerWidget extends StatefulWidget {
       @required this.selectedAtIndex,
       @required this.itemsCount,
       @required this.onItemSelected,
+      @required this.pickerItemsList,
       this.textFieldValue});
 
   final int crossAxisCount;
@@ -18,6 +20,7 @@ class CurrencyPickerWidget extends StatefulWidget {
   final int itemsCount;
   final String textFieldValue;
   final Function onItemSelected;
+  final List<PickerItem<CryptoCurrency>> pickerItemsList;
 
   @override
   _CurrencyPickerWidgetState createState() => _CurrencyPickerWidgetState();
@@ -29,8 +32,8 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
   void pickListItem(int index) {
     setState(() {
       widget.selectedAtIndex = index;
-      widget.onItemSelected(widget.cryptoCurrencyList[index]);
     });
+    widget.onItemSelected(widget.pickerItemsList[index].original);
     Navigator.of(context).pop();
   }
 
@@ -60,16 +63,10 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
                   onTap: () {
                     pickListItem(index);
                   },
-                  title: PickerItem(
-                          currencyIndex: widget.cryptoCurrencyList[index].raw)
-                      .pickerTitle,
-                  iconPath: PickerItem(
-                          currencyIndex: widget.cryptoCurrencyList[index].raw)
-                      .leftIcon,
+                  title: widget.pickerItemsList[index].title,
+                  iconPath: widget.pickerItemsList[index].iconPath,
                   isSelected: index == widget.selectedAtIndex,
-                  tag: PickerItem(
-                          currencyIndex: widget.cryptoCurrencyList[index].raw)
-                      .tagName,
+                  tag: widget.pickerItemsList[index].tag,
                 );
               }),
         ),

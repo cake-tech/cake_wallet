@@ -3,11 +3,7 @@ import 'package:cake_wallet/palette.dart';
 
 class PickerItemWidget extends StatelessWidget {
   const PickerItemWidget(
-      {this.iconPath,
-      this.title,
-      this.isSelected,
-      this.tag,
-      this.onTap});
+      {this.iconPath, this.title, this.isSelected, this.tag, this.onTap});
 
   final String iconPath;
   final String title;
