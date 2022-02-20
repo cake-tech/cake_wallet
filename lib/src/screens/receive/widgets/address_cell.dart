@@ -39,7 +39,8 @@ class AddressCell extends StatelessWidget {
   final Function(String) onTap;
   final Function() onEdit;
 
-  String get label => name ?? address;
+  String get label => name.isEmpty?address.substring(0,8)+'...'+
+      address.substring(address.length-8,address.length):name;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,7 @@ class AddressCell extends StatelessWidget {
           color: backgroundColor,
           padding: EdgeInsets.only(left: 24, right: 24, top: 28, bottom: 28),
           child: Text(
-            name ?? address,
+            label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
