@@ -8,6 +8,9 @@
 
   "monero_com": "Monero.com by Cake Wallet",
   "monero_com_wallet_text": "Awesome wallet for Monero",
+
+  "haven_app": "Haven by Cake Wallet",
+  "haven_app_wallet_text": "Awesome wallet for Haven",
   
   "accounts" : "Contas",
   "edit" : "Editar",

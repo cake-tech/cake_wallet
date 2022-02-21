@@ -1,3 +1,4 @@
+import 'package:mobx/mobx.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
@@ -35,7 +36,7 @@ abstract class WalletBase<
 
   //set address(String address);
 
-  BalanceType get balance;
+  ObservableMap<CryptoCurrency, BalanceType> get balance;
 
   SyncStatus get syncStatus;
 

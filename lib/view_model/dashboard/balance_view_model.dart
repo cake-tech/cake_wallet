@@ -15,6 +15,19 @@ import 'package:mobx/mobx.dart';
 
 part 'balance_view_model.g.dart';
 
+class BalanceRecord {
+  const BalanceRecord({this.availableBalance,
+    this.additionalBalance,
+    this.fiatAvailableBalance,
+    this.fiatAdditionalBalance,
+    this.asset});
+  final String fiatAdditionalBalance;
+  final String fiatAvailableBalance;
+  final String additionalBalance;
+  final String availableBalance;
+  final CryptoCurrency asset;
+}
+
 class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
 
 abstract class BalanceViewModelBase with Store {
@@ -24,16 +37,7 @@ abstract class BalanceViewModelBase with Store {
       @required this.fiatConvertationStore}) {
     isReversing = false;
     wallet ??= appStore.wallet;
-    balance = wallet.balance;
-
     reaction((_) => appStore.wallet, _onWalletChange);
-
-    _onCurrentWalletChangeReaction =
-        reaction<void>((_) => wallet.balance, (dynamic balance) {
-      if (balance is Balance) {
-        this.balance = balance;
-      }
-    });
   }
 
   final AppStore appStore;
@@ -44,9 +48,6 @@ abstract class BalanceViewModelBase with Store {
 
   @observable
   bool isReversing;
-
-  @observable
-  Balance balance;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
@@ -82,6 +83,9 @@ abstract class BalanceViewModelBase with Store {
 
     return S.current.unconfirmed;
   }
+
+  @computed
+  bool get hasMultiBalance => appStore.wallet.type == WalletType.haven;
 
   @computed
   String get availableBalance {
@@ -138,7 +142,71 @@ abstract class BalanceViewModelBase with Store {
   }
 
   @computed
-  Balance get _walletBalance => wallet.balance;
+  Map<CryptoCurrency, BalanceRecord> get balances {
+    return wallet.balance.map((key, value) {
+      if (displayMode == BalanceDisplayMode.hiddenBalance) {
+        return MapEntry(key, BalanceRecord(
+          availableBalance: '---',
+          additionalBalance: '---',
+          fiatAdditionalBalance: '---',
+          fiatAvailableBalance: '---',
+          asset: key));
+      }
+      final fiatCurrency = settingsStore.fiatCurrency;
+      final additionalFiatBalance = fiatCurrency.toString()
+        + ' ' 
+        + _getFiatBalance(
+            price: fiatConvertationStore.prices[key],
+            cryptoAmount: value.formattedAdditionalBalance);
+
+      final availableFiatBalance = fiatCurrency.toString()
+        + ' ' 
+        + _getFiatBalance(
+            price: fiatConvertationStore.prices[key],
+            cryptoAmount: value.formattedAvailableBalance);
+
+      return MapEntry(key, BalanceRecord(
+        availableBalance: value.formattedAvailableBalance,
+        additionalBalance: value.formattedAdditionalBalance,
+        fiatAdditionalBalance: additionalFiatBalance,
+        fiatAvailableBalance: availableFiatBalance,
+        asset: key));
+      });
+  }
+
+  @computed
+  List<BalanceRecord> get formattedBalances {
+    final balance = balances.values.toList();
+
+    balance.sort((BalanceRecord a, BalanceRecord b) {
+      if (b.asset == CryptoCurrency.xhv) {
+        return 1;
+      }
+
+      if (b.asset == CryptoCurrency.xusd) {
+        if (a.asset == CryptoCurrency.xhv) {
+          return -1;
+        }
+
+        return 1;
+      }
+
+      if (b.asset == CryptoCurrency.xbtc) {
+        return 1;
+      }
+
+      if (b.asset == CryptoCurrency.xeur) {
+        return 1;
+      }
+
+      return 0;
+    });
+
+    return balance;
+  }
+
+  @computed
+  Balance get _walletBalance => wallet.balance[wallet.currency];
 
   @computed
   CryptoCurrency get currency => appStore.wallet.currency;
@@ -150,11 +218,8 @@ abstract class BalanceViewModelBase with Store {
       WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
               TransactionInfo>
           wallet) {
-    this.wallet = wallet;
-    balance = wallet.balance;
+     this.wallet = wallet;
     _onCurrentWalletChangeReaction?.reaction?.dispose();
-    _onCurrentWalletChangeReaction = reaction<Balance>(
-        (_) => wallet.balance, (Balance balance) => this.balance = balance);
   }
 
   String _getFiatBalance({double price, String cryptoAmount}) {

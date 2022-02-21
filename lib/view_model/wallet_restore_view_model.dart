@@ -12,6 +12,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/haven/haven.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
@@ -24,11 +25,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   WalletRestoreViewModelBase(AppStore appStore, this._walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {@required WalletType type})
-      : availableModes = type == WalletType.monero
+      : availableModes = (type == WalletType.monero || type == WalletType.haven)
             ? WalletRestoreMode.values
             : [WalletRestoreMode.seed],
-        hasSeedLanguageSelector = type == WalletType.monero,
-        hasBlockchainHeightLanguageSelector = type == WalletType.monero,
+        hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
+        hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         super(appStore, walletInfoSource, type: type, isRecovery: true) {
     isButtonEnabled =
         !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
@@ -77,6 +78,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             name: name,
             mnemonic: seed,
             password: password);
+        case WalletType.haven:
+          return haven.createHavenRestoreWalletFromSeedCredentials(
+              name: name,
+              height: height,
+              mnemonic: seed,
+              password: password);
         default:
           break;
       }

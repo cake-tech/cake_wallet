@@ -141,7 +141,8 @@ class DashboardPage extends BasePage {
                   image: sendImage,
                   title: S.of(context).send,
                   route: Routes.send),
-              ActionButton(
+              if (!isHaven)
+                ActionButton(
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),

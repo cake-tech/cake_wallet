@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/screens/yat/widgets/yat_close_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart'
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/src/screens/yat/yat_sending.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 class SendPage extends BasePage {
   SendPage({@required this.sendViewModel}) : _formKey = GlobalKey<FormState>();
@@ -131,6 +133,7 @@ class SendPage extends BasePage {
                   ),
                 ),
               ),
+              if (sendViewModel.hasMultiRecipient)
               Container(
                 height: 40,
                 width: double.infinity,
@@ -247,27 +250,42 @@ class SendPage extends BasePage {
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Column(
             children: [
-              Padding(
+              Observer(builder: (_) =>
+                Padding(
                   padding: EdgeInsets.only(bottom: 12),
                   child: PrimaryButton(
-                    onPressed: () {
-                      sendViewModel.addOutput();
-                      Future.delayed(const Duration(milliseconds: 250), () {
-                        controller.jumpToPage(sendViewModel.outputs.length - 1);
-                      });
-                    },
-                    text: S.of(context).add_receiver,
+                    onPressed: () => presentCurrencyPicker(context),
+                    text: 'Change currency (${sendViewModel.selectedCryptoCurrency})',
                     color: Colors.transparent,
                     textColor: Theme.of(context)
                         .accentTextTheme
                         .display2
                         .decorationColor,
-                    isDottedBorder: true,
-                    borderColor: Theme.of(context)
-                        .primaryTextTheme
-                        .display2
-                        .decorationColor,
-                  )),
+                  )
+                )
+              ),
+              if (sendViewModel.hasMultiRecipient)
+                Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                      onPressed: () {
+                        sendViewModel.addOutput();
+                        Future.delayed(const Duration(milliseconds: 250), () {
+                          controller.jumpToPage(sendViewModel.outputs.length - 1);
+                        });
+                      },
+                      text: S.of(context).add_receiver,
+                      color: Colors.transparent,
+                      textColor: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .decorationColor,
+                      isDottedBorder: true,
+                      borderColor: Theme.of(context)
+                          .primaryTextTheme
+                          .display2
+                          .decorationColor,
+                    )),
               Observer(
                 builder: (_) {
                   return LoadingPrimaryButton(
@@ -413,5 +431,18 @@ class SendPage extends BasePage {
               buttonText: S.of(context).ok,
               buttonAction: () => Navigator.of(context).pop());
         });
+  }
+
+   void presentCurrencyPicker(BuildContext context) async {
+    await showPopUp<CryptoCurrency>(
+        builder: (_) => Picker(
+          items: sendViewModel.currencies,
+          displayItem: (Object item) => item.toString(),
+          selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
+          title: S.of(context).please_select,
+          mainAxisAlignment: MainAxisAlignment.center,
+          onItemSelected: (CryptoCurrency cur) => sendViewModel.selectedCryptoCurrency = cur,
+        ),
+        context: context);
   }
 }

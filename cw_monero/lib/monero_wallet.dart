@@ -26,6 +26,7 @@ import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_monero/monero_transaction_priority.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 part 'monero_wallet.g.dart';
 
@@ -38,18 +39,23 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   MoneroWalletBase({WalletInfo walletInfo})
       : super(walletInfo) {
     transactionHistory = MoneroTransactionHistory();
-    balance = MoneroBalance(
-        fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
-        unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0));
+    balance = ObservableMap<CryptoCurrency, MoneroBalance>.of({
+        CryptoCurrency.xmr: MoneroBalance(
+          fullBalance: monero_wallet.getFullBalance(accountIndex: 0),
+          unlockedBalance: monero_wallet.getFullBalance(accountIndex: 0))
+        });
     _isTransactionUpdating = false;
     _hasSyncAfterStartup = false;
     walletAddresses = MoneroWalletAddresses(walletInfo);
     _onAccountChangeReaction = reaction((_) => walletAddresses.account,
             (Account account) {
-      balance = MoneroBalance(
-          fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
-          unlockedBalance:
-              monero_wallet.getUnlockedBalance(accountIndex: account.id));
+      balance = ObservableMap<CryptoCurrency, MoneroBalance>.of(
+        <CryptoCurrency, MoneroBalance>{
+          currency: MoneroBalance(
+            fullBalance: monero_wallet.getFullBalance(accountIndex: account.id),
+            unlockedBalance:
+                monero_wallet.getUnlockedBalance(accountIndex: account.id))
+        });
       walletAddresses.updateSubaddressList(accountIndex: account.id);
     });
   }
@@ -65,7 +71,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   @override
   @observable
-  MoneroBalance balance;
+  ObservableMap<CryptoCurrency, MoneroBalance> balance;
 
   @override
   String get seed => monero_wallet.getSeed();
@@ -85,10 +91,12 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
 
   Future<void> init() async {
     await walletAddresses.init();
-    balance = MoneroBalance(
-        fullBalance: monero_wallet.getFullBalance(accountIndex: walletAddresses.account.id),
-        unlockedBalance:
-            monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id));
+    balance =  ObservableMap<CryptoCurrency, MoneroBalance>.of(
+       <CryptoCurrency, MoneroBalance>{
+          currency: MoneroBalance(
+            fullBalance: monero_wallet.getFullBalance(accountIndex: walletAddresses.account.id),
+            unlockedBalance: monero_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id))
+          });
     _setListeners();
     await updateTransactions();
 
@@ -355,9 +363,9 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     final unlockedBalance = _getUnlockedBalance();
     final fullBalance = _getFullBalance();
 
-    if (balance.fullBalance != fullBalance ||
-        balance.unlockedBalance != unlockedBalance) {
-      balance = MoneroBalance(
+    if (balance[currency].fullBalance != fullBalance ||
+        balance[currency].unlockedBalance != unlockedBalance) {
+      balance[currency] = MoneroBalance(
           fullBalance: fullBalance, unlockedBalance: unlockedBalance);
     }
   }

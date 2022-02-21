@@ -60,6 +60,8 @@ class Node extends HiveObject with Keyable {
         return createUriFromElectrumAddress(uriRaw);
       case WalletType.litecoin:
         return createUriFromElectrumAddress(uriRaw);
+      case WalletType.haven:
+        return Uri.http(uriRaw, '');
       default:
         return null;
     }

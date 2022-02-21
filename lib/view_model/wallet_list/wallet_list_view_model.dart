@@ -16,7 +16,7 @@ class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(this._walletInfoSource, this._appStore,
-      this._keyService, this.walletNewVM) {
+      this._keyService) {
     wallets = ObservableList<WalletListItem>();
     _updateList();
   }
@@ -27,7 +27,6 @@ abstract class WalletListViewModelBase with Store {
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final KeyService _keyService;
-  final WalletNewVM walletNewVM;
 
   WalletType get currentWalletType => _appStore.wallet.type;
 

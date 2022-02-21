@@ -2,6 +2,7 @@
 
 MONERO_COM="monero.com"
 CAKEWALLET="cakewallet"
+HAVEN="haven"
 DIR=`pwd`
 
 if [ -z "$APP_IOS_TYPE" ]; then
@@ -23,6 +24,9 @@ case $APP_IOS_TYPE in
 		;;
         $CAKEWALLET)
 		CONFIG_ARGS="--monero --bitcoin"
+		;;
+	$HAVEN)
+		CONFIG_ARGS="--haven"
 		;;
 esac
 

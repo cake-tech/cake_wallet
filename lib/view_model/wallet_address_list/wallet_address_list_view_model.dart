@@ -15,6 +15,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'dart:async';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/haven/haven.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -35,6 +36,22 @@ class MoneroURI extends PaymentURI {
   @override
   String toString() {
     var base = 'monero:' + address;
+
+    if (amount?.isNotEmpty ?? false) {
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+class HavenURI extends PaymentURI {
+  HavenURI({String amount, String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'haven:' + address;
 
     if (amount?.isNotEmpty ?? false) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
@@ -68,7 +85,7 @@ abstract class WalletAddressListViewModelBase with Store {
     _appStore = appStore;
     _wallet = _appStore.wallet;
     emoji = '';
-    hasAccounts = _wallet?.type == WalletType.monero;
+    hasAccounts = _wallet?.type == WalletType.monero || _wallet?.type == WalletType.haven;
     reaction((_) => _wallet.walletAddresses.address, (String address) {
       if (address == _wallet.walletInfo.yatLastUsedAddress) {
         emoji = yatStore.emoji;  
@@ -117,6 +134,10 @@ abstract class WalletAddressListViewModelBase with Store {
       return MoneroURI(amount: amount, address: address.address);
     }
 
+    if (_wallet.type == WalletType.haven) {
+      return HavenURI(amount: amount, address: address.address);
+    }
+
     if (_wallet.type == WalletType.bitcoin) {
       return BitcoinURI(amount: amount, address: address.address);
     }
@@ -136,6 +157,23 @@ abstract class WalletAddressListViewModelBase with Store {
     if (wallet.type == WalletType.monero) {
       final primaryAddress = monero.getSubaddressList(wallet).subaddresses.first;
       final addressItems = monero
+        .getSubaddressList(wallet)
+        .subaddresses
+          .map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.label,
+            address: subaddress.address);
+      });
+      addressList.addAll(addressItems);
+    }
+
+    if (wallet.type == WalletType.haven) {
+      final primaryAddress = haven.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = haven
         .getSubaddressList(wallet)
         .subaddresses
           .map((subaddress) {
@@ -175,11 +213,15 @@ abstract class WalletAddressListViewModelBase with Store {
       return monero.getCurrentAccount(wallet).label;
     }
 
+    if (wallet.type == WalletType.haven) {
+      return haven.getCurrentAccount(wallet).label;
+    }
+
     return null;
   }
 
   @computed
-  bool get hasAddressList => _wallet.type == WalletType.monero;
+  bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
 
   @observable
   String emoji;
@@ -206,7 +248,7 @@ abstract class WalletAddressListViewModelBase with Store {
   void _init() {
     _baseItems = [];
 
-    if (_wallet.type == WalletType.monero) {
+    if (_wallet.type == WalletType.monero || _wallet.type == WalletType.haven) {
       _baseItems.add(WalletAccountListHeader());
     }
 

@@ -11,6 +11,30 @@ class WelcomePage extends BasePage {
   final welcomeImageLight = Image.asset('assets/images/welcome_light.png');
   final welcomeImageDark = Image.asset('assets/images/welcome.png');
 
+  String appTitle(BuildContext context) {
+    if (isMoneroOnly) {
+      return S.of(context).monero_com;
+    }
+
+    if (isHaven) {
+      return S.of(context).haven_app;
+    }
+    
+    return S.of(context).cake_wallet;
+  }
+
+  String appDescription(BuildContext context) {
+    if (isMoneroOnly) {
+      return S.of(context).monero_com_wallet_text;
+    }
+
+    if (isHaven) {
+      return S.of(context).haven_app_wallet_text;
+    }
+    
+    return S.of(context).first_wallet_text;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -83,9 +107,7 @@ class WelcomePage extends BasePage {
                         Padding(
                           padding: EdgeInsets.only(top: 5),
                           child: Text(
-                            isMoneroOnly
-				? S.of(context).monero_com
-				: S.of(context).cake_wallet,
+                            appTitle(context),
                             style: TextStyle(
                               fontSize: 36,
                               fontWeight: FontWeight.bold,
@@ -101,9 +123,7 @@ class WelcomePage extends BasePage {
                         Padding(
                           padding: EdgeInsets.only(top: 5),
                           child: Text(
-                            isMoneroOnly
-				? S.of(context).monero_com_wallet_text
-				: S.of(context).first_wallet_text,
+                            appDescription(context),
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
