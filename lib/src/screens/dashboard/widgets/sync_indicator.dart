@@ -6,6 +6,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
+import '../../../../routes.dart';
+
 class SyncIndicator extends StatelessWidget {
   SyncIndicator({@required this.dashboardViewModel});
 
@@ -27,51 +29,56 @@ class SyncIndicator extends StatelessWidget {
 
         return ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(15)),
-          child: Container(
-            height: 30,
-            width: syncIndicatorWidth,
-            color: Theme.of(context).textTheme.title.decorationColor,
-            child: Stack(
-              alignment: Alignment.center,
-              children: <Widget>[
-                progress <= 1
-                ? Positioned(
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Container(
-                      width: indicatorWidth,
-                      height: 30,
-                      color: Theme.of(context).textTheme.title.backgroundColor,
-                    )
-                )
-                : Offstage(),
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      SyncIndicatorIcon(isSynced:status is SyncedSyncStatus),
-                      Padding(
-                        padding: EdgeInsets.only(left: 6),
-                        child: Text(
-                          statusText,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.title.color
-                          ),
-                        ),
+          child: GestureDetector(
+            onTap: (){
+              Navigator.of(context, rootNavigator: true).pushNamed(Routes.nodeList);
+            } ,
+            child: Container(
+              height: 30,
+              width: syncIndicatorWidth,
+              color: Theme.of(context).textTheme.title.decorationColor,
+              child: Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  progress <= 1
+                  ? Positioned(
+                      left: 0,
+                      top: 0,
+                      bottom: 0,
+                      child: Container(
+                        width: indicatorWidth,
+                        height: 30,
+                        color: Theme.of(context).textTheme.title.backgroundColor,
                       )
-                    ],
-                  ),
-                )
-              ],
+                  )
+                  : Offstage(),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: 24,
+                      right: 24
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        SyncIndicatorIcon(isSynced:status is SyncedSyncStatus),
+                        Padding(
+                          padding: EdgeInsets.only(left: 6),
+                          child: Text(
+                            statusText,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).textTheme.title.color
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         );
