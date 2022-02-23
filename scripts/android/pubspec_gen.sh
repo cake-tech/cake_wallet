@@ -11,6 +11,9 @@ case $APP_ANDROID_TYPE in
         $CAKEWALLET)
                 CONFIG_ARGS="--monero --bitcoin"
                 ;;
+        $CAKEWALLET)
+                CONFIG_ARGS="--haven"
+                ;;
 esac
 
 cd ../..
