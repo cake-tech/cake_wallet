@@ -2,7 +2,7 @@
 
 . ./config.sh
 HAVEN_VERSION=tags/v2.1.0
-HAVEN_SRC_DIR=${WORKDIR}/monero
+HAVEN_SRC_DIR=${WORKDIR}/haven
 
 git clone https://github.com/haven-protocol-org/haven-main.git ${HAVEN_SRC_DIR} --branch ${HAVEN_VERSION}
 cd $HAVEN_SRC_DIR
