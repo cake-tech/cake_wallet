@@ -4,7 +4,7 @@
 
 HAVEN_URL="https://github.com/haven-protocol-org/haven-main.git"
 HAVEN_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/haven"
-HAVEN_VERSION=tags/v2.1.0
+HAVEN_VERSION=tags/v2.2.2
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
 
