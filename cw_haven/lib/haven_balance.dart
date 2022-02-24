@@ -1,5 +1,5 @@
 import 'package:cw_core/crypto_currency.dart';
-import 'package:cw_monero/monero_balance.dart';
+import 'package:cw_core/monero_balance.dart';
 import 'package:cw_haven/api/balance_list.dart';
 import 'package:cw_haven/api/structs/haven_balance_row.dart';
 

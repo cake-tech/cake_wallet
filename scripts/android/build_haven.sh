@@ -14,7 +14,7 @@ for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 FLAGS=""
 PREFIX=${WORKDIR}/prefix_${arch}
-DEST_LIB_DIR=${PREFIX}/lib/monero
+DEST_LIB_DIR=${PREFIX}/lib/haven
 DEST_INCLUDE_DIR=${PREFIX}/include
 export CMAKE_INCLUDE_PATH="${PREFIX}/include"
 export CMAKE_LIBRARY_PATH="${PREFIX}/lib"

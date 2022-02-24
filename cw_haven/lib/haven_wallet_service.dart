@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:cw_core/wallet_base.dart';
-import 'package:cw_monero/monero_wallet_utils.dart';
+import 'package:cw_core/monero_wallet_utils.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_haven/api/wallet_manager.dart' as haven_wallet_manager;
 import 'package:cw_haven/api/wallet.dart' as haven_wallet;

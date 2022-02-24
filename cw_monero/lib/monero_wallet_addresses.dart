@@ -1,9 +1,9 @@
 import 'package:cw_core/wallet_addresses.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cw_monero/account.dart';
+import 'package:cw_core/account.dart';
 import 'package:cw_monero/monero_account_list.dart';
 import 'package:cw_monero/monero_subaddress_list.dart';
-import 'package:cw_monero/subaddress.dart';
+import 'package:cw_core/subaddress.dart';
 import 'package:mobx/mobx.dart';
 
 part 'monero_wallet_addresses.g.dart';

@@ -20,8 +20,6 @@ dependencies:
   intl: ^0.17.0
   cw_core:
     path: ../cw_core
-  cw_monero:
-    path: ../cw_monero
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'package:cw_monero/account.dart';
+import 'package:cw_core/account.dart';
 import 'package:cw_core/account_list.dart';
 import 'package:cw_haven/api/account_list.dart' as account_list;
 

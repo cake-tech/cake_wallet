@@ -126,14 +126,14 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';""";
   const moneroCWHeaders = """
 import 'package:cw_monero/get_height_by_date.dart';
-import 'package:cw_monero/monero_amount_format.dart';
-import 'package:cw_monero/monero_transaction_priority.dart';
+import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_monero/monero_wallet_service.dart';
 import 'package:cw_monero/monero_wallet.dart';
 import 'package:cw_monero/monero_transaction_info.dart';
 import 'package:cw_monero/monero_transaction_history.dart';
 import 'package:cw_monero/monero_transaction_creation_credentials.dart';
-import 'package:cw_monero/account.dart' as monero_account;
+import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_monero/api/wallet.dart' as monero_wallet_api;
 import 'package:cw_monero/mnemonics/english.dart';
 import 'package:cw_monero/mnemonics/chinese_simplified.dart';
@@ -290,13 +290,13 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';""";
   const havenCWHeaders = """
 import 'package:cw_monero/get_height_by_date.dart';
-import 'package:cw_monero/monero_amount_format.dart';
-import 'package:cw_monero/monero_transaction_priority.dart';
+import 'package:cw_core/monero_amount_format.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
 import 'package:cw_haven/haven_wallet_service.dart';
 import 'package:cw_haven/haven_wallet.dart';
 import 'package:cw_haven/haven_transaction_info.dart';
 import 'package:cw_haven/haven_transaction_history.dart';
-import 'package:cw_monero/account.dart' as monero_account;
+import 'package:cw_core/account.dart' as monero_account;
 import 'package:cw_haven/api/wallet.dart' as monero_wallet_api;
 import 'package:cw_monero/mnemonics/english.dart';
 import 'package:cw_monero/mnemonics/chinese_simplified.dart';
@@ -473,7 +473,7 @@ Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) a
   }
 
   if (hasHaven) {
-    output += '\n$cwSharedExternal\n$cwHaven\n$cwMonero';
+    output += '\n$cwSharedExternal\n$cwHaven';
   }
 
   final outputLines = output.split('\n');

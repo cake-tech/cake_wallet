@@ -2,7 +2,7 @@ import 'package:cw_haven/api/structs/subaddress_row.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_haven/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_monero/subaddress.dart';
+import 'package:cw_core/subaddress.dart';
 
 part 'haven_subaddress_list.g.dart';
 
