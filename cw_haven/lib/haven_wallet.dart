@@ -153,20 +153,20 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     PendingTransactionDescription pendingTransactionDescription;
 
     if (!(syncStatus is SyncedSyncStatus)) {
-      throw MoneroTransactionCreationException('The wallet is not synced.');
+      throw HavenTransactionCreationException('The wallet is not synced.');
     }
 
     if (hasMultiDestination) {
       if (outputs.any((item) => item.sendAll
           || item.formattedCryptoAmount <= 0)) {
-        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+        throw HavenTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
       }
 
       final int totalAmount = outputs.fold(0, (acc, value) =>
           acc + value.formattedCryptoAmount);
 
       if (unlockedBalance < totalAmount) {
-        throw MoneroTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
+        throw HavenTransactionCreationException('Wrong balance. Not enough XMR on your balance.');
       }
 
       final moneroOutputs = outputs.map((output) =>
@@ -194,7 +194,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           (formattedAmount == null && unlockedBalance <= 0)) {
         final formattedBalance = moneroAmountToString(amount: unlockedBalance);
 
-        throw MoneroTransactionCreationException(
+        throw HavenTransactionCreationException(
             'Incorrect unlocked balance. Unlocked: $formattedBalance. Transaction amount: ${output.cryptoAmount}.');
       }
 
