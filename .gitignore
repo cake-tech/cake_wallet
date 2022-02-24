@@ -111,7 +111,7 @@ ios/build
 *.sublime-project
 
 shared_external/**
-cw_shared_external/**
+cw_shared_external/ios/External/
 # cw_haven/**
 cw_haven/ios/External/
 cw_haven/android/.externalNativeBuild/
