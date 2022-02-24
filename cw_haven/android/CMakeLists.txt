@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-add_library( cw_monero
+add_library( cw_haven
              SHARED
-             ./jni/monero_jni.cpp
-             ../ios/Classes/monero_api.cpp)
+             ../ios/Classes/haven_api.cpp)
 
              find_library( log-lib log )
 
@@ -70,112 +69,112 @@ set_target_properties(boost_wserialization PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/libboost_wserialization.a)
 
 #############
-# Monero
+# Haven
 #############
 
 add_library(wallet_api STATIC IMPORTED)
 set_target_properties(wallet_api PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libwallet_api.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libwallet_api.a)
 
 add_library(wallet STATIC IMPORTED)
 set_target_properties(wallet PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libwallet.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libwallet.a)
 
 add_library(cryptonote_core STATIC IMPORTED)
 set_target_properties(cryptonote_core PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcryptonote_core.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_core.a)
 
 add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcryptonote_basic.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_basic.a)
 
 add_library(cryptonote_format_utils_basic STATIC IMPORTED)
 set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcryptonote_format_utils_basic.a)        
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_format_utils_basic.a)        
 
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libmnemonics.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libmnemonics.a)
 
 add_library(common STATIC IMPORTED)
 set_target_properties(common PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcommon.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcommon.a)
 
 add_library(cncrypto STATIC IMPORTED)
 set_target_properties(cncrypto PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcncrypto.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcncrypto.a)
 
 add_library(ringct STATIC IMPORTED)
 set_target_properties(ringct PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libringct.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libringct.a)
 
 add_library(ringct_basic STATIC IMPORTED)
 set_target_properties(ringct_basic PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libringct_basic.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libringct_basic.a)
 
 add_library(blockchain_db STATIC IMPORTED)
 set_target_properties(blockchain_db PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libblockchain_db.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libblockchain_db.a)
 
 add_library(lmdb STATIC IMPORTED)
 set_target_properties(lmdb PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/liblmdb.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/liblmdb.a)
 
 add_library(easylogging STATIC IMPORTED)
 set_target_properties(easylogging PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libeasylogging.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libeasylogging.a)
 
 add_library(unbound STATIC IMPORTED)
 set_target_properties(unbound PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libunbound.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libunbound.a)
 
 add_library(epee STATIC IMPORTED)
 set_target_properties(epee PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libepee.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libepee.a)
 
 add_library(blocks STATIC IMPORTED)
 set_target_properties(blocks PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libblocks.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libblocks.a)
 
 add_library(checkpoints STATIC IMPORTED)
 set_target_properties(checkpoints PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libcheckpoints.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcheckpoints.a)
 
 add_library(device STATIC IMPORTED)
 set_target_properties(device PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libdevice.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libdevice.a)
 
 add_library(device_trezor STATIC IMPORTED)
 set_target_properties(device_trezor PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libdevice_trezor.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libdevice_trezor.a)
 
 add_library(multisig STATIC IMPORTED)
 set_target_properties(multisig PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libmultisig.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libmultisig.a)
 
 add_library(version STATIC IMPORTED)
 set_target_properties(version PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libversion.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libversion.a)
 
 add_library(net STATIC IMPORTED)
 set_target_properties(net PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libnet.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libnet.a)
         
 add_library(hardforks STATIC IMPORTED)
 set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libhardforks.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libhardforks.a)
 
 add_library(randomx STATIC IMPORTED)
 set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/librandomx.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/librandomx.a)
 
 add_library(rpc_base STATIC IMPORTED)
 set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/librpc_base.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/librpc_base.a)
 
 add_library(wallet-crypto STATIC IMPORTED)
 set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/monero/libwallet-crypto.a)
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libwallet-crypto.a)
 
 set(WALLET_CRYPTO "")
 
@@ -185,7 +184,7 @@ endif()
 
 include_directories( ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/include )
 
-target_link_libraries(  cw_monero
+target_link_libraries(  cw_haven
                        
                         wallet_api
                         wallet

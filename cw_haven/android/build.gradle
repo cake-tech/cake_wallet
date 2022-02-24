@@ -1,4 +1,4 @@
-group 'com.example.cw_haven'
+group 'com.cakewallet.cw_haven'
 version '1.0-SNAPSHOT'
 
 buildscript {
@@ -25,13 +25,18 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 28
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
     }
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 21
+    }
+    externalNativeBuild {
+        cmake {
+          path "CMakeLists.txt"
+        }
     }
 }
 

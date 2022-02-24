@@ -43,7 +43,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.cw_haven
+        package: com.cakewallet.cw_haven
         pluginClass: CwHavenPlugin
       ios:
         pluginClass: CwHavenPlugin
