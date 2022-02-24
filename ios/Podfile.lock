@@ -27,25 +27,6 @@ PODS:
   - cw_haven/Sodium (0.0.1):
     - cw_shared_external
     - Flutter
-  - cw_monero (0.0.2):
-    - cw_monero/Boost (= 0.0.2)
-    - cw_monero/Monero (= 0.0.2)
-    - cw_monero/OpenSSL (= 0.0.2)
-    - cw_monero/Sodium (= 0.0.2)
-    - cw_shared_external
-    - Flutter
-  - cw_monero/Boost (0.0.2):
-    - cw_shared_external
-    - Flutter
-  - cw_monero/Monero (0.0.2):
-    - cw_shared_external
-    - Flutter
-  - cw_monero/OpenSSL (0.0.2):
-    - cw_shared_external
-    - Flutter
-  - cw_monero/Sodium (0.0.2):
-    - cw_shared_external
-    - Flutter
   - cw_shared_external (0.0.1):
     - cw_shared_external/Boost (= 0.0.1)
     - cw_shared_external/OpenSSL (= 0.0.1)
@@ -132,7 +113,6 @@ DEPENDENCIES:
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
   - CryptoSwift
   - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
-  - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
   - esys_flutter_share (from `.symlinks/plugins/esys_flutter_share/ios`)
@@ -170,8 +150,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/connectivity/ios"
   cw_haven:
     :path: ".symlinks/plugins/cw_haven/ios"
-  cw_monero:
-    :path: ".symlinks/plugins/cw_monero/ios"
   cw_shared_external:
     :path: ".symlinks/plugins/cw_shared_external/ios"
   devicelocale:
@@ -209,8 +187,7 @@ SPEC CHECKSUMS:
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
   cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
-  cw_monero: 88c5e7aa596c6848330750f5f8bcf05fb9c66375
-  cw_shared_external: 67578029c54db47045940e132a9da629c5f0fe78
+  cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   devicelocale: b22617f40038496deffba44747101255cee005b0
   DKImagePickerController: b5eb7f7a388e4643264105d648d01f727110fc3d
   DKPhotoGallery: fdfad5125a9fdda9cc57df834d49df790dbb4179
