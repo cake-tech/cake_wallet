@@ -88,10 +88,6 @@ add_library(cryptonote_basic STATIC IMPORTED)
 set_target_properties(cryptonote_basic PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_basic.a)
 
-add_library(cryptonote_format_utils_basic STATIC IMPORTED)
-set_target_properties(cryptonote_format_utils_basic PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcryptonote_format_utils_basic.a)        
-
 add_library(mnemonics STATIC IMPORTED)
 set_target_properties(mnemonics PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libmnemonics.a)
@@ -132,10 +128,6 @@ add_library(epee STATIC IMPORTED)
 set_target_properties(epee PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libepee.a)
 
-add_library(blocks STATIC IMPORTED)
-set_target_properties(blocks PROPERTIES IMPORTED_LOCATION
-        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libblocks.a)
-
 add_library(checkpoints STATIC IMPORTED)
 set_target_properties(checkpoints PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libcheckpoints.a)
@@ -167,6 +159,11 @@ set_target_properties(hardforks PROPERTIES IMPORTED_LOCATION
 add_library(randomx STATIC IMPORTED)
 set_target_properties(randomx PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/librandomx.a)
+        
+add_library(offshore STATIC IMPORTED)
+set_target_properties(offshore PROPERTIES IMPORTED_LOCATION
+        ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/liboffshore.a)
+
 
 add_library(rpc_base STATIC IMPORTED)
 set_target_properties(rpc_base PROPERTIES IMPORTED_LOCATION
@@ -176,12 +173,6 @@ add_library(wallet-crypto STATIC IMPORTED)
 set_target_properties(wallet-crypto PROPERTIES IMPORTED_LOCATION
         ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/lib/haven/libwallet-crypto.a)
 
-set(WALLET_CRYPTO "")
-
-if(${ANDROID_ABI} STREQUAL "x86_64")
-    set(WALLET_CRYPTO "wallet-crypto")
-endif()
-
 include_directories( ${EXTERNAL_LIBS_DIR}/${ANDROID_ABI}/include )
 
 target_link_libraries(  cw_haven
@@ -190,7 +181,6 @@ target_link_libraries(  cw_haven
                         wallet
                         cryptonote_core
                         cryptonote_basic
-                        cryptonote_format_utils_basic
                         mnemonics
                         ringct
                         ringct_basic
@@ -202,16 +192,15 @@ target_link_libraries(  cw_haven
                         easylogging
                         unbound
                         epee
-                        blocks
                         checkpoints
                         device
                         device_trezor
                         multisig
                         version
                         randomx
+                        offshore
                         hardforks
                         rpc_base
-                        ${WALLET_CRYPTO}
 
                         boost_chrono
                         boost_date_time
@@ -225,7 +214,7 @@ target_link_libraries(  cw_haven
 
                         ssl
                         crypto
-                        
+
                         sodium
 
-                       ${log-lib} )
+                        ${log-lib} )
