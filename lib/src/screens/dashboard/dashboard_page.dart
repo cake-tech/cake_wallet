@@ -146,7 +146,7 @@ class DashboardPage extends BasePage {
           child: Container(
             decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50.0),
-                  border: Border.all(color: Color.fromRGBO(255, 255, 255, 0.2), width: 1, ),
+                  border: Border.all(color: currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
                   color:Theme.of(context).textTheme.title.backgroundColor
                 ),
               child: Container(
