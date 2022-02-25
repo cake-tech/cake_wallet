@@ -93,7 +93,7 @@ class DashboardPage extends BasePage {
         height: 24,
         width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
-    final receiveImage = Image.asset('assets/images/download.png',
+    final receiveImage = Image.asset('assets/images/received.png',
         height: 24,
         width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
