@@ -1,4 +1,4 @@
-package com.haven.app;
+package com.cakewallet.haven;
 
 import androidx.annotation.NonNull;
 

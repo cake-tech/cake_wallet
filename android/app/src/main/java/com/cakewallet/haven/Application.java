@@ -1,4 +1,4 @@
-package com.haven.app;
+package com.cakewallet.haven;
 
 import io.flutter.app.FlutterApplication;
 import io.flutter.plugin.common.PluginRegistry;
