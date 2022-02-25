@@ -24,7 +24,7 @@ CAKEWALLET_BUNDLE_ID="com.fotolockr.cakewallet"
 
 HAVEN_NAME="Haven"
 HAVEN_VERSION="1.0.0"
-HAVEN_BUILD_NUMBER=1
+HAVEN_BUILD_NUMBER=3
 HAVEN_BUNDLE_ID="com.cakewallet.haven"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_IOS_TYPE} " ]]; then
