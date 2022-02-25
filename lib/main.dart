@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/migrations/runner/migrations_runner.dart';
 import 'package:cake_wallet/src/screens/yat_emoji_id.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -27,7 +28,6 @@ import 'package:cake_wallet/entities/get_encryption_key.dart';
 import 'package:cake_wallet/entities/contact.dart';
 import 'package:cw_core/node.dart';
 import 'package:cw_core/wallet_info.dart';
-import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -110,11 +110,12 @@ Future<void> main() async {
     final exchangeTemplates =
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
     Box<UnspentCoinsInfo> unspentCoinsInfoSource;
-    
+
     if (!isMoneroOnly) {
-      unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
+      unspentCoinsInfoSource =
+          await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     }
-    
+
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
         nodes: nodes,
@@ -159,14 +160,6 @@ Future<void> initialSetup(
     FlutterSecureStorage secureStorage,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
-  await defaultSettingsMigration(
-      secureStorage: secureStorage,
-      version: initialMigrationVersion,
-      sharedPreferences: sharedPreferences,
-      walletInfoSource: walletInfoSource,
-      contactSource: contactSource,
-      tradeSource: tradesSource,
-      nodes: nodes);
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
@@ -177,6 +170,12 @@ Future<void> initialSetup(
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       unspentCoinsInfoSource: unspentCoinsInfoSource);
+   await runDefaultMigrations(
+      version: initialMigrationVersion,
+      walletInfoSource: walletInfoSource,
+      contactSource: contactSource,
+      tradeSource: tradesSource,
+      );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
@@ -259,9 +258,9 @@ class AppState extends State<App> with SingleTickerProviderStateMixin {
       final statusBarColor = Colors.transparent;
       final authenticationStore = getIt.get<AuthenticationStore>();
       final initialRoute =
-      authenticationStore.state == AuthenticationState.denied
-          ? Routes.disclaimer
-          : Routes.login;
+          authenticationStore.state == AuthenticationState.denied
+              ? Routes.disclaimer
+              : Routes.login;
       final currentTheme = settingsStore.currentTheme;
       final statusBarBrightness = currentTheme.type == ThemeType.dark
           ? Brightness.light
