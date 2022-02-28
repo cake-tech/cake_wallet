@@ -1,3 +1,6 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:flutter/scheduler.dart';
@@ -8,7 +11,9 @@ class BalancePage extends StatelessWidget {
   BalancePage({@required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
-
+  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
+  Color get backgroundLightColor =>
+      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -18,11 +23,9 @@ class BalancePage extends StatelessWidget {
       onLongPressUp: () =>
       dashboardViewModel.balanceViewModel.isReversing =
       !dashboardViewModel.balanceViewModel.isReversing,
-    child: Container(
-      margin: const EdgeInsets.only(top: 20),
-      padding: EdgeInsets.all(24),
       child: Column(
         children: [
+          SizedBox(height: 56),
           Container(
             alignment: Alignment.topLeft,
             margin: const EdgeInsets.only(left: 24, bottom: 16),
@@ -40,20 +43,17 @@ class BalancePage extends StatelessWidget {
                           height: 1),
                       maxLines: 1,
                       textAlign: TextAlign.center);
-                })),
-           
-          ClipRRect(
-             child:Container(
-               height: 200,
-               width: 343,
+                })),    
+  
+             Container(     
                margin: const EdgeInsets.only(left: 16, right: 16),
                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
-                  border: Border.all(color: Color.fromRGBO(255, 255, 255, 0.2), width: 1, ),
+                  border: Border.all(color: currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
                   color:Theme.of(context).textTheme.title.backgroundColor
                 ),
                child: Container(
-                 margin: const EdgeInsets.only(top: 16, bottom: 24, left: 24, right: 24),
+                 margin: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 24),
                  child: Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,13 +81,13 @@ class BalancePage extends StatelessWidget {
                       ],
                     );
                   }),
-                  SizedBox(height: 4,),
+                  SizedBox(height: 8,),
                   Observer(builder: (_) {
                     return AutoSizeText(
                         dashboardViewModel.balanceViewModel.availableBalance,
                         style: TextStyle(
                             fontSize: 24,
-                            fontFamily: 'Lato-Semibold',
+                            fontFamily: 'Lato',
                             
                             fontWeight: FontWeight.w900,
                             color: Theme.of(context)
@@ -98,7 +98,7 @@ class BalancePage extends StatelessWidget {
                         maxLines: 1,
                         textAlign: TextAlign.center);
                   }),
-                  SizedBox(height: 2,),
+                  SizedBox(height: 4,),
                    Observer(builder: (_) {
                     return Column(
                       children: [
@@ -118,9 +118,7 @@ class BalancePage extends StatelessWidget {
                       ],
                     );
                   }),
-
-                  SizedBox(height: 24,),
-
+                  SizedBox(height: 26),
                   Observer(builder: (_) {
                     return Column(
                       children: [
@@ -140,14 +138,14 @@ class BalancePage extends StatelessWidget {
                       ],
                     );
                   }),
-                  SizedBox(height: 4,),
+                  SizedBox(height: 8),
                   Observer(builder: (_) {
                     return AutoSizeText(
                         dashboardViewModel.balanceViewModel.additionalBalance
                             .toString(),
                         style: TextStyle(
                            fontSize: 24,
-                            fontFamily: 'Lato-Semibold',
+                            fontFamily: 'Lato',
                             fontWeight: FontWeight.w900,
                             color: Theme.of(context)
                                 .accentTextTheme
@@ -157,7 +155,7 @@ class BalancePage extends StatelessWidget {
                         maxLines: 1,
                         textAlign: TextAlign.center);
                   }),
-                  SizedBox(height: 2,),
+                  SizedBox(height: 4,),
                   Observer(builder: (_) {
                     return Column(
                       children: [
@@ -185,7 +183,7 @@ class BalancePage extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 28,
                           fontFamily: 'Lato',
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           color: Theme.of(context)
                               .accentTextTheme
                               .display3
@@ -197,10 +195,10 @@ class BalancePage extends StatelessWidget {
                  ),
                ),
              ),
-            )
+            
         ],
       ),
-    ),
+  
     );
   }
 }

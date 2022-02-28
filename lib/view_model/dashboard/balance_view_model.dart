@@ -127,11 +127,10 @@ abstract class BalanceViewModelBase with Store {
       return '---';
     }
 
-    return fiatCurrency.toString() +
-        ' ' +
-        _getFiatBalance(
+    return  _getFiatBalance(
             price: price,
-            cryptoAmount: walletBalance.formattedAvailableBalance);
+            cryptoAmount: walletBalance.formattedAvailableBalance)+  ' ' +fiatCurrency.toString();
+       
   }
 
   @computed
@@ -143,11 +142,10 @@ abstract class BalanceViewModelBase with Store {
       return '---';
     }
 
-    return fiatCurrency.toString() +
-        ' ' +
-        _getFiatBalance(
+    return   _getFiatBalance(
             price: price,
-            cryptoAmount: walletBalance.formattedAdditionalBalance);
+            cryptoAmount: walletBalance.formattedAdditionalBalance)+  ' ' +fiatCurrency.toString();
+       
   }
 
   @computed
