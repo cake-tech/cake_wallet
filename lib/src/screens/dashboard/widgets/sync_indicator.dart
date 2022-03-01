@@ -16,23 +16,23 @@ class SyncIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) {
-        final syncIndicatorWidth = 237.0;
-        final status = dashboardViewModel.status;
-        final statusText = status != null ? syncStatusTitle(status) : '';
-        final progress = status != null ? status.progress() : 0.0;
-        final indicatorOffset = progress * syncIndicatorWidth;
-        final indicatorWidth = progress < 1
-            ? indicatorOffset > 0 ? indicatorOffset : 0.0
-            : syncIndicatorWidth;
+        builder: (_) {
+          final syncIndicatorWidth = 237.0;
+          final status = dashboardViewModel.status;
+          final statusText = status != null ? syncStatusTitle(status) : '';
+          final progress = status != null ? status.progress() : 0.0;
+          final indicatorOffset = progress * syncIndicatorWidth;
+          final indicatorWidth = progress < 1
+              ? indicatorOffset > 0 ? indicatorOffset : 0.0
+              : syncIndicatorWidth;
 
 
-        return ClipRRect(
-          borderRadius: BorderRadius.all(Radius.circular(15)),
-          child: GestureDetector(
-            onTap: (){
-              Navigator.of(context, rootNavigator: true).pushNamed(Routes.nodeList);
-            } ,
+          return ClipRRect(
+            borderRadius: BorderRadius.all(Radius.circular(15)),
+            child: GestureDetector(
+              onTap: (){
+                Navigator.of(context, rootNavigator: true).pushNamed(Routes.nodeList);
+                },
             child: Container(
               height: 30,
               width: syncIndicatorWidth,
@@ -41,7 +41,7 @@ class SyncIndicator extends StatelessWidget {
                 alignment: Alignment.center,
                 children: <Widget>[
                   progress <= 1
-                  ? Positioned(
+                      ? Positioned(
                       left: 0,
                       top: 0,
                       bottom: 0,
@@ -51,11 +51,11 @@ class SyncIndicator extends StatelessWidget {
                         color: Theme.of(context).textTheme.title.backgroundColor,
                       )
                   )
-                  : Offstage(),
+                      : Offstage(),
                   Padding(
                     padding: EdgeInsets.only(
-                      left: 24,
-                      right: 24
+                        left: 24,
+                        right: 24
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.max,
@@ -68,9 +68,9 @@ class SyncIndicator extends StatelessWidget {
                           child: Text(
                             statusText,
                             style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).textTheme.title.color
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.title.color
                             ),
                           ),
                         )
@@ -79,10 +79,9 @@ class SyncIndicator extends StatelessWidget {
                   )
                 ],
               ),
-            ),
-          ),
-        );
-      }
+            ),)
+          );
+        }
     );
   }
 }
