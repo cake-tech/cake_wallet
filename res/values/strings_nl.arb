@@ -523,5 +523,6 @@
   "learn_more" : "Kom meer te weten",
 
   "new_template" : "Nieuwe sjabloon",
-  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
+  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
+  "market_place": "Marktplaats"
 }

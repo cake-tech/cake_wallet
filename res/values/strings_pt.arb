@@ -523,5 +523,6 @@
   "learn_more" : "Saber mais",
 
   "new_template" : "Novo modelo",
-  "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando"
+  "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
+  "market_place": "Mercado"
 }

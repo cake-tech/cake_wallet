@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cake_wallet/src/screens/dashboard/widgets/market_place_page.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/routes.dart';
@@ -169,9 +170,7 @@ class DashboardPage extends BasePage {
       return;
     }
 
-    pages.add(AddressPage(
-        addressListViewModel: addressListViewModel,
-        walletViewModel: walletViewModel));
+    pages.add(MarketPlacePage());
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;

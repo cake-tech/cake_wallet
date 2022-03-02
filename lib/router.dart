@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -395,6 +396,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<UnspentCoinsDetailsPage>(
                   param1: args));
+    
+    case Routes.loanAccount:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<LoanAccountPage>());
+
 
     default:
       return MaterialPageRoute<void>(

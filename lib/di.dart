@@ -1,6 +1,7 @@
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -622,6 +623,8 @@ Future setup(
   });
 
   getIt.registerFactory(() => WakeLock());
+
+  getIt.registerFactory(() => LoanAccountPage());
 
   _isSetupFinished = true;
 }

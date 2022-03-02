@@ -11,6 +11,7 @@ class PrimaryButton extends StatelessWidget {
       this.isDisabled = false,
       this.isDottedBorder = false,
       this.borderColor = Colors.black,
+      this.radius,
       this.onDisabledPressed});
 
   final VoidCallback onPressed;
@@ -21,6 +22,7 @@ class PrimaryButton extends StatelessWidget {
   final String text;
   final bool isDisabled;
   final bool isDottedBorder;
+  final double radius;
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +38,7 @@ class PrimaryButton extends StatelessWidget {
           highlightColor: Colors.transparent,
           disabledColor: color.withOpacity(0.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26.0),
+            borderRadius: BorderRadius.circular(radius),
           ),
           child: Text(text,
               textAlign: TextAlign.center,
@@ -54,7 +56,7 @@ class PrimaryButton extends StatelessWidget {
             dashPattern: [6, 4],
             color: borderColor,
             strokeWidth: 2,
-            radius: Radius.circular(26),
+            radius: Radius.circular(radius),
             child: content)
         : content;
   }

@@ -521,5 +521,6 @@
   "learn_more" : "了解更多",
 
   "new_template" : "新模板",
-  "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效"
+  "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效",
+  "market_place": "市场"
 }
