@@ -1,11 +1,11 @@
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
+import 'package:cake_wallet/src/screens/loan/loan_detail_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -14,10 +14,8 @@ import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
+import 'package:cake_wallet/view_model/loan/loan_item.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -27,7 +25,6 @@ import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
-import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -67,7 +64,6 @@ import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 
 RouteSettings currentRouteSettings;
@@ -401,6 +397,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<LoanAccountPage>());
 
+ case Routes.loanDetails:
+      return MaterialPageRoute<void>(
+          builder: (_) =>
+              getIt.get<LoanDetailPage>(param1: settings.arguments as LoanItem));
 
     default:
       return MaterialPageRoute<void>(

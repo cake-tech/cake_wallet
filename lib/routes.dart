@@ -8,7 +8,8 @@ class Routes {
   static const restoreOptions = '/restore_options';
   static const restoreOptionsFromWelcome = '/restore_options_from_welcome';
   static const restoreWalletOptions = '/restore_seed_keys';
-  static const restoreWalletOptionsFromWelcome = '/restore_wallet_options_from_welcome';
+  static const restoreWalletOptionsFromWelcome =
+      '/restore_wallet_options_from_welcome';
   static const restoreWalletFromSeed = '/restore_wallet_from_seed';
   static const restoreWalletFromKeys = '/restore_wallet_from_keys';
   static const dashboard = '/dashboard';
@@ -60,4 +61,5 @@ class Routes {
   static const moneroRestoreWalletFromWelcome = '/monero_restore_wallet';
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const loanAccount = '/loan_account';
+  static const loanDetails = '/loan_details';
 }

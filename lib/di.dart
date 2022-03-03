@@ -2,6 +2,10 @@ import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
+import 'package:cake_wallet/src/screens/loan/loan_detail_page.dart';
+import 'package:cake_wallet/view_model/loan/loan_account_view_model.dart';
+import 'package:cake_wallet/view_model/loan/loan_detail_view_model.dart';
+import 'package:cake_wallet/view_model/loan/loan_item.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -624,7 +628,21 @@ Future setup(
 
   getIt.registerFactory(() => WakeLock());
 
-  getIt.registerFactory(() => LoanAccountPage());
+  getIt.registerFactory<LoanAccountViewModel>(
+      () => LoanAccountViewModel(wallet: getIt.get<AppStore>().wallet));
+
+  getIt.registerFactory(() =>
+      LoanAccountPage(loanAccountViewModel: getIt.get<LoanAccountViewModel>()));
+
+  getIt.registerFactoryParam<LoanDetailViewModel, LoanItem, void>(
+      (LoanItem loanDetail, _) {
+    return LoanDetailViewModel(loanItem: loanDetail);
+  });
+
+  getIt.registerFactoryParam<LoanDetailPage, LoanItem, void>(
+      (LoanItem loanItem, _) => LoanDetailPage(
+          loanDetailViewModel:
+              getIt.get<LoanDetailViewModel>(param1: loanItem)));
 
   _isSetupFinished = true;
 }

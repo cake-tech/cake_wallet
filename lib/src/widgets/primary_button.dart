@@ -11,7 +11,7 @@ class PrimaryButton extends StatelessWidget {
       this.isDisabled = false,
       this.isDottedBorder = false,
       this.borderColor = Colors.black,
-      this.radius,
+      this.radius = 26.0,
       this.onDisabledPressed});
 
   final VoidCallback onPressed;
@@ -45,9 +45,7 @@ class PrimaryButton extends StatelessWidget {
               style: TextStyle(
                   fontSize: 15.0,
                   fontWeight: FontWeight.w600,
-                  color: isDisabled
-                      ? textColor.withOpacity(0.5)
-                      : textColor)),
+                  color: isDisabled ? textColor.withOpacity(0.5) : textColor)),
         ));
 
     return isDottedBorder
@@ -65,11 +63,11 @@ class PrimaryButton extends StatelessWidget {
 class LoadingPrimaryButton extends StatelessWidget {
   const LoadingPrimaryButton(
       {@required this.onPressed,
-        @required this.text,
-        @required this.color,
-        @required this.textColor,
-        this.isDisabled = false,
-        this.isLoading = false});
+      @required this.text,
+      @required this.color,
+      @required this.textColor,
+      this.isDisabled = false,
+      this.isLoading = false});
 
   final VoidCallback onPressed;
   final Color color;
@@ -87,35 +85,32 @@ class LoadingPrimaryButton extends StatelessWidget {
           onPressed: (isLoading || isDisabled) ? null : onPressed,
           color: color,
           disabledColor: color.withOpacity(0.5),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(26.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(26.0)),
           child: isLoading
               ? CupertinoActivityIndicator(animating: true)
               : Text(text,
-              style: TextStyle(
-                  fontSize: 15.0,
-                  fontWeight: FontWeight.w600,
-                  color: isDisabled
-                      ? textColor.withOpacity(0.5)
-                      : textColor
-              )),
+                  style: TextStyle(
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.w600,
+                      color:
+                          isDisabled ? textColor.withOpacity(0.5) : textColor)),
         ));
   }
 }
 
 class PrimaryIconButton extends StatelessWidget {
-  const PrimaryIconButton({
-    @required this.onPressed,
-    @required this.iconData,
-    @required this.text,
-    @required this.color,
-    @required this.borderColor,
-    @required this.iconColor,
-    @required this.iconBackgroundColor,
-    @required this.textColor,
-    this.mainAxisAlignment = MainAxisAlignment.start,
-    this.radius = 26
-  });
+  const PrimaryIconButton(
+      {@required this.onPressed,
+      @required this.iconData,
+      @required this.text,
+      @required this.color,
+      @required this.borderColor,
+      @required this.iconColor,
+      @required this.iconBackgroundColor,
+      @required this.textColor,
+      this.mainAxisAlignment = MainAxisAlignment.start,
+      this.radius = 26});
 
   final VoidCallback onPressed;
   final IconData iconData;
@@ -150,8 +145,7 @@ class PrimaryIconButton extends StatelessWidget {
                     decoration: BoxDecoration(
                         shape: BoxShape.circle, color: iconBackgroundColor),
                     child: Center(
-                        child: Icon(iconData, color: iconColor, size: 22.0)
-                    ),
+                        child: Icon(iconData, color: iconColor, size: 22.0)),
                   ),
                 ],
               ),
@@ -159,9 +153,7 @@ class PrimaryIconButton extends StatelessWidget {
                 height: 52.0,
                 child: Center(
                   child: Text(text,
-                      style: TextStyle(
-                          fontSize: 16.0,
-                          color: textColor)),
+                      style: TextStyle(fontSize: 16.0, color: textColor)),
                 ),
               )
             ],
@@ -192,28 +184,26 @@ class PrimaryImageButton extends StatelessWidget {
         minWidth: double.infinity,
         height: 52.0,
         child: FlatButton(
-          onPressed: onPressed,
-          color: color,
-          shape: RoundedRectangleBorder(
-            side: BorderSide(color: borderColor),
-            borderRadius: BorderRadius.circular(26.0)),
-          child:Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                image,
-                SizedBox(width: 15),
-                Text(
-                  text,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: textColor
-                  ),
-                )
-              ],
-            ),
-          )
-        ));
+            onPressed: onPressed,
+            color: color,
+            shape: RoundedRectangleBorder(
+                side: BorderSide(color: borderColor),
+                borderRadius: BorderRadius.circular(26.0)),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  image,
+                  SizedBox(width: 15),
+                  Text(
+                    text,
+                    style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: textColor),
+                  )
+                ],
+              ),
+            )));
   }
 }
