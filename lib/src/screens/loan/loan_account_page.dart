@@ -52,7 +52,14 @@ class LoanAccountPage extends BasePage {
                   SyncIndicatorIcon(isSynced: loanAccountViewModel.status),
             ),
           ),
-          super.middle(context),
+          Text(
+            title,
+            style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'Poppins',
+                fontSize: 22,
+                fontWeight: FontWeight.w600),
+          ),
         ],
       );
   @override
@@ -158,7 +165,10 @@ class LoanAccountPage extends BasePage {
                     textAlign: TextAlign.center,
                     text: TextSpan(
                       text: 'By logging in, you agree to the ',
-                      style: TextStyle(color: Color(0xff7A93BA), fontSize: 12),
+                      style: TextStyle(
+                          color: Color(0xff7A93BA),
+                          fontSize: 12,
+                          fontFamily: 'Poppins'),
                       children: [
                         TextSpan(
                           text: 'Terms and Conditions',

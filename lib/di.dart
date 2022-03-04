@@ -636,7 +636,10 @@ Future setup(
 
   getIt.registerFactoryParam<LoanDetailViewModel, LoanItem, void>(
       (LoanItem loanDetail, _) {
-    return LoanDetailViewModel(loanItem: loanDetail);
+    return LoanDetailViewModel(
+      loanItem: loanDetail,
+      wallet: getIt.get<AppStore>().wallet,
+    );
   });
 
   getIt.registerFactoryParam<LoanDetailPage, LoanItem, void>(

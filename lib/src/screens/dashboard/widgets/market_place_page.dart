@@ -16,8 +16,8 @@ class MarketPlacePage extends StatelessWidget {
           Text(
             S.of(context).market_place,
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
               color: Theme.of(context).accentTextTheme.display3.backgroundColor,
             ),
           ),

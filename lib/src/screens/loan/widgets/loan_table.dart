@@ -45,19 +45,19 @@ class LoanTable extends StatelessWidget {
               Expanded(
                 child: Text(
                   'ID',
-                  style: TextStyle(color: textColor),
+                  style: TextStyle(color: textColor, fontSize: 16),
                 ),
               ),
               Expanded(
                 child: Text(
                   'Amount',
-                  style: TextStyle(color: textColor),
+                  style: TextStyle(color: textColor, fontSize: 16),
                 ),
               ),
               Expanded(
                 child: Text(
                   'Status',
-                  style: TextStyle(color: textColor),
+                  style: TextStyle(color: textColor, fontSize: 16),
                 ),
               ),
               SizedBox(width: 25),
@@ -68,9 +68,8 @@ class LoanTable extends StatelessWidget {
           children: [
             for (var i = 0; i < items.length; i++) ...[
               InkWell(
-                onTap: ()=>Navigator.of(context).pushNamed(
-                                Routes.loanDetails,
-                                arguments: items[i]),
+                onTap: () => Navigator.of(context)
+                    .pushNamed(Routes.loanDetails, arguments: items[i]),
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   decoration: BoxDecoration(
@@ -82,19 +81,19 @@ class LoanTable extends StatelessWidget {
                       Expanded(
                         child: Text(
                           '5395821325',
-                          style: TextStyle(color: textColor),
+                          style: TextStyle(color: textColor, fontSize: 14),
                         ),
                       ),
                       Expanded(
                         child: Text(
                           '10000 USDT',
-                          style: TextStyle(color: textColor),
+                          style: TextStyle(color: textColor, fontSize: 14),
                         ),
                       ),
                       Expanded(
                         child: Text(
                           'Awaiting deposit',
-                          style: TextStyle(color: textColor),
+                          style: TextStyle(color: textColor, fontSize: 14),
                         ),
                       ),
                       Icon(Icons.chevron_right)

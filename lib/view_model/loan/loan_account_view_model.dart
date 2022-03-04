@@ -1,6 +1,7 @@
 import 'package:cake_wallet/view_model/loan/loan_item.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_base.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 part 'loan_account_view_model.g.dart';
 
@@ -8,7 +9,7 @@ class LoanAccountViewModel = LoanAccountViewModelBase
     with _$LoanAccountViewModel;
 
 abstract class LoanAccountViewModelBase with Store {
-  LoanAccountViewModelBase({this.wallet}) {
+  LoanAccountViewModelBase({@required this.wallet}) {
     isLoggedIn = false;
     _fetchLoanItems();
   }
