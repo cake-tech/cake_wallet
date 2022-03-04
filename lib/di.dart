@@ -1,6 +1,8 @@
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/loan/confirm_deposit_page.dart';
+import 'package:cake_wallet/src/screens/loan/increase_deposit_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_detail_page.dart';
 import 'package:cake_wallet/view_model/loan/loan_account_view_model.dart';
@@ -646,6 +648,13 @@ Future setup(
       (LoanItem loanItem, _) => LoanDetailPage(
           loanDetailViewModel:
               getIt.get<LoanDetailViewModel>(param1: loanItem)));
+
+  getIt.registerFactoryParam<IncreaseDeposit, LoanItem, void>(
+      (LoanItem loanItem, _) => IncreaseDeposit(
+          loanDetailViewModel:
+              getIt.get<LoanDetailViewModel>(param1: loanItem)));
+
+  getIt.registerFactory(() => ConfirmDepositPage());
 
   _isSetupFinished = true;
 }

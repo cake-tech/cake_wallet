@@ -62,4 +62,6 @@ class Routes {
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const loanAccount = '/loan_account';
   static const loanDetails = '/loan_details';
+  static const increaseDeposit = '/increase_deposit';
+  static const confirmDepositPage = '/confrim_deposit';
 }

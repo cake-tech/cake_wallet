@@ -4,6 +4,8 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/loan/confirm_deposit_page.dart';
+import 'package:cake_wallet/src/screens/loan/increase_deposit_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_detail_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -397,11 +399,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<LoanAccountPage>());
 
- case Routes.loanDetails:
+    case Routes.loanDetails:
       return MaterialPageRoute<void>(
           builder: (_) =>
               getIt.get<LoanDetailPage>(param1: settings.arguments as LoanItem));
 
+    case Routes.increaseDeposit:
+      return MaterialPageRoute<void>(
+          builder: (_) => getIt.get<IncreaseDeposit>(
+              param1: settings.arguments as LoanItem));
+
+    case Routes.confirmDepositPage:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<ConfirmDepositPage>());
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

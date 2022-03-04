@@ -1,9 +1,9 @@
-import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
+import 'package:cake_wallet/src/screens/loan/widgets/loan_detail_tile.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/view_model/loan/loan_detail_view_model.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +83,8 @@ class LoanDetailPage extends BasePage {
           Padding(
             padding: EdgeInsets.only(bottom: 12),
             child: PrimaryButton(
-              onPressed: () {},
+              onPressed: () => Navigator.of(context)
+                    .pushNamed(Routes.increaseDeposit, arguments: loanDetailViewModel.loanDetails),
               text: 'Increase Deposit',
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
@@ -124,22 +125,22 @@ class LendContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Initial deposit',
           trailing: '101.53 USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Earned interest',
           trailing: '101.53 USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Current value',
           trailing: '101.53 USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Interest value',
           trailing: '12.23% APY',
         ),
@@ -157,101 +158,36 @@ class LoanContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'You got',
           trailing: '101.53 USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Your deposit',
           trailing: '101.53 USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Repayment',
           trailing: '101.53 USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Market price',
           trailing: '1,779.42 XMR/USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Liquidation price',
           trailing: '1,779.42 XMR/USDT',
         ),
         SizedBox(height: 30),
-        LoanDetailItem(
+        LoanDetailTile(
           title: 'Buffer',
           subtitle:
               'How much XMR must fall in relation to USDT before liquidation',
           trailing: '44.8%',
-        ),
-      ],
-    );
-  }
-}
-
-class LoanDetailItem extends StatelessWidget {
-  LoanDetailItem({
-    @required this.title,
-    this.subtitle,
-    @required this.trailing,
-  });
-
-  final String title;
-  final String subtitle;
-  final String trailing;
-
-  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
-
-  Color get textColor =>
-      currentTheme.type == ThemeType.dark ? Colors.white : Color(0xff393939);
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: textColor,
-                fontFamily: 'Poppins',
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            subtitle != null
-                ? SizedBox(
-                    width: 200,
-                    child: Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: textColor,
-                        fontFamily: 'Poppins',
-                        fontSize: 12,
-                        fontStyle: FontStyle.italic,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-          ],
-        ),
-        Text(
-          trailing,
-          style: TextStyle(
-            color: textColor,
-            fontFamily: 'Poppins',
-            fontSize: 18,
-            fontWeight: FontWeight.w400,
-          ),
         ),
       ],
     );

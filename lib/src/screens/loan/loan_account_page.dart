@@ -30,9 +30,6 @@ class LoanAccountPage extends BasePage {
   String get title => 'Loan Account';
 
   @override
-  Color get titleColor => Colors.white;
-
-  @override
   bool get extendBodyBehindAppBar => true;
 
   @override
