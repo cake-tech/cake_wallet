@@ -103,7 +103,7 @@ abstract class BuyViewModelBase with Store {
       print(e.toString());
     }
 
-    if (isMoonPayEnabled) {
+    if (isMoonPayEnabled ?? false) {
       _providerList.add(MoonPayBuyProvider(wallet: wallet));
     }
 
