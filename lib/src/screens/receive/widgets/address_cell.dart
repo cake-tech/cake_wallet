@@ -39,8 +39,18 @@ class AddressCell extends StatelessWidget {
   final Function(String) onTap;
   final Function() onEdit;
 
-  String get label => name.isEmpty?address.substring(0,8)+'...'+
-      address.substring(address.length-8,address.length):name;
+  String get label {
+    if (name.isEmpty){
+      if(address.length<=16){
+        return address;
+      }else{
+        return address.substring(0,8)+'...'+
+            address.substring(address.length-8,address.length);
+      }
+    }else{
+      return name;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
