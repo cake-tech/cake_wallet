@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/currency_utils.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,21 +38,25 @@ class CurrencyPickerState extends State<CurrencyPicker> {
             backgroundColor: Colors.transparent,
             color: Colors.white);
 
+  @override
+  void initState() {
+    pickerItemsList = CryptoCurrency.all
+        .map((CryptoCurrency cur) => PickerItem<CryptoCurrency>(cur,
+            title: CurrencyUtils.titleForCurrency(cur),
+            iconPath: CurrencyUtils.iconPathForCurrency(cur),
+            tag: CurrencyUtils.tagForCurrency(cur),
+            description: CurrencyUtils.descriptionForCurrency(cur)))
+        .toList();
+    super.initState();
+  }
+
+  List<PickerItem<CryptoCurrency>> pickerItemsList;
   List<CryptoCurrency> items;
   int itemsCount;
   bool isSearchBarActive;
   String textFieldValue;
   List<CryptoCurrency> subCryptoCurrencyList;
   TextStyle appBarTextStyle;
-  var pickerItemsList = CryptoCurrency.all
-      .map((CryptoCurrency cur) => PickerItem<CryptoCurrency>(
-            cur,
-            title: PickerItem.titleForCurrency(cur),
-            iconPath: PickerItem.iconPathForCurrency(cur),
-            tag: PickerItem.tagForCurrency(cur),
-            description: PickerItem.descriptionForCurrency(cur)
-          ))
-      .toList();
 
   void currencySearchBySubstring(String subString, List<CryptoCurrency> list) {
     subCryptoCurrencyList = [];
