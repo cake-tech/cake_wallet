@@ -23,6 +23,7 @@ class SecretKey {
     SecretKey('wyreAccountId', () => ''),
     SecretKey('moonPayApiKey', () => ''),
     SecretKey('moonPaySecretKey', () => ''),
+    SecretKey('coinRabbitApiKey', () => ''),
   ];
 
   final String name;
