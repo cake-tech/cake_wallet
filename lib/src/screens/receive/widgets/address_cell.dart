@@ -70,9 +70,9 @@ class AddressCell extends StatelessWidget {
           ),
         ));
 
-    return (isCurrent || isPrimary)
-        ? cell
-        : Slidable(
+    return Container(
+          color: backgroundColor,
+          child: Slidable(
             key: Key(address),
             actionPane: SlidableDrawerActionPane(),
             child: cell,
@@ -82,6 +82,6 @@ class AddressCell extends StatelessWidget {
                     color: Colors.blue,
                     icon: Icons.edit,
                     onTap: () => onEdit?.call())
-              ]);
+              ]));
   }
 }
