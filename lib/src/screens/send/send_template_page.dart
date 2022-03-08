@@ -1,3 +1,6 @@
+import 'package:cake_wallet/store/templates/send_template_store.dart';
+import 'package:cake_wallet/view_model/send/send_view_model.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +30,7 @@ class SendTemplatePage extends BasePage {
   final FocusNode _fiatAmountFocus = FocusNode();
 
   bool _effectsInstalled = false;
+  String lastInteractedField;
 
   @override
   String get title => S.current.exchange_new_template;
@@ -152,8 +156,65 @@ class SendTemplatePage extends BasePage {
                           Padding(
                               padding: const EdgeInsets.only(top: 20),
                               child: BaseTextFormField(
-                                  focusNode: _cryptoAmountFocus,
-                                  controller: _cryptoAmountController,
+                                    focusNode:_cryptoAmountFocus,
+                                    controller: _cryptoAmountController,
+                                    keyboardType: TextInputType.numberWithOptions(
+                                        signed: false, decimal: true),
+                                    inputFormatters: [
+                                      FilteringTextInputFormatter.deny(
+                                          RegExp('[\\-|\\ ]'))
+                                    ],
+                                    prefixIcon:  Padding(
+                                     padding: EdgeInsets.only(top: 9),
+                                     child: lastInteractedField == 'crypto' ? Container(  
+                                           decoration: BoxDecoration(borderRadius:BorderRadius.circular(20), color: Color.fromRGBO(20, 200, 70, 1),),
+                                           padding: EdgeInsets.fromLTRB(11, 2, 8, 2),
+                                           width: 56,
+                                          //   child: Text(
+                                          // sendTemplateViewModel.currency.title +
+                                          //     ':',
+                                          // style: TextStyle(
+                                          //   fontSize: 16,
+                                          //   fontWeight: FontWeight.w600,
+                                          //   color: Colors.white,
+                                          // ))
+                                          ) :Text(
+                                          sendTemplateViewModel.currency.title +
+                                              ':',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white,
+                                          )),
+                                    ),
+                                    
+                                  
+                                    hintText: '0.0000',
+                                    borderColor: Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .color,
+                                    textStyle: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white
+                                         ),
+                                    placeholderTextStyle: TextStyle(
+                                        color: Theme.of(context)
+                                            .primaryTextTheme
+                                            .headline
+                                            .decorationColor,
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14),
+                                    validator:
+                                        sendTemplateViewModel.amountValidator)
+                              
+                              ),
+                          Padding(
+                              padding: const EdgeInsets.only(top: 20),
+                              child: BaseTextFormField(
+                                  focusNode: _fiatAmountFocus,
+                                  controller: _fiatAmountController,
                                   keyboardType: TextInputType.numberWithOptions(
                                       signed: false, decimal: true),
                                   inputFormatters: [
@@ -163,15 +224,14 @@ class SendTemplatePage extends BasePage {
                                   prefixIcon: Padding(
                                     padding: EdgeInsets.only(top: 9),
                                     child: Text(
-                                        sendTemplateViewModel.currency.title +
-                                            ':',
+                                        sendTemplateViewModel.fiat.title + ':',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
                                           color: Colors.white,
                                         )),
                                   ),
-                                  hintText: '0.0000',
+                                  hintText: '0.00',
                                   borderColor: Theme.of(context)
                                       .primaryTextTheme
                                       .headline
@@ -179,7 +239,8 @@ class SendTemplatePage extends BasePage {
                                   textStyle: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color: Colors.white),
+                                      color:Colors.white
+                                  ),
                                   placeholderTextStyle: TextStyle(
                                       color: Theme.of(context)
                                           .primaryTextTheme
@@ -187,46 +248,8 @@ class SendTemplatePage extends BasePage {
                                           .decorationColor,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14),
-                                  validator:
-                                      sendTemplateViewModel.amountValidator)),
-                          Padding(
-                              padding: const EdgeInsets.only(top: 20),
-                              child: BaseTextFormField(
-                                focusNode: _fiatAmountFocus,
-                                controller: _fiatAmountController,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    signed: false, decimal: true),
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.deny(
-                                      RegExp('[\\-|\\ ]'))
-                                ],
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(top: 9),
-                                  child: Text(
-                                      sendTemplateViewModel.fiat.title + ':',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      )),
                                 ),
-                                hintText: '0.00',
-                                borderColor: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .color,
-                                textStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white),
-                                placeholderTextStyle: TextStyle(
-                                    color: Theme.of(context)
-                                        .primaryTextTheme
-                                        .headline
-                                        .decorationColor,
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14),
-                              )),
+                              ),
                         ],
                       ),
                     )
@@ -238,13 +261,25 @@ class SendTemplatePage extends BasePage {
                 EdgeInsets.only(left: 24, right: 24, bottom: 24),
             bottomSection: PrimaryButton(
               onPressed: () {
-                if (_formKey.currentState.validate()) {
+                if(lastInteractedField == 'crypto'){
+                      if (_formKey.currentState.validate()) {
                   sendTemplateViewModel.addTemplate(
                       name: _nameController.text,
                       address: _addressController.text,
                       cryptoCurrency: sendTemplateViewModel.currency.title,
                       amount: _cryptoAmountController.text);
                   Navigator.of(context).pop();
+                }
+                }
+                if(lastInteractedField == 'fiat'){
+                      if (_formKey.currentState.validate()) {
+                  sendTemplateViewModel.addTemplate(
+                      name: _nameController.text,
+                      address: _addressController.text,
+                      cryptoCurrency: sendTemplateViewModel.fiat.title,
+                      amount: _fiatAmountController.text);
+                  Navigator.of(context).pop();
+                }
                 }
               },
               text: S.of(context).save,
@@ -254,37 +289,34 @@ class SendTemplatePage extends BasePage {
           ),
         ));
   }
-
+  
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
       return;
     }
-
     final output = sendTemplateViewModel.output;
-
     reaction((_) => output.fiatAmount, (String amount) {
       if (amount != _fiatAmountController.text) {
         _fiatAmountController.text = amount;
       }
     });
-
     reaction((_) => output.cryptoAmount, (String amount) {
       if (amount != _cryptoAmountController.text) {
         _cryptoAmountController.text = amount;
       }
     });
-
     reaction((_) => output.address, (String address) {
       if (address != _addressController.text) {
         _addressController.text = address;
       }
     });
-
     _cryptoAmountController.addListener(() {
       final amount = _cryptoAmountController.text;
 
       if (amount != output.cryptoAmount) {
         output.setCryptoAmount(amount);
+        lastInteractedField = 'crypto';
+        sendTemplateViewModel.chosenField(lastInteractedField);
       }
     });
 
@@ -293,6 +325,8 @@ class SendTemplatePage extends BasePage {
 
       if (amount != output.fiatAmount) {
         output.setFiatAmount(amount);
+        lastInteractedField = 'fiat';
+         
       }
     });
 
@@ -303,7 +337,7 @@ class SendTemplatePage extends BasePage {
         output.address = address;
       }
     });
-
+   
     _effectsInstalled = true;
   }
 }

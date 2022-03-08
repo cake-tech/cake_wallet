@@ -39,6 +39,16 @@ abstract class SendTemplateViewModelBase with Store {
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
+  
+  @observable
+  String activeField;
+  
+  @action
+  void chosenField (String asset){
+    activeField = asset;
+  }
+
+
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateStore _sendTemplateStore;
@@ -63,4 +73,5 @@ abstract class SendTemplateViewModelBase with Store {
     _sendTemplateStore.remove(template: template);
     updateTemplate();
   }
+
 }
