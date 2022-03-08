@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
 import 'package:cake_wallet/core/sync_status_title.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class SyncIndicator extends StatelessWidget {
-  SyncIndicator({@required this.dashboardViewModel});
+  SyncIndicator({@required this.dashboardViewModel,this.onTap});
 
   final DashboardViewModel dashboardViewModel;
+  final Function() onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +27,8 @@ class SyncIndicator extends StatelessWidget {
 
         return ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(15)),
+          child:  GestureDetector(
+            onTap: onTap,
           child: Container(
             height: 30,
             width: syncIndicatorWidth,
@@ -74,7 +76,7 @@ class SyncIndicator extends StatelessWidget {
               ],
             ),
           ),
-        );
+        ));
       }
     );
   }
