@@ -83,33 +83,37 @@ class SendTemplatePage extends BasePage {
               child: Form(
                 key: _formKey,
                 child: Column(
+                
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.fromLTRB(24, 90, 24, 32),
                       child: Column(
                         children: <Widget>[
-                          BaseTextFormField(
-                            controller: _nameController,
-                            hintText: S.of(context).send_name,
-                            borderColor: Theme.of(context)
-                                .primaryTextTheme
-                                .headline
-                                .color,
-                            textStyle: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                            placeholderTextStyle: TextStyle(
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .headline
-                                    .decorationColor,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 14),
-                            validator: sendTemplateViewModel.templateValidator,
+                          Padding(
+                            padding: EdgeInsets.only(left: 6),
+                            child: BaseTextFormField(
+                              controller: _nameController,
+                              hintText: S.of(context).send_name,
+                              borderColor: Theme.of(context)
+                                  .primaryTextTheme
+                                  .headline
+                                  .color,
+                              textStyle: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white),
+                              placeholderTextStyle: TextStyle(
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline
+                                      .decorationColor,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 14),
+                              validator: sendTemplateViewModel.templateValidator,
+                            ),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(top: 20),
+                            padding: EdgeInsets.only(top: 20, left: 6),
                             child: AddressTextField(
                               controller: _addressController,
                               onURIScanned: (uri) {
@@ -175,6 +179,7 @@ class SendTemplatePage extends BasePage {
                                         .headline
                                         .color,
                                     textStyle: TextStyle(
+                                        height: sendTemplateViewModel.activeField == 'crypto'? 1.4 : 1.1,
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
                                         color: sendTemplateViewModel.activeField == 'crypto'? Colors.white : Theme.of(context)
@@ -214,6 +219,7 @@ class SendTemplatePage extends BasePage {
                                       .headline
                                       .color,
                                   textStyle: TextStyle(
+                                      height: sendTemplateViewModel.activeField == 'fiat'? 1.4 : 1.1,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
                                       color: sendTemplateViewModel.activeField == 'fiat'? Colors.white : Theme.of(context)
@@ -270,35 +276,42 @@ class SendTemplatePage extends BasePage {
         ));
   }
 
-  Text label(String asset) {
-    return Text(
-          asset  + ': ',
-          style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Colors.white,
-   ));
+  Container label(String asset) {
+    return Container(
+                padding: EdgeInsets.only(left: 6, right: 5),
+                child: Text(
+                 asset + ':',
+                 style: TextStyle(
+                 fontSize: 16,
+                 fontWeight: FontWeight.w600,
+                 color: Colors.white,
+                 )),
+              );
   }
 
   Container labelContainer(String asset) {
-    return Container(  
-     decoration: BoxDecoration(borderRadius:BorderRadius.circular(40), color: Colors.green,),
-     margin: EdgeInsets.only(bottom: 11, right: 4),
-     width: 60,
-     
-      child: Column(
-       children: [
-          SizedBox(height: 2),
-          Text(
-           asset + ':',
-           style: TextStyle(
-           fontSize: 16,
-           fontWeight: FontWeight.w600,
-           color: Colors.white,
-           )),
-      ],
-    )
+    return 
+        Container(  
+         decoration: BoxDecoration(borderRadius:BorderRadius.circular(40), color: Colors.green,),
+         margin: EdgeInsets.only(bottom: 11, right: 4),
+         width: 60,
+          child: Column(
+           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+           children: [
+              Container(
+                padding: EdgeInsets.only(left: 6, right: 5),
+                child: Text(
+                 asset + ':',
+                 style: TextStyle(
+                 fontSize: 16,
+                 fontWeight: FontWeight.w600,
+                 color: Colors.white,
+                 )),
+              ),
+          ],
+        )
   );
+      
   }
   
   void _setEffects(BuildContext context) {
