@@ -44,7 +44,7 @@ class AccountTile extends StatelessWidget {
       ),
     );
 
-    return isCurrent ? cell : Slidable(
+    return Slidable(
         key: Key(accountName),
         child: cell,
         actionPane: SlidableDrawerActionPane(),
