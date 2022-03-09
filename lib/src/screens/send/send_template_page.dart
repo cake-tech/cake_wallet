@@ -155,7 +155,8 @@ class SendTemplatePage extends BasePage {
                           ),
                           Padding(
                               padding: const EdgeInsets.only(top: 20),
-                              child: BaseTextFormField(
+                              child:  Observer(
+                                    builder: (_) =>  BaseTextFormField(
                                     focusNode:_cryptoAmountFocus,
                                     controller: _cryptoAmountController,
                                     keyboardType: TextInputType.numberWithOptions(
@@ -164,31 +165,10 @@ class SendTemplatePage extends BasePage {
                                       FilteringTextInputFormatter.deny(
                                           RegExp('[\\-|\\ ]'))
                                     ],
-                                    prefixIcon:  Padding(
+                                    prefixIcon: Padding(
                                      padding: EdgeInsets.only(top: 9),
-                                     child: lastInteractedField == 'crypto' ? Container(  
-                                           decoration: BoxDecoration(borderRadius:BorderRadius.circular(20), color: Color.fromRGBO(20, 200, 70, 1),),
-                                           padding: EdgeInsets.fromLTRB(11, 2, 8, 2),
-                                           width: 56,
-                                          //   child: Text(
-                                          // sendTemplateViewModel.currency.title +
-                                          //     ':',
-                                          // style: TextStyle(
-                                          //   fontSize: 16,
-                                          //   fontWeight: FontWeight.w600,
-                                          //   color: Colors.white,
-                                          // ))
-                                          ) :Text(
-                                          sendTemplateViewModel.currency.title +
-                                              ':',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.white,
-                                          )),
+                                     child: sendTemplateViewModel.activeField == 'crypto'? labelContainer(sendTemplateViewModel.currency.title )  : label(sendTemplateViewModel.currency.title),
                                     ),
-                                    
-                                  
                                     hintText: '0.0000',
                                     borderColor: Theme.of(context)
                                         .primaryTextTheme
@@ -197,7 +177,10 @@ class SendTemplatePage extends BasePage {
                                     textStyle: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w500,
-                                        color: Colors.white
+                                        color: sendTemplateViewModel.activeField == 'crypto'? Colors.white : Theme.of(context)
+                                        .primaryTextTheme
+                                        .headline
+                                        .color
                                          ),
                                     placeholderTextStyle: TextStyle(
                                         color: Theme.of(context)
@@ -207,12 +190,12 @@ class SendTemplatePage extends BasePage {
                                         fontWeight: FontWeight.w500,
                                         fontSize: 14),
                                     validator:
-                                        sendTemplateViewModel.amountValidator)
+                                        sendTemplateViewModel.amountValidator))
                               
                               ),
                           Padding(
                               padding: const EdgeInsets.only(top: 20),
-                              child: BaseTextFormField(
+                              child: Observer(builder: (_) => BaseTextFormField(
                                   focusNode: _fiatAmountFocus,
                                   controller: _fiatAmountController,
                                   keyboardType: TextInputType.numberWithOptions(
@@ -223,13 +206,7 @@ class SendTemplatePage extends BasePage {
                                   ],
                                   prefixIcon: Padding(
                                     padding: EdgeInsets.only(top: 9),
-                                    child: Text(
-                                        sendTemplateViewModel.fiat.title + ':',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                        )),
+                                    child: sendTemplateViewModel.activeField == 'fiat'? labelContainer(sendTemplateViewModel.fiat.title )  : label(sendTemplateViewModel.fiat.title)
                                   ),
                                   hintText: '0.00',
                                   borderColor: Theme.of(context)
@@ -239,7 +216,10 @@ class SendTemplatePage extends BasePage {
                                   textStyle: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w500,
-                                      color:Colors.white
+                                      color: sendTemplateViewModel.activeField == 'fiat'? Colors.white : Theme.of(context)
+                                      .primaryTextTheme
+                                      .headline
+                                      .color,
                                   ),
                                   placeholderTextStyle: TextStyle(
                                       color: Theme.of(context)
@@ -248,7 +228,7 @@ class SendTemplatePage extends BasePage {
                                           .decorationColor,
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14),
-                                ),
+                                ),),
                               ),
                         ],
                       ),
@@ -289,6 +269,37 @@ class SendTemplatePage extends BasePage {
           ),
         ));
   }
+
+  Text label(String asset) {
+    return Text(
+          asset  + ': ',
+          style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: Colors.white,
+   ));
+  }
+
+  Container labelContainer(String asset) {
+    return Container(  
+     decoration: BoxDecoration(borderRadius:BorderRadius.circular(40), color: Colors.green,),
+     margin: EdgeInsets.only(bottom: 11, right: 4),
+     width: 60,
+     
+      child: Column(
+       children: [
+          SizedBox(height: 2),
+          Text(
+           asset + ':',
+           style: TextStyle(
+           fontSize: 16,
+           fontWeight: FontWeight.w600,
+           color: Colors.white,
+           )),
+      ],
+    )
+  );
+  }
   
   void _setEffects(BuildContext context) {
     if (_effectsInstalled) {
@@ -310,13 +321,13 @@ class SendTemplatePage extends BasePage {
         _addressController.text = address;
       }
     });
-    _cryptoAmountController.addListener(() {
+  _cryptoAmountController.addListener(() {
       final amount = _cryptoAmountController.text;
 
       if (amount != output.cryptoAmount) {
         output.setCryptoAmount(amount);
         lastInteractedField = 'crypto';
-        sendTemplateViewModel.chosenField(lastInteractedField);
+        sendTemplateViewModel.activeField = lastInteractedField;
       }
     });
 
@@ -326,7 +337,7 @@ class SendTemplatePage extends BasePage {
       if (amount != output.fiatAmount) {
         output.setFiatAmount(amount);
         lastInteractedField = 'fiat';
-         
+       sendTemplateViewModel.activeField = lastInteractedField;
       }
     });
 

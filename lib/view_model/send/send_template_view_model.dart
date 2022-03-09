@@ -42,12 +42,6 @@ abstract class SendTemplateViewModelBase with Store {
   
   @observable
   String activeField;
-  
-  @action
-  void chosenField (String asset){
-    activeField = asset;
-  }
-
 
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
