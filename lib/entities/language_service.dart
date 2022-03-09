@@ -7,6 +7,7 @@ class LanguageService {
     'en': 'English',
     'de': 'Deutsch (German)',
     'es': 'Español (Spanish)',
+    'fr': 'Français (French)',
     'hi': 'हिंदी (Hindi)',
     'ja': '日本 (Japanese)',
     'ko': '한국어 (Korean)',
