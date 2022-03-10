@@ -3,8 +3,10 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/loan/confirm_deposit_page.dart';
 import 'package:cake_wallet/src/screens/loan/increase_deposit_page.dart';
+import 'package:cake_wallet/src/screens/loan/lend_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_detail_page.dart';
+import 'package:cake_wallet/view_model/loan/lend_view_model.dart';
 import 'package:cake_wallet/view_model/loan/loan_account_view_model.dart';
 import 'package:cake_wallet/view_model/loan/loan_detail_view_model.dart';
 import 'package:cake_wallet/view_model/loan/loan_item.dart';
@@ -655,6 +657,11 @@ Future setup(
               getIt.get<LoanDetailViewModel>(param1: loanItem)));
 
   getIt.registerFactory(() => ConfirmDepositPage());
+
+   getIt.registerFactory<LendViewModel>(
+      () => LendViewModel(wallet: getIt.get<AppStore>().wallet));
+
+  getIt.registerFactory(() => LendPage(lendViewModel: getIt.get<LendViewModel>()));
 
   _isSetupFinished = true;
 }

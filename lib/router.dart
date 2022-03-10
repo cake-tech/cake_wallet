@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/loan/confirm_deposit_page.dart';
 import 'package:cake_wallet/src/screens/loan/increase_deposit_page.dart';
+import 'package:cake_wallet/src/screens/loan/lend_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_account_page.dart';
 import 'package:cake_wallet/src/screens/loan/loan_detail_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -412,6 +413,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.confirmDepositPage:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<ConfirmDepositPage>());
+    
+    case Routes.earnInterest:
+      return CupertinoPageRoute<void>(
+          builder: (_) => getIt.get<LendPage>());
+
     default:
       return MaterialPageRoute<void>(
           builder: (_) => Scaffold(

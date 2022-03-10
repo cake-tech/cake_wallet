@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/loan/widgets/loan_list_item.dart';
@@ -28,6 +29,9 @@ class LoanAccountPage extends BasePage {
 
   @override
   String get title => 'Loan Account';
+
+   @override
+  Color get titleColor => Colors.white;
 
   @override
   bool get extendBodyBehindAppBar => true;
@@ -141,7 +145,7 @@ class LoanAccountPage extends BasePage {
                   Padding(
                     padding: EdgeInsets.only(bottom: 12),
                     child: PrimaryButton(
-                      onPressed: () {},
+                      onPressed: () => Navigator.of(context).pushNamed(Routes.earnInterest),
                       text: 'Lend and Earn Interest',
                       color: Theme.of(context).accentTextTheme.body2.color,
                       textColor: Colors.white,

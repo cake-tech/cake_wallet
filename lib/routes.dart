@@ -64,4 +64,5 @@ class Routes {
   static const loanDetails = '/loan_details';
   static const increaseDeposit = '/increase_deposit';
   static const confirmDepositPage = '/confrim_deposit';
+  static const earnInterest = '/earn_interest';
 }
