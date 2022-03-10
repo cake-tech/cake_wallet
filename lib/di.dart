@@ -627,7 +627,7 @@ Future setup(
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => ParseAddressFromDomain());
+  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
   _isSetupFinished = true;
 }

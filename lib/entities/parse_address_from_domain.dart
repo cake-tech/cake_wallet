@@ -1,11 +1,15 @@
 import 'package:cake_wallet/core/yat_service.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
+import 'package:flutter/foundation.dart';
 
-class ParseAddressFromDomain {
+class AddressResolver {
+  
+  AddressResolver({@required this.yatService});
+  
+  final YatService yatService;
   
   static const unstoppableDomains = [
   'crypto',
@@ -20,20 +24,11 @@ class ParseAddressFromDomain {
   'blockchain'
 ];
 
-Future<ParsedAddress> parse(String text, String ticker) async {
+  Future<ParsedAddress> resolve(String text, String ticker) async {
     try {
-        if (text.hasOnlyEmojis) {
-        final yatService = getIt.get<YatService>();
+      if (text.hasOnlyEmojis) {
         final addresses = await yatService.fetchYatAddress(text, ticker);
-        if (addresses?.isEmpty ?? true) {
-          return ParsedAddress(
-              addresses: [text], parseFrom: ParseFrom.yatRecord);
-        }
-        return ParsedAddress(
-            addresses: addresses.map((e) => e.address).toList(),
-            name: text,
-            parseFrom: ParseFrom.yatRecord,
-          );
+        return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
       }
       final formattedName = OpenaliasRecord.formatDomainName(text);
       final domainParts = formattedName.split('.');
@@ -45,29 +40,13 @@ Future<ParsedAddress> parse(String text, String ticker) async {
 
       if (unstoppableDomains.any((domain) => name.contains(domain))) {
         final address = await fetchUnstoppableDomainAddress(text, ticker);
-
-        if (address?.isEmpty ?? true) {
-          return ParsedAddress(addresses: [text]);
-        }
-
-        return ParsedAddress(
-            addresses: [address],
-            name: text,
-            parseFrom: ParseFrom.unstoppableDomains);
+        return ParsedAddress.fetchUnstoppableDomainAddress(address: address, name: text);
       }
 
       final record = await OpenaliasRecord.fetchAddressAndName(
           formattedName: formattedName, ticker: ticker);
-
-      if (record == null || record.address.contains(formattedName)) {
-        return ParsedAddress(addresses: [text]);
-      }
-
-      return ParsedAddress(
-          addresses: [record.address],
-          name: record.name,
-          description: record.description,
-          parseFrom: ParseFrom.openAlias);
+      return ParsedAddress.fetchOpenAliasAddress(record: record, name: text);
+      
     } catch (e) {
       print(e.toString());
     }
@@ -75,5 +54,3 @@ Future<ParsedAddress> parse(String text, String ticker) async {
     return ParsedAddress(addresses: [text]);
   }
 }
-
-

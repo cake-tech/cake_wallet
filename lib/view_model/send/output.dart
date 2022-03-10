@@ -217,7 +217,7 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final ticker = _wallet.currency.title.toLowerCase();
-    parsedAddress = await getIt.get<ParseAddressFromDomain>().parse(domain, ticker);
+    parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;
   }
