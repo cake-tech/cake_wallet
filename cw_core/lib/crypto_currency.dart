@@ -23,7 +23,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.usdt,
     CryptoCurrency.usdterc20,
     CryptoCurrency.xlm,
-    CryptoCurrency.xrp
+    CryptoCurrency.xrp,
+    CryptoCurrency.xhv
   ];
   static const xmr = CryptoCurrency(title: 'XMR', raw: 0);
   static const ada = CryptoCurrency(title: 'ADA', raw: 1);

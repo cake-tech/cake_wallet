@@ -10,6 +10,12 @@ Future<void> updateHavenRate(FiatConversionStore fiatConversionStore) async {
     final cur = CryptoCurrency.fromString(row.getAssetType());
     final baseRate = moneroAmountToDouble(amount: base.getRate());
     final rowRate = moneroAmountToDouble(amount: row.getRate());
+
+    if (cur == CryptoCurrency.xusd) {
+      fiatConversionStore.prices[cur] = rowRate;
+      return;
+    }
+
     fiatConversionStore.prices[cur] = baseRate * rowRate;
   });
 }

@@ -353,7 +353,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
         walletAddresses.accountList.update();
       }
 
-      if (blocksLeft < 100) {
+      if (blocksLeft < 1000) {
         await _askForUpdateTransactionHistory();
         _askForUpdateBalance();
         walletAddresses.accountList.update();

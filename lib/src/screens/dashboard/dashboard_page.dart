@@ -146,13 +146,13 @@ class DashboardPage extends BasePage {
                   image: exchangeImage,
                   title: S.of(context).exchange,
                   route: Routes.exchange),
-              if (!isMoneroOnly)
+              if (!isMoneroOnly && !isHaven)
                 ActionButton(
                   image: buyImage,
                   title: S.of(context).buy,
                   onClick: () async => await _onClickBuyButton(context),
                 ),
-              if (!isMoneroOnly)
+              if (!isMoneroOnly && !isHaven)
                 ActionButton(
                   image: sellImage,
                   title: S.of(context).sell,

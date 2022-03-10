@@ -98,7 +98,7 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
     case WalletType.litecoin:
       return CryptoCurrency.ltc;
     case WalletType.haven:
-      return CryptoCurrency.xmr;
+      return CryptoCurrency.xhv;
     default:
       return null;
   }

@@ -391,7 +391,7 @@ class SendCardState extends State<SendCard>
                                                   .toString() +
                                                   ' ' +
                                                   sendViewModel
-                                                      .currency.title,
+                                                      .selectedCryptoCurrency.toString(),
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight:

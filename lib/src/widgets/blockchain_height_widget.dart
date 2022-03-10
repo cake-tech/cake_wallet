@@ -7,12 +7,13 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({GlobalKey key, this.onHeightChange, this.focusNode,
-    this.onHeightOrDateEntered})
+    this.onHeightOrDateEntered, this.hasDatePicker})
       : super(key: key);
 
   final Function(int) onHeightChange;
   final Function(bool) onHeightOrDateEntered;
   final FocusNode focusNode;
+  final bool hasDatePicker;
 
   @override
   State<StatefulWidget> createState() => BlockchainHeightState();
@@ -67,43 +68,45 @@ class BlockchainHeightState extends State<BlockchainHeightWidget> {
                     )))
           ],
         ),
-        Padding(
-          padding: EdgeInsets.only(top: 15, bottom: 15),
-          child: Text(
-            S.of(context).widgets_or,
-            style: TextStyle(
-                fontSize: 16.0,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).primaryTextTheme.title.color),
-          ),
-        ),
-        Row(
-          children: <Widget>[
-            Flexible(
-                child: Container(
-              child: InkWell(
-                onTap: () => _selectDate(context),
-                child: IgnorePointer(
-                    child: BaseTextFormField(
-                  controller: dateController,
-                  hintText: S.of(context).widgets_restore_from_date,
-                )),
-              ),
-            ))
-          ],
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 40, right: 40, top: 24),
-          child: Text(
-            S.of(context).restore_from_date_or_blockheight,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-                color: Theme.of(context).hintColor
+        if (widget.hasDatePicker) ...[
+          Padding(
+            padding: EdgeInsets.only(top: 15, bottom: 15),
+            child: Text(
+              S.of(context).widgets_or,
+              style: TextStyle(
+                  fontSize: 16.0,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).primaryTextTheme.title.color),
             ),
           ),
-        )
+          Row(
+            children: <Widget>[
+              Flexible(
+                  child: Container(
+                child: InkWell(
+                  onTap: () => _selectDate(context),
+                  child: IgnorePointer(
+                      child: BaseTextFormField(
+                    controller: dateController,
+                    hintText: S.of(context).widgets_restore_from_date,
+                  )),
+                ),
+              ))
+            ],
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 40, right: 40, top: 24),
+            child: Text(
+              S.of(context).restore_from_date_or_blockheight,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.normal,
+                  color: Theme.of(context).hintColor
+              ),
+            ),
+          )
+        ]
       ],
     );
   }

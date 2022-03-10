@@ -53,7 +53,7 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       wallet) async {
     try {
       final node = settingsStore.getCurrentNode(wallet.type);
-      startWalletSyncStatusChangeReaction(wallet);
+      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt
           .get<SharedPreferences>()

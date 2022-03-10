@@ -255,7 +255,7 @@ class SendPage extends BasePage {
                   padding: EdgeInsets.only(bottom: 12),
                   child: PrimaryButton(
                     onPressed: () => presentCurrencyPicker(context),
-                    text: 'Change currency (${sendViewModel.selectedCryptoCurrency})',
+                    text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
                     color: Colors.transparent,
                     textColor: Theme.of(context)
                         .accentTextTheme

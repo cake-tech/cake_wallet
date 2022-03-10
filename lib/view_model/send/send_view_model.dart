@@ -24,6 +24,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/haven/haven.dart';
 
 part 'send_view_model.g.dart';
 
@@ -224,6 +225,11 @@ abstract class SendViewModelBase with Store {
         final priority = _settingsStore.priority[_wallet.type];
 
         return monero.createMoneroTransactionCreationCredentials(
+            outputs: outputs, priority: priority);
+      case WalletType.haven:
+        final priority = _settingsStore.priority[_wallet.type];
+
+        return haven.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority);
       default:
         return null;

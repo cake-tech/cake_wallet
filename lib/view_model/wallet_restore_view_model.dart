@@ -65,7 +65,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.monero:
           return monero.createMoneroRestoreWalletFromSeedCredentials(
               name: name,
-              height: height,
+              height: height ?? 0,
               mnemonic: seed,
               password: password);
         case WalletType.bitcoin:
@@ -81,7 +81,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
         case WalletType.haven:
           return haven.createHavenRestoreWalletFromSeedCredentials(
               name: name,
-              height: height,
+              height: height ?? 0,
               mnemonic: seed,
               password: password);
         default:
@@ -94,14 +94,27 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
       final spendKey = options['spendKey'] as String;
       final address = options['address'] as String;
 
-      return monero.createMoneroRestoreWalletFromKeysCredentials(
-          name: name,
-          height: height,
-          spendKey: spendKey,
-          viewKey: viewKey,
-          address: address,
-          password: password,
-          language: 'English');
+      if (type == WalletType.monero) {
+        return monero.createMoneroRestoreWalletFromKeysCredentials(
+            name: name,
+            height: height,
+            spendKey: spendKey,
+            viewKey: viewKey,
+            address: address,
+            password: password,
+            language: 'English');
+      }
+
+      if (type == WalletType.haven) {
+        return haven.createHavenRestoreWalletFromKeysCredentials(
+            name: name,
+            height: height,
+            spendKey: spendKey,
+            viewKey: viewKey,
+            address: address,
+            password: password,
+            language: 'English');
+      }
     }
 
     return null;
