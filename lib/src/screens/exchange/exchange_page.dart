@@ -32,6 +32,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class ExchangePage extends BasePage {
   ExchangePage(this.exchangeViewModel);
@@ -65,8 +66,17 @@ class ExchangePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  Widget middle(BuildContext context) =>
-      PresentProviderPicker(exchangeViewModel: exchangeViewModel);
+  Widget middle(BuildContext context) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right:6.0),
+          child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: exchangeViewModel.status is SyncedSyncStatus),)
+        ),
+        PresentProviderPicker(exchangeViewModel: exchangeViewModel)
+      ],
+    );
+
 
   @override
   Widget trailing(BuildContext context) => TrailButton(

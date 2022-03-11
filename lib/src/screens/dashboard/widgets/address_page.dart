@@ -75,7 +75,7 @@ class AddressPage extends StatelessWidget {
                       addressListViewModel: addressListViewModel,
                       amountTextFieldFocusNode: _cryptoAmountFocus,
                       isAmountFieldShow: !addressListViewModel.hasAccounts,
-                      isBright: walletViewModel.settingsStore.currentTheme.type == ThemeType.bright))
+                      isLight: walletViewModel.settingsStore.currentTheme.type == ThemeType.light))
               ),
               Observer(builder: (_) {
                 return addressListViewModel.hasAddressList
