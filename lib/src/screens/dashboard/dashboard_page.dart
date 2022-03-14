@@ -136,12 +136,9 @@ class DashboardPage extends BasePage {
                       .display1
                       .backgroundColor),
             )),
-
-         
+       
         ClipRect(
           child:Container(
-          height: 75,
-          width: 343,
            margin: const EdgeInsets.only(left: 16, right: 16, bottom: 38),
           child: Container(
             decoration: BoxDecoration(
