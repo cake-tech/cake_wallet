@@ -1,3 +1,4 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
@@ -216,7 +217,7 @@ abstract class OutputBase with Store {
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
     final ticker = _wallet.currency.title.toLowerCase();
-    parsedAddress = await parseAddressFromDomain(domain, ticker);
+    parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;
   }

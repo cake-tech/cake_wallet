@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -790,7 +790,7 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, String ticker) async {
-    final parsedAddress = await parseAddressFromDomain(domain, ticker);
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }

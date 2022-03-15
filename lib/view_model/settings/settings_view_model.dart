@@ -1,4 +1,3 @@
-import 'package:cake_wallet/src/screens/yat/yat_alert.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/settings/link_list_item.dart';
