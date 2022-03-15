@@ -60,14 +60,17 @@ abstract class BalanceViewModelBase with Store {
 
     @computed
   String get asset {
-    if( appStore.wallet.currency == CryptoCurrency.btc){
-      return 'Bitcoin Assets';
-    }
-    else if(appStore.wallet.currency == CryptoCurrency.xmr){
-      return 'Monero Assets';
-    }
     
-      return 'Litecoin Assets';
+    switch(appStore.wallet.currency){
+      case CryptoCurrency.btc:
+        return 'Bitcoin Assets';
+      case CryptoCurrency.xmr:
+        return 'Monero Assets';
+      case CryptoCurrency.ltc:
+        return 'Litecoin Assets';
+      default:
+        return '';
+    }
     
   }
 
@@ -129,7 +132,7 @@ abstract class BalanceViewModelBase with Store {
 
     return  _getFiatBalance(
             price: price,
-            cryptoAmount: walletBalance.formattedAvailableBalance)+  ' ' +fiatCurrency.toString();
+            cryptoAmount: walletBalance.formattedAvailableBalance) + ' ' + fiatCurrency.toString();
        
   }
 
@@ -144,7 +147,7 @@ abstract class BalanceViewModelBase with Store {
 
     return   _getFiatBalance(
             price: price,
-            cryptoAmount: walletBalance.formattedAdditionalBalance)+  ' ' +fiatCurrency.toString();
+            cryptoAmount: walletBalance.formattedAdditionalBalance) + ' ' + fiatCurrency.toString();
        
   }
 

@@ -7,13 +7,14 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
-class BalancePage extends StatelessWidget {
-  BalancePage({@required this.dashboardViewModel});
+class BalancePage extends StatelessWidget{
+  BalancePage({@required this.dashboardViewModel, @required this.settingsStore});
 
   final DashboardViewModel dashboardViewModel;
-  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
+  final SettingsStore settingsStore;
+  
   Color get backgroundLightColor =>
-      currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
+      settingsStore.currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -49,7 +50,7 @@ class BalancePage extends StatelessWidget {
                margin: const EdgeInsets.only(left: 16, right: 16),
                decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30.0),
-                  border: Border.all(color: currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
+                  border: Border.all(color: settingsStore.currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
                   color:Theme.of(context).textTheme.title.backgroundColor
                 ),
                child: Container(
