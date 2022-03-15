@@ -93,7 +93,7 @@ class CurrencyUtils {
       case CryptoCurrency.xrp:
         return 'ripple';
       default:
-        return null;
+        return cur.title;
     }
   }
 }

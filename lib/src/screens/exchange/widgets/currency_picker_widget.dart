@@ -1,41 +1,22 @@
-import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'picker_item.dart';
 import 'currency_picker_item_widget.dart';
 
-class CurrencyPickerWidget extends StatefulWidget {
-  CurrencyPickerWidget(
-      {@required this.crossAxisCount,
-      @required this.cryptoCurrencyList,
-      @required this.selectedAtIndex,
-      @required this.itemsCount,
-      @required this.onItemSelected,
-      @required this.pickerItemsList,
-      this.textFieldValue});
+class CurrencyPickerWidget extends StatelessWidget {
+  const CurrencyPickerWidget({
+    @required this.crossAxisCount,
+    @required this.selectedAtIndex,
+    @required this.itemsCount,
+    @required this.pickerItemsList,
+    @required this.pickListItem,
+  });
 
   final int crossAxisCount;
-  final List<CryptoCurrency> cryptoCurrencyList;
-  int selectedAtIndex;
+  final int selectedAtIndex;
   final int itemsCount;
-  final String textFieldValue;
-  final Function onItemSelected;
+  final Function pickListItem;
   final List<PickerItem<CryptoCurrency>> pickerItemsList;
-
-  @override
-  _CurrencyPickerWidgetState createState() => _CurrencyPickerWidgetState();
-}
-
-class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
-  _CurrencyPickerWidgetState();
-
-  void pickListItem(int index) {
-    setState(() {
-      widget.selectedAtIndex = index;
-    });
-    widget.onItemSelected(widget.pickerItemsList[index].original);
-    Navigator.of(context).pop();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,20 +34,20 @@ class _CurrencyPickerWidgetState extends State<CurrencyPickerWidget> {
           radius: Radius.circular(3),
           child: GridView.builder(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
+                  crossAxisCount: crossAxisCount,
                   childAspectRatio: 5 / 2,
                   crossAxisSpacing: 1,
                   mainAxisSpacing: 1),
-              itemCount: widget.cryptoCurrencyList.length,
+              itemCount: pickerItemsList.length,
               itemBuilder: (BuildContext ctx, index) {
                 return PickerItemWidget(
                   onTap: () {
                     pickListItem(index);
                   },
-                  title: widget.pickerItemsList[index].title,
-                  iconPath: widget.pickerItemsList[index].iconPath,
-                  isSelected: index == widget.selectedAtIndex,
-                  tag: widget.pickerItemsList[index].tag,
+                  title: pickerItemsList[index].title,
+                  iconPath: pickerItemsList[index].iconPath,
+                  isSelected: index == selectedAtIndex,
+                  tag: pickerItemsList[index].tag,
                 );
               }),
         ),
