@@ -1,4 +1,4 @@
-import 'package:cake_wallet/migrations/commons.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/wallet_base.dart';

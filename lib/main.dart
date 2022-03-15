@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/default_settings_migration.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/migrations/runner/migrations_runner.dart';
@@ -160,6 +161,14 @@ Future<void> initialSetup(
     FlutterSecureStorage secureStorage,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
+  await defaultSettingsMigration(
+      secureStorage: secureStorage,
+      version: initialMigrationVersion,
+      sharedPreferences: sharedPreferences,
+      walletInfoSource: walletInfoSource,
+      contactSource: contactSource,
+      tradeSource: tradesSource,
+      nodes: nodes);
   await setup(
       walletInfoSource: walletInfoSource,
       nodeSource: nodes,
@@ -170,12 +179,6 @@ Future<void> initialSetup(
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       unspentCoinsInfoSource: unspentCoinsInfoSource);
-   await runDefaultMigrations(
-      version: initialMigrationVersion,
-      walletInfoSource: walletInfoSource,
-      contactSource: contactSource,
-      tradeSource: tradesSource,
-      );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }
