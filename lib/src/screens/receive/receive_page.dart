@@ -132,13 +132,7 @@ class ReceivePage extends BasePage {
                     isLight: currentTheme.type == ThemeType.light),
               ),
               Observer(
-                  builder: (_) => ClipRRect(
-                    borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30)),
-                    child: Container(
-                      color: Theme.of(context).textTheme.display2.decorationColor,
-                      child: ListView.separated(
+                  builder: (_) => ListView.separated(
                       padding: EdgeInsets.all(0),
                       separatorBuilder: (context, _) => Container(
                           height: 1, color: Theme.of(context).dividerColor),
@@ -213,7 +207,7 @@ class ReceivePage extends BasePage {
                               topRight: Radius.circular(30)),
                           child: cell,
                         );
-                      })))),
+                      })),
             ],
           ),
         ));
