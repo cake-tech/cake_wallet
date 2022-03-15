@@ -305,14 +305,9 @@ Future setup(
               closable: closable ?? false));
 
   getIt.registerFactory(() => 
-   BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), 
-   settingsStore: getIt.get<SettingsStore>()));
+   BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage(
-      balancePage: BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()),
-      walletViewModel: getIt.get<DashboardViewModel>(),
-      addressListViewModel: getIt.get<WalletAddressListViewModel>()));
-
+  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
 
