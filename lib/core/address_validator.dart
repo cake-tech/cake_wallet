@@ -78,7 +78,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.trx:
         return [34];
       case CryptoCurrency.usdt:
-        return [42];
+        return [34];
       case CryptoCurrency.usdterc20:
         return [42];
       case CryptoCurrency.xlm:

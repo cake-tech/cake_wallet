@@ -1,6 +1,6 @@
 import 'dart:ui';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
-import 'package:cake_wallet/src/screens/yat/widgets/yat_close_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -22,8 +22,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/src/screens/yat/yat_sending.dart';
 
 class SendPage extends BasePage {
   SendPage({@required this.sendViewModel}) : _formKey = GlobalKey<FormState>();
@@ -48,6 +46,17 @@ class SendPage extends BasePage {
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  @override
+  Widget middle(BuildContext context) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right:8.0),
+          child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),),
+        ),super.middle(context),
+      ],
+    );
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
@@ -197,7 +206,6 @@ class SendPage extends BasePage {
                             itemCount: itemCount,
                             itemBuilder: (context, index) {
                               final template = templates[index];
-
                               return TemplateTile(
                                 key: UniqueKey(),
                                 to: template.name,
@@ -293,11 +301,6 @@ class SendPage extends BasePage {
 
                       await sendViewModel.createTransaction();
 
-                      if (!sendViewModel.isBatchSending &&
-                          sendViewModel.hasYat) {
-                        Navigator.of(context)
-                            .push<void>(YatSending.createRoute(sendViewModel));
-                      }
                     },
                     text: S.of(context).send,
                     color: Theme.of(context).accentTextTheme.body2.color,
@@ -334,7 +337,7 @@ class SendPage extends BasePage {
       }
 
       if (state is ExecutedSuccessfullyState &&
-          !(!sendViewModel.isBatchSending && sendViewModel.hasYat)) {
+          !sendViewModel.isBatchSending) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,

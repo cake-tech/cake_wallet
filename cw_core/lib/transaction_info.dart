@@ -1,5 +1,4 @@
 import 'package:cw_core/transaction_direction.dart';
-//import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cw_core/keyable.dart';
 
 abstract class TransactionInfo extends Object with Keyable {
@@ -18,4 +17,6 @@ abstract class TransactionInfo extends Object with Keyable {
 
   @override
   dynamic get keyIndex => id;
+
+  Map<String, dynamic> additionalInfo;
 }

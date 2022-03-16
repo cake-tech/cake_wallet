@@ -505,7 +505,11 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final tx = await getTransactionExpanded(hash: hash, height: height);
     final addresses = walletAddresses.addresses.map((addr) => addr.address).toSet();
     return ElectrumTransactionInfo.fromElectrumBundle(
-      tx,walletInfo.type, addresses: addresses, height: height);
+      tx,
+      walletInfo.type,
+      networkType,
+      addresses: addresses,
+      height: height);
   }
 
   @override

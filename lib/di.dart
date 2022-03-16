@@ -1,3 +1,5 @@
+import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
@@ -623,5 +625,9 @@ Future setup(
 
   getIt.registerFactory(() => WakeLock());
 
+  getIt.registerFactory(() => YatService());
+
+  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
+  
   _isSetupFinished = true;
 }

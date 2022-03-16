@@ -41,7 +41,7 @@ CakeWallet cannot be built without the following packages installed on your buil
 
 - openjdk-8-jre-headless
 
-You may easily install them on your build sytem with the following command:
+You may easily install them on your build system with the following command:
 
 `$ sudo apt-get install -y unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake openjdk-8-jre-headless`
 

@@ -60,7 +60,9 @@ class DashboardPage extends BasePage {
 
   @override
   Widget middle(BuildContext context) {
-    return SyncIndicator(dashboardViewModel: walletViewModel);
+    return SyncIndicator(dashboardViewModel: walletViewModel,
+        onTap: () => Navigator.of(context, rootNavigator: true)
+            .pushNamed(Routes.nodeList));
   }
 
   @override
@@ -90,19 +92,23 @@ class DashboardPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final sendImage = Image.asset('assets/images/upload.png',
-        height: 22.24,
+        height: 24,
+        width: 24,
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final receiveImage = Image.asset('assets/images/received.png',
+        height: 24,
         width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
     final exchangeImage = Image.asset('assets/images/transfer.png',
-        height: 24.27,
-        width: 22.25,
-        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
-    final buyImage = Image.asset('assets/images/coins.png',
-        height: 22.24,
+        height: 24,
         width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
-    final sellImage = Image.asset('assets/images/restore_wallet_image.png',
-        height: 22.24,
+    final buyImage = Image.asset('assets/images/buy.png',
+        height: 24,
+        width: 24,
+        color: Theme.of(context).accentTextTheme.display3.backgroundColor);
+    final sellImage = Image.asset('assets/images/sell.png',
+        height: 24,
         width: 24,
         color: Theme.of(context).accentTextTheme.display3.backgroundColor);
     _setEffects(context);
@@ -132,34 +138,49 @@ class DashboardPage extends BasePage {
                       .display1
                       .backgroundColor),
             )),
-        Container(
-          padding: EdgeInsets.only(left: 45, right: 45, bottom: 24),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: <Widget>[
-              ActionButton(
-                  image: sendImage,
-                  title: S.of(context).send,
-                  route: Routes.send),
-              ActionButton(
-                  image: exchangeImage,
-                  title: S.of(context).exchange,
-                  route: Routes.exchange),
-              if (!isMoneroOnly)
-                ActionButton(
-                  image: buyImage,
-                  title: S.of(context).buy,
-                  onClick: () async => await _onClickBuyButton(context),
+       
+        ClipRect(
+          child:Container(
+           margin: const EdgeInsets.only(left: 16, right: 16, bottom: 38),
+          child: Container(
+            decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50.0),
+                  border: Border.all(color: currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
+                  color:Theme.of(context).textTheme.title.backgroundColor
                 ),
-              if (!isMoneroOnly)
+              child: Container(
+                padding: EdgeInsets.only(left: 32, right: 32, bottom: 14, top: 16),
+                child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                if (!isMoneroOnly)
+                  ActionButton(
+                    image: buyImage,
+                    title: S.of(context).buy,
+                    onClick: () async => await _onClickBuyButton(context),
+                  ),  
                 ActionButton(
-                  image: sellImage,
-                  title: S.of(context).sell,
-                  onClick: () async => await _onClickSellButton(context),
-                ),
-            ],
-          ),
-        )
+                    image: receiveImage,
+                    title: S.of(context).receive,
+                    route: Routes.receive),
+                ActionButton(
+                    image: exchangeImage,
+                    title: S.of(context).exchange,
+                    route: Routes.exchange),
+                ActionButton(
+                    image: sendImage,
+                    title: S.of(context).send,
+                    route: Routes.send),
+                if (!isMoneroOnly)
+                  ActionButton(
+                    image: sellImage,
+                    title: S.of(context).sell,
+                    onClick: () async => await _onClickSellButton(context),
+                  ),
+              ],
+            ),),
+          ),),),
+       
       ],
     ));
   }
@@ -175,24 +196,6 @@ class DashboardPage extends BasePage {
     pages.add(BalancePage(dashboardViewModel: walletViewModel));
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;
-
-    //if (walletViewModel.shouldShowYatPopup) {
-    //  await Future<void>.delayed(Duration(seconds: 1));
-
-    //  if (currentRouteSettings.name == Routes.preSeed
-    //      || currentRouteSettings.name == Routes.seed) {
-    //    return;
-    //  }
-
-    //  await showPopUp<void>(
-    //      context: context,
-    //      builder: (BuildContext context) {
-    //        return YatPopup(
-    //            dashboardViewModel: walletViewModel,
-    //            onClose: () => Navigator.of(context).pop());
-    //      });
-    //  walletViewModel.furtherShowYatPopup(false);
-    //}
 
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet) {

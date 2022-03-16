@@ -104,7 +104,7 @@ Risks Related to the use of the App
 
 		- Mistakes made by the user of any Monero-related and/or Bitcoin-related and/or Litecoin-related software or service, e.g., forgotten passwords, payments sent to wrong Monero and/or Bitcoin and/or Litecoin addresses, or accidental deletion of wallets;
 
-		- Software problems of the App and/or any Monero-related or Bitcoin-related or Litecoin-related oftware or service, e.g., corrupted wallet file, incorrectly constructed transactions, unsafe cryptographic libraries, malware affecting the App and/or any Monero-related or Bitcoin-related or Litecoin-related software or service;
+		- Software problems of the App and/or any Monero-related or Bitcoin-related or Litecoin-related software or service, e.g., corrupted wallet file, incorrectly constructed transactions, unsafe cryptographic libraries, malware affecting the App and/or any Monero-related or Bitcoin-related or Litecoin-related software or service;
 
 		- Technical failures in the hardware of the user of any Monero-related and/or Bitcoin-related and/or Litecoin-related software or service, e.g., data loss due to a faulty or damaged storage device;
 

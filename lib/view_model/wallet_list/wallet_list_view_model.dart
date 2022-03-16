@@ -8,6 +8,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -55,6 +56,7 @@ abstract class WalletListViewModelBase with Store {
         type: info.type,
         key: info.key,
         isCurrent: info.name == _appStore.wallet.name &&
-            info.type == _appStore.wallet.type)));
+            info.type == _appStore.wallet.type,
+        isEnabled: availableWalletTypes.contains(info.type))));
   }
 }

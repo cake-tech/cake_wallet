@@ -60,6 +60,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final params = <String, String>{
       'fromCurrency': normalizedFrom,
       'toCurrency': normalizedTo,
+      'fromNetwork': networkFor(from),
+      'toNetwork': networkFor(to),
       'flow': flow};
     final uri = Uri.https(apiAuthority, rangePath, params);
     final response = await get(uri, headers: headers);
@@ -90,7 +92,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final flow = getFlow(isFixedRateMode);
     final body = <String, String>{
       'fromCurrency': normalizeCryptoCurrency(_request.from), 
-      'toCurrency': normalizeCryptoCurrency(_request.to), 
+      'toCurrency': normalizeCryptoCurrency(_request.to),
+      'fromNetwork': networkFor(_request.from),
+      'toNetwork': networkFor(_request.to),
       'fromAmount': _request.fromAmount, 
       'toAmount': _request.toAmount, 
       'address': _request.address,
@@ -205,7 +209,9 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final flow = getFlow(isFixedRateMode);
       final params = <String, String>{
         'fromCurrency': isReverse ? normalizeCryptoCurrency(to) : normalizeCryptoCurrency(from),
-        'toCurrency': isReverse ? normalizeCryptoCurrency(from) : normalizeCryptoCurrency(to) ,
+        'toCurrency': isReverse ? normalizeCryptoCurrency(from) : normalizeCryptoCurrency(to),
+        'fromNetwork': isReverse ? networkFor(to) : networkFor(from),
+        'toNetwork': isReverse ? networkFor(from) : networkFor(to),
         'type': type,
         'flow': flow};
 
@@ -232,11 +238,35 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       return 0.0;
     }
   }
+ 
+  String networkFor(CryptoCurrency currency) {
+    const bnbTitle = 'bnb';
+
+    switch (currency) {
+      case CryptoCurrency.usdt:
+        return CryptoCurrency.btc.title.toLowerCase();
+      case CryptoCurrency.usdterc20:
+        return CryptoCurrency.eth.title.toLowerCase();
+      case CryptoCurrency.bnb:
+        return bnbTitle;
+      case CryptoCurrency.dai:
+        return CryptoCurrency.eth.title.toLowerCase();
+      default:
+        return currency.title.toLowerCase();
+    }
+  }
 
   static String normalizeCryptoCurrency(CryptoCurrency currency) {
-    const bnbTitle = 'bnbmainnet';
-    final currencyTitle = currency == CryptoCurrency.bnb
-        ? bnbTitle : currency.title.toLowerCase();
-    return currencyTitle;
+    const bnbTitle = 'bnb';
+
+    switch(currency) {
+      case CryptoCurrency.bnb:
+        return bnbTitle;
+      case CryptoCurrency.usdterc20:
+        return CryptoCurrency.usdt.title.toLowerCase();
+      default:
+        return currency.title.toLowerCase();
+    }
+
   }
 }

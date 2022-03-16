@@ -161,13 +161,8 @@ class WelcomePage extends BasePage {
                           padding: EdgeInsets.only(top: 10),
                           child: PrimaryImageButton(
                               onPressed: () {
-			          if (isMoneroOnly) {
-				    Navigator.of(context).pushNamed(Routes.moneroRestoreWalletFromWelcome);
-				  } else {
-				    Navigator.pushNamed(context,
-                                      Routes.restoreOptions);
-				  }
-			      },
+                                Navigator.pushNamed(context, Routes.restoreOptions);
+                              },
                               image: restoreWalletImage,
                               text: S
                                   .of(context)

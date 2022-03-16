@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:hive/hive.dart';
 import 'package:cw_core/wallet_type.dart';
-//import 'package:cake_wallet/entities/digest_request.dart';
+import 'package:http/io_client.dart' as ioc;
 
 part 'node.g.dart';
 
@@ -95,30 +95,41 @@ class Node extends HiveObject with Keyable {
   }
 
   Future<bool> requestMoneroNode() async {
-    return false;
-    //try {
-    //  Map<String, dynamic> resBody;
+  
+    final path = '/json_rpc';
+    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final realm = 'monero-rpc';
+    final body = {
+        'jsonrpc': '2.0', 
+        'id': '0', 
+        'method': 'get_info'
+    };
 
-    //  if (login != null && password != null) {
-    //    final digestRequest = DigestRequest();
-    //    final response = await digestRequest.request(
-    //        uri: uri.toString(), login: login, password: password);
-    //    resBody = response.data as Map<String, dynamic>;
-    //  } else {
-    //    final rpcUri = Uri.http(uri.authority, '/json_rpc');
-    //    final headers = {'Content-type': 'application/json'};
-    //    final body =
-    //        json.encode({'jsonrpc': '2.0', 'id': '0', 'method': 'get_info'});
-    //    final response =
-    //        await http.post(rpcUri.toString(), headers: headers, body: body);
-    //    resBody = json.decode(response.body) as Map<String, dynamic>;
-    //  }
+    try {
+      final authenticatingClient = HttpClient();
+    
+      authenticatingClient.addCredentials(
+          rpcUri,
+          realm, 
+          HttpClientDigestCredentials(login ?? '', password ?? ''),
+      );
+    
+      final http.Client client = ioc.IOClient(authenticatingClient);
+    
+      final response = await client.post(
+          rpcUri,
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(body),
+      );
+    
+      client.close();
 
-    //  return !(resBody['result']['offline'] as bool);
-    //} catch (_) {
-    //  return false;
-    //}
-  }
+      final resBody = json.decode(response.body) as Map<String, dynamic>;
+      return !(resBody['result']['offline'] as bool);
+    } catch (_) {
+      return false;
+    }
+}
 
   Future<bool> requestElectrumServer() async {
     try {

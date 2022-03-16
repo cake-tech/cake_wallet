@@ -80,7 +80,7 @@ class WalletListBodyState extends State<WalletListBody> {
                         : Theme.of(context).backgroundColor;
                     final row = GestureDetector(
                         onTap: () async {
-                          if (wallet.isCurrent) {
+                          if (wallet.isCurrent || !wallet.isEnabled) {
                             return;
                           }
 
@@ -132,7 +132,9 @@ class WalletListBodyState extends State<WalletListBody> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: <Widget>[
-                                      _imageFor(type: wallet.type),
+                                      wallet.isEnabled
+                                        ? _imageFor(type: wallet.type)
+                                        : nonWalletTypeIcon,
                                       SizedBox(width: 10),
                                       Text(
                                         wallet.name,

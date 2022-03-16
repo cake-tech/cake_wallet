@@ -20,7 +20,6 @@ class ActionButton extends StatelessWidget {
       alignment: alignment,
       child: Column(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           GestureDetector(
@@ -32,19 +31,17 @@ class ActionButton extends StatelessWidget {
               }
             },
             child: Container(
-              height: 60,
-              width: 60,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                  color: Theme.of(context).buttonColor, shape: BoxShape.circle),
+                  shape: BoxShape.circle),
               child: image,
             ),
           ),
-          SizedBox(height: 15),
+          SizedBox(height: 4),
           Text(
             title,
             style: TextStyle(
-                fontSize: 14,
+                fontSize: 10,
                 color: Theme.of(context).accentTextTheme.display3
                     .backgroundColor),
           )

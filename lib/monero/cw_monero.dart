@@ -288,4 +288,9 @@ class CWMonero extends Monero {
 	WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource) {
 		return MoneroWalletService(walletInfoSource);
 	}
+
+	String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
+		final moneroWallet = wallet as MoneroWallet;
+		return moneroWallet.getTransactionAddress(accountIndex, addressIndex);
+	}
 }
