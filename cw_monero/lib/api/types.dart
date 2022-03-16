@@ -118,3 +118,5 @@ typedef CloseCurrentWallet = void Function();
 typedef OnStartup = void Function();
 
 typedef RescanBlockchainAsync = void Function();
+
+typedef EstimateTransactionFee = int Function(int, int);

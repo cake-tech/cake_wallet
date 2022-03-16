@@ -386,12 +386,7 @@ class SendCardState extends State<SendCard>
                                         crossAxisAlignment: CrossAxisAlignment.end,
                                         children: [
                                           Text(
-                                              output
-                                                  .estimatedFee
-                                                  .toString() +
-                                                  ' ' +
-                                                  sendViewModel
-                                                      .currency.title,
+                                              sendViewModel.estimatedFee.toString() + ' ' + sendViewModel.currency.title,
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight:
@@ -403,11 +398,7 @@ class SendCardState extends State<SendCard>
                                               padding:
                                               EdgeInsets.only(top: 5),
                                               child: Text(
-                                                  output
-                                                      .estimatedFeeFiatAmount
-                                                      +  ' ' +
-                                                      sendViewModel
-                                                          .fiat.title,
+                                                  sendViewModel.estimatedFeeFiatAmount + ' ' + sendViewModel.fiat.title,
                                                   style: TextStyle(
                                                       fontSize: 12,
                                                       fontWeight:
@@ -513,10 +504,16 @@ class SendCardState extends State<SendCard>
       }
     });
 
+    reaction((_) => sendViewModel.estimatedFee, (double estimatedFee) {
+      final firstOutput = sendViewModel.outputs[0];
+      if (firstOutput != null && firstOutput.sendAll) {
+        firstOutput.updateFiatAmount();
+      }
+    });
+
     reaction((_) => output.sendAll, (bool all) {
       if (all) {
         cryptoAmountController.text = S.current.all;
-        fiatAmountController.text = null;
       }
     });
 

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
+import 'package:cake_wallet/entities/format_amount.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -24,6 +25,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 
 part 'send_view_model.g.dart';
 
@@ -46,6 +48,10 @@ abstract class SendViewModelBase with Store {
 
     outputs = ObservableList<Output>()
       ..add(Output(_wallet, _settingsStore, _fiatConversationStore));
+
+    _settingsStore.priority.observe((change) async {
+      _wallet.feeEstimate.update(priority: change.newValue, outputsCount: outputs.length);
+    });
   }
 
   @observable
@@ -240,4 +246,38 @@ abstract class SendViewModelBase with Store {
 
   bool _isEqualCurrency(String currency) => 
       currency.toLowerCase() == _wallet.currency.title.toLowerCase();
+
+  void estimateFee() {
+    _wallet.feeEstimate.update(priority: _settingsStore.priority[_wallet.type], outputsCount: outputs.length);
+  }
+
+  @computed
+  double get estimatedFee {
+    try {
+      var totalFormattedCryptoAmount = 0;
+      for (final output in outputs) {
+        totalFormattedCryptoAmount += output.formattedCryptoAmount;
+      }
+
+      final fee = _wallet.feeEstimate.get(priority: _settingsStore.priority[_wallet.type], amount: totalFormattedCryptoAmount, outputsCount: outputs.length);
+
+      return formatAmountToDouble(type: _wallet.type, amount: fee);
+    } catch (e) {
+      print(e.toString());
+    }
+
+    return 0;
+  }
+
+  @computed
+  String get estimatedFeeFiatAmount {
+    try {
+      final fiat = calculateFiatAmountRaw(
+          price: _fiatConversationStore.prices[_wallet.currency],
+          cryptoAmount: this.estimatedFee);
+      return fiat;
+    } catch (_) {
+      return '0.00';
+    }
+  }
 }

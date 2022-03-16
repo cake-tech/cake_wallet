@@ -112,6 +112,10 @@ final rescanBlockchainAsyncNative = moneroApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
 
+final estimateTransactionFeeNative = moneroApi
+    .lookup<NativeFunction<estimate_transaction_fee>>('estimate_transaction_fee')
+    .asFunction<EstimateTransactionFee>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -327,3 +331,18 @@ Future<bool> isConnected() => compute(_isConnected, 0);
 Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
 
 void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
+
+int estimateTransactionFeeSync(int outputs, int priorityRaw) {
+  return estimateTransactionFeeNative(outputs, priorityRaw);
+}
+
+int _estimateTransactionFee(Map args) {
+  final priorityRaw = args['priorityRaw'] as int;
+  final outputsCount = args['outputsCount'] as int;
+
+  return estimateTransactionFeeSync(outputsCount, priorityRaw);
+}
+
+Future<int> estimateTransactionFee({int priorityRaw, int outputsCount}) {
+  return compute(_estimateTransactionFee, {'priorityRaw': priorityRaw, 'outputsCount': outputsCount});
+}

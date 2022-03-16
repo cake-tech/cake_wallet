@@ -1,4 +1,5 @@
 import 'package:cw_core/balance.dart';
+import 'package:cw_core/fee_estimate.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_addresses.dart';
@@ -39,6 +40,8 @@ abstract class WalletBase<
 
   SyncStatus get syncStatus;
 
+  FeeEstimate get feeEstimate;
+
   set syncStatus(SyncStatus status);
 
   String get seed;
@@ -54,8 +57,6 @@ abstract class WalletBase<
   Future<void> startSync();
 
   Future<PendingTransaction> createTransaction(Object credentials);
-
-  int calculateEstimatedFee(TransactionPriority priority, int amount);
 
   // void fetchTransactionsAsync(
   //     void Function(TransactionType transaction) onTransactionLoaded,

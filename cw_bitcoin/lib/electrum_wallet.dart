@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:cw_core/fee_estimate.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:hive/hive.dart';
 import 'package:cw_bitcoin/electrum_wallet_addresses.dart';
@@ -33,6 +34,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:hex/hex.dart';
+import 'package:cw_bitcoin/electrum_fee_estimate.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -66,6 +68,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         ElectrumTransactionHistory(walletInfo: walletInfo, password: password);
     unspentCoins = [];
     _scripthashesUpdateSubject = {};
+    feeEstimate = ElectrumFeeEstimate(this);
   }
 
   static int estimatedTransactionSize(int inputsCount, int outputsCounts) =>
@@ -87,6 +90,10 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   @override
   @observable
   SyncStatus syncStatus;
+
+  @override
+  @observable
+  ElectrumFeeEstimate feeEstimate;
 
   List<String> get scriptHashes => walletAddresses.addresses
       .map((addr) => scriptHash(addr.address, networkType: networkType))
@@ -346,8 +353,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       feeRate(priority) * estimatedTransactionSize(inputsCount, outputsCount);
 
   @override
-  int calculateEstimatedFee(TransactionPriority priority, int amount,
-  {int outputsCount}) {
+  int calculateEstimatedFee(TransactionPriority priority, int amount, {int outputsCount = 1}) {
     if (priority is BitcoinTransactionPriority) {
       int inputsCount = 0;
 

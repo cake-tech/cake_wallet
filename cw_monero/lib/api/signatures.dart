@@ -120,3 +120,7 @@ typedef close_current_wallet = Void Function();
 typedef on_startup = Void Function();
 
 typedef rescan_blockchain = Void Function();
+
+typedef estimate_transaction_fee = Int64 Function(
+    Int32 outputs,
+    Int8 priorityRaw);

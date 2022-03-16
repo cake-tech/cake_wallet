@@ -1,5 +1,9 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/wallet_type.dart';
+import 'package:cw_monero/monero_transaction_priority.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -10,10 +14,7 @@ import 'package:flutter/services.dart';
 
 ReactionDisposer _onWalletSyncStatusChangeReaction;
 
-void startWalletSyncStatusChangeReaction(
-    WalletBase<Balance, TransactionHistoryBase<TransactionInfo>,
-            TransactionInfo>
-        wallet) {
+void startWalletSyncStatusChangeReaction(WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo> wallet, SettingsStore settingsStore) {
   final _wakeLock = getIt.get<WakeLock>();
   _onWalletSyncStatusChangeReaction?.reaction?.dispose();
   _onWalletSyncStatusChangeReaction =
@@ -26,6 +27,10 @@ void startWalletSyncStatusChangeReaction(
     }
     if (status is SyncedSyncStatus || status is FailedSyncStatus) {
       await _wakeLock.disableWake();
+    }
+
+    if (status is SyncedSyncStatus) {
+      wallet.feeEstimate.update(priority: settingsStore.priority[wallet.type], outputsCount: 1);
     }
   });
 }
