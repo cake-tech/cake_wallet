@@ -433,7 +433,7 @@ class ExchangeCardState extends State<ExchangeCard> {
             items: widget.currencies,
             title: S.of(context).change_currency,
             isMoneroWallet: _isMoneroWallet,
-            isConvertTo: _isAmountEditable,
+            isConvertFrom: widget.hasRefundAddress,
             onItemSelected: (CryptoCurrency item) =>
                 widget.onCurrencySelected != null
                     ? widget.onCurrencySelected(item)

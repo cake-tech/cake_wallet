@@ -16,14 +16,14 @@ class CurrencyPicker extends StatefulWidget {
       @required this.title,
       @required this.onItemSelected,
       this.isMoneroWallet = false,
-      this.isConvertTo = false});
+      this.isConvertFrom = false});
 
   int selectedAtIndex;
   final List<CryptoCurrency> items;
   final String title;
   final Function(CryptoCurrency) onItemSelected;
   final bool isMoneroWallet;
-  final bool isConvertTo;
+  final bool isConvertFrom;
 
   @override
   CurrencyPickerState createState() => CurrencyPickerState(items);
@@ -167,12 +167,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                         widget
                             .onItemSelected(subPickerItemsList[index].original);
 
-                        if (widget.isMoneroWallet) {
-                          Navigator.of(context).pop();
-                        } else if (!widget.isConvertTo) {
-                          Navigator.of(context).pop();
-                        } else if (subPickerItemsList[index].original !=
-                            CryptoCurrency.xmr) {
+                        if (widget.isConvertFrom &&
+                            !widget.isMoneroWallet &&
+                            (subPickerItemsList[index].original ==
+                                CryptoCurrency.xmr)) {
+                        } else {
                           Navigator.of(context).pop();
                         }
                       },
