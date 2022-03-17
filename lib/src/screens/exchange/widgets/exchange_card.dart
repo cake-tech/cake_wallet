@@ -1,7 +1,9 @@
 import 'package:cake_wallet/entities/contact_base.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -308,6 +310,16 @@ class ExchangeCardState extends State<ExchangeCard> {
                 child: AddressTextField(
                     focusNode: widget.addressFocusNode,
                     controller: addressController,
+                    onURIScanned: (uri) {
+                      final paymentRequest = PaymentRequest.fromUri(uri);
+                      addressController.text = paymentRequest.address;
+
+                      if (amountController.text.isNotEmpty) {
+                        _showAmountPopup(context, paymentRequest);
+                      } else {
+                        amountController.text = paymentRequest.amount;
+                      }
+                    },
                     placeholder: widget.hasRefundAddress
                         ? S.of(context).refund_address
                         : null,
@@ -331,7 +343,9 @@ class ExchangeCardState extends State<ExchangeCard> {
                     buttonColor: widget.addressButtonsColor,
                     validator: widget.addressTextFieldValidator,
                     onPushPasteButton: widget.onPushPasteButton,
-                    onPushAddressBookButton: widget.onPushAddressBookButton),
+                    onPushAddressBookButton: widget.onPushAddressBookButton
+                ),
+
               )
             : Padding(
                 padding: EdgeInsets.only(top: 10),
@@ -439,5 +453,23 @@ class ExchangeCardState extends State<ExchangeCard> {
                     ? widget.onCurrencySelected(item)
                     : null),
         context: context);
+  }
+
+  void _showAmountPopup(BuildContext context, PaymentRequest paymentRequest) {
+    showPopUp<void>(
+        context: context,
+        builder: (dialogContext) {
+          return AlertWithTwoActions(
+              alertTitle: S.of(context).overwrite_amount,
+              alertContent: S.of(context).qr_payment_amount,
+              rightButtonText: S.of(context).ok,
+              leftButtonText: S.of(context).cancel,
+              actionRightButton: () {
+                amountController.text = paymentRequest.amount;
+                Navigator.of(context).pop();
+              },
+              actionLeftButton: () => Navigator.of(dialogContext).pop());
+        }
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -109,19 +110,9 @@ class SendTemplatePage extends BasePage {
                             child: AddressTextField(
                               controller: _addressController,
                               onURIScanned: (uri) {
-                                var address = '';
-                                var amount = '';
-
-                                if (uri != null) {
-                                  address = uri.path;
-                                  amount = uri.queryParameters['tx_amount'] ??
-                                      uri.queryParameters['amount'];
-                                } else {
-                                  address = uri.toString();
-                                }
-
-                                _addressController.text = address;
-                                _cryptoAmountController.text = amount;
+                                final paymentRequest = PaymentRequest.fromUri(uri);
+                                _addressController.text = paymentRequest.address;
+                                _cryptoAmountController.text = paymentRequest.amount;
                               },
                               options: [
                                 AddressTextFieldOption.paste,
