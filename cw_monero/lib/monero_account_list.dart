@@ -46,7 +46,7 @@ abstract class MoneroAccountListBase with Store {
       .getAllAccount()
       .map((accountRow) => Account(
         id: accountRow.getId(),
-        label: row.getLabel()))
+        label: accountRow.getLabel()))
       .toList();
 
   Future addAccount({String label}) async {

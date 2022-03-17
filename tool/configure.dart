@@ -472,8 +472,10 @@ Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) a
     output += '\n$cwBitcoin';
   }
 
-  if (hasHaven) {
+  if (hasHaven && !hasMonero) {
     output += '\n$cwSharedExternal\n$cwHaven';
+  } else if (hasHaven) {
+    output += '\n$cwHaven';
   }
 
   final outputLines = output.split('\n');
