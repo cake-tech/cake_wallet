@@ -60,6 +60,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           addressIndex != null) {
         try {
           final address = monero.getTransactionAddress(wallet, accountIndex, addressIndex);
+          final label = monero.getSubaddressLabel(wallet, accountIndex, addressIndex);
 
           if (address?.isNotEmpty ?? false) {
             isRecipientAddressShown = true;
@@ -67,6 +68,14 @@ abstract class TransactionDetailsViewModelBase with Store {
                 StandartListItem(
                     title: S.current.transaction_details_recipient_address,
                     value: address));
+          }
+
+          if (label?.isNotEmpty ?? false) {
+            _items.add(
+                StandartListItem(
+                  title: S.current.address_label,
+                  value: label)
+            );
           }
         } catch (e) {
           print(e.toString());
