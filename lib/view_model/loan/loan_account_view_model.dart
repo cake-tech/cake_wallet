@@ -26,8 +26,6 @@ abstract class LoanAccountViewModelBase with Store {
   List<LoanItem> items;
 
   Future<void> _fetchLoanItems() async {
-    await Future<void>.delayed(Duration(seconds: 5));
-    isLoggedIn = true;
     items = [
       LoanItem(id: '2133432', amount: 20000, status: 'Awaiting deposit'),
       LoanItem(id: '2133432', amount: 20000, status: 'Awaiting deposit'),

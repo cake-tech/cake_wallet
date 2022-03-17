@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/view_model/loan/captcha_webview.dart';
 import 'package:flutter/material.dart';
 
 class LoanLoginSection extends StatelessWidget {
@@ -74,6 +75,7 @@ class LoanLoginSection extends StatelessWidget {
             ],
           ),
         ),
+        SizedBox(height: 100, child: CaptchaWebview()),
         SizedBox(height: 100),
       ],
     );
