@@ -307,12 +307,12 @@ class SendPage extends BasePage {
                         showErrorValidationAlert(context);
                         return;
                       }
-
+                      
                       await sendViewModel.createTransaction();
 
                       if (!sendViewModel.isBatchSending &&
                           sendViewModel.hasYat) {
-                        Navigator.of(context)
+                        await Navigator.of(context)
                             .push<void>(YatSending.createRoute(sendViewModel));
                       }
                     },

@@ -230,7 +230,7 @@ abstract class SendViewModelBase with Store {
         final priority = _settingsStore.priority[_wallet.type];
 
         return haven.createHavenTransactionCreationCredentials(
-            outputs: outputs, priority: priority);
+            outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
       default:
         return null;
     }

@@ -239,7 +239,7 @@ class CWHaven extends Haven {
       'publicViewKey': keys.publicViewKey};
 	}
 
-	Object createHavenTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority}) {
+	Object createHavenTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority, String assetType}) {
 		return HavenTransactionCreationCredentials(
 			outputs: outputs.map((out) => OutputInfo(
 					fiatAmount: out.fiatAmount,
@@ -251,7 +251,8 @@ class CWHaven extends Haven {
 					isParsedAddress: out.isParsedAddress,
 					formattedCryptoAmount: out.formattedCryptoAmount))
 				.toList(),
-			priority: priority as MoneroTransactionPriority);
+			priority: priority as MoneroTransactionPriority,
+			assetType: assetType);
 	}
 
 	String formatterMoneroAmountToString({int amount}) {

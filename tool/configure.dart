@@ -389,7 +389,7 @@ abstract class Haven {
   WalletCredentials createHavenRestoreWalletFromSeedCredentials({String name, String password, int height, String mnemonic});
   WalletCredentials createHavenNewWalletCredentials({String name, String password, String language});
   Map<String, String> getKeys(Object wallet);
-  Object createHavenTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority});
+  Object createHavenTransactionCreationCredentials({List<Output> outputs, TransactionPriority priority, String assetType});
   String formatterMoneroAmountToString({int amount});
   double formatterMoneroAmountToDouble({int amount});
   int formatterMoneroParseAmount({String amount});

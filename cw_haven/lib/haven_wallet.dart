@@ -147,8 +147,9 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     final _credentials = credentials as HavenTransactionCreationCredentials;
     final outputs = _credentials.outputs;
     final hasMultiDestination = outputs.length > 1;
-    final unlockedBalance =
-    haven_wallet.getUnlockedBalance(accountIndex: walletAddresses.account.id);
+    final assetType = CryptoCurrency.fromString(_credentials.assetType.toLowerCase());
+    final balances = getHavenBalance(accountIndex: walletAddresses.account.id);
+    final unlockedBalance = balances[assetType].unlockedBalance;
 
     PendingTransactionDescription pendingTransactionDescription;
 
@@ -207,7 +208,7 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
           accountIndex: walletAddresses.account.id);
     }
 
-    return PendingHavenTransaction(pendingTransactionDescription, CryptoCurrency.fromString(_credentials.assetType));
+    return PendingHavenTransaction(pendingTransactionDescription, assetType);
   }
 
   @override

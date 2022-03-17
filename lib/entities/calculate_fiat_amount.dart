@@ -11,5 +11,16 @@ String calculateFiatAmount({double price, String cryptoAmount}) {
     return '0.00';
   }
 
-  return result > 0.01 ? result.toStringAsFixed(2) : '< 0.01';
+  var formatted = '';
+  final parts = result.toString().split('.');
+  
+  if (parts.length >= 2) {
+    if (parts[1].length > 2) {
+      formatted = parts[0] + '.' + parts[1].substring(0, 2);
+    } else {
+      formatted = parts[0] + '.' + parts[1];
+    }
+  }
+
+  return result > 0.01 ? formatted : '< 0.01';
 }
