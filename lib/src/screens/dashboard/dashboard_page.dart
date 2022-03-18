@@ -125,7 +125,7 @@ class DashboardPage extends BasePage {
                 itemCount: pages.length,
                 itemBuilder: (context, index) => pages[index])),
         Padding(
-            padding: EdgeInsets.only(bottom: 24),
+            padding: EdgeInsets.only(bottom: 24, top: 10),
             child: SmoothPageIndicator(
               controller: controller,
               count: pages.length,
@@ -143,7 +143,7 @@ class DashboardPage extends BasePage {
        
         ClipRect(
           child:Container(
-           margin: const EdgeInsets.only(left: 16, right: 16, bottom: 38),
+           margin: const EdgeInsets.only(left: 16, right: 16),
           child: Container(
             decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(50.0),

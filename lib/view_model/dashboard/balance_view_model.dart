@@ -20,12 +20,14 @@ class BalanceRecord {
     this.additionalBalance,
     this.fiatAvailableBalance,
     this.fiatAdditionalBalance,
-    this.asset});
+    this.asset,
+    this.formattedAssetTitle});
   final String fiatAdditionalBalance;
   final String fiatAvailableBalance;
   final String additionalBalance;
   final String availableBalance;
   final CryptoCurrency asset;
+  final String formattedAssetTitle;
 }
 
 class BalanceViewModel = BalanceViewModelBase with _$BalanceViewModel;
@@ -59,45 +61,45 @@ abstract class BalanceViewModelBase with Store {
   @computed
   BalanceDisplayMode get savedDisplayMode => settingsStore.balanceDisplayMode;
 
-    @computed
+  @computed
   String get asset {
-    
-    switch(appStore.wallet.currency){
-      case CryptoCurrency.btc:
-        return 'Bitcoin Assets';
-      case CryptoCurrency.xmr:
-        return 'Monero Assets';
-      case CryptoCurrency.ltc:
-        return 'Litecoin Assets';
-      default:
-        return '';
-    }
-    
+    final typeFormatted = walletTypeToString(appStore.wallet.type);
+    return '$typeFormatted Asset';
   }
 
   @computed
-  BalanceDisplayMode get displayMode => isReversing
-      ? savedDisplayMode == BalanceDisplayMode.hiddenBalance
-          ? BalanceDisplayMode.displayableBalance
-          : savedDisplayMode
-      : savedDisplayMode;
+  BalanceDisplayMode get displayMode {
+    if (isReversing) {
+      if (savedDisplayMode == BalanceDisplayMode.hiddenBalance) {
+        return BalanceDisplayMode.displayableBalance;
+      } else {
+        return BalanceDisplayMode.hiddenBalance;
+      }
+    }
+
+    return savedDisplayMode;
+  }
 
   @computed
   String get availableBalanceLabel {
-    if (wallet.type == WalletType.monero) {
-      return S.current.xmr_available_balance;
+    switch(wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+        return S.current.xmr_available_balance;
+      default:
+        return S.current.confirmed;
     }
-
-    return S.current.confirmed;
   }
 
   @computed
   String get additionalBalanceLabel {
-    if (wallet.type == WalletType.monero) {
-      return S.current.xmr_full_balance;
+    switch(wallet.type) {
+      case WalletType.monero:
+      case WalletType.haven:
+        return S.current.xmr_full_balance;
+      default:
+        return S.current.unconfirmed;
     }
-
-    return S.current.unconfirmed;
   }
 
   @computed
@@ -164,7 +166,8 @@ abstract class BalanceViewModelBase with Store {
           additionalBalance: '---',
           fiatAdditionalBalance: '---',
           fiatAvailableBalance: '---',
-          asset: key));
+          asset: key,
+          formattedAssetTitle: _formatterAsset(key)));
       }
       final fiatCurrency = settingsStore.fiatCurrency;
       final additionalFiatBalance = fiatCurrency.toString()
@@ -184,7 +187,8 @@ abstract class BalanceViewModelBase with Store {
         additionalBalance: value.formattedAdditionalBalance,
         fiatAdditionalBalance: additionalFiatBalance,
         fiatAvailableBalance: availableFiatBalance,
-        asset: key));
+        asset: key,
+        formattedAssetTitle: _formatterAsset(key)));
       });
   }
 
@@ -242,6 +246,21 @@ abstract class BalanceViewModelBase with Store {
     }
 
     return calculateFiatAmount(price: price, cryptoAmount: cryptoAmount);
+  }
+
+  String _formatterAsset(CryptoCurrency asset) {
+    switch (wallet.type) {
+      case WalletType.haven:
+        final assetStringified = asset.toString();
+
+        if (assetStringified[0].toUpperCase() == 'X') {
+          return assetStringified.replaceFirst('X', 'x');
+        }
+
+        return asset.toString(); 
+      default:
+        return asset.toString();
+    }
   }
 }
 
