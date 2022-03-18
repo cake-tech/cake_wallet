@@ -4,7 +4,7 @@ const bitcoinMnemonicLength = 12;
 const moneroMnemonicLength = 25;
 
 int mnemonicLength(WalletType type) {
-  // TODO: need to have only one place for get(set) mnemonic string lenth;
+  // TODO: need to have only one place for get(set) mnemonic string length;
 
   switch (type) {
     case WalletType.monero:
