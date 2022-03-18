@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -250,6 +251,7 @@ Future setup(
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
+    
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
@@ -304,10 +306,10 @@ Future setup(
               onAuthenticationFinished: onAuthFinished,
               closable: closable ?? false));
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage(
-      walletViewModel: getIt.get<DashboardViewModel>(),
-      addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory(() => 
+   BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
+  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
 

@@ -30,10 +30,12 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 
 class DashboardPage extends BasePage {
   DashboardPage({
+    @required this.balancePage,
     @required this.walletViewModel,
     @required this.addressListViewModel,
   });
-
+  final BalancePage balancePage;
+  
   @override
   Color get backgroundLightColor =>
       currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -193,7 +195,7 @@ class DashboardPage extends BasePage {
     pages.add(AddressPage(
         addressListViewModel: addressListViewModel,
         walletViewModel: walletViewModel));
-    pages.add(BalancePage(dashboardViewModel: walletViewModel));
+    pages.add(balancePage);
     pages.add(TransactionsPage(dashboardViewModel: walletViewModel));
     _isEffectsInstalled = true;
 
