@@ -30,7 +30,7 @@ class BalancePage extends StatelessWidget{
           Container(
             margin: const EdgeInsets.only(left: 24, bottom: 16),
             child: Observer(builder: (_) {
-                  return AutoSizeText(
+                  return Text(
                       dashboardViewModel.balanceViewModel.asset,
                       style: TextStyle(
                           fontSize: 24,
@@ -86,20 +86,34 @@ class BalancePage extends StatelessWidget{
              crossAxisAlignment: CrossAxisAlignment.start,
              children: [
                 SizedBox(height: 4,),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                  Text('${availableBalanceLabel}',
+                Text('${availableBalanceLabel}',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                     fontSize: 12,
                     fontFamily: 'Lato',
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     color: Theme.of(context)
                             .accentTextTheme
                             .display2
                             .backgroundColor,
                     height: 1)),
+                SizedBox(height: 5),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                  AutoSizeText(
+                    availableBalance,
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context)
+                            .accentTextTheme
+                            .display3
+                            .backgroundColor,
+                        height: 1),
+                    maxLines: 1,
+                    textAlign: TextAlign.center),
                   Text(currency,
                     style: TextStyle(
                         fontSize: 28,
@@ -111,20 +125,6 @@ class BalancePage extends StatelessWidget{
                             .backgroundColor,
                         height: 1)),
                   ]),
-              AutoSizeText(
-                availableBalance,
-                style: TextStyle(
-                    fontSize: 24,
-                    fontFamily: 'Lato',
-                    
-                    fontWeight: FontWeight.w900,
-                    color: Theme.of(context)
-                        .accentTextTheme
-                        .display3
-                        .backgroundColor,
-                    height: 1),
-                maxLines: 1,
-                textAlign: TextAlign.center),
               SizedBox(height: 4,),
               Text('${availableFiatBalance}',
                 textAlign: TextAlign.center,
@@ -143,7 +143,7 @@ class BalancePage extends StatelessWidget{
                 style: TextStyle(
                   fontSize: 12,
                   fontFamily: 'Lato',
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: Theme.of(context)
                           .accentTextTheme
                           .display2
@@ -153,9 +153,9 @@ class BalancePage extends StatelessWidget{
               AutoSizeText(
                     additionalBalance,
                     style: TextStyle(
-                       fontSize: 24,
+                       fontSize: 20,
                         fontFamily: 'Lato',
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w400,
                         color: Theme.of(context)
                             .accentTextTheme
                             .display3
@@ -167,9 +167,9 @@ class BalancePage extends StatelessWidget{
               Text('${additionalFiatBalance}',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 12,
                   fontFamily: 'Lato',
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w400,
                   color: Theme.of(context)
                           .accentTextTheme
                           .display3

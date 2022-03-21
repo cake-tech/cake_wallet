@@ -50,10 +50,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       @required this.mnemonic,
       ElectrumClient electrumClient,
       ElectrumBalance initialBalance})
-      : balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of({
-          CryptoCurrency.btc: initialBalance ??
-            const ElectrumBalance(confirmed: 0, unconfirmed: 0)}),
-        hd = bitcoin.HDWallet.fromSeed(mnemonicToSeedBytes(mnemonic),
+      : hd = bitcoin.HDWallet.fromSeed(mnemonicToSeedBytes(mnemonic),
                 network: networkType)
             .derivePath("m/0'/0"),
         syncStatus = NotConnectedSyncStatus(),
@@ -61,6 +58,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
         super(walletInfo) {
+    balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of({
+          currency: initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0)});
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
     this.unspentCoinsInfo = unspentCoinsInfo;

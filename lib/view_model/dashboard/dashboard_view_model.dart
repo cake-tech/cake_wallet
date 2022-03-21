@@ -1,3 +1,4 @@
+import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -78,6 +79,13 @@ abstract class DashboardViewModelBase with Store {
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
+    isEnabledExchangeAction = wallet.type != WalletType.haven;
+    hasExchangeAction = !isHaven;
+    isEnabledBuyAction = wallet.type != WalletType.haven;
+    hasBuyAction = !isMoneroOnly && !isHaven;
+    isEnabledSellAction = wallet.type != WalletType.haven;
+    hasSellAction = !isMoneroOnly && !isHaven;
+
     final _wallet = wallet;
 
     if (_wallet.type == WalletType.monero) {
@@ -229,6 +237,24 @@ abstract class DashboardViewModelBase with Store {
   void furtherShowYatPopup(bool shouldShow) =>
       settingsStore.shouldShowYatPopup = shouldShow;
 
+  @observable
+  bool isEnabledExchangeAction;
+
+  @observable
+  bool hasExchangeAction;
+
+  @observable
+  bool isEnabledBuyAction;
+
+  @observable
+  bool hasBuyAction;
+
+  @observable
+  bool isEnabledSellAction;
+
+  @observable
+  bool hasSellAction;
+
   ReactionDisposer _onMoneroAccountChangeReaction;
 
   ReactionDisposer _onMoneroBalanceChangeReaction;
@@ -251,6 +277,12 @@ abstract class DashboardViewModelBase with Store {
     name = wallet.name;
     isOutdatedElectrumWallet =
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
+    isEnabledExchangeAction = wallet.type != WalletType.haven;
+    hasExchangeAction = !isHaven;
+    isEnabledBuyAction = wallet.type != WalletType.haven;
+    hasBuyAction = !isMoneroOnly && !isHaven;
+    isEnabledSellAction = wallet.type != WalletType.haven;
+    hasSellAction = !isMoneroOnly && !isHaven;
 
     if (wallet.type == WalletType.monero) {
       subname = monero.getCurrentAccount(wallet)?.label;

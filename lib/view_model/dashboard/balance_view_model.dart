@@ -64,7 +64,13 @@ abstract class BalanceViewModelBase with Store {
   @computed
   String get asset {
     final typeFormatted = walletTypeToString(appStore.wallet.type);
-    return '$typeFormatted Asset';
+
+    switch(wallet.type) {
+      case WalletType.haven:
+        return '$typeFormatted Asset';
+      default:
+        return typeFormatted;
+    }
   }
 
   @computed
@@ -253,7 +259,7 @@ abstract class BalanceViewModelBase with Store {
       case WalletType.haven:
         final assetStringified = asset.toString();
 
-        if (assetStringified[0].toUpperCase() == 'X') {
+        if (asset != CryptoCurrency.xhv && assetStringified[0].toUpperCase() == 'X') {
           return assetStringified.replaceFirst('X', 'x');
         }
 
