@@ -109,8 +109,8 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return addressListViewModel.type == WalletType.monero?
-    KeyboardActions(
+    return addressListViewModel.type == WalletType.monero
+        ? KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor: Theme.of(context).accentTextTheme.body2
@@ -212,7 +212,7 @@ class ReceivePage extends BasePage {
                       })),
             ],
           ),
-        )):Padding(
+        )) : Padding(
       padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
       child: Column(
         children: [
