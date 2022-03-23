@@ -60,6 +60,22 @@ class BitcoinURI extends PaymentURI {
   }
 }
 
+class LitecoinURI extends PaymentURI {
+  LitecoinURI({String amount, String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'litecoin:' + address;
+
+    if (amount?.isNotEmpty ?? false) {
+      base += '?amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
 abstract class WalletAddressListViewModelBase with Store {
   WalletAddressListViewModelBase({
     @required AppStore appStore,
@@ -119,6 +135,10 @@ abstract class WalletAddressListViewModelBase with Store {
 
     if (_wallet.type == WalletType.bitcoin) {
       return BitcoinURI(amount: amount, address: address.address);
+    }
+
+    if (_wallet.type == WalletType.litecoin) {
+      return LitecoinURI(amount: amount, address: address.address);
     }
 
     return null;
