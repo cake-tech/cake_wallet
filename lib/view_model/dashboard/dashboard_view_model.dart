@@ -79,12 +79,7 @@ abstract class DashboardViewModelBase with Store {
     isShowFirstYatIntroduction = false;
     isShowSecondYatIntroduction = false;
     isShowThirdYatIntroduction = false;
-    isEnabledExchangeAction = wallet.type != WalletType.haven;
-    hasExchangeAction = !isHaven;
-    isEnabledBuyAction = wallet.type != WalletType.haven;
-    hasBuyAction = !isMoneroOnly && !isHaven;
-    isEnabledSellAction = wallet.type != WalletType.haven;
-    hasSellAction = !isMoneroOnly && !isHaven;
+    updateActions();
 
     final _wallet = wallet;
 
@@ -277,12 +272,7 @@ abstract class DashboardViewModelBase with Store {
     name = wallet.name;
     isOutdatedElectrumWallet =
         wallet.type == WalletType.bitcoin && wallet.seed.split(' ').length < 24;
-    isEnabledExchangeAction = wallet.type != WalletType.haven;
-    hasExchangeAction = !isHaven;
-    isEnabledBuyAction = wallet.type != WalletType.haven;
-    hasBuyAction = !isMoneroOnly && !isHaven;
-    isEnabledSellAction = wallet.type != WalletType.haven;
-    hasSellAction = !isMoneroOnly && !isHaven;
+    updateActions();
 
     if (wallet.type == WalletType.monero) {
       subname = monero.getCurrentAccount(wallet)?.label;
@@ -344,5 +334,17 @@ abstract class DashboardViewModelBase with Store {
             transaction: transaction,
             balanceViewModel: balanceViewModel,
             settingsStore: appStore.settingsStore)));
+  }
+
+  void updateActions() {
+    isEnabledExchangeAction = wallet.type != WalletType.haven;
+    hasExchangeAction = !isHaven;
+    isEnabledBuyAction = wallet.type != WalletType.haven
+      && wallet.type != WalletType.monero;
+    hasBuyAction = !isMoneroOnly && !isHaven;
+    isEnabledSellAction = wallet.type != WalletType.haven
+      && wallet.type != WalletType.monero
+      && wallet.type != WalletType.litecoin;
+    hasSellAction = !isMoneroOnly && !isHaven;
   }
 }

@@ -154,6 +154,9 @@ abstract class SendViewModelBase with Store {
       out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
+
+  bool get hasCurrecyChanger => walletType == WalletType.haven;
+
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;

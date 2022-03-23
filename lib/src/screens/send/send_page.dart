@@ -259,20 +259,21 @@ class SendPage extends BasePage {
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Column(
             children: [
-              Observer(builder: (_) =>
-                Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: PrimaryButton(
-                    onPressed: () => presentCurrencyPicker(context),
-                    text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
-                    color: Colors.transparent,
-                    textColor: Theme.of(context)
-                        .accentTextTheme
-                        .display2
-                        .decorationColor,
+              if (sendViewModel.hasCurrecyChanger)
+                Observer(builder: (_) =>
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                      onPressed: () => presentCurrencyPicker(context),
+                      text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
+                      color: Colors.transparent,
+                      textColor: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .decorationColor,
+                    )
                   )
-                )
-              ),
+                ),
               if (sendViewModel.hasMultiRecipient)
                 Padding(
                     padding: EdgeInsets.only(bottom: 12),
@@ -395,7 +396,7 @@ class SendPage extends BasePage {
                                 return AlertWithOneAction(
                                     alertTitle: '',
                                     alertContent: S.of(context).send_success(
-                                        sendViewModel.currency.toString()),
+                                        sendViewModel.selectedCryptoCurrency.toString()),
                                     buttonText: S.of(context).ok,
                                     buttonAction: () =>
                                         Navigator.of(context).pop());
