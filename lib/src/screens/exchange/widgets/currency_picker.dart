@@ -167,6 +167,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                         widget
                             .onItemSelected(subPickerItemsList[index].original);
 
+                        print('isConvertFrom = ${widget.isConvertFrom}');
+                        print('isMoneroWallet = ${!widget.isMoneroWallet}');
+                        print(
+                            'ryptoCurrency.xmr = ${subPickerItemsList[index].original == CryptoCurrency.xmr}');
+
                         if (widget.isConvertFrom &&
                             !widget.isMoneroWallet &&
                             (subPickerItemsList[index].original ==

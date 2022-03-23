@@ -20,38 +20,42 @@ class CurrencyPickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
-        borderRadius: BorderRadius.circular(14.0),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14.0),
-        child: Scrollbar(
-          showTrackOnHover: true,
-          isAlwaysShown: true,
-          thickness: 6.0,
-          radius: Radius.circular(3),
-          child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: crossAxisCount,
-                  childAspectRatio: 5 / 2,
-                  crossAxisSpacing: 1,
-                  mainAxisSpacing: 1),
-              itemCount: pickerItemsList.length,
-              itemBuilder: (BuildContext ctx, index) {
-                return PickerItemWidget(
-                  onTap: () {
-                    pickListItem(index);
-                  },
-                  title: pickerItemsList[index].title,
-                  iconPath: pickerItemsList[index].iconPath,
-                  isSelected: index == selectedAtIndex,
-                  tag: pickerItemsList[index].tag,
-                );
-              }),
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
+            borderRadius: BorderRadius.circular(14.0),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14.0),
+            child: Scrollbar(
+              showTrackOnHover: true,
+              isAlwaysShown: true,
+              thickness: 6.0,
+              radius: Radius.circular(3),
+              child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
+                      crossAxisSpacing: 1,
+                      mainAxisExtent: constraints.maxHeight / 8,
+                      mainAxisSpacing: 1),
+                  itemCount: pickerItemsList.length,
+                  itemBuilder: (BuildContext ctx, index) {
+                    return PickerItemWidget(
+                      onTap: () {
+                        pickListItem(index);
+                      },
+                      title: pickerItemsList[index].title,
+                      iconPath: pickerItemsList[index].iconPath,
+                      isSelected: index == selectedAtIndex,
+                      tag: pickerItemsList[index].tag,
+                    );
+                  }),
+            ),
+          ),
+        );
+      },
     );
   }
 }
