@@ -60,10 +60,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   List<PickerItem<CryptoCurrency>> subPickerItemsList;
   TextStyle appBarTextStyle;
 
-  List<PickerItem<CryptoCurrency>> get cleanSubPickerItemsList =>
-      subPickerItemsList = pickerItemsList
-          .where((element) => items.contains(element.original))
-          .toList();
+  List<PickerItem<CryptoCurrency>> cleanSubPickerItemsList() {
+    return subPickerItemsList = pickerItemsList
+        .where((element) => items.contains(element.original))
+        .toList();
+  }
 
   void currencySearchBySubstring(
       String subString, List<PickerItem<CryptoCurrency>> list) {
@@ -109,7 +110,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                         setState(() {
                                           isSearchBarActive = false;
                                           textFieldValue = '';
-                                          cleanSubPickerItemsList;
+                                          cleanSubPickerItemsList();
                                         });
                                       }),
                                   Container(
@@ -128,7 +129,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                           this.textFieldValue = value;
                                           currencySearchBySubstring(
                                               textFieldValue,
-                                              cleanSubPickerItemsList);
+                                              cleanSubPickerItemsList());
                                         }),
                                   )
                                 ],
@@ -166,12 +167,6 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                         });
                         widget
                             .onItemSelected(subPickerItemsList[index].original);
-
-                        print('isConvertFrom = ${widget.isConvertFrom}');
-                        print('isMoneroWallet = ${!widget.isMoneroWallet}');
-                        print(
-                            'ryptoCurrency.xmr = ${subPickerItemsList[index].original == CryptoCurrency.xmr}');
-
                         if (widget.isConvertFrom &&
                             !widget.isMoneroWallet &&
                             (subPickerItemsList[index].original ==
