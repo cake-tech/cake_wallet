@@ -69,6 +69,7 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -216,6 +217,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.receive:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true, builder: (_) => getIt.get<ReceivePage>());
+
+    case Routes.addressPage:
+      return CupertinoPageRoute<void>(
+          fullscreenDialog: true, builder: (_) => getIt.get<AddressPage>());
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(

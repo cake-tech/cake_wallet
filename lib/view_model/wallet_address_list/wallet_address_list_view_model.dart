@@ -100,30 +100,7 @@ abstract class WalletAddressListViewModelBase with Store {
   }) {
     _appStore = appStore;
     _wallet = _appStore.wallet;
-    emoji = '';
     hasAccounts = _wallet?.type == WalletType.monero || _wallet?.type == WalletType.haven;
-    reaction((_) => _wallet.walletAddresses.address, (String address) {
-      if (address == _wallet.walletInfo.yatLastUsedAddress) {
-        emoji = yatStore.emoji;  
-      } else {
-        emoji = '';
-      }
-    });
-
-    //reaction((_) => yatStore.emoji, (String emojiId) => this.emoji = emojiId);
-
-    //_onLastUsedYatAddressSubscription =
-    //  _wallet.walletInfo.yatLastUsedAddressStream.listen((String yatAddress) {
-    //    if (yatAddress == _wallet.walletAddresses.address) {
-    //      emoji = yatStore.emoji;  
-    //    } else {
-    //      emoji = '';
-    //    }
-    //});
-
-    if (_wallet.walletAddresses.address == _wallet.walletInfo.yatLastUsedAddress) {
-      emoji = yatStore.emoji;
-    }
 
     _onWalletChangeReaction = reaction((_) => _appStore.wallet, (WalletBase<
             Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
@@ -244,9 +221,6 @@ abstract class WalletAddressListViewModelBase with Store {
   bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
 
   @observable
-  String emoji;
-
-  @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>
       _wallet;
 
@@ -257,9 +231,6 @@ abstract class WalletAddressListViewModelBase with Store {
   final YatStore yatStore;
 
   ReactionDisposer _onWalletChangeReaction;
-
-  StreamSubscription<String> _onLastUsedYatAddressSubscription;
-  StreamSubscription<String> _onEmojiIdChangeSubscription;
 
   @action
   void setAddress(WalletAddressListItem address) =>

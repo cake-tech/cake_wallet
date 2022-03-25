@@ -124,6 +124,7 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -314,6 +315,9 @@ Future setup(
   getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory<AddressPage>(() => AddressPage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      walletViewModel: getIt.get<DashboardViewModel>()));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, dynamic, void>(
       (dynamic item, _) => WalletAddressEditOrCreateViewModel(

@@ -165,7 +165,7 @@ class DashboardPage extends BasePage {
                   ActionButton(
                       image: receiveImage,
                       title: S.of(context).receive,
-                      route: Routes.receive),
+                      route: Routes.addressPage),
                   if (walletViewModel.hasExchangeAction)
                     ActionButton(
                       image:  Image.asset('assets/images/transfer.png',
