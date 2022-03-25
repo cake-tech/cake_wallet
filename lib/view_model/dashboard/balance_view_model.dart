@@ -67,7 +67,7 @@ abstract class BalanceViewModelBase with Store {
 
     switch(wallet.type) {
       case WalletType.haven:
-        return '$typeFormatted Asset';
+        return '$typeFormatted Assets';
       default:
         return typeFormatted;
     }
