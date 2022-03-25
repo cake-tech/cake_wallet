@@ -29,8 +29,7 @@ abstract class UnspentCoinsListViewModelBase with Store {
           ' ${wallet.currency.title}';
   
      final info = _unspentCoinsInfo.values
-          .firstWhere((element) => element.walletId.contains(wallet.id) &&
-          element.hash.contains(elem.hash));
+          .firstWhere((element) => element.walletId == wallet.id && element.hash == elem.hash);
 
       return UnspentCoinsItem(
           address: elem.address,
