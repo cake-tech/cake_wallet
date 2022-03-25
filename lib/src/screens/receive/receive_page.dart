@@ -2,6 +2,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/dashboard/dashboard_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -108,7 +109,8 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return KeyboardActions(
+    return addressListViewModel.type == WalletType.monero
+        ? KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
             keyboardBarColor: Theme.of(context).accentTextTheme.body2
@@ -210,6 +212,32 @@ class ReceivePage extends BasePage {
                       })),
             ],
           ),
-        ));
+        )) : Padding(
+      padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
+      child: Column(
+        children: [
+          Expanded(
+            flex: 7,
+            child: QRWidget(
+                addressListViewModel: addressListViewModel,
+                isAmountFieldShow: true,
+                amountTextFieldFocusNode: _cryptoAmountFocus,
+                isLight: currentTheme.type == ThemeType.light),
+          ),
+          Expanded(
+            flex: 2,
+            child: SizedBox(),
+          ),
+          Text(S.of(context).electrum_address_disclaimer,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                  fontSize: 15,
+                  color: Theme.of(context)
+                      .accentTextTheme
+                      .display2
+                      .backgroundColor)),
+        ],
+      ),
+    );
   }
 }
