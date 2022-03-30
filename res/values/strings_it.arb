@@ -78,7 +78,8 @@
   "min_value" : "Min: ${value} ${currency}",
   "max_value" : "Max: ${value} ${currency}",
   "change_currency" : "Cambia Moneta",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "Copia ID",
   "exchange_result_write_down_trade_id" : "Gentilmente fai una copia o trascrivi l'ID dello scambio per continuare.",

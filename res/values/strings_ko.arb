@@ -78,7 +78,8 @@
   "min_value" : "최소: ${value} ${currency}",
   "max_value" : "맥스: ${value} ${currency}",
   "change_currency" : "통화 변경",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "부 ID",
   "exchange_result_write_down_trade_id" : "계속하려면 거래 ID를 복사하거나 적어 두십시오..",

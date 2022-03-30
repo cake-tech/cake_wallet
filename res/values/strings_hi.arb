@@ -78,7 +78,8 @@
   "min_value" : "मिन: ${value} ${currency}",
   "max_value" : "मैक्स: ${value} ${currency}",
   "change_currency" : "मुद्रा परिवर्तन करें",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "प्रतिलिपि ID",
   "exchange_result_write_down_trade_id" : "जारी रखने के लिए कृपया ट्रेड ID की प्रतिलिपि बनाएँ या लिखें.",

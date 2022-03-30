@@ -78,7 +78,8 @@
   "min_value" : "分: ${value} ${currency}",
   "max_value" : "マックス: ${value} ${currency}",
   "change_currency" : "通貨を変更する",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "IDをコピー",
   "exchange_result_write_down_trade_id" : "続行するには、取引IDをコピーまたは書き留めてください.",

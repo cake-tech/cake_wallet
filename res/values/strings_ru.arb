@@ -78,7 +78,8 @@
   "min_value" : "Мин: ${value} ${currency}",
   "max_value" : "Макс: ${value} ${currency}",
   "change_currency" : "Изменить валюту",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "Скопировать ID",
   "exchange_result_write_down_trade_id" : "Пожалуйста, скопируйте или запишите ID сделки.",
