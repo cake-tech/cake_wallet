@@ -30,12 +30,12 @@
 
   "authenticated" : "Authentifié",
   "authentication" : "Authentification",
-  "failed_authentication" : "Écher d'authentication. ${state_error}",
+  "failed_authentication" : "Échec d'authentification. ${state_error}",
 
 
   "wallet_menu" : "Menu",
   "Blocks_remaining" : "Blocs Restants : ${status}",
-  "please_try_to_connect_to_another_node" : "Merci d'essayer la connexion vers une autre node",
+  "please_try_to_connect_to_another_node" : "Merci d'essayer la connexion vers un autre nœud",
   "xmr_hidden" : "Caché",
   "xmr_available_balance" : "Solde Disponible",
   "xmr_full_balance" : "Solde Total",
@@ -67,7 +67,7 @@
   "refund_address" : "Adresse de Remboursement",
   "change_exchange_provider" : "Changer de Plateforme d'Échange",
   "you_will_send" : "Convertir depuis",
-  "you_will_get" : "Convert vers",
+  "you_will_get" : "Convertir vers",
   "amount_is_guaranteed" : "Le montant reçu est garanti",
   "amount_is_estimate" : "Le montant reçu est estimé",
   "powered_by" : "Proposé par ${title}",
@@ -75,14 +75,14 @@
   "estimated" : "Estimé",
   "min_value" : "Min: ${value} ${currency}",
   "max_value" : "Max: ${value} ${currency}",
-  "change_currency" : "Change de Monnaie",
+  "change_currency" : "Changer de Devise",
 
 
   "copy_id" : "Copier l'ID",
   "exchange_result_write_down_trade_id" : "Merci de copier ou d'écrire l'ID d'échange pour continuer.",
   "trade_id" : "ID d'échange :",
   "copied_to_clipboard" : "Copié vers le Presse-Papier",
-  "saved_the_trade_id" : "J'ai sauvé l'ID d'échange",
+  "saved_the_trade_id" : "J'ai sauvegardé l'ID d'échange",
   "fetching" : "Récupération",
   "id" : "ID : ",
   "amount" : "Montant : ",
@@ -91,7 +91,7 @@
   "offer_expires_in" : "L'Offre expire dans : ",
   "trade_is_powered_by" : "Cet échange est proposé par ${provider}",
   "copy_address" : "Copier l'Adresse",
-  "exchange_result_confirm" : "En pressant confirmer, vous enverrez ${fetchingLabel} ${from} depuis votre wallet nommé ${walletName} vers l'adresse ci-dessous. Vous pouvez aussi envoyer depuis votre wallet externe vers l'adresse/QR code ci-dessous.\n\nMerci de presser confirmer pour continuer ou retournez en arrière pour modifier les montants.",
+  "exchange_result_confirm" : "En pressant confirmer, vous enverrez ${fetchingLabel} ${from} depuis votre wallet nommé ${walletName} vers l'adresse ci-dessous. Vous pouvez aussi envoyer depuis votre wallet externe vers l'adresse/QR code ci-dessous.\n\nMerci d'appuyer sur confirmer pour continuer ou retournez en arrière pour modifier les montants.",
   "exchange_result_description" : "Vous devez envoyer un minimum de ${fetchingLabel} ${from} à l'adresse indiquée page suivante. Si vous envoyez un montant inférieur à ${fetchingLabel} ${from} il pourrait ne pas être converti et ne pas être remboursé.",
   "exchange_result_write_down_ID" : "*Merci de copier ou écrire votre ID présenté ci-dessus.",
   "confirm" : "Confirmer",
@@ -102,7 +102,7 @@
   "expired" : "Expirée",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Envoyer XMR",
-  "exchange_new_template" : "Nouveau gabarit",
+  "exchange_new_template" : "Nouveau modèle",
 
   "faq" : "FAQ",
 
@@ -114,10 +114,10 @@
   "new_wallet" : "Nouveau Wallet",
   "wallet_name" : "Nom du Wallet",
   "continue_text" : "Continuer",
-  "choose_wallet_currency" : "Merci de choisir la monnaie du wallet :",
+  "choose_wallet_currency" : "Merci de choisir la devise du wallet :",
 
 
-  "node_new" : "Nouveau Node",
+  "node_new" : "Nouveau Nœud",
   "node_address" : "Adresse du Nœud",
   "node_port" : "Port du Nœud",
   "login" : "Utilisateur",
@@ -125,14 +125,14 @@
   "nodes" : "Nœuds",
   "node_reset_settings_title" : "Réinitialisation des réglages",
   "nodes_list_reset_to_default_message" : "Êtes vous certain de vouloir revenir aux réglages par défaut ?",
-  "change_current_node" : "Êtes vous certain de vouloir changer le nœud courant vers ${node}?",
+  "change_current_node" : "Êtes vous certain de vouloir changer le nœud actuel vers ${node}?",
   "change" : "Changer",
   "remove_node" : "Supprimer le nœud",
   "remove_node_message" : "Êtes vous certain de vouloir supprimer le nœud sélectionné ?",
   "remove" : "Supprimer",
   "delete" : "Effacer",
   "add_new_node" : "Ajouter un nouveau nœud",
-  "change_current_node_title" : "Changer le nœud courant",
+  "change_current_node_title" : "Changer le nœud actuel",
   "node_test" : "Tester",
   "node_connection_successful" : "Connexion établie avec succès",
   "node_connection_failed" : "La connexion a échoué",
@@ -158,7 +158,7 @@
   "restore_title_from_seed_keys" : "Restaurer depuis un seed ou des clefs",
   "restore_description_from_seed_keys" : "Restaurez votre wallet depuis un seed ou des clefs que vous avez stockés en lieu sûr",
   "restore_next" : "Suivant",
-  "restore_title_from_backup" : "Restaured depuis une sauvegarde",
+  "restore_title_from_backup" : "Restaurer depuis une sauvegarde",
   "restore_description_from_backup" : "Vous pouvez restaurer l'intégralité de l'application Cake Wallet depuis un fichier de sauvegarde",
   "restore_seed_keys_restore" : "Restaurer depuis Seed/Clefs",
   "restore_title_from_seed" : "Restaurer depuis seed",
@@ -176,7 +176,7 @@
   "restore_bitcoin_description_from_seed" : "Restaurer votre wallet à l'aide d'une combinaison de 24 mots",
   "restore_bitcoin_description_from_keys" : "Restaurer votre wallet d'après la chaîne WIF générée d'après vos clefs privées",
   "restore_bitcoin_title_from_keys" : "Restaurer depuis la chaîne WIF",
-  "restore_from_date_or_blockheight" : "Merci d'entrer une date antérieure de quelques jours à la date de création de votre wallet. Si vous connaissez la hauteur de bloc, merci de la spécifier plutôt qu'une date",
+  "restore_from_date_or_blockheight" : "Merci d'entrer une date antérieure de quelques jours à la date de création de votre wallet. Ou si vous connaissez la hauteur de bloc, merci de la spécifier plutôt qu'une date",
 
 
   "seed_reminder" : "Merci d'écrire votre seed au cas où vous perdriez ou effaceriez votre téléphone",
@@ -210,7 +210,7 @@
   "send_estimated_fee" : "Estimation des frais :",
   "send_priority" : "Actuellement les frais sont positionnés à la priorité ${transactionPriority}.\nLa priorité de la transaction peut être modifiée dans les réglages",
   "send_creating_transaction" : "Création de la transaction",
-  "send_templates" : "Gabarits",
+  "send_templates" : "Modèles",
   "send_new" : "Nouveau",
   "send_amount" : "Montant :",
   "send_fee" : "Frais :",
@@ -222,10 +222,10 @@
 
   "settings_title" : "Réglages",
   "settings_nodes" : "Nœuds",
-  "settings_current_node" : "Nœud courant",
+  "settings_current_node" : "Nœud actuel",
   "settings_wallets" : "Wallets",
   "settings_display_balance_as" : "Afficher le solde en",
-  "settings_currency" : "Monnaie",
+  "settings_currency" : "Devise",
   "settings_fee_priority" : "Priorité des frais",
   "settings_save_recipient_address" : "Sauvegarder l'adresse du bénéficiaire",
   "settings_personal" : "Personnel",
@@ -251,7 +251,7 @@
 
 
   "wallet_keys" : "Seed/Clefs du wallet",
-  "wallet_seed" : "Seed du waller",
+  "wallet_seed" : "Seed du wallet",
   "private_key" : "Clef privée",
   "public_key" : "Clef publique",
   "view_key_private" : "Clef d'audit (view key) (privée)",
@@ -328,7 +328,7 @@
   "error_text_minimal_limit" : "Échange pour ${provider} non créé. Le montant est inférieur au minimum : ${min} ${currency}",
   "error_text_maximum_limit" : "Échange pour ${provider} non créé. Le montant est supérieur au maximum : ${max} ${currency}",
   "error_text_limits_loading_failed" : "Échange pour ${provider} non créé. Échec de chargement des limites",
-  "error_text_template" : "Le nom du gabarit et l'adresse ne peuvet pas contenir les symboles ` , ' \"\net leur longueur doit être comprise entre 1 et 106 caractères",
+  "error_text_template" : "Le nom du modèle et l'adresse ne peuvent pas contenir les symboles ` , ' \"\net leur longueur doit être comprise entre 1 et 106 caractères",
 
 
   "auth_store_ban_timeout" : "délai de bannisement",
@@ -402,14 +402,14 @@
   "placeholder_transactions" : "Vos transactions apparaîtront ici",
   "placeholder_contacts" : "Vos contacts apparaîtront ici",
 
-  "template" : "Gabarit",
-  "confirm_delete_template" : "Cette action va supprimer ce gabarit. Souhaitez-vous continuer ?",
+  "template" : "Modèle",
+  "confirm_delete_template" : "Cette action va supprimer ce modèle. Souhaitez-vous continuer ?",
   "confirm_delete_wallet" : "Cette action va supprimer ce wallet. Souhaitez-vous contnuer ?",
 
   "picker_description" : "Pour choisir ChangeNOW ou MorphToken, merci de modifier d'abord la paire de votre échange",
 
-  "change_wallet_alert_title" : "Changer le wallet courant",
-  "change_wallet_alert_content" : "Souhaitez-vous changer le wallet courant vers ${wallet_name}?",
+  "change_wallet_alert_title" : "Changer le wallet actuel",
+  "change_wallet_alert_content" : "Souhaitez-vous changer le wallet actuel vers ${wallet_name}?",
 
   "creating_new_wallet" : "Création d'un nouveau wallet",
   "creating_new_wallet_error" : "Erreur : ${description}",
@@ -422,13 +422,13 @@
   "exchange_sync_alert_content" : "Merci d'attendre que votre wallet soit synchronisé",
 
   "pre_seed_title" : "IMPORTANT",
-  "pre_seed_description" : "Sur la page suivante vous allez voir une série de ${words} mots. Ils constituent votre seed unique et privé et sont le SEUL moyen de restaurer votre wallet en cas de perte ou de dysfonctionnement. Il est de VOTRE responsabilité d'écrire cette série de mots et de les stocker dans un lieu sûr en dehors de l'application Cake Waller.",
+  "pre_seed_description" : "Sur la page suivante vous allez voir une série de ${words} mots. Ils constituent votre seed unique et privé et sont le SEUL moyen de restaurer votre wallet en cas de perte ou de dysfonctionnement. Il est de VOTRE responsabilité d'écrire cette série de mots et de les stocker dans un lieu sûr en dehors de l'application Cake Wallet.",
   "pre_seed_button_text" : "J'ai compris. Montrez moi mon seed",
 
   "xmr_to_error" : "Erreur XMR.TO",
   "xmr_to_error_description" : "Montant invalide. La partie décimale doit contenir au plus 8 chiffres",
 
-  "provider_error" : "Errur de ${provider}",
+  "provider_error" : "Erreur de ${provider}",
 
   "use_ssl" : "Utiliser SSL",
 
@@ -452,7 +452,7 @@
   "backup_password" : "Mot de passe de sauvegarde",
   "write_down_backup_password" : "Merci d'écrire votre mot de passe de sauvegarde, vous en aurez besoin lors de la relecture de vos fichiers de sauvegarde.",
   "export_backup" : "Exporter la sauvegarde",
-  "save_backup_password" : "Please make sure that you have saved your backup password.  You will not be able to import your backup files without it.",
+  "save_backup_password" : "Merci de vous assurer d'avoir bien sauvegardé votre mot de passe de sauvegarde.  Vous ne pourrez pas restaurer vos fichiers de sauvegarde sans ce dernier.",
   "backup_file" : "Fichier de sauvegarde",
 
   "edit_backup_password" : "Modifier le Mot de Passe de Sauvegarde",
@@ -489,7 +489,7 @@
   "buy_with" : "Acheter avec",
   "moonpay_alert_text" : "Le montant doit être au moins égal à ${minAmount} ${fiatCurrency}",
 
-  "outdated_electrum_wallet_receive_warning": "Si ce wallet a un seed de 12 mots et a été créé dans Cake, NE PAS y déposer de Bitcoin. Tous les BTC transférés vers ce wallet seront perdus. Créez un nouveau wallet avec seed de 24 mots (appuyez sur le menu en haut à droite, sélectionnez Wallets puis Créer un Nouveau Wallet et enfin Bitcoin) et transférez y IMMÉDIATEMENT vos BTC. Les nouveaux wallets BTC Cake (avec seed de 24 mots) New (24-word) sont sécurisés",
+  "outdated_electrum_wallet_receive_warning": "Si ce wallet a un seed de 12 mots et a été créé dans Cake, NE PAS y déposer de Bitcoin. Tous les BTC transférés vers ce wallet seront perdus. Créez un nouveau wallet avec seed de 24 mots (appuyez sur le menu en haut à droite, sélectionnez Wallets puis Créer un Nouveau Wallet et enfin Bitcoin) et transférez y IMMÉDIATEMENT vos BTC. Les nouveaux wallets BTC Cake (avec seed de 24 mots) sont sécurisés",
   "do_not_show_me": "Ne plus me montrer ceci à l'avenir",
 
   "unspent_coins_title" : "Pièces (coins) non dépensées",
@@ -515,14 +515,14 @@
   "yat_error" : "Erreur Yat",
   "yat_error_content" : "Aucune adresse associée à ce Yat. Essayez un autre Yat",
   "choose_address" : "\n\nMerci de choisir l'adresse :",
-  "yat_popup_title" : "L'adresse de votre wallet be êyre emojifiée.",
+  "yat_popup_title" : "L'adresse de votre wallet peut être emojifiée.",
   "yat_popup_content" : "Vous pouvez à présent envoyer et recevoir des cryptos dans Cake Wallet à l'aide de votre Yat - un nom d'utilisateur court à base d'emoji. Gérér les Yats à tout moment depuis l'écran de paramétrage",
   "second_intro_title" : "Une adresse emoji pour les gouverner tous",
-  "second_intro_content" : "Votre Yat est une seule et unique adresse emoji qui remplace toutes vos longues adresses hexadécimales pour toutes vos cryptomonnaires.",
+  "second_intro_content" : "Votre Yat est une seule et unique adresse emoji qui remplace toutes vos longues adresses hexadécimales pour toutes vos cryptomonnaies.",
   "third_intro_title" : "Yat joue bien avec les autres",
   "third_intro_content" : "Les Yats existent aussi en dehors de Cake Wallet. Toute adresse sur terre peut être remplacée par un Yat !",
   "learn_more" : "En savoir plus",
 
-  "new_template" : "Nouveau Gabarit",
+  "new_template" : "Nouveau Modèle",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
 }
