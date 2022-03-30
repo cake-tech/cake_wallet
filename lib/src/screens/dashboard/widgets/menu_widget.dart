@@ -131,9 +131,8 @@ class MenuWidgetState extends State<MenuWidget> {
                               children: <Widget>[
                                 _iconFor(type: widget.dashboardViewModel.type),
                                 SizedBox(width: 12),
-                                Expanded(
+                                SingleChildScrollView(
                                     child: Container(
-                                  height: 42,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
