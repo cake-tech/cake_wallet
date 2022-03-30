@@ -14,6 +14,7 @@ import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
@@ -29,6 +30,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/themes/theme_list.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
+import 'package:cake_wallet/wallet_type_utils.dart';
 
 part 'settings_view_model.g.dart';
 
@@ -42,6 +44,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return bitcoin.getTransactionPriorities();
     case WalletType.litecoin:
       return bitcoin.getLitecoinTransactionPriorities();
+    case WalletType.haven:
+      return haven.getTransactionPriorities();
     default:
       return [];
   }
@@ -101,12 +105,13 @@ abstract class SettingsViewModelBase with Store {
             selectedItem: () => balanceDisplayMode,
             onItemSelected: (BalanceDisplayMode mode) =>
                 _settingsStore.balanceDisplayMode = mode),
-        PickerListItem(
-            title: S.current.settings_currency,
-            items: FiatCurrency.all,
-            selectedItem: () => fiatCurrency,
-            onItemSelected: (FiatCurrency currency) =>
-                setFiatCurrency(currency)),
+        if (!isHaven)
+          PickerListItem(
+              title: S.current.settings_currency,
+              items: FiatCurrency.all,
+              selectedItem: () => fiatCurrency,
+              onItemSelected: (FiatCurrency currency) =>
+                  setFiatCurrency(currency)),
         PickerListItem(
             title: S.current.settings_fee_priority,
             items: priorityForWalletType(wallet.type),

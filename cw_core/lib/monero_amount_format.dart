@@ -8,7 +8,8 @@ final moneroAmountFormat = NumberFormat()
   ..minimumFractionDigits = 1;
 
 String moneroAmountToString({int amount}) => moneroAmountFormat
-    .format(cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider));
+    .format(cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider))
+    .replaceAll(',', '');
 
 double moneroAmountToDouble({int amount}) =>
     cryptoAmountToDouble(amount: amount, divider: moneroAmountDivider);

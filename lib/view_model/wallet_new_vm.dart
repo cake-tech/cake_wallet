@@ -10,6 +10,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/haven/haven.dart';
 
 part 'wallet_new_vm.g.dart';
 
@@ -25,7 +26,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
   @observable
   String selectedMnemonicLanguage;
 
-  bool get hasLanguageSelector => type == WalletType.monero;
+  bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
   final WalletCreationService _walletCreationService;
 
@@ -39,6 +40,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
         return bitcoin.createBitcoinNewWalletCredentials(name: name);
       case WalletType.litecoin:
         return bitcoin.createBitcoinNewWalletCredentials(name: name);
+      case WalletType.haven:
+        return haven.createHavenNewWalletCredentials(
+            name: name, language: options as String);
       default:
         return null;
     }

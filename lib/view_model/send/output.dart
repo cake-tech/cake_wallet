@@ -2,7 +2,9 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobx/mobx.dart';
@@ -22,7 +24,7 @@ const String cryptoNumberPattern = '0.0';
 class Output = OutputBase with _$Output;
 
 abstract class OutputBase with Store {
-  OutputBase(this._wallet, this._settingsStore, this._fiatConversationStore)
+  OutputBase(this._wallet, this._settingsStore, this._fiatConversationStore, this.cryptoCurrencyHandler)
       : _cryptoNumberFormat = NumberFormat(cryptoNumberPattern) {
     reset();
     _setCryptoNumMaximumFractionDigits();
@@ -77,6 +79,9 @@ abstract class OutputBase with Store {
             _amount =
                 bitcoin.formatterStringDoubleToBitcoinAmount(_cryptoAmount);
             break;
+          case WalletType.haven:
+            _amount = haven.formatterMoneroParseAmount(amount: _cryptoAmount);
+            break;
           default:
             break;
         }
@@ -106,6 +111,10 @@ abstract class OutputBase with Store {
       if (_wallet.type == WalletType.monero) {
         return monero.formatterMoneroAmountToDouble(amount: fee);
       }
+
+      if (_wallet.type == WalletType.haven) {
+        return haven.formatterMoneroAmountToDouble(amount: fee);
+      }
     } catch (e) {
       print(e.toString());
     }
@@ -117,7 +126,7 @@ abstract class OutputBase with Store {
   String get estimatedFeeFiatAmount {
     try {
       final fiat = calculateFiatAmountRaw(
-          price: _fiatConversationStore.prices[_wallet.currency],
+          price: _fiatConversationStore.prices[cryptoCurrencyHandler()],
           cryptoAmount: estimatedFee);
       return fiat;
     } catch (_) {
@@ -126,6 +135,7 @@ abstract class OutputBase with Store {
   }
 
   WalletType get walletType => _wallet.type;
+  final CryptoCurrency Function() cryptoCurrencyHandler;
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final FiatConversionStore _fiatConversationStore;
@@ -169,7 +179,7 @@ abstract class OutputBase with Store {
   void _updateFiatAmount() {
     try {
       final fiat = calculateFiatAmount(
-          price: _fiatConversationStore.prices[_wallet.currency],
+          price: _fiatConversationStore.prices[cryptoCurrencyHandler()],
           cryptoAmount: cryptoAmount.replaceAll(',', '.'));
       if (fiatAmount != fiat) {
         fiatAmount = fiat;
@@ -183,7 +193,7 @@ abstract class OutputBase with Store {
   void _updateCryptoAmount() {
     try {
       final crypto = double.parse(fiatAmount.replaceAll(',', '.')) /
-          _fiatConversationStore.prices[_wallet.currency];
+          _fiatConversationStore.prices[cryptoCurrencyHandler()];
       final cryptoAmountTmp = _cryptoNumberFormat.format(crypto);
 
       if (cryptoAmount != cryptoAmountTmp) {
@@ -207,6 +217,9 @@ abstract class OutputBase with Store {
       case WalletType.litecoin:
         maximumFractionDigits = 8;
         break;
+      case WalletType.haven:
+        maximumFractionDigits = 12;
+        break;
       default:
         break;
     }
@@ -216,7 +229,7 @@ abstract class OutputBase with Store {
 
   Future<void> fetchParsedAddress(BuildContext context) async {
     final domain = address;
-    final ticker = _wallet.currency.title.toLowerCase();
+    final ticker = cryptoCurrencyHandler().title.toLowerCase();
     parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     extractedAddress = await extractAddressFromParsed(context, parsedAddress);
     note = parsedAddress.description;

@@ -196,7 +196,7 @@ class SendCardState extends State<SendCard>
                                       prefixIcon: Padding(
                                         padding: EdgeInsets.only(top: 9),
                                         child: Text(
-                                            sendViewModel.currency.title +
+                                            sendViewModel.selectedCryptoCurrency.title +
                                                 ':',
                                             style: TextStyle(
                                               fontSize: 16,
@@ -391,7 +391,7 @@ class SendCardState extends State<SendCard>
                                                   .toString() +
                                                   ' ' +
                                                   sendViewModel
-                                                      .currency.title,
+                                                      .selectedCryptoCurrency.toString(),
                                               style: TextStyle(
                                                   fontSize: 12,
                                                   fontWeight:

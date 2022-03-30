@@ -33,6 +33,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_bitcoin/electrum.dart';
 import 'package:hex/hex.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 part 'electrum_wallet.g.dart';
 
@@ -49,9 +50,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
       @required this.mnemonic,
       ElectrumClient electrumClient,
       ElectrumBalance initialBalance})
-      : balance = initialBalance ??
-            const ElectrumBalance(confirmed: 0, unconfirmed: 0),
-        hd = bitcoin.HDWallet.fromSeed(mnemonicToSeedBytes(mnemonic),
+      : hd = bitcoin.HDWallet.fromSeed(mnemonicToSeedBytes(mnemonic),
                 network: networkType)
             .derivePath("m/0'/0"),
         syncStatus = NotConnectedSyncStatus(),
@@ -59,6 +58,8 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         _feeRates = <int>[],
         _isTransactionUpdating = false,
         super(walletInfo) {
+    balance = ObservableMap<CryptoCurrency, ElectrumBalance>.of({
+          currency: initialBalance ?? const ElectrumBalance(confirmed: 0, unconfirmed: 0)});
     this.electrumClient = electrumClient ?? ElectrumClient();
     this.walletInfo = walletInfo;
     this.unspentCoinsInfo = unspentCoinsInfo;
@@ -82,7 +83,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
   @override
   @observable
-  ElectrumBalance balance;
+  ObservableMap<CryptoCurrency, ElectrumBalance> balance;
 
   @override
   @observable
@@ -233,7 +234,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
 
     final totalAmount = amount + fee;
 
-    if (totalAmount > balance.confirmed || totalAmount > allInputsAmount) {
+    if (totalAmount > balance[currency].confirmed || totalAmount > allInputsAmount) {
       throw BitcoinTransactionWrongBalanceException(currency);
     }
 
@@ -326,7 +327,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
         'account_index': walletAddresses.currentReceiveAddressIndex.toString(),
         'change_address_index': walletAddresses.currentChangeAddressIndex.toString(),
         'addresses': walletAddresses.addresses.map((addr) => addr.toJSON()).toList(),
-        'balance': balance?.toJSON()
+        'balance': balance[currency]?.toJSON()
       });
 
   int feeRate(TransactionPriority priority) {
@@ -617,7 +618,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   }
 
   Future<void> _updateBalance() async {
-    balance = await _fetchBalances();
+    balance[currency] = await _fetchBalances();
     await save();
   }
 

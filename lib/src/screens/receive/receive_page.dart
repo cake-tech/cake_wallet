@@ -109,7 +109,7 @@ class ReceivePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return addressListViewModel.type == WalletType.monero
+    return (addressListViewModel.type == WalletType.monero || addressListViewModel.type == WalletType.haven)
         ? KeyboardActions(
         config: KeyboardActionsConfig(
             keyboardActionsPlatform: KeyboardActionsPlatform.IOS,

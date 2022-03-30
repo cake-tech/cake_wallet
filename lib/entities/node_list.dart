@@ -54,12 +54,32 @@ Future<List<Node>> loadLitecoinElectrumServerList() async {
   }).toList();
 }
 
+Future<List<Node>> loadDefaultHavenNodes() async {
+  final nodesRaw = await rootBundle.loadString('assets/haven_node_list.yml');
+  final nodes = loadYaml(nodesRaw) as YamlList;
+
+  return nodes.map((dynamic raw) {
+    if (raw is Map) {
+      final node = Node.fromMap(raw);
+      node?.type = WalletType.haven;
+
+      return node;
+    }
+
+    return null;
+  }).toList();
+}
+
 Future resetToDefault(Box<Node> nodeSource) async {
   final moneroNodes = await loadDefaultNodes();
   final bitcoinElectrumServerList = await loadBitcoinElectrumServerList();
   final litecoinElectrumServerList = await loadLitecoinElectrumServerList();
+  final havenNodes = await loadDefaultHavenNodes();
   final nodes =
-      moneroNodes + bitcoinElectrumServerList + litecoinElectrumServerList;
+      moneroNodes +
+      bitcoinElectrumServerList +
+      litecoinElectrumServerList +
+      havenNodes;
 
   await nodeSource.clear();
   await nodeSource.addAll(nodes);

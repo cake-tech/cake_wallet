@@ -2,7 +2,7 @@
 
 WORKDIR=/opt/android
 CW_DIR=${WORKDIR}/cake_wallet
-CW_EXRTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
+CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do

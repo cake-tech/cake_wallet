@@ -7,8 +7,6 @@ add_library( cw_monero
 
              find_library( log-lib log )
 
-set(CMAKE_BUILD_TYPE Debug)
-
 set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../ios/External/android)
 
 ############

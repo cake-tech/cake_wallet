@@ -31,6 +31,21 @@ class AmountConverter {
         return _ethereumAmountToDouble(amount);
       case CryptoCurrency.ltc:
         return _litecoinAmountToDouble(amount);
+      case CryptoCurrency.xhv:
+      case CryptoCurrency.xag:
+      case CryptoCurrency.xau:
+      case CryptoCurrency.xaud:
+      case CryptoCurrency.xbtc:
+      case CryptoCurrency.xcad:
+      case CryptoCurrency.xchf:
+      case CryptoCurrency.xcny:
+      case CryptoCurrency.xeur:
+      case CryptoCurrency.xgbp:
+      case CryptoCurrency.xjpy:
+      case CryptoCurrency.xnok:
+      case CryptoCurrency.xnzd:
+      case CryptoCurrency.xusd:
+        return _moneroAmountToDouble(amount);
       default:
         return null;
     }
@@ -39,6 +54,21 @@ class AmountConverter {
   static int amountStringToInt(CryptoCurrency cryptoCurrency, String amount) {
     switch (cryptoCurrency) {
       case CryptoCurrency.xmr:
+        return _moneroParseAmount(amount);
+      case CryptoCurrency.xhv:
+      case CryptoCurrency.xag:
+      case CryptoCurrency.xau:
+      case CryptoCurrency.xaud:
+      case CryptoCurrency.xbtc:
+      case CryptoCurrency.xcad:
+      case CryptoCurrency.xchf:
+      case CryptoCurrency.xcny:
+      case CryptoCurrency.xeur:
+      case CryptoCurrency.xgbp:
+      case CryptoCurrency.xjpy:
+      case CryptoCurrency.xnok:
+      case CryptoCurrency.xnzd:
+      case CryptoCurrency.xusd:
         return _moneroParseAmount(amount);
       default:
         return null;
@@ -51,6 +81,21 @@ class AmountConverter {
         return _moneroAmountToString(amount);
       case CryptoCurrency.btc:
         return _bitcoinAmountToString(amount);
+      case CryptoCurrency.xhv:
+      case CryptoCurrency.xag:
+      case CryptoCurrency.xau:
+      case CryptoCurrency.xaud:
+      case CryptoCurrency.xbtc:
+      case CryptoCurrency.xcad:
+      case CryptoCurrency.xchf:
+      case CryptoCurrency.xcny:
+      case CryptoCurrency.xeur:
+      case CryptoCurrency.xgbp:
+      case CryptoCurrency.xjpy:
+      case CryptoCurrency.xnok:
+      case CryptoCurrency.xnzd:
+      case CryptoCurrency.xusd:
+        return _moneroAmountToString(amount);
       default:
         return null;
     }

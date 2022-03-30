@@ -76,6 +76,7 @@ flutter:
   assets:
     - assets/images/
     - assets/node_list.yml
+    - assets/haven_node_list.yml
     - assets/bitcoin_electrum_server_list.yml
     - assets/litecoin_electrum_server_list.yml
     - assets/text/
