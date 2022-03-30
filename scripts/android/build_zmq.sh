@@ -26,7 +26,7 @@ cd $ZMQ_SRC_DIR
 git checkout ${ZMQ_COMMIT_HASH}
 ./autogen.sh
 CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
-make
+make -j$THREADS
 make install
 
 done
