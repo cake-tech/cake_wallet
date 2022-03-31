@@ -524,7 +524,7 @@
   "third_intro_title" : "Yat는 다른 사람들과 잘 놉니다.",
   "third_intro_content" : "Yats는 Cake Wallet 밖에서도 살고 있습니다. 지구상의 모든 지갑 주소는 Yat!",
   "learn_more" : "더 알아보기",
-
+  "search": "찾다",
   "new_template" : "새 템플릿",
   "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다."
 }

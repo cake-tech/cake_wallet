@@ -524,7 +524,7 @@
   "third_intro_title" : "Yat joga bem com os outros",
   "third_intro_content" : "Yats também mora fora da Cake Wallet. Qualquer endereço de carteira na Terra pode ser substituído por um Yat!",
   "learn_more" : "Saber mais",
-
+  "search": "Procurar",
   "new_template" : "Novo modelo",
   "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando"
 }
