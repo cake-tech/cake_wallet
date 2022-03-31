@@ -7,7 +7,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 
 class BlockchainHeightWidget extends StatefulWidget {
   BlockchainHeightWidget({GlobalKey key, this.onHeightChange, this.focusNode,
-    this.onHeightOrDateEntered, this.hasDatePicker})
+    this.onHeightOrDateEntered, this.hasDatePicker = true})
       : super(key: key);
 
   final Function(int) onHeightChange;
