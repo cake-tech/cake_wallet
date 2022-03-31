@@ -1,20 +1,21 @@
 #!/bin/sh
 
+set -e
+
 . ./config.sh
 OPENSSL_FILENAME=openssl-1.1.1k.tar.gz
 OPENSSL_FILE_PATH=$WORKDIR/$OPENSSL_FILENAME
 OPENSSL_SRC_DIR=$WORKDIR/openssl-1.1.1k
 OPENSSL_SHA256="892a0875b9872acd04a9fde79b1f943075d5ea162415de3047c327df33fbaee5"
-ZLIB_FILENAME=zlib-1.2.11.tar.gz
-ZLIB_FILE_PATH=$WORKDIR/$ZLIB_FILENAME
-ZLIB_SRC_DIR=$WORKDIR/zlib-1.2.11
-ZLIB_SHA256="c3e5e9fdd5004dcb542feda5ee4f0ff0744628baf8ed2dd5d66f8ca1197cb1a1"
+ZLIB_DIR=$WORKDIR/zlib
+ZLIB_TAG=v1.2.11
+ZLIB_COMMIT_HASH="cacf7f1d4e3d44d871b605da3b647f07d718623f"
 
-curl https://zlib.net/$ZLIB_FILENAME -o $ZLIB_FILE_PATH
-echo $ZLIB_SHA256 $ZLIB_FILE_PATH | sha256sum -c - || exit 1
-
-tar -xzf $ZLIB_FILE_PATH -C $WORKDIR
-cd $ZLIB_SRC_DIR
+if [ ! -d "$ZLIB_DIR" ] ; then
+  git clone -b $ZLIB_TAG --depth 1 https://github.com/madler/zlib $ZLIB_DIR
+fi
+cd $ZLIB_DIR
+git reset --hard $ZLIB_COMMIT_HASH
 CC=clang CXX=clang++ ./configure --static
 make
 
