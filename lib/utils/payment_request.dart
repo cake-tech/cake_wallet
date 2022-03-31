@@ -1,18 +1,18 @@
 class PaymentRequest {
-  String address;
-  String amount;
+  PaymentRequest(this.address, this.amount);
 
-  static PaymentRequest fromUri(Uri uri) {
-    final PaymentRequest pr = new PaymentRequest();
-
-    pr.address = "";
-    pr.amount = "";
+  factory PaymentRequest.fromUri(Uri uri) {
+    var address = "";
+    var amount = "";
 
     if (uri != null) {
-      pr.address = uri.path;
-      pr.amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'];
+      address = uri.path;
+      amount = uri.queryParameters['tx_amount'] ?? uri.queryParameters['amount'] ?? "";
     }
 
-    return pr;
+    return PaymentRequest(address, amount);
   }
+
+  final String address;
+  final String amount;
 }
