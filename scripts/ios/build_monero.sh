@@ -4,7 +4,7 @@
 
 MONERO_URL="https://github.com/monero-project/monero.git"
 MONERO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/monero"
-MONERO_VERSION=tags/v0.17.2.3
+MONERO_VERSION=tags/v0.17.3.0
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
 
