@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/utils/payment_request.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -114,19 +115,9 @@ class SendCardState extends State<SendCard>
                         focusNode: addressFocusNode,
                         controller: addressController,
                         onURIScanned: (uri) {
-                          var address = '';
-                          var amount = '';
-
-                          if (uri != null) {
-                            address = uri.path;
-                            amount = uri.queryParameters['tx_amount'] ??
-                                uri.queryParameters['amount'];
-                          } else {
-                            address = uri.toString();
-                          }
-
-                          addressController.text = address;
-                          cryptoAmountController.text = amount;
+                          final paymentRequest = PaymentRequest.fromUri(uri);
+                          addressController.text = paymentRequest.address;
+                          cryptoAmountController.text = paymentRequest.amount;
                         },
                         options: [
                           AddressTextFieldOption.paste,

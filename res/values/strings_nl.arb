@@ -78,7 +78,8 @@
   "min_value" : "Min: ${value} ${currency}",
   "max_value" : "Max: ${value} ${currency}",
   "change_currency" : "Verander valuta",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "ID kopiëren",
   "exchange_result_write_down_trade_id" : "Kopieer of noteer de handels-ID om door te gaan.",

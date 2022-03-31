@@ -78,7 +78,8 @@
   "min_value" : "Min.: ${value} ${currency}",
   "max_value" : "Maks.: ${value} ${currency}",
   "change_currency" : "Promijenite valutu",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "Kopirati ID",
   "exchange_result_write_down_trade_id" : "Molimo kopirajte ili zapišite transakcijski ID za nastavak.",

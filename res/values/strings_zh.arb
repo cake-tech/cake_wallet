@@ -78,7 +78,8 @@
   "min_value" : "最低: ${value} ${currency}",
   "max_value" : "最高: ${value} ${currency}",
   "change_currency" : "更改币种",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "复制ID",
   "exchange_result_write_down_trade_id" : "请复制或写下交易编号以继续.",
