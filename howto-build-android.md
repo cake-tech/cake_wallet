@@ -112,6 +112,13 @@ Build the Monero libraries and their dependencies:
 
 `$ ./build_all.sh`
 
+**Note:** If you have trouble building the dependencies on your system, try using the Dockerfile:
+
+```bash
+$ docker build -t cakewallet/build_env .
+$ docker run --rm -v /opt/android:/opt/android -e "APP_ANDROID_TYPE=cakewallet" cakewallet/build_env ./build_all.sh
+```
+
 Now the dependencies need to be copied into the CakeWallet project with this command:
 
 `$ ./copy_monero_deps.sh`
