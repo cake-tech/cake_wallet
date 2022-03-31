@@ -112,17 +112,6 @@ Future<void> main() async {
     if (!isMoneroOnly) {
       unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     }
-
-    FlutterError.onError = (FlutterErrorDetails details) {
-      runApp(MaterialApp(
-        debugShowCheckedModeBanner: true,
-        home: Scaffold(
-          body: Container(
-              margin: EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 20),
-              child: Text(
-                'Error:\n${details.stack.toString()}',
-                style: TextStyle(fontSize: 22))))));
-    };
     
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
