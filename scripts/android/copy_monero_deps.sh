@@ -1,4 +1,4 @@
-# /bin/bash
+#!/bin/bash
 
 WORKDIR=/opt/android
 CW_DIR=${WORKDIR}/cake_wallet

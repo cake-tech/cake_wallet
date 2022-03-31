@@ -1,4 +1,4 @@
-# /bin/bash
+#!/bin/bash
 
 ./build_iconv.sh
 ./build_boost.sh
