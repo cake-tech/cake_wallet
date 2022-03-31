@@ -49,7 +49,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
             tag: CurrencyUtils.tagForCurrency(cur),
             description: CurrencyUtils.descriptionForCurrency(cur)))
         .toList();
-    cleanSubPickerItemsList;
+    cleanSubPickerItemsList();
     super.initState();
   }
 
@@ -60,8 +60,8 @@ class CurrencyPickerState extends State<CurrencyPicker> {
   List<PickerItem<CryptoCurrency>> subPickerItemsList;
   TextStyle appBarTextStyle;
 
-  List<PickerItem<CryptoCurrency>> cleanSubPickerItemsList() {
-    return subPickerItemsList = pickerItemsList
+  void cleanSubPickerItemsList() {
+    subPickerItemsList = pickerItemsList
         .where((element) => items.contains(element.original))
         .toList();
   }
@@ -76,7 +76,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                 element.description.contains(subString.toLowerCase()))
             .toList();
       } else {
-        cleanSubPickerItemsList;
+        cleanSubPickerItemsList();
       }
     });
   }
@@ -127,9 +127,10 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                         style: appBarTextStyle,
                                         onChanged: (value) {
                                           this.textFieldValue = value;
+                                          cleanSubPickerItemsList();
                                           currencySearchBySubstring(
                                               textFieldValue,
-                                              cleanSubPickerItemsList());
+                                              subPickerItemsList);
                                         }),
                                   )
                                 ],
