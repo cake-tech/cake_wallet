@@ -7,6 +7,8 @@ HAVEN_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/haven"
 HAVEN_VERSION=tags/v2.2.2
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
+DEST_LIB_DIR=${EXTERNAL_IOS_LIB_DIR}/haven
+DEST_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR}/haven
 
 echo "Cloning haven from - $HAVEN_URL to - $HAVEN_DIR_PATH"		
 git clone $HAVEN_URL $HAVEN_DIR_PATH
@@ -55,8 +57,8 @@ popd
 
 done
 
-mkdir -p $EXTERNAL_IOS_LIB_DIR/haven
-mkdir -p $EXTERNAL_IOS_INCLUDE_DIR/haven
 #only for arm64
-cp ${HAVEN_DIR_PATH}/lib-armv8-a/* $EXTERNAL_IOS_LIB_DIR/haven
-cp ${HAVEN_DIR_PATH}/include/wallet/api/* $EXTERNAL_IOS_INCLUDE_DIR/haven
+mkdir -p $DEST_LIB_DIR
+mkdir -p $DEST_INCLUDE_DIR
+cp ${HAVEN_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
+cp ${HAVEN_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR

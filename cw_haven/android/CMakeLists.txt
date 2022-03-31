@@ -6,7 +6,7 @@ add_library( cw_haven
 
              find_library( log-lib log )
 
-set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../ios/External/android)
+set(EXTERNAL_LIBS_DIR ${CMAKE_SOURCE_DIR}/../../cw_shared_external/ios/External/android)
 
 ############
 # libsodium

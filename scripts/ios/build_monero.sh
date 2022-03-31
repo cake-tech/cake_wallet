@@ -7,6 +7,8 @@ MONERO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/monero"
 MONERO_VERSION=tags/v0.17.3.0
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
+DEST_LIB_DIR=${EXTERNAL_IOS_LIB_DIR}/monero
+DEST_INCLUDE_DIR=${EXTERNAL_IOS_INCLUDE_DIR}/monero
 
 echo "Cloning monero from - $MONERO_URL to - $MONERO_DIR_PATH"		
 git clone $MONERO_URL $MONERO_DIR_PATH
@@ -57,5 +59,7 @@ popd
 done
 
 #only for arm64
-cp ${MONERO_DIR_PATH}/lib-armv8-a/* $EXTERNAL_IOS_LIB_DIR
-cp ${MONERO_DIR_PATH}/include/wallet/api/* $EXTERNAL_IOS_INCLUDE_DIR
+mkdir -p $DEST_LIB_DIR
+mkdir -p $DEST_INCLUDE_DIR
+cp ${MONERO_DIR_PATH}/lib-armv8-a/* $DEST_LIB_DIR
+cp ${MONERO_DIR_PATH}/include/wallet/api/* $DEST_INCLUDE_DIR
