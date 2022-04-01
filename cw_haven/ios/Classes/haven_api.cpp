@@ -11,7 +11,7 @@
 void __clear_cache(void* start, void* end) { }
 #include "../External/ios/include/wallet2_api.h"
 #else
-#include "../External/include/wallet2_api.h"
+#include "../External/android/include/wallet2_api.h"
 #endif
 
 using namespace std::chrono_literals;
