@@ -51,7 +51,7 @@ CC=clang ANDROID_NDK=$TOOLCHAIN \
 	--openssldir=${PREFIX} \
 	-D__ANDROID_API__=$API 
 make -j$THREADS
-make install
+make -j$THREADS install_sw
 
 done
 
