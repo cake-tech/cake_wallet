@@ -3,7 +3,8 @@
 WORKDIR=/opt/android
 CW_DIR=${WORKDIR}/cake_wallet
 CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
-
+CW_HAVEN_EXTERNAL_DIR=${CW_DIR}/cw_haven/ios/External
+CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
 
@@ -32,3 +33,9 @@ cp -r ${PREFIX}/include/* $INCLUDE_DIR
 
 
 done
+
+mkdir -p ${CW_HAVEN_EXTERNAL_DIR}/include
+mkdir -p ${CW_MONERO_EXTERNAL_DIR}/include
+
+cp $CW_EXRTERNAL_DIR/x86/include/monero/wallet2_api.h ${CW_MONERO_EXTERNAL_DIR}/include
+cp $CW_EXRTERNAL_DIR/x86/include/haven/wallet2_api.h ${CW_HAVEN_EXTERNAL_DIR}/include
