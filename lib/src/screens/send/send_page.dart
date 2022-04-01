@@ -355,8 +355,7 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is ExecutedSuccessfullyState &&
-          !sendViewModel.isBatchSending) {
+      if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
