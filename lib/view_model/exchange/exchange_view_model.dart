@@ -31,7 +31,8 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore) {
-    const excludeCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb];
+    const excludeDepositCurrencies = [CryptoCurrency.xhv];
+    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
     providerList = [ChangeNowExchangeProvider()];
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
@@ -55,7 +56,10 @@ abstract class ExchangeViewModelBase with Store {
       }
     });
     receiveCurrencies = CryptoCurrency.all
-      .where((cryptoCurrency) => !excludeCurrencies.contains(cryptoCurrency))
+      .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
+      .toList();
+    depositCurrencies = CryptoCurrency.all
+      .where((cryptoCurrency) => !excludeDepositCurrencies.contains(cryptoCurrency))
       .toList();
     isReverse = false;
     isFixedRateMode = false;
@@ -130,6 +134,8 @@ abstract class ExchangeViewModelBase with Store {
   bool get isMoneroWallet  => wallet.type == WalletType.monero;
 
   List<CryptoCurrency> receiveCurrencies;
+
+  List<CryptoCurrency> depositCurrencies;
 
   Limits limits;
 

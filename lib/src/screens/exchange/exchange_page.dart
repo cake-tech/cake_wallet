@@ -202,7 +202,7 @@ class ExchangePage extends BasePage {
                                 isAmountEstimated: false,
                                 hasRefundAddress: true,
                                 isMoneroWallet: exchangeViewModel.isMoneroWallet,
-                                currencies: CryptoCurrency.all,
+                                currencies: exchangeViewModel.depositCurrencies,
                                 onCurrencySelected: (currency) {
                                   // FIXME: need to move it into view model
                                   if (currency == CryptoCurrency.xmr &&
