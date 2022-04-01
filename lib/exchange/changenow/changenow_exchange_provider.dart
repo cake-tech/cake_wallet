@@ -269,4 +269,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
 
   }
+
+  @override
+  bool get isEnabled => true;
 }

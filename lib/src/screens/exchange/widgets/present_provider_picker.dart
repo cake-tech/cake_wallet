@@ -38,7 +38,7 @@ class PresentProviderPicker extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                         color: Colors.white)),
                 Observer(
-                    builder: (_) => Text('${exchangeViewModel.provider.title}',
+                    builder: (_) => Text(exchangeViewModel.providerTitle,
                         style: TextStyle(
                             fontSize: 10.0,
                             fontWeight: FontWeight.w500,
@@ -55,8 +55,7 @@ class PresentProviderPicker extends StatelessWidget {
   }
 
   void _presentProviderPicker(BuildContext context) {
-    final items = exchangeViewModel.providersForCurrentPair();
-    final selectedItem = items.indexOf(exchangeViewModel.provider);
+    final items = exchangeViewModel.providerList;
     final images = <Image>[];
     String description;
 
@@ -75,25 +74,26 @@ class PresentProviderPicker extends StatelessWidget {
     }
 
     showPopUp<void>(
-        builder: (BuildContext popUpContext) => Picker(
-            items: items,
-            images: images,
-            selectedAtIndex: selectedItem,
-            title: S.of(context).change_exchange_provider,
-            description: description,
-            onItemSelected: (ExchangeProvider provider) {
-              if (!provider.isAvailable) {
-                showPopUp<void>(
-                    builder: (BuildContext popUpContext) => AlertWithOneAction(
-                        alertTitle: 'Error',
-                        alertContent: 'The exchange is blocked in your region.',
-                        buttonText: S.of(context).ok,
-                        buttonAction: () => Navigator.of(context).pop()),
-                    context: context);
-                return;
-              }
-              exchangeViewModel.changeProvider(provider: provider);
-            }),
+        builder: (BuildContext popUpContext) => StatefulBuilder(
+          builder: (_, setState) {
+            return Picker(
+                items: items,
+                images: images,
+                showCheckBox: true,
+                selectedAtIndex: 0,
+                disableItem: exchangeViewModel.isUnavailable,
+                title: S.of(context).change_exchange_provider,
+                checkboxValue: exchangeViewModel.isSelected,
+                description: description,
+                onChangeCheckbox: (ExchangeProvider provider, bool value){
+                  setState((){
+                     exchangeViewModel.selectProvider(provider: provider, select: value); 
+                  });
+                },
+                onItemSelected: null
+              );
+          }
+        ),
         context: context);
   }
 }

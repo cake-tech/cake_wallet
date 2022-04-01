@@ -1,3 +1,7 @@
+import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/exchange/selected_exchange_provider.dart';
+import 'package:cake_wallet/store/selected_exchange_provider_store.dart';
+import 'package:cake_wallet/view_model/exchange/provider_price.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -23,6 +27,7 @@ import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dar
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_request.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'exchange_view_model.g.dart';
 
@@ -30,10 +35,29 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore) {
+      this.tradesStore, this._settingsStore, this._selectedExchangeProviderStore, 
+      this.sharedPreferences,) {
     const excludeCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb];
-    providerList = [ChangeNowExchangeProvider()];
+    providerList = [
+      ChangeNowExchangeProvider(), 
+      XMRTOExchangeProvider(), 
+      MorphTokenExchangeProvider(trades: trades)
+      ];
     _initialPairBasedOnWallet();
+    _storeDefaultProviders();
+    _lookupPrices().then((_) {
+         providerPrices.sort((a,b) => a.price.compareTo(b.price));
+         provider = providerPrices.first.provider;
+            loadLimits();
+        provider.checkIsAvailable().then((bool isAvailable) {
+        if (!isAvailable) {
+        provider = providerList.firstWhere(
+            (provider) => provider is ChangeNowExchangeProvider,
+            orElse: () => providerList.last);
+        _onPairChange();
+      }
+     });
+    });
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     depositAmount = '';
@@ -44,16 +68,7 @@ abstract class ExchangeViewModelBase with Store {
     limitsState = LimitsInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
-    provider = providersForCurrentPair().first;
-    final initialProvider = provider;
-    provider.checkIsAvailable().then((bool isAvailable) {
-      if (!isAvailable && provider == initialProvider) {
-        provider = providerList.firstWhere(
-            (provider) => provider is ChangeNowExchangeProvider,
-            orElse: () => providerList.last);
-        _onPairChange();
-      }
-    });
+   
     receiveCurrencies = CryptoCurrency.all
       .where((cryptoCurrency) => !excludeCurrencies.contains(cryptoCurrency))
       .toList();
@@ -61,7 +76,7 @@ abstract class ExchangeViewModelBase with Store {
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
     _defineIsReceiveAmountEditable();
-    loadLimits();
+
     reaction(
       (_) => isFixedRateMode,
       (Object _) => loadLimits());
@@ -70,8 +85,9 @@ abstract class ExchangeViewModelBase with Store {
   final WalletBase wallet;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
+  final SelectedExchangeProviderStore _selectedExchangeProviderStore;
   final TradesStore tradesStore;
-
+  
   @observable
   ExchangeProvider provider;
 
@@ -118,11 +134,21 @@ abstract class ExchangeViewModelBase with Store {
   bool isFixedRateMode;
 
   @computed
+  String get providerTitle => selectedExchangeProviders.length == 1 ? selectedExchangeProviders.first.provider : 'AUTOMATIC';
+
+  @computed
+  List<String> get savedProvidersTitle  => selectedExchangeProviders.map((e) => e.provider).toList();
+
+  @computed
   SyncStatus get status => wallet.syncStatus;
 
   @computed
   ObservableList<ExchangeTemplate> get templates =>
       _exchangeTemplateStore.templates;
+
+   @computed
+  ObservableList<SelectedExchangeProvider> get selectedExchangeProviders =>
+      _selectedExchangeProviderStore.selectedProviders;
 
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
@@ -130,6 +156,8 @@ abstract class ExchangeViewModelBase with Store {
   bool get isMoneroWallet  => wallet.type == WalletType.monero;
 
   List<CryptoCurrency> receiveCurrencies;
+
+  List<ProviderPrice> providerPrices = [];
 
   Limits limits;
 
@@ -139,6 +167,8 @@ abstract class ExchangeViewModelBase with Store {
 
   SettingsStore _settingsStore;
 
+  SharedPreferences sharedPreferences;
+
   @action
   void changeProvider({ExchangeProvider provider}) {
     this.provider = provider;
@@ -147,6 +177,17 @@ abstract class ExchangeViewModelBase with Store {
     isFixedRateMode = false;
     _defineIsReceiveAmountEditable();
     loadLimits();
+  }
+
+  @action
+  void selectProvider({ExchangeProvider provider, bool select}) {
+    if(select){
+    _selectedExchangeProviderStore.selectProvider(provider: provider);
+    }else{
+    final result  = selectedExchangeProviders.where((e) => e.provider == provider.title);
+    _selectedExchangeProviderStore.remove(provider: result.first);
+   _selectedExchangeProviderStore.update();
+    }
   }
 
   @action
@@ -371,45 +412,57 @@ abstract class ExchangeViewModelBase with Store {
   void removeTemplate({ExchangeTemplate template}) =>
       _exchangeTemplateStore.remove(template: template);
 
-  List<ExchangeProvider> providersForCurrentPair() {
-    return _providersForPair(from: depositCurrency, to: receiveCurrency);
-  }
 
-  List<ExchangeProvider> _providersForPair(
-      {CryptoCurrency from, CryptoCurrency to}) {
-    final providers = providerList
-        .where((provider) => provider.pairList
+  bool isUnavailable(dynamic exchangeProvider){
+    final provider = exchangeProvider as ExchangeProvider;
+    return  provider.pairList
             .where((pair) =>
                 pair.from == depositCurrency && pair.to == receiveCurrency)
-            .isNotEmpty)
-        .toList();
-
-    return providers;
+            .isEmpty;
   }
+  
 
   void _onPairChange() {
-    final isPairExist = provider.pairList
-        .where((pair) =>
-            pair.from == depositCurrency && pair.to == receiveCurrency)
-        .isNotEmpty;
-
-    if (isPairExist) {
-      final provider =
-          _providerForPair(from: depositCurrency, to: receiveCurrency);
-
-      if (provider != null) {
-        changeProvider(provider: provider);
-      }
-    } else {
       depositAmount = '';
       receiveAmount = '';
-    }
   }
 
-  ExchangeProvider _providerForPair({CryptoCurrency from, CryptoCurrency to}) {
-    final providers = _providersForPair(from: from, to: to);
-    return providers.isNotEmpty ? providers[0] : null;
+ Future<void> _lookupPrices()async{
+    await Future.forEach(providerList, (ExchangeProvider provider)  {
+        provider
+        .calculateAmount(
+            from: receiveCurrency,
+            to: depositCurrency,
+            amount: 1,
+            isFixedRateMode: isFixedRateMode,
+            isReceiveAmount: true)
+        .then((amount) => _cryptoNumberFormat
+            .format(amount)
+            .toString()
+            .replaceAll(RegExp('\\,'), ''))
+        .then((amount) {
+          providerPrices.add(ProviderPrice(provider: provider, price: double.parse(amount)));
+        });
+    });
+ }
+
+  void _storeDefaultProviders(){
+     final savedDefaults = sharedPreferences.getBool(PreferencesKey.savedDefaultExchangeProviders) ?? false;
+     final enabledProviders = providerList.where((e) => e.isEnabled).toList();
+     if(!savedDefaults){
+       for (var i = 0; i < enabledProviders.length; i++) {
+         selectProvider(provider: enabledProviders[i], select: true);
+       }
+       sharedPreferences.setBool(PreferencesKey.savedDefaultExchangeProviders, true);
+     }
   }
+
+
+  bool isSelected(ExchangeProvider provider){
+    final selected = savedProvidersTitle.contains(provider.title);
+    return selected;
+  }
+
 
   void _initialPairBasedOnWallet() {
     switch (wallet.type) {

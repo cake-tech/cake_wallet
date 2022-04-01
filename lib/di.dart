@@ -1,9 +1,11 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/exchange/selected_exchange_provider.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/store/selected_exchange_provider_store.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -132,6 +134,7 @@ Box<Contact> _contactSource;
 Box<Trade> _tradesSource;
 Box<Template> _templates;
 Box<ExchangeTemplate> _exchangeTemplates;
+Box<SelectedExchangeProvider> _selectedExchangeProvider;
 Box<TransactionDescription> _transactionDescriptionBox;
 Box<Order> _ordersSource;
 Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
@@ -143,6 +146,7 @@ Future setup(
     Box<Trade> tradesSource,
     Box<Template> templates,
     Box<ExchangeTemplate> exchangeTemplates,
+    Box<SelectedExchangeProvider> selectedExchangeProvider,
     Box<TransactionDescription> transactionDescriptionBox,
     Box<Order> ordersSource,
     Box<UnspentCoinsInfo> unspentCoinsInfoSource}) async {
@@ -152,6 +156,7 @@ Future setup(
   _tradesSource = tradesSource;
   _templates = templates;
   _exchangeTemplates = exchangeTemplates;
+  _selectedExchangeProvider = selectedExchangeProvider;
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
@@ -195,6 +200,8 @@ Future setup(
       SendTemplateStore(templateSource: _templates));
   getIt.registerSingleton<ExchangeTemplateStore>(
       ExchangeTemplateStore(templateSource: _exchangeTemplates));
+  getIt.registerSingleton<SelectedExchangeProviderStore>(
+      SelectedExchangeProviderStore(selectedProviderSource: _selectedExchangeProvider));
   getIt.registerSingleton<YatStore>(YatStore(
       appStore: getIt.get<AppStore>(),
       secureStorage: getIt.get<FlutterSecureStorage>())
@@ -447,7 +454,10 @@ Future setup(
       _tradesSource,
       getIt.get<ExchangeTemplateStore>(),
       getIt.get<TradesStore>(),
-      getIt.get<AppStore>().settingsStore));
+      getIt.get<AppStore>().settingsStore, 
+      getIt.get<SelectedExchangeProviderStore>(),
+      getIt.get<SharedPreferences>()
+      ));
 
   getIt.registerFactory(() => ExchangeTradeViewModel(
       wallet: getIt.get<AppStore>().wallet,

@@ -222,4 +222,7 @@ class XMRTOExchangeProvider extends ExchangeProvider {
   }
 
   double _limitsFormat(double limit) => double.parse(limit.toStringAsFixed(3));
+
+  @override
+  bool get isEnabled => false;
 }

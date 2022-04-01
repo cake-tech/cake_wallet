@@ -13,6 +13,10 @@ class Picker<Item extends Object> extends StatefulWidget {
     @required this.title,
     @required this.onItemSelected,
     this.displayItem,
+    this.onChangeCheckbox,
+    this.checkboxValue,
+    this.showCheckBox = false,
+    this.disableItem,
     this.images,
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
@@ -24,19 +28,25 @@ class Picker<Item extends Object> extends StatefulWidget {
   final String title;
   final String description;
   final Function(Item) onItemSelected;
+  final Function(Item, bool) onChangeCheckbox;
   final MainAxisAlignment mainAxisAlignment;
   final String Function(Item) displayItem;
+  final bool Function(Item) checkboxValue;
+  final bool Function(Item) disableItem;
+  final bool showCheckBox;
 
   @override
-  PickerState createState() => PickerState<Item>(items, images, onItemSelected);
+  PickerState createState() => PickerState<Item>(items, images, onItemSelected, onChangeCheckbox, checkboxValue);
 }
 
 class PickerState<Item> extends State<Picker> {
-  PickerState(this.items, this.images, this.onItemSelected);
+  PickerState(this.items, this.images, this.onItemSelected, this.onChangeCheckbox, this.checkboxValue);
 
   final Function(Item) onItemSelected;
   final List<Item> items;
   final List<Image> images;
+  final Function(Item, bool) onChangeCheckbox;
+  final bool Function(Item) checkboxValue;
 
   final closeButton = Image.asset(
     'assets/images/close.png',
@@ -47,6 +57,8 @@ class PickerState<Item> extends State<Picker> {
   final double backgroundHeight = 193;
   final double thumbHeight = 72;
   double fromTop = 0;
+
+   
 
   @override
   Widget build(BuildContext context) {
@@ -97,9 +109,12 @@ class PickerState<Item> extends State<Picker> {
                             padding: EdgeInsets.all(0),
                             controller: controller,
                             separatorBuilder: (context, index) => Divider(
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .title
+                              color: widget.showCheckBox ? Theme.of(context)
+                                      .primaryTextTheme
+                                      .title
+                                  .color : Theme.of(context)
+                                      .primaryTextTheme
+                                      .title
                                   .backgroundColor,
                               height: 1,
                             ),
@@ -111,18 +126,21 @@ class PickerState<Item> extends State<Picker> {
                               final isItemSelected =
                                   index == widget.selectedAtIndex;
 
-                              final color = isItemSelected
+                              final color = isItemSelected && !widget.showCheckBox
                                   ? Theme.of(context).textTheme.body2.color
                                   : Theme.of(context)
                                       .accentTextTheme
                                       .title
                                       .color;
-                              final textColor = isItemSelected
+                                      final disabledColor = Colors.grey.shade300;
+                                      final enabledColor = isItemSelected && !widget.showCheckBox
                                   ? Palette.blueCraiola
                                   : Theme.of(context)
                                       .primaryTextTheme
                                       .title
                                       .color;
+
+                              final textColor = widget.disableItem?.call(item) ?? false ? disabledColor : enabledColor;
 
                               return GestureDetector(
                                 onTap: () {
@@ -142,6 +160,23 @@ class PickerState<Item> extends State<Picker> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: <Widget>[
+                                     if(widget.showCheckBox)
+                                      Material(
+                                      color: Colors.transparent,
+                                        child: SizedBox(
+                                        height: 24.0,
+                                        width: 24.0, child:Theme(
+                                        data: ThemeData(unselectedWidgetColor: Colors.grey.shade300),
+                                        child: Checkbox(
+                                            checkColor: Colors.white,
+                                            value: checkboxValue?.call(item) ?? false,
+                                            onChanged: (bool value) {
+                                                 onChangeCheckbox.call(item, value);
+                                            },
+                                            ),
+                                        ),
+                                        ),
+                                      ) else
                                       image ?? Offstage(),
                                       Padding(
                                         padding: EdgeInsets.only(

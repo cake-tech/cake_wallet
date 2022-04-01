@@ -205,4 +205,7 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
       return 0.0;
     }
   }
+
+  @override
+  bool get isEnabled => false;
 }

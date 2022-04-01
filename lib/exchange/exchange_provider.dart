@@ -8,12 +8,12 @@ import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 
 abstract class ExchangeProvider {
   ExchangeProvider({this.pairList});
-  
+  bool isEnabled;
   String get title;
   List<ExchangePair> pairList;
   ExchangeProviderDescription description;
   bool get isAvailable;
-
+  
   @override
   String toString() => title;
 

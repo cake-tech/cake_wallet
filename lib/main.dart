@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/exchange/selected_exchange_provider.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -87,6 +88,10 @@ Future<void> main() async {
       Hive.registerAdapter(UnspentCoinsInfoAdapter());
     }
 
+     if (!Hive.isAdapterRegistered(SelectedExchangeProvider.typeId)) {
+      Hive.registerAdapter(SelectedExchangeProviderAdapter());
+    }
+
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -107,6 +112,8 @@ Future<void> main() async {
     final templates = await Hive.openBox<Template>(Template.boxName);
     final exchangeTemplates =
         await Hive.openBox<ExchangeTemplate>(ExchangeTemplate.boxName);
+     final selectedExchangeProviders =
+        await Hive.openBox<SelectedExchangeProvider>(SelectedExchangeProvider.boxName);
     Box<UnspentCoinsInfo> unspentCoinsInfoSource;
     
     if (!isMoneroOnly) {
@@ -124,6 +131,7 @@ Future<void> main() async {
         // fiatConvertationService: fiatConvertationService,
         templates: templates,
         exchangeTemplates: exchangeTemplates,
+        selectedExchangeProvider: selectedExchangeProviders,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
         initialMigrationVersion: 15);
@@ -152,6 +160,7 @@ Future<void> initialSetup(
     // @required FiatConvertationService fiatConvertationService,
     @required Box<Template> templates,
     @required Box<ExchangeTemplate> exchangeTemplates,
+    @required Box<SelectedExchangeProvider> selectedExchangeProvider,
     @required Box<TransactionDescription> transactionDescriptions,
     @required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     FlutterSecureStorage secureStorage,
@@ -172,6 +181,7 @@ Future<void> initialSetup(
       tradesSource: tradesSource,
       templates: templates,
       exchangeTemplates: exchangeTemplates,
+      selectedExchangeProvider: selectedExchangeProvider,
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       unspentCoinsInfoSource: unspentCoinsInfoSource);
