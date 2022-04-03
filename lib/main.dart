@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
@@ -112,6 +113,9 @@ Future<void> main() async {
     if (!isMoneroOnly) {
       unspentCoinsInfoSource = await Hive.openBox<UnspentCoinsInfo>(UnspentCoinsInfo.boxName);
     }
+
+    final walletsDir = Directory('${appDir.path}/wallets/');
+    final wallets = walletsDir.listSync(recursive: true);
     
     await initialSetup(
         sharedPreferences: await SharedPreferences.getInstance(),
@@ -127,7 +131,14 @@ Future<void> main() async {
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
         initialMigrationVersion: 16);
-    runApp(App());
+    runApp(
+      MaterialApp(
+        debugShowCheckedModeBanner: true,
+        home: Scaffold(
+            body:  ListView.builder(itemBuilder: (_, int i) {
+        final wallet = wallets[i];
+        return Text(wallet.path);
+      }, itemCount: wallets.length))));
   } catch (e) {
     runApp(MaterialApp(
         debugShowCheckedModeBanner: true,
