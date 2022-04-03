@@ -13,27 +13,8 @@ import 'package:hive/hive.dart';
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/monero_transaction_priority.dart';
-import 'package:cw_haven/haven_wallet_service.dart';
-import 'package:cw_haven/haven_wallet.dart';
-import 'package:cw_haven/haven_transaction_info.dart';
-import 'package:cw_haven/haven_transaction_history.dart';
-import 'package:cw_core/account.dart' as monero_account;
-import 'package:cw_haven/api/wallet.dart' as monero_wallet_api;
-import 'package:cw_haven/mnemonics/english.dart';
-import 'package:cw_haven/mnemonics/chinese_simplified.dart';
-import 'package:cw_haven/mnemonics/dutch.dart';
-import 'package:cw_haven/mnemonics/german.dart';
-import 'package:cw_haven/mnemonics/japanese.dart';
-import 'package:cw_haven/mnemonics/russian.dart';
-import 'package:cw_haven/mnemonics/spanish.dart';
-import 'package:cw_haven/mnemonics/portuguese.dart';
-import 'package:cw_haven/mnemonics/french.dart';
-import 'package:cw_haven/mnemonics/italian.dart';
-import 'package:cw_haven/haven_transaction_creation_credentials.dart';
 
-part 'cw_haven.dart';
-
-Haven haven = CWHaven();
+Haven haven;
 
 class Account {
   Account({this.id, this.label});
