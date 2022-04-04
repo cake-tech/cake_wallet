@@ -1,9 +1,9 @@
 #!/bin/sh
 
 . ./config.sh
-BOOST_SRC_DIR=$WORKDIR/boost_1_75_0
-BOOST_FILENAME=boost_1_75_0.tar.bz2
-BOOST_VERSION=1.75.0
+BOOST_SRC_DIR=$WORKDIR/boost_1_72_0
+BOOST_FILENAME=boost_1_72_0.tar.bz2
+BOOST_VERSION=1.72.0
 
 for arch in "aarch" "aarch64" "i686" "x86_64"
 do
