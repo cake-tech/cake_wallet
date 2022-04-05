@@ -1,7 +1,7 @@
 #!/bin/bash
 
-WORKDIR=/opt/android
-CW_DIR=${WORKDIR}/cake_wallet
+WORKDIR="$(pwd)/"build
+CW_DIR=${WORKDIR}/flutter_libmonero
 CW_EXRTERNAL_DIR=${CW_DIR}/cw_shared_external/ios/External/android
 CW_HAVEN_EXTERNAL_DIR=${CW_DIR}/cw_haven/ios/External/android
 CW_MONERO_EXTERNAL_DIR=${CW_DIR}/cw_monero/ios/External/android
