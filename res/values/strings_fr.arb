@@ -52,7 +52,7 @@
   "received" : "Reçus",
   "sent" : "Envoyés",
   "pending" : " (en attente)",
-  "rescan" : "Rescan",
+  "rescan" : "Analyser la blockchain",
   "reconnect" : "Reconnecter",
   "wallets" : "Wallets",
   "show_seed" : "Visualiser le seed",
@@ -62,7 +62,7 @@
   "reconnect_alert_text" : "Êtes vous certain de vouloir vous reconnecter ?",
 
 
-  "exchange" : "Échange",
+  "exchange" : "Échanger",
   "clear" : "Effacer",
   "refund_address" : "Adresse de Remboursement",
   "change_exchange_provider" : "Changer de Plateforme d'Échange",
@@ -103,7 +103,7 @@
   "expired" : "Expirée",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Envoyer XMR",
-  "exchange_new_template" : "Nouveau modèle",
+  "exchange_new_template" : "Nouveau gabarit",
 
   "faq" : "FAQ",
 
@@ -140,8 +140,8 @@
   "new_node_testing" : "Test du nouveau nœud",
 
 
-  "use" : "Changer ver ",
-  "digit_pin" : "-digit PIN",
+  "use" : "Changer vers code PIN à ",
+  "digit_pin" : " chiffres",
 
 
   "share_address" : "Partager l'adresse",
@@ -211,7 +211,7 @@
   "send_estimated_fee" : "Estimation des frais :",
   "send_priority" : "Actuellement les frais sont positionnés à la priorité ${transactionPriority}.\nLa priorité de la transaction peut être modifiée dans les réglages",
   "send_creating_transaction" : "Création de la transaction",
-  "send_templates" : "Modèles",
+  "send_templates" : "Gabarits",
   "send_new" : "Nouveau",
   "send_amount" : "Montant :",
   "send_fee" : "Frais :",
@@ -329,7 +329,7 @@
   "error_text_minimal_limit" : "Échange pour ${provider} non créé. Le montant est inférieur au minimum : ${min} ${currency}",
   "error_text_maximum_limit" : "Échange pour ${provider} non créé. Le montant est supérieur au maximum : ${max} ${currency}",
   "error_text_limits_loading_failed" : "Échange pour ${provider} non créé. Échec de chargement des limites",
-  "error_text_template" : "Le nom du modèle et l'adresse ne peuvent pas contenir les symboles ` , ' \"\net leur longueur doit être comprise entre 1 et 106 caractères",
+  "error_text_template" : "Le nom du gabarit et l'adresse ne peuvent pas contenir les symboles ` , ' \"\net leur longueur doit être comprise entre 1 et 106 caractères",
 
 
   "auth_store_ban_timeout" : "délai de bannisement",
@@ -403,8 +403,8 @@
   "placeholder_transactions" : "Vos transactions apparaîtront ici",
   "placeholder_contacts" : "Vos contacts apparaîtront ici",
 
-  "template" : "Modèle",
-  "confirm_delete_template" : "Cette action va supprimer ce modèle. Souhaitez-vous continuer ?",
+  "template" : "Gabarit",
+  "confirm_delete_template" : "Cette action va supprimer ce gabarit. Souhaitez-vous continuer ?",
   "confirm_delete_wallet" : "Cette action va supprimer ce wallet. Souhaitez-vous contnuer ?",
 
   "picker_description" : "Pour choisir ChangeNOW ou MorphToken, merci de modifier d'abord la paire de votre échange",
@@ -524,6 +524,6 @@
   "third_intro_content" : "Les Yats existent aussi en dehors de Cake Wallet. Toute adresse sur terre peut être remplacée par un Yat !",
   "learn_more" : "En savoir plus",
 
-  "new_template" : "Nouveau Modèle",
+  "new_template" : "Nouveau Gabarit",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
 }
