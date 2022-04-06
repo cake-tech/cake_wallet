@@ -103,7 +103,7 @@
   "expired" : "Expirée",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Envoyer XMR",
-  "exchange_new_template" : "Nouveau gabarit",
+  "exchange_new_template" : "Nouveau modèle d'échange",
 
   "faq" : "FAQ",
 
@@ -211,7 +211,7 @@
   "send_estimated_fee" : "Estimation des frais :",
   "send_priority" : "Actuellement les frais sont positionnés à la priorité ${transactionPriority}.\nLa priorité de la transaction peut être modifiée dans les réglages",
   "send_creating_transaction" : "Création de la transaction",
-  "send_templates" : "Gabarits",
+  "send_templates" : "Modèles d'envois",
   "send_new" : "Nouveau",
   "send_amount" : "Montant :",
   "send_fee" : "Frais :",
@@ -225,7 +225,7 @@
   "settings_nodes" : "Nœuds",
   "settings_current_node" : "Nœud actuel",
   "settings_wallets" : "Wallets",
-  "settings_display_balance_as" : "Afficher le solde en",
+  "settings_display_balance_as" : "Affichage du solde",
   "settings_currency" : "Devise",
   "settings_fee_priority" : "Priorité des frais",
   "settings_save_recipient_address" : "Sauvegarder l'adresse du bénéficiaire",
@@ -329,7 +329,7 @@
   "error_text_minimal_limit" : "Échange pour ${provider} non créé. Le montant est inférieur au minimum : ${min} ${currency}",
   "error_text_maximum_limit" : "Échange pour ${provider} non créé. Le montant est supérieur au maximum : ${max} ${currency}",
   "error_text_limits_loading_failed" : "Échange pour ${provider} non créé. Échec de chargement des limites",
-  "error_text_template" : "Le nom du gabarit et l'adresse ne peuvent pas contenir les symboles ` , ' \"\net leur longueur doit être comprise entre 1 et 106 caractères",
+  "error_text_template" : "Le nom du modèle et l'adresse ne peuvent pas contenir les symboles ` , ' \"\net leur longueur doit être comprise entre 1 et 106 caractères",
 
 
   "auth_store_ban_timeout" : "délai de bannisement",
@@ -403,8 +403,8 @@
   "placeholder_transactions" : "Vos transactions apparaîtront ici",
   "placeholder_contacts" : "Vos contacts apparaîtront ici",
 
-  "template" : "Gabarit",
-  "confirm_delete_template" : "Cette action va supprimer ce gabarit. Souhaitez-vous continuer ?",
+  "template" : "Modèle",
+  "confirm_delete_template" : "Cette action va supprimer ce modèle. Souhaitez-vous continuer ?",
   "confirm_delete_wallet" : "Cette action va supprimer ce wallet. Souhaitez-vous contnuer ?",
 
   "picker_description" : "Pour choisir ChangeNOW ou MorphToken, merci de modifier d'abord la paire de votre échange",
@@ -474,7 +474,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "Si vous souhaitez échanger des XMR du solde Monero de votre Cake Wallet, merci de sélectionner votre wallet Monero au préalable.",
   "confirmed" : "Confirmé",
   "unconfirmed" : "Non confirmé",
-  "displayable" : "Affichable",
+  "displayable" : "Visible",
 
   "submit_request" : "soumettre une requête",
 
@@ -524,6 +524,6 @@
   "third_intro_content" : "Les Yats existent aussi en dehors de Cake Wallet. Toute adresse sur terre peut être remplacée par un Yat !",
   "learn_more" : "En savoir plus",
 
-  "new_template" : "Nouveau Gabarit",
+  "new_template" : "Nouveau Modèle",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
 }
