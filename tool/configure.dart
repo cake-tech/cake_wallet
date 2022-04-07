@@ -15,6 +15,7 @@ Future<void> main(List<String> args) async {
   final hasHaven = args.contains('${prefix}haven');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
+  await generateHaven(hasHaven);
   await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
   await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
 }
