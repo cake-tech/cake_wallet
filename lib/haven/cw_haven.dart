@@ -304,6 +304,6 @@ class CWHaven extends Haven {
 
 	List<AssetRate> getAssetRate() 
 		=> getRate()
-				.map((HavenRate rate) => AssetRate(rate.getAssetType(), rate.getRate()))
+				.map((rate) => AssetRate(rate.getAssetType(), rate.getRate()))
 				.toList();
 }
