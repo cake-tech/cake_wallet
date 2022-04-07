@@ -7,6 +7,7 @@ import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
+import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade.dart';
@@ -24,8 +25,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
                 .expand((i) => i)
                 .toList());
 
-  static const apiKey = 'ab862db695a4cf3dd7dccc43006af97c';
-  static const affiliateId = 'xuLUHwJkX';
+  static const apiKey = secrets.sideShiftApiKey;
+  static const affiliateId = secrets.sideShiftAffiliateId;
   static const apiBaseUrl = 'https://sideshift.ai/api';
   static const rangePath = '/v1/pairs';
   static const orderPath = '/v1/orders';
