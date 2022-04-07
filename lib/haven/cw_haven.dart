@@ -295,4 +295,15 @@ class CWHaven extends Haven {
 		final havenWallet = wallet as HavenWallet;
 		return havenWallet.getTransactionAddress(accountIndex, addressIndex);
 	}
+
+	CryptoCurrency assetOfTransaction(TransactionInfo tx) {
+		 	final tx = transaction as HavenTransactionInfo;
+    	final asset = CryptoCurrency.fromString(tx.assetType);
+    	return asset;
+	}
+
+	List<AssetRate> getAssetRate() 
+		=> getRate()
+				.map((HavenRate rate) => AssetRate(rate.getAssetType(), rate.getRate()))
+				.toList();
 }
