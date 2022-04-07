@@ -5,12 +5,11 @@
 The following are the system requirements to build CakeWallet for your iOS device.
 
 ```
-Intel Mac
+Machine running MacOS
 Xcode
 Homebrew
-Flutter 2 or above
+Flutter 2.0.4 or above
 	- Android SDK 28
-	- Android NDK 17c
 ```
 
 ## Building CakeWallet
