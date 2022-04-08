@@ -104,16 +104,16 @@ class SideShiftExchangeProvider extends ExchangeProvider {
 
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final id = responseJSON['id'] as String;
-    final refundAddress = responseJSON['depositAddress']['address'] as String;
-    final inputAddress = responseJSON['settleAddress']['address'] as String;
+    final inputAddress = responseJSON['depositAddress']['address'] as String;
+    final settleAddress = responseJSON['settleAddress']['address'] as String;
 
     return Trade(
         id: id,
         provider: description,
         from: _request.depositMethod,
         to: _request.settleMethod,
-        inputAddress: inputAddress,
-        refundAddress: refundAddress,
+        inputAddress:  inputAddress,
+        refundAddress: settleAddress,
         state: TradeState.created,
         amount: _request.depositAmount,
         createdAt: DateTime.now(),

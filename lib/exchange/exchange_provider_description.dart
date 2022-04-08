@@ -22,7 +22,7 @@ class ExchangeProviderDescription extends EnumerableItem<int>
         return changeNow;
       case 2:
         return morphToken;
-      case 2:
+      case 3:
         return sideShift;
       default:
         return null;
