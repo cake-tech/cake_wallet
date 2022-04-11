@@ -268,6 +268,7 @@
   "new_subaddress_label_name" : "Имя",
   "new_subaddress_create" : "Создать",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "Список субадресов",
 

@@ -266,6 +266,7 @@
   "new_subaddress_label_name" : "Nom",
   "new_subaddress_create" : "Créer",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "Liste des sous-adresses",
 
