@@ -36,6 +36,6 @@ class TransactionInfoRow extends Struct {
   int getDatetime() => datetime;
   int getAmount() => amount >= 0 ? amount : amount * -1;
   bool getIsPending() => isPending != 0;
-  String getHash() => Utf8.fromUtf8(hash);
-  String getPaymentId() => Utf8.fromUtf8(paymentId);
+  String getHash() => hash.toDartString();
+  String getPaymentId() => paymentId.toDartString();
 }

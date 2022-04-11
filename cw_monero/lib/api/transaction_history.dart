@@ -10,6 +10,7 @@ import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/structs/transaction_info_row.dart';
 import 'package:cw_monero/api/structs/pending_transaction.dart';
 import 'package:cw_monero/api/exceptions/creation_transaction_exception.dart';
+import 'package:ffi/ffi.dart' as pkgffi;
 
 final transactionsRefreshNative = moneroApi
     .lookup<NativeFunction<transactions_refresh>>('transactions_refresh')
@@ -28,7 +29,8 @@ final transactionCreateNative = moneroApi
     .asFunction<TransactionCreate>();
 
 final transactionCreateMultDestNative = moneroApi
-    .lookup<NativeFunction<transaction_create_mult_dest>>('transaction_create_mult_dest')
+    .lookup<NativeFunction<transaction_create_mult_dest>>(
+        'transaction_create_mult_dest')
     .asFunction<TransactionCreateMultDest>();
 
 final transactionCommitNative = moneroApi
@@ -40,10 +42,10 @@ final getTxKeyNative = moneroApi
     .asFunction<GetTxKey>();
 
 String getTxKey(String txId) {
-  final txIdPointer = Utf8.toUtf8(txId);
+  final txIdPointer = txId.toNativeUtf8();
   final keyPointer = getTxKeyNative(txIdPointer);
 
-  free(txIdPointer);
+  pkgffi.calloc.free(txIdPointer);
 
   if (keyPointer != null) {
     return convertUTF8ToString(pointer: keyPointer);
@@ -72,11 +74,14 @@ PendingTransactionDescription createTransactionSync(
     String amount,
     int priorityRaw,
     int accountIndex = 0}) {
-  final addressPointer = Utf8.toUtf8(address);
-  final paymentIdPointer = Utf8.toUtf8(paymentId);
-  final amountPointer = amount != null ? Utf8.toUtf8(amount) : nullptr;
-  final errorMessagePointer = allocate<Utf8Box>();
-  final pendingTransactionRawPointer = allocate<PendingTransactionRaw>();
+  final addressPointer = address.toNativeUtf8();
+  final paymentIdPointer = paymentId.toNativeUtf8();
+  final amountPointer = amount != null ? amount.toNativeUtf8() : nullptr;
+
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
+  final pendingTransactionRawPointer = pkgffi.calloc
+      .allocate<PendingTransactionRaw>(sizeOf<PendingTransactionRaw>());
   final created = transactionCreateNative(
           addressPointer,
           paymentIdPointer,
@@ -87,16 +92,16 @@ PendingTransactionDescription createTransactionSync(
           pendingTransactionRawPointer) !=
       0;
 
-  free(addressPointer);
-  free(paymentIdPointer);
+  pkgffi.calloc.free(addressPointer);
+  pkgffi.calloc.free(paymentIdPointer);
 
   if (amountPointer != nullptr) {
-    free(amountPointer);
+    pkgffi.calloc.free(amountPointer);
   }
 
   if (!created) {
     final message = errorMessagePointer.ref.getValue();
-    free(errorMessagePointer);
+    pkgffi.calloc.free(errorMessagePointer);
     throw CreationTransactionException(message: message);
   }
 
@@ -109,47 +114,50 @@ PendingTransactionDescription createTransactionSync(
 
 PendingTransactionDescription createTransactionMultDestSync(
     {List<MoneroOutput> outputs,
-      String paymentId,
-      int priorityRaw,
-      int accountIndex = 0}) {
+    String paymentId,
+    int priorityRaw,
+    int accountIndex = 0}) {
   final int size = outputs.length;
-  final List<Pointer<Utf8>> addressesPointers = outputs.map((output) =>
-      Utf8.toUtf8(output.address)).toList();
-  final Pointer<Pointer<Utf8>> addressesPointerPointer = allocate(count: size);
-  final List<Pointer<Utf8>> amountsPointers = outputs.map((output) =>
-      Utf8.toUtf8(output.amount)).toList();
-  final Pointer<Pointer<Utf8>> amountsPointerPointer = allocate(count: size);
+  final List<Pointer<Utf8>> addressesPointers =
+      outputs.map((output) => output.address.toNativeUtf8()).toList();
+  final Pointer<Pointer<Utf8>> addressesPointerPointer =
+      pkgffi.calloc.allocate(size * sizeOf<Pointer<Utf8>>());
+  final List<Pointer<Utf8>> amountsPointers =
+      outputs.map((output) => output.amount.toNativeUtf8()).toList();
+  final Pointer<Pointer<Utf8>> amountsPointerPointer =
+      pkgffi.calloc.allocate(size * sizeOf<Pointer<Utf8>>());
 
   for (int i = 0; i < size; i++) {
     addressesPointerPointer[i] = addressesPointers[i];
     amountsPointerPointer[i] = amountsPointers[i];
   }
 
-  final paymentIdPointer = Utf8.toUtf8(paymentId);
-  final errorMessagePointer = allocate<Utf8Box>();
-  final pendingTransactionRawPointer = allocate<PendingTransactionRaw>();
+  final paymentIdPointer = paymentId.toNativeUtf8();
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
+  final pendingTransactionRawPointer = pkgffi.calloc
+      .allocate<PendingTransactionRaw>(sizeOf<PendingTransactionRaw>());
   final created = transactionCreateMultDestNative(
-      addressesPointerPointer,
-      paymentIdPointer,
-      amountsPointerPointer,
-      size,
-      priorityRaw,
-      accountIndex,
-      errorMessagePointer,
-      pendingTransactionRawPointer) !=
+          addressesPointerPointer,
+          paymentIdPointer,
+          amountsPointerPointer,
+          size,
+          priorityRaw,
+          accountIndex,
+          errorMessagePointer,
+          pendingTransactionRawPointer) !=
       0;
+  pkgffi.calloc.free(addressesPointerPointer);
+  pkgffi.calloc.free(amountsPointerPointer);
 
-  free(addressesPointerPointer);
-  free(amountsPointerPointer);
+  addressesPointers.forEach((element) => pkgffi.calloc.free(element));
+  amountsPointers.forEach((element) => pkgffi.calloc.free(element));
 
-  addressesPointers.forEach((element) => free(element));
-  amountsPointers.forEach((element) => free(element));
-
-  free(paymentIdPointer);
+  pkgffi.calloc.free(paymentIdPointer);
 
   if (!created) {
     final message = errorMessagePointer.ref.getValue();
-    free(errorMessagePointer);
+    pkgffi.calloc.free(errorMessagePointer);
     throw CreationTransactionException(message: message);
   }
 
@@ -164,13 +172,14 @@ void commitTransactionFromPointerAddress({int address}) => commitTransaction(
     transactionPointer: Pointer<PendingTransactionRaw>.fromAddress(address));
 
 void commitTransaction({Pointer<PendingTransactionRaw> transactionPointer}) {
-  final errorMessagePointer = allocate<Utf8Box>();
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
   final isCommited =
       transactionCommitNative(transactionPointer, errorMessagePointer) != 0;
 
   if (!isCommited) {
     final message = errorMessagePointer.ref.getValue();
-    free(errorMessagePointer);
+    pkgffi.calloc.free(errorMessagePointer);
     throw CreationTransactionException(message: message);
   }
 }
@@ -218,10 +227,10 @@ Future<PendingTransactionDescription> createTransaction(
     });
 
 Future<PendingTransactionDescription> createTransactionMultDest(
-    {List<MoneroOutput> outputs,
-      String paymentId = '',
-      int priorityRaw,
-      int accountIndex = 0}) =>
+        {List<MoneroOutput> outputs,
+        String paymentId = '',
+        int priorityRaw,
+        int accountIndex = 0}) =>
     compute(_createTransactionMultDestSync, {
       'outputs': outputs,
       'paymentId': paymentId,

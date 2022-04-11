@@ -8,6 +8,7 @@ import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/exceptions/setup_wallet_exception.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:ffi/ffi.dart' as pkgffi;
 
 int _boolToInt(bool value) => value ? 1 : 0;
 
@@ -143,19 +144,20 @@ bool setupNodeSync(
     String password,
     bool useSSL = false,
     bool isLightWallet = false}) {
-  final addressPointer = Utf8.toUtf8(address);
+  final addressPointer = address.toNativeUtf8();
   Pointer<Utf8> loginPointer;
   Pointer<Utf8> passwordPointer;
 
   if (login != null) {
-    loginPointer = Utf8.toUtf8(login);
+    loginPointer = login.toNativeUtf8();
   }
 
   if (password != null) {
-    passwordPointer = Utf8.toUtf8(password);
+    passwordPointer = password.toNativeUtf8();
   }
 
-  final errorMessagePointer = allocate<Utf8>();
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
   final isSetupNode = setupNodeNative(
           addressPointer,
           loginPointer,
@@ -165,9 +167,9 @@ bool setupNodeSync(
           errorMessagePointer) !=
       0;
 
-  free(addressPointer);
-  free(loginPointer);
-  free(passwordPointer);
+  pkgffi.calloc.free(addressPointer);
+  pkgffi.calloc.free(loginPointer);
+  pkgffi.calloc.free(passwordPointer);
 
   if (!isSetupNode) {
     throw SetupWalletException(
@@ -188,9 +190,9 @@ void setRecoveringFromSeed({bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
 void storeSync() {
-  final pathPointer = Utf8.toUtf8('');
+  final pathPointer = ''.toNativeUtf8();
   storeNative(pathPointer);
-  free(pathPointer);
+  pkgffi.calloc.free(pathPointer);
 }
 
 void closeCurrentWallet() => closeCurrentWalletNative();

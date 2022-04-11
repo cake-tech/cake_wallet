@@ -1,1 +1,3 @@
+package cw_monero.android
+
 rootProject.name = 'cw_monero'

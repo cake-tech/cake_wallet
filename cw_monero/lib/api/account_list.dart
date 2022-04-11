@@ -6,6 +6,7 @@ import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/structs/account_row.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:ffi/ffi.dart' as pkgffi;
 
 final accountSizeNative = moneroApi
     .lookup<NativeFunction<account_size>>('account_size')
@@ -51,15 +52,15 @@ List<AccountRow> getAllAccount() {
 }
 
 void addAccountSync({String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+  final labelPointer = label.toNativeUtf8();
   accountAddNewNative(labelPointer);
-  free(labelPointer);
+  pkgffi.calloc.free(labelPointer);
 }
 
 void setLabelForAccountSync({int accountIndex, String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+  final labelPointer = label.toNativeUtf8();
   accountSetLabelNative(accountIndex, labelPointer);
-  free(labelPointer);
+  pkgffi.calloc.free(labelPointer);
 }
 
 void _addAccount(String label) => addAccountSync(label: label);
@@ -77,7 +78,7 @@ Future<void> addAccount({String label}) async {
 }
 
 Future<void> setLabelForAccount({int accountIndex, String label}) async {
-    await compute(
-        _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
-    await store();
+  await compute(
+      _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
+  await store();
 }

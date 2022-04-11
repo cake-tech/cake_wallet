@@ -7,7 +7,7 @@ class SubaddressRow extends Struct {
   Pointer<Utf8> address;
   Pointer<Utf8> label;
 
-  String getLabel() => Utf8.fromUtf8(label);
-  String getAddress() => Utf8.fromUtf8(address);
+  String getLabel() => label.toDartString();
+  String getAddress() => address.toDartString();
   int getId() => id;
 }

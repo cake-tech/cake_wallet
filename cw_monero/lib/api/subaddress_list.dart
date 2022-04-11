@@ -6,6 +6,7 @@ import 'package:cw_monero/api/types.dart';
 import 'package:cw_monero/api/monero_api.dart';
 import 'package:cw_monero/api/structs/subaddress_row.dart';
 import 'package:cw_monero/api/wallet.dart';
+import 'package:ffi/ffi.dart' as pkgffi;
 
 final subaddressSizeNative = moneroApi
     .lookup<NativeFunction<subaddrress_size>>('subaddrress_size')
@@ -51,17 +52,17 @@ List<SubaddressRow> getAllSubaddresses() {
 }
 
 void addSubaddressSync({int accountIndex, String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+  final labelPointer = label.toNativeUtf8();
   subaddrressAddNewNative(accountIndex, labelPointer);
-  free(labelPointer);
+  pkgffi.calloc.free(labelPointer);
 }
 
 void setLabelForSubaddressSync(
     {int accountIndex, int addressIndex, String label}) {
-  final labelPointer = Utf8.toUtf8(label);
+  final labelPointer = label.toNativeUtf8();
 
   subaddrressSetLabelNative(accountIndex, addressIndex, labelPointer);
-  free(labelPointer);
+  pkgffi.calloc.free(labelPointer);
 }
 
 void _addSubaddress(Map<String, dynamic> args) {
@@ -81,13 +82,13 @@ void _setLabelForSubaddress(Map<String, dynamic> args) {
 }
 
 Future addSubaddress({int accountIndex, String label}) async {
-    await compute<Map<String, Object>, void>(
-        _addSubaddress, {'accountIndex': accountIndex, 'label': label});
-    await store();
+  await compute<Map<String, Object>, void>(
+      _addSubaddress, {'accountIndex': accountIndex, 'label': label});
+  await store();
 }
 
 Future setLabelForSubaddress(
-        {int accountIndex, int addressIndex, String label}) async {
+    {int accountIndex, int addressIndex, String label}) async {
   await compute<Map<String, Object>, void>(_setLabelForSubaddress, {
     'accountIndex': accountIndex,
     'addressIndex': addressIndex,
