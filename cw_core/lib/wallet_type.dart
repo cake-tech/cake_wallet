@@ -6,7 +6,8 @@ part 'wallet_type.g.dart';
 const walletTypes = [
   WalletType.monero,
   WalletType.bitcoin,
-  WalletType.litecoin
+  WalletType.litecoin,
+  WalletType.haven
 ];
 const walletTypeTypeId = 5;
 
@@ -22,7 +23,10 @@ enum WalletType {
   bitcoin,
 
   @HiveField(3)
-  litecoin
+  litecoin,
+
+  @HiveField(4)
+  haven
 }
 
 int serializeToInt(WalletType type) {
@@ -33,6 +37,8 @@ int serializeToInt(WalletType type) {
       return 1;
     case WalletType.litecoin:
       return 2;
+    case WalletType.haven:
+      return 3;
     default:
       return -1;
   }
@@ -46,6 +52,8 @@ WalletType deserializeFromInt(int raw) {
       return WalletType.bitcoin;
     case 2:
       return WalletType.litecoin;
+    case 3:
+      return WalletType.haven;
     default:
       return null;
   }
@@ -59,6 +67,8 @@ String walletTypeToString(WalletType type) {
       return 'Bitcoin';
     case WalletType.litecoin:
       return 'Litecoin';
+    case WalletType.haven:
+      return 'Haven';
     default:
       return '';
   }
@@ -72,6 +82,8 @@ String walletTypeToDisplayName(WalletType type) {
       return 'Bitcoin (Electrum)';
     case WalletType.litecoin:
       return 'Litecoin (Electrum)';
+    case WalletType.haven:
+      return 'Haven';
     default:
       return '';
   }
@@ -85,6 +97,8 @@ CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
       return CryptoCurrency.btc;
     case WalletType.litecoin:
       return CryptoCurrency.ltc;
+    case WalletType.haven:
+      return CryptoCurrency.xhv;
     default:
       return null;
   }

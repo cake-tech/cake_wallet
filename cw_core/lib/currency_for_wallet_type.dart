@@ -9,6 +9,8 @@ CryptoCurrency currencyForWalletType(WalletType type) {
       return CryptoCurrency.xmr;
     case WalletType.litecoin:
       return CryptoCurrency.ltc;
+    case WalletType.haven:
+      return CryptoCurrency.xhv;
     default:
       return null;
   }

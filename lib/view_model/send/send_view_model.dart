@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
@@ -23,25 +24,31 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/haven/haven.dart';
 
 part 'send_view_model.g.dart';
 
 class SendViewModel = SendViewModelBase with _$SendViewModel;
 
 abstract class SendViewModelBase with Store {
-  SendViewModelBase(this._wallet, this._settingsStore,
-      this.sendTemplateViewModel, this._fiatConversationStore,
+  SendViewModelBase(
+      this._wallet,
+      this._settingsStore,
+      this.sendTemplateViewModel,
+      this._fiatConversationStore,
       this.transactionDescriptionBox)
       : state = InitialExecutionState() {
     final priority = _settingsStore.priority[_wallet.type];
     final priorities = priorityForWalletType(_wallet.type);
+    selectedCryptoCurrency = _wallet.currency;
+    currencies = _wallet.balance.keys.toList();
 
     if (!priorityForWalletType(_wallet.type).contains(priority)) {
       _settingsStore.priority[_wallet.type] = priorities.first;
     }
 
     outputs = ObservableList<Output>()
-      ..add(Output(_wallet, _settingsStore, _fiatConversationStore));
+      ..add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   
@@ -52,7 +59,7 @@ abstract class SendViewModelBase with Store {
 
   @action
   void addOutput() {
-    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore));
+    outputs.add(Output(_wallet, _settingsStore, _fiatConversationStore, () => selectedCryptoCurrency));
   }
 
   @action
@@ -76,7 +83,7 @@ abstract class SendViewModelBase with Store {
     try {
       if (pendingTransaction != null) {
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[_wallet.currency],
+            price: _fiatConversationStore.prices[selectedCryptoCurrency],
             cryptoAmount: pendingTransaction.amountFormatted);
         return fiat;
       } else {
@@ -92,7 +99,7 @@ abstract class SendViewModelBase with Store {
     try {
       if (pendingTransaction != null) {
         final fiat = calculateFiatAmount(
-            price: _fiatConversationStore.prices[_wallet.currency],
+            price: _fiatConversationStore.prices[selectedCryptoCurrency],
             cryptoAmount: pendingTransaction.feeFormatted);
         return fiat;
       } else {
@@ -114,7 +121,7 @@ abstract class SendViewModelBase with Store {
 
   Validator get allAmountValidator => AllAmountValidator();
 
-  Validator get addressValidator => AddressValidator(type: _wallet.currency);
+  Validator get addressValidator => AddressValidator(type: selectedCryptoCurrency);
 
   Validator get textValidator => TextValidator();
 
@@ -122,23 +129,35 @@ abstract class SendViewModelBase with Store {
   PendingTransaction pendingTransaction;
 
   @computed
-  String get balance => _wallet.balance.formattedAvailableBalance ?? '0.0';
+  String get balance => _wallet.balance[selectedCryptoCurrency].formattedAvailableBalance ?? '0.0';
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
 
   @computed
-  ObservableList<Template> get templates => sendTemplateViewModel.templates;
+  List<Template> get templates => sendTemplateViewModel.templates
+      .where((template) => _isEqualCurrency(template.cryptoCurrency))
+      .toList();
 
   @computed
-  bool get isElectrumWallet => _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
+  bool get isElectrumWallet =>
+      _wallet.type == WalletType.bitcoin || _wallet.type == WalletType.litecoin;
 
-  bool get hasYat 
-    => outputs.any((out) => out.isParsedAddress 
-      && out.parsedAddress.parseFrom == ParseFrom.yatRecord);
-  
+  @observable
+  CryptoCurrency selectedCryptoCurrency;
+
+  List<CryptoCurrency> currencies;
+
+  bool get hasMultiRecipient => _wallet.type != WalletType.haven;
+
+  bool get hasYat => outputs.any((out) =>
+      out.isParsedAddress &&
+      out.parsedAddress.parseFrom == ParseFrom.yatRecord);
 
   WalletType get walletType => _wallet.type;
+
+  bool get hasCurrecyChanger => walletType == WalletType.haven;
+
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;
@@ -200,19 +219,21 @@ abstract class SendViewModelBase with Store {
       case WalletType.bitcoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(
-            outputs, priority);
+        return bitcoin.createBitcoinTransactionCredentials(outputs, priority);
       case WalletType.litecoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(
-            outputs, priority);
+        return bitcoin.createBitcoinTransactionCredentials(outputs, priority);
       case WalletType.monero:
         final priority = _settingsStore.priority[_wallet.type];
 
         return monero.createMoneroTransactionCreationCredentials(
-            outputs: outputs,
-            priority: priority);
+            outputs: outputs, priority: priority);
+      case WalletType.haven:
+        final priority = _settingsStore.priority[_wallet.type];
+
+        return haven.createHavenTransactionCreationCredentials(
+            outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
       default:
         return null;
     }
@@ -230,4 +251,6 @@ abstract class SendViewModelBase with Store {
     return priority.toString();
   }
 
+  bool _isEqualCurrency(String currency) => 
+      currency.toLowerCase() == _wallet.currency.title.toLowerCase();
 }

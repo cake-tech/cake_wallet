@@ -1,6 +1,11 @@
+import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -119,6 +124,7 @@ import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
+import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -248,6 +254,7 @@ Future setup(
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
+    
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
@@ -302,12 +309,15 @@ Future setup(
               onAuthenticationFinished: onAuthFinished,
               closable: closable ?? false));
 
-  getIt.registerFactory<DashboardPage>(() => DashboardPage(
-      walletViewModel: getIt.get<DashboardViewModel>(),
-      addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory(() => 
+   BalancePage(dashboardViewModel: getIt.get<DashboardViewModel>(), settingsStore: getIt.get<SettingsStore>()));
 
+  getIt.registerFactory<DashboardPage>(() => DashboardPage( balancePage: getIt.get<BalancePage>(), walletViewModel: getIt.get<DashboardViewModel>(), addressListViewModel: getIt.get<WalletAddressListViewModel>()));
   getIt.registerFactory<ReceivePage>(() => ReceivePage(
       addressListViewModel: getIt.get<WalletAddressListViewModel>()));
+  getIt.registerFactory<AddressPage>(() => AddressPage(
+      addressListViewModel: getIt.get<WalletAddressListViewModel>(),
+      walletViewModel: getIt.get<DashboardViewModel>()));
 
   getIt.registerFactoryParam<WalletAddressEditOrCreateViewModel, dynamic, void>(
       (dynamic item, _) => WalletAddressEditOrCreateViewModel(
@@ -340,8 +350,7 @@ Future setup(
   getIt.registerFactory(() => WalletListViewModel(
       _walletInfoSource,
       getIt.get<AppStore>(),
-      getIt.get<KeyService>(),
-      getIt.get<WalletNewVM>(param1: WalletType.monero)));
+      getIt.get<KeyService>()));
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
@@ -349,7 +358,7 @@ Future setup(
   getIt.registerFactory(() {
     final wallet = getIt.get<AppStore>().wallet;
 
-    if (wallet.type == WalletType.monero) {
+    if (wallet.type == WalletType.monero || wallet.type == WalletType.haven) {
       return MoneroAccountListViewModel(wallet);
     }
 
@@ -379,6 +388,7 @@ Future setup(
           AccountListItem, void>(
       (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
           monero.getAccountList(getIt.get<AppStore>().wallet),
+          haven.getAccountList(getIt.get<AppStore>().wallet),
           wallet: getIt.get<AppStore>().wallet,
           accountListItem: account));
 
@@ -465,6 +475,8 @@ Future setup(
   getIt.registerFactoryParam<WalletService, WalletType, void>(
       (WalletType param1, __) {
     switch (param1) {
+      case WalletType.haven:
+        return haven.createHavenWalletService(_walletInfoSource);
       case WalletType.monero:
         return monero.createMoneroWalletService(_walletInfoSource);
       case WalletType.bitcoin:
@@ -623,5 +635,9 @@ Future setup(
 
   getIt.registerFactory(() => WakeLock());
 
+  getIt.registerFactory(() => YatService());
+
+  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
+  
   _isSetupFinished = true;
 }

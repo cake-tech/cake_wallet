@@ -215,7 +215,7 @@ class WalletRestorePage extends BasePage {
       .text
       .split(' ');
 
-    if (walletRestoreViewModel.type == WalletType.monero &&
+    if ((walletRestoreViewModel.type == WalletType.monero || walletRestoreViewModel.type == WalletType.haven) &&
         seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
       return false;
     }

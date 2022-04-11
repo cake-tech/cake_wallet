@@ -52,7 +52,6 @@ class WalletMenu {
           image: Image.asset('assets/images/open_book_menu.png',
               height: 16, width: 16),
 	  handler: () => Navigator.of(context).pushNamed(Routes.addressBook)),
-      if(!isMoneroOnly)
 	WalletMenuItem(
 		  title: S.current.backup,
           	  image: Image.asset('assets/images/restore_wallet.png',

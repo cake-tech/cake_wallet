@@ -14,6 +14,10 @@ case $APP_IOS_TYPE in
 	ICON_120_PATH=`pwd`/../../assets/images/cakewallet_icon_120.png
     ICON_180_PATH=`pwd`/../../assets/images/cakewallet_icon_180.png
     ICON_1024_PATH=`pwd`/../../assets/images/cakewallet_icon_1024.png;;
+    "haven")
+	ICON_120_PATH=`pwd`/../../assets/images/cakewallet_icon_120.png
+    ICON_180_PATH=`pwd`/../../assets/images/cakewallet_icon_180.png
+    ICON_1024_PATH=`pwd`/../../assets/images/cakewallet_icon_1024.png;;
 esac
 
 rm $DEST_DIR_PATH/app_icon_120.png

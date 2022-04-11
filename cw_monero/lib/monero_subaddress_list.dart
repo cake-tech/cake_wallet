@@ -2,7 +2,7 @@ import 'package:cw_monero/api/structs/subaddress_row.dart';
 import 'package:flutter/services.dart';
 import 'package:mobx/mobx.dart';
 import 'package:cw_monero/api/subaddress_list.dart' as subaddress_list;
-import 'package:cw_monero/subaddress.dart';
+import 'package:cw_core/subaddress.dart';
 
 part 'monero_subaddress_list.g.dart';
 
@@ -49,7 +49,13 @@ abstract class MoneroSubaddressListBase with Store {
     }
 
     return subaddresses
-        .map((subaddressRow) => Subaddress.fromRow(subaddressRow))
+        .map((subaddressRow) => Subaddress(
+          id: subaddressRow.getId(),
+          address: subaddressRow.getAddress(),
+          label: subaddressRow.getId() == 0 &&
+                subaddressRow.getLabel().toLowerCase() == 'Primary account'.toLowerCase()
+            ? 'Primary address'
+            : subaddressRow.getLabel()))
         .toList();
   }
 

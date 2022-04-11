@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/haven/haven.dart';
 import 'package:cw_core/wallet_type.dart';
 
 part 'wallet_address_edit_or_create_view_model.g.dart';
@@ -78,6 +79,16 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
             label: label);
       await wallet.save();
     }
+
+    if (wallet.type == WalletType.haven) {
+      await haven
+          .getSubaddressList(wallet)
+          .addSubaddress(
+            wallet,
+            accountIndex: haven.getCurrentAccount(wallet).id,
+            label: label);
+      await wallet.save();
+    }
   }
 
   Future<void> _update() async {
@@ -94,6 +105,17 @@ abstract class WalletAddressEditOrCreateViewModelBase with Store {
         .setLabelSubaddress(
           wallet,
           accountIndex: monero.getCurrentAccount(wallet).id,
+          addressIndex: _item.id as int,
+          label: label);
+      await wallet.save();
+    }
+
+    if (wallet.type == WalletType.haven) {
+      await haven
+        .getSubaddressList(wallet)
+        .setLabelSubaddress(
+          wallet,
+          accountIndex: haven.getCurrentAccount(wallet).id,
           addressIndex: _item.id as int,
           label: label);
       await wallet.save();

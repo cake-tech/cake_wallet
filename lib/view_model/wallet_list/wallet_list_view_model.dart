@@ -8,6 +8,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cake_wallet/view_model/wallet_list/wallet_list_item.dart';
 import 'package:cw_core/wallet_info.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:cake_wallet/wallet_types.g.dart';
 
 part 'wallet_list_view_model.g.dart';
 
@@ -15,7 +16,7 @@ class WalletListViewModel = WalletListViewModelBase with _$WalletListViewModel;
 
 abstract class WalletListViewModelBase with Store {
   WalletListViewModelBase(this._walletInfoSource, this._appStore,
-      this._keyService, this.walletNewVM) {
+      this._keyService) {
     wallets = ObservableList<WalletListItem>();
     _updateList();
   }
@@ -26,7 +27,6 @@ abstract class WalletListViewModelBase with Store {
   final AppStore _appStore;
   final Box<WalletInfo> _walletInfoSource;
   final KeyService _keyService;
-  final WalletNewVM walletNewVM;
 
   WalletType get currentWalletType => _appStore.wallet.type;
 
@@ -55,6 +55,7 @@ abstract class WalletListViewModelBase with Store {
         type: info.type,
         key: info.key,
         isCurrent: info.name == _appStore.wallet.name &&
-            info.type == _appStore.wallet.type)));
+            info.type == _appStore.wallet.type,
+        isEnabled: availableWalletTypes.contains(info.type))));
   }
 }

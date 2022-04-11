@@ -82,6 +82,7 @@ class MoneroAccountListPage extends StatelessWidget {
                                       alignment: Alignment.center,
                                       children: <Widget>[
                                         ListView.separated(
+                                          padding: EdgeInsets.zero,
                                           controller: controller,
                                           separatorBuilder: (context, index) =>
                                           Container(

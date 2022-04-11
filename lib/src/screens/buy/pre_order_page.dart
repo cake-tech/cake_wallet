@@ -177,12 +177,14 @@ class PreOrderPage extends BasePage {
                         builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
                           double sourceAmount;
                           double destAmount;
+                          double achAmount;
                           int minAmount;
 
                           if (snapshot.hasData) {
                             sourceAmount = snapshot.data.sourceAmount;
                             destAmount = snapshot.data.destAmount;
                             minAmount = snapshot.data.minAmount;
+                            achAmount = snapshot.data.achSourceAmount;
                           } else {
                             sourceAmount = 0.0;
                             destAmount = 0.0;
@@ -201,6 +203,7 @@ class PreOrderPage extends BasePage {
                                     sourceCurrency: buyViewModel.fiatCurrency,
                                     destAmount: destAmount,
                                     destCurrency: buyViewModel.cryptoCurrency,
+                                    achSourceAmount: achAmount,
                                     onTap: ((buyViewModel.doubleAmount != 0.0)
                                         && (snapshot.hasData)) ? () =>
                                         onSelectBuyProvider(

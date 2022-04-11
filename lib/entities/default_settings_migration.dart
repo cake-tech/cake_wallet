@@ -22,6 +22,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
+const havenDefaultNodeUri = 'vault.havenprotocol.org:443';
 
 Future defaultSettingsMigration(
     {@required int version,
@@ -120,6 +121,13 @@ Future defaultSettingsMigration(
           await checkCurrentNodes(nodes, sharedPreferences);
           break;
 
+        case 16:
+          await addHavenNodeList(nodes: nodes);
+          await changeHavenCurrentNodeToDefault(
+              sharedPreferences: sharedPreferences, nodes: nodes);
+          await checkCurrentNodes(nodes, sharedPreferences);
+          break;
+
         default:
           break;
       }
@@ -182,6 +190,14 @@ Node getLitecoinDefaultElectrumServer({@required Box<Node> nodes}) {
           orElse: () => null);
 }
 
+Node getHavenDefaultNode({@required Box<Node> nodes}) {
+  return nodes.values.firstWhere(
+          (Node node) => node.uriRaw == havenDefaultNodeUri,
+          orElse: () => null) ??
+      nodes.values.firstWhere((node) => node.type == WalletType.haven,
+          orElse: () => null);
+}
+
 Node getMoneroDefaultNode({@required Box<Node> nodes}) {
   final timeZone = DateTime.now().timeZoneOffset.inHours;
   var nodeUri = '';
@@ -215,6 +231,15 @@ Future<void> changeLitecoinCurrentElectrumServerToDefault(
   final serverId = server?.key as int ?? 0;
 
   await sharedPreferences.setInt('current_node_id_ltc', serverId);
+}
+
+Future<void> changeHavenCurrentNodeToDefault(
+    {@required SharedPreferences sharedPreferences,
+    @required Box<Node> nodes}) async {
+  final node = getHavenDefaultNode(nodes: nodes);
+  final nodeId = node?.key as int ?? 0;
+
+  await sharedPreferences.setInt(PreferencesKey.currentHavenNodeIdKey, nodeId);
 }
 
 Future<void> replaceDefaultNode(
@@ -256,6 +281,11 @@ Future<void> addBitcoinElectrumServerList({@required Box<Node> nodes}) async {
 Future<void> addLitecoinElectrumServerList({@required Box<Node> nodes}) async {
   final serverList = await loadLitecoinElectrumServerList();
   await nodes.addAll(serverList);
+}
+
+Future<void> addHavenNodeList({@required Box<Node> nodes}) async {
+  final nodeList = await loadDefaultHavenNodes();
+  await nodes.addAll(nodeList);
 }
 
 Future<void> addAddressesForMoneroWallets(
@@ -347,6 +377,8 @@ Future<void> checkCurrentNodes(
       sharedPreferences.getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
   final currentLitecoinElectrumSeverId = sharedPreferences
       .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+  final currentHavenNodeId = sharedPreferences
+      .getInt(PreferencesKey.currentHavenNodeIdKey);
   final currentMoneroNode = nodeSource.values.firstWhere(
       (node) => node.key == currentMoneroNodeId,
       orElse: () => null);
@@ -355,6 +387,9 @@ Future<void> checkCurrentNodes(
       orElse: () => null);
   final currentLitecoinElectrumServer = nodeSource.values.firstWhere(
       (node) => node.key == currentLitecoinElectrumSeverId,
+      orElse: () => null);
+  final currentHavenNodeServer = nodeSource.values.firstWhere(
+      (node) => node.key == currentHavenNodeId,
       orElse: () => null);
 
   if (currentMoneroNode == null) {
@@ -381,6 +416,14 @@ Future<void> checkCurrentNodes(
     await sharedPreferences.setInt(
         PreferencesKey.currentLitecoinElectrumSererIdKey,
         cakeWalletElectrum.key as int);
+  }
+
+  if (currentHavenNodeServer == null) {
+    final nodes = await loadDefaultHavenNodes();
+    final node = nodes.first;
+    await nodeSource.add(node);
+    await sharedPreferences.setInt(
+        PreferencesKey.currentHavenNodeIdKey, node.key as int);
   }
 }
 

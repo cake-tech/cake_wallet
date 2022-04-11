@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:cake_wallet/entities/parsed_address.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -32,6 +32,7 @@ import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
 import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 
 class ExchangePage extends BasePage {
   ExchangePage(this.exchangeViewModel);
@@ -65,8 +66,17 @@ class ExchangePage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  Widget middle(BuildContext context) =>
-      PresentProviderPicker(exchangeViewModel: exchangeViewModel);
+  Widget middle(BuildContext context) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right:6.0),
+          child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: exchangeViewModel.status is SyncedSyncStatus),)
+        ),
+        PresentProviderPicker(exchangeViewModel: exchangeViewModel)
+      ],
+    );
+
 
   @override
   Widget trailing(BuildContext context) => TrailButton(
@@ -192,12 +202,12 @@ class ExchangePage extends BasePage {
                                 isAmountEstimated: false,
                                 hasRefundAddress: true,
                                 isMoneroWallet: exchangeViewModel.isMoneroWallet,
-                                currencies: CryptoCurrency.all,
+                                currencies: exchangeViewModel.depositCurrencies,
                                 onCurrencySelected: (currency) {
                                   // FIXME: need to move it into view model
                                   if (currency == CryptoCurrency.xmr &&
-                                      exchangeViewModel.wallet.type ==
-                                          WalletType.bitcoin) {
+                                      exchangeViewModel.wallet.type !=
+                                          WalletType.monero) {
                                     showPopUp<void>(
                                         context: context,
                                         builder: (dialogContext) {
@@ -318,130 +328,25 @@ class ExchangePage extends BasePage {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 30, left: 24, bottom: 24),
+                      padding: EdgeInsets.only(top: 12, left: 24),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            S.of(context).send_templates,
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context)
-                                    .primaryTextTheme
-                                    .display4
-                                    .color),
-                          )
+                        children: [
+                          StandardCheckbox(
+                            key: checkBoxKey,
+                            value: exchangeViewModel.isFixedRateMode,
+                            caption: S.of(context).fixed_rate,
+                            onChanged: (value) =>
+                            exchangeViewModel.isFixedRateMode = value,
+                          ),
                         ],
-                      ),
+                      )
                     ),
-                    Container(
-                        height: 40,
-                        width: double.infinity,
-                        padding: EdgeInsets.only(left: 24),
-                        child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: <Widget>[
-                                GestureDetector(
-                                  onTap: () => Navigator.of(context)
-                                      .pushNamed(Routes.exchangeTemplate),
-                                  child: Container(
-                                    padding:
-                                    EdgeInsets.only(left: 1, right: 10),
-                                    child: DottedBorder(
-                                        borderType: BorderType.RRect,
-                                        dashPattern: [6, 4],
-                                        color: Theme.of(context)
-                                            .primaryTextTheme
-                                            .display2
-                                            .decorationColor,
-                                        strokeWidth: 2,
-                                        radius: Radius.circular(20),
-                                        child: Container(
-                                          height: 34,
-                                          width: 75,
-                                          padding: EdgeInsets.only(
-                                              left: 10, right: 10),
-                                          alignment: Alignment.center,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(20)),
-                                            color: Colors.transparent,
-                                          ),
-                                          child: Text(
-                                            S.of(context).send_new,
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.w600,
-                                                color: Theme.of(context)
-                                                    .primaryTextTheme
-                                                    .display3
-                                                    .color),
-                                          ),
-                                        )),
-                                  ),
-                                ),
-                                Observer(builder: (_) {
-                                  final templates = exchangeViewModel.templates;
-                                  final itemCount = templates.length;
-
-                                  return ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      shrinkWrap: true,
-                                      physics: NeverScrollableScrollPhysics(),
-                                      itemCount: itemCount,
-                                      itemBuilder: (context, index) {
-                                        final template = templates[index];
-
-                                        return TemplateTile(
-                                          key: UniqueKey(),
-                                          amount: template.amount,
-                                          from: template.depositCurrency,
-                                          to: template.receiveCurrency,
-                                          onTap: () {
-                                            applyTemplate(context,
-                                                exchangeViewModel, template);
-                                          },
-                                          onRemove: () {
-                                            showPopUp<void>(
-                                                context: context,
-                                                builder: (dialogContext) {
-                                                  return AlertWithTwoActions(
-                                                      alertTitle: S
-                                                          .of(context)
-                                                          .template,
-                                                      alertContent: S
-                                                          .of(context)
-                                                          .confirm_delete_template,
-                                                      rightButtonText:
-                                                      S.of(context).delete,
-                                                      leftButtonText:
-                                                      S.of(context).cancel,
-                                                      actionRightButton: () {
-                                                        Navigator.of(
-                                                            dialogContext)
-                                                            .pop();
-                                                        exchangeViewModel
-                                                            .removeTemplate(
-                                                            template:
-                                                            template);
-                                                        exchangeViewModel
-                                                            .updateTemplate();
-                                                      },
-                                                      actionLeftButton: () =>
-                                                          Navigator.of(
-                                                              dialogContext)
-                                                              .pop());
-                                                });
-                                          },
-                                        );
-                                      });
-                                }),
-                              ],
-                            )))
-                  ],
-                )),
+                    SizedBox(height: 30),
+                    _buildTemplateSection(context)
+                    ],
+                  ),
+                ),
                 bottomSectionPadding:
                     EdgeInsets.only(left: 24, right: 24, bottom: 24),
                 bottomSection: Column(children: <Widget>[
@@ -499,6 +404,111 @@ class ExchangePage extends BasePage {
                 ]),
               )),
         ));
+  }
+
+  Widget _buildTemplateSection(BuildContext context) {
+    return Container(
+      height: 40,
+      width: double.infinity,
+      padding: EdgeInsets.only(left: 24),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Observer(
+          builder: (_) {
+            final templates = exchangeViewModel.templates;
+      
+            return Row(
+              children: <Widget>[
+                GestureDetector(
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Routes.exchangeTemplate),
+                  child: Container(
+                    padding: EdgeInsets.only(left: 1, right: 10),
+                    child: DottedBorder(
+                      borderType: BorderType.RRect,
+                      dashPattern: [6, 4],
+                      color: Theme.of(context)
+                          .primaryTextTheme
+                          .display2
+                          .decorationColor,
+                      strokeWidth: 2,
+                      radius: Radius.circular(20),
+                      child: Container(
+                        height: 34,
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
+                          color: Colors.transparent,
+                        ),
+                        child: templates.length >= 1
+                            ? Icon(
+                                Icons.add,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .display3
+                                    .color,
+                              )
+                            : Text(
+                                S.of(context).new_template,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context)
+                                      .primaryTextTheme
+                                      .display3
+                                      .color,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+                ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: templates.length,
+                  itemBuilder: (context, index) {
+                    final template = templates[index];
+
+                    return TemplateTile(
+                      key: UniqueKey(),
+                      amount: template.amount,
+                      from: template.depositCurrency,
+                      to: template.receiveCurrency,
+                      onTap: () {
+                        applyTemplate(context, exchangeViewModel, template);
+                      },
+                      onRemove: () {
+                        showPopUp<void>(
+                            context: context,
+                            builder: (dialogContext) {
+                              return AlertWithTwoActions(
+                                  alertTitle: S.of(context).template,
+                                  alertContent:
+                                      S.of(context).confirm_delete_template,
+                                  rightButtonText: S.of(context).delete,
+                                  leftButtonText: S.of(context).cancel,
+                                  actionRightButton: () {
+                                    Navigator.of(dialogContext).pop();
+                                    exchangeViewModel.removeTemplate(
+                                        template: template);
+                                    exchangeViewModel.updateTemplate();
+                                  },
+                                  actionLeftButton: () =>
+                                      Navigator.of(dialogContext).pop());
+                            });
+                      },
+                    );
+                  },
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
   }
 
   void applyTemplate(BuildContext context,
@@ -670,6 +680,12 @@ class ExchangePage extends BasePage {
       }
     });
 
+    reaction((_) => exchangeViewModel.isFixedRateMode, (bool value) {
+      if (checkBoxKey.currentState.value != exchangeViewModel.isFixedRateMode) {
+        checkBoxKey.currentState.value = exchangeViewModel.isFixedRateMode;
+      }
+    });
+
     depositAddressController.addListener(
         () => exchangeViewModel.depositAddress = depositAddressController.text);
 
@@ -774,7 +790,7 @@ class ExchangePage extends BasePage {
 
   Future<String> fetchParsedAddress(
       BuildContext context, String domain, String ticker) async {
-    final parsedAddress = await parseAddressFromDomain(domain, ticker);
+    final parsedAddress = await getIt.get<AddressResolver>().resolve(domain, ticker);
     final address = await extractAddressFromParsed(context, parsedAddress);
     return address;
   }

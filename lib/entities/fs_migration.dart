@@ -95,7 +95,7 @@ Future<void> ios_migrate_user_defaults() async {
   }
   await prefs.setBool('dark_theme', isDark);
 
-  //assign the pin lenght
+  //assign the pin length
   final pinLength = await ios_legacy_helper.getInt('pin-length');
   await prefs.setInt(PreferencesKey.currentPinLength, pinLength);
 

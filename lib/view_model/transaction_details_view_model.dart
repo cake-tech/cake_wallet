@@ -13,6 +13,8 @@ import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/haven/haven.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -33,6 +35,9 @@ abstract class TransactionDetailsViewModelBase with Store {
     final tx = transactionInfo;
 
     if (wallet.type == WalletType.monero) {
+      final key = tx.additionalInfo['key'] as String;
+      final accountIndex = tx.additionalInfo['accountIndex'] as int;
+      final addressIndex = tx.additionalInfo['addressIndex'] as int;
       final _items = [
         StandartListItem(
             title: S.current.transaction_details_transaction_id, value: tx.id),
@@ -46,30 +51,27 @@ abstract class TransactionDetailsViewModelBase with Store {
             value: tx.amountFormatted()),
         StandartListItem(
             title: S.current.transaction_details_fee, value: tx.feeFormatted()),
+        if (key?.isNotEmpty ?? false)
+          StandartListItem(title: S.current.transaction_key, value: key)
       ];
 
-      //if (tx.key?.isNotEmpty ?? null) {
-      //  _items.add(
-      //      StandartListItem(title: S.current.transaction_key, value: tx.key));
-      //}
+      if (tx.direction == TransactionDirection.incoming &&
+          accountIndex != null &&
+          addressIndex != null) {
+        try {
+          final address = monero.getTransactionAddress(wallet, accountIndex, addressIndex);
 
-      //if (tx.direction == TransactionDirection.incoming) {
-      //  try {
-      //    final accountIndex = tx.accountIndex;
-      //    final addressIndex = tx.addressIndex;
-          //final address = moneroUtils.getTransactionAddress(wallet, accountIndex, addressIndex);
-
-          //if (address?.isNotEmpty ?? false) {
-          //  isRecipientAddressShown = true;
-          //  _items.add(
-          //      StandartListItem(
-          //          title: S.current.transaction_details_recipient_address,
-          //          value: address));
-          //}
-      //  } catch (e) {
-      //    print(e.toString());
-      //  }
-      //}
+          if (address?.isNotEmpty ?? false) {
+            isRecipientAddressShown = true;
+            _items.add(
+                StandartListItem(
+                    title: S.current.transaction_details_recipient_address,
+                    value: address));
+          }
+        } catch (e) {
+          print(e.toString());
+        }
+      }
 
       items.addAll(_items);
     }
@@ -97,6 +99,23 @@ abstract class TransactionDetailsViewModelBase with Store {
       ];
 
       items.addAll(_items);
+    }
+
+    if (wallet.type == WalletType.haven) {
+      items.addAll([
+        StandartListItem(
+            title: S.current.transaction_details_transaction_id, value: tx.id),
+        StandartListItem(
+            title: S.current.transaction_details_date,
+            value: dateFormat.format(tx.date)),
+        StandartListItem(
+            title: S.current.transaction_details_height, value: '${tx.height}'),
+        StandartListItem(
+            title: S.current.transaction_details_amount,
+            value: tx.amountFormatted()),
+        StandartListItem(
+            title: S.current.transaction_details_fee, value: tx.feeFormatted()),
+      ]);
     }
 
     if (showRecipientAddress && !isRecipientAddressShown) {
@@ -153,6 +172,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://www.blockchain.com/btc/tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
+      case WalletType.haven:
+        return 'https://explorer.havenprotocol.org/search?value=${txId}';
       default:
         return '';
     }
@@ -166,6 +187,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'View Transaction on Blockchain.com';
       case WalletType.litecoin:
         return 'View Transaction on Blockchair.com';
+      case WalletType.haven:
+        return 'View Transaction on explorer.havenprotocol.org';
       default:
         return '';
     }

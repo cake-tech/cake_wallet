@@ -224,6 +224,9 @@ class ContactListPage extends BasePage {
       case CryptoCurrency.xrp:
         image = Image.asset('assets/images/xrp.png', height: 24, width: 24);
         break;
+      case CryptoCurrency.xhv:
+        image = Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
+        break;
       default:
         image = null;
     }

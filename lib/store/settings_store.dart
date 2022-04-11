@@ -227,9 +227,12 @@ abstract class SettingsStoreBase with Store {
         .getInt(PreferencesKey.currentBitcoinElectrumSererIdKey);
     final litecoinElectrumServerId = sharedPreferences
         .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
+    final havenNodeId = sharedPreferences
+        .getInt(PreferencesKey.currentHavenNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
+    final havenNode = nodeSource.get(havenNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -239,7 +242,8 @@ abstract class SettingsStoreBase with Store {
         nodes: {
           WalletType.monero: moneroNode,
           WalletType.bitcoin: bitcoinElectrumServer,
-          WalletType.litecoin: litecoinElectrumServer
+          WalletType.litecoin: litecoinElectrumServer,
+          WalletType.haven: havenNode
         },
         appVersion: packageInfo.version,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,

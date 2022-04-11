@@ -1,5 +1,5 @@
 import 'package:cw_core/transaction_info.dart';
-import 'package:cw_monero/monero_amount_format.dart';
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_monero/api/structs/transaction_info_row.dart';
 import 'package:cw_core/parseBoolFromString.dart';
 import 'package:cw_core/transaction_direction.dart';
@@ -23,7 +23,13 @@ class MoneroTransactionInfo extends TransactionInfo {
         accountIndex = int.parse(map['accountIndex'] as String),
         addressIndex = map['addressIndex'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int ?? 0;
+        fee = map['fee'] as int ?? 0 {
+          additionalInfo = {
+            'key': key,
+            'accountIndex': accountIndex,
+            'addressIndex': addressIndex
+          };
+        }
 
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
@@ -36,7 +42,13 @@ class MoneroTransactionInfo extends TransactionInfo {
         accountIndex = row.subaddrAccount,
         addressIndex = row.subaddrIndex,
         key = getTxKey(row.getHash()),
-        fee = row.fee;
+        fee = row.fee {
+          additionalInfo = {
+            'key': key,
+            'accountIndex': accountIndex,
+            'addressIndex': addressIndex
+          };
+        }
 
   final String id;
   final int height;

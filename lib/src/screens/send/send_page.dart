@@ -1,8 +1,10 @@
 import 'dart:ui';
 
 import 'package:cake_wallet/entities/request_review.dart';
+import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
 import 'package:cake_wallet/src/screens/send/widgets/send_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/template_tile.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:flutter/cupertino.dart';
@@ -23,7 +25,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:cake_wallet/src/screens/yat/yat_sending.dart';
+import 'package:cw_core/crypto_currency.dart';
 
 class SendPage extends BasePage {
   SendPage({@required this.sendViewModel}) : _formKey = GlobalKey<FormState>();
@@ -48,6 +50,17 @@ class SendPage extends BasePage {
 
   @override
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
+
+  @override
+  Widget middle(BuildContext context) => Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right:8.0),
+          child: Observer(builder: (_) => SyncIndicatorIcon(isSynced: sendViewModel.isReadyForSend),),
+        ),super.middle(context),
+      ],
+    );
 
   @override
   Widget trailing(context) => Observer(builder: (_) {
@@ -131,6 +144,7 @@ class SendPage extends BasePage {
                   ),
                 ),
               ),
+              if (sendViewModel.hasMultiRecipient)
               Container(
                 height: 40,
                 width: double.infinity,
@@ -197,7 +211,6 @@ class SendPage extends BasePage {
                             itemCount: itemCount,
                             itemBuilder: (context, index) {
                               final template = templates[index];
-
                               return TemplateTile(
                                 key: UniqueKey(),
                                 to: template.name,
@@ -248,27 +261,43 @@ class SendPage extends BasePage {
               EdgeInsets.only(left: 24, right: 24, bottom: 24),
           bottomSection: Column(
             children: [
-              Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: PrimaryButton(
-                    onPressed: () {
-                      sendViewModel.addOutput();
-                      Future.delayed(const Duration(milliseconds: 250), () {
-                        controller.jumpToPage(sendViewModel.outputs.length - 1);
-                      });
-                    },
-                    text: S.of(context).add_receiver,
-                    color: Colors.transparent,
-                    textColor: Theme.of(context)
-                        .accentTextTheme
-                        .display2
-                        .decorationColor,
-                    isDottedBorder: true,
-                    borderColor: Theme.of(context)
-                        .primaryTextTheme
-                        .display2
-                        .decorationColor,
-                  )),
+              if (sendViewModel.hasCurrecyChanger)
+                Observer(builder: (_) =>
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                      onPressed: () => presentCurrencyPicker(context),
+                      text: 'Change your asset (${sendViewModel.selectedCryptoCurrency})',
+                      color: Colors.transparent,
+                      textColor: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .decorationColor,
+                    )
+                  )
+                ),
+              if (sendViewModel.hasMultiRecipient)
+                Padding(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: PrimaryButton(
+                      onPressed: () {
+                        sendViewModel.addOutput();
+                        Future.delayed(const Duration(milliseconds: 250), () {
+                          controller.jumpToPage(sendViewModel.outputs.length - 1);
+                        });
+                      },
+                      text: S.of(context).add_receiver,
+                      color: Colors.transparent,
+                      textColor: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .decorationColor,
+                      isDottedBorder: true,
+                      borderColor: Theme.of(context)
+                          .primaryTextTheme
+                          .display2
+                          .decorationColor,
+                    )),
               Observer(
                 builder: (_) {
                   return LoadingPrimaryButton(
@@ -290,14 +319,9 @@ class SendPage extends BasePage {
                         showErrorValidationAlert(context);
                         return;
                       }
-
+                      
                       await sendViewModel.createTransaction();
 
-                      if (!sendViewModel.isBatchSending &&
-                          sendViewModel.hasYat) {
-                        Navigator.of(context)
-                            .push<void>(YatSending.createRoute(sendViewModel));
-                      }
                     },
                     text: S.of(context).send,
                     color: Theme.of(context).accentTextTheme.body2.color,
@@ -333,8 +357,7 @@ class SendPage extends BasePage {
         });
       }
 
-      if (state is ExecutedSuccessfullyState &&
-          !(!sendViewModel.isBatchSending && sendViewModel.hasYat)) {
+      if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
               context: context,
@@ -374,7 +397,7 @@ class SendPage extends BasePage {
                                 return AlertWithOneAction(
                                     alertTitle: '',
                                     alertContent: S.of(context).send_success(
-                                        sendViewModel.currency.toString()),
+                                        sendViewModel.selectedCryptoCurrency.toString()),
                                     buttonText: S.of(context).ok,
                                     buttonAction: () {
                                         Navigator.of(context).pop();    
@@ -416,5 +439,18 @@ class SendPage extends BasePage {
               buttonText: S.of(context).ok,
               buttonAction: () => Navigator.of(context).pop());
         });
+  }
+
+   void presentCurrencyPicker(BuildContext context) async {
+    await showPopUp<CryptoCurrency>(
+        builder: (_) => Picker(
+          items: sendViewModel.currencies,
+          displayItem: (Object item) => item.toString(),
+          selectedAtIndex: sendViewModel.currencies.indexOf(sendViewModel.selectedCryptoCurrency),
+          title: S.of(context).please_select,
+          mainAxisAlignment: MainAxisAlignment.center,
+          onItemSelected: (CryptoCurrency cur) => sendViewModel.selectedCryptoCurrency = cur,
+        ),
+        context: context);
   }
 }

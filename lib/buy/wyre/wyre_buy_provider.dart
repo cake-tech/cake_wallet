@@ -107,8 +107,9 @@ class WyreBuyProvider extends BuyProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final sourceAmount = responseJSON['sourceAmount'] as double;
     final destAmount = responseJSON['destAmount'] as double;
+    final achAmount = responseJSON['sourceAmountWithoutFees'] as double;
 
-    return BuyAmount(sourceAmount: sourceAmount, destAmount: destAmount);
+    return BuyAmount(sourceAmount: sourceAmount, destAmount: destAmount, achSourceAmount: achAmount);
   }
 
   @override

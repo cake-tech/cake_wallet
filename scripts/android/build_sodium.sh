@@ -23,7 +23,7 @@ git clone https://github.com/jedisct1/libsodium.git $SODIUM_SRC_DIR -b $SODIUM_B
 cd $SODIUM_SRC_DIR
 ./autogen.sh
 CC=clang CXX=clang++ ./configure --prefix=${PREFIX} --host=${HOST} --enable-static --disable-shared
-make
+make -j$THREADS
 make install
 
 done

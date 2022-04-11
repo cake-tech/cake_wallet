@@ -23,7 +23,8 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.usdt,
     CryptoCurrency.usdterc20,
     CryptoCurrency.xlm,
-    CryptoCurrency.xrp
+    CryptoCurrency.xrp,
+    CryptoCurrency.xhv
   ];
   static const xmr = CryptoCurrency(title: 'XMR', raw: 0);
   static const ada = CryptoCurrency(title: 'ADA', raw: 1);
@@ -41,6 +42,21 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const usdterc20 = CryptoCurrency(title: 'USDTERC20', raw: 13);
   static const xlm = CryptoCurrency(title: 'XLM', raw: 14);
   static const xrp = CryptoCurrency(title: 'XRP', raw: 15);
+  static const xhv = CryptoCurrency(title: 'XHV', raw: 16);
+  
+  static const xag = CryptoCurrency(title: 'XAG', raw: 17);
+  static const xau = CryptoCurrency(title: 'XAU', raw: 18);
+  static const xaud = CryptoCurrency(title: 'XAUD', raw: 19);
+  static const xbtc = CryptoCurrency(title: 'XBTC', raw: 20);
+  static const xcad = CryptoCurrency(title: 'XCAD', raw: 21);
+  static const xchf = CryptoCurrency(title: 'XCHF', raw: 22);
+  static const xcny = CryptoCurrency(title: 'XCNY', raw: 23);
+  static const xeur = CryptoCurrency(title: 'XEUR', raw: 24);
+  static const xgbp = CryptoCurrency(title: 'XGBP', raw: 25);
+  static const xjpy = CryptoCurrency(title: 'XJPY', raw: 26);
+  static const xnok = CryptoCurrency(title: 'XNOK', raw: 27);
+  static const xnzd = CryptoCurrency(title: 'XNZD', raw: 28);
+  static const xusd = CryptoCurrency(title: 'XUSD', raw: 29);
 
   static CryptoCurrency deserialize({int raw}) {
     switch (raw) {
@@ -76,6 +92,34 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xlm;
       case 15:
         return CryptoCurrency.xrp;
+      case 16:
+        return CryptoCurrency.xhv;
+      case 17:
+        return CryptoCurrency.xag;
+      case 18:
+        return CryptoCurrency.xau;
+      case 19:
+        return CryptoCurrency.xaud;
+      case 20:
+        return CryptoCurrency.xbtc;
+      case 21:
+        return CryptoCurrency.xcad;
+      case 22:
+        return CryptoCurrency.xchf;
+      case 23:
+        return CryptoCurrency.xcny;
+      case 24:
+        return CryptoCurrency.xeur;
+      case 25:
+        return CryptoCurrency.xgbp;
+      case 26:
+        return CryptoCurrency.xjpy;
+      case 27:
+        return CryptoCurrency.xnok;
+      case 28:
+        return CryptoCurrency.xnzd;
+      case 29:
+        return CryptoCurrency.xusd;
       default:
         return null;
     }
@@ -115,6 +159,34 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xlm;
       case 'xrp':
         return CryptoCurrency.xrp;
+      case 'xhv':
+        return CryptoCurrency.xhv;
+      case 'xag':
+        return CryptoCurrency.xag;
+      case 'xau':
+        return CryptoCurrency.xau;
+      case 'xaud':
+        return CryptoCurrency.xaud;
+      case 'xbtc':
+        return CryptoCurrency.xbtc;
+      case 'xcad':
+        return CryptoCurrency.xcad;
+      case 'xchf':
+        return CryptoCurrency.xchf;
+      case 'xcny':
+        return CryptoCurrency.xcny;
+      case 'xeur':
+        return CryptoCurrency.xeur;
+      case 'xgbp':
+        return CryptoCurrency.xgbp;
+      case 'xjpy':
+        return CryptoCurrency.xjpy;
+      case 'xnok':
+        return CryptoCurrency.xnok;
+      case 'xnzd':
+        return CryptoCurrency.xnzd;
+      case 'xusd':
+        return CryptoCurrency.xusd;
       default:
         return null;
     }

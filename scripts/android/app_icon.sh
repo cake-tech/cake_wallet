@@ -14,11 +14,16 @@ ANDROID_ICON_SET_DEST_PATH=`pwd`/../../android/app/src/main/res
 
 case $APP_ANDROID_TYPE in
 	"monero.com")
-	APP_LOGO=$ASSETS_DIR/images/monero.com_logo.png
-	ANDROID_ICON=$MONERO_COM_PATH
-	ANDROID_ICON_SET=$MONEROCOM_ICON_SET_PATH
+		APP_LOGO=$ASSETS_DIR/images/monero.com_logo.png
+		ANDROID_ICON=$MONERO_COM_PATH
+		ANDROID_ICON_SET=$MONEROCOM_ICON_SET_PATH
 	;;
 	"cakewallet")
+    	APP_LOGO=$ASSETS_DIR/images/cakewallet_logo.png
+    	ANDROID_ICON=$CAKEWALLET_PATH
+    	ANDROID_ICON_SET=$CAKEWALLET_ICON_SET_PATH
+    	;;
+    "haven")
     	APP_LOGO=$ASSETS_DIR/images/cakewallet_logo.png
     	ANDROID_ICON=$CAKEWALLET_PATH
     	ANDROID_ICON_SET=$CAKEWALLET_ICON_SET_PATH

@@ -14,7 +14,7 @@ class QRWidget extends StatelessWidget {
       {@required this.addressListViewModel,
       this.isAmountFieldShow = false,
       this.amountTextFieldFocusNode,
-      this.isBright})
+      this.isLight})
       : amountController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
     amountController.addListener(() => addressListViewModel.amount =
@@ -26,7 +26,7 @@ class QRWidget extends StatelessWidget {
   final TextEditingController amountController;
   final FocusNode amountTextFieldFocusNode;
   final GlobalKey<FormState> _formKey;
-  final bool isBright;
+  final bool isLight;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class QRWidget extends StatelessWidget {
                             ),
                             child: QrImage(
                               data: addressListViewModel.uri.toString(),
-                              backgroundColor: isBright ? Colors.black : Colors.transparent,
+                              backgroundColor: isLight ? Colors.transparent : Colors.black,
                               foregroundColor: Theme.of(context).accentTextTheme.
                               display3.backgroundColor,
                             ),
@@ -133,54 +133,7 @@ class QRWidget extends StatelessWidget {
                           ],
                         ),
                       ))),
-        ),
-        Observer(builder: (_) {
-          return addressListViewModel.emoji.isNotEmpty
-          ? Padding(
-            padding: EdgeInsets.only(bottom: 10),
-            child: Builder(
-                builder: (context) => GestureDetector(
-                  onTap: () {
-                    Clipboard.setData(ClipboardData(
-                        text: addressListViewModel.emoji));
-                    showBar<void>(
-                        context, S.of(context).copied_to_clipboard);
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        S.of(context).yat,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.normal,
-                            color: Theme.of(context).accentTextTheme.
-                            display3.backgroundColor),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 5),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(child:Text(
-                              addressListViewModel.emoji,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 26))),
-                            Padding(
-                              padding: EdgeInsets.only(left: 12),
-                              child: copyImage,
-                            )]
-                          ),
-                        )
-                    ]
-                  )
-                )),
-          )
-          : Container();
-        })
+        )
       ],
     );
   }
