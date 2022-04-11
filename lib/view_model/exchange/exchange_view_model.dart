@@ -35,7 +35,7 @@ abstract class ExchangeViewModelBase with Store {
       this.tradesStore, this._settingsStore) {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
-    providerList = [SideShiftExchangeProvider()];
+    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);

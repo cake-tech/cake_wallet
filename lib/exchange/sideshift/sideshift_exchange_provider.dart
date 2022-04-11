@@ -68,9 +68,8 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<bool> checkIsAvailable() async {
-    return true;
-  }
+  Future<bool> checkIsAvailable() async => true;
+
 
   @override
   Future<Trade> createTrade(
@@ -233,7 +232,6 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  // TODO: implement isAvailable
   bool get isAvailable => true;
 
   @override
