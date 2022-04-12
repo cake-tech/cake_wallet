@@ -33,6 +33,7 @@ HAVEN_PACKAGE="com.cakewallet.haven"
 
 if ! [[ " ${TYPES[*]} " =~ " ${APP_ANDROID_TYPE} " ]]; then
     echo "Wrong app type."
+    return 1 2>/dev/null
     exit 1
 fi
 
