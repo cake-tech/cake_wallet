@@ -52,7 +52,7 @@
   "received" : "Reçus",
   "sent" : "Envoyés",
   "pending" : " (en attente)",
-  "rescan" : "Rescan",
+  "rescan" : "Analyser la blockchain",
   "reconnect" : "Reconnecter",
   "wallets" : "Wallets",
   "show_seed" : "Visualiser le seed",
@@ -62,7 +62,7 @@
   "reconnect_alert_text" : "Êtes vous certain de vouloir vous reconnecter ?",
 
 
-  "exchange" : "Échange",
+  "exchange" : "Échanger",
   "clear" : "Effacer",
   "refund_address" : "Adresse de Remboursement",
   "change_exchange_provider" : "Changer de Plateforme d'Échange",
@@ -103,7 +103,7 @@
   "expired" : "Expirée",
   "time" : "${minutes}m ${seconds}s",
   "send_xmr" : "Envoyer XMR",
-  "exchange_new_template" : "Nouveau modèle",
+  "exchange_new_template" : "Nouveau modèle d'échange",
 
   "faq" : "FAQ",
 
@@ -140,8 +140,8 @@
   "new_node_testing" : "Test du nouveau nœud",
 
 
-  "use" : "Changer ver ",
-  "digit_pin" : "-digit PIN",
+  "use" : "Changer vers code PIN à ",
+  "digit_pin" : " chiffres",
 
 
   "share_address" : "Partager l'adresse",
@@ -211,7 +211,7 @@
   "send_estimated_fee" : "Estimation des frais :",
   "send_priority" : "Actuellement les frais sont positionnés à la priorité ${transactionPriority}.\nLa priorité de la transaction peut être modifiée dans les réglages",
   "send_creating_transaction" : "Création de la transaction",
-  "send_templates" : "Modèles",
+  "send_templates" : "Modèles d'envois",
   "send_new" : "Nouveau",
   "send_amount" : "Montant :",
   "send_fee" : "Frais :",
@@ -225,7 +225,7 @@
   "settings_nodes" : "Nœuds",
   "settings_current_node" : "Nœud actuel",
   "settings_wallets" : "Wallets",
-  "settings_display_balance_as" : "Afficher le solde en",
+  "settings_display_balance_as" : "Affichage du solde",
   "settings_currency" : "Devise",
   "settings_fee_priority" : "Priorité des frais",
   "settings_save_recipient_address" : "Sauvegarder l'adresse du bénéficiaire",
@@ -475,7 +475,7 @@
   "exchange_incorrect_current_wallet_for_xmr" : "Si vous souhaitez échanger des XMR du solde Monero de votre Cake Wallet, merci de sélectionner votre wallet Monero au préalable.",
   "confirmed" : "Confirmé",
   "unconfirmed" : "Non confirmé",
-  "displayable" : "Affichable",
+  "displayable" : "Visible",
 
   "submit_request" : "soumettre une requête",
 
