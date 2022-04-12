@@ -31,6 +31,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   static const rangePath = '/v1/pairs';
   static const orderPath = '/v1/orders';
   static const quotePath = '/v1/quotes';
+  static const permissionPath = '/v1/permissions';
   static const apiHeaderKey = 'x-sideshift-secret';
 
   @override
@@ -68,7 +69,25 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<bool> checkIsAvailable() async => true;
+  Future<bool> checkIsAvailable() async{
+     const url = apiBaseUrl + permissionPath;
+    final response = await get(url);
+      if (response.statusCode == 500) {
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      final error = responseJSON['error']['message'] as String;
+
+      throw Exception('$error');
+    }
+
+    if (response.statusCode != 200) {
+      return false;
+    }
+
+    final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+    final canCreateOrder = responseJSON['createOrder'] as bool;
+    final canCreateQuote = responseJSON['createQuote'] as bool;
+    return canCreateOrder && canCreateQuote;
+  }
 
 
   @override
