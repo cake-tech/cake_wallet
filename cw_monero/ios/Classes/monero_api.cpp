@@ -766,6 +766,11 @@ extern "C"
         return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
     }
 
+    char *get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
+    {
+        return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
+    }
+
 #ifdef __cplusplus
 }
 #endif
