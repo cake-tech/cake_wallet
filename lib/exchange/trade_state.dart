@@ -33,7 +33,8 @@ class TradeState extends EnumerableItem<String> with Serializable<String> {
       TradeState(raw: 'waitingAuthorization', title: 'Waiting authorization');
   static const failed = TradeState(raw: 'failed', title: 'Failed');
   static const completed = TradeState(raw: 'completed', title: 'Completed');
-
+  static const settling = TradeState(raw: 'settling', title: 'Settlement in progress');
+  static const settled = TradeState(raw: 'settled', title: 'Settlement completed');
   static TradeState deserialize({String raw}) {
     switch (raw) {
       case 'pending':
