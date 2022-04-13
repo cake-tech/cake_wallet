@@ -36,6 +36,24 @@ abstract class SendTemplateViewModelBase with Store {
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
+  @observable
+  bool isCurrencySelected = true;
+
+  @observable
+  bool isFiatSelected = false;
+
+  @action
+  void selectCurrency () {
+    isCurrencySelected = true;
+    isFiatSelected = false;
+  }
+
+  @action
+  void selectFiat () {
+    isFiatSelected = true;
+    isCurrencySelected = false;
+  }
+
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
