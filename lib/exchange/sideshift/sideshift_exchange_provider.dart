@@ -51,17 +51,17 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       }
       final fromCurrency = normalizeCryptoCurrency(from);
       final toCurrency = normalizeCryptoCurrency(to);
-
       final url =
           apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
-
       final response = await get(url);
-
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final rate = double.parse(responseJSON['rate'] as String);
       final max = double.parse(responseJSON['max'] as String);
+
       if (amount > max) return 0.00;
+
       final estimatedAmount = rate * amount;
+
       return estimatedAmount;
     } catch (_) {
       return 0.00;
@@ -69,10 +69,11 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   }
 
   @override
-  Future<bool> checkIsAvailable() async{
-     const url = apiBaseUrl + permissionPath;
+  Future<bool> checkIsAvailable() async {
+    const url = apiBaseUrl + permissionPath;
     final response = await get(url);
-      if (response.statusCode == 500) {
+
+    if (response.statusCode == 500) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error']['message'] as String;
 
@@ -89,17 +90,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     return canCreateOrder && canCreateQuote;
   }
 
-
   @override
   Future<Trade> createTrade(
       {TradeRequest request, bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
-
- 
     final quoteId = await _createQuote(_request);
     final url = apiBaseUrl + orderPath;
-     final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
-
+    final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
     final body = {
       'type': 'fixed',
       'quoteId': quoteId,
@@ -126,25 +123,23 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final settleAddress = responseJSON['settleAddress']['address'] as String;
 
     return Trade(
-        id: id,
-        provider: description,
-        from: _request.depositMethod,
-        to: _request.settleMethod,
-        inputAddress:  inputAddress,
-        refundAddress: settleAddress,
-        state: TradeState.created,
-        amount: _request.depositAmount,
-        createdAt: DateTime.now(),
-        );
+      id: id,
+      provider: description,
+      from: _request.depositMethod,
+      to: _request.settleMethod,
+      inputAddress: inputAddress,
+      refundAddress: settleAddress,
+      state: TradeState.created,
+      amount: _request.depositAmount,
+      createdAt: DateTime.now(),
+    );
   }
 
   Future<String> _createQuote(SideShiftRequest request) async {
     final url = apiBaseUrl + quotePath;
     final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
-
     final depositMethod = normalizeCryptoCurrency(request.depositMethod);
     final settleMethod = normalizeCryptoCurrency(request.settleMethod);
-
     final body = {
       'depositMethod': depositMethod,
       'settleMethod': settleMethod,
@@ -175,9 +170,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
       {CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode}) async {
     final fromCurrency = normalizeCryptoCurrency(from);
     final toCurrency = normalizeCryptoCurrency(to);
-
     final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
-
     final response = await get(url);
 
     if (response.statusCode == 500) {
@@ -194,14 +187,13 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final responseJSON = json.decode(response.body) as Map<String, dynamic>;
     final min = double.parse(responseJSON['min'] as String);
     final max = double.parse(responseJSON['max'] as String);
+
     return Limits(min: min, max: max);
   }
 
   @override
   Future<Trade> findTradeById({@required String id}) async {
-
     final url = apiBaseUrl + orderPath + '/' + id;
-
     final response = await get(url);
 
     if (response.statusCode == 404) {
@@ -229,6 +221,7 @@ class SideShiftExchangeProvider extends ExchangeProvider {
     final expectedSendAmount = responseJSON['depositAmount'].toString();
     final deposits = responseJSON['deposits'] as List;
     TradeState state;
+
     if (deposits != null && deposits.isNotEmpty) {
       final status = deposits[0]['status'] as String;
       state = TradeState.deserialize(raw: status);

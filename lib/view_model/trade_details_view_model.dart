@@ -106,15 +106,10 @@ abstract class TradeDetailsViewModelBase with Store {
           }));
     }
 
-        if (trade.provider == ExchangeProviderDescription.sideShift) {
-      final buildURL =
-          'https://sideshift.ai/orders/${trade.id.toString()}';
+    if (trade.provider == ExchangeProviderDescription.sideShift) {
+      final buildURL = 'https://sideshift.ai/orders/${trade.id.toString()}';
       items.add(TrackTradeListItem(
-          title: 'Track',
-          value: buildURL,
-          onTap: () {
-            launch(buildURL);
-          }));
+          title: 'Track', value: buildURL, onTap: () => launch(buildURL)));
     }
 
     if (trade.createdAt != null) {
