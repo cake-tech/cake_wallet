@@ -8,25 +8,6 @@ PODS:
     - Flutter
     - Reachability
   - CryptoSwift (1.3.2)
-  - cw_haven (0.0.1):
-    - cw_haven/Boost (= 0.0.1)
-    - cw_haven/Haven (= 0.0.1)
-    - cw_haven/OpenSSL (= 0.0.1)
-    - cw_haven/Sodium (= 0.0.1)
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Boost (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Haven (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/OpenSSL (0.0.1):
-    - cw_shared_external
-    - Flutter
-  - cw_haven/Sodium (0.0.1):
-    - cw_shared_external
-    - Flutter
   - cw_monero (0.0.2):
     - cw_monero/Boost (= 0.0.2)
     - cw_monero/Monero (= 0.0.2)
@@ -131,7 +112,6 @@ DEPENDENCIES:
   - barcode_scan (from `.symlinks/plugins/barcode_scan/ios`)
   - connectivity (from `.symlinks/plugins/connectivity/ios`)
   - CryptoSwift
-  - cw_haven (from `.symlinks/plugins/cw_haven/ios`)
   - cw_monero (from `.symlinks/plugins/cw_monero/ios`)
   - cw_shared_external (from `.symlinks/plugins/cw_shared_external/ios`)
   - devicelocale (from `.symlinks/plugins/devicelocale/ios`)
@@ -168,8 +148,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/barcode_scan/ios"
   connectivity:
     :path: ".symlinks/plugins/connectivity/ios"
-  cw_haven:
-    :path: ".symlinks/plugins/cw_haven/ios"
   cw_monero:
     :path: ".symlinks/plugins/cw_monero/ios"
   cw_shared_external:
@@ -208,7 +186,6 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   CryptoSwift: 093499be1a94b0cae36e6c26b70870668cb56060
-  cw_haven: b3e54e1fbe7b8e6fda57a93206bc38f8e89b898a
   cw_monero: 88c5e7aa596c6848330750f5f8bcf05fb9c66375
   cw_shared_external: 2972d872b8917603478117c9957dfca611845a92
   devicelocale: b22617f40038496deffba44747101255cee005b0

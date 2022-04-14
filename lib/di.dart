@@ -388,7 +388,7 @@ Future setup(
           AccountListItem, void>(
       (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
           monero.getAccountList(getIt.get<AppStore>().wallet),
-          haven.getAccountList(getIt.get<AppStore>().wallet),
+          haven?.getAccountList(getIt.get<AppStore>().wallet ?? null),
           wallet: getIt.get<AppStore>().wallet,
           accountListItem: account));
 
