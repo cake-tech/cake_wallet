@@ -239,10 +239,13 @@ class SendTemplatePage extends BasePage {
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   sendTemplateViewModel.addTemplate(
+                      isCurrencySelected: sendTemplateViewModel.isCurrencySelected,
                       name: _nameController.text,
                       address: _addressController.text,
-                      cryptoCurrency: sendTemplateViewModel.currency.title,
-                      amount: _cryptoAmountController.text);
+                      cryptoCurrency:sendTemplateViewModel.currency.title,
+                      fiatCurrency: sendTemplateViewModel.fiat.title,
+                      amount: _cryptoAmountController.text,
+                      amountFiat: _fiatAmountController.text);
                   Navigator.of(context).pop();
                 }
               },

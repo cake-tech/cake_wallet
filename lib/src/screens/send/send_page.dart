@@ -212,12 +212,16 @@ class SendPage extends BasePage {
                               return TemplateTile(
                                 key: UniqueKey(),
                                 to: template.name,
-                                amount: template.amount,
-                                from: template.cryptoCurrency,
+                                amount: template.isCurrencySelected ? template.amount : template.amountFiat,
+                                from: template.isCurrencySelected ? template.cryptoCurrency : template.fiatCurrency,
                                 onTap: () async {
                                   final output = _defineCurrentOutput();
                                   output.address = template.address;
-                                  output.setCryptoAmount(template.amount);
+                                  if(template.isCurrencySelected){
+                                    output.setCryptoAmount(template.amount);
+                                  }else{
+                                    output.setFiatAmount(template.amountFiat);
+                                  }
                                   output.resetParsedAddress();
                                   await output.fetchParsedAddress(context);
                                 },
