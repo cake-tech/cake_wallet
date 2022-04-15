@@ -8,6 +8,9 @@
 
   "monero_com": "Monero.com by Cake Wallet",
   "monero_com_wallet_text": "Awesome wallet for Monero",
+
+  "haven_app": "Haven by Cake Wallet",
+  "haven_app_wallet_text": "Awesome wallet for Haven",
   
   "accounts" : "账户",
   "edit" : "编辑",
@@ -75,7 +78,8 @@
   "min_value" : "最低: ${value} ${currency}",
   "max_value" : "最高: ${value} ${currency}",
   "change_currency" : "更改币种",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "复制ID",
   "exchange_result_write_down_trade_id" : "请复制或写下交易编号以继续.",
@@ -264,6 +268,7 @@
   "new_subaddress_label_name" : "标签名称",
   "new_subaddress_create" : "创建",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "子地址列表",
 
@@ -519,7 +524,7 @@
   "third_intro_title" : "Yat 和別人玩得很好",
   "third_intro_content" : "Yats 也住在 Cake Wallet 之外。 地球上任何一個錢包地址都可以用一個Yat來代替！",
   "learn_more" : "了解更多",
-
+  "search": "搜索",
   "new_template" : "新模板",
   "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效"
 }

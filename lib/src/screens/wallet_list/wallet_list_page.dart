@@ -45,6 +45,8 @@ class WalletListBodyState extends State<WalletListBody> {
       Image.asset('assets/images/litecoin_icon.png', height: 24, width: 24);
   final nonWalletTypeIcon =
       Image.asset('assets/images/close.png', height: 24, width: 24);
+  final havenIcon =
+      Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
   final scrollController = ScrollController();
   final double tileHeight = 60;
   Flushbar<void> _progressBar;
@@ -176,12 +178,12 @@ class WalletListBodyState extends State<WalletListBody> {
           bottomSection: Column(children: <Widget>[
             PrimaryImageButton(
               onPressed: () {
-	      	  if (isMoneroOnly) {
-      		    Navigator.of(context).pushNamed(Routes.newWallet, arguments: WalletType.monero);
-      		  } else {
-      		    Navigator.of(context).pushNamed(Routes.newWalletType);
-      		  }
-	      },
+    	      	  if (isSingleCoin) {
+          		    Navigator.of(context).pushNamed(Routes.newWallet, arguments: widget.walletListViewModel.currentWalletType);
+          		  } else {
+          		    Navigator.of(context).pushNamed(Routes.newWalletType);
+          		  }
+	            },
               image: newWalletImage,
               text: S.of(context).wallet_list_create_new_wallet,
               color: Theme.of(context).accentTextTheme.body2.color,
@@ -190,7 +192,7 @@ class WalletListBodyState extends State<WalletListBody> {
             SizedBox(height: 10.0),
             PrimaryImageButton(
                 onPressed: () {
-		              if (isMoneroOnly) {
+		              if (isSingleCoin) {
                        Navigator
                         .of(context)
 		       	            .pushNamed(
@@ -216,6 +218,8 @@ class WalletListBodyState extends State<WalletListBody> {
         return moneroIcon;
       case WalletType.litecoin:
         return litecoinIcon;
+      case WalletType.haven:
+        return havenIcon;
       default:
         return nonWalletTypeIcon;
     }
@@ -262,18 +266,6 @@ class WalletListBodyState extends State<WalletListBody> {
 
       auth.close();
     });
-  }
-
-  Future<void> _generateNewWallet() async {
-    try {
-      changeProcessText(S.of(context).creating_new_wallet);
-      await widget.walletListViewModel.walletNewVM
-          .create(options: 'English'); // FIXME: Unnamed constant
-      hideProgressText();
-      await Navigator.of(context).pushNamed(Routes.preSeed);
-    } catch (e) {
-      changeProcessText(S.of(context).creating_new_wallet_error(e.toString()));
-    }
   }
 
   void changeProcessText(String text) {

@@ -22,6 +22,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image moneroIcon;
   Image bitcoinIcon;
   Image litecoinIcon;
+  Image havenIcon;
   final largeScreen = 731;
 
   double menuWidth;
@@ -78,6 +79,7 @@ class MenuWidgetState extends State<MenuWidget> {
     bitcoinIcon = Image.asset('assets/images/bitcoin_menu.png',
         color: Theme.of(context).accentTextTheme.overline.decorationColor);
     litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
+    havenIcon = Image.asset('assets/images/haven_menu.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -131,9 +133,8 @@ class MenuWidgetState extends State<MenuWidget> {
                               children: <Widget>[
                                 _iconFor(type: widget.dashboardViewModel.type),
                                 SizedBox(width: 12),
-                                Expanded(
+                                SingleChildScrollView(
                                     child: Container(
-                                  height: 42,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -242,6 +243,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return bitcoinIcon;
       case WalletType.litecoin:
         return litecoinIcon;
+      case WalletType.haven:
+        return havenIcon;
       default:
         return null;
     }

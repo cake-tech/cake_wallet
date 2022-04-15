@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
@@ -15,7 +16,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
-class AddressPage extends StatelessWidget {
+class AddressPage extends BasePage {
   AddressPage({@required this.addressListViewModel,
                 this.walletViewModel})
       : _cryptoAmountFocus = FocusNode();
@@ -26,7 +27,64 @@ class AddressPage extends StatelessWidget {
   final FocusNode _cryptoAmountFocus;
 
   @override
-  Widget build(BuildContext context) {
+  String get title => S.current.receive;
+
+  @override
+  Color get backgroundLightColor => currentTheme.type == ThemeType.bright
+      ? Colors.transparent : Colors.white;
+
+  @override
+  Color get backgroundDarkColor => Colors.transparent;
+
+  @override
+  bool get resizeToAvoidBottomInset => false;
+
+  @override
+  Widget leading(BuildContext context) {
+    final _backButton = Icon(Icons.arrow_back_ios,
+      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+      size: 16,);
+
+    return SizedBox(
+      height: 37,
+      width: 37,
+      child: ButtonTheme(
+        minWidth: double.minPositive,
+        child: FlatButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            padding: EdgeInsets.all(0),
+            onPressed: () => onClose(context),
+            child: _backButton),
+      ),
+    );
+  }
+
+  @override
+  Widget middle(BuildContext context) {
+    return Text(
+      title,
+      style: TextStyle(
+          fontSize: 18.0,
+          fontWeight: FontWeight.bold,
+          fontFamily: 'Lato',
+          color: Theme.of(context).accentTextTheme.display3.backgroundColor),
+    );
+  }
+
+  @override
+  Widget Function(BuildContext, Widget) get rootWrapper =>
+      (BuildContext context, Widget scaffold) => Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+            Theme.of(context).accentColor,
+            Theme.of(context).scaffoldBackgroundColor,
+            Theme.of(context).primaryColor,
+          ], begin: Alignment.topRight, end: Alignment.bottomLeft)),
+          child: scaffold);
+
+  @override
+  Widget body(BuildContext context) {
     autorun((_) async {
       if (!walletViewModel.isOutdatedElectrumWallet
         || !walletViewModel.settingsStore.shouldShowReceiveWarning) {
@@ -66,7 +124,6 @@ class AddressPage extends StatelessWidget {
               )
             ]),
         child: Container(
-          height: 1,
           padding: EdgeInsets.fromLTRB(24, 24, 24, 32),
           child: Column(
             children: <Widget>[

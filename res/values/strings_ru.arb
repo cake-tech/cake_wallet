@@ -8,6 +8,9 @@
 
   "monero_com": "Monero.com by Cake Wallet",
   "monero_com_wallet_text": "Awesome wallet for Monero",
+
+  "haven_app": "Haven by Cake Wallet",
+  "haven_app_wallet_text": "Awesome wallet for Haven",
   
   "accounts" : "Аккаунты",
   "edit" : "Редактировать",
@@ -75,7 +78,8 @@
   "min_value" : "Мин: ${value} ${currency}",
   "max_value" : "Макс: ${value} ${currency}",
   "change_currency" : "Изменить валюту",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "Скопировать ID",
   "exchange_result_write_down_trade_id" : "Пожалуйста, скопируйте или запишите ID сделки.",
@@ -264,6 +268,7 @@
   "new_subaddress_label_name" : "Имя",
   "new_subaddress_create" : "Создать",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "Список субадресов",
 
@@ -521,7 +526,7 @@
   "third_intro_title" : "Yat хорошо взаимодействует с другими",
   "third_intro_content" : "Yat находятся за пределами Cake Wallet. Любой адрес кошелька на земле можно заменить на Yat!",
   "learn_more" : "Узнать больше",
-
+  "search": "Поиск",
   "new_template" : "Новый шаблон",
   "electrum_address_disclaimer": "Мы генерируем новые адреса каждый раз, когда вы их используете, но предыдущие адреса продолжают работать."
 }

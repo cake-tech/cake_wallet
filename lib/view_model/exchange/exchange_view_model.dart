@@ -2,6 +2,8 @@ import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/selected_exchange_provider.dart';
 import 'package:cake_wallet/store/selected_exchange_provider_store.dart';
 import 'package:cake_wallet/view_model/exchange/provider_price.dart';
+import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -36,13 +38,10 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore, this._selectedExchangeProviderStore, 
-      this.sharedPreferences,) {
-    const excludeCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb];
-    providerList = [
-      ChangeNowExchangeProvider(), 
-      XMRTOExchangeProvider(), 
-      MorphTokenExchangeProvider(trades: trades)
-      ];
+      this.sharedPreferences) {
+    const excludeDepositCurrencies = [CryptoCurrency.xhv];
+    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
+    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
     _initialPairBasedOnWallet();
     _storeDefaultProviders();
     _lookupPrices().then((_) {
@@ -70,7 +69,10 @@ abstract class ExchangeViewModelBase with Store {
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
    
     receiveCurrencies = CryptoCurrency.all
-      .where((cryptoCurrency) => !excludeCurrencies.contains(cryptoCurrency))
+      .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
+      .toList();
+    depositCurrencies = CryptoCurrency.all
+      .where((cryptoCurrency) => !excludeDepositCurrencies.contains(cryptoCurrency))
       .toList();
     isReverse = false;
     isFixedRateMode = false;
@@ -158,6 +160,7 @@ abstract class ExchangeViewModelBase with Store {
   List<CryptoCurrency> receiveCurrencies;
 
   List<ProviderPrice> providerPrices = [];
+  List<CryptoCurrency> depositCurrencies;
 
   Limits limits;
 
@@ -288,6 +291,18 @@ abstract class ExchangeViewModelBase with Store {
     String amount;
     CryptoCurrency currency;
 
+     if (provider is SideShiftExchangeProvider) {
+      request = SideShiftRequest(
+          depositMethod: depositCurrency,
+          settleMethod: receiveCurrency,
+          depositAmount: depositAmount?.replaceAll(',', '.'),
+          settleAddress: receiveAddress,
+          refundAddress: depositAddress,
+          );
+      amount = depositAmount;
+      currency = depositCurrency;
+    }
+
     if (provider is XMRTOExchangeProvider) {
       request = XMRTOTradeRequest(
           from: depositCurrency,
@@ -379,7 +394,7 @@ abstract class ExchangeViewModelBase with Store {
   @action
   void calculateDepositAllAmount() {
     if (wallet.type == WalletType.bitcoin) {
-      final availableBalance = wallet.balance.available;
+      final availableBalance = wallet.balance[wallet.currency].available;
       final priority = _settingsStore.priority[wallet.type];
       final fee = wallet.calculateEstimatedFee(priority, null);
 

@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/src/widgets/standard_list.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
@@ -15,23 +16,21 @@ class BalancePage extends StatelessWidget{
   
   Color get backgroundLightColor =>
       settingsStore.currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: () =>
-      dashboardViewModel.balanceViewModel.isReversing =
-      !dashboardViewModel.balanceViewModel.isReversing,
-      onLongPressUp: () =>
-      dashboardViewModel.balanceViewModel.isReversing =
-      !dashboardViewModel.balanceViewModel.isReversing,
+      onLongPress: () => dashboardViewModel.balanceViewModel.isReversing = !dashboardViewModel.balanceViewModel.isReversing,
+      onLongPressUp: () => dashboardViewModel.balanceViewModel.isReversing = !dashboardViewModel.balanceViewModel.isReversing,
+      child: SingleChildScrollView(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(height: 56),
           Container(
-            alignment: Alignment.topLeft,
             margin: const EdgeInsets.only(left: 24, bottom: 16),
             child: Observer(builder: (_) {
-                  return AutoSizeText(
+                  return Text(
                       dashboardViewModel.balanceViewModel.asset,
                       style: TextStyle(
                           fontSize: 24,
@@ -44,162 +43,140 @@ class BalancePage extends StatelessWidget{
                           height: 1),
                       maxLines: 1,
                       textAlign: TextAlign.center);
-                })),    
-  
-             Container(     
-               margin: const EdgeInsets.only(left: 16, right: 16),
-               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30.0),
-                  border: Border.all(color: settingsStore.currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
-                  color:Theme.of(context).textTheme.title.backgroundColor
-                ),
-               child: Container(
-                 margin: const EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 24),
-                 child: Row(
-                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     Column(
-                       crossAxisAlignment: CrossAxisAlignment.start,
-                       children: [
-                         SizedBox(height: 8,),
-                          Observer(builder: (_) {
-                    return Column(
-                      children: [
-                        Text(
-                          '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 12,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .display2
-                                  .backgroundColor,
-                              height: 1),
-                        )
-                      ],
-                    );
-                  }),
-                  SizedBox(height: 8,),
-                  Observer(builder: (_) {
-                    return AutoSizeText(
-                        dashboardViewModel.balanceViewModel.availableBalance,
-                        style: TextStyle(
-                            fontSize: 24,
-                            fontFamily: 'Lato',
-                            
-                            fontWeight: FontWeight.w900,
-                            color: Theme.of(context)
-                                .accentTextTheme
-                                .display3
-                                .backgroundColor,
-                            height: 1),
-                        maxLines: 1,
-                        textAlign: TextAlign.center);
-                  }),
-                  SizedBox(height: 4,),
-                   Observer(builder: (_) {
-                    return Column(
-                      children: [
-                        Text(
-                          '${dashboardViewModel.balanceViewModel.availableFiatBalance.toString()}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .display3
-                                  .backgroundColor,
-                              height: 1),
-                        )
-                      ],
-                    );
-                  }),
-                  SizedBox(height: 26),
-                  Observer(builder: (_) {
-                    return Column(
-                      children: [
-                        Text(
-                          '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                             fontSize: 12,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .display2
-                                  .backgroundColor,
-                              height: 1),
-                        )
-                      ],
-                    );
-                  }),
-                  SizedBox(height: 8),
-                  Observer(builder: (_) {
-                    return AutoSizeText(
-                        dashboardViewModel.balanceViewModel.additionalBalance
-                            .toString(),
-                        style: TextStyle(
-                           fontSize: 24,
-                            fontFamily: 'Lato',
-                            fontWeight: FontWeight.w900,
-                            color: Theme.of(context)
-                                .accentTextTheme
-                                .display3
-                                .backgroundColor,
-                            height: 1),
-                        maxLines: 1,
-                        textAlign: TextAlign.center);
-                  }),
-                  SizedBox(height: 4,),
-                  Observer(builder: (_) {
-                    return Column(
-                      children: [
-                        Text(
-                          '${dashboardViewModel.balanceViewModel.additionalFiatBalance.toString()}',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                               fontSize: 16,
-                              fontFamily: 'Lato',
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .display3
-                                  .backgroundColor,
-                              height: 1),
-                        )
-                      ],
-                    );
-                  }),
-                 ],
-                 ),
-                   Observer(builder: (_) {
-                    return Text(
-                      dashboardViewModel.balanceViewModel.currency.toString(),
-                      style: TextStyle(
-                          fontSize: 28,
-                          fontFamily: 'Lato',
-                          fontWeight: FontWeight.w800,
-                          color: Theme.of(context)
-                              .accentTextTheme
-                              .display3
-                              .backgroundColor,
-                          height: 1),
-                    );
-                  }),
-                   ],
-                 ),
-               ),
-             ),
-            
-        ],
+                })),
+          Observer(builder: (_) {
+            return ListView.separated(
+              physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  separatorBuilder: (_, __) => Container(padding: EdgeInsets.only(bottom: 8)),
+                  itemCount: dashboardViewModel.balanceViewModel.formattedBalances.length,
+                  itemBuilder: (__, index) {
+                    final balance = dashboardViewModel.balanceViewModel.formattedBalances.elementAt(index);
+                    return buildBalanceRow(context,
+                      availableBalanceLabel: '${dashboardViewModel.balanceViewModel.availableBalanceLabel}',
+                      availableBalance: balance.availableBalance,
+                      availableFiatBalance: balance.fiatAvailableBalance,
+                      additionalBalanceLabel: '${dashboardViewModel.balanceViewModel.additionalBalanceLabel}',
+                      additionalBalance: balance.additionalBalance,
+                      additionalFiatBalance: balance.fiatAdditionalBalance,
+                      currency: balance.formattedAssetTitle);
+                    });
+             })
+      ])));
+  }
+
+  Widget buildBalanceRow(BuildContext context,
+    {String availableBalanceLabel,
+      String availableBalance,
+      String availableFiatBalance,
+      String additionalBalanceLabel,
+      String additionalBalance,
+      String additionalFiatBalance,
+      String currency}) {
+    return Container(    
+      margin: const EdgeInsets.only(left: 16, right: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30.0),
+        border: Border.all(color: settingsStore.currentTheme.type == ThemeType.bright ? Color.fromRGBO(255, 255, 255, 0.2): Colors.transparent, width: 1, ),
+        color:Theme.of(context).textTheme.title.backgroundColor
       ),
-  
+      child: Container(
+       margin: const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 24),
+       child: Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+                SizedBox(height: 4,),
+                Text('${availableBalanceLabel}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w400,
+                    color: Theme.of(context)
+                            .accentTextTheme
+                            .display2
+                            .backgroundColor,
+                    height: 1)),
+                SizedBox(height: 5),
+              Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                  AutoSizeText(
+                    availableBalance,
+                    style: TextStyle(
+                        fontSize: 24,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context)
+                            .accentTextTheme
+                            .display3
+                            .backgroundColor,
+                        height: 1),
+                    maxLines: 1,
+                    textAlign: TextAlign.center),
+                  Text(currency,
+                    style: TextStyle(
+                        fontSize: 28,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w800,
+                        color: Theme.of(context)
+                            .accentTextTheme
+                            .display3
+                            .backgroundColor,
+                        height: 1)),
+                  ]),
+              SizedBox(height: 4,),
+              Text('${availableFiatBalance}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context)
+                          .accentTextTheme
+                          .display3
+                          .backgroundColor,
+                  height: 1)),
+              SizedBox(height: 26),
+              Text('${additionalBalanceLabel}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context)
+                          .accentTextTheme
+                          .display2
+                          .backgroundColor,
+                  height: 1)),
+              SizedBox(height: 8),
+              AutoSizeText(
+                    additionalBalance,
+                    style: TextStyle(
+                       fontSize: 20,
+                        fontFamily: 'Lato',
+                        fontWeight: FontWeight.w400,
+                        color: Theme.of(context)
+                            .accentTextTheme
+                            .display3
+                            .backgroundColor,
+                        height: 1),
+                    maxLines: 1,
+                    textAlign: TextAlign.center),
+              SizedBox(height: 4,),
+              Text('${additionalFiatBalance}',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w400,
+                  color: Theme.of(context)
+                          .accentTextTheme
+                          .display3
+                          .backgroundColor,
+                  height: 1),
+                )
+      ])),
     );
   }
 }

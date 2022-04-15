@@ -21,7 +21,7 @@ abstract class SendTemplateViewModelBase with Store {
   SendTemplateViewModelBase(this._wallet, this._settingsStore,
       this._sendTemplateStore, this._fiatConversationStore) {
 
-    output = Output(_wallet, _settingsStore, _fiatConversationStore);
+    output = Output(_wallet, _settingsStore, _fiatConversationStore, () => currency);
   }
 
   Output output;

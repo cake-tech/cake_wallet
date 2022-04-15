@@ -1,0 +1,6 @@
+-
+  uri: vault.havenprotocol.org:443
+  login: super
+  password: super
+  useSSL: true
+  is_default: true

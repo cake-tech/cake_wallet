@@ -59,4 +59,5 @@ class Routes {
   static const unspentCoinsDetails = '/unspent_coins_details';
   static const moneroRestoreWalletFromWelcome = '/monero_restore_wallet';
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
+  static const addressPage = '/address_page';
 }

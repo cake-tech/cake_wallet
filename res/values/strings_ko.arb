@@ -8,6 +8,9 @@
 
   "monero_com": "Monero.com by Cake Wallet",
   "monero_com_wallet_text": "Awesome wallet for Monero",
+
+  "haven_app": "Haven by Cake Wallet",
+  "haven_app_wallet_text": "Awesome wallet for Haven",
   
   "accounts" : "계정",
   "edit" : "편집하다",
@@ -75,7 +78,8 @@
   "min_value" : "최소: ${value} ${currency}",
   "max_value" : "맥스: ${value} ${currency}",
   "change_currency" : "통화 변경",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "부 ID",
   "exchange_result_write_down_trade_id" : "계속하려면 거래 ID를 복사하거나 적어 두십시오..",
@@ -264,6 +268,7 @@
   "new_subaddress_label_name" : "라벨 이름",
   "new_subaddress_create" : "몹시 떠들어 대다",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "하위 주소 목록",
 
@@ -521,7 +526,7 @@
   "third_intro_title" : "Yat는 다른 사람들과 잘 놉니다.",
   "third_intro_content" : "Yats는 Cake Wallet 밖에서도 살고 있습니다. 지구상의 모든 지갑 주소는 Yat!",
   "learn_more" : "더 알아보기",
-
+  "search": "찾다",
   "new_template" : "새 템플릿",
   "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다."
 }

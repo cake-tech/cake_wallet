@@ -130,7 +130,8 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
             BlockchainHeightWidget(
                 focusNode: widget.blockHeightFocusNode,
                 key: blockchainHeightKey,
-                onHeightOrDateEntered: widget.onHeightOrDateEntered)
+                onHeightOrDateEntered: widget.onHeightOrDateEntered,
+                hasDatePicker: widget.type == WalletType.monero)
         ]));
   }
 

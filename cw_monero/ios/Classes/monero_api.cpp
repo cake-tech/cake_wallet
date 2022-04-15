@@ -12,7 +12,7 @@
 void __clear_cache(void* start, void* end) { }
 #include "../External/ios/include/wallet2_api.h"
 #else
-#include "../External/android/x86/include/wallet2_api.h"
+#include "../External/android/include/wallet2_api.h"
 #endif
 
 using namespace std::chrono_literals;
@@ -764,6 +764,11 @@ extern "C"
     char * get_tx_key(char * txId)
     {
         return strdup(m_wallet->getTxKey(std::string(txId)).c_str());
+    }
+
+    char *get_subaddress_label(uint32_t accountIndex, uint32_t addressIndex)
+    {
+        return strdup(get_current_wallet()->getSubaddressLabel(accountIndex, addressIndex).c_str());
     }
 
 #ifdef __cplusplus

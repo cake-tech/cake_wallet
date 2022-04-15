@@ -128,9 +128,10 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
 	MoneroBalance get balance {
 		final moneroWallet = _wallet as MoneroWallet;
   	final balance = moneroWallet.balance;
-  	return MoneroBalance(
-  		fullBalance: balance.fullBalance,
-  		unlockedBalance: balance.unlockedBalance);
+  	return MoneroBalance();
+  	//return MoneroBalance(
+  	//	fullBalance: balance.fullBalance,
+  	//	unlockedBalance: balance.unlockedBalance);
 	}
 }
 
@@ -271,9 +272,9 @@ class CWMonero extends Monero {
 		return Account(id: acc.id, label: acc.label);
 	}
 
-	void setCurrentAccount(Object wallet, Account account) {
+	void setCurrentAccount(Object wallet, int id, String label) {
 		final moneroWallet = wallet as MoneroWallet;
-		moneroWallet.walletAddresses.account = monero_account.Account(id: account.id, label: account.label);
+		moneroWallet.walletAddresses.account = monero_account.Account(id: id, label: label);
 	}
 
 	void onStartup() {
@@ -292,5 +293,10 @@ class CWMonero extends Monero {
 	String getTransactionAddress(Object wallet, int accountIndex, int addressIndex) {
 		final moneroWallet = wallet as MoneroWallet;
 		return moneroWallet.getTransactionAddress(accountIndex, addressIndex);
+	}
+
+	String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex) {
+		final moneroWallet = wallet as MoneroWallet;
+		return moneroWallet.getSubaddressLabel(accountIndex, addressIndex);
 	}
 }

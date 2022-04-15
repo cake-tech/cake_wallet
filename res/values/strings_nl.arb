@@ -8,6 +8,9 @@
 
   "monero_com": "Monero.com by Cake Wallet",
   "monero_com_wallet_text": "Awesome wallet for Monero",
+
+  "haven_app": "Haven by Cake Wallet",
+  "haven_app_wallet_text": "Awesome wallet for Haven",
   
   "accounts" : "Accounts",
   "edit" : "Bewerk",
@@ -75,7 +78,8 @@
   "min_value" : "Min: ${value} ${currency}",
   "max_value" : "Max: ${value} ${currency}",
   "change_currency" : "Verander valuta",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "ID kopiëren",
   "exchange_result_write_down_trade_id" : "Kopieer of noteer de handels-ID om door te gaan.",
@@ -264,6 +268,7 @@
   "new_subaddress_label_name" : "Label naam",
   "new_subaddress_create" : "Creëren",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "Subadreslijst",
 
@@ -521,7 +526,7 @@
   "third_intro_title" : "Yat speelt leuk met anderen",
   "third_intro_content" : "Yats wonen ook buiten Cake Wallet. Elk portemonnee-adres op aarde kan worden vervangen door een Yat!",
   "learn_more" : "Kom meer te weten",
-
+  "search": "Zoekopdracht",
   "new_template" : "Nieuwe sjabloon",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
 }

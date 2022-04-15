@@ -14,6 +14,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/haven/haven.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -59,6 +60,7 @@ abstract class TransactionDetailsViewModelBase with Store {
           addressIndex != null) {
         try {
           final address = monero.getTransactionAddress(wallet, accountIndex, addressIndex);
+          final label = monero.getSubaddressLabel(wallet, accountIndex, addressIndex);
 
           if (address?.isNotEmpty ?? false) {
             isRecipientAddressShown = true;
@@ -66,6 +68,14 @@ abstract class TransactionDetailsViewModelBase with Store {
                 StandartListItem(
                     title: S.current.transaction_details_recipient_address,
                     value: address));
+          }
+
+          if (label?.isNotEmpty ?? false) {
+            _items.add(
+                StandartListItem(
+                  title: S.current.address_label,
+                  value: label)
+            );
           }
         } catch (e) {
           print(e.toString());
@@ -98,6 +108,23 @@ abstract class TransactionDetailsViewModelBase with Store {
       ];
 
       items.addAll(_items);
+    }
+
+    if (wallet.type == WalletType.haven) {
+      items.addAll([
+        StandartListItem(
+            title: S.current.transaction_details_transaction_id, value: tx.id),
+        StandartListItem(
+            title: S.current.transaction_details_date,
+            value: dateFormat.format(tx.date)),
+        StandartListItem(
+            title: S.current.transaction_details_height, value: '${tx.height}'),
+        StandartListItem(
+            title: S.current.transaction_details_amount,
+            value: tx.amountFormatted()),
+        StandartListItem(
+            title: S.current.transaction_details_fee, value: tx.feeFormatted()),
+      ]);
     }
 
     if (showRecipientAddress && !isRecipientAddressShown) {
@@ -154,6 +181,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://www.blockchain.com/btc/tx/${txId}';
       case WalletType.litecoin:
         return 'https://blockchair.com/litecoin/transaction/${txId}';
+      case WalletType.haven:
+        return 'https://explorer.havenprotocol.org/search?value=${txId}';
       default:
         return '';
     }
@@ -167,6 +196,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'View Transaction on Blockchain.com';
       case WalletType.litecoin:
         return 'View Transaction on Blockchair.com';
+      case WalletType.haven:
+        return 'View Transaction on explorer.havenprotocol.org';
       default:
         return '';
     }

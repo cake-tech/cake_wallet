@@ -1,3 +1,5 @@
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/entities/update_haven_rate.dart';
 import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/transaction_info.dart';
@@ -51,7 +53,7 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       wallet) async {
     try {
       final node = settingsStore.getCurrentNode(wallet.type);
-      startWalletSyncStatusChangeReaction(wallet);
+      startWalletSyncStatusChangeReaction(wallet, fiatConversionStore);
       startCheckConnectionReaction(wallet, settingsStore);
       await getIt
           .get<SharedPreferences>()
@@ -59,6 +61,11 @@ void startCurrentWalletChangeReaction(AppStore appStore,
       await getIt.get<SharedPreferences>().setInt(
           PreferencesKey.currentWalletType, serializeToInt(wallet.type));
       await wallet.connectToNode(node: node);
+
+      if (wallet.type == WalletType.haven) {
+        settingsStore.fiatCurrency = FiatCurrency.usd;
+        await updateHavenRate(fiatConversionStore);
+      }
 
       if (wallet.walletInfo.address?.isEmpty ?? true) {
         wallet.walletInfo.address = wallet.walletAddresses.address;

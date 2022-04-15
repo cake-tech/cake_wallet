@@ -8,6 +8,9 @@
 
   "monero_com": "Monero.com by Cake Wallet",
   "monero_com_wallet_text": "Awesome wallet for Monero",
+
+  "haven_app": "Haven by Cake Wallet",
+  "haven_app_wallet_text": "Awesome wallet for Haven",
   
   "accounts" : "Konten",
   "edit" : "Bearbeiten",
@@ -75,7 +78,8 @@
   "min_value" : "Min: ${value} ${currency}",
   "max_value" : "Max: ${value} ${currency}",
   "change_currency" : "Währung ändern",
-
+  "overwrite_amount" : "Overwrite amount",
+  "qr_payment_amount" : "This QR code contains a payment amount. Do you want to overwrite the current value?",
 
   "copy_id" : "ID kopieren",
   "exchange_result_write_down_trade_id" : "Bitte kopieren oder notieren Sie die Handels-ID, um fortzufahren.",
@@ -264,6 +268,7 @@
   "new_subaddress_label_name" : "Bezeichnung",
   "new_subaddress_create" : "Erstellen",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "Unteradressenliste",
 
@@ -521,7 +526,7 @@
   "third_intro_title" : "Yat spielt gut mit anderen",
   "third_intro_content" : "Yats leben auch außerhalb von Cake Wallet. Jede Wallet-Adresse auf der Welt kann durch ein Yat ersetzt werden!",
   "learn_more" : "Erfahren Sie mehr",
-
+  "search": "Suche",
   "new_template" : "neue Vorlage",
   "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin"
 }

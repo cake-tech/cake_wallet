@@ -31,7 +31,7 @@ rm -rf $ICONV_SRC_DIR
 tar -xzf $ICONV_FILE_PATH -C $WORKDIR
 cd $ICONV_SRC_DIR
 CC=${CLANG} CXX=${CXXLANG} ./configure --build=x86_64-linux-gnu --host=${HOST} --prefix=${PREFIX} --disable-rpath
-make
+make -j$THREADS
 make install
 
 done

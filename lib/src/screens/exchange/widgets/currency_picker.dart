@@ -1,176 +1,210 @@
 import 'dart:ui';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/currency_utils.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
+import 'currency_picker_widget.dart';
 
 class CurrencyPicker extends StatefulWidget {
-  CurrencyPicker({
-    @required this.selectedAtIndex,
-    @required this.items,
-    @required this.title,
-    @required this.onItemSelected,
-  });
+  CurrencyPicker(
+      {@required this.selectedAtIndex,
+      @required this.items,
+      @required this.title,
+      @required this.onItemSelected,
+      this.isMoneroWallet = false,
+      this.isConvertFrom = false});
 
-  final int selectedAtIndex;
+  int selectedAtIndex;
   final List<CryptoCurrency> items;
   final String title;
   final Function(CryptoCurrency) onItemSelected;
+  final bool isMoneroWallet;
+  final bool isConvertFrom;
 
   @override
-  CurrencyPickerState createState() => CurrencyPickerState(
-    selectedAtIndex,
-    items,
-    title,
-    onItemSelected
-  );
+  CurrencyPickerState createState() => CurrencyPickerState(items);
 }
 
 class CurrencyPickerState extends State<CurrencyPicker> {
-  CurrencyPickerState(
-      this.selectedAtIndex,
-      this.items,
-      this.title,
-      this.onItemSelected): itemsCount = items.length;
+  CurrencyPickerState(this.items)
+      : isSearchBarActive = false,
+        textFieldValue = '',
+        subPickerItemsList = [],
+        appBarTextStyle = TextStyle(
+            fontSize: 20,
+            fontFamily: 'Lato',
+            backgroundColor: Colors.transparent,
+            color: Colors.white);
 
-  final int selectedAtIndex;
-  final List<CryptoCurrency> items;
-  final String title;
-  final Function(CryptoCurrency) onItemSelected;
+  @override
+  void initState() {
+    pickerItemsList = CryptoCurrency.all
+        .map((CryptoCurrency cur) => PickerItem<CryptoCurrency>(cur,
+            title: CurrencyUtils.titleForCurrency(cur),
+            iconPath: CurrencyUtils.iconPathForCurrency(cur),
+            tag: CurrencyUtils.tagForCurrency(cur),
+            description: CurrencyUtils.descriptionForCurrency(cur)))
+        .toList();
+    cleanSubPickerItemsList();
+    super.initState();
+  }
 
-  final closeButton = Image.asset('assets/images/close.png',
-    color: Palette.darkBlueCraiola,
-  );
-  final int crossAxisCount = 3;
-  final int maxNumberItemsInAlert = 12;
-  final int itemsCount;
-  final double backgroundHeight = 280;
-  final double thumbHeight = 72;
-  ScrollController controller = ScrollController();
-  double fromTop = 0;
+  List<PickerItem<CryptoCurrency>> pickerItemsList;
+  List<CryptoCurrency> items;
+  bool isSearchBarActive;
+  String textFieldValue;
+  List<PickerItem<CryptoCurrency>> subPickerItemsList;
+  TextStyle appBarTextStyle;
+
+  void cleanSubPickerItemsList() {
+    subPickerItemsList = pickerItemsList
+        .where((element) => items.contains(element.original))
+        .toList();
+  }
+
+  void currencySearchBySubstring(
+      String subString, List<PickerItem<CryptoCurrency>> list) {
+    setState(() {
+      if (subString.isNotEmpty) {
+        subPickerItemsList = subPickerItemsList
+            .where((element) =>
+                element.title.contains(subString.toUpperCase()) ||
+                element.description.contains(subString.toLowerCase()))
+            .toList();
+      } else {
+        cleanSubPickerItemsList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    controller.addListener(() {
-      fromTop = controller.hasClients
-          ? (controller.offset / controller.position.maxScrollExtent * (backgroundHeight - thumbHeight))
-          : 0;
-      setState(() {});
-    });
-
     return AlertBackground(
-        child: Stack(
-          alignment: Alignment.center,
-          children: <Widget>[
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.only(left: 24, right: 24),
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.none,
-                        color: Colors.white
+      child: SafeArea(
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          backgroundColor: Colors.transparent,
+          body: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 26.0, vertical: 0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      isSearchBarActive
+                          ? Expanded(
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  InkWell(
+                                      child: Text(
+                                        S.of(context).cancel,
+                                        style: appBarTextStyle,
+                                      ),
+                                      onTap: () {
+                                        setState(() {
+                                          isSearchBarActive = false;
+                                          textFieldValue = '';
+                                          cleanSubPickerItemsList();
+                                        });
+                                      }),
+                                  Container(
+                                    width: 100.0,
+                                    child: CupertinoTextField(
+                                        autofocus: true,
+                                        placeholder:
+                                            S.of(context).search + '...',
+                                        placeholderStyle: appBarTextStyle,
+                                        decoration: BoxDecoration(
+                                            color: Colors.transparent),
+                                        cursorColor: Colors.white,
+                                        cursorHeight: 23.0,
+                                        style: appBarTextStyle,
+                                        onChanged: (value) {
+                                          this.textFieldValue = value;
+                                          cleanSubPickerItemsList();
+                                          currencySearchBySubstring(
+                                              textFieldValue,
+                                              subPickerItemsList);
+                                        }),
+                                  )
+                                ],
+                              ),
+                            )
+                          : Text(
+                              widget.title,
+                              style: appBarTextStyle,
+                            ),
+                      IconButton(
+                        splashRadius: 23,
+                        icon: Icon(Icons.search, color: Colors.white),
+                        onPressed: () {
+                          setState(() {
+                            isSearchBarActive = true;
+                          });
+                        },
+                      )
+                    ]),
+              ),
+              Expanded(
+                flex: 12,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 26.0, vertical: 26.0),
+                  child: Container(
+                    child: CurrencyPickerWidget(
+                      crossAxisCount: 2,
+                      selectedAtIndex: widget.selectedAtIndex,
+                      itemsCount: subPickerItemsList.length,
+                      pickerItemsList: subPickerItemsList,
+                      pickListItem: (int index) {
+                        setState(() {
+                          widget.selectedAtIndex = index;
+                        });
+                        widget
+                            .onItemSelected(subPickerItemsList[index].original);
+                        if (widget.isConvertFrom &&
+                            !widget.isMoneroWallet &&
+                            (subPickerItemsList[index].original ==
+                                CryptoCurrency.xmr)) {
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 24),
-                  child: GestureDetector(
-                    onTap: () => null,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.all(Radius.circular(14)),
-                      child: Container(
-                          height: 320,
-                          width: 300,
-                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: <Widget>[
-                              GridView.count(
-                                padding: EdgeInsets.all(0),
-                                  controller: controller,
-                                  crossAxisCount: crossAxisCount,
-                                  childAspectRatio: 1.25,
-                                  crossAxisSpacing: 1,
-                                  mainAxisSpacing: 1,
-                                  children: List.generate(
-                                      itemsCount
-                                          + getExtraEmptyTilesCount(crossAxisCount, itemsCount),
-                                          (index) {
-
-                                        if (index >= itemsCount) {
-                                          return Container(
-                                            color: Theme.of(context).accentTextTheme.title.color,
-                                          );
-                                        }
-
-                                        final item = items[index];
-                                        final isItemSelected = index == selectedAtIndex;
-
-                                        final color = isItemSelected
-                                            ? Theme.of(context).textTheme.body2.color
-                                            : Theme.of(context).accentTextTheme.title.color;
-                                        final textColor = isItemSelected
-                                            ? Palette.blueCraiola
-                                            : Theme.of(context).primaryTextTheme.title.color;
-
-                                        return GestureDetector(
-                                          onTap: () {
-                                            if (onItemSelected == null) {
-                                              return;
-                                            }
-                                            Navigator.of(context).pop();
-                                            onItemSelected(item);
-                                          },
-                                          child: Container(
-                                            color: color,
-                                            child: Center(
-                                              child: Text(
-                                                item.toString(),
-                                                style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontFamily: 'Lato',
-                                                    fontWeight: FontWeight.w600,
-                                                    decoration: TextDecoration.none,
-                                                    color: textColor
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      })
-                              ),
-                              if (itemsCount > maxNumberItemsInAlert)
-                              CakeScrollbar(
-                                  backgroundHeight: backgroundHeight,
-                                  thumbHeight: thumbHeight,
-                                  fromTop: fromTop
-                              )
-                            ],
-                          )
+              ),
+              Expanded(
+                flex: 2,
+                child: Container(
+                  width: 42.0,
+                  alignment: Alignment.topCenter,
+                  child: FittedBox(
+                    child: FloatingActionButton(
+                      elevation: 0,
+                      backgroundColor: Colors.white,
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Icon(
+                        Icons.close_outlined,
+                        color: Palette.darkBlueCraiola,
+                        size: 30.0,
                       ),
                     ),
                   ),
-                )
-              ],
-            ),
-            AlertCloseButton(image: closeButton)
-          ],
-        )
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-  }
-
-  int getExtraEmptyTilesCount(int crossAxisCount, int itemsCount) {
-    final int tilesInNewRowCount = itemsCount % crossAxisCount;
-    return tilesInNewRowCount == 0 ? 0 : crossAxisCount - tilesInNewRowCount;
   }
 }

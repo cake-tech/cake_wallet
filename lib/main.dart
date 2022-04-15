@@ -134,7 +134,7 @@ Future<void> main() async {
         selectedExchangeProvider: selectedExchangeProviders,
         transactionDescriptions: transactionDescriptions,
         secureStorage: secureStorage,
-        initialMigrationVersion: 15);
+        initialMigrationVersion: 16);
     runApp(App());
   } catch (e) {
     runApp(MaterialApp(

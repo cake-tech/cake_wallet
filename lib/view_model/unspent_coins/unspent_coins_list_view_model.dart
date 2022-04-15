@@ -27,13 +27,16 @@ abstract class UnspentCoinsListViewModelBase with Store {
   ObservableList<UnspentCoinsItem> get items => ObservableList.of(bitcoin.getUnspents(wallet).map((elem) {
       final amount = bitcoin.formatterBitcoinAmountToString(amount: elem.value) +
           ' ${wallet.currency.title}';
+  
+     final info = _unspentCoinsInfo.values
+          .firstWhere((element) => element.walletId == wallet.id && element.hash == elem.hash);
 
       return UnspentCoinsItem(
           address: elem.address,
           amount: amount,
           hash: elem.hash,
           isFrozen: elem.isFrozen,
-          note: elem.note,
+          note: info.note,
           isSending: elem.isSending
       );
     }));
