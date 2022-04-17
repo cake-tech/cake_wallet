@@ -342,7 +342,8 @@ Future setup(
       _transactionDescriptionBox));
 
   getIt.registerFactory(
-      () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
+      () => SendPage(sendViewModel: getIt.get<SendViewModel>(),
+          settingsViewModel: getIt.get<SettingsViewModel>()));
 
   getIt.registerFactory(() => SendTemplatePage(
       sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
