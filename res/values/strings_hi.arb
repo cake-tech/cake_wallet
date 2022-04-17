@@ -444,6 +444,7 @@
   "note_optional" : "नोट (वैकल्पिक)",
   "note_tap_to_change" : "नोट (टैप टू चेंज)",
   "transaction_key" : "लेन-देन की",
+  "view_in_block_explorer" : "[View in Block Explorer]",
   "confirmations" : "पुष्टिकरण",
   "recipient_address" : "प्राप्तकर्ता का पता",
 

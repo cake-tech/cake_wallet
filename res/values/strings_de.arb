@@ -443,6 +443,7 @@
   "enter_your_note" : "Geben Sie Ihre Bemerkung ein…",
   "note_optional" : "Bemerkung (optional)",
   "note_tap_to_change" : "Bemerkung (zum Ändern tippen)",
+  "view_in_block_explorer" : "[View in Block Explorer]",
   "transaction_key" : "Transaktionsschlüssel",
   "confirmations" : "Bestätigungen",
   "recipient_address" : "Empfängeradresse",

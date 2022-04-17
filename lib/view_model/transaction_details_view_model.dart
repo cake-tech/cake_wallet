@@ -142,7 +142,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final type = wallet.type;
 
     items.add(BlockExplorerListItem(
-        title: "View in Block Explorer",
+        title: S.current.view_in_block_explorer,
         value: _explorerDescription(type),
         onTap: () => launch(_explorerUrl(type, tx.id))));
 
