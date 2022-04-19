@@ -41,22 +41,10 @@ abstract class ExchangeViewModelBase with Store {
       this.sharedPreferences) {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
-    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
+    providerList = [ChangeNowExchangeProvider() ,SideShiftExchangeProvider()];
     _initialPairBasedOnWallet();
     _storeDefaultProviders();
-    _lookupPrices().then((_) {
-         providerPrices.sort((a,b) => a.price.compareTo(b.price));
-         provider = providerPrices.first.provider;
-            loadLimits();
-        provider.checkIsAvailable().then((bool isAvailable) {
-        if (!isAvailable) {
-        provider = providerList.firstWhere(
-            (provider) => provider is ChangeNowExchangeProvider,
-            orElse: () => providerList.last);
-        _onPairChange();
-      }
-     });
-    });
+    _onPairChange();      
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
     depositAmount = '';
@@ -78,10 +66,6 @@ abstract class ExchangeViewModelBase with Store {
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
     _defineIsReceiveAmountEditable();
-
-    reaction(
-      (_) => isFixedRateMode,
-      (Object _) => loadLimits());
   }
 
   final WalletBase wallet;
@@ -172,15 +156,6 @@ abstract class ExchangeViewModelBase with Store {
 
   SharedPreferences sharedPreferences;
 
-  @action
-  void changeProvider({ExchangeProvider provider}) {
-    this.provider = provider;
-    depositAmount = '';
-    receiveAmount = '';
-    isFixedRateMode = false;
-    _defineIsReceiveAmountEditable();
-    loadLimits();
-  }
 
   @action
   void selectProvider({ExchangeProvider provider, bool select}) {
@@ -224,18 +199,7 @@ abstract class ExchangeViewModelBase with Store {
 
     final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
-    provider
-        .calculateAmount(
-            from: receiveCurrency,
-            to: depositCurrency,
-            amount: _amount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: true)
-        .then((amount) => _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''))
-        .then((amount) => depositAmount = amount);
+    calculateAmount(_amount, true);
   }
 
   @action
@@ -250,39 +214,74 @@ abstract class ExchangeViewModelBase with Store {
     }
 
     final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
-    provider
-        .calculateAmount(
-            from: depositCurrency,
-            to: receiveCurrency,
-            amount: _amount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: false)
-        .then((amount) => _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''))
-        .then((amount) => receiveAmount = amount);
+    calculateAmount(_amount, false);
   }
 
-  @action
-  Future loadLimits() async {
-    limitsState = LimitsIsLoading();
 
-    try {
-      final from = isFixedRateMode
-        ? receiveCurrency
-        : depositCurrency;
-      final to = isFixedRateMode
-        ? depositCurrency
-        : receiveCurrency;
-      limits = await provider.fetchLimits(
-          from: from,
-          to: to,
-          isFixedRateMode: isFixedRateMode);
-      limitsState = LimitsLoadedSuccessfully(limits: limits);
-    } catch (e) {
-      limitsState = LimitsLoadedFailure(error: e.toString());
+
+  Future<Map<String, dynamic>>_getLimit()async{
+        Map<String, dynamic> result = Map<String, dynamic>();
+        limitsState = LimitsIsLoading();
+      
+        await Future.forEach(providerList, (ExchangeProvider provider)  async {
+            try {
+              final from = isFixedRateMode
+                ? receiveCurrency
+                : depositCurrency;
+              final to = isFixedRateMode
+                ? depositCurrency
+                : receiveCurrency;
+              limits = await provider.fetchLimits(
+                  from: from,
+                  to: to,
+                  isFixedRateMode: isFixedRateMode);
+              result = <String, dynamic>{'hasError': false, 'provider': provider, 'limit': limits};
+              limitsState = LimitsLoadedSuccessfully(limits: limits);
+
+            } catch (e) { 
+              result = <String, dynamic>{'hasError': true};
+              limitsState = LimitsLoadedFailure(error: e.toString());
+          } 
+        });
+
+      return result;
     }
+
+  Future<void> calculateAmount(double amount, bool isReversed)async{
+      final response = await _getLimit();
+      final hasError = response['hasError'] as bool; 
+      
+      final from = isReversed
+                ? receiveCurrency
+                : depositCurrency;
+              final to = isReversed
+                ? depositCurrency
+                : receiveCurrency;
+   
+    if(!hasError){
+      provider = response['provider'] as ExchangeProvider;
+    
+      final result = await provider
+          .calculateAmount(
+              from: from,
+              to: to,
+              amount: amount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: isReversed);
+
+      final formattedAmount = _cryptoNumberFormat
+              .format(result)
+              .toString()
+              .replaceAll(RegExp('\\,'), '');
+
+      if (isReversed) {
+          depositAmount =  formattedAmount;
+      } else {
+          receiveAmount =  formattedAmount;
+      }
+    }else{
+
+    } 
   }
 
   @action
@@ -442,28 +441,9 @@ abstract class ExchangeViewModelBase with Store {
       receiveAmount = '';
   }
 
- Future<void> _lookupPrices()async{
-    await Future.forEach(providerList, (ExchangeProvider provider)  {
-        provider
-        .calculateAmount(
-            from: receiveCurrency,
-            to: depositCurrency,
-            amount: 1,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: true)
-        .then((amount) => _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''))
-        .then((amount) {
-          providerPrices.add(ProviderPrice(provider: provider, price: double.parse(amount)));
-        });
-    });
- }
-
   void _storeDefaultProviders(){
      final savedDefaults = sharedPreferences.getBool(PreferencesKey.savedDefaultExchangeProviders) ?? false;
-     final enabledProviders = providerList.where((e) => e.isEnabled).toList();
+     final enabledProviders = providerList.where((e) => e.isEnabled ?? false).toList();
      if(!savedDefaults){
        for (var i = 0; i < enabledProviders.length; i++) {
          selectProvider(provider: enabledProviders[i], select: true);

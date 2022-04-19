@@ -191,7 +191,7 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                     itemBuilder: (context, index) {
                       final item = widget.exchangeTradeViewModel.items[index];
                       final value = item.data ?? fetchingLabel;
-
+                      
                       final content = StandartListRow(
                         title: item.title,
                         value: value,

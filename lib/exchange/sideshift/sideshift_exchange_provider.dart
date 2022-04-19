@@ -249,6 +249,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   @override
   String get title => 'SideShift';
 
+   @override
+  bool get isEnabled => true;
+
   static String normalizeCryptoCurrency(CryptoCurrency currency) {
     const bnbTitle = 'bsc';
     const usdterc20 = 'usdtErc20';

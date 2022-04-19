@@ -1,3 +1,4 @@
+import 'package:cake_wallet/utils/exchange_provider_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
@@ -31,7 +32,7 @@ class TradeRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              _getPoweredImage(provider),
+              getPoweredImage(provider),
               SizedBox(width: 12),
               Expanded(
                   child: Column(
