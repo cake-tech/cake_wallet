@@ -10,7 +10,7 @@ Future<void> reviewApp()async{
       final sharedPref = getIt
         .get<SharedPreferences>();
        int transactionsCommitted = sharedPref.getInt(PreferencesKey.transactionsCommitted) ?? 0;
-    if (transactionsCommitted % 20 == 0) {
+    if (transactionsCommitted != 0 && transactionsCommitted % 20 == 0) {
         //Delay Review Request by 30 seconds
         Future.delayed(const Duration(seconds: 30), () async {
             await startReview();

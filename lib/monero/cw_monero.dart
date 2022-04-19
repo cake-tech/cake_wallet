@@ -294,4 +294,10 @@ class CWMonero extends Monero {
 		final moneroWallet = wallet as MoneroWallet;
 		return moneroWallet.getTransactionAddress(accountIndex, addressIndex);
 	}
+
+  @override
+  String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex) {
+    // TODO: implement getSubaddressLabel
+    throw UnimplementedError();
+  }
 }
