@@ -23,36 +23,37 @@ class ActionButton extends StatelessWidget {
       .display3
       .backgroundColor;
 
-    return Container(
-      padding: EdgeInsets.only(top: 14, bottom: 16, left: 10, right: 10),
-      alignment: alignment,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          GestureDetector(
-            onTap: () {
-              if (route?.isNotEmpty ?? false) {
-                Navigator.of(context, rootNavigator: true).pushNamed(route);
-              } else {
-                onClick?.call();
-              }
-            },
-            child: Container(
+    return GestureDetector(
+      onTap: () {
+        if (route?.isNotEmpty ?? false) {
+          Navigator.of(context, rootNavigator: true).pushNamed(route);
+        } else {
+          onClick?.call();
+        }
+      },
+      child: Container(
+        color: Colors.transparent,
+        padding: EdgeInsets.only(top: 14, bottom: 16, left: 10, right: 10),
+        alignment: alignment,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
                   shape: BoxShape.circle),
               child: image,
             ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(
-                fontSize: 10,
-                color: _textColor),
-          )
-        ],
+            SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(
+                  fontSize: 10,
+                  color: _textColor),
+            )
+          ],
+        ),
       ),
     );
   }
