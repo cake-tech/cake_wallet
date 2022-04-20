@@ -339,6 +339,7 @@ Future setup(
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
+      getIt.get<BalanceViewModel>(),
       _transactionDescriptionBox));
 
   getIt.registerFactory(

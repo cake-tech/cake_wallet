@@ -1,5 +1,6 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cake_wallet/view_model/send/send_template_view_model.dart';
@@ -36,6 +37,7 @@ abstract class SendViewModelBase with Store {
       this._settingsStore,
       this.sendTemplateViewModel,
       this._fiatConversationStore,
+      this.balanceViewModel,
       this.transactionDescriptionBox)
       : state = InitialExecutionState() {
     final priority = _settingsStore.priority[_wallet.type];
@@ -128,7 +130,7 @@ abstract class SendViewModelBase with Store {
   PendingTransaction pendingTransaction;
 
   @computed
-  String get balance => _wallet.balance[selectedCryptoCurrency].formattedAvailableBalance ?? '0.0';
+  String get balance => balanceViewModel.availableBalance ?? '0.0';
 
   @computed
   bool get isReadyForSend => _wallet.syncStatus is SyncedSyncStatus;
@@ -160,6 +162,7 @@ abstract class SendViewModelBase with Store {
   final WalletBase _wallet;
   final SettingsStore _settingsStore;
   final SendTemplateViewModel sendTemplateViewModel;
+  final BalanceViewModel balanceViewModel;
   final FiatConversionStore _fiatConversationStore;
   final Box<TransactionDescription> transactionDescriptionBox;
 
