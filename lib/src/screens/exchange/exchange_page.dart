@@ -518,12 +518,6 @@ class ExchangePage extends BasePage {
     exchangeViewModel.changeReceiveCurrency(
         currency: CryptoCurrency.fromString(template.receiveCurrency));
 
-    switch (template.provider) {
-      case 'ChangeNOW':
-        exchangeViewModel.changeProvider(
-            provider: exchangeViewModel.providerList[0]);
-        break;
-    }
 
     exchangeViewModel.changeDepositAmount(amount: template.amount);
     exchangeViewModel.depositAddress = template.depositAddress;
