@@ -134,9 +134,7 @@ pub extern "C" fn test_ldk_async(
     rpc_info: *const c_char,
     ldk_storage_path: *const c_char,
 ) -> i32 {
-
     let rt = runtime!();
-    // let rt = RUNTIME.as_ref().unwrap();
 
 	let ldk_userinfo: LdkUserInfo = setup_ldkuserinfo(
 		c_char_to_string(rpc_info),
@@ -146,12 +144,6 @@ pub extern "C" fn test_ldk_async(
         "hellolightning".to_string(),
 		"0.0.0.0".to_string()
 	).unwrap();
-
-    // let task = Isolate::new(isolate_port).task(async move {
-    //     ldk_lib::flutter_ldk(ldk_userinfo).await
-    // });
-
-    // rt.spawn(task);
 
     rt.spawn(async move {
         let isolate = Isolate::new(isolate_port);
@@ -292,6 +284,21 @@ pub extern "C" fn ffi_channels(
             func(CString::new(msg).unwrap().into_raw());
         }
 	}
+
+    let ldk_sender = sender!(ldk);
+    ldk_sender.send("hello from ldk_sender".to_string()).unwrap();
+
+    let ffi_sender_clone2 = ffi_sender.clone();
+    rt.spawn(async move {
+        let ldk_receiver = receiver!(ldk);
+        let res = ldk_receiver.recv().unwrap();
+        ffi_sender_clone2.send(format!("resend from ffi_sender: {}",res)).unwrap();
+    });
+
+    let res = rx.recv().unwrap();
+    unsafe {
+        func(CString::new(res).unwrap().into_raw());
+    }
 }
 
 
