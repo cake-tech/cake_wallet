@@ -44,6 +44,47 @@ macro_rules! runtime {
     };
 }
 
+use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
+use std::sync::Mutex;
+use std::thread;
+
+lazy_static! {
+	static ref LDK_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
+		let (send, recv) = sync_channel(1);
+		(send, Mutex::new(recv))
+	};
+	static ref FFI_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
+		let (send, recv) = sync_channel(1);
+		(send, Mutex::new(recv))
+	};
+}
+
+macro_rules! channel {
+    (ldk) => {
+	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
+    };
+    (ffi) => {
+	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
+    };
+}
+
+macro_rules! sender {
+    (ldk) => {
+	    &(*LDK_CHANNEL).0
+    };
+    (ffi) => {
+	    &(*FFI_CHANNEL).0
+    };
+}
+
+macro_rules! receiver {
+    (ldk) => {
+	    &((*LDK_CHANNEL).1).lock().unwrap()
+    };
+    (ffi) => {
+	    &((*FFI_CHANNEL).1).lock().unwrap()
+    };
+}
 #[allow(unused_macros)]
 macro_rules! error {
     ($result:expr) => {
@@ -145,9 +186,27 @@ pub extern "C" fn test_ldk_async(
 		"0.0.0.0".to_string()
 	).unwrap();
 
+    // rt.spawn(async move {
+    //     let isolate = Isolate::new(isolate_port);
+    //     let res = ldk_lib::flutter_ldk(ldk_userinfo).await;
+    //     isolate.post(res);
+    // });
+    
+    let ffi_sender = sender!(ffi);
+
+    let ffi_sender_clone = ffi_sender.clone();
+    rt.spawn(async move {
+        let res = ldk_lib::flutter_ldk(ldk_userinfo).await;
+        // ffi_sender_clone.send("send message to ffi".to_string()).unwrap();
+        ffi_sender_clone.send(res).unwrap();
+    });
+
     rt.spawn(async move {
         let isolate = Isolate::new(isolate_port);
-        let res = ldk_lib::flutter_ldk(ldk_userinfo).await;
+        let ffi_receiver = receiver!(ffi);
+
+        let res = ffi_receiver.recv().unwrap();
+        // let res = "return from isolate".to_string();
         isolate.post(res);
     });
 
@@ -165,47 +224,47 @@ pub unsafe extern "C" fn error_message_utf8(buf: *mut c_char, length: i32) -> i3
 }
 
 
-use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
-use std::sync::Mutex;
-use std::thread;
+// use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
+// use std::sync::Mutex;
+// use std::thread;
 
-lazy_static! {
-	static ref LDK_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
-		let (send, recv) = sync_channel(1);
-		(send, Mutex::new(recv))
-	};
-	static ref FFI_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
-		let (send, recv) = sync_channel(1);
-		(send, Mutex::new(recv))
-	};
-}
+// lazy_static! {
+// 	static ref LDK_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
+// 		let (send, recv) = sync_channel(1);
+// 		(send, Mutex::new(recv))
+// 	};
+// 	static ref FFI_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
+// 		let (send, recv) = sync_channel(1);
+// 		(send, Mutex::new(recv))
+// 	};
+// }
 
-macro_rules! channel {
-    (ldk) => {
-	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
-    };
-    (ffi) => {
-	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
-    };
-}
+// macro_rules! channel {
+//     (ldk) => {
+// 	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
+//     };
+//     (ffi) => {
+// 	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
+//     };
+// }
 
-macro_rules! sender {
-    (ldk) => {
-	    &(*LDK_CHANNEL).0
-    };
-    (ffi) => {
-	    &(*FFI_CHANNEL).0
-    };
-}
+// macro_rules! sender {
+//     (ldk) => {
+// 	    &(*LDK_CHANNEL).0
+//     };
+//     (ffi) => {
+// 	    &(*FFI_CHANNEL).0
+//     };
+// }
 
-macro_rules! receiver {
-    (ldk) => {
-	    &((*LDK_CHANNEL).1).lock().unwrap()
-    };
-    (ffi) => {
-	    &((*FFI_CHANNEL).1).lock().unwrap()
-    };
-}
+// macro_rules! receiver {
+//     (ldk) => {
+// 	    &((*LDK_CHANNEL).1).lock().unwrap()
+//     };
+//     (ffi) => {
+// 	    &((*FFI_CHANNEL).1).lock().unwrap()
+//     };
+// }
 
 #[no_mangle]
 pub extern "C" fn ldk_channels(

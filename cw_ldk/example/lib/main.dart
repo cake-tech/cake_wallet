@@ -39,8 +39,8 @@ class _MyAppState extends State<MyApp> {
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
     final testLDK =
-        await CwLdk.testLDKAsync("polaruser:polarpass@192.168.0.11:18443");
-    
+        await CwLdk.testLDKAsync("polaruser:polarpass@192.168.0.10:18443");
+
     CwLdk.ldkChannels();
     CwLdk.ffiChannels();
 
