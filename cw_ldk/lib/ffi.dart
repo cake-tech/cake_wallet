@@ -31,6 +31,20 @@ typedef _error_message_utf8_Dart = int Function(
   int length,
 );
 
+/// C function `ffi_channels`.
+void ffi_channels(
+  Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
+) {
+  _ffi_channels(func);
+}
+final _ffi_channels_Dart _ffi_channels = _dl.lookupFunction<_ffi_channels_C, _ffi_channels_Dart>('ffi_channels');
+typedef _ffi_channels_C = Void Function(
+  Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
+);
+typedef _ffi_channels_Dart = void Function(
+  Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
+);
+
 /// C function `last_error_length`.
 int last_error_length() {
   return _last_error_length();
@@ -38,6 +52,20 @@ int last_error_length() {
 final _last_error_length_Dart _last_error_length = _dl.lookupFunction<_last_error_length_C, _last_error_length_Dart>('last_error_length');
 typedef _last_error_length_C = Int32 Function();
 typedef _last_error_length_Dart = int Function();
+
+/// C function `ldk_channels`.
+void ldk_channels(
+  Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
+) {
+  _ldk_channels(func);
+}
+final _ldk_channels_Dart _ldk_channels = _dl.lookupFunction<_ldk_channels_C, _ldk_channels_Dart>('ldk_channels');
+typedef _ldk_channels_C = Void Function(
+  Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
+);
+typedef _ldk_channels_Dart = void Function(
+  Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
+);
 
 /// Binding to `allo-isolate` crate
 void store_dart_post_cobject(

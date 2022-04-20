@@ -15,6 +15,10 @@ int32_t last_error_length(void);
 
 int32_t error_message_utf8(char *buf, int32_t length);
 
+void ldk_channels(void (*func)(char*));
+
+void ffi_channels(void (*func)(char*));
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

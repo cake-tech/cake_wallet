@@ -40,6 +40,9 @@ class _MyAppState extends State<MyApp> {
 
     final testLDK =
         await CwLdk.testLDKAsync("polaruser:polarpass@192.168.0.11:18443");
+    
+    CwLdk.ldkChannels();
+    CwLdk.ffiChannels();
 
     // final path = await CwLdk.createFolderInAppDocDir(".ldk");
     // await CwLdk.listFilesInFolder(".ldk");

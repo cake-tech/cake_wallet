@@ -169,3 +169,105 @@ pub unsafe extern "C" fn last_error_length() -> i32 {
 pub unsafe extern "C" fn error_message_utf8(buf: *mut c_char, length: i32) -> i32 {
     ffi_helpers::error_handling::error_message_utf8(buf, length)
 }
+
+
+use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
+use std::sync::Mutex;
+use std::thread;
+
+lazy_static! {
+	static ref LDK_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
+		let (send, recv) = sync_channel(1);
+		(send, Mutex::new(recv))
+	};
+	static ref FFI_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
+		let (send, recv) = sync_channel(1);
+		(send, Mutex::new(recv))
+	};
+}
+
+macro_rules! channel {
+    (ldk) => {
+	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
+    };
+    (ffi) => {
+	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
+    };
+}
+
+#[no_mangle]
+pub extern "C" fn ldk_channels(
+    func: unsafe extern "C" fn(*mut c_char)
+) {
+    let (ldk_sender, ldk_receiver) = channel!(ldk);
+
+    let ldk_sender_clone = ldk_sender.clone();
+    thread::spawn(move || {
+        ldk_sender_clone.send("message1 from ldk sender".to_string()).unwrap();        
+        ldk_sender_clone.send("message2 from ldk sender".to_string()).unwrap();
+        ldk_sender_clone.send("message3 from ldk sender".to_string()).unwrap();
+        ldk_sender_clone.send("exit".to_string()).unwrap();
+    });
+
+	let rx = &*ldk_receiver.lock().unwrap();
+
+	for msg in rx.iter() {
+		if msg == "exit" {
+            unsafe {
+                func(CString::new("exit from ldk sender").unwrap().into_raw());
+            }
+			break;
+		}
+		// println!("{}", msg);
+        unsafe {
+            func(CString::new(msg).unwrap().into_raw());
+        }
+	}
+}
+
+#[no_mangle]
+pub extern "C" fn ffi_channels(
+    func: unsafe extern "C" fn(*mut c_char)
+) {
+    let (ffi_sender, ffi_receiver) = channel!(ffi);
+
+    let ffi_sender_clone = ffi_sender.clone();
+    thread::spawn(move || {
+        ffi_sender_clone.send("message1 from ffi sender".to_string()).unwrap();        
+        ffi_sender_clone.send("message2 from ffi sender".to_string()).unwrap();
+        ffi_sender_clone.send("message3 from ffi sender".to_string()).unwrap();
+        ffi_sender_clone.send("exit".to_string()).unwrap();
+    });
+
+	let rx = &*ffi_receiver.lock().unwrap();
+
+	for msg in rx.iter() {
+		if msg == "exit" {
+            unsafe {
+                func(CString::new("exit from ffi sender").unwrap().into_raw());
+            }
+			break;
+		}
+		// println!("{}", msg);
+        unsafe {
+            func(CString::new(msg).unwrap().into_raw());
+        }
+	}
+}
+
+
+#[cfg(test)]
+mod tests {
+
+    use crate::ldk_channels;
+
+    use super::ffi_channels;
+
+	#[test]
+	fn test_channels(){
+        // ldk_channels();
+		// ffi_channels();
+	}
+
+
+}

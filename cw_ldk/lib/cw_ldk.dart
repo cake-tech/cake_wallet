@@ -8,7 +8,7 @@ import 'ffi.dart' as native;
 import 'package:path_provider/path_provider.dart';
 
 // typedef _callback_Dart = Void Function();
-typedef _callback_C = Void Function();
+// typedef _callback_C = Void Function();
 typedef _print_C = Void Function(Pointer<Utf8>);
 
 class CwLdk {
@@ -120,6 +120,16 @@ class CwLdk {
     final res = _res.toDartString();
     calloc.free(_res);
     return res;
+  }
+
+  static void ffiChannels() {
+    final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
+    native.ffi_channels(wrappedPrintPointer);
+  }
+
+  static void ldkChannels() {
+    final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
+    native.ldk_channels(wrappedPrintPointer);
   }
 
   static void storeDartPostCobject(
