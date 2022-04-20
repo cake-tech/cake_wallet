@@ -34,12 +34,13 @@ lazy_static! {
 /// Simple Macro to help getting the value of the runtime.
 macro_rules! runtime {
     () => {
-        match RUNTIME.as_ref() {
-            Ok(rt) => rt,
-            Err(_) => {
-                return 0;
-            }
-        }
+        RUNTIME.as_ref().unwrap()
+        // match RUNTIME.as_ref() {
+        //     Ok(rt) => rt,
+        //     Err(_) => {
+        //         return 0;
+        //     }
+        // }
     };
 }
 
@@ -135,6 +136,7 @@ pub extern "C" fn test_ldk_async(
 ) -> i32 {
 
     let rt = runtime!();
+    // let rt = RUNTIME.as_ref().unwrap();
 
 	let ldk_userinfo: LdkUserInfo = setup_ldkuserinfo(
 		c_char_to_string(rpc_info),
@@ -195,21 +197,49 @@ macro_rules! channel {
     };
 }
 
+macro_rules! sender {
+    (ldk) => {
+	    &(*LDK_CHANNEL).0
+    };
+    (ffi) => {
+	    &(*FFI_CHANNEL).0
+    };
+}
+
+macro_rules! receiver {
+    (ldk) => {
+	    &((*LDK_CHANNEL).1).lock().unwrap()
+    };
+    (ffi) => {
+	    &((*FFI_CHANNEL).1).lock().unwrap()
+    };
+}
+
 #[no_mangle]
 pub extern "C" fn ldk_channels(
     func: unsafe extern "C" fn(*mut c_char)
 ) {
-    let (ldk_sender, ldk_receiver) = channel!(ldk);
+    let rt = runtime!();
+    // let (ldk_sender, ldk_receiver) = channel!(ldk);
+    let ldk_sender = sender!(ldk);
 
     let ldk_sender_clone = ldk_sender.clone();
-    thread::spawn(move || {
+    // thread::spawn(move || {
+    //     ldk_sender_clone.send("message1 from ldk sender".to_string()).unwrap();        
+    //     ldk_sender_clone.send("message2 from ldk sender".to_string()).unwrap();
+    //     ldk_sender_clone.send("message3 from ldk sender".to_string()).unwrap();
+    //     ldk_sender_clone.send("exit".to_string()).unwrap();
+    // });
+
+    rt.spawn(async move {
         ldk_sender_clone.send("message1 from ldk sender".to_string()).unwrap();        
         ldk_sender_clone.send("message2 from ldk sender".to_string()).unwrap();
         ldk_sender_clone.send("message3 from ldk sender".to_string()).unwrap();
         ldk_sender_clone.send("exit".to_string()).unwrap();
     });
 
-	let rx = &*ldk_receiver.lock().unwrap();
+	// let rx = &*ldk_receiver.lock().unwrap();
+	let rx = receiver!(ldk);
 
 	for msg in rx.iter() {
 		if msg == "exit" {
@@ -218,7 +248,7 @@ pub extern "C" fn ldk_channels(
             }
 			break;
 		}
-		// println!("{}", msg);
+
         unsafe {
             func(CString::new(msg).unwrap().into_raw());
         }
@@ -229,17 +259,26 @@ pub extern "C" fn ldk_channels(
 pub extern "C" fn ffi_channels(
     func: unsafe extern "C" fn(*mut c_char)
 ) {
-    let (ffi_sender, ffi_receiver) = channel!(ffi);
+    let rt = runtime!();
+    // let (ffi_sender, ffi_receiver) = channel!(ffi);
+    let ffi_sender = sender!(ffi);
 
     let ffi_sender_clone = ffi_sender.clone();
-    thread::spawn(move || {
+    // thread::spawn(move || {
+    //     ffi_sender_clone.send("message1 from ffi sender".to_string()).unwrap();        
+    //     ffi_sender_clone.send("message2 from ffi sender".to_string()).unwrap();
+    //     ffi_sender_clone.send("message3 from ffi sender".to_string()).unwrap();
+    //     ffi_sender_clone.send("exit".to_string()).unwrap();
+    // });
+    rt.spawn(async move {
         ffi_sender_clone.send("message1 from ffi sender".to_string()).unwrap();        
         ffi_sender_clone.send("message2 from ffi sender".to_string()).unwrap();
         ffi_sender_clone.send("message3 from ffi sender".to_string()).unwrap();
         ffi_sender_clone.send("exit".to_string()).unwrap();
     });
 
-	let rx = &*ffi_receiver.lock().unwrap();
+	// let rx = &*ffi_receiver.lock().unwrap();
+	let rx = receiver!(ffi);
 
 	for msg in rx.iter() {
 		if msg == "exit" {
