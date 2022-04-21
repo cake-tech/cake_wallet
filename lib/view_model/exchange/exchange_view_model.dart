@@ -224,25 +224,28 @@ abstract class ExchangeViewModelBase with Store {
         limitsState = LimitsIsLoading();
       
         await Future.forEach(providerList, (ExchangeProvider provider)  async {
-            try {
-              final from = isFixedRateMode
-                ? receiveCurrency
-                : depositCurrency;
-              final to = isFixedRateMode
-                ? depositCurrency
-                : receiveCurrency;
-              limits = await provider.fetchLimits(
-                  from: from,
-                  to: to,
-                  isFixedRateMode: isFixedRateMode);
-              result = <String, dynamic>{'hasError': false, 'provider': provider, 'limit': limits};
-              limitsState = LimitsLoadedSuccessfully(limits: limits);
+                if(isSelected(provider)){
+                  try {
+                  final from = isFixedRateMode
+                    ? receiveCurrency
+                    : depositCurrency;
+                  final to = isFixedRateMode
+                    ? depositCurrency
+                    : receiveCurrency;
+                  limits = await provider.fetchLimits(
+                      from: from,
+                      to: to,
+                      isFixedRateMode: isFixedRateMode);
+                  result = <String, dynamic>{'hasError': false, 'provider': provider, 'limit': limits};
+                  limitsState = LimitsLoadedSuccessfully(limits: limits);
 
-            } catch (e) { 
-              result = <String, dynamic>{'hasError': true};
-              limitsState = LimitsLoadedFailure(error: e.toString());
-          } 
+                } catch (e) { 
+                  result = <String, dynamic>{'hasError': true};
+                  limitsState = LimitsLoadedFailure(error: e.toString());
+              } 
+          }           
         });
+        
 
       return result;
     }
