@@ -31,7 +31,7 @@ typedef _error_message_utf8_Dart = int Function(
   int length,
 );
 
-/// C function `ffi_channels`.
+/// <p class="para-brief"> remove later. another test for channels.</p>
 void ffi_channels(
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
 ) {
@@ -53,7 +53,7 @@ final _last_error_length_Dart _last_error_length = _dl.lookupFunction<_last_erro
 typedef _last_error_length_C = Int32 Function();
 typedef _last_error_length_Dart = int Function();
 
-/// C function `ldk_channels`.
+/// <p class="para-brief"> remove later. test to see if channels work on phone.</p>
 void ldk_channels(
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
 ) {
@@ -81,7 +81,7 @@ typedef _store_dart_post_cobject_Dart = void Function(
   Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
 );
 
-/// C function `test_ldk_async`.
+/// <p class="para-brief"> Run LDK asynchronous</p>
 int test_ldk_async(
   int isolate_port,
   Pointer<ffi.Utf8> rpc_info,
@@ -101,7 +101,7 @@ typedef _test_ldk_async_Dart = int Function(
   Pointer<ffi.Utf8> ldk_storage_path,
 );
 
-/// C function `test_ldk_block`.
+/// <p class="para-brief"> remove later. for testing code that is blocking.</p>
 Pointer<ffi.Utf8> test_ldk_block(
   Pointer<ffi.Utf8> path,
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,

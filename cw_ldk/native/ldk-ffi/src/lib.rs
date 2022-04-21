@@ -2,52 +2,47 @@
 #![allow(unused_variables)]
 #![allow(unused_macros)]
 
-use std::os::raw::{c_char};
+/// this is the code that creates an interface to the flutter ffi.
+
+// standard libary
+use std::os::raw::c_char;
 use std::ffi::{CString, CStr};
 use std::env;
 use std::fs;
 use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
+use std::io;
+use std::sync::mpsc;
+use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
+use std::sync::Mutex;
+use std::thread;
 
-use ldk_lib::cli::{ LdkUserInfo, setup_ldkuserinfo};
-
-// lib.rs
+// packages.
 use tokio::runtime::{Builder, Runtime};
 use lazy_static::lazy_static;
-use std::io;
-
 use allo_isolate::Isolate;
-use std::sync::mpsc;
 
+// code in workspace.
+use ldk_lib::cli::{ LdkUserInfo, setup_ldkuserinfo};
+
+// Create runtime for tokio in the static scope 
 lazy_static! {
-    // build runtime
     static ref RUNTIME: io::Result<Runtime> = Builder::new_multi_thread()
         .worker_threads(4)
         .thread_name("flutterrust")
         .thread_stack_size(3 * 1024 * 1024)
         .build();
-    
-    // static ref STATIC_CHANNEL: (mpsc::Sender<String>, mpsc::Receiver<String>) = mpsc::channel(); 
 }
 
-/// Simple Macro to help getting the value of the runtime.
+// Get reference to runtime in static scope
 macro_rules! runtime {
     () => {
         RUNTIME.as_ref().unwrap()
-        // match RUNTIME.as_ref() {
-        //     Ok(rt) => rt,
-        //     Err(_) => {
-        //         return 0;
-        //     }
-        // }
     };
 }
 
-use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
-use std::sync::Mutex;
-use std::thread;
-
+// Create channels on the static scope.
 lazy_static! {
 	static ref LDK_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
 		let (send, recv) = sync_channel(1);
@@ -59,6 +54,7 @@ lazy_static! {
 	};
 }
 
+// Get references to channels on the static scope.
 macro_rules! channel {
     (ldk) => {
 	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
@@ -68,6 +64,7 @@ macro_rules! channel {
     };
 }
 
+// get senders for static channels
 macro_rules! sender {
     (ldk) => {
 	    &(*LDK_CHANNEL).0
@@ -77,6 +74,7 @@ macro_rules! sender {
     };
 }
 
+// get receivers for static channels
 macro_rules! receiver {
     (ldk) => {
 	    &((*LDK_CHANNEL).1).lock().unwrap()
@@ -85,6 +83,7 @@ macro_rules! receiver {
 	    &((*FFI_CHANNEL).1).lock().unwrap()
     };
 }
+
 #[allow(unused_macros)]
 macro_rules! error {
     ($result:expr) => {
@@ -112,13 +111,15 @@ macro_rules! cstr {
     }};
 }
 
-
+/// Convert c_char to String.
 pub fn c_char_to_string(arg: *const c_char) -> String {
     let c_str: &CStr = unsafe { CStr::from_ptr(arg) };
     let str_slice: &str = c_str.to_str().unwrap();
     str_slice.to_string()
 }
 
+/// remove later.
+/// for testing code that is blocking.
 #[no_mangle]
 pub extern "C" fn test_ldk_block(
     path: *const c_char,
@@ -169,6 +170,8 @@ pub extern "C" fn test_ldk_block(
     CString::new(format!("{}", res)).unwrap().into_raw()
 }
 
+
+/// Run LDK asynchronous 
 #[no_mangle]
 pub extern "C" fn test_ldk_async(
     isolate_port: i64, 
@@ -185,28 +188,24 @@ pub extern "C" fn test_ldk_async(
         "hellolightning".to_string(),
 		"0.0.0.0".to_string()
 	).unwrap();
-
-    // rt.spawn(async move {
-    //     let isolate = Isolate::new(isolate_port);
-    //     let res = ldk_lib::flutter_ldk(ldk_userinfo).await;
-    //     isolate.post(res);
-    // });
-    
+   
+    // run ldk in seperate thread.
     let ffi_sender = sender!(ffi);
-
     let ffi_sender_clone = ffi_sender.clone();
     rt.spawn(async move {
         let res = ldk_lib::flutter_ldk(ldk_userinfo).await;
-        // ffi_sender_clone.send("send message to ffi".to_string()).unwrap();
+
         ffi_sender_clone.send(res).unwrap();
     });
 
+    // wait for ldk response in seperate thread.
+    // then post to isolate.
     rt.spawn(async move {
         let isolate = Isolate::new(isolate_port);
         let ffi_receiver = receiver!(ffi);
 
         let res = ffi_receiver.recv().unwrap();
-        // let res = "return from isolate".to_string();
+
         isolate.post(res);
     });
 
@@ -224,64 +223,17 @@ pub unsafe extern "C" fn error_message_utf8(buf: *mut c_char, length: i32) -> i3
 }
 
 
-// use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
-// use std::sync::Mutex;
-// use std::thread;
-
-// lazy_static! {
-// 	static ref LDK_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
-// 		let (send, recv) = sync_channel(1);
-// 		(send, Mutex::new(recv))
-// 	};
-// 	static ref FFI_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
-// 		let (send, recv) = sync_channel(1);
-// 		(send, Mutex::new(recv))
-// 	};
-// }
-
-// macro_rules! channel {
-//     (ldk) => {
-// 	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
-//     };
-//     (ffi) => {
-// 	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
-//     };
-// }
-
-// macro_rules! sender {
-//     (ldk) => {
-// 	    &(*LDK_CHANNEL).0
-//     };
-//     (ffi) => {
-// 	    &(*FFI_CHANNEL).0
-//     };
-// }
-
-// macro_rules! receiver {
-//     (ldk) => {
-// 	    &((*LDK_CHANNEL).1).lock().unwrap()
-//     };
-//     (ffi) => {
-// 	    &((*FFI_CHANNEL).1).lock().unwrap()
-//     };
-// }
-
+/// remove later.
+/// test to see if channels work on phone.
 #[no_mangle]
 pub extern "C" fn ldk_channels(
     func: unsafe extern "C" fn(*mut c_char)
 ) {
     let rt = runtime!();
-    // let (ldk_sender, ldk_receiver) = channel!(ldk);
     let ldk_sender = sender!(ldk);
 
+    // test sender.
     let ldk_sender_clone = ldk_sender.clone();
-    // thread::spawn(move || {
-    //     ldk_sender_clone.send("message1 from ldk sender".to_string()).unwrap();        
-    //     ldk_sender_clone.send("message2 from ldk sender".to_string()).unwrap();
-    //     ldk_sender_clone.send("message3 from ldk sender".to_string()).unwrap();
-    //     ldk_sender_clone.send("exit".to_string()).unwrap();
-    // });
-
     rt.spawn(async move {
         ldk_sender_clone.send("message1 from ldk sender".to_string()).unwrap();        
         ldk_sender_clone.send("message2 from ldk sender".to_string()).unwrap();
@@ -289,38 +241,34 @@ pub extern "C" fn ldk_channels(
         ldk_sender_clone.send("exit".to_string()).unwrap();
     });
 
-	// let rx = &*ldk_receiver.lock().unwrap();
+    // wait until receive messages from sender.
 	let rx = receiver!(ldk);
-
 	for msg in rx.iter() {
+        // exit out of loop
 		if msg == "exit" {
             unsafe {
                 func(CString::new("exit from ldk sender").unwrap().into_raw());
             }
 			break;
 		}
-
+        // print to debug console.
         unsafe {
             func(CString::new(msg).unwrap().into_raw());
         }
 	}
 }
 
+/// remove later.
+/// another test for channels.
 #[no_mangle]
 pub extern "C" fn ffi_channels(
     func: unsafe extern "C" fn(*mut c_char)
 ) {
     let rt = runtime!();
-    // let (ffi_sender, ffi_receiver) = channel!(ffi);
     let ffi_sender = sender!(ffi);
 
+    // test ffi_sender
     let ffi_sender_clone = ffi_sender.clone();
-    // thread::spawn(move || {
-    //     ffi_sender_clone.send("message1 from ffi sender".to_string()).unwrap();        
-    //     ffi_sender_clone.send("message2 from ffi sender".to_string()).unwrap();
-    //     ffi_sender_clone.send("message3 from ffi sender".to_string()).unwrap();
-    //     ffi_sender_clone.send("exit".to_string()).unwrap();
-    // });
     rt.spawn(async move {
         ffi_sender_clone.send("message1 from ffi sender".to_string()).unwrap();        
         ffi_sender_clone.send("message2 from ffi sender".to_string()).unwrap();
@@ -328,25 +276,27 @@ pub extern "C" fn ffi_channels(
         ffi_sender_clone.send("exit".to_string()).unwrap();
     });
 
-	// let rx = &*ffi_receiver.lock().unwrap();
+    // receive messages from ffi
 	let rx = receiver!(ffi);
-
 	for msg in rx.iter() {
+        // exit out of loop
 		if msg == "exit" {
             unsafe {
                 func(CString::new("exit from ffi sender").unwrap().into_raw());
             }
 			break;
 		}
-		// println!("{}", msg);
+        // print message to debug console.
         unsafe {
             func(CString::new(msg).unwrap().into_raw());
         }
 	}
 
+    // test ldk sender
     let ldk_sender = sender!(ldk);
     ldk_sender.send("hello from ldk_sender".to_string()).unwrap();
 
+    // receive message from ldk seperate thread.
     let ffi_sender_clone2 = ffi_sender.clone();
     rt.spawn(async move {
         let ldk_receiver = receiver!(ldk);
@@ -354,20 +304,20 @@ pub extern "C" fn ffi_channels(
         ffi_sender_clone2.send(format!("resend from ffi_sender: {}",res)).unwrap();
     });
 
+    // receive message from ffi
     let res = rx.recv().unwrap();
     unsafe {
         func(CString::new(res).unwrap().into_raw());
     }
 }
 
-
+/// my tests.
 #[cfg(test)]
 mod tests {
 
-    use crate::ldk_channels;
+    use super::{ldk_channels, ffi_channels};
 
-    use super::ffi_channels;
-
+    // no longer works on computer.  only on phone.
 	#[test]
 	fn test_channels(){
         // ldk_channels();
