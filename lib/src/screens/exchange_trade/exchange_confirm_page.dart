@@ -40,7 +40,7 @@ class ExchangeConfirmPage extends BasePage {
                 ),
               )),
               Container(
-                height: 178,
+                height: 190,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     border: Border.all(
@@ -65,6 +65,24 @@ class ExchangeConfirmPage extends BasePage {
                                     .primaryTextTheme
                                     .overline
                                     .color),
+                          ),
+                          Row(mainAxisAlignment: MainAxisAlignment.center, 
+                              children: [
+                                Text( S.of(context).powered_by(trade.provider.title), 
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context)
+                                    .primaryTextTheme
+                                    .overline
+                                    .color),
+                                  ),
+                                  SizedBox(width: 8), 
+                                  SizedBox(
+                                    width: 20,
+                                    child: getPoweredImage(trade.provider),
+                                  )
+                              ],
                           ),
                           Text(
                             trade.id,
@@ -103,18 +121,6 @@ class ExchangeConfirmPage extends BasePage {
                 ),
               ),
               SizedBox(height: 20),
-              Row(mainAxisAlignment: MainAxisAlignment.center, 
-                children: [
-                    getPoweredImage(trade.provider),
-                    SizedBox(width: 10), 
-                    Text(trade.provider.title, 
-                        style: TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold,
-                          color: Theme.of(context).primaryTextTheme.title.color,
-                          )
-                      ),
-                  ],
-              ),
               Flexible(child: Offstage()),
             ],
           )),
