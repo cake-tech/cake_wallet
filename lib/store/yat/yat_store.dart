@@ -29,7 +29,7 @@ class YatLink {
   static const startFlowUrl = ''; // 'https://www.y03btrk.com/4RQSJ/6JHXF/';
   static const isDevMode = true;
   static const tags = <String, List<String>>{"XMR" : ['0x1001', '0x1002'],
-    "BTC" : ['0x1003'], "LTC" : ['0x3fff']};
+    "BTC" : ['0x1003'], "LTC" : ['0x1019']};
 
   static String get apiUrl => YatLink.isDevMode
       ? YatLink.apiDevUrl
