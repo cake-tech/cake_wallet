@@ -490,16 +490,16 @@ pub async fn flutter_ldk(
 				.push((monitor_listener_info.0, &monitor_listener_info.1 as &dyn chain::Listen));
 		}
 		//-- TODO --//
-		// chain_tip = Some(
-		// 	init::synchronize_listeners(
-		// 		&mut bitcoind_client.deref(),
-		// 		args.network,
-		// 		&mut cache,
-		// 		chain_listeners,
-		// 	)
-		// 	.await
-		// 	.unwrap(),
-		// );
+		chain_tip = Some(
+			init::synchronize_listeners(
+				&mut bitcoind_client.deref(),
+				args.network,
+				&mut cache,
+				chain_listeners,
+			)
+			.await
+			.unwrap(),
+		);
 	}
 
 
@@ -677,6 +677,7 @@ pub async fn flutter_ldk(
 	__output.push("Step 18: Persist ChannelManager".to_string());
 
 	//-- ToDo --//
+	// panic!("Background processing is halting");
 	// Step 19: Background Processing
 	// let background_processor = BackgroundProcessor::start(
 	// 	persist_channel_manager_callback,
