@@ -443,6 +443,8 @@
   "enter_your_note" : "Unesite svoju poruku…",
   "note_optional" : "Poruka (nije obvezno)",
   "note_tap_to_change" : "Poruka (dodirnite za promjenu)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "Transakcijski ključ",
   "confirmations" : "Potvrde",
   "recipient_address" : "Primateljeva adresa",

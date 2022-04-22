@@ -443,6 +443,8 @@
   "enter_your_note" : "Ingresa tu nota…",
   "note_optional" : "Nota (opcional)",
   "note_tap_to_change" : "Nota (toque para cambiar)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "Clave de transacción",
   "confirmations" : "Confirmaciones",
   "recipient_address" : "Dirección del receptor",

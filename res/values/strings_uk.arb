@@ -442,6 +442,8 @@
   "enter_your_note" : "Введіть примітку…",
   "note_optional" : "Примітка (необов’язково)",
   "note_tap_to_change" : "Примітка (натисніть для зміни)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "Ключ транзакції",
   "confirmations" : "Підтвердження",
   "recipient_address" : "Адреса одержувача",

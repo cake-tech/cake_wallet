@@ -443,6 +443,8 @@
   "enter_your_note" : "메모를 입력하세요…",
   "note_optional" : "참고 (선택 사항)",
   "note_tap_to_change" : "메모 (변경하려면 탭하세요)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "거래 키",
   "confirmations" : "확인",
   "recipient_address" : "받는 사람 주소",

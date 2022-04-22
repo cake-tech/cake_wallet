@@ -443,6 +443,8 @@
   "enter_your_note" : "अपना नोट दर्ज करें ...",
   "note_optional" : "नोट (वैकल्पिक)",
   "note_tap_to_change" : "नोट (टैप टू चेंज)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "लेन-देन की",
   "confirmations" : "पुष्टिकरण",
   "recipient_address" : "प्राप्तकर्ता का पता",

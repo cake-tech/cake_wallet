@@ -442,6 +442,8 @@
   "enter_your_note" : "输入您的笔记...",
   "note_optional" : "注释（可选）",
   "note_tap_to_change" : "注释（轻按即可更改）",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "交易密码",
   "confirmations" : "确认",
   "recipient_address" : "收件人地址",

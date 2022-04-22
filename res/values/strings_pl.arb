@@ -446,6 +446,8 @@
   "enter_your_note" : "Wpisz notatkę…",
   "note_optional" : "Notatka (opcjonalnie)",
   "note_tap_to_change" : "Notatka (dotknij, aby zmienić)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "Klucz transakcji",
   "confirmations" : "Potwierdzenia",
   "recipient_address" : "Adres odbiorcy",

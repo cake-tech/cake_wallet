@@ -443,6 +443,8 @@
   "enter_your_note" : "Voer uw notitie in ...",
   "note_optional" : "Opmerking (optioneel)",
   "note_tap_to_change" : "Opmerking (tik om te wijzigen)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "Transactiesleutel",
   "confirmations" : "Bevestigingen",
   "recipient_address" : "Adres ontvanger",

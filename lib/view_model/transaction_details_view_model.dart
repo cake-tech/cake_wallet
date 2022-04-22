@@ -142,7 +142,7 @@ abstract class TransactionDetailsViewModelBase with Store {
     final type = wallet.type;
 
     items.add(BlockExplorerListItem(
-        title: "View in Block Explorer",
+        title: S.current.view_in_block_explorer,
         value: _explorerDescription(type),
         onTap: () => launch(_explorerUrl(type, tx.id))));
 
@@ -191,13 +191,13 @@ abstract class TransactionDetailsViewModelBase with Store {
   String _explorerDescription(WalletType type) {
     switch (type) {
       case WalletType.monero:
-        return 'View Transaction on XMRChain.net';
+        return S.current.view_transaction_on + 'XMRChain.net';
       case WalletType.bitcoin:
-        return 'View Transaction on Blockchain.com';
+        return S.current.view_transaction_on + 'Blockchain.com';
       case WalletType.litecoin:
-        return 'View Transaction on Blockchair.com';
+        return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
-        return 'View Transaction on explorer.havenprotocol.org';
+        return S.current.view_transaction_on + 'explorer.havenprotocol.org';
       default:
         return '';
     }

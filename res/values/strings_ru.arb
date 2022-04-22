@@ -443,6 +443,8 @@
   "enter_your_note" : "Введите примечание…",
   "note_optional" : "Примечание (необязательно)",
   "note_tap_to_change" : "Примечание (нажмите для изменения)",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "Ключ транзакции",
   "confirmations" : "Подтверждения",
   "recipient_address" : "Адрес получателя",

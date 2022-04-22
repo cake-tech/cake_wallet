@@ -441,6 +441,8 @@
   "enter_your_note" : "Entrez votre note…",
   "note_optional" : "Note (optionnelle)",
   "note_tap_to_change" : "Note (appuyez pour changer)",
+  "view_in_block_explorer" : "Voir dans l'Explorateur de Blocs",
+  "view_transaction_on" : "Voir la Transaction sur ",
   "transaction_key" : "Clef de Transaction",
   "confirmations" : "Confirmations",
   "recipient_address" : "Adresse bénéficiaire",
