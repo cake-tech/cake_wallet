@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/pending_transaction.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -203,7 +204,7 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     for (var bal in walletBase.balance.entries) {
                       loggerPrint(
-                          "key: ${bal.key}, amount ${bal.value.available}");
+                          "key: ${bal.key}, amount ${moneroAmountToString(amount: bal.value.available)}");
                     }
                   },
                   child: Text("amount")),
