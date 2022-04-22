@@ -43,7 +43,8 @@ void createWalletSync(
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final languagePointer = language.toNativeUtf8();
-  final errorMessagePointer = pkgffi.calloc.allocate<Utf8>(sizeOf<Utf8>());
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
   final isWalletCreated = createWalletNative(pathPointer, passwordPointer,
           languagePointer, nettype, errorMessagePointer) !=
       0;
@@ -78,7 +79,8 @@ void restoreWalletFromSeedSync(
   final pathPointer = path.toNativeUtf8();
   final passwordPointer = password.toNativeUtf8();
   final seedPointer = seed.toNativeUtf8();
-  final errorMessagePointer = pkgffi.calloc.allocate<Utf8>(sizeOf<Utf8>());
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
   final isWalletRestored = restoreWalletFromSeedNative(
           pathPointer,
           passwordPointer,
@@ -113,7 +115,8 @@ void restoreWalletFromKeysSync(
   final addressPointer = address.toNativeUtf8();
   final viewKeyPointer = viewKey.toNativeUtf8();
   final spendKeyPointer = spendKey.toNativeUtf8();
-  final errorMessagePointer = pkgffi.calloc.allocate<Utf8>(sizeOf<Utf8>());
+  final errorMessagePointer =
+      pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
   final isWalletRestored = restoreWalletFromKeysNative(
           pathPointer,
           passwordPointer,

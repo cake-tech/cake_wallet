@@ -7,9 +7,18 @@ part 'wallet_info.g.dart';
 
 @HiveType(typeId: WalletInfo.typeId)
 class WalletInfo extends HiveObject {
-  WalletInfo(this.id, this.name, this.type, this.isRecovery, this.restoreHeight,
-      this.timestamp, this.dirPath, this.path, this.address, this.yatEid,
-        this.yatLastUsedAddressRaw)
+  WalletInfo(
+      this.id,
+      this.name,
+      this.type,
+      this.isRecovery,
+      this.restoreHeight,
+      this.timestamp,
+      this.dirPath,
+      this.path,
+      this.address,
+      this.yatEid,
+      this.yatLastUsedAddressRaw)
       : _yatLastUsedAddressController = StreamController<String>.broadcast();
 
   factory WalletInfo.external(
@@ -22,11 +31,20 @@ class WalletInfo extends HiveObject {
       @required String dirPath,
       @required String path,
       @required String address,
-      String yatEid ='',
+      String yatEid = '',
       String yatLastUsedAddressRaw = ''}) {
-    return WalletInfo(id, name, type, isRecovery, restoreHeight,
-        date.millisecondsSinceEpoch ?? 0, dirPath, path, address,
-        yatEid, yatLastUsedAddressRaw);
+    return WalletInfo(
+        id,
+        name,
+        type,
+        isRecovery,
+        restoreHeight,
+        date.millisecondsSinceEpoch ?? 0,
+        dirPath,
+        path,
+        address,
+        yatEid,
+        yatLastUsedAddressRaw);
   }
 
   static const typeId = 4;
@@ -79,7 +97,8 @@ class WalletInfo extends HiveObject {
 
   DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
 
-  Stream<String> get yatLastUsedAddressStream => _yatLastUsedAddressController.stream;
+  Stream<String> get yatLastUsedAddressStream =>
+      _yatLastUsedAddressController.stream;
 
   StreamController<String> _yatLastUsedAddressController;
 }

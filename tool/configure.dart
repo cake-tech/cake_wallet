@@ -15,8 +15,10 @@ Future<void> main(List<String> args) async {
   final hasHaven = args.contains('${prefix}haven');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
-  await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
-  await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
+  await generatePubspec(
+      hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
+  await generateWalletTypes(
+      hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
 }
 
 Future<void> generateBitcoin(bool hasImplementation) async {
@@ -28,7 +30,7 @@ import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:flutter_libmonero/view_model/send/output.dart';
 import 'package:hive/hive.dart';""";
   const bitcoinCWHeaders = """
 import 'package:cw_bitcoin/electrum_wallet.dart';
@@ -95,12 +97,12 @@ abstract class Bitcoin {
   const bitcoinEmptyDefinition = 'Bitcoin bitcoin;\n';
   const bitcoinCWDefinition = 'Bitcoin bitcoin = CWBitcoin();\n';
 
-  final output = '$bitcoinCommonHeaders\n'
-    + (hasImplementation ? '$bitcoinCWHeaders\n' : '\n')
-    + (hasImplementation ? '$bitcoinCwPart\n\n' : '\n')
-    + (hasImplementation ? bitcoinCWDefinition : bitcoinEmptyDefinition)
-    + '\n'
-    + bitcoinContent;
+  final output = '$bitcoinCommonHeaders\n' +
+      (hasImplementation ? '$bitcoinCWHeaders\n' : '\n') +
+      (hasImplementation ? '$bitcoinCwPart\n\n' : '\n') +
+      (hasImplementation ? bitcoinCWDefinition : bitcoinEmptyDefinition) +
+      '\n' +
+      bitcoinContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -121,7 +123,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/output_info.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:flutter_libmonero/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';""";
   const moneroCWHeaders = """
@@ -259,12 +261,12 @@ abstract class MoneroAccountList {
   const moneroEmptyDefinition = 'Monero monero;\n';
   const moneroCWDefinition = 'Monero monero = CWMonero();\n';
 
-  final output = '$moneroCommonHeaders\n'
-    + (hasImplementation ? '$moneroCWHeaders\n' : '\n')
-    + (hasImplementation ? '$moneroCwPart\n\n' : '\n')
-    + (hasImplementation ? moneroCWDefinition : moneroEmptyDefinition)
-    + '\n'
-    + moneroContent;
+  final output = '$moneroCommonHeaders\n' +
+      (hasImplementation ? '$moneroCWHeaders\n' : '\n') +
+      (hasImplementation ? '$moneroCwPart\n\n' : '\n') +
+      (hasImplementation ? moneroCWDefinition : moneroEmptyDefinition) +
+      '\n' +
+      moneroContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -285,7 +287,7 @@ import 'package:cw_core/transaction_history.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/balance.dart';
 import 'package:cw_core/output_info.dart';
-import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:flutter_libmonero/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:hive/hive.dart';""";
   const havenCWHeaders = """
@@ -423,12 +425,12 @@ abstract class HavenAccountList {
   const havenEmptyDefinition = 'Monero monero;\n';
   const havenCWDefinition = 'Monero monero = CWMonero();\n';
 
-  final output = '$havenCommonHeaders\n'
-    + (hasImplementation ? '$havenCWHeaders\n' : '\n')
-    + (hasImplementation ? '$havenCwPart\n\n' : '\n')
-    + (hasImplementation ? havenCWDefinition : havenEmptyDefinition)
-    + '\n'
-    + havenContent;
+  final output = '$havenCommonHeaders\n' +
+      (hasImplementation ? '$havenCWHeaders\n' : '\n') +
+      (hasImplementation ? '$havenCwPart\n\n' : '\n') +
+      (hasImplementation ? havenCWDefinition : havenEmptyDefinition) +
+      '\n' +
+      havenContent;
 
   if (outputFile.existsSync()) {
     await outputFile.delete();
@@ -437,8 +439,9 @@ abstract class HavenAccountList {
   await outputFile.writeAsString(output);
 }
 
-Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
-  const cwCore =  """
+Future<void> generatePubspec(
+    {bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
+  const cwCore = """
   cw_core:
     path: ./cw_core
     """;
@@ -461,7 +464,8 @@ Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) a
   final inputFile = File(pubspecOutputPath);
   final inputText = await inputFile.readAsString();
   final inputLines = inputText.split('\n');
-  final dependenciesIndex = inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
+  final dependenciesIndex =
+      inputLines.indexWhere((line) => line.toLowerCase() == 'dependencies:');
   var output = cwCore;
 
   if (hasMonero) {
@@ -482,7 +486,7 @@ Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) a
   inputLines.insertAll(dependenciesIndex + 1, outputLines);
   final outputContent = inputLines.join('\n');
   final outputFile = File(pubspecOutputPath);
-  
+
   if (outputFile.existsSync()) {
     await outputFile.delete();
   }
@@ -490,9 +494,10 @@ Future<void> generatePubspec({bool hasMonero, bool hasBitcoin, bool hasHaven}) a
   await outputFile.writeAsString(outputContent);
 }
 
-Future<void> generateWalletTypes({bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
+Future<void> generateWalletTypes(
+    {bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
   final walletTypesFile = File(walletTypesPath);
-  
+
   if (walletTypesFile.existsSync()) {
     await walletTypesFile.delete();
   }

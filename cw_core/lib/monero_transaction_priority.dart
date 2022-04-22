@@ -1,6 +1,6 @@
 import 'package:cw_core/transaction_priority.dart';
 import 'package:cw_core/wallet_type.dart';
-//import 'package:cake_wallet/generated/i18n.dart';
+//import 'package:flutter_libmonero/generated/i18n.dart';
 import 'package:cw_core/enumerable_item.dart';
 
 class MoneroTransactionPriority extends TransactionPriority {
@@ -20,7 +20,6 @@ class MoneroTransactionPriority extends TransactionPriority {
   static const fast = MoneroTransactionPriority(title: 'Fast', raw: 3);
   static const fastest = MoneroTransactionPriority(title: 'Fastest', raw: 4);
   static const standard = slow;
-
 
   static List<MoneroTransactionPriority> forWalletType(WalletType type) {
     switch (type) {

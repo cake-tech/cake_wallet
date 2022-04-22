@@ -7,8 +7,16 @@ import 'package:cw_core/format_amount.dart';
 import 'package:cw_monero/api/transaction_history.dart';
 
 class MoneroTransactionInfo extends TransactionInfo {
-  MoneroTransactionInfo(this.id, this.height, this.direction, this.date,
-      this.isPending, this.amount, this.accountIndex, this.addressIndex, this.fee);
+  MoneroTransactionInfo(
+      this.id,
+      this.height,
+      this.direction,
+      this.date,
+      this.isPending,
+      this.amount,
+      this.accountIndex,
+      this.addressIndex,
+      this.fee);
 
   MoneroTransactionInfo.fromMap(Map map)
       : id = (map['hash'] ?? '') as String,
@@ -24,12 +32,12 @@ class MoneroTransactionInfo extends TransactionInfo {
         addressIndex = map['addressIndex'] as int,
         key = getTxKey((map['hash'] ?? '') as String),
         fee = map['fee'] as int ?? 0 {
-          additionalInfo = {
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+    additionalInfo = {
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
       : id = row.getHash(),
@@ -43,12 +51,12 @@ class MoneroTransactionInfo extends TransactionInfo {
         addressIndex = row.subaddrIndex,
         key = getTxKey(row.getHash()),
         fee = row.fee {
-          additionalInfo = {
-            'key': key,
-            'accountIndex': accountIndex,
-            'addressIndex': addressIndex
-          };
-        }
+    additionalInfo = {
+      'key': key,
+      'accountIndex': accountIndex,
+      'addressIndex': addressIndex
+    };
+  }
 
   final String id;
   final int height;
@@ -77,4 +85,9 @@ class MoneroTransactionInfo extends TransactionInfo {
   @override
   String feeFormatted() =>
       '${formatAmount(moneroAmountToString(amount: fee))} XMR';
+
+  @override
+  String toString() {
+    return "\nheight: ${height}\n amount: ${moneroAmountToString(amount: amount)}\n date: ${date}";
+  }
 }
