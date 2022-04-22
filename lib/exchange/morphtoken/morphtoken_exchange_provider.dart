@@ -208,4 +208,11 @@ class MorphTokenExchangeProvider extends ExchangeProvider {
 
   @override
   bool get isEnabled => false;
+
+  @override
+  Future<double> fetchExchangeRate( {CryptoCurrency from,
+      CryptoCurrency to}) {
+    // TODO: implement fetchExchangeRate
+    throw UnimplementedError();
+  }
 }

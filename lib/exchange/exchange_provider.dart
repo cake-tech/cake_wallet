@@ -16,7 +16,8 @@ abstract class ExchangeProvider {
   
   @override
   String toString() => title;
-
+  Future<double> fetchExchangeRate( {CryptoCurrency from,
+      CryptoCurrency to});
   Future<Limits> fetchLimits(
       {CryptoCurrency from, CryptoCurrency to, bool isFixedRateMode});
   Future<Trade> createTrade({TradeRequest request, bool isFixedRateMode});

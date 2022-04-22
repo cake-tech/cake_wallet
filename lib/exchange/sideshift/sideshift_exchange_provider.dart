@@ -265,4 +265,24 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return currency.title.toLowerCase();
     }
   }
+
+  @override
+  Future<double> fetchExchangeRate( {CryptoCurrency from,
+      CryptoCurrency to}) async{
+        final fromCurrency = normalizeCryptoCurrency(from);
+        final toCurrency = normalizeCryptoCurrency(to);
+        final url = apiBaseUrl + rangePath + '/' + fromCurrency + '/' + toCurrency;
+        final response = await get(url);
+
+        if (response.statusCode == 500) {
+          return 0.0;
+        }
+
+        if (response.statusCode != 200) {
+          return 0.0;
+        }
+
+      final responseJSON = json.decode(response.body) as Map<String, dynamic>;
+      return  double.parse(responseJSON['rate'] as String);
+  }
 }

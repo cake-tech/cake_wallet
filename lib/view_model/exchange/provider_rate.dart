@@ -1,7 +1,7 @@
 import 'package:cake_wallet/exchange/exchange_provider.dart';
 
-class ProviderPrice {
+class ProviderRate {
   final ExchangeProvider provider;
-  final double price;
-  const ProviderPrice({this.provider, this.price});
+  final double rate;
+  const ProviderRate({this.provider, this.rate});
 }

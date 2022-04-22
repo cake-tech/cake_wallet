@@ -31,6 +31,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   static const findTradeByIdPath = '/v2/exchange/by-id';
   static const estimatedAmountPath = '/v2/exchange/estimated-amount';
   static const rangePath = '/v2/exchange/range';
+  static const ratePath = '/v1/market-info/fixed-rate';
   static const apiHeaderKey = 'x-changenow-api-key';
 
   @override
@@ -272,4 +273,26 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
   @override
   bool get isEnabled => true;
+
+  @override
+  Future<double> fetchExchangeRate( {CryptoCurrency from,
+      CryptoCurrency to}) async{
+    final uri = Uri.https(apiAuthority, ratePath + '/' + apiKey);
+    final response = await get(uri);
+
+    if (response.statusCode == 400) {
+      throw Exception('unable to fetch rates');
+    }
+
+    if (response.statusCode != 200) {
+      return 0.00;
+    }
+
+    final responseJSON = json.decode(response.body) as List<dynamic>;
+    final list = List<Map<String, dynamic>>.from(responseJSON);
+    final exchangePair = list.where((e) => e['from'] == normalizeCryptoCurrency(from) 
+     && e['to'] == normalizeCryptoCurrency(to)).first;
+
+    return exchangePair['rate'] as double;
+  }
 }

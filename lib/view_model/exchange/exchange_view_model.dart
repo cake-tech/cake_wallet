@@ -1,7 +1,8 @@
 import 'package:cake_wallet/entities/preferences_key.dart';
+import 'package:cake_wallet/exchange/provider_rate_state.dart';
 import 'package:cake_wallet/exchange/selected_exchange_provider.dart';
 import 'package:cake_wallet/store/selected_exchange_provider_store.dart';
-import 'package:cake_wallet/view_model/exchange/provider_price.dart';
+import 'package:cake_wallet/view_model/exchange/provider_rate.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -53,6 +54,7 @@ abstract class ExchangeViewModelBase with Store {
     depositAddress = depositCurrency == wallet.currency
         ? wallet.walletAddresses.address : '';
     limitsState = LimitsInitialState();
+    ratesState = RateInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
    
@@ -143,7 +145,8 @@ abstract class ExchangeViewModelBase with Store {
 
   List<CryptoCurrency> receiveCurrencies;
 
-  List<ProviderPrice> providerPrices = [];
+  List<ProviderRate> providerRates = [];
+
   List<CryptoCurrency> depositCurrencies;
 
   Limits limits;
@@ -155,6 +158,8 @@ abstract class ExchangeViewModelBase with Store {
   SettingsStore _settingsStore;
 
   SharedPreferences sharedPreferences;
+
+  ProviderRateState ratesState;
 
 
   @action
@@ -217,13 +222,12 @@ abstract class ExchangeViewModelBase with Store {
     calculateAmount(_amount, false);
   }
 
-
-
-  Future<Map<String, dynamic>>_getLimit()async{
-        Map<String, dynamic> result = Map<String, dynamic>();
-        limitsState = LimitsIsLoading();
-      
-        await Future.forEach(providerList, (ExchangeProvider provider)  async {
+  Future<void> _loadRates() async {
+    final List<ProviderRate> rates = [];
+    ratesState = RateIsLoading();
+    
+     await Future.forEach(providerList, (ExchangeProvider provider)  async {
+               
                 if(isSelected(provider)){
                   try {
                   final from = isFixedRateMode
@@ -232,11 +236,44 @@ abstract class ExchangeViewModelBase with Store {
                   final to = isFixedRateMode
                     ? depositCurrency
                     : receiveCurrency;
-                  limits = await provider.fetchLimits(
+                  final rate = await provider.fetchExchangeRate(
+                      from: from,
+                      to: to);
+                  rates.add(ProviderRate(rate: rate, provider: provider));
+                } catch (e) {
+                  print(e);
+                } 
+              }           
+          });
+      
+      if(rates.isNotEmpty){
+        rates.sort((a, b) => b.rate.compareTo(a.rate));
+        providerRates = rates;
+      }
+
+      ratesState = RateInitialState();
+  }
+
+  Future<Map<String, dynamic>>_getLimit()async{
+        Map<String, dynamic> result = Map<String, dynamic>();
+        limitsState = LimitsIsLoading();
+  
+        await Future.forEach(providerRates, (ProviderRate providerRate)  async {
+               final _provider = providerRate.provider; 
+                
+                if(isSelected(_provider)){
+                  try {
+                  final from = isFixedRateMode
+                    ? receiveCurrency
+                    : depositCurrency;
+                  final to = isFixedRateMode
+                    ? depositCurrency
+                    : receiveCurrency;
+                  limits = await _provider.fetchLimits(
                       from: from,
                       to: to,
                       isFixedRateMode: isFixedRateMode);
-                  result = <String, dynamic>{'hasError': false, 'provider': provider, 'limit': limits};
+                  result = <String, dynamic>{'hasError': false, 'provider': _provider, 'limit': limits};
                   limitsState = LimitsLoadedSuccessfully(limits: limits);
 
                 } catch (e) { 
@@ -245,12 +282,13 @@ abstract class ExchangeViewModelBase with Store {
               } 
           }           
         });
-        
 
       return result;
     }
 
   Future<void> calculateAmount(double amount, bool isReversed)async{
+    if(ratesState is RateInitialState){
+      await _loadRates();
       final response = await _getLimit();
       final hasError = response['hasError'] as bool; 
       
@@ -260,30 +298,29 @@ abstract class ExchangeViewModelBase with Store {
               final to = isReversed
                 ? depositCurrency
                 : receiveCurrency;
-   
-    if(!hasError){
-      provider = response['provider'] as ExchangeProvider;
     
-      final result = await provider
-          .calculateAmount(
-              from: from,
-              to: to,
-              amount: amount,
-              isFixedRateMode: isFixedRateMode,
-              isReceiveAmount: isReversed);
+      if(!hasError){
+        provider = response['provider'] as ExchangeProvider;
+      
+        final result = await provider
+            .calculateAmount(
+                from: from,
+                to: to,
+                amount: amount,
+                isFixedRateMode: isFixedRateMode,
+                isReceiveAmount: isReversed);
 
-      final formattedAmount = _cryptoNumberFormat
-              .format(result)
-              .toString()
-              .replaceAll(RegExp('\\,'), '');
+        final formattedAmount = _cryptoNumberFormat
+                .format(result)
+                .toString()
+                .replaceAll(RegExp('\\,'), '');
 
-      if (isReversed) {
-          depositAmount =  formattedAmount;
-      } else {
-          receiveAmount =  formattedAmount;
+        if (isReversed) {
+            depositAmount =  formattedAmount;
+        } else {
+            receiveAmount =  formattedAmount;
+        }
       }
-    }else{
-
     } 
   }
 
