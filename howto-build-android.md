@@ -51,7 +51,7 @@ You may download and install the latest version of Android Studio [here](https:/
 
 ### 3. Installing Flutter
 
-Need to install flutter with version `2.0.4`. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually). When flutter repository is downloaded please open it with `cd <flutter-path>` and checkout version 2.0.4 by `git checkout 2.0.4`.
+Need to install flutter. For this please check section [Install Flutter manually](https://docs.flutter.dev/get-started/install/linux#install-flutter-manually).
 
 ### 4. Verify Installations
 
@@ -75,17 +75,9 @@ You will be prompted to create two passwords. First you will be prompted for the
 
 ### 6. Acquiring the CakeWallet Source Code
 
-Create the directory that will be use to store the CakeWallet source...
+Create the directory that will be use to store the CakeWallet source and download the source code into that directory.
 
-```
-$ sudo mkdir -p /opt/android
-$ sudo chown $USER /opt/android
-$ cd /opt/android
-```
-
-..and download the source code into that directory.
-
-`$ git clone https://github.com/cake-tech/cake_wallet.git --branch main`
+`$ git clone https://github.com/cypherstack/flutter_libmonero.git --branch main`
 
 Proceed into the source code before proceeding with the next steps:
 
@@ -97,20 +89,9 @@ Proceed into the source code before proceeding with the next steps:
 
 ### 8. Execute Build & Setup Commands for CakeWallet
 
-We need to generate project settings like app name, app icon, package name, etc. For this need to setup environment variables and configure project files. 
-
-Please pick what app you want to build: cakewallet or monero.com.
-
-`$ source ./app_env.sh <cakewallet OR monero.com>`
-(it should be like `$ source ./app_env.sh cakewallet` or `$ source ./app_env.sh monero.com`)
-
-Then run configuration script for setup app name, app icon and etc:
-
-`$ ./app_config.sh`  
-
 Build the Monero libraries and their dependencies:
 
-`$ ./build_all.sh`
+`$ ./build_monero_all.sh`
 
 Now the dependencies need to be copied into the CakeWallet project with this command:
 
@@ -127,34 +108,6 @@ Install Flutter package dependencies with this command:
 Your CakeWallet binary will be built with cryptographic salts, which are used for secure encryption of your data. You may generate these secret salts with the following command:
 
 `$ flutter packages pub run tool/generate_new_secrets.dart`
-
-Next, we must generate key properties based on the secure keystore you generated for Android (in step 5). **MODIFY THE FOLLOWING COMMAND** with the "store password" and "key password" you assigned when creating your keystore (in step 5).
-
-`$ flutter packages pub run tool/generate_android_key_properties.dart keyAlias=key storeFile=$HOME/key.jks storePassword=<store password> keyPassword=<key password>`
-
-**REMINDER:** The *above* command will **not** succeed unless you replaced the `storePassword` and `keyPassword` variables with the correct passwords for your keystore.
-
-Then we need to generate localization files.
-
-`$ flutter packages pub run tool/generate_localization.dart`
-
-Lastly, we will generate mobx models for the project.
-
-Generate mobx models for `cw_core`:
-
-`cd cw_core && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_monero`:
-
-`cd cw_monero && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Generate mobx models for `cw_bitcoin`:
-
-`cd cw_bitcoin && flutter pub get && flutter packages pub run build_runner build --delete-conflicting-outputs && cd ..`
-
-Finally build mobx models for the app:
-
-`$ flutter packages pub run build_runner build --delete-conflicting-outputs`
 
 ### 9. Build!
 

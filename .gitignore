@@ -82,7 +82,7 @@ cw_monero/cw_monero/android/.externalNativeBuild/
 cw_monero/cw_monero/android/.cxx/
 
 # Generated dart files
-**/*.g.dart
+#**/*.g.dart
 
 android/key.properties
 
@@ -118,7 +118,7 @@ cw_haven/android/.externalNativeBuild/
 cw_haven/android/.cxx/
 
 lib/bitcoin/bitcoin.dart
-lib/monero/monero.dart
+#lib/monero/monero.dart
 
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_180.png
 ios/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_120.png
