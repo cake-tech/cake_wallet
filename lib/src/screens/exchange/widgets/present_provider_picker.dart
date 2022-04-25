@@ -89,7 +89,7 @@ class PresentProviderPicker extends StatelessWidget {
                 checkboxValue: exchangeViewModel.isSelected,
                 description: description,
                 onChangeCheckbox: (ExchangeProvider provider, bool value){
-                  if(exchangeViewModel.isProviderUnavailable(provider)){
+                  if(value && exchangeViewModel.isProviderUnavailable(provider)){
                    return unavailableError(context);
                   }
                   setState((){
