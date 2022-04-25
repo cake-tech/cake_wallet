@@ -16,8 +16,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  String _testLDK = "foobar";
-  String _testBlocking = "foobar";
+  String _startLDK = "foobar";
+  String _mnomonicKeyPhrase =
+      "stool outside acoustic correct craft attitude scheme urge grape again chalk gas";
 
   @override
   void initState() {
@@ -38,29 +39,14 @@ class _MyAppState extends State<MyApp> {
     // setup pointer for isolate communication.
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
-    final testLDK =
-        await CwLdk.testLDKAsync("polaruser:polarpass@192.168.0.10:18443");
+    final startLDK = await CwLdk.startLDK(
+        "polaruser:polarpass@192.168.0.10:18443", _mnomonicKeyPhrase);
 
-    CwLdk.ldkChannels();
-    CwLdk.ffiChannels();
-
-    // final path = await CwLdk.createFolderInAppDocDir(".ldk");
-    // await CwLdk.listFilesInFolder(".ldk");
-    // await CwLdk.deleteFolder(".ldk");
-
-    // final path = await CwLdk.getAppDocDirPath();
-    // final testBlocking = CwLdk.testLDKBlocking(path + "/.ldk");
-
-    // await CwLdk.deleteFolder(".ldk");
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
       _platformVersion = platformVersion;
-      _testLDK = testLDK;
+      _startLDK = startLDK;
       // _testBlocking = testBlocking;
     });
   }
@@ -77,8 +63,7 @@ class _MyAppState extends State<MyApp> {
             child: Column(
               children: [
                 Text('Running on: $_platformVersion\n'),
-                Text('test_LDK: $_testLDK'),
-                // Text('test_Blocking: $_testBlocking'),
+                Text('startLDK: $_startLDK'),
               ],
             ),
           ),

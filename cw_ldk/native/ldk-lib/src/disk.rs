@@ -20,8 +20,7 @@ pub(crate) struct FilesystemLogger {
 impl FilesystemLogger {
 	pub(crate) fn new(data_dir: String) -> Self {
 		let logs_path = format!("{}/logs", data_dir);
-		// flutter does not like this.
-		// fs::create_dir_all(logs_path.clone()).unwrap();
+		fs::create_dir_all(logs_path.clone()).unwrap();
 		Self { data_dir: logs_path }
 	}
 }
@@ -72,19 +71,6 @@ pub(crate) fn read_channel_peer_data(
 		}
 	}
 	Ok(peer_data)
-}
-
-pub(crate) fn persist_network(path: &Path, network_graph: &NetworkGraph) -> std::io::Result<()> {
-	let mut tmp_path = path.to_path_buf().into_os_string();
-	tmp_path.push(".tmp");
-	let file = fs::OpenOptions::new().write(true).create(true).open(&tmp_path)?;
-	let write_res = network_graph.write(&mut BufWriter::new(file));
-	if let Err(e) = write_res.and_then(|_| fs::rename(&tmp_path, path)) {
-		let _ = fs::remove_file(&tmp_path);
-		Err(e)
-	} else {
-		Ok(())
-	}
 }
 
 pub(crate) fn read_network(path: &Path, genesis_hash: BlockHash) -> NetworkGraph {

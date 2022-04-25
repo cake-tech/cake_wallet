@@ -11,6 +11,7 @@ use bitcoin::secp256k1::key::PublicKey;
 use lightning::chain::keysinterface::{KeysInterface, KeysManager, Recipient};
 use lightning::ln::msgs::NetAddress;
 use lightning::ln::{PaymentHash, PaymentPreimage};
+use lightning::routing::network_graph::{NetworkGraph, NodeId};
 use lightning::util::config::{ChannelConfig, ChannelHandshakeLimits, UserConfig};
 use lightning::util::events::EventHandler;
 use lightning_invoice::payment::PaymentError;
@@ -25,20 +26,18 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
 
-#[derive(Debug)]
-pub struct LdkUserInfo {
-	pub bitcoind_rpc_username: String,
-	pub bitcoind_rpc_password: String,
-	pub bitcoind_rpc_port: u16,
-	pub bitcoind_rpc_host: String,
-	pub ldk_storage_dir_path: String,
-	pub ldk_peer_listening_port: u16,
-	pub ldk_announced_listen_addr: Vec<NetAddress>,
-	pub ldk_announced_node_name: [u8; 32],
-	pub network: Network,
+pub(crate) struct LdkUserInfo {
+	pub(crate) bitcoind_rpc_username: String,
+	pub(crate) bitcoind_rpc_password: String,
+	pub(crate) bitcoind_rpc_port: u16,
+	pub(crate) bitcoind_rpc_host: String,
+	pub(crate) ldk_storage_dir_path: String,
+	pub(crate) ldk_peer_listening_port: u16,
+	pub(crate) ldk_announced_listen_addr: Vec<NetAddress>,
+	pub(crate) ldk_announced_node_name: [u8; 32],
+	pub(crate) network: Network,
 }
 
-#[allow(dead_code)]
 pub(crate) fn parse_startup_args() -> Result<LdkUserInfo, ()> {
 	if env::args().len() < 3 {
 		println!("ldk-tutorial-node requires 3 arguments: `cargo run <bitcoind-rpc-username>:<bitcoind-rpc-password>@<bitcoind-rpc-host>:<bitcoind-rpc-port> ldk_storage_directory_path [<ldk-incoming-peer-listening-port>] [bitcoin-network] [announced-node-name announced-listen-addr*]`");
@@ -140,135 +139,11 @@ pub(crate) fn parse_startup_args() -> Result<LdkUserInfo, ()> {
 	})
 }
 
-pub fn setup_ldkuserinfo(bitcoind_rpc_info:String, ldk_storage_dir_path:String, 
-	ldk_peer_listening_port:u16, network_str:String, ldk_announced_node_name_arg:String,
-	ldk_announced_listen_addr_arg:String) -> Result<LdkUserInfo, ()> {
-
-	// if env::args().len() < 3 {
-	// 	println!("ldk-tutorial-node requires 3 arguments: `cargo run <bitcoind-rpc-username>:<bitcoind-rpc-password>@<bitcoind-rpc-host>:<bitcoind-rpc-port> ldk_storage_directory_path [<ldk-incoming-peer-listening-port>] [bitcoin-network] [announced-node-name announced-listen-addr*]`");
-	// 	return Err(());
-	// }
-	// let bitcoind_rpc_info = env::args().skip(1).next().unwrap();
-	let bitcoind_rpc_info_parts: Vec<&str> = bitcoind_rpc_info.rsplitn(2, "@").collect();
-	if bitcoind_rpc_info_parts.len() != 2 {
-		println!("ERROR: bad bitcoind RPC URL provided");
-		return Err(());
-	}
-	let rpc_user_and_password: Vec<&str> = bitcoind_rpc_info_parts[1].split(":").collect();
-	if rpc_user_and_password.len() != 2 {
-		println!("ERROR: bad bitcoind RPC username/password combo provided");
-		return Err(());
-	}
-	let bitcoind_rpc_username = rpc_user_and_password[0].to_string();
-	let bitcoind_rpc_password = rpc_user_and_password[1].to_string();
-	let bitcoind_rpc_path: Vec<&str> = bitcoind_rpc_info_parts[0].split(":").collect();
-	if bitcoind_rpc_path.len() != 2 {
-		println!("ERROR: bad bitcoind RPC path provided");
-		return Err(());
-	}
-	let bitcoind_rpc_host = bitcoind_rpc_path[0].to_string();
-	let bitcoind_rpc_port = bitcoind_rpc_path[1].parse::<u16>().unwrap();
-
-	// let ldk_storage_dir_path = env::args().skip(2).next().unwrap();
-
-	// let ldk_peer_port_set = true;
-	// let ldk_peer_listening_port: u16 = match env::args().skip(3).next().map(|p| p.parse()) {
-	// 	Some(Ok(p)) => p,
-	// 	Some(Err(_)) => {
-	// 		ldk_peer_port_set = false;
-	// 		9735
-	// 	}
-	// 	None => {
-	// 		ldk_peer_port_set = false;
-	// 		9735
-	// 	}
-	// };
-
-	// let mut arg_idx = match ldk_peer_port_set {
-	// 	true => 4,
-	// 	false => 3,
-	// };
-	// let network: Network = match env::args().skip(arg_idx).next().as_ref().map(String::as_str) {
-	let network: Network = match network_str.as_str() {
-		"testnet" => Network::Testnet,
-		"regtest" => Network::Regtest,
-		"signet" => Network::Signet,
-		_ => Network::Testnet,
-	};
-
-	if ldk_announced_node_name_arg.len() > 32 {
-		panic!("Node Alias can not be longer than 32 bytes");
-	}
-
-	// arg_idx += 1;
-	let mut bytes = [0; 32];
-	bytes[..ldk_announced_node_name_arg.len()].copy_from_slice(ldk_announced_node_name_arg.as_bytes());
-	let ldk_announced_node_name = bytes;
-	
-	// let ldk_announced_node_name = match env::args().skip(arg_idx + 1).next().as_ref() {
-	// 	Some(s) => {
-	// 		if s.len() > 32 {
-	// 			panic!("Node Alias can not be longer than 32 bytes");
-	// 		}
-	// 		arg_idx += 1;
-	// 		let mut bytes = [0; 32];
-	// 		bytes[..s.len()].copy_from_slice(s.as_bytes());
-	// 		bytes
-	// 	}
-	// 	None => [0; 32],
-	// };
-
-	let mut ldk_announced_listen_addr = Vec::new();
-	match IpAddr::from_str(ldk_announced_listen_addr_arg.as_str()) {
-		Ok(IpAddr::V4(a)) => {
-			ldk_announced_listen_addr
-				.push(NetAddress::IPv4 { addr: a.octets(), port: ldk_peer_listening_port });
-		}
-		Ok(IpAddr::V6(a)) => {
-			ldk_announced_listen_addr
-				.push(NetAddress::IPv6 { addr: a.octets(), port: ldk_peer_listening_port });
-		},
-		Err(_) => panic!("Failed to parse announced-listen-addr into an IP address"),
-	}
-	// let mut ldk_announced_listen_addr = Vec::new();
-	// loop {
-	// 	match env::args().skip(arg_idx + 1).next().as_ref() {
-	// 		Some(s) => match IpAddr::from_str(s) {
-	// 			Ok(IpAddr::V4(a)) => {
-	// 				ldk_announced_listen_addr
-	// 					.push(NetAddress::IPv4 { addr: a.octets(), port: ldk_peer_listening_port });
-	// 				arg_idx += 1;
-	// 			}
-	// 			Ok(IpAddr::V6(a)) => {
-	// 				ldk_announced_listen_addr
-	// 					.push(NetAddress::IPv6 { addr: a.octets(), port: ldk_peer_listening_port });
-	// 				arg_idx += 1;
-	// 			}
-	// 			Err(_) => panic!("Failed to parse announced-listen-addr into an IP address"),
-	// 		},
-	// 		None => break,
-	// 	}
-	// }
-
-	Ok(LdkUserInfo {
-		bitcoind_rpc_username,
-		bitcoind_rpc_password,
-		bitcoind_rpc_host,
-		bitcoind_rpc_port,
-		ldk_storage_dir_path,
-		ldk_peer_listening_port,
-		ldk_announced_listen_addr,
-		ldk_announced_node_name,
-		network,
-	})
-}
-
-#[allow(dead_code)]
 pub(crate) async fn poll_for_user_input<E: EventHandler>(
 	invoice_payer: Arc<InvoicePayer<E>>, peer_manager: Arc<PeerManager>,
 	channel_manager: Arc<ChannelManager>, keys_manager: Arc<KeysManager>,
-	inbound_payments: PaymentInfoStorage, outbound_payments: PaymentInfoStorage,
-	ldk_data_dir: String, network: Network,
+	network_graph: Arc<NetworkGraph>, inbound_payments: PaymentInfoStorage,
+	outbound_payments: PaymentInfoStorage, ldk_data_dir: String, network: Network,
 ) {
 	println!("LDK startup successful. To view available commands: \"help\".");
 	println!("LDK logs are available at <your-supplied-ldk-data-dir-path>/.ldk/logs");
@@ -435,7 +310,7 @@ pub(crate) async fn poll_for_user_input<E: EventHandler>(
 						println!("SUCCESS: connected to peer {}", pubkey);
 					}
 				}
-				"listchannels" => list_channels(channel_manager.clone()),
+				"listchannels" => list_channels(&channel_manager, &network_graph),
 				"listpayments" => {
 					list_payments(inbound_payments.clone(), outbound_payments.clone())
 				}
@@ -446,8 +321,8 @@ pub(crate) async fn poll_for_user_input<E: EventHandler>(
 						continue;
 					}
 					let channel_id_vec = hex_utils::to_vec(channel_id_str.unwrap());
-					if channel_id_vec.is_none() {
-						println!("ERROR: couldn't parse channel_id as hex");
+					if channel_id_vec.is_none() || channel_id_vec.as_ref().unwrap().len() != 32 {
+						println!("ERROR: couldn't parse channel_id");
 						continue;
 					}
 					let mut channel_id = [0; 32];
@@ -461,15 +336,15 @@ pub(crate) async fn poll_for_user_input<E: EventHandler>(
 						continue;
 					}
 					let channel_id_vec = hex_utils::to_vec(channel_id_str.unwrap());
-					if channel_id_vec.is_none() {
-						println!("ERROR: couldn't parse channel_id as hex");
+					if channel_id_vec.is_none() || channel_id_vec.as_ref().unwrap().len() != 32 {
+						println!("ERROR: couldn't parse channel_id");
 						continue;
 					}
 					let mut channel_id = [0; 32];
 					channel_id.copy_from_slice(&channel_id_vec.unwrap());
 					force_close_channel(channel_id, channel_manager.clone());
 				}
-				"nodeinfo" => node_info(channel_manager.clone(), peer_manager.clone()),
+				"nodeinfo" => node_info(&channel_manager, &peer_manager),
 				"listpeers" => list_peers(peer_manager.clone()),
 				"signmessage" => {
 					const MSG_STARTPOS: usize = "signmessage".len() + 1;
@@ -494,6 +369,7 @@ pub(crate) async fn poll_for_user_input<E: EventHandler>(
 fn help() {
 	println!("openchannel pubkey@host:port <amt_satoshis>");
 	println!("sendpayment <invoice>");
+	println!("keysend <dest_pubkey> <amt_msat>");
 	println!("getinvoice <amt_millisatoshis>");
 	println!("connectpeer pubkey@host:port");
 	println!("listchannels");
@@ -505,16 +381,13 @@ fn help() {
 	println!("signmessage <message>");
 }
 
-fn node_info(channel_manager: Arc<ChannelManager>, peer_manager: Arc<PeerManager>) {
+fn node_info(channel_manager: &Arc<ChannelManager>, peer_manager: &Arc<PeerManager>) {
 	println!("\t{{");
 	println!("\t\t node_pubkey: {}", channel_manager.get_our_node_id());
 	let chans = channel_manager.list_channels();
 	println!("\t\t num_channels: {}", chans.len());
 	println!("\t\t num_usable_channels: {}", chans.iter().filter(|c| c.is_usable).count());
-	let local_balance_msat = chans
-		.iter()
-		.map(|c| c.unspendable_punishment_reserve.unwrap_or(0) * 1000 + c.outbound_capacity_msat)
-		.sum::<u64>();
+	let local_balance_msat = chans.iter().map(|c| c.balance_msat).sum::<u64>();
 	println!("\t\t local_balance_msat: {}", local_balance_msat);
 	println!("\t\t num_peers: {}", peer_manager.get_peer_node_ids().len());
 	println!("\t}},");
@@ -528,7 +401,20 @@ fn list_peers(peer_manager: Arc<PeerManager>) {
 	println!("\t}},");
 }
 
-fn list_channels(channel_manager: Arc<ChannelManager>) {
+/// Takes some untrusted bytes and returns a sanitized string that is safe to print
+fn sanitize_string(bytes: &[u8]) -> String {
+	let mut ret = String::with_capacity(bytes.len());
+	// We should really support some sane subset of UTF-8 here, but limiting to printable ASCII
+	// instead makes this trivial.
+	for b in bytes {
+		if *b >= 0x20 && *b <= 0x7e {
+			ret.push(*b as char);
+		}
+	}
+	ret
+}
+
+fn list_channels(channel_manager: &Arc<ChannelManager>, network_graph: &Arc<NetworkGraph>) {
 	print!("[");
 	for chan_info in channel_manager.list_channels() {
 		println!("");
@@ -537,20 +423,27 @@ fn list_channels(channel_manager: Arc<ChannelManager>) {
 		if let Some(funding_txo) = chan_info.funding_txo {
 			println!("\t\tfunding_txid: {},", funding_txo.txid);
 		}
+
 		println!(
 			"\t\tpeer_pubkey: {},",
 			hex_utils::hex_str(&chan_info.counterparty.node_id.serialize())
 		);
+		if let Some(node_info) = network_graph
+			.read_only()
+			.nodes()
+			.get(&NodeId::from_pubkey(&chan_info.counterparty.node_id))
+		{
+			if let Some(announcement) = &node_info.announcement_info {
+				println!("\t\tpeer_alias: {}", sanitize_string(&announcement.alias));
+			}
+		}
+
 		if let Some(id) = chan_info.short_channel_id {
 			println!("\t\tshort_channel_id: {},", id);
 		}
 		println!("\t\tis_confirmed_onchain: {},", chan_info.is_funding_locked);
 		println!("\t\tchannel_value_satoshis: {},", chan_info.channel_value_satoshis);
-		println!(
-			"\t\tlocal_balance_msat: {},",
-			chan_info.outbound_capacity_msat
-				+ chan_info.unspendable_punishment_reserve.unwrap_or(0) * 1000
-		);
+		println!("\t\tlocal_balance_msat: {},", chan_info.balance_msat);
 		if chan_info.is_usable {
 			println!("\t\tavailable_balance_for_send_msat: {},", chan_info.outbound_capacity_msat);
 			println!("\t\tavailable_balance_for_recv_msat: {},", chan_info.inbound_capacity_msat);

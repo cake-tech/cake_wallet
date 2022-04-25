@@ -94,43 +94,59 @@ class CwLdk {
     print(res);
   }
 
-  static Future<String> testLDKAsync(String rpcInfo) async {
-    final completer = Completer<String>();
-    final sendPort = singleCompletePort<String, String>(completer);
-    final port = sendPort.nativePort;
-
-    final Directory _appDocDir = await getApplicationDocumentsDirectory();
-
-    final res = native.test_ldk_async(
-        port, rpcInfo.toNativeUtf8(), _appDocDir.path.toNativeUtf8());
-
-    if (res != 1) {
-      _throwError();
-    }
-
-    return completer.future;
-  }
-
-  static String testLDKBlocking(String path) {
-    // final callbackPointer = Pointer.fromFunction<_callback_C>(callback);
+  static Future<String> startLDK(
+      String rpcInfo, String mnemonicKeyPhrase) async {
+    final Directory appDocDir = await getApplicationDocumentsDirectory();
     final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
 
-    final _res =
-        native.test_ldk_block(path.toNativeUtf8(), wrappedPrintPointer);
+    final _res = native.start_ldk(
+        rpcInfo.toNativeUtf8(),
+        appDocDir.path.toNativeUtf8(),
+        mnemonicKeyPhrase.toNativeUtf8(),
+        wrappedPrintPointer);
+
     final res = _res.toDartString();
     calloc.free(_res);
     return res;
   }
 
-  static void ffiChannels() {
-    final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
-    native.ffi_channels(wrappedPrintPointer);
-  }
+  // static Future<String> testLDKAsync(String rpcInfo) async {
+  //   final completer = Completer<String>();
+  //   final sendPort = singleCompletePort<String, String>(completer);
+  //   final port = sendPort.nativePort;
 
-  static void ldkChannels() {
-    final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
-    native.ldk_channels(wrappedPrintPointer);
-  }
+  //   final Directory _appDocDir = await getApplicationDocumentsDirectory();
+
+  //   final res = native.test_ldk_async(
+  //       port, rpcInfo.toNativeUtf8(), _appDocDir.path.toNativeUtf8());
+
+  //   if (res != 1) {
+  //     _throwError();
+  //   }
+
+  //   return completer.future;
+  // }
+
+  // static String testLDKBlocking(String path) {
+  //   // final callbackPointer = Pointer.fromFunction<_callback_C>(callback);
+  //   final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
+
+  //   final _res =
+  //       native.test_ldk_block(path.toNativeUtf8(), wrappedPrintPointer);
+  //   final res = _res.toDartString();
+  //   calloc.free(_res);
+  //   return res;
+  // }
+
+  // static void ffiChannels() {
+  //   final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
+  //   native.ffi_channels(wrappedPrintPointer);
+  // }
+
+  // static void ldkChannels() {
+  //   final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
+  //   native.ldk_channels(wrappedPrintPointer);
+  // }
 
   static void storeDartPostCobject(
     Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
