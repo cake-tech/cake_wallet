@@ -353,9 +353,13 @@ class ExchangePage extends BasePage {
                   Padding(
                     padding: EdgeInsets.only(bottom: 15),
                     child: Observer(builder: (_) {
-                      final description = exchangeViewModel.isFixedRateMode
+                      final isProvidersForPair = exchangeViewModel.isProvidersForPair;
+                      final isFixedRateMode = exchangeViewModel.isFixedRateMode;
+                      final description = isProvidersForPair ? (exchangeViewModel.isFixedRateMode
                               ? S.of(context).amount_is_guaranteed
-                              : S.of(context).amount_is_estimate;
+                              : S.of(context).amount_is_estimate) 
+                              : S.of(context).trading_pair_unavailable(isFixedRateMode 
+                              ? 'Fixed' : 'Variable');
                       return Center(
                         child: Text(
                           description,

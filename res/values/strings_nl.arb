@@ -528,5 +528,6 @@
   "learn_more" : "Kom meer te weten",
   "search": "Zoekopdracht",
   "new_template" : "Nieuwe sjabloon",
-  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
+  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
+  "trading_pair_unavailable": "Dit ${exchangeType}-paar wordt niet ondersteund met de geselecteerde uitwisselingen"
 }

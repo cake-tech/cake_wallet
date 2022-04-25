@@ -84,11 +84,14 @@ class PresentProviderPicker extends StatelessWidget {
                 images: images,
                 showCheckBox: true,
                 selectedAtIndex: 0,
-                disableItem: exchangeViewModel.isUnavailable,
+                disableItem: exchangeViewModel.isPairUnavailable,
                 title: S.of(context).change_exchange_provider,
                 checkboxValue: exchangeViewModel.isSelected,
                 description: description,
                 onChangeCheckbox: (ExchangeProvider provider, bool value){
+                  if(exchangeViewModel.isProviderUnavailable(provider)){
+                   return unavailableError(context);
+                  }
                   setState((){
                      exchangeViewModel.selectProvider(provider: provider, select: value); 
                   });
@@ -98,5 +101,17 @@ class PresentProviderPicker extends StatelessWidget {
           }
         ),
         context: context);
+  }
+
+    void unavailableError(BuildContext context) async {
+    await showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.of(context).error,
+              alertContent: 'this exchange is not available in your region',
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
   }
 }

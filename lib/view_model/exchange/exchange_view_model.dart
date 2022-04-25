@@ -57,7 +57,8 @@ abstract class ExchangeViewModelBase with Store {
     ratesState = RateInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
-   
+    _isProvidersForCurrentPair();
+    _loadAvailableProviders();
     receiveCurrencies = CryptoCurrency.all
       .where((cryptoCurrency) => !excludeReceiveCurrencies.contains(cryptoCurrency))
       .toList();
@@ -121,6 +122,9 @@ abstract class ExchangeViewModelBase with Store {
   @observable
   bool isFixedRateMode;
 
+  @observable
+  bool isProvidersForPair;
+
   @computed
   String get providerTitle => selectedExchangeProviders.length == 1 ? selectedExchangeProviders.first.provider : 'AUTOMATIC';
 
@@ -147,6 +151,8 @@ abstract class ExchangeViewModelBase with Store {
 
   List<ProviderRate> providerRates = [];
 
+  List<ExchangeProvider> _availableProviders = [];
+
   List<CryptoCurrency> depositCurrencies;
 
   Limits limits;
@@ -171,6 +177,7 @@ abstract class ExchangeViewModelBase with Store {
     _selectedExchangeProviderStore.remove(provider: result.first);
    _selectedExchangeProviderStore.update();
     }
+    _isProvidersForCurrentPair();
   }
 
   @action
@@ -221,107 +228,103 @@ abstract class ExchangeViewModelBase with Store {
     final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
     calculateAmount(_amount, false);
   }
+  
+  void _isProvidersForCurrentPair() {
+    final providers = providerList
+        .where((provider) => provider.pairList
+            .where((pair) =>
+                pair.from == depositCurrency && pair.to == receiveCurrency)
+            .isNotEmpty)
+        .toList();
 
+    isProvidersForPair = providers.isNotEmpty;
+  }
+  
   Future<void> _loadRates() async {
     final List<ProviderRate> rates = [];
     ratesState = RateIsLoading();
-    
-     await Future.forEach(providerList, (ExchangeProvider provider)  async {
-               
-                if(isSelected(provider)){
-                  try {
-                  final from = isFixedRateMode
-                    ? receiveCurrency
-                    : depositCurrency;
-                  final to = isFixedRateMode
-                    ? depositCurrency
-                    : receiveCurrency;
-                  final rate = await provider.fetchExchangeRate(
-                      from: from,
-                      to: to);
-                  rates.add(ProviderRate(rate: rate, provider: provider));
-                } catch (e) {
-                  print(e);
-                } 
-              }           
-          });
-      
-      if(rates.isNotEmpty){
-        rates.sort((a, b) => b.rate.compareTo(a.rate));
-        providerRates = rates;
-      }
 
-      ratesState = RateInitialState();
-  }
-
-  Future<Map<String, dynamic>>_getLimit()async{
-        Map<String, dynamic> result = Map<String, dynamic>();
-        limitsState = LimitsIsLoading();
-  
-        await Future.forEach(providerRates, (ProviderRate providerRate)  async {
-               final _provider = providerRate.provider; 
-                
-                if(isSelected(_provider)){
-                  try {
-                  final from = isFixedRateMode
-                    ? receiveCurrency
-                    : depositCurrency;
-                  final to = isFixedRateMode
-                    ? depositCurrency
-                    : receiveCurrency;
-                  limits = await _provider.fetchLimits(
-                      from: from,
-                      to: to,
-                      isFixedRateMode: isFixedRateMode);
-                  result = <String, dynamic>{'hasError': false, 'provider': _provider, 'limit': limits};
-                  limitsState = LimitsLoadedSuccessfully(limits: limits);
-
-                } catch (e) { 
-                  result = <String, dynamic>{'hasError': true};
-                  limitsState = LimitsLoadedFailure(error: e.toString());
-              } 
-          }           
-        });
-
-      return result;
-    }
-
-  Future<void> calculateAmount(double amount, bool isReversed)async{
-    if(ratesState is RateInitialState){
-      await _loadRates();
-      final response = await _getLimit();
-      final hasError = response['hasError'] as bool; 
-      
-      final from = isReversed
-                ? receiveCurrency
-                : depositCurrency;
-              final to = isReversed
-                ? depositCurrency
-                : receiveCurrency;
-    
-      if(!hasError){
-        provider = response['provider'] as ExchangeProvider;
-      
-        final result = await provider
-            .calculateAmount(
-                from: from,
-                to: to,
-                amount: amount,
-                isFixedRateMode: isFixedRateMode,
-                isReceiveAmount: isReversed);
-
-        final formattedAmount = _cryptoNumberFormat
-                .format(result)
-                .toString()
-                .replaceAll(RegExp('\\,'), '');
-
-        if (isReversed) {
-            depositAmount =  formattedAmount;
-        } else {
-            receiveAmount =  formattedAmount;
+    await Future.forEach(providerList, (ExchangeProvider provider) async {
+      if (isSelected(provider)) {
+        try {
+          final from = isFixedRateMode ? receiveCurrency : depositCurrency;
+          final to = isFixedRateMode ? depositCurrency : receiveCurrency;
+          final rate = await provider.fetchExchangeRate(from: from, to: to);
+          rates.add(ProviderRate(rate: rate, provider: provider));
+        } catch (e) {
+          print(e);
         }
       }
-    } 
+    });
+
+    if (rates.isNotEmpty) {
+      rates.sort((a, b) => b.rate.compareTo(a.rate));
+      providerRates = rates;
+    }
+
+    ratesState = RateInitialState();
+  }
+
+  Future<Map<String, dynamic>> _getLimit() async {
+    Map<String, dynamic> result = Map<String, dynamic>();
+    limitsState = LimitsIsLoading();
+
+    await Future.forEach(providerRates, (ProviderRate providerRate) async {
+      final _provider = providerRate.provider;
+
+      if (isSelected(_provider)) {
+        try {
+          final from = isFixedRateMode ? receiveCurrency : depositCurrency;
+          final to = isFixedRateMode ? depositCurrency : receiveCurrency;
+          limits = await _provider.fetchLimits(
+              from: from, to: to, isFixedRateMode: isFixedRateMode);
+          result = <String, dynamic>{
+            'hasError': false,
+            'provider': _provider,
+            'limit': limits
+          };
+          limitsState = LimitsLoadedSuccessfully(limits: limits);
+        } catch (e) {
+          result = <String, dynamic>{'hasError': true};
+          limitsState = LimitsLoadedFailure(error: e.toString());
+        }
+      }
+    });
+
+    return result;
+  }
+
+  Future<void> calculateAmount(double amount, bool isReversed) async {
+    if (ratesState is RateInitialState) {
+      await _loadRates();
+      final response = await _getLimit();
+      final hasError = response['hasError'] as bool;
+
+      final from = isReversed ? receiveCurrency : depositCurrency;
+      final to = isReversed ? depositCurrency : receiveCurrency;
+
+      if (!hasError) {
+        provider = response['provider'] as ExchangeProvider;
+
+        final result = await provider.calculateAmount(
+            from: from,
+            to: to,
+            amount: amount,
+            isFixedRateMode: isFixedRateMode,
+            isReceiveAmount: isReversed);
+
+        final formattedAmount = _cryptoNumberFormat
+            .format(result)
+            .toString()
+            .replaceAll(RegExp('\\,'), '');
+
+        if (isReversed) {
+          depositAmount = formattedAmount;
+        } else {
+          receiveAmount = formattedAmount;
+        }
+      }
+    }
   }
 
   @action
@@ -467,16 +470,29 @@ abstract class ExchangeViewModelBase with Store {
       _exchangeTemplateStore.remove(template: template);
 
 
-  bool isUnavailable(dynamic exchangeProvider){
+  bool isPairUnavailable(dynamic exchangeProvider){
     final provider = exchangeProvider as ExchangeProvider;
-    return  provider.pairList
+    return isProviderUnavailable(provider) || provider.pairList
             .where((pair) =>
                 pair.from == depositCurrency && pair.to == receiveCurrency)
             .isEmpty;
   }
+
+  bool isProviderUnavailable(dynamic exchangeProvider){
+     final provider = exchangeProvider as ExchangeProvider;
+   return _availableProviders.where((e) => e.description == provider.description ).isEmpty;
+  }
+ 
+  void _loadAvailableProviders()async{
+    await Future.forEach(providerList, (ExchangeProvider provider) async { 
+       final available = await provider.checkIsAvailable();
+       if(available) _availableProviders.add(provider);
+    });
+  }
   
 
   void _onPairChange() {
+      _isProvidersForCurrentPair();
       depositAmount = '';
       receiveAmount = '';
   }

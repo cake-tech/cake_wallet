@@ -528,5 +528,6 @@
   "learn_more" : "Learn More",
   "search": "Search",
   "new_template" : "New Template",
-  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
+  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
+  "trading_pair_unavailable" : "This ${exchangeType} pair is not supported with the selected exchanges"
 }

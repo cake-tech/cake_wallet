@@ -531,5 +531,6 @@
   "learn_more" : "Ucz się więcej",
   "search": "Szukaj",
   "new_template" : "Nowy szablon",
-  "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają"
+  "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają",
+  "trading_pair_unavailable": "Ta para ${exchangeType} nie jest obsługiwana na wybranych giełdach"
 }

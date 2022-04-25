@@ -526,5 +526,6 @@
   "learn_more" : "En savoir plus",
 
   "new_template" : "Nouveau Modèle",
-  "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
+  "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner",
+  "trading_pair_unavailable" : "Cette ${exchangeType} paire n'est pas prise en charge avec les échanges sélectionnés"
 }
