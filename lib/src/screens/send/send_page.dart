@@ -57,7 +57,6 @@ class SendPage extends BasePage {
   void onClose(BuildContext context) {
     settingsViewModel.setFiatCurrency(fiatFromSettings);
     Navigator.of(context).pop();
-    return print(fiatFromSettings.title);
   }
 
   @override
