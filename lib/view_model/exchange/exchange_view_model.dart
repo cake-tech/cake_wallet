@@ -68,6 +68,7 @@ abstract class ExchangeViewModelBase with Store {
     isReverse = false;
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
+    _loadRates();
     _defineIsReceiveAmountEditable();
   }
 
@@ -185,6 +186,7 @@ abstract class ExchangeViewModelBase with Store {
     depositCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
+    _loadRates();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
   }
@@ -194,6 +196,7 @@ abstract class ExchangeViewModelBase with Store {
     receiveCurrency = currency;
     isFixedRateMode = false;
     _onPairChange();
+    _loadRates();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
   }
@@ -265,8 +268,8 @@ abstract class ExchangeViewModelBase with Store {
     ratesState = RateInitialState();
   }
 
-  Future<Map<String, dynamic>> _getLimit() async {
-    Map<String, dynamic> result = Map<String, dynamic>();
+  Future<void> _getLimit() async {
+    final List<Map<String, dynamic>> results = [];
     limitsState = LimitsIsLoading();
 
     await Future.forEach(providerRates, (ProviderRate providerRate) async {
@@ -276,35 +279,35 @@ abstract class ExchangeViewModelBase with Store {
         try {
           final from = isFixedRateMode ? receiveCurrency : depositCurrency;
           final to = isFixedRateMode ? depositCurrency : receiveCurrency;
-          limits = await _provider.fetchLimits(
+          final _limit = await _provider.fetchLimits(
               from: from, to: to, isFixedRateMode: isFixedRateMode);
-          result = <String, dynamic>{
+          results.add( <String, dynamic>{
             'hasError': false,
             'provider': _provider,
-            'limit': limits
-          };
-          limitsState = LimitsLoadedSuccessfully(limits: limits);
+            'limit': _limit
+          });
         } catch (e) {
-          result = <String, dynamic>{'hasError': true};
           limitsState = LimitsLoadedFailure(error: e.toString());
         }
       }
     });
-
-    return result;
+    
+    final providersInRange = results.where((element) => _filterProvider(element)).toList();
+    
+    if(providersInRange.isNotEmpty){
+      provider = providersInRange.first['provider'] as ExchangeProvider;
+      final _limit = providersInRange.first['limit'] as Limits; 
+      limitsState = LimitsLoadedSuccessfully(limits: _limit);
+      return;
+    }
+    limitsState = LimitsLoadedFailure(error: 'amount is not within limits');
   }
 
   Future<void> calculateAmount(double amount, bool isReversed) async {
     if (ratesState is RateInitialState) {
-      await _loadRates();
-      final response = await _getLimit();
-      final hasError = response['hasError'] as bool;
-
+      await _getLimit();
       final from = isReversed ? receiveCurrency : depositCurrency;
       final to = isReversed ? depositCurrency : receiveCurrency;
-
-      if (!hasError) {
-        provider = response['provider'] as ExchangeProvider;
 
         final result = await provider.calculateAmount(
             from: from,
@@ -324,7 +327,6 @@ abstract class ExchangeViewModelBase with Store {
           receiveAmount = formattedAmount;
         }
       }
-    }
   }
 
   @action
@@ -510,8 +512,24 @@ abstract class ExchangeViewModelBase with Store {
 
 
   bool isSelected(ExchangeProvider provider){
-    final selected = savedProvidersTitle.contains(provider.title);
+    final selected = savedProvidersTitle.contains(provider.title) ?? false;
     return selected;
+  }
+
+  bool _filterProvider(Map<String, dynamic> result){
+    final limit = result['limit'] as Limits;
+    final _provider = result['provider'] as ExchangeProvider;
+    final amount = depositAmount;
+    final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
+    if(limit == null) return false;
+    if(_amount >= limit.min ){
+       if(_provider is ChangeNowExchangeProvider && _amount >= limit.min){
+         return true;
+       } else if(_amount <= limit.max){
+         return true;
+       } 
+    } 
+    return false;
   }
 
 
