@@ -296,8 +296,13 @@ abstract class ExchangeViewModelBase with Store {
     
     if(providersInRange.isNotEmpty){
       provider = providersInRange.first['provider'] as ExchangeProvider;
-      final _limit = providersInRange.first['limit'] as Limits; 
-      limitsState = LimitsLoadedSuccessfully(limits: _limit);
+       limits = providersInRange.first['limit'] as Limits; 
+      limitsState = LimitsLoadedSuccessfully(limits: limits);
+      return;
+    }
+    if(results.isNotEmpty){
+       limits = results.first['limit'] as Limits;
+      limitsState = LimitsLoadedSuccessfully(limits: limits);
       return;
     }
     limitsState = LimitsLoadedFailure(error: 'amount is not within limits');
@@ -308,7 +313,7 @@ abstract class ExchangeViewModelBase with Store {
       await _getLimit();
       final from = isReversed ? receiveCurrency : depositCurrency;
       final to = isReversed ? depositCurrency : receiveCurrency;
-
+        if(provider == null) return;
         final result = await provider.calculateAmount(
             from: from,
             to: to,
