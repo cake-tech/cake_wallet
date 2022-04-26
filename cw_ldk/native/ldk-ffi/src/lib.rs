@@ -133,23 +133,30 @@ pub unsafe extern "C" fn error_message_utf8(buf: *mut c_char, length: i32) -> i3
 pub extern "C" fn start_ldk(
     rpc_info: *const c_char,
     ldk_storage_path: *const c_char,
+    port: u16,
+    network: *const c_char,
+    node_name: *const c_char,
+    address: *const c_char,
     mnemonic_key_phrase: *const c_char,
     func: unsafe extern "C" fn(*mut c_char)
 ) -> *mut c_char  {
 
-    let callback = move |msg| {
-        unsafe {
-            func(CString::new(msg).unwrap().into_raw());
-        }
-    };
+    // let callback = move |msg| {
+    //     unsafe {
+    //         func(CString::new(msg).unwrap().into_raw());
+    //     }
+    // };
 
     let rt = runtime!(); 
     rt.block_on(async move {
         let ffi_sender = sender!(ffi);
-        callback("...tokio.block_on");
         let res = ldk_lib::start_ldk(
             c_char_to_string(rpc_info),
             c_char_to_string(ldk_storage_path),
+            port,
+            c_char_to_string(network),
+            c_char_to_string(node_name),
+            c_char_to_string(address),
             c_char_to_string(mnemonic_key_phrase),
             Box::new(move |msg| { 
             unsafe {
@@ -158,8 +165,6 @@ pub extern "C" fn start_ldk(
         })).await;
         ffi_sender.send(res).unwrap();
     });
-
-    callback("...startLDK");
 
     let ffi_receiver = receiver!(ffi);
     let res = ffi_receiver.recv().unwrap();

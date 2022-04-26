@@ -26,7 +26,9 @@ use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
 
-pub(crate) struct LdkUserInfo {
+
+#[derive(Debug)]
+pub struct LdkUserInfo {
 	pub(crate) bitcoind_rpc_username: String,
 	pub(crate) bitcoind_rpc_password: String,
 	pub(crate) bitcoind_rpc_port: u16,
@@ -124,6 +126,75 @@ pub(crate) fn parse_startup_args() -> Result<LdkUserInfo, ()> {
 			},
 			None => break,
 		}
+	}
+
+	Ok(LdkUserInfo {
+		bitcoind_rpc_username,
+		bitcoind_rpc_password,
+		bitcoind_rpc_host,
+		bitcoind_rpc_port,
+		ldk_storage_dir_path,
+		ldk_peer_listening_port,
+		ldk_announced_listen_addr,
+		ldk_announced_node_name,
+		network,
+	})
+}
+
+#[allow(dead_code)]
+pub fn setup_ldkuserinfo(bitcoind_rpc_info:String, ldk_storage_dir_path:String, 
+	ldk_peer_listening_port:u16, network_str:String, ldk_announced_node_name_arg:String,
+	ldk_announced_listen_addr_arg:String) -> Result<LdkUserInfo, ()> {
+
+	let bitcoind_rpc_info_parts: Vec<&str> = bitcoind_rpc_info.rsplitn(2, "@").collect();
+	if bitcoind_rpc_info_parts.len() != 2 {
+		println!("ERROR: bad bitcoind RPC URL provided");
+		return Err(());
+	}
+	let rpc_user_and_password: Vec<&str> = bitcoind_rpc_info_parts[1].split(":").collect();
+	if rpc_user_and_password.len() != 2 {
+		println!("ERROR: bad bitcoind RPC username/password combo provided");
+		return Err(());
+	}
+	let bitcoind_rpc_username = rpc_user_and_password[0].to_string();
+	let bitcoind_rpc_password = rpc_user_and_password[1].to_string();
+	let bitcoind_rpc_path: Vec<&str> = bitcoind_rpc_info_parts[0].split(":").collect();
+	if bitcoind_rpc_path.len() != 2 {
+		println!("ERROR: bad bitcoind RPC path provided");
+		return Err(());
+	}
+	let bitcoind_rpc_host = bitcoind_rpc_path[0].to_string();
+	let bitcoind_rpc_port = bitcoind_rpc_path[1].parse::<u16>().unwrap();
+
+	// let network: Network = match env::args().skip(arg_idx).next().as_ref().map(String::as_str) {
+	let network: Network = match network_str.as_str() {
+		"testnet" => Network::Testnet,
+		"regtest" => Network::Regtest,
+		"signet" => Network::Signet,
+		_ => Network::Testnet,
+	};
+
+	if ldk_announced_node_name_arg.len() > 32 {
+		panic!("Node Alias can not be longer than 32 bytes");
+	}
+
+	// arg_idx += 1;
+	let mut bytes = [0; 32];
+	bytes[..ldk_announced_node_name_arg.len()].copy_from_slice(ldk_announced_node_name_arg.as_bytes());
+	let ldk_announced_node_name = bytes;
+	
+
+	let mut ldk_announced_listen_addr = Vec::new();
+	match IpAddr::from_str(ldk_announced_listen_addr_arg.as_str()) {
+		Ok(IpAddr::V4(a)) => {
+			ldk_announced_listen_addr
+				.push(NetAddress::IPv4 { addr: a.octets(), port: ldk_peer_listening_port });
+		}
+		Ok(IpAddr::V6(a)) => {
+			ldk_announced_listen_addr
+				.push(NetAddress::IPv6 { addr: a.octets(), port: ldk_peer_listening_port });
+		},
+		Err(_) => panic!("Failed to parse announced-listen-addr into an IP address"),
 	}
 
 	Ok(LdkUserInfo {

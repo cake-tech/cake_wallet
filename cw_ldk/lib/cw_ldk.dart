@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
-import 'package:isolate/ports.dart';
+// import 'package:isolate/ports.dart';
 import 'ffi.dart' as native;
 import 'package:path_provider/path_provider.dart';
 
@@ -94,14 +94,18 @@ class CwLdk {
     print(res);
   }
 
-  static Future<String> startLDK(
-      String rpcInfo, String mnemonicKeyPhrase) async {
+  static Future<String> startLDK(String rpcInfo, int port, String network,
+      String nodeName, String address, String mnemonicKeyPhrase) async {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
     final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
 
     final _res = native.start_ldk(
         rpcInfo.toNativeUtf8(),
         appDocDir.path.toNativeUtf8(),
+        port,
+        network.toNativeUtf8(),
+        nodeName.toNativeUtf8(),
+        address.toNativeUtf8(),
         mnemonicKeyPhrase.toNativeUtf8(),
         wrappedPrintPointer);
 
@@ -154,12 +158,12 @@ class CwLdk {
     native.store_dart_post_cobject(ptr);
   }
 
-  static void _throwError() {
-    final length = native.last_error_length();
-    final Pointer<Utf8> message = calloc.allocate(length);
-    native.error_message_utf8(message, length);
-    final error = message.toDartString();
-    print(error);
-    throw Exception(error);
-  }
+  // static void _throwError() {
+  //   final length = native.last_error_length();
+  //   final Pointer<Utf8> message = calloc.allocate(length);
+  //   native.error_message_utf8(message, length);
+  //   final error = message.toDartString();
+  //   print(error);
+  //   throw Exception(error);
+  // }
 }

@@ -17,7 +17,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
   String _startLDK = "foobar";
-  String _mnomonicKeyPhrase =
+  final _mnomonicKeyPhrase =
       "stool outside acoustic correct craft attitude scheme urge grape again chalk gas";
 
   @override
@@ -40,7 +40,12 @@ class _MyAppState extends State<MyApp> {
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
     final startLDK = await CwLdk.startLDK(
-        "polaruser:polarpass@192.168.0.10:18443", _mnomonicKeyPhrase);
+        "polaruser:polarpass@192.168.0.13:18443",
+        9732,
+        "regtest",
+        "hellolightning",
+        "0.0.0.0",
+        _mnomonicKeyPhrase);
 
     if (!mounted) return;
 

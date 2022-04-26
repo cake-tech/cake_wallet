@@ -43,21 +43,33 @@ typedef _last_error_length_Dart = int Function();
 Pointer<ffi.Utf8> start_ldk(
   Pointer<ffi.Utf8> rpc_info,
   Pointer<ffi.Utf8> ldk_storage_path,
+  int port,
+  Pointer<ffi.Utf8> network,
+  Pointer<ffi.Utf8> node_name,
+  Pointer<ffi.Utf8> address,
   Pointer<ffi.Utf8> mnemonic_key_phrase,
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
 ) {
-  return _start_ldk(rpc_info, ldk_storage_path, mnemonic_key_phrase, func);
+  return _start_ldk(rpc_info, ldk_storage_path, port, network, node_name, address, mnemonic_key_phrase, func);
 }
 final _start_ldk_Dart _start_ldk = _dl.lookupFunction<_start_ldk_C, _start_ldk_Dart>('start_ldk');
 typedef _start_ldk_C = Pointer<ffi.Utf8> Function(
   Pointer<ffi.Utf8> rpc_info,
   Pointer<ffi.Utf8> ldk_storage_path,
+  Uint16 port,
+  Pointer<ffi.Utf8> network,
+  Pointer<ffi.Utf8> node_name,
+  Pointer<ffi.Utf8> address,
   Pointer<ffi.Utf8> mnemonic_key_phrase,
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
 );
 typedef _start_ldk_Dart = Pointer<ffi.Utf8> Function(
   Pointer<ffi.Utf8> rpc_info,
   Pointer<ffi.Utf8> ldk_storage_path,
+  int port,
+  Pointer<ffi.Utf8> network,
+  Pointer<ffi.Utf8> node_name,
+  Pointer<ffi.Utf8> address,
   Pointer<ffi.Utf8> mnemonic_key_phrase,
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
 );
