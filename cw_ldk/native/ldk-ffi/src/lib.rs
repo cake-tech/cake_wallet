@@ -77,10 +77,10 @@ macro_rules! sender {
 // get receivers for static channels
 macro_rules! receiver {
     (ldk) => {
-	    &((*LDK_CHANNEL).1).lock().unwrap()
+	    &(*LDK_CHANNEL).1
     };
     (ffi) => {
-	    &((*FFI_CHANNEL).1).lock().unwrap()
+	    &(*FFI_CHANNEL).1
     };
 }
 
@@ -150,6 +150,7 @@ pub extern "C" fn start_ldk(
     let rt = runtime!(); 
     rt.block_on(async move {
         let ffi_sender = sender!(ffi);
+        let ldk_receiver = receiver!(ldk);
         let res = ldk_lib::start_ldk(
             c_char_to_string(rpc_info),
             c_char_to_string(ldk_storage_path),
@@ -159,6 +160,7 @@ pub extern "C" fn start_ldk(
             c_char_to_string(address),
             c_char_to_string(mnemonic_key_phrase),
             ffi_sender,
+            // ldk_receiver,
             Box::new(move |msg| { 
             unsafe {
                 func(CString::new(msg).unwrap().into_raw());
@@ -168,7 +170,7 @@ pub extern "C" fn start_ldk(
     });
 
     let ffi_receiver = receiver!(ffi);
-    let res = ffi_receiver.recv().unwrap();
+    let res = ffi_receiver.lock().unwrap().recv().unwrap();
 
     CString::new(res).unwrap().into_raw()
 }
