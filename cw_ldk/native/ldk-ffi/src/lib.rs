@@ -158,12 +158,13 @@ pub extern "C" fn start_ldk(
             c_char_to_string(node_name),
             c_char_to_string(address),
             c_char_to_string(mnemonic_key_phrase),
+            ffi_sender,
             Box::new(move |msg| { 
             unsafe {
                 func(CString::new(msg).unwrap().into_raw());
             }
         })).await;
-        ffi_sender.send(res).unwrap();
+        // ffi_sender.send(res).unwrap();
     });
 
     let ffi_receiver = receiver!(ffi);

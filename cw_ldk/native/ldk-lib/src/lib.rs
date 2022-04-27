@@ -57,6 +57,7 @@ use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
+use std::sync::mpsc::{SyncSender, sync_channel};
 
 pub(crate) enum HTLCStatus {
 	Pending,
@@ -340,8 +341,9 @@ pub async fn start_ldk(
     node_name: String,
     address: String,
     mnemonic_key_phrase: String,
-    callback: Box<dyn Fn(&str)>
-) -> String {
+	ffi_sender: &'static SyncSender<String>,
+    callback: Box<dyn Fn(&str) + Send + Sync>
+) {
     callback("...starting ldk");
 
     // setup args
@@ -376,7 +378,8 @@ pub async fn start_ldk(
 		Err(e) => {
 			let msg = format!("Failed to connect to bitcoind client: {}", e);
             callback(msg.as_str());
-			return msg
+			ffi_sender.send(msg).unwrap();
+			return;
 		}
 	};
 
@@ -396,7 +399,8 @@ pub async fn start_ldk(
 			args.network, bitcoind_chain
 		);
         callback(msg.as_str());
-		return msg;
+		ffi_sender.send(msg).unwrap();
+		return;
 	}
 
     callback("Check that the bitcoind we've connected to is running the network we expect");
@@ -459,7 +463,8 @@ pub async fn start_ldk(
 			Err(e) => {
 				let msg = format!("ERROR: Unable to create keys seed file {}: {}", keys_seed_path, e);
 				callback(msg.as_str());
-                return msg;
+                ffi_sender.send(msg).unwrap();
+				return;
 			}
 		}
 		key
@@ -565,30 +570,319 @@ pub async fn start_ldk(
 
     callback("Step 10: Give ChannelMonitors to ChainMonitor");
 
-    format!("...finish start_ldk({}, {}, {}, {}, {}, {}, {})", rpc_info, ldk_storage_path, port, network, node_name, address, mnemonic_key_phrase)
+	// Step 11: Optional: Initialize the NetGraphMsgHandler
+	let genesis = genesis_block(args.network).header.block_hash();
+	let network_graph_path = format!("{}/network_graph", ldk_data_dir.clone());
+	let network_graph = Arc::new(disk::read_network(Path::new(&network_graph_path), genesis));
+	let network_gossip = Arc::new(NetGraphMsgHandler::new(
+		Arc::clone(&network_graph),
+		None::<Arc<dyn chain::Access + Send + Sync>>,
+		logger.clone(),
+	));
+
+    callback("Step 11: Optional: Initialize the NetGraphMsgHandler");
+
+	// Step 12: Initialize the PeerManager
+	let channel_manager: Arc<ChannelManager> = Arc::new(channel_manager);
+	let mut ephemeral_bytes = [0; 32];
+	rand::thread_rng().fill_bytes(&mut ephemeral_bytes);
+	let lightning_msg_handler = MessageHandler {
+		chan_handler: channel_manager.clone(),
+		route_handler: network_gossip.clone(),
+	};
+	let peer_manager: Arc<PeerManager> = Arc::new(PeerManager::new(
+		lightning_msg_handler,
+		keys_manager.get_node_secret(Recipient::Node).unwrap(),
+		&ephemeral_bytes,
+		logger.clone(),
+		Arc::new(IgnoringMessageHandler {}),
+	));
+
+    callback("Step 12: Initialize the PeerManager");
+
+	// ## Running LDK
+	// Step 13: Initialize networking
+
+	let peer_manager_connection_handler = peer_manager.clone();
+	let listening_port = args.ldk_peer_listening_port;
+	let stop_listen_connect = Arc::new(AtomicBool::new(false));
+	let stop_listen = Arc::clone(&stop_listen_connect);
+	tokio::spawn(async move {
+		let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", listening_port))
+			.await
+			.expect("Failed to bind to listen port - is something else already listening on it?");
+		loop {
+			let peer_mgr = peer_manager_connection_handler.clone();
+			let tcp_stream = listener.accept().await.unwrap().0;
+			if stop_listen.load(Ordering::Acquire) {
+				return;
+			}
+			tokio::spawn(async move {
+				lightning_net_tokio::setup_inbound(
+					peer_mgr.clone(),
+					tcp_stream.into_std().unwrap(),
+				)
+				.await;
+			});
+		}
+	});
+
+    callback("Step 13: Initialize networking");
+
+	// Step 14: Connect and Disconnect Blocks
+	if chain_tip.is_none() {
+		chain_tip =
+			Some(init::validate_best_block_header(&mut bitcoind_client.deref()).await.unwrap());
+	}
+	let channel_manager_listener = channel_manager.clone();
+	let chain_monitor_listener = chain_monitor.clone();
+	let bitcoind_block_source = bitcoind_client.clone();
+	let network = args.network;
+	tokio::spawn(async move {
+		let mut derefed = bitcoind_block_source.deref();
+		let chain_poller = poll::ChainPoller::new(&mut derefed, network);
+		let chain_listener = (chain_monitor_listener, channel_manager_listener);
+		let mut spv_client =
+			SpvClient::new(chain_tip.unwrap(), chain_poller, &mut cache, &chain_listener);
+		loop {
+			spv_client.poll_best_tip().await.unwrap();
+			tokio::time::sleep(Duration::from_secs(1)).await;
+		}
+	});
+
+    callback("Step 14: Connect and Disconnect Blocks");
+
+	// Step 15: Handle LDK Events
+	let channel_manager_event_listener = channel_manager.clone();
+	let keys_manager_listener = keys_manager.clone();
+	// TODO: persist payment info to disk
+	let inbound_payments: PaymentInfoStorage = Arc::new(Mutex::new(HashMap::new()));
+	let outbound_payments: PaymentInfoStorage = Arc::new(Mutex::new(HashMap::new()));
+	let inbound_pmts_for_events = inbound_payments.clone();
+	let outbound_pmts_for_events = outbound_payments.clone();
+	let network = args.network;
+	let bitcoind_rpc = bitcoind_client.clone();
+	let handle = tokio::runtime::Handle::current();
+	let event_handler = move |event: &Event| {
+		handle.block_on(handle_ldk_events(
+			channel_manager_event_listener.clone(),
+			bitcoind_rpc.clone(),
+			keys_manager_listener.clone(),
+			inbound_pmts_for_events.clone(),
+			outbound_pmts_for_events.clone(),
+			network,
+			event,
+		));
+	};
+
+    callback("Step 15: Handle LDK Events");
+
+	// Step 16: Initialize routing ProbabilisticScorer
+	let scorer_path = format!("{}/prob_scorer", ldk_data_dir.clone());
+	let scorer = Arc::new(Mutex::new(disk::read_scorer(
+		Path::new(&scorer_path),
+		Arc::clone(&network_graph),
+	)));
+	let scorer_persist = Arc::clone(&scorer);
+	tokio::spawn(async move {
+		let mut interval = tokio::time::interval(Duration::from_secs(600));
+		loop {
+			interval.tick().await;
+			if disk::persist_scorer(Path::new(&scorer_path), &scorer_persist.lock().unwrap())
+				.is_err()
+			{
+				// Persistence errors here are non-fatal as channels will be re-scored as payments
+				// fail, but they may indicate a disk error which could be fatal elsewhere.
+				eprintln!("Warning: Failed to persist scorer, check your disk and permissions");
+			}
+		}
+	});
+
+    callback("Step 16: Initialize routing ProbabilisticScorer");
+
+	// Step 17: Create InvoicePayer
+	let router = DefaultRouter::new(
+		network_graph.clone(),
+		logger.clone(),
+		keys_manager.get_secure_random_bytes(),
+	);
+	let invoice_payer = Arc::new(InvoicePayer::new(
+		channel_manager.clone(),
+		router,
+		scorer.clone(),
+		logger.clone(),
+		event_handler,
+		payment::RetryAttempts(5),
+	));
+
+    callback("Step 17: Create InvoicePayer");
+
+	// Step 18: Persist ChannelManager and NetworkGraph
+	let persister = DataPersister { data_dir: ldk_data_dir.clone() };
+
+    callback("Step 18: Persist ChannelManager and NetworkGraph");
+
+	// Step 19: Background Processing
+	let background_processor = BackgroundProcessor::start(
+		persister,
+		invoice_payer.clone(),
+		chain_monitor.clone(),
+		channel_manager.clone(),
+		Some(network_gossip.clone()),
+		peer_manager.clone(),
+		logger.clone(),
+	);
+
+    callback("Step 19: Background Processing");
+
+	// Regularly reconnect to channel peers.
+	let connect_cm = Arc::clone(&channel_manager);
+	let connect_pm = Arc::clone(&peer_manager);
+	let peer_data_path = format!("{}/channel_peer_data", ldk_data_dir.clone());
+	let stop_connect = Arc::clone(&stop_listen_connect);
+	tokio::spawn(async move {
+		let mut interval = tokio::time::interval(Duration::from_secs(1));
+		loop {
+			interval.tick().await;
+			match disk::read_channel_peer_data(Path::new(&peer_data_path)) {
+				Ok(info) => {
+					let peers = connect_pm.get_peer_node_ids();
+					for node_id in connect_cm
+						.list_channels()
+						.iter()
+						.map(|chan| chan.counterparty.node_id)
+						.filter(|id| !peers.contains(id))
+					{
+						if stop_connect.load(Ordering::Acquire) {
+							return;
+						}
+						for (pubkey, peer_addr) in info.iter() {
+							if *pubkey == node_id {
+								let _ = cli::do_connect_peer(
+									*pubkey,
+									peer_addr.clone(),
+									Arc::clone(&connect_pm),
+								)
+								.await;
+							}
+						}
+					}
+				}
+				Err(e) => println!("ERROR: errored reading channel peer info from disk: {:?}", e),
+			}
+		}
+	});
+
+    callback("Regularly reconnect to channel peers.");
+
+	// Regularly broadcast our node_announcement. This is only required (or possible) if we have
+	// some public channels, and is only useful if we have public listen address(es) to announce.
+	// In a production environment, this should occur only after the announcement of new channels
+	// to avoid churn in the global network graph.
+	let chan_manager = Arc::clone(&channel_manager);
+	let network = args.network;
+	if !args.ldk_announced_listen_addr.is_empty() {
+		tokio::spawn(async move {
+			let mut interval = tokio::time::interval(Duration::from_secs(60));
+			loop {
+				interval.tick().await;
+				chan_manager.broadcast_node_announcement(
+					[0; 3],
+					args.ldk_announced_node_name,
+					args.ldk_announced_listen_addr.clone(),
+				);
+			}
+		});
+	}
+
+    callback("Regularly broadcast our node_announcement.");
+
+	// Start the CLI.
+	// cli::poll_for_user_input(
+	// 	Arc::clone(&invoice_payer),
+	// 	Arc::clone(&peer_manager),
+	// 	Arc::clone(&channel_manager),
+	// 	Arc::clone(&keys_manager),
+	// 	Arc::clone(&network_graph),
+	// 	inbound_payments,
+	// 	outbound_payments,
+	// 	ldk_data_dir.clone(),
+	// 	network,
+	// )
+	// .await;
+
+    callback("TODO: Start the CLI.");
+
+	// Disconnect our peers and stop accepting new connections. This ensures we don't continue
+	// updating our channel data after we've stopped the background processor.
+	stop_listen_connect.store(true, Ordering::Release);
+	peer_manager.disconnect_all_peers();
+
+    callback("Disconnect our peers and stop accepting new connections.");
+
+	// Stop the background processor.
+	background_processor.stop().unwrap();
+
+    callback("Stop the background processor.");
+
+	// tokio::spawn(async {
+
+	// });
+
+    // format!("...finish start_ldk({}, {}, {}, {}, {}, {}, {})", rpc_info, ldk_storage_path, port, network, node_name, address, mnemonic_key_phrase)
+	tokio::spawn(async move {
+		ffi_sender.send("test from tokio: finish start_ldk".to_string()).unwrap();
+	});
 }
 
 
 #[cfg(test)]
 mod tests {
+    use futures::channel::oneshot::Receiver;
+
     use super::start_ldk;
+	use std::sync::mpsc::{SyncSender, sync_channel};
 
 	#[test]
 	fn test_start_ldk(){
+        // let runtime = tokio::runtime::Runtime::new().unwrap();
+
+		// let res = sync_channel(1);
+		// let ffi_sender:SyncSender<String> = res.0;
+		// let ffi_receiver = res.1;
+        // runtime.block_on(async move {
+        //     start_ldk(
+        //         "polaruser:polarpass@192.168.0.13:18443".to_string(),
+        //         "./".to_string(),
+        //         9732,
+        //         "regtest".to_string(),
+        //         "hellolighting".to_string(),
+        //         "0.0.0.0".to_string(),
+        //         "mnemonic_key_phrase".to_string(),
+		// 		&ffi_sender,
+        //         Box::new(|msg| { println!("{}",msg)})).await;
+        // });
+
+		// let res = ffi_receiver.recv().unwrap();
+		// println!("{}",res);
+	}
+
+	#[test]
+	fn test_start_ldk_async(){
         let runtime = tokio::runtime::Runtime::new().unwrap();
-        runtime.block_on(async move {
-            // println!("hello ldk...");
-            let res = start_ldk(
-                "rpc_info".to_string(),
-                "ldk_storage_path".to_string(),
-                9732,
-                "regtest".to_string(),
-                "hellolighting".to_string(),
-                "0.0.0.0".to_string(),
-                "mnemonic_key_phrase".to_string(),
-                Box::new(|msg| { println!("{}",msg)})).await;
+        // runtime.spawn(async move {
+        //     // println!("hello ldk...");
+        //     let res = start_ldk(
+        //         "rpc_info".to_string(),
+        //         "ldk_storage_path".to_string(),
+        //         9732,
+        //         "regtest".to_string(),
+        //         "hellolighting".to_string(),
+        //         "0.0.0.0".to_string(),
+        //         "mnemonic_key_phrase".to_string(),
+        //         Box::new(|msg| { println!("{}",msg)})).await;
             
-            println!("{}",res);
-        })
+        //     println!("{}",res);
+        // });
 	}
 }
