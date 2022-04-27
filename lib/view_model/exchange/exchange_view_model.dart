@@ -54,6 +54,7 @@ abstract class ExchangeViewModelBase with Store {
     depositAddress = depositCurrency == wallet.currency
         ? wallet.walletAddresses.address : '';
     limitsState = LimitsInitialState();
+    ratesState = RateInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     _isProvidersForCurrentPair();
@@ -91,6 +92,9 @@ abstract class ExchangeViewModelBase with Store {
 
   @observable
   LimitsState limitsState;
+
+  @observable
+  ProviderRateState ratesState;
 
   @observable
   ExchangeTradeState tradeState;
@@ -165,11 +169,10 @@ abstract class ExchangeViewModelBase with Store {
 
   SharedPreferences sharedPreferences;
 
-  ProviderRateState ratesState;
-
 
   @action
   void selectProvider({ExchangeProvider provider, bool select}) {
+    _loadRates();
     if(select){
     _selectedExchangeProviderStore.selectProvider(provider: provider);
     }else{
@@ -184,6 +187,7 @@ abstract class ExchangeViewModelBase with Store {
   void changeDepositCurrency({CryptoCurrency currency}) {
     depositCurrency = currency;
     isFixedRateMode = false;
+    ratesState = RateInitialState();
     _onPairChange();
     _loadRates();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
@@ -194,6 +198,7 @@ abstract class ExchangeViewModelBase with Store {
   void changeReceiveCurrency({CryptoCurrency currency}) {
     receiveCurrency = currency;
     isFixedRateMode = false;
+    ratesState = RateInitialState();
     _onPairChange();
     _loadRates();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
@@ -244,51 +249,55 @@ abstract class ExchangeViewModelBase with Store {
   
   Future<void> _loadRates() async {
     final List<ProviderRate> rates = [];
+    limitsState = LimitsInitialState();
+    final from = isFixedRateMode ? receiveCurrency : depositCurrency;
+    final to = isFixedRateMode ? depositCurrency : receiveCurrency;
 
-    await Future.forEach(providerList, (ExchangeProvider provider) async {
-      if (isSelected(provider)) {
-        try {
-          final from = isFixedRateMode ? receiveCurrency : depositCurrency;
-          final to = isFixedRateMode ? depositCurrency : receiveCurrency;
-          final rate = await provider.fetchExchangeRate(from: from, to: to);
-          rates.add(ProviderRate(rate: rate, provider: provider));
-        } catch (_) {
-        }
-      }
-    });
+    await Future.wait(
+          providerList.map(
+            (e) => e.fetchExchangeRate(from: from, to: to).then(
+              (value) {
+                if (isSelected(e)) {
+                  rates.add(ProviderRate(rate: value, provider: e));
+                }
+              },
+            ),
+          ),
+        );
 
     if (rates.isNotEmpty) {
       rates.sort((a, b) => b.rate.compareTo(a.rate));
       providerRates = rates;
     }
 
-    _onPairChange();
+    if(depositAmount.isNotEmpty){
+
+      final _amount = double.parse(depositAmount.replaceAll(',', '.')) ?? 0;
+      await calculateAmount(_amount, false);
+      
+    }
 
   }
 
   Future<void> _getLimit() async {
     final List<Map<String, dynamic>> results = [];
     limitsState = LimitsIsLoading();
+    final from = isFixedRateMode ? receiveCurrency : depositCurrency;
+    final to = isFixedRateMode ? depositCurrency : receiveCurrency;
 
-    await Future.forEach(providerRates, (ProviderRate providerRate) async {
-      final _provider = providerRate.provider;
-
-      if (isSelected(_provider)) {
-        try {
-          final from = isFixedRateMode ? receiveCurrency : depositCurrency;
-          final to = isFixedRateMode ? depositCurrency : receiveCurrency;
-          final _limit = await _provider.fetchLimits(
-              from: from, to: to, isFixedRateMode: isFixedRateMode);
-          results.add( <String, dynamic>{
+    await Future.wait(
+      providerRates.map(
+        (e) => e.provider.fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode).then(
+          (value) {
+            results.add( <String, dynamic>{
             'hasError': false,
-            'provider': _provider,
-            'limit': _limit
+            'provider': e.provider,
+            'limit': value
           });
-        } catch (e) {
-          limitsState = LimitsLoadedFailure(error: e.toString());
-        }
-      }
-    });
+          },
+        ),
+      ),
+    );
     
     final providersInRange = results.where((element) => _filterProvider(element)).toList();
     
@@ -298,15 +307,22 @@ abstract class ExchangeViewModelBase with Store {
       limitsState = LimitsLoadedSuccessfully(limits: limits);
       return;
     }
+
     if(results.isNotEmpty){
-       limits = results.first['limit'] as Limits;
-      limitsState = LimitsLoadedSuccessfully(limits: limits);
-      return;
+      final providersOutofRange = results.where((e) => e['limit'] != null).toList();    
+      if(providersOutofRange.isNotEmpty ){
+          limits = providersOutofRange.first['limit'] as Limits;
+          limitsState = LimitsLoadedSuccessfully(limits: limits);
+        }else{
+          if(ratesState is RateInitialState)
+          ratesState = NoRateState();
+          limitsState = LimitsLoadedFailure(error: 'amount is not within limits');
+      }
     }
-    limitsState = LimitsLoadedFailure(error: 'amount is not within limits');
   }
 
   Future<void> calculateAmount(double amount, bool isReversed) async {
+    if (ratesState is RateInitialState) {
       await _getLimit();
       final from = isReversed ? receiveCurrency : depositCurrency;
       final to = isReversed ? depositCurrency : receiveCurrency;
@@ -328,6 +344,7 @@ abstract class ExchangeViewModelBase with Store {
         } else {
           receiveAmount = formattedAmount;
         }
+      }
   }
 
   @action

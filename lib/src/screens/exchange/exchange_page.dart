@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/exchange/provider_rate_state.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cw_core/sync_status.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -551,6 +552,7 @@ class ExchangePage extends BasePage {
     final receiveAddressController = receiveKey.currentState.addressController;
     final receiveAmountController = receiveKey.currentState.amountController;
     final limitsState = exchangeViewModel.limitsState;
+    final ratesState = exchangeViewModel.ratesState;
 
     if (limitsState is LimitsLoadedSuccessfully) {
       final min = limitsState.limits.min != null
@@ -628,6 +630,22 @@ class ExchangePage extends BasePage {
         (bool isReceiveAmountEditable) {
       receiveKey.currentState
           .isAmountEditable(isEditable: isReceiveAmountEditable);
+    });
+
+    reaction((_) => exchangeViewModel.ratesState, (ProviderRateState state) {
+      if (state is NoRateState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).provider_error(""),
+                    alertContent: S.of(context).trading_pair_unavailable(""),
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        });
+      }
     });
 
     reaction((_) => exchangeViewModel.tradeState, (ExchangeTradeState state) {
