@@ -54,7 +54,6 @@ abstract class ExchangeViewModelBase with Store {
     depositAddress = depositCurrency == wallet.currency
         ? wallet.walletAddresses.address : '';
     limitsState = LimitsInitialState();
-    ratesState = RateInitialState();
     tradeState = ExchangeTradeStateInitial();
     _cryptoNumberFormat = NumberFormat()..maximumFractionDigits = 12;
     _isProvidersForCurrentPair();
@@ -245,7 +244,6 @@ abstract class ExchangeViewModelBase with Store {
   
   Future<void> _loadRates() async {
     final List<ProviderRate> rates = [];
-    ratesState = RateIsLoading();
 
     await Future.forEach(providerList, (ExchangeProvider provider) async {
       if (isSelected(provider)) {
@@ -254,8 +252,7 @@ abstract class ExchangeViewModelBase with Store {
           final to = isFixedRateMode ? depositCurrency : receiveCurrency;
           final rate = await provider.fetchExchangeRate(from: from, to: to);
           rates.add(ProviderRate(rate: rate, provider: provider));
-        } catch (e) {
-          print(e);
+        } catch (_) {
         }
       }
     });
@@ -265,7 +262,8 @@ abstract class ExchangeViewModelBase with Store {
       providerRates = rates;
     }
 
-    ratesState = RateInitialState();
+    _onPairChange();
+
   }
 
   Future<void> _getLimit() async {
@@ -309,7 +307,6 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   Future<void> calculateAmount(double amount, bool isReversed) async {
-    if (ratesState is RateInitialState) {
       await _getLimit();
       final from = isReversed ? receiveCurrency : depositCurrency;
       final to = isReversed ? depositCurrency : receiveCurrency;
@@ -331,7 +328,6 @@ abstract class ExchangeViewModelBase with Store {
         } else {
           receiveAmount = formattedAmount;
         }
-      }
   }
 
   @action
