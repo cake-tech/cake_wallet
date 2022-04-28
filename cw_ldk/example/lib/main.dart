@@ -47,6 +47,14 @@ class _MyAppState extends State<MyApp> {
         "0.0.0.0",
         _mnomonicKeyPhrase);
 
+    final res1 = CwLdk.sendMessage("hello world 1");
+    final res2 = CwLdk.sendMessage("hello world 2");
+    final res3 = CwLdk.sendMessage("hello world 3");
+
+    print(res1);
+    print(res2);
+    print(res3);
+
     if (!mounted) return;
 
     setState(() {

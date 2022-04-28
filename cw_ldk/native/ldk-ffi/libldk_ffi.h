@@ -20,6 +20,8 @@ char *start_ldk(const char *rpc_info,
                 const char *mnemonic_key_phrase,
                 void (*func)(char*));
 
+const char *send_message(const char *msg);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

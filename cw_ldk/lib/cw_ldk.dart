@@ -114,6 +114,14 @@ class CwLdk {
     return res;
   }
 
+  static String sendMessage(String msg) {
+    final _res = native.send_message(msg.toNativeUtf8());
+
+    final res = _res.toDartString();
+    calloc.free(_res);
+    return res;
+  }
+
   // static Future<String> testLDKAsync(String rpcInfo) async {
   //   final completer = Completer<String>();
   //   final sendPort = singleCompletePort<String, String>(completer);

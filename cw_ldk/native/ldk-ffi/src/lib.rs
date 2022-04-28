@@ -160,7 +160,7 @@ pub extern "C" fn start_ldk(
             c_char_to_string(address),
             c_char_to_string(mnemonic_key_phrase),
             ffi_sender,
-            // ldk_receiver,
+            ldk_receiver,
             Box::new(move |msg| { 
             unsafe {
                 func(CString::new(msg).unwrap().into_raw());
@@ -171,6 +171,18 @@ pub extern "C" fn start_ldk(
 
     let ffi_receiver = receiver!(ffi);
     let res = ffi_receiver.lock().unwrap().recv().unwrap();
+
+    CString::new(res).unwrap().into_raw()
+}
+
+#[no_mangle]
+pub extern "C" fn send_message(msg: *const c_char) -> *const c_char {
+    let sender = sender!(ldk);
+    let receiver = receiver!(ffi);
+   
+    sender.send(c_char_to_string(msg)).unwrap();
+    let recv = receiver.lock().unwrap();
+    let res = recv.recv().unwrap(); 
 
     CString::new(res).unwrap().into_raw()
 }

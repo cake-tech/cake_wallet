@@ -39,6 +39,20 @@ final _last_error_length_Dart _last_error_length = _dl.lookupFunction<_last_erro
 typedef _last_error_length_C = Int32 Function();
 typedef _last_error_length_Dart = int Function();
 
+/// C function `send_message`.
+Pointer<ffi.Utf8> send_message(
+  Pointer<ffi.Utf8> msg,
+) {
+  return _send_message(msg);
+}
+final _send_message_Dart _send_message = _dl.lookupFunction<_send_message_C, _send_message_Dart>('send_message');
+typedef _send_message_C = Pointer<ffi.Utf8> Function(
+  Pointer<ffi.Utf8> msg,
+);
+typedef _send_message_Dart = Pointer<ffi.Utf8> Function(
+  Pointer<ffi.Utf8> msg,
+);
+
 /// C function `start_ldk`.
 Pointer<ffi.Utf8> start_ldk(
   Pointer<ffi.Utf8> rpc_info,

@@ -342,7 +342,7 @@ pub async fn start_ldk(
     address: String,
     mnemonic_key_phrase: String,
 	ffi_sender: &'static SyncSender<String>,
-	// ldk_receiver: &MutexGuard<'static, Receiver<String>>,
+	ldk_receiver: &'static Mutex<Receiver<String>>,
     callback: Box<dyn Fn(&str) + Send + Sync>
 ) {
     callback("...starting ldk");
@@ -830,11 +830,12 @@ pub async fn start_ldk(
     // format!("...finish start_ldk({}, {}, {}, {}, {}, {}, {})", rpc_info, ldk_storage_path, port, network, node_name, address, mnemonic_key_phrase)
 	tokio::spawn(async move {
 		ffi_sender.send("test from tokio: finish start_ldk".to_string()).unwrap();
+
+		let recv = &*ldk_receiver.lock().unwrap();
 		
-		// let msg = lgcldk_receiver.
-		// for msg in ldk_receiver.recv() {
-		// 	ffi_sender.send(format!{"message received: {}", msg}).unwrap();
-		// };
+		for msg in recv {
+			ffi_sender.send(format!{"message received: {}", msg}).unwrap();
+		};
 	});
 }
 
