@@ -6,6 +6,7 @@
 
 pub mod bitcoind_client;
 mod cli;
+mod flutter_ffi;
 mod convert;
 mod disk;
 mod hex_utils;
@@ -814,29 +815,27 @@ pub async fn start_ldk(
 
     callback("TODO: Start the CLI.");
 
-	// Disconnect our peers and stop accepting new connections. This ensures we don't continue
-	// updating our channel data after we've stopped the background processor.
-	stop_listen_connect.store(true, Ordering::Release);
-	peer_manager.disconnect_all_peers();
-
-    callback("Disconnect our peers and stop accepting new connections.");
-
-	// Stop the background processor.
-	background_processor.stop().unwrap();
-
-    callback("Stop the background processor.");
-
-
-    // format!("...finish start_ldk({}, {}, {}, {}, {}, {}, {})", rpc_info, ldk_storage_path, port, network, node_name, address, mnemonic_key_phrase)
 	tokio::spawn(async move {
-		ffi_sender.send("test from tokio: finish start_ldk".to_string()).unwrap();
 
-		let recv = &*ldk_receiver.lock().unwrap();
+		flutter_ffi::get_messages_from_channel(
+			ffi_sender, 
+			ldk_receiver,
+			Arc::clone(&channel_manager),
+			Arc::clone(&peer_manager)
+		);
+
+		// Disconnect our peers and stop accepting new connections. This ensures we don't continue
+		// updating our channel data after we've stopped the background processor.
+		stop_listen_connect.store(true, Ordering::Release);
+		peer_manager.disconnect_all_peers();
+
+		//Stop the background processor.
+		background_processor.stop().unwrap();
 		
-		for msg in recv {
-			ffi_sender.send(format!{"message received: {}", msg}).unwrap();
-		};
+		ffi_sender.send("exiting from ldk".to_string()).unwrap();
 	});
+
+	ffi_sender.send("finished setting up start_ldk".to_string()).unwrap();
 }
 
 
