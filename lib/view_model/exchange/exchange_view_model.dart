@@ -266,7 +266,6 @@ abstract class ExchangeViewModelBase with Store {
         );
 
     if (rates.isNotEmpty) {
-      rates.sort((a, b) => b.rate.compareTo(a.rate));
       providerRates = rates;
     }
 
@@ -290,15 +289,17 @@ abstract class ExchangeViewModelBase with Store {
         (e) => e.provider.fetchLimits(from: from, to: to, isFixedRateMode: isFixedRateMode).then(
           (value) {
             results.add( <String, dynamic>{
-            'hasError': false,
             'provider': e.provider,
-            'limit': value
+            'limit': value,
+            'rate': e.rate
           });
           },
         ),
       ),
     );
     
+  results.sort((a, b) => (b['rate'] as double).compareTo(a['rate'] as double));
+
     final providersInRange = results.where((element) => _filterProvider(element)).toList();
     
     if(providersInRange.isNotEmpty){
