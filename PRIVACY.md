@@ -42,17 +42,17 @@ Information We May Receive But Do Not Retain
 
 	We receive but do NOT store information from and about users of our App, including:
 		- The device IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to supported cryptocurrency networks.
-	We collect this infoirmation:
-		- Automatically as you use the App, if you use one of the Cake Labs Nodes.
+	We receive this infoirmation:
+		- Automatically as you use the App.
 
-	This data is provided by connecting to the Nodes maintained by Cake Labs. You have the right to choose not to provide data to Cake Labs by choosing a different Node. We provide a list of Nodes in the app that include our own and third party Nodes, or you can use your own Node (which we recommend).
+	This data is provided by connecting to the Nodes and price API maintained by Cake Labs. You have the right to choose not to provide synchronization data to Cake Labs by choosing a different Node. We provide a list of Nodes in the app that include our own and third party Nodes, or you can use your own Node (which we recommend).
 	
 	Personal Data sent through the Cake Labs Nodes is limited to your device's IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to the supported cryptocurrency networks. Personal Data received by Cake Labs in this manner is not stored for any length of time, and thus Cake Labs is both unwilling to and incapable of sharing this data, or using it for any purpose beyond ensuring your appropriate connection to our Nodes.
 	
 	If you decide to use a Node offered by any third party, some of which we include in our Apps, said third party will receive this Personal Data instead of Cake Labs. We take no responsibility for the actions of any third-party Node offered within the Application. We recommend connecting to your own Node to limit third party sharing of your Personal Information.
 
-Information We Collect About You and How We Collect It
-------------------------------------------------------
+Information We May Collect About You and How We Collect It
+----------------------------------------------------------
 
 	We collect several types of information from and about users of our App, including information:
 		- By which you may be personally identified, such as name, e-mail address, or and a/any other identifier by which you may be contacted online or offline ("personal information" or "Personal Data”), ONLY when you provide it to us;
