@@ -14,6 +14,9 @@ void __clear_cache(void* start, void* end) { }
 #else
 #include "../External/android/include/wallet2_api.h"
 #endif
+#ifdef linux
+#include <string.h>
+#endif
 
 using namespace std::chrono_literals;
 #ifdef __cplusplus
