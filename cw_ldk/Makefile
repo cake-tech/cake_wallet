@@ -11,13 +11,8 @@ build-android:
 build: build-ios build-android copy
 	echo "...done building :)"
 
-.PHONY: test
-test:
-	cargo test
-
 .PHONY: copy
 copy:
 	cp target/aarch64-apple-ios/debug/libldk_ffi.a ios
-	# cp native/ldk-ffi/libldk_ffi.h ios/Classes 
 	cp target/aarch64-linux-android/debug/libldk_ffi.so android/src/main/jniLibs/arm64-v8a
 	cp target/armv7-linux-androideabi/debug/libldk_ffi.so android/src/main/jniLibs/armeabi-v7a
