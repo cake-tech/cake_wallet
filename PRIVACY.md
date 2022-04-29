@@ -1,6 +1,6 @@
 Privacy Policy
 
-Last modified: April 27, 2022
+Last modified: April 29, 2022
 
 Introduction
 ============
@@ -29,27 +29,37 @@ Definitions
 	- "Usage Data" refers to data collected automatically about your usage of an App.
 	- "You" means the individual, group, corporation, or any other entity accessing or using the Service.
 
+Information We Never Receive Nor Collect
+----------------------------------------
+
+	Usage Data (including the date and time at which you use an application, the duration of using it, and other ‘metadata’) is NOT collected by Cake Labs through the usage of the App. Cake Labs has no reason to care about any aspect of your continued usage of our App. We believe that this data is your own property and that we have no right to collect it.
+	
+	Data relating to your funds, and their security and privacy, remains on your device at ALL times. Your private keys (including your Monero private view keys), seeds, backup files, and wallet passcode are your own responsibility. This data is not received, collected, or stored by Cake Labs at any time, for any reason.
+
+
+Information We May Receive But Do Not Retain
+--------------------------------------------
+
+	We receive but do NOT store information from and about users of our App, including:
+		- The device IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to supported cryptocurrency networks.
+	We collect this infoirmation:
+		- Automatically as you use the App, if you use one of the Cake Labs Nodes.
+
+	This data is provided by connecting to the Nodes maintained by Cake Labs. You have the right to choose not to provide data to Cake Labs by choosing a different Node. We provide a list of Nodes in the app that include our own and third party Nodes, or you can use your own Node (which we recommend).
+	
+	Personal Data sent through the Cake Labs Nodes is limited to your device's IP address, the block height to which your wallet is synchronized, and any transactions or channels which you use our Node to submit to the supported cryptocurrency networks. Personal Data received by Cake Labs in this manner is not stored for any length of time, and thus Cake Labs is both unwilling to and incapable of sharing this data, or using it for any purpose beyond ensuring your appropriate connection to our Nodes.
+	
+	If you decide to use a Node offered by any third party, some of which we include in our Apps, said third party will receive this Personal Data instead of Cake Labs. We take no responsibility for the actions of any third-party Node offered within the Application. We recommend connecting to your own Node to limit third party sharing of your Personal Information.
+
 Information We Collect About You and How We Collect It
 ------------------------------------------------------
 
-	We may collect several types of information from and about users of our App, including information:
+	We collect several types of information from and about users of our App, including information:
 		- By which you may be personally identified, such as name, e-mail address, or and a/any other identifier by which you may be contacted online or offline ("personal information" or "Personal Data”), ONLY when you provide it to us;
-		- Device IP address, the block height to which your wallet is synchronized, and any transactions which you use our Node to submit to supported cryptocurrency networks.
 	We collect this information:
 		- Directly from you when you provide it to us.
-		- Automatically as you use the App, if you use one of the Cake Labs Nodes. Information collected automatically may include IP address and block height.
 
-	Usage Data (including the date and time at which you use an application, the duration of using it, and other ‘metadata’) is NOT collected by Cake Labs through the usage of the App. Cake Labs has no reason to care about any aspect of your continued usage of our App. We believe that this data is your own property and that we have no right to collect it.
-
-	Personal information is received by Cake Labs ONLY in the event that you choose to provide it to us. This is provided either by synchronizing your wallet using the Nodes maintained by Cake Labs, or by voluntarily contacting Cake Labs regarding support, questions or suggestions. You also have the right to choose not to provide data to Cake Labs, by choosing a different Node. The option to do so is provided by default with a list of Nodes, but our Apps also provide the ability to add another Node not listed, or use your own Node.
-
-	Data relating to your funds, and their security and privacy, remains on your device at ALL times. Your private keys, seeds, backup files, and wallet passcode are your own responsibility. This data is not received, collected, or stored by Cake Labs at any time, for any reason.
-
-	Personal Data sent through the Cake Labs Nodes is limited to your device's IP address, the block height to which your wallet is synchronized, and any transactions which you use our Node to submit to the supported cryptocurrency networks. Personal Data received by Cake Labs in this manner is not stored for any length of time, and thus Cake Labs is both unwilling to and incapable of sharing this data, or using it for any purpose beyond ensuring your appropriate connection to our Nodes.
-
-	If you decide to use a Node offered by any third party, some of which we include in our Apps, said third party will receive this Personal Data instead of Cake Labs. We take no responsibility for the actions of any third-party Node offered within the Application. If you decide to synchronize your Wallet using your own Node, neither Cake Labs nor any third party will have access to this Personal Data.
-
-	In any of these situations, Cake Labs takes no responsibility for interception of this data by any outside individual, group, corporation, or institution. You should understand this and take any and all appropriate actions to secure your own data.
+	Personal information is received by Cake Labs ONLY in the event that you choose to provide it to us by voluntarily contacting Cake Labs regarding support, questions or suggestions.
 
 How We Use Your Information
 ---------------------------
@@ -96,6 +106,8 @@ Data Security
 	You are responsible for your personal data, including all data related to the safety of your funds. You should take all appropriate action to protect this data. Cake Labs cannot recover any data related to your funds in the event that you lose or give away this data. Cake Labs strongly recommends that you take action to secure your funds, by writing down your seeds or keys, storing encrypted backups, and never sharing this information.
 
 	Cake Labs undertakes any and all reasonable steps possible to secure any data that you voluntarily transmit to us. However, we cannot guarantee that any outside system used to transmit this data is entirely secure and, as such, we recommend that you exercise caution when voluntarily transmitting data to us.
+	
+	In any situation, Cake Labs takes no responsibility for interception of personal data by any outside individual, group, corporation, or institution. You should understand this and take any and all appropriate actions to secure your own data.
 
 Links to Other Websites
 -----------------------
