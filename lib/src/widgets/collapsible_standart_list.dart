@@ -41,7 +41,7 @@ class CollapsibleSectionList extends SectionStandardList {
 
       items.add(Theme(
         data: ThemeData(
-            textTheme: TextTheme(subtitle1: TextStyle(color: themeColor)),
+            textTheme: TextTheme(subtitle1: TextStyle(color: themeColor,fontFamily: 'Lato')),
             backgroundColor: dividerThemeColor,
             unselectedWidgetColor: themeColor,
             accentColor: themeColor)
