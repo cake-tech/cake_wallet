@@ -264,9 +264,14 @@ class ExchangeCardState extends State<ExchangeCard> {
           child: Container(
               height: 15,
               child: _isLimitLoading
-                ? Text(S.of(context).calculating,
+                ? Text(S.of(context).calculating + '...',
                     style: TextStyle(
-                        fontSize: 10, height: 1.2, color: Theme.of(context).accentTextTheme.display4.decorationColor),
+                        fontSize: 10, 
+                        height: 1.2, 
+                        color: Theme.of(context)
+                          .accentTextTheme
+                          .display4
+                          .decorationColor),
                   )
                 : Row(
                   mainAxisAlignment: MainAxisAlignment.start,
