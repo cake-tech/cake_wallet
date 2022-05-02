@@ -42,7 +42,7 @@ abstract class ExchangeViewModelBase with Store {
       this.sharedPreferences) {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
-    providerList = [ChangeNowExchangeProvider() ,SideShiftExchangeProvider()];
+    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
     _initialPairBasedOnWallet();
     _storeDefaultProviders();
     _onPairChange();      
@@ -319,6 +319,8 @@ abstract class ExchangeViewModelBase with Store {
           ratesState = NoRateState();
           limitsState = LimitsLoadedFailure(error: 'amount is not within limits');
       }
+    } else{
+      limitsState = LimitsLoadedFailure(error: 'unable to get limits');
     }
   }
 

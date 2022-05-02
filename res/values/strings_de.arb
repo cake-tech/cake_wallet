@@ -529,5 +529,6 @@
   "search": "Suche",
   "new_template" : "neue Vorlage",
   "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin",
-  "trading_pair_unavailable" : "Dieses ${exchangeType} Paar wird von den ausgewählten Börsen nicht unterstützt"
+  "trading_pair_unavailable" : "Dieses ${exchangeType} Paar wird von den ausgewählten Börsen nicht unterstützt",
+  "calculating": "Berechnung"
 }

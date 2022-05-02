@@ -78,6 +78,7 @@ class ExchangeCardState extends State<ExchangeCard> {
   CryptoCurrency _selectedCurrency;
   String _walletName;
   bool _isAmountEditable;
+  bool _isLimitLoading;
   bool _isAddressEditable;
   bool _isAmountEstimated;
   bool _isMoneroWallet;
@@ -91,6 +92,7 @@ class ExchangeCardState extends State<ExchangeCard> {
     _selectedCurrency = widget.initialCurrency;
     _isAmountEstimated = widget.isAmountEstimated;
     _isMoneroWallet = widget.isMoneroWallet;
+    _isLimitLoading = false;
     addressController.text = widget.initialAddress;
     super.initState();
   }
@@ -116,6 +118,10 @@ class ExchangeCardState extends State<ExchangeCard> {
 
   void isAmountEditable({bool isEditable = true}) {
     setState(() => _isAmountEditable = isEditable);
+  }
+
+    void setLimitLoading(bool value) {
+    setState(() => _isLimitLoading = value);
   }
 
   void isAddressEditable({bool isEditable = true}) {
@@ -257,7 +263,12 @@ class ExchangeCardState extends State<ExchangeCard> {
           padding: EdgeInsets.only(top: 5),
           child: Container(
               height: 15,
-              child: Row(
+              child: _isLimitLoading
+                ? Text(S.of(context).calculating,
+                    style: TextStyle(
+                        fontSize: 10, height: 1.2, color: Theme.of(context).accentTextTheme.display4.decorationColor),
+                  )
+                : Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     _min != null
@@ -288,7 +299,9 @@ class ExchangeCardState extends State<ExchangeCard> {
                                     .display4
                                     .decorationColor))
                         : Offstage(),
-                  ])),
+                  ],
+                ),
+              ),
         ),
         !_isAddressEditable && widget.hasRefundAddress
             ? Padding(

@@ -552,8 +552,7 @@ class ExchangePage extends BasePage {
     final receiveAddressController = receiveKey.currentState.addressController;
     final receiveAmountController = receiveKey.currentState.amountController;
     final limitsState = exchangeViewModel.limitsState;
-    final ratesState = exchangeViewModel.ratesState;
-
+    
     if (limitsState is LimitsLoadedSuccessfully) {
       final min = limitsState.limits.min != null
           ? limitsState.limits.min.toString()
@@ -682,10 +681,7 @@ class ExchangePage extends BasePage {
         max = '0';
       }
 
-      if (state is LimitsIsLoading) {
-        min = '...';
-        max = '...';
-      }
+      depositKey.currentState.setLimitLoading(state is LimitsIsLoading);
 
       if (exchangeViewModel.isFixedRateMode) {
         depositKey.currentState.changeLimits(min: null, max: null);
