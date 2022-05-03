@@ -1,4 +1,5 @@
 import 'package:cake_wallet/utils/payment_request.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/screens/send/widgets/prefix_currency_icon_widget.dart';
 
 class SendTemplatePage extends BasePage {
   SendTemplatePage({@required this.sendTemplateViewModel}) {
@@ -142,7 +144,13 @@ class SendTemplatePage extends BasePage {
                           ),
                           Padding(
                               padding: const EdgeInsets.only(top: 20),
-                              child: BaseTextFormField(
+                              child: Focus(
+                                  onFocusChange: (hasFocus) {
+                                    if (hasFocus) {
+                                      sendTemplateViewModel.selectCurrency();
+                                    }
+                                  },
+                                  child: BaseTextFormField(
                                   focusNode: _cryptoAmountFocus,
                                   controller: _cryptoAmountController,
                                   keyboardType: TextInputType.numberWithOptions(
@@ -151,17 +159,14 @@ class SendTemplatePage extends BasePage {
                                     FilteringTextInputFormatter.deny(
                                         RegExp('[\\-|\\ ]'))
                                   ],
-                                  prefixIcon: Padding(
-                                    padding: EdgeInsets.only(top: 9),
-                                    child: Text(
-                                        sendTemplateViewModel.currency.title +
-                                            ':',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                        )),
-                                  ),
+                                  prefixIcon: Observer(
+                                      builder: (_) => PrefixCurrencyIcon(
+                                        title: sendTemplateViewModel
+                                            .currency.title,
+                                        isSelected:
+                                        sendTemplateViewModel
+                                            .isCurrencySelected,
+                                      )),
                                   hintText: '0.0000',
                                   borderColor: Theme.of(context)
                                       .primaryTextTheme
@@ -179,10 +184,16 @@ class SendTemplatePage extends BasePage {
                                       fontWeight: FontWeight.w500,
                                       fontSize: 14),
                                   validator:
-                                      sendTemplateViewModel.amountValidator)),
+                                      sendTemplateViewModel.amountValidator))),
                           Padding(
                               padding: const EdgeInsets.only(top: 20),
-                              child: BaseTextFormField(
+                              child: Focus(
+                                  onFocusChange: (hasFocus) {
+                                    if (hasFocus) {
+                                      sendTemplateViewModel.selectFiat();
+                                    }
+                                  },
+                                  child: BaseTextFormField(
                                 focusNode: _fiatAmountFocus,
                                 controller: _fiatAmountController,
                                 keyboardType: TextInputType.numberWithOptions(
@@ -191,16 +202,13 @@ class SendTemplatePage extends BasePage {
                                   FilteringTextInputFormatter.deny(
                                       RegExp('[\\-|\\ ]'))
                                 ],
-                                prefixIcon: Padding(
-                                  padding: EdgeInsets.only(top: 9),
-                                  child: Text(
-                                      sendTemplateViewModel.fiat.title + ':',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      )),
-                                ),
+                                prefixIcon: Observer(
+                                    builder: (_) => PrefixCurrencyIcon(
+                                      title: sendTemplateViewModel
+                                          .fiat.title,
+                                      isSelected: sendTemplateViewModel
+                                          .isFiatSelected,
+                                    )),
                                 hintText: '0.00',
                                 borderColor: Theme.of(context)
                                     .primaryTextTheme
@@ -217,7 +225,7 @@ class SendTemplatePage extends BasePage {
                                         .decorationColor,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 14),
-                              )),
+                              ))),
                         ],
                       ),
                     )
@@ -231,10 +239,13 @@ class SendTemplatePage extends BasePage {
               onPressed: () {
                 if (_formKey.currentState.validate()) {
                   sendTemplateViewModel.addTemplate(
+                      isCurrencySelected: sendTemplateViewModel.isCurrencySelected,
                       name: _nameController.text,
                       address: _addressController.text,
-                      cryptoCurrency: sendTemplateViewModel.currency.title,
-                      amount: _cryptoAmountController.text);
+                      cryptoCurrency:sendTemplateViewModel.currency.title,
+                      fiatCurrency: sendTemplateViewModel.fiat.title,
+                      amount: _cryptoAmountController.text,
+                      amountFiat: _fiatAmountController.text);
                   Navigator.of(context).pop();
                 }
               },
