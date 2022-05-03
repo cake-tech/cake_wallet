@@ -56,7 +56,7 @@ use std::io::Write;
 use std::ops::Deref;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
 use std::sync::mpsc::{SyncSender, Receiver, sync_channel};
 
@@ -342,8 +342,8 @@ pub async fn start_ldk(
     node_name: String,
     address: String,
     mnemonic_key_phrase: String,
-	ffi_sender: &'static SyncSender<String>,
-	ldk_receiver: &'static Mutex<Receiver<String>>,
+	ffi_sender: tokio::sync::mpsc::Sender<String>,
+	ldk_receiver: Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<String>>>,
     callback: Box<dyn Fn(&str) + Send + Sync>
 ) {
     callback("...starting ldk");
@@ -380,7 +380,7 @@ pub async fn start_ldk(
 		Err(e) => {
 			let msg = format!("Failed to connect to bitcoind client: {}", e);
             callback(msg.as_str());
-			ffi_sender.send(msg).unwrap();
+			ffi_sender.send(msg).await.unwrap();
 			return;
 		}
 	};
@@ -401,7 +401,7 @@ pub async fn start_ldk(
 			args.network, bitcoind_chain
 		);
         callback(msg.as_str());
-		ffi_sender.send(msg).unwrap();
+		ffi_sender.send(msg).await.unwrap();
 		return;
 	}
 
@@ -465,7 +465,7 @@ pub async fn start_ldk(
 			Err(e) => {
 				let msg = format!("ERROR: Unable to create keys seed file {}: {}", keys_seed_path, e);
 				callback(msg.as_str());
-                ffi_sender.send(msg).unwrap();
+                ffi_sender.send(msg).await.unwrap();
 				return;
 			}
 		}
@@ -815,14 +815,16 @@ pub async fn start_ldk(
 
     callback("TODO: Start the CLI.");
 
+	let _ffi_sender = ffi_sender.clone();
+	let _ldk_receiver = ldk_receiver.clone();
 	tokio::spawn(async move {
 
 		flutter_ffi::get_messages_from_channel(
-			ffi_sender, 
-			ldk_receiver,
+			_ffi_sender.clone(), 
+			_ldk_receiver.clone(),
 			Arc::clone(&channel_manager),
 			Arc::clone(&peer_manager)
-		);
+			).await;
 
 		// Disconnect our peers and stop accepting new connections. This ensures we don't continue
 		// updating our channel data after we've stopped the background processor.
@@ -832,10 +834,10 @@ pub async fn start_ldk(
 		//Stop the background processor.
 		background_processor.stop().unwrap();
 		
-		ffi_sender.send("exiting from ldk".to_string()).unwrap();
+		_ffi_sender.send("exiting from ldk".to_string()).await.unwrap();
 	});
 
-	ffi_sender.send("finished setting up start_ldk".to_string()).unwrap();
+	ffi_sender.send("finished setting up start_ldk".to_string()).await.unwrap();
 }
 
 

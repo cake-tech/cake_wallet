@@ -39,8 +39,13 @@ class _MyAppState extends State<MyApp> {
     // setup pointer for isolate communication.
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
+    await CwLdk.listFilesInFolder(".ldk");
+    await CwLdk.deleteFolder(".ldk/logs");
+    await CwLdk.deleteFolder(".ldk");
+    await CwLdk.listFilesInFolder(".ldk");
+
     final startLDK = await CwLdk.startLDK(
-        "polaruser:polarpass@192.168.0.13:18443",
+        "polaruser:polarpass@192.168.0.8:18443",
         9732,
         "regtest",
         "hellolightning",
@@ -48,15 +53,14 @@ class _MyAppState extends State<MyApp> {
         _mnomonicKeyPhrase);
 
     final res1 = CwLdk.sendMessage("hello world 1");
-    final res2 = CwLdk.sendMessage("hello world 2");
-    final res3 = CwLdk.sendMessage("hello world 3");
-    final nodeinfo = CwLdk.sendMessage("nodeinfo");
+    final nodeinfo = CwLdk.nodeInfo();
+    final connectPeer = CwLdk.connectPeer(
+        "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
     // final res5 = CwLdk.sendMessage("test");
 
     print(res1);
-    print(res2);
-    print(res3);
     print(nodeinfo);
+    print(connectPeer);
     // print(res5);
 
     if (!mounted) return;

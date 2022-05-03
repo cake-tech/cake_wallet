@@ -13,12 +13,14 @@ use std::path::Path;
 use std::fs::File;
 use std::io::prelude::*;
 use std::io;
-use std::sync::mpsc;
+use std::sync::{mpsc, Arc, Mutex};
 use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
-use std::sync::Mutex;
+// use std::sync::Mutex;
 use std::thread;
 
+
 // packages.
+// use tokio::sync::Mutex;
 use tokio::runtime::{Builder, Runtime};
 use lazy_static::lazy_static;
 use allo_isolate::Isolate;
@@ -44,13 +46,13 @@ macro_rules! runtime {
 
 // Create channels on the static scope.
 lazy_static! {
-	static ref LDK_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
-		let (send, recv) = sync_channel(1);
-		(send, Mutex::new(recv))
+	static ref LDK_CHANNEL: (tokio::sync::mpsc::Sender<String>, Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<String>>> ) = {
+		let (send, recv) = tokio::sync::mpsc::channel(1);
+		(send, Arc::new(tokio::sync::Mutex::new(recv)))
 	};
-	static ref FFI_CHANNEL: (SyncSender<String>, Mutex<Receiver<String>> ) = {
-		let (send, recv) = sync_channel(1);
-		(send, Mutex::new(recv))
+	static ref FFI_CHANNEL: (tokio::sync::mpsc::Sender<String>, Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<String>>> ) = {
+		let (send, recv) = tokio::sync::mpsc::channel(1);
+		(send, Arc::new(tokio::sync::Mutex::new(recv)))
 	};
 }
 
@@ -67,20 +69,20 @@ macro_rules! channel {
 // get senders for static channels
 macro_rules! sender {
     (ldk) => {
-	    &(*LDK_CHANNEL).0
+	    (*LDK_CHANNEL).0.clone()
     };
     (ffi) => {
-	    &(*FFI_CHANNEL).0
+	    (*FFI_CHANNEL).0.clone()
     };
 }
 
 // get receivers for static channels
 macro_rules! receiver {
     (ldk) => {
-	    &(*LDK_CHANNEL).1
+	    (*LDK_CHANNEL).1.clone()
     };
     (ffi) => {
-	    &(*FFI_CHANNEL).1
+	    (*FFI_CHANNEL).1.clone()
     };
 }
 
@@ -148,7 +150,9 @@ pub extern "C" fn start_ldk(
     // };
 
     let rt = runtime!(); 
-    rt.block_on(async move {
+    let ffi_receiver = receiver!(ffi);
+
+    let res = rt.block_on(async move {
         let ffi_sender = sender!(ffi);
         let ldk_receiver = receiver!(ldk);
         let res = ldk_lib::start_ldk(
@@ -160,17 +164,15 @@ pub extern "C" fn start_ldk(
             c_char_to_string(address),
             c_char_to_string(mnemonic_key_phrase),
             ffi_sender,
-            ldk_receiver,
+            ldk_receiver.clone(),
             Box::new(move |msg| { 
             unsafe {
                 func(CString::new(msg).unwrap().into_raw());
             }
         })).await;
         // ffi_sender.send(res).unwrap();
+        ffi_receiver.lock().await.recv().await.unwrap()
     });
-
-    let ffi_receiver = receiver!(ffi);
-    let res = ffi_receiver.lock().unwrap().recv().unwrap();
 
     CString::new(res).unwrap().into_raw()
 }
@@ -179,12 +181,17 @@ pub extern "C" fn start_ldk(
 pub extern "C" fn send_message(msg: *const c_char) -> *const c_char {
     let sender = sender!(ldk);
     let receiver = receiver!(ffi);
-   
-    sender.send(c_char_to_string(msg)).unwrap();
-    let recv = receiver.lock().unwrap();
-    let res = recv.recv().unwrap(); 
+    
+    let rt = runtime!(); 
+    let res = rt.block_on(async move {
 
+        sender.send(c_char_to_string(msg)).await.unwrap();
+        let msg = receiver.lock().await.recv().await.unwrap();
+        msg
+    });
+    
     CString::new(res).unwrap().into_raw()
+   
 }
 
 // /// remove later.

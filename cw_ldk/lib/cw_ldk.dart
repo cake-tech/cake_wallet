@@ -122,6 +122,16 @@ class CwLdk {
     return res;
   }
 
+  static String nodeInfo() {
+    final res = sendMessage("nodeinfo");
+    return res;
+  }
+
+  static String connectPeer(String url) {
+    final res = sendMessage("connectpeer $url");
+    return res;
+  }
+
   // static Future<String> testLDKAsync(String rpcInfo) async {
   //   final completer = Completer<String>();
   //   final sendPort = singleCompletePort<String, String>(completer);
