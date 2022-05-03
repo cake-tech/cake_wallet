@@ -120,9 +120,20 @@ class SectionStandardList extends StatelessWidget {
       @required this.sectionCount,
       this.sectionTitleBuilder,
       this.hasTopSeparator = false,
+      this.themeColor,
+      this.dividerThemeColor,
       BuildContext context})
-      : totalRows = transform(hasTopSeparator, context, sectionCount,
-            itemCounter, itemBuilder, sectionTitleBuilder);
+      : totalRows = [] {
+    totalRows.addAll(transform(
+        hasTopSeparator,
+        context,
+        sectionCount,
+        itemCounter,
+        itemBuilder,
+        sectionTitleBuilder,
+        themeColor,
+        dividerThemeColor));
+  }
 
   final int sectionCount;
   final bool hasTopSeparator;
@@ -132,8 +143,10 @@ class SectionStandardList extends StatelessWidget {
   final Widget Function(BuildContext context, int sectionIndex)
       sectionTitleBuilder;
   final List<Widget> totalRows;
+  final Color themeColor;
+  final Color dividerThemeColor;
 
-  static List<Widget> transform(
+  List<Widget> transform(
       bool hasTopSeparator,
       BuildContext context,
       int sectionCount,
@@ -141,7 +154,9 @@ class SectionStandardList extends StatelessWidget {
       Widget Function(BuildContext context, int sectionIndex, int itemIndex)
           itemBuilder,
       Widget Function(BuildContext context, int sectionIndex)
-          sectionTitleBuilder) {
+          sectionTitleBuilder,
+      Color themeColor,
+      Color dividerThemeColor) {
     final items = <Widget>[];
 
     for (var sectionIndex = 0; sectionIndex < sectionCount; sectionIndex++) {
@@ -150,16 +165,12 @@ class SectionStandardList extends StatelessWidget {
       }
 
       if (sectionTitleBuilder != null) {
-        items.add(sectionTitleBuilder(context, sectionIndex));
+        items.add(buildTitle(items, sectionIndex, context));
       }
 
       final itemCount = itemCounter(sectionIndex);
 
-      for (var itemIndex = 0; itemIndex < itemCount; itemIndex++) {
-        final item = itemBuilder(context, sectionIndex, itemIndex);
-
-        items.add(item);
-      }
+      items.addAll(buildSection(itemCount, items, sectionIndex, context));
 
       items.add(sectionIndex + 1 != sectionCount
           ? SectionHeaderListRow()
@@ -167,6 +178,24 @@ class SectionStandardList extends StatelessWidget {
     }
 
     return items;
+  }
+
+  Widget buildTitle(
+      List<Widget> items, int sectionIndex, BuildContext context) {
+    final title = sectionTitleBuilder(context, sectionIndex);
+    return title;
+  }
+
+  List<Widget> buildSection(int itemCount, List<Widget> items, int sectionIndex,
+      BuildContext context) {
+    final List<Widget> section = [];
+
+    for (var itemIndex = 0; itemIndex < itemCount; itemIndex++) {
+      final item = itemBuilder(context, sectionIndex, itemIndex);
+
+      section.add(item);
+    }
+    return section;
   }
 
   @override
