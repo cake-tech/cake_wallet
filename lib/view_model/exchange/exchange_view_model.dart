@@ -69,7 +69,6 @@ abstract class ExchangeViewModelBase with Store {
     isFixedRateMode = false;
     isReceiveAmountEntered = false;
     _loadRates();
-    _defineIsReceiveAmountEditable();
   }
 
   final WalletBase wallet;
@@ -119,9 +118,6 @@ abstract class ExchangeViewModelBase with Store {
 
   @observable
   bool isReceiveAmountEntered;
-
-  @observable
-  bool isReceiveAmountEditable;
 
   @observable
   bool isFixedRateMode;
@@ -540,7 +536,7 @@ abstract class ExchangeViewModelBase with Store {
   bool _filterProvider(Map<String, dynamic> result){
     final limit = result['limit'] as Limits;
     final _provider = result['provider'] as ExchangeProvider;
-    final amount = depositAmount;
+    final amount =  isReverse ? receiveAmount : depositAmount;
     final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
     if(limit == null) return false;
     if(_amount >= limit.min ){
@@ -571,17 +567,5 @@ abstract class ExchangeViewModelBase with Store {
       default:
         break;
     }
-  }
-
-  void _defineIsReceiveAmountEditable() {
-    /*if ((provider is ChangeNowExchangeProvider)
-        &&(depositCurrency == CryptoCurrency.xmr)
-        &&(receiveCurrency == CryptoCurrency.btc)) {
-      isReceiveAmountEditable = true;
-    } else {
-      isReceiveAmountEditable = false;
-    }*/
-    //isReceiveAmountEditable = false;
-    isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
   }
 }

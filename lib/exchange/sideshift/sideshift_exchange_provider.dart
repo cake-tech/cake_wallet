@@ -94,16 +94,30 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   Future<Trade> createTrade(
       {TradeRequest request, bool isFixedRateMode}) async {
     final _request = request as SideShiftRequest;
-    final quoteId = await _createQuote(_request);
+    final type = isFixedRateMode ? 'fixed' : 'variable';
+    final depositMethod = !isFixedRateMode ? normalizeCryptoCurrency(_request.depositMethod) : null;
+    final settleMethod = !isFixedRateMode ? normalizeCryptoCurrency(_request.settleMethod) : null;
+    String quoteId; 
+    
+    if(isFixedRateMode){
+        quoteId = await _createQuote(_request);
+    }
+    
     final url = apiBaseUrl + orderPath;
     final headers = {apiHeaderKey: apiKey, 'Content-Type': 'application/json'};
+  
     final body = {
-      'type': 'fixed',
+      'type': type,
       'quoteId': quoteId,
+      'depositMethodId': depositMethod,
+      'settleMethodId': settleMethod,
       'affiliateId': affiliateId,
       'settleAddress': _request.settleAddress,
       'refundAddress': _request.refundAddress
     };
+
+    body.removeWhere((key, value) => value == null);
+
     final response = await post(url, headers: headers, body: json.encode(body));
 
     if (response.statusCode != 201) {
