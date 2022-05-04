@@ -65,7 +65,7 @@ abstract class DashboardViewModelBase with Store {
       S.current.trades: [
         FilterItem(
             value: () => tradeFilterStore.displayChangeNow,
-            caption: 'Change.NOW',
+            caption: 'ChangeNOW',
             onChanged: (value) => tradeFilterStore
                 .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
         FilterItem(
