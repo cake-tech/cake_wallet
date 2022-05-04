@@ -334,6 +334,14 @@ async fn handle_ldk_events(
 	}
 }
 
+#[derive(Debug)]
+pub enum Message {
+	Request(String),
+	Log(String),
+	Error(String),
+	Success(String)
+}
+
 pub async fn start_ldk(
     rpc_info: String,
     ldk_storage_path: String,
@@ -342,8 +350,8 @@ pub async fn start_ldk(
     node_name: String,
     address: String,
     mnemonic_key_phrase: String,
-	ffi_sender: tokio::sync::mpsc::Sender<String>,
-	ldk_receiver: Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<String>>>,
+	ffi_sender: tokio::sync::mpsc::Sender<Message>,
+	ldk_receiver: Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<Message>>>,
     callback: Box<dyn Fn(&str) + Send + Sync>
 ) {
     callback("...starting ldk");
@@ -380,7 +388,7 @@ pub async fn start_ldk(
 		Err(e) => {
 			let msg = format!("Failed to connect to bitcoind client: {}", e);
             callback(msg.as_str());
-			ffi_sender.send(msg).await.unwrap();
+			ffi_sender.send(Message::Error(msg)).await.unwrap();
 			return;
 		}
 	};
@@ -401,7 +409,7 @@ pub async fn start_ldk(
 			args.network, bitcoind_chain
 		);
         callback(msg.as_str());
-		ffi_sender.send(msg).await.unwrap();
+		ffi_sender.send(Message::Error(msg)).await.unwrap();
 		return;
 	}
 
@@ -465,7 +473,7 @@ pub async fn start_ldk(
 			Err(e) => {
 				let msg = format!("ERROR: Unable to create keys seed file {}: {}", keys_seed_path, e);
 				callback(msg.as_str());
-                ffi_sender.send(msg).await.unwrap();
+                ffi_sender.send(Message::Error(msg)).await.unwrap();
 				return;
 			}
 		}
@@ -834,10 +842,10 @@ pub async fn start_ldk(
 		//Stop the background processor.
 		background_processor.stop().unwrap();
 		
-		_ffi_sender.send("exiting from ldk".to_string()).await.unwrap();
+		_ffi_sender.send(Message::Error("exiting from ldk".to_string())).await.unwrap();
 	});
 
-	ffi_sender.send("finished setting up start_ldk".to_string()).await.unwrap();
+	ffi_sender.send(Message::Error("finished setting up start_ldk".to_string())).await.unwrap();
 }
 
 

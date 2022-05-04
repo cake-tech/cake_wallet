@@ -4,11 +4,11 @@ build-ios:
 
 .PHONY: build-android
 build-android:
-	cargo build --target=aarch64-linux-android
+	# cargo build --target=aarch64-linux-android
 	cargo build --target=armv7-linux-androideabi
 
 .PHONY: build
-build: build-ios build-android copy
+build: build-android copy
 	echo "...done building :)"
 
 .PHONY: copy

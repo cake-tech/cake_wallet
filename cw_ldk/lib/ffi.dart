@@ -40,17 +40,20 @@ typedef _last_error_length_C = Int32 Function();
 typedef _last_error_length_Dart = int Function();
 
 /// C function `send_message`.
-Pointer<ffi.Utf8> send_message(
+int send_message(
   Pointer<ffi.Utf8> msg,
+  int isolate_port,
 ) {
-  return _send_message(msg);
+  return _send_message(msg, isolate_port);
 }
 final _send_message_Dart _send_message = _dl.lookupFunction<_send_message_C, _send_message_Dart>('send_message');
-typedef _send_message_C = Pointer<ffi.Utf8> Function(
+typedef _send_message_C = Int32 Function(
   Pointer<ffi.Utf8> msg,
+  Int64 isolate_port,
 );
-typedef _send_message_Dart = Pointer<ffi.Utf8> Function(
+typedef _send_message_Dart = int Function(
   Pointer<ffi.Utf8> msg,
+  int isolate_port,
 );
 
 /// C function `start_ldk`.

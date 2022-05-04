@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/services.dart';
-// import 'package:isolate/ports.dart';
+import 'package:isolate/ports.dart';
 import 'ffi.dart' as native;
 import 'package:path_provider/path_provider.dart';
 
@@ -13,6 +13,8 @@ typedef _print_C = Void Function(Pointer<Utf8>);
 
 class CwLdk {
   static const MethodChannel _channel = const MethodChannel('cw_ldk');
+
+  static bool ldkIsRunning = false;
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
@@ -85,6 +87,17 @@ class CwLdk {
     }
   }
 
+  static Future<String> readFile(String fileName) async {
+    final Directory _appDirPath = await getApplicationDocumentsDirectory();
+    final File file = new File("${_appDirPath.path}/$fileName");
+    return file.readAsString();
+  }
+
+  static Future<void> showLogs() async {
+    final logs = await readFile(".ldk/logs/logs.txt");
+    print(logs);
+  }
+
   static void callback() {
     print("calling native function from flutter.......");
   }
@@ -114,21 +127,27 @@ class CwLdk {
     return res;
   }
 
-  static String sendMessage(String msg) {
-    final _res = native.send_message(msg.toNativeUtf8());
+  static Future<String> sendMessage(String msg) {
+    final completer = Completer<String>();
+    final sendPort = singleCompletePort<String, String>(completer);
+    final port = sendPort.nativePort;
 
-    final res = _res.toDartString();
-    calloc.free(_res);
+    final res = native.send_message(msg.toNativeUtf8(), port);
+
+    if (res != 1) {
+      _throwError();
+    }
+
+    return completer.future;
+  }
+
+  static Future<String> nodeInfo() async {
+    final res = await sendMessage("nodeinfo");
     return res;
   }
 
-  static String nodeInfo() {
-    final res = sendMessage("nodeinfo");
-    return res;
-  }
-
-  static String connectPeer(String url) {
-    final res = sendMessage("connectpeer $url");
+  static Future<String> connectPeer(String url) async {
+    final res = await sendMessage("connectpeer $url");
     return res;
   }
 
@@ -149,39 +168,18 @@ class CwLdk {
   //   return completer.future;
   // }
 
-  // static String testLDKBlocking(String path) {
-  //   // final callbackPointer = Pointer.fromFunction<_callback_C>(callback);
-  //   final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
-
-  //   final _res =
-  //       native.test_ldk_block(path.toNativeUtf8(), wrappedPrintPointer);
-  //   final res = _res.toDartString();
-  //   calloc.free(_res);
-  //   return res;
-  // }
-
-  // static void ffiChannels() {
-  //   final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
-  //   native.ffi_channels(wrappedPrintPointer);
-  // }
-
-  // static void ldkChannels() {
-  //   final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
-  //   native.ldk_channels(wrappedPrintPointer);
-  // }
-
   static void storeDartPostCobject(
     Pointer<NativeFunction<Int8 Function(Int64, Pointer<Dart_CObject>)>> ptr,
   ) {
     native.store_dart_post_cobject(ptr);
   }
 
-  // static void _throwError() {
-  //   final length = native.last_error_length();
-  //   final Pointer<Utf8> message = calloc.allocate(length);
-  //   native.error_message_utf8(message, length);
-  //   final error = message.toDartString();
-  //   print(error);
-  //   throw Exception(error);
-  // }
+  static void _throwError() {
+    final length = native.last_error_length();
+    final Pointer<Utf8> message = calloc.allocate(length);
+    native.error_message_utf8(message, length);
+    final error = message.toDartString();
+    print(error);
+    throw Exception(error);
+  }
 }

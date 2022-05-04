@@ -40,6 +40,7 @@ class _MyAppState extends State<MyApp> {
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
     await CwLdk.listFilesInFolder(".ldk");
+    await CwLdk.showLogs();
     await CwLdk.deleteFolder(".ldk/logs");
     await CwLdk.deleteFolder(".ldk");
     await CwLdk.listFilesInFolder(".ldk");
@@ -52,15 +53,18 @@ class _MyAppState extends State<MyApp> {
         "0.0.0.0",
         _mnomonicKeyPhrase);
 
-    final res1 = CwLdk.sendMessage("hello world 1");
-    final nodeinfo = CwLdk.nodeInfo();
-    final connectPeer = CwLdk.connectPeer(
-        "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
+    await CwLdk.showLogs();
+    final res1 = await CwLdk.sendMessage("hello world 1");
+    await CwLdk.showLogs();
+    final nodeinfo = await CwLdk.nodeInfo();
+    await CwLdk.showLogs();
+    // final connectPeer = CwLdk.connectPeer(
+    //     "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
     // final res5 = CwLdk.sendMessage("test");
 
     print(res1);
     print(nodeinfo);
-    print(connectPeer);
+    // print(connectPeer);
     // print(res5);
 
     if (!mounted) return;

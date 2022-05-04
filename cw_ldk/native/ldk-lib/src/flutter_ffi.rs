@@ -7,7 +7,8 @@ use bitcoin::secp256k1::key::PublicKey;
 use crate::hex_utils;
 use crate::{
 	ChannelManager, 
-	PeerManager
+	PeerManager,
+	Message
 };
 
 fn node_info(channel_manager: &Arc<ChannelManager>, peer_manager: &Arc<PeerManager>) -> String {
@@ -99,25 +100,27 @@ pub(crate) async fn do_connect_peer(
 #[allow(dead_code)]
 #[allow(unused_variables)]
 pub(crate) async fn get_messages_from_channel(
-	sender: tokio::sync::mpsc::Sender<String>, 
-	receiver: Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<String>>>,
+	sender: tokio::sync::mpsc::Sender<Message>, 
+	receiver: Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<Message>>>,
 	channel_manager: Arc<ChannelManager>,
 	peer_manager: Arc<PeerManager> 
 ) {
 
-	while let Some(msg) = receiver.lock().await.recv().await {
+	while let Some(Message::Request(msg)) = receiver.lock().await.recv().await {
+
 		let mut words = msg.split_whitespace();
 
 		if let Some(word) = words.next() {
 			match word {
 				"nodeinfo" => {
 					let res = node_info(&channel_manager, &peer_manager);
-					sender.send(res).await.unwrap();
+					sender.send(Message::Success(res)).await.unwrap();
 				},
 				"connectpeer" => {
+
 					let peer_pubkey_and_ip_addr = words.next();
 					if peer_pubkey_and_ip_addr.is_none() {
-						sender.send("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string()).await.unwrap();
+						sender.send(Message::Error("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string())).await.unwrap();
 						continue;
 					}
 
@@ -125,7 +128,7 @@ pub(crate) async fn get_messages_from_channel(
 						match parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
 							Ok(info) => info,
 							Err(e) => {
-								println!("{:?}", e.into_inner().unwrap());
+								sender.send(Message::Error(format!("{:?}", e.into_inner().unwrap()))).await.unwrap();
 								continue;
 							}
 						};
@@ -134,11 +137,15 @@ pub(crate) async fn get_messages_from_channel(
 						.await
 						.is_ok()
 					{
-						sender.send(format!("SUCCESS: connected to peer {}", pubkey)).await.unwrap();
+						sender.send(Message::Success(format!("SUCCESS: connected to peer {}", pubkey))).await.unwrap();
 					}
+					else {
+						sender.send(Message::Error("there was a problem connecting to peer".to_string())).await.unwrap();
+					}
+
 				},
 				msg => {
-					sender.send(format!("message received: {}", msg)).await.unwrap();
+					sender.send(Message::Success(format!("message received: {}", msg))).await.unwrap();
 				},
 			}
 		}
