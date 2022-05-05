@@ -35,7 +35,7 @@ use lightning::routing::network_graph::{NetGraphMsgHandler, NetworkGraph};
 use lightning::routing::scoring::ProbabilisticScorer;
 use lightning::util::config::UserConfig;
 use lightning::util::events::{Event, PaymentPurpose};
-use lightning::util::logger::{Record, Logger};
+use lightning::util::logger::Logger;
 use lightning::{log_bytes, log_given_level, log_internal, log_trace};
 use lightning::util::ser::ReadableArgs;
 use lightning_background_processor::{BackgroundProcessor, Persister};

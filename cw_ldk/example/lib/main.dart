@@ -39,10 +39,7 @@ class _MyAppState extends State<MyApp> {
     // setup pointer for isolate communication.
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
-    await CwLdk.listFilesInFolder(".ldk");
-    await CwLdk.showLogs();
-    await CwLdk.deleteFolder(".ldk/logs");
-    await CwLdk.deleteFolder(".ldk");
+    await CwLdk.clear();
 
     final startLDK = await CwLdk.startLDK(
         "polaruser:polarpass@192.168.0.8:18443",
@@ -52,11 +49,8 @@ class _MyAppState extends State<MyApp> {
         "0.0.0.0",
         _mnomonicKeyPhrase);
 
-    await CwLdk.showLogs();
     final res1 = await CwLdk.sendMessage("hello world 1");
-    await CwLdk.showLogs();
     final nodeinfo = await CwLdk.nodeInfo();
-    await CwLdk.showLogs();
     // final connectPeer = CwLdk.connectPeer(
     //     "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
     // final res5 = CwLdk.sendMessage("test");
@@ -75,6 +69,11 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  /// Show logs to LDK.
+  void showLogs() {
+    CwLdk.showLogs();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -88,6 +87,10 @@ class _MyAppState extends State<MyApp> {
               children: [
                 Text('Running on: $_platformVersion\n'),
                 Text('startLDK: $_startLDK'),
+                ElevatedButton(onPressed: showLogs, child: Text("logs")),
+                ElevatedButton(onPressed: () {}, child: Text("Create Channel")),
+                ElevatedButton(onPressed: () {}, child: Text("Create Invoice")),
+                ElevatedButton(onPressed: () {}, child: Text("Pay Invoice")),
               ],
             ),
           ),

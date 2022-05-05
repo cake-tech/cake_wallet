@@ -43,6 +43,11 @@ class CwLdk {
     }
   }
 
+  static Future<void> clear() async {
+    await CwLdk.deleteFolder(".ldk/logs");
+    await CwLdk.deleteFolder(".ldk");
+  }
+
   /// Delete folder in app doc directory.
   static Future<bool> deleteFolder(String folderName) async {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
@@ -139,8 +144,7 @@ class CwLdk {
       if (res != 1) {
         _throwError();
         completer.complete("ldk did not receive message");
-      } 
-      
+      }
     } else {
       completer.complete("ldk is not running.");
     }
