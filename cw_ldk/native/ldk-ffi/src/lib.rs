@@ -1,22 +1,14 @@
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-#![allow(unused_macros)]
+// #![allow(unused_imports)]
+// #![allow(unused_variables)]
+// #![allow(unused_macros)]
 
 /// this is the code that creates an interface to the flutter ffi.
 
 // standard libary
 use std::os::raw::c_char;
 use std::ffi::{CString, CStr};
-use std::env;
-use std::fs;
-use std::path::Path;
-use std::fs::File;
-use std::io::prelude::*;
 use std::io;
-use std::sync::{mpsc, Arc, Mutex};
-use std::sync::mpsc::{Sender, SyncSender, Receiver, sync_channel};
-// use std::sync::Mutex;
-use std::thread;
+use std::sync::Arc;
 
 
 // packages.
@@ -57,14 +49,14 @@ lazy_static! {
 }
 
 // Get references to channels on the static scope.
-macro_rules! channel {
-    (ldk) => {
-	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
-    };
-    (ffi) => {
-	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
-    };
-}
+// macro_rules! channel {
+//     (ldk) => {
+// 	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
+//     };
+//     (ffi) => {
+// 	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
+//     };
+// }
 
 // get senders for static channels
 macro_rules! sender {
@@ -157,7 +149,7 @@ pub extern "C" fn start_ldk(
     let res = rt.block_on(async move {
         let ffi_sender = sender!(ffi);
         let ldk_receiver = receiver!(ldk);
-        let res = ldk_lib::start_ldk(
+        ldk_lib::start_ldk(
             c_char_to_string(rpc_info),
             c_char_to_string(ldk_storage_path),
             port,
@@ -194,7 +186,7 @@ pub extern "C" fn send_message(
     
     let rt = runtime!(); 
     let _msg = c_char_to_string(msg);
-    let res = rt.spawn(async move {
+    rt.spawn(async move {
         let isolate = Isolate::new(isolate_port);
 
         sender.send(ldk_lib::Message::Request(_msg)).await.unwrap();
@@ -209,48 +201,6 @@ pub extern "C" fn send_message(
     
     1
 }
-
-
-// // /// Run LDK asynchronous 
-// // #[no_mangle]
-// // pub extern "C" fn test_ldk_async(
-// //     isolate_port: i64, 
-// //     rpc_info: *const c_char,
-// //     ldk_storage_path: *const c_char,
-// // ) -> i32 {
-// //     let rt = runtime!();
-
-// // 	let ldk_userinfo: LdkUserInfo = setup_ldkuserinfo(
-// // 		c_char_to_string(rpc_info),
-// //         c_char_to_string(ldk_storage_path),
-// // 		9732,
-// 		"regtest".to_string(),
-//         "hellolightning".to_string(),
-// 		"0.0.0.0".to_string()
-// 	).unwrap();
-   
-//     // run ldk in seperate thread.
-//     let ffi_sender = sender!(ffi);
-//     let ffi_sender_clone = ffi_sender.clone();
-//     rt.spawn(async move {
-//         let res = ldk_lib::flutter_ldk(ldk_userinfo).await;
-
-//         ffi_sender_clone.send(res).unwrap();
-//     });
-
-//     // wait for ldk response in seperate thread.
-//     // then post to isolate.
-//     rt.spawn(async move {
-//         let isolate = Isolate::new(isolate_port);
-//         let ffi_receiver = receiver!(ffi);
-
-//         let res = ffi_receiver.recv().unwrap();
-
-//         isolate.post(res);
-//     });
-
-//     1
-// }
 
 
 /// my tests.
