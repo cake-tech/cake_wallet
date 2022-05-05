@@ -39,6 +39,8 @@ class _MyAppState extends State<MyApp> {
     // setup pointer for isolate communication.
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
+    await CwLdk.showLogs();
+
     await CwLdk.clear();
 
     final startLDK = await CwLdk.startLDK(
@@ -49,29 +51,33 @@ class _MyAppState extends State<MyApp> {
         "0.0.0.0",
         _mnomonicKeyPhrase);
 
-    final res1 = await CwLdk.sendMessage("hello world 1");
-    final nodeinfo = await CwLdk.nodeInfo();
-    // final connectPeer = CwLdk.connectPeer(
-    //     "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
-    // final res5 = CwLdk.sendMessage("test");
-
-    print(res1);
-    print(nodeinfo);
-    // print(connectPeer);
-    // print(res5);
-
     if (!mounted) return;
 
     setState(() {
       _platformVersion = platformVersion;
       _startLDK = startLDK;
-      // _testBlocking = testBlocking;
     });
   }
 
   /// Show logs to LDK.
-  void showLogs() {
-    CwLdk.showLogs();
+  void showLogs() async {
+    await CwLdk.showLogs();
+  }
+
+  void sendMessage() async {
+    final res = await CwLdk.sendMessage("hello world");
+    print(res);
+  }
+
+  void nodeInfo() async {
+    final res = await CwLdk.nodeInfo();
+    print(res);
+  }
+
+  void connectToPeer() async {
+    var res = await CwLdk.connectPeer(
+        "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
+    print(res);
   }
 
   @override
@@ -88,6 +94,11 @@ class _MyAppState extends State<MyApp> {
                 Text('Running on: $_platformVersion\n'),
                 Text('startLDK: $_startLDK'),
                 ElevatedButton(onPressed: showLogs, child: Text("logs")),
+                ElevatedButton(
+                    onPressed: sendMessage, child: Text("sendMessage")),
+                ElevatedButton(onPressed: nodeInfo, child: Text("nodeinfo")),
+                ElevatedButton(
+                    onPressed: connectToPeer, child: Text("connectToPeer")),
                 ElevatedButton(onPressed: () {}, child: Text("Create Channel")),
                 ElevatedButton(onPressed: () {}, child: Text("Create Invoice")),
                 ElevatedButton(onPressed: () {}, child: Text("Pay Invoice")),

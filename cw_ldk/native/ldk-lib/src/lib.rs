@@ -429,7 +429,7 @@ pub async fn start_ldk(
 	let logger = Arc::new(FilesystemLogger::new(ldk_data_dir.clone()));
 
     callback("Step 2: Initialize the Logger");
-	log_trace!(logger, "...testing log_trace");
+	// log_trace!(logger, "...testing log_trace");
 	// lightning::util::log_trace!(logger, "Latest block {} at height {} removed via block_disconnected", header.block_hash(), height);
 
 	// Step 3: Initialize the BroadcasterInterface
@@ -829,13 +829,15 @@ pub async fn start_ldk(
 
 	let _ffi_sender = ffi_sender.clone();
 	let _ldk_receiver = ldk_receiver.clone();
+	let _logger = logger.clone();
 	tokio::spawn(async move {
 
 		flutter_ffi::get_messages_from_channel(
 			_ffi_sender.clone(), 
 			_ldk_receiver.clone(),
 			Arc::clone(&channel_manager),
-			Arc::clone(&peer_manager)
+			Arc::clone(&peer_manager),
+			_logger
 			).await;
 
 		// Disconnect our peers and stop accepting new connections. This ensures we don't continue

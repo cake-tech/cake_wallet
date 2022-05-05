@@ -3,6 +3,9 @@ use std::sync::Arc;
 use std::net::{IpAddr, SocketAddr, ToSocketAddrs};
 
 use bitcoin::secp256k1::key::PublicKey;
+use crate::disk::FilesystemLogger;
+use lightning::util::logger::Logger;
+use lightning::{log_bytes, log_given_level, log_internal, log_trace};
 
 use crate::hex_utils;
 use crate::{
@@ -58,14 +61,18 @@ pub(crate) fn parse_peer_info(
 }
 
 pub(crate) async fn connect_peer_if_necessary(
-	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>,
+	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, logger: Arc<FilesystemLogger>
 ) -> Result<(), ()> {
+	log_trace!(logger, "...connectpeer check if peer is already setup.");
 	for node_pubkey in peer_manager.get_peer_node_ids() {
 		if node_pubkey == pubkey {
+			log_trace!(logger, "...connect_peer_if_necessary: peer was found");
 			return Ok(());
 		}
 	}
-	let res = do_connect_peer(pubkey, peer_addr, peer_manager).await;
+
+	log_trace!(logger, "...connectpeer setup a connection");
+	let res = do_connect_peer(pubkey, peer_addr, peer_manager, logger.clone()).await;
 	if res.is_err() {
 		println!("ERROR: failed to connect to peer");
 	}
@@ -73,13 +80,16 @@ pub(crate) async fn connect_peer_if_necessary(
 }
 
 pub(crate) async fn do_connect_peer(
-	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>,
+	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, logger: Arc<FilesystemLogger>
 ) -> Result<(), ()> {
+	log_trace!(logger, "...do_connect_peer connect_outbound");
 	match lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await
 	{
 		Some(connection_closed_future) => {
+			log_trace!(logger, "...do_connect_peer connection_close_future");
 			let mut connection_closed_future = Box::pin(connection_closed_future);
 			loop {
+				log_trace!(logger, "...do_connect_peer looping");
 				match futures::poll!(&mut connection_closed_future) {
 					std::task::Poll::Ready(_) => {
 						return Err(());
@@ -87,6 +97,7 @@ pub(crate) async fn do_connect_peer(
 					std::task::Poll::Pending => {}
 				}
 				// Avoid blocking the tokio context by sleeping a bit
+				log_trace!(logger, "...do_connect_peer Avoid blocking the tokio context by sleeping a bit");
 				match peer_manager.get_peer_node_ids().iter().find(|id| **id == pubkey) {
 					Some(_) => return Ok(()),
 					None => tokio::time::sleep(Duration::from_millis(10)).await,
@@ -103,10 +114,13 @@ pub(crate) async fn get_messages_from_channel(
 	sender: tokio::sync::mpsc::Sender<Message>, 
 	receiver: Arc<tokio::sync::Mutex<tokio::sync::mpsc::Receiver<Message>>>,
 	channel_manager: Arc<ChannelManager>,
-	peer_manager: Arc<PeerManager> 
+	peer_manager: Arc<PeerManager>,
+	logger: Arc<FilesystemLogger> 
 ) {
 
 	while let Some(Message::Request(msg)) = receiver.lock().await.recv().await {
+
+		log_trace!(logger, "...message: {}", msg);
 
 		let mut words = msg.split_whitespace();
 
@@ -124,6 +138,8 @@ pub(crate) async fn get_messages_from_channel(
 						continue;
 					}
 
+					log_trace!(logger, "...connectpeer: {}", peer_pubkey_and_ip_addr.unwrap());
+
 					let (pubkey, peer_addr) =
 						match parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
 							Ok(info) => info,
@@ -133,7 +149,9 @@ pub(crate) async fn get_messages_from_channel(
 							}
 						};
 
-					if connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone())
+					log_trace!(logger, "...connectpeer: {} {}", pubkey, peer_addr);
+
+					if connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), logger.clone())
 						.await
 						.is_ok()
 					{
