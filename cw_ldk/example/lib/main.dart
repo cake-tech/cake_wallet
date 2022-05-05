@@ -43,7 +43,6 @@ class _MyAppState extends State<MyApp> {
     await CwLdk.showLogs();
     await CwLdk.deleteFolder(".ldk/logs");
     await CwLdk.deleteFolder(".ldk");
-    await CwLdk.listFilesInFolder(".ldk");
 
     final startLDK = await CwLdk.startLDK(
         "polaruser:polarpass@192.168.0.8:18443",

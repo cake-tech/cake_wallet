@@ -145,54 +145,15 @@ pub(crate) async fn get_messages_from_channel(
 
 				},
 				msg => {
-					sender.send(Message::Success(format!("message received: {}", msg))).await.unwrap();
+					let mut res = String::new();
+					res.push_str(msg);
+					for w in words {
+						res.push_str(format!(" {}",w).as_str());
+					}
+					sender.send(Message::Success(format!("message received: {}", res))).await.unwrap();
 				},
 			}
 		}
 	}
-
 		
-	// for msg in recv {
-
-	// 	let mut words = msg.split_whitespace();
-	// 	if let Some(word) = words.next() {
-	// 		match word {
-	// 			"exit" => {
-	// 				break;
-	// 			},
-	// 			"nodeinfo" => {
-	// 				let res = node_info(&channel_manager, &peer_manager);
-	// 				sender.send(res).unwrap();
-	// 			},
-	// 			"connectpeer" => {
-	// 				let peer_pubkey_and_ip_addr = words.next();
-	// 				if peer_pubkey_and_ip_addr.is_none() {
-	// 					sender.send("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string()).unwrap();
-	// 					continue;
-	// 				}
-
-	// 				let (pubkey, peer_addr) =
-	// 					match parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
-	// 						Ok(info) => info,
-	// 						Err(e) => {
-	// 							println!("{:?}", e.into_inner().unwrap());
-	// 							continue;
-	// 						}
-	// 					};
-					
-					
-	// 				if connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone())
-	// 					.await
-	// 					.is_ok()
-	// 				{
-	// 					// sender.send(format!("SUCCESS: connected to peer {}", pubkey)).unwrap();
-	// 				}
-
-	// 			}
-	// 			msg => {
-	// 				sender.send(format!("message received: {}", msg)).unwrap();
-	// 			}
-	// 		}
-	// 	}
-	// };
 }
