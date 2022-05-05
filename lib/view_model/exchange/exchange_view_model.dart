@@ -294,7 +294,7 @@ abstract class ExchangeViewModelBase with Store {
       ),
     );
     
-  results.sort((a, b) => (b['rate'] as double).compareTo(a['rate'] as double));
+  results.sort((b, a) => (b['rate'] as double).compareTo(a['rate'] as double));
 
     final providersInRange = results.where((element) => _filterProvider(element)).toList();
     
