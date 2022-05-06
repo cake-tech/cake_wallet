@@ -294,7 +294,7 @@ abstract class ExchangeViewModelBase with Store {
       ),
     );
     
-  results.sort((b, a) => (b['rate'] as double).compareTo(a['rate'] as double));
+  results.sort((a, b) => (b['rate'] as double).compareTo(a['rate'] as double));
 
     final providersInRange = results.where((element) => _filterProvider(element)).toList();
     
@@ -535,17 +535,11 @@ abstract class ExchangeViewModelBase with Store {
 
   bool _filterProvider(Map<String, dynamic> result){
     final limit = result['limit'] as Limits;
-    final _provider = result['provider'] as ExchangeProvider;
     final amount =  isReverse ? receiveAmount : depositAmount;
     final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
     if(limit == null) return false;
-    if(_amount >= limit.min ){
-       if(_provider is ChangeNowExchangeProvider && _amount >= limit.min){
-         return true;
-       } else if(_amount <= limit.max){
-         return true;
-       } 
-    } 
+    if(_amount >= limit.min && limit.max == null) return true;
+    if(_amount >= limit.min && _amount <= limit.max) return true; 
     return false;
   }
 

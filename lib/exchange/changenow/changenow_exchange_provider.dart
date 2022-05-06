@@ -12,7 +12,6 @@ import 'package:cake_wallet/exchange/trade_request.dart';
 import 'package:cake_wallet/exchange/trade_state.dart';
 import 'package:cake_wallet/exchange/changenow/changenow_request.dart';
 import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/trade_not_created_exeption.dart';
 
 class ChangeNowExchangeProvider extends ExchangeProvider {
   ChangeNowExchangeProvider()
