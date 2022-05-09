@@ -74,7 +74,7 @@ class _MyAppState extends State<MyApp> {
 
   void sendMessage(BuildContext context) async {
     final res = await CwLdk.sendMessage("hello world");
-    print(res);
+
     await showDialog<void>(
       context: context,
       builder: (_) => AlertDialog(
@@ -121,7 +121,7 @@ class _MyAppState extends State<MyApp> {
     );
   }
 
-  void testIsolate(){
+  void testIsolate() {
     CwLdk.testIsolate();
   }
 

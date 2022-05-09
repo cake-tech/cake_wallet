@@ -832,12 +832,67 @@ pub async fn start_ldk(
 
 	while let Some(message) = ldk_receiver.lock().await.recv().await {
 
-		if let Message::Request(msg) = message {
-			ffi_sender.send(Message::Success(msg)).await.unwrap();
-		}
-		else {
-			ffi_sender.send(Message::Error("huuuu".to_string())).await.unwrap();
-		}
+		match message {
+			Message::Request(msg) => {
+				callback(format!("Request to ldk: {}", msg).as_str());
+
+				let mut words = msg.split_whitespace();
+
+				let res:String;
+				if let Some(word) = words.next() {
+					match word {
+						"nodeinfo" => {
+							res = flutter_ffi::node_info(&channel_manager, &peer_manager);
+						},
+						"connectpeer" => {
+							let peer_pubkey_and_ip_addr = words.next();
+							if peer_pubkey_and_ip_addr.is_none() {
+								ffi_sender.send(Message::Error("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string())).await.unwrap();
+								continue;
+							}
+
+							let (pubkey, peer_addr) =
+								match flutter_ffi::parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
+									Ok(info) => info,
+									Err(e) => {
+										println!("{:?}", e.into_inner().unwrap());
+										continue;
+									}
+								};
+
+							if cli::connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone())
+								.await
+								.is_ok()
+							{
+								res = format!("SUCCESS: connected to peer {}", pubkey);
+							}
+							else {
+								res = format!("couldn't connect to peer :(");
+							}
+						},
+						_ => {
+							res = msg.clone(); 
+						}
+					}
+				}
+				else {
+					res = "could not parse message".to_string();
+				}
+
+				callback(res.as_str());
+				ffi_sender.send(Message::Success(res)).await.unwrap();
+			},
+			_ => {
+				ffi_sender.send(Message::Error("LDK should only accepts requests".to_string())).await.unwrap();
+			}
+		};
+		// if let Message::Request(msg) = message {
+		// 	callback(format!("callback: {}", msg).as_str());
+		// 	ffi_sender.send(Message::Success(msg)).await.unwrap();
+		// }
+		// else {
+		// 	ffi_sender.send(Message::Error("huuuu".to_string())).await.unwrap();
+		// }
 	}
 
 	//---- run this on a isolate.

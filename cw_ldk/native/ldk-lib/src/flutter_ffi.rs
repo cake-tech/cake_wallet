@@ -14,7 +14,7 @@ use crate::{
 	Message
 };
 
-fn node_info(channel_manager: &Arc<ChannelManager>, peer_manager: &Arc<PeerManager>) -> String {
+pub(crate) fn node_info(channel_manager: &Arc<ChannelManager>, peer_manager: &Arc<PeerManager>) -> String {
 	let mut res: String = String::new();
 	res.push_str(format!("\t{{").as_str());
 	res.push_str(format!("\t\t node_pubkey: {}", channel_manager.get_our_node_id()).as_str());

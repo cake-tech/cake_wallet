@@ -142,7 +142,7 @@ pub extern "C" fn start_ldk(
     // };
 
     let rt = runtime!(); 
-    let ffi_receiver = receiver!(ffi);
+    // let ffi_receiver = receiver!(ffi);
 
     let success = Arc::new(tokio::sync::Mutex::new(String::new()));
     let _success = success.clone();
@@ -165,12 +165,13 @@ pub extern "C" fn start_ldk(
             }
         })).await;
 
-        if let Some(ldk_lib::Message::Success(res)) = ffi_receiver.lock().await.recv().await {
-            return res;
-        }
-        else {
-            return "error with ldk".to_string();
-        }
+        // if let Some(ldk_lib::Message::Success(res)) = ffi_receiver.lock().await.recv().await {
+        //     return res;
+        // }
+        // else {
+        //     return "error with ldk".to_string();
+        // }
+        return "LDK exited".to_string();
     });
 
     CString::new(res).unwrap().into_raw()
