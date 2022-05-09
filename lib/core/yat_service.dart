@@ -41,7 +41,7 @@ class YatService {
       // Favour a subaddress over a standard address.
       final yatRecord = results[MONERO_SUB_ADDRESS] ?? results[MONERO_STD_ADDRESS];
       if (yatRecord != null) {
-        yatRecords.add(YatRecord.fromJson(value as Map<String, dynamic>))
+        yatRecords.add(YatRecord.fromJson(yatRecord as Map<String, dynamic>))
       }
 
       return yatRecords;
