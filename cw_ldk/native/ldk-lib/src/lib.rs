@@ -339,10 +339,13 @@ async fn handle_ldk_events(
 #[derive(Debug)]
 pub enum Message {
 	Request(String),
-	Log(String),
 	Error(String),
 	Success(String)
 }
+
+
+use lightning::util::events::EventHandler;
+
 
 pub async fn start_ldk(
     rpc_info: String,
@@ -827,29 +830,45 @@ pub async fn start_ldk(
 
     callback("TODO: Start the CLI.");
 
-	let _ffi_sender = ffi_sender.clone();
-	let _ldk_receiver = ldk_receiver.clone();
-	let _logger = logger.clone();
-	tokio::spawn(async move {
+	while let Some(message) = ldk_receiver.lock().await.recv().await {
 
-		flutter_ffi::get_messages_from_channel(
-			_ffi_sender.clone(), 
-			_ldk_receiver.clone(),
-			Arc::clone(&channel_manager),
-			Arc::clone(&peer_manager),
-			_logger
-			).await;
+		if let Message::Request(msg) = message {
+			ffi_sender.send(Message::Success(msg)).await.unwrap();
+		}
+		else {
+			ffi_sender.send(Message::Error("huuuu".to_string())).await.unwrap();
+		}
+	}
 
-		// Disconnect our peers and stop accepting new connections. This ensures we don't continue
-		// updating our channel data after we've stopped the background processor.
-		stop_listen_connect.store(true, Ordering::Release);
-		peer_manager.disconnect_all_peers();
+	//---- run this on a isolate.
+	
+	// let _ffi_sender = ffi_sender.clone();
+	// let _ldk_receiver = ldk_receiver.clone();
+	// let _logger = logger.clone();
+	// tokio::spawn(async move {
 
-		//Stop the background processor.
-		background_processor.stop().unwrap();
+	// 	// flutter_ffi::get_messages_from_channel(
+	// 	// 	_ffi_sender.clone(), 
+	// 	// 	_ldk_receiver.clone(),
+	// 	// 	Arc::clone(&invoice_payer),
+	// 	// 	Arc::clone(&channel_manager),
+	// 	// 	Arc::clone(&peer_manager),
+	// 	// 	_logger.clone()
+	// 	// 	).await;
+
+	// 	log_trace!(_logger, "disconnect peers and stop accepting new connections.");
+	// 	// Disconnect our peers and stop accepting new connections. This ensures we don't continue
+	// 	// updating our channel data after we've stopped the background processor.
+	// 	stop_listen_connect.store(true, Ordering::Release);
+	// 	peer_manager.disconnect_all_peers();
+
+	// 	log_trace!(_logger, "stop the background processor");
+	// 	//Stop the background processor.
+	// 	background_processor.stop().unwrap();
 		
-		_ffi_sender.send(Message::Error("exiting from ldk".to_string())).await.unwrap();
-	});
+	// 	log_trace!(_logger, "ldk is shutdown");
+	// 	// _ffi_sender.send(Message::Error("exiting from ldk".to_string())).await.unwrap();
+	// });
 
 	ffi_sender.send(Message::Success("finished setting up start_ldk".to_string())).await.unwrap();
 }

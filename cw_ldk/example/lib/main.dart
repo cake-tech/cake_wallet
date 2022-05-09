@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:cw_ldk/cw_ldk.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MaterialApp(home: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
     // setup pointer for isolate communication.
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
-    await CwLdk.showLogs();
+    // await CwLdk.showLogs();
 
     await CwLdk.clear();
 
@@ -60,24 +60,69 @@ class _MyAppState extends State<MyApp> {
   }
 
   /// Show logs to LDK.
-  void showLogs() async {
-    await CwLdk.showLogs();
+  void showLogs(BuildContext context) async {
+    final res = await CwLdk.showLogs();
+    print(res);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("logs"),
+        content: SingleChildScrollView(child: Text(res)),
+      ),
+    );
   }
 
-  void sendMessage() async {
+  void sendMessage(BuildContext context) async {
     final res = await CwLdk.sendMessage("hello world");
     print(res);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("sendMessage"),
+        content: Text(res),
+      ),
+    );
   }
 
-  void nodeInfo() async {
+  void nodeInfo(BuildContext context) async {
     final res = await CwLdk.nodeInfo();
     print(res);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("nodeInfo"),
+        content: Text(res),
+      ),
+    );
   }
 
-  void connectToPeer() async {
-    var res = await CwLdk.connectPeer(
+  void connectToPeer(BuildContext context) async {
+    final res = await CwLdk.connectPeer(
         "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
     print(res);
+    await showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("nodeInfo"),
+        content: Text(res),
+      ),
+    );
+  }
+
+  void showError(BuildContext context) {
+    final res = CwLdk.showError();
+    print(res);
+    showDialog<void>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text("nodeInfo"),
+        content: Text(res),
+      ),
+    );
+  }
+
+  void testIsolate(){
+    CwLdk.testIsolate();
   }
 
   @override
@@ -93,15 +138,35 @@ class _MyAppState extends State<MyApp> {
               children: [
                 Text('Running on: $_platformVersion\n'),
                 Text('startLDK: $_startLDK'),
-                ElevatedButton(onPressed: showLogs, child: Text("logs")),
                 ElevatedButton(
-                    onPressed: sendMessage, child: Text("sendMessage")),
-                ElevatedButton(onPressed: nodeInfo, child: Text("nodeinfo")),
+                    onPressed: () {
+                      showLogs(context);
+                    },
+                    child: Text("logs")),
                 ElevatedButton(
-                    onPressed: connectToPeer, child: Text("connectToPeer")),
+                    onPressed: () {
+                      sendMessage(context);
+                    },
+                    child: Text("sendMessage")),
+                ElevatedButton(
+                    onPressed: () {
+                      nodeInfo(context);
+                    },
+                    child: Text("nodeinfo")),
+                ElevatedButton(
+                    onPressed: () {
+                      connectToPeer(context);
+                    },
+                    child: Text("connectToPeer")),
+                ElevatedButton(
+                    onPressed: () {
+                      showError(context);
+                    },
+                    child: Text("Show Error")),
                 ElevatedButton(onPressed: () {}, child: Text("Create Channel")),
                 ElevatedButton(onPressed: () {}, child: Text("Create Invoice")),
                 ElevatedButton(onPressed: () {}, child: Text("Pay Invoice")),
+                ElevatedButton(onPressed: testIsolate, child: Text("Isolate")),
               ],
             ),
           ),

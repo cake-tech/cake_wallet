@@ -63,15 +63,14 @@ pub(crate) fn parse_peer_info(
 pub(crate) async fn connect_peer_if_necessary(
 	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, logger: Arc<FilesystemLogger>
 ) -> Result<(), ()> {
-	log_trace!(logger, "...connectpeer check if peer is already setup.");
+
 	for node_pubkey in peer_manager.get_peer_node_ids() {
 		if node_pubkey == pubkey {
-			log_trace!(logger, "...connect_peer_if_necessary: peer was found");
+			log_trace!(logger, "connect_peer_if_necessary: peer_found");
 			return Ok(());
 		}
 	}
 
-	log_trace!(logger, "...connectpeer setup a connection");
 	let res = do_connect_peer(pubkey, peer_addr, peer_manager, logger.clone()).await;
 	if res.is_err() {
 		println!("ERROR: failed to connect to peer");
@@ -82,30 +81,44 @@ pub(crate) async fn connect_peer_if_necessary(
 pub(crate) async fn do_connect_peer(
 	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, logger: Arc<FilesystemLogger>
 ) -> Result<(), ()> {
-	log_trace!(logger, "...do_connect_peer connect_outbound");
-	match lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await
-	{
+	log_trace!(logger, "inside do_connect_peer");
+	let test = lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await;
+	match test {
 		Some(connection_closed_future) => {
-			log_trace!(logger, "...do_connect_peer connection_close_future");
-			let mut connection_closed_future = Box::pin(connection_closed_future);
-			loop {
-				log_trace!(logger, "...do_connect_peer looping");
-				match futures::poll!(&mut connection_closed_future) {
-					std::task::Poll::Ready(_) => {
-						return Err(());
-					}
-					std::task::Poll::Pending => {}
-				}
-				// Avoid blocking the tokio context by sleeping a bit
-				log_trace!(logger, "...do_connect_peer Avoid blocking the tokio context by sleeping a bit");
-				match peer_manager.get_peer_node_ids().iter().find(|id| **id == pubkey) {
-					Some(_) => return Ok(()),
-					None => tokio::time::sleep(Duration::from_millis(10)).await,
-				}
-			}
+			log_trace!(logger, "connect_outbound worked!!!");
+			return Ok(());
+		},
+		None => {
+			log_trace!(logger, "connect_outbound failed!!!");
+			return Err(());
 		}
-		None => Err(()),
-	}
+	};
+
+	
+	// match lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await
+	// {
+	// 	Some(connection_closed_future) => {
+	// 		log_trace!(logger, "...do_connect_peer connection_close_future");
+	// 		let mut connection_closed_future = Box::pin(connection_closed_future);
+	// 		loop {
+	// 			log_trace!(logger, "...do_connect_peer looping");
+	// 			match futures::poll!(&mut connection_closed_future) {
+	// 				std::task::Poll::Ready(_) => {
+	// 					return Err(());
+	// 				}
+	// 				std::task::Poll::Pending => {}
+	// 			}
+	// 			// Avoid blocking the tokio context by sleeping a bit
+	// 			log_trace!(logger, "...do_connect_peer Avoid blocking the tokio context by sleeping a bit");
+	// 			match peer_manager.get_peer_node_ids().iter().find(|id| **id == pubkey) {
+	// 				Some(_) => return Ok(()),
+	// 				None => tokio::time::sleep(Duration::from_millis(10)).await,
+	// 			}
+	// 		}
+	// 	}
+	// 	None => Err(()),
+	// }
+	// Ok(())
 }
 
 #[allow(dead_code)]
@@ -118,58 +131,56 @@ pub(crate) async fn get_messages_from_channel(
 	logger: Arc<FilesystemLogger> 
 ) {
 
-	while let Some(Message::Request(msg)) = receiver.lock().await.recv().await {
+	while let Some(message) = receiver.lock().await.recv().await {
 
-		log_trace!(logger, "...message: {}", msg);
+		if let Message::Request(msg) = message {
 
-		let mut words = msg.split_whitespace();
+			log_trace!(logger, "get_message_from_channel message: {}", msg);
 
-		if let Some(word) = words.next() {
-			match word {
-				"nodeinfo" => {
-					let res = node_info(&channel_manager, &peer_manager);
-					sender.send(Message::Success(res)).await.unwrap();
-				},
-				"connectpeer" => {
+			let mut words = msg.split_whitespace();
 
-					let peer_pubkey_and_ip_addr = words.next();
-					if peer_pubkey_and_ip_addr.is_none() {
-						sender.send(Message::Error("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string())).await.unwrap();
-						continue;
-					}
+			if let Some(word) = words.next() {
+				match word {
+					"nodeinfo" => {
+						let res = node_info(&channel_manager, &peer_manager);
+						sender.send(Message::Success(res)).await.unwrap();
+					},
+					"connectpeer" => {
+						let peer_pubkey_and_ip_addr = words.next();
+						if peer_pubkey_and_ip_addr.is_none() {
+							sender.send(Message::Error("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string())).await.unwrap();
+							continue;
+						}
 
-					log_trace!(logger, "...connectpeer: {}", peer_pubkey_and_ip_addr.unwrap());
+						let (pubkey, peer_addr) =
+							match parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
+								Ok(info) => info,
+								Err(e) => {
+									sender.send(Message::Error(format!("{:?}", e.into_inner().unwrap()))).await.unwrap();
+									continue;
+								}
+							};
 
-					let (pubkey, peer_addr) =
-						match parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
-							Ok(info) => info,
-							Err(e) => {
-								sender.send(Message::Error(format!("{:?}", e.into_inner().unwrap()))).await.unwrap();
-								continue;
-							}
-						};
+						if connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), logger.clone())
+							.await
+							.is_ok()
+						{
+							sender.send(Message::Success(format!("SUCCESS: connected to peer {}", pubkey))).await.unwrap();
+						}
+						else {
+							sender.send(Message::Error("there was a problem connecting to peer".to_string())).await.unwrap();
+						}
 
-					log_trace!(logger, "...connectpeer: {} {}", pubkey, peer_addr);
-
-					if connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), logger.clone())
-						.await
-						.is_ok()
-					{
-						sender.send(Message::Success(format!("SUCCESS: connected to peer {}", pubkey))).await.unwrap();
-					}
-					else {
-						sender.send(Message::Error("there was a problem connecting to peer".to_string())).await.unwrap();
-					}
-
-				},
-				msg => {
-					let mut res = String::new();
-					res.push_str(msg);
-					for w in words {
-						res.push_str(format!(" {}",w).as_str());
-					}
-					sender.send(Message::Success(format!("message received: {}", res))).await.unwrap();
-				},
+					},
+					msg => {
+						let mut res = String::new();
+						res.push_str(msg);
+						for w in words {
+							res.push_str(format!(" {}",w).as_str());
+						}
+						sender.send(Message::Success(format!("message received: {}", res))).await.unwrap();
+					},
+				}
 			}
 		}
 	}

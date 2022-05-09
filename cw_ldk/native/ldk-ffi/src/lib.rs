@@ -23,9 +23,9 @@ use allo_isolate::Isolate;
 // Create runtime for tokio in the static scope 
 lazy_static! {
     static ref RUNTIME: io::Result<Runtime> = Builder::new_multi_thread()
-        .worker_threads(4)
+        .worker_threads(3)
         .thread_name("flutterrust")
-        .thread_stack_size(3 * 1024 * 1024)
+        .thread_stack_size(8 * 1024 * 1024)
         .build();
 }
 
@@ -191,12 +191,17 @@ pub extern "C" fn send_message(
 
         sender.send(ldk_lib::Message::Request(_msg)).await.unwrap();
 
-        if let Some(ldk_lib::Message::Success(res)) = receiver.lock().await.recv().await {
-            isolate.post(res);
+        match receiver.lock().await.recv().await.unwrap() {
+            ldk_lib::Message::Success(res) => isolate.post(res),
+            ldk_lib::Message::Error(res) => isolate.post(res),
+            _ => isolate.post("problem with sending message to ldk")
         }
-        else {
-            isolate.post("problem with ldk".to_string());
-        }
+        // if let Some(ldk_lib::Message::Success(res)) = receiver.lock().await.recv().await {
+        //     isolate.post(res);
+        // }
+        // else {
+        //     isolate.post("problem with ldk".to_string());
+        // }
     });
     
     1

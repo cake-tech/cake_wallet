@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:isolate/ports.dart';
 import 'ffi.dart' as native;
@@ -10,13 +11,32 @@ import 'package:path_provider/path_provider.dart';
 // function pointer type for wrappedPrint function
 typedef _print_C = Void Function(Pointer<Utf8>);
 
+class StartLDKParams {
+  StartLDKParams(this.rpcInfo, this.path, this.port, this.network,
+      this.nodeName, this.address, this.mnemonicKeyPhrase);
+
+  String rpcInfo;
+
+  String path;
+
+  int port;
+
+  String network;
+
+  String nodeName;
+
+  String address;
+
+  String mnemonicKeyPhrase;
+}
+
 /// This Class is for initializing and communicating with the LDK.
 class CwLdk {
   // remove for later
   static const MethodChannel _channel = const MethodChannel('cw_ldk');
 
   // keeps track if ldk is running
-  static bool ldkIsRunning = false;
+  static bool ldkIsRunning = true;
 
   // remove for later
   static Future<String> get platformVersion async {
@@ -93,15 +113,33 @@ class CwLdk {
   }
 
   /// Show logs for ldk.
-  static Future<void> showLogs() async {
+  static Future<String> showLogs() async {
     final logs = await readFile(".ldk/logs/logs.txt");
-    print(logs);
+    return logs;
   }
 
   /// Used by LDK for printing to the console.
   static void wrappedPrint(Pointer<Utf8> arg) {
     final res = arg.toDartString();
     print(res);
+  }
+
+  static void __startLDKIsolate(StartLDKParams params) async {
+    final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
+    final _res = native.start_ldk(
+        params.rpcInfo.toNativeUtf8(),
+        params.path.toNativeUtf8(),
+        params.port,
+        params.network.toNativeUtf8(),
+        params.nodeName.toNativeUtf8(),
+        params.address.toNativeUtf8(),
+        params.mnemonicKeyPhrase.toNativeUtf8(),
+        wrappedPrintPointer);
+
+    // final res = _res.toDartString();
+    // ldkIsRunning = true;
+    // calloc.free(_res);
+    // return res;
   }
 
   /// Starts the LDK.
@@ -114,22 +152,12 @@ class CwLdk {
   static Future<String> startLDK(String rpcInfo, int port, String network,
       String nodeName, String address, String mnemonicKeyPhrase) async {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
-    final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
+    await compute<StartLDKParams, void>(
+        __startLDKIsolate,
+        StartLDKParams(rpcInfo, appDocDir.path, port, network, nodeName,
+            address, mnemonicKeyPhrase));
 
-    final _res = native.start_ldk(
-        rpcInfo.toNativeUtf8(),
-        appDocDir.path.toNativeUtf8(),
-        port,
-        network.toNativeUtf8(),
-        nodeName.toNativeUtf8(),
-        address.toNativeUtf8(),
-        mnemonicKeyPhrase.toNativeUtf8(),
-        wrappedPrintPointer);
-
-    final res = _res.toDartString();
-    ldkIsRunning = true;
-    calloc.free(_res);
-    return res;
+    return "isolate done";
   }
 
   /// Send message to LDK
@@ -218,6 +246,19 @@ class CwLdk {
     native.store_dart_post_cobject(ptr);
   }
 
+  static String showError() {
+    final length = native.last_error_length();
+    if (length > 0) {
+      final Pointer<Utf8> message = calloc.allocate(length);
+      native.error_message_utf8(message, length);
+      final error = message.toDartString();
+      print(error);
+      return error;
+    } else {
+      return "no errors";
+    }
+  }
+
   static void _throwError() {
     final length = native.last_error_length();
     final Pointer<Utf8> message = calloc.allocate(length);
@@ -225,5 +266,14 @@ class CwLdk {
     final error = message.toDartString();
     print(error);
     throw Exception(error);
+  }
+
+  static void __testIsolate(String msg) {
+    print(msg);
+  }
+
+  // for testing isolates
+  static void testIsolate() async {
+    await compute<String, void>(__testIsolate, "hello isolate");
   }
 }
