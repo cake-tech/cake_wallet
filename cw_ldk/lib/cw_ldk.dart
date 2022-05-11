@@ -152,7 +152,7 @@ class CwLdk {
   static Future<String> startLDK(String rpcInfo, int port, String network,
       String nodeName, String address, String mnemonicKeyPhrase) async {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
-    await compute<StartLDKParams, void>(
+    compute<StartLDKParams, void>(
         __startLDKIsolate,
         StartLDKParams(rpcInfo, appDocDir.path, port, network, nodeName,
             address, mnemonicKeyPhrase));
