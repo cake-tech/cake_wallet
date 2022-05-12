@@ -39,8 +39,8 @@ class _CreateInvoiceState extends State<CreateInvoicePage> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamed("/pay_invoice/show_qr_code",
-                      arguments: bolt11);
+                  Navigator.of(context)
+                      .pushNamed("/invoice/show_qr_code", arguments: bolt11);
                 },
                 child: Text("Show QR Code"),
               ),

@@ -97,6 +97,8 @@ class _MyAppState extends State<HomePage> {
           child: Column(
             children: [
               Text('Running on: $_platformVersion\n'),
+              Text('BTC Amount: \$\$\$'),
+              Text('LN Amount: \$\$\$\n'),
               ElevatedButton(
                   onPressed: () {
                     showLogs(context);
@@ -127,28 +129,35 @@ class _MyAppState extends State<HomePage> {
               title: Text("Create Channel"),
               leading: Icon(Icons.account_balance),
               onTap: () {
-                Navigator.of(context).pushNamed("/create_channel");
+                Navigator.of(context).pushNamed("/channel/create");
+              },
+            ),
+            ListTile(
+              title: Text("Close Channel"),
+              leading: Icon(Icons.close),
+              onTap: () {
+                Navigator.of(context).pushNamed("/channel/close");
               },
             ),
             ListTile(
               title: Text("Create Invoice"),
               leading: Icon(Icons.qr_code),
               onTap: () {
-                Navigator.of(context).pushNamed("/create_invoice");
+                Navigator.of(context).pushNamed("/invoice/create");
               },
             ),
             ListTile(
               title: Text("Pay Invoice"),
               leading: Icon(Icons.payment),
               onTap: () {
-                Navigator.of(context).pushNamed("/pay_invoice");
+                Navigator.of(context).pushNamed("/invoice/pay");
               },
             ),
             ListTile(
               title: Text("Node and Channel Info"),
               leading: Icon(Icons.account_box),
               onTap: () {
-                Navigator.of(context).pushNamed("/node_and_channel_info");
+                Navigator.of(context).pushNamed("/info");
               },
             )
           ],
