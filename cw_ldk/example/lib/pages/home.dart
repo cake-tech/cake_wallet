@@ -126,14 +126,30 @@ class _MyAppState extends State<HomePage> {
             ListTile(
               title: Text("Create Channel"),
               leading: Icon(Icons.account_balance),
+              onTap: () {
+                Navigator.of(context).pushNamed("/create_channel");
+              },
             ),
             ListTile(
               title: Text("Create Invoice"),
               leading: Icon(Icons.qr_code),
+              onTap: () {
+                Navigator.of(context).pushNamed("/create_invoice");
+              },
             ),
             ListTile(
               title: Text("Pay Invoice"),
               leading: Icon(Icons.payment),
+              onTap: () {
+                Navigator.of(context).pushNamed("/pay_invoice");
+              },
+            ),
+            ListTile(
+              title: Text("Node and Channel Info"),
+              leading: Icon(Icons.account_box),
+              onTap: () {
+                Navigator.of(context).pushNamed("/node_and_channel_info");
+              },
             )
           ],
         ),
