@@ -12,6 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _MyAppState extends State<HomePage> {
   String _platformVersion = 'Unknown';
+  // ignore: unused_field
   final _mnomonicKeyPhrase =
       "stool outside acoustic correct craft attitude scheme urge grape again chalk gas";
 
