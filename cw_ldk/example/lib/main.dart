@@ -1,4 +1,3 @@
-import 'package:cw_ldk_example/pages/channel/close.dart';
 import 'package:cw_ldk_example/pages/channel/create.dart';
 import 'package:cw_ldk_example/pages/invoice/create.dart';
 import 'package:cw_ldk_example/pages/home.dart';
@@ -16,7 +15,6 @@ class MyApp extends StatelessWidget {
       routes: {
         "/": (_) => HomePage(),
         "/channel/create": (_) => CreateChannelPage(),
-        "/channel/close": (_) => CloseChannelPage(),
         "/invoice/create": (_) => CreateInvoicePage(),
         "/invoice/pay": (_) => PayInvoicePage(),
         "/invoice/show_qr_code": (_) => ShowQRCodePage(),

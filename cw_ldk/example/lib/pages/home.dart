@@ -137,7 +137,22 @@ class _MyAppState extends State<HomePage> {
               title: Text("Close Channel"),
               leading: Icon(Icons.close),
               onTap: () {
-                Navigator.of(context).pushNamed("/channel/close");
+                // Navigator.of(context).pushNamed("/channel/close");
+                showDialog<void>(
+                  context: context,
+                  builder: (_) => AlertDialog(
+                      title: Text("Channel Created"),
+                      content: Text("You successfuly closed the channel."),
+                      actions: <Widget>[
+                        TextButton(
+                          child: const Text('Ok'),
+                          onPressed: () {
+                            final nav = Navigator.of(context);
+                            nav.pop();
+                          },
+                        )
+                      ]),
+                );
               },
             ),
             ListTile(
