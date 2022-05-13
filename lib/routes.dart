@@ -60,4 +60,10 @@ class Routes {
   static const moneroRestoreWalletFromWelcome = '/monero_restore_wallet';
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const addressPage = '/address_page';
+  static const cakePayWelcomePage = '/cake_pay_welcome_page';
+  static const cakePayCreateAccountPage = '/cake_pay_create_account_page';
+  static const cakePayLoginPage = '/cake_pay_login_page';
+  static const cakePayForgotPasswordPage = '/cake_pay_forgot_password_page';
+  static const manageCardsPage = '/manage_cards_page';
+  static const buyGiftCardPage = '/buy_gift_card_page';
 }

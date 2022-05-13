@@ -5,6 +5,12 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/cake_pay/auth/create_account_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/auth/forgot_password_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/auth/login_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'package:cake_wallet/src/screens/cake_pay/cards/buy_gift_card.dart';
+import 'package:cake_wallet/src/screens/cake_pay/cards/manage_cards_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
@@ -639,5 +645,17 @@ Future setup(
 
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
+  getIt.registerFactory(() => WelcomePage());
+
+  getIt.registerFactory(() => LoginPage());
+
+  getIt.registerFactory(() => CreateAccountPage());
+
+  getIt.registerFactory(() => ForgotPassword());
+
+  getIt.registerFactory(() => ManageCardsPage());
+
+    getIt.registerFactory(() => BuyGiftCardPage());
+
   _isSetupFinished = true;
 }
