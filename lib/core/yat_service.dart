@@ -25,23 +25,25 @@ class YatService {
   Future<List<YatRecord>> fetchYatAddress(String emojiId, String ticker) async {
     final formattedTicker = ticker.toUpperCase();
     final formattedEmojiId = emojiId.replaceAll(' ', '');
+    final tag = tags[formattedTicker];
     final uri = Uri.parse(lookupEmojiUrl(formattedEmojiId)).replace(
         queryParameters: <String, dynamic>{
-          "tags": tags[formattedTicker]
+          "tags": tag
         });
-
     final yatRecords = <YatRecord>[];
 
     try {
       final response = await get(uri);
       final resBody = json.decode(response.body) as Map<String, dynamic>;
-
       final results = resBody["result"] as Map<dynamic, dynamic>;
-   
       // Favour a subaddress over a standard address.
-      final yatRecord = results[MONERO_SUB_ADDRESS] ?? results[MONERO_STD_ADDRESS];
+      final yatRecord = (
+        results[MONERO_SUB_ADDRESS] ??
+        results[MONERO_STD_ADDRESS] ??
+        results[tag]) as Map<String, dynamic>;
+
       if (yatRecord != null) {
-        yatRecords.add(YatRecord.fromJson(yatRecord as Map<String, dynamic>))
+        yatRecords.add(YatRecord.fromJson(yatRecord));
       }
 
       return yatRecords;
