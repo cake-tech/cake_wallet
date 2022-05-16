@@ -13,37 +13,36 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     CryptoCurrency.btc,
     CryptoCurrency.ltc,
     CryptoCurrency.usdterc20,
-	CryptoCurrency.usdc,
+    CryptoCurrency.usdc,
     CryptoCurrency.ada,
-	CryptoCurrency.ape,
-	CryptoCurrency.avaxc,
+    CryptoCurrency.ape,
+    CryptoCurrency.avaxc,
     CryptoCurrency.bch,
     CryptoCurrency.bnb,
-	CryptoCurrency.btt,
-	CryptoCurrency.bttbsc,
+    CryptoCurrency.btt,
+    CryptoCurrency.bttbsc,
     CryptoCurrency.dai,
     CryptoCurrency.dash,
-	CryptoCurrency.doge,
+    CryptoCurrency.doge,
     CryptoCurrency.eos,
     CryptoCurrency.eth,
-	CryptoCurrency.firo,
-	CryptoCurrency.ftm,
-	CryptoCurrency.hbar,
-	CryptoCurrency.nano,
-	CryptoCurrency.sc,
-	CryptoCurrency.sol,
+  	CryptoCurrency.firo,
+  	CryptoCurrency.hbar,
+  	CryptoCurrency.nano,
+  	CryptoCurrency.sc,
+  	CryptoCurrency.sol,
     CryptoCurrency.trx,
-	CryptoCurrency.usdcsol,
+    CryptoCurrency.usdcsol,
     CryptoCurrency.usdt,
-	CryptoCurrency.usdttrc20,
-	CryptoCurrency.ust,
-	CryptoCurrency.xhv
+  	CryptoCurrency.usdttrc20,
+  	CryptoCurrency.ust,
+  	CryptoCurrency.xhv,
     CryptoCurrency.xlm,
     CryptoCurrency.xrp,
-	CryptoCurrency.xvg,
-	CryptoCurrency.zaddr,
-	CryptoCurrency.zec,
-	CryptoCurrency.zen,
+  	CryptoCurrency.xvg,
+  	CryptoCurrency.zaddr,
+  	CryptoCurrency.zec,
+  	CryptoCurrency.zen,
   ];
   static const xmr = CryptoCurrency(title: 'XMR', raw: 0);
   static const ada = CryptoCurrency(title: 'ADA', raw: 1);
@@ -157,40 +156,40 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xnzd;
       case 29:
         return CryptoCurrency.xusd;
-	  case 30:
-	    return CryptoCurrency.ape;
-	  case 31:
-	    return CryptoCurrency.avaxc;
-	  case 32:
-	    return CryptoCurrency.btt;
-	  case 33:
-	    return CryptoCurrency.bttbsc;
-	  case 34:
-	    return CryptoCurrency.doge;
-	  case 35:
-	    return CryptoCurrency.firo;
-	  case 36:
-	    return CryptoCurrency.usdttrc20;
-	  case 37:
-	    return CryptoCurrency.hbar;
-	  case 38:
-	    return CryptoCurrency.sc;
-	  case 39:
-	    return CryptoCurrency.sol;
-	  case 40:
-	    return CryptoCurrency.usdc;
-	  case 41:
-	    return CryptoCurrency.usdcsol;
-	  case 42:
-	    return CryptoCurrency.ust;
-	  case 43:
-	    return CryptoCurrency.zaddr;
-	  case 44:
-	    return CryptoCurrency.zec;
-	  case 45:
-	    return CryptoCurrency.zen;
-	  case 46:
-	    return CryptoCurrency.xvg;
+  	  case 30:
+  	    return CryptoCurrency.ape;
+  	  case 31:
+  	    return CryptoCurrency.avaxc;
+  	  case 32:
+  	    return CryptoCurrency.btt;
+  	  case 33:
+  	    return CryptoCurrency.bttbsc;
+  	  case 34:
+  	    return CryptoCurrency.doge;
+  	  case 35:
+  	    return CryptoCurrency.firo;
+  	  case 36:
+  	    return CryptoCurrency.usdttrc20;
+  	  case 37:
+  	    return CryptoCurrency.hbar;
+  	  case 38:
+  	    return CryptoCurrency.sc;
+  	  case 39:
+  	    return CryptoCurrency.sol;
+  	  case 40:
+  	    return CryptoCurrency.usdc;
+  	  case 41:
+  	    return CryptoCurrency.usdcsol;
+  	  case 42:
+  	    return CryptoCurrency.ust;
+  	  case 43:
+  	    return CryptoCurrency.zaddr;
+  	  case 44:
+  	    return CryptoCurrency.zec;
+  	  case 45:
+  	    return CryptoCurrency.zen;
+  	  case 46:
+  	    return CryptoCurrency.xvg;
       default:
         return null;
     }
@@ -202,9 +201,9 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xmr;
       case 'ada':
         return CryptoCurrency.ada;
-	  case 'ape':
+  	  case 'ape':
         return CryptoCurrency.ape;
-	  case 'avax':
+  	  case 'avax':
         return CryptoCurrency.avaxc;
       case 'bch':
         return CryptoCurrency.bch;
@@ -212,37 +211,37 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.bnb;
       case 'btc':
         return CryptoCurrency.btc;
-	  case 'btt':
+  	  case 'btt':
         return CryptoCurrency.btt;
-	  case 'bttbsc':
+  	  case 'bttbsc':
         return CryptoCurrency.bttbsc;
       case 'dai':
         return CryptoCurrency.dai;
       case 'dash':
         return CryptoCurrency.dash;
-	  case 'doge':
+  	  case 'doge':
         return CryptoCurrency.doge;
       case 'eos':
         return CryptoCurrency.eos;
       case 'eth':
         return CryptoCurrency.eth;
-	  case 'firo':
+  	  case 'firo':
         return CryptoCurrency.firo;
-	  case 'hbar':
+  	  case 'hbar':
         return CryptoCurrency.hbar;
       case 'ltc':
         return CryptoCurrency.ltc;
       case 'nano':
         return CryptoCurrency.nano;
-	  case 'sc':
+  	  case 'sc':
         return CryptoCurrency.sc;
-	  case 'sol':
+  	  case 'sol':
         return CryptoCurrency.sol;
       case 'trx':
         return CryptoCurrency.trx;
-	  case 'usdc':
+  	  case 'usdc':
         return CryptoCurrency.usdc;
-	  case 'usdcsol':
+  	  case 'usdcsol':
         return CryptoCurrency.usdcsol;
       case 'usdt':
         return CryptoCurrency.usdt;
@@ -250,7 +249,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.usdterc20;
       case 'usdttrc20':
         return CryptoCurrency.usdttrc20;
-	  case 'ust':
+      case 'ust':
         return CryptoCurrency.ust;
       case 'xlm':
         return CryptoCurrency.xlm;
@@ -284,13 +283,13 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xnzd;
       case 'xusd':
         return CryptoCurrency.xusd;
-	  case 'xvg':
+  	  case 'xvg':
         return CryptoCurrency.xvg;
-	  case 'zaddr':
+  	  case 'zaddr':
         return CryptoCurrency.zaddr;
-	  case 'zec':
+  	  case 'zec':
         return CryptoCurrency.zec;
-	  case 'zen':
+  	  case 'zen':
         return CryptoCurrency.zen;
       default:
         return null;
