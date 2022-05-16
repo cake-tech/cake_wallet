@@ -12,13 +12,10 @@ use std::sync::Arc;
 
 
 // packages.
-// use tokio::sync::Mutex;
 use tokio::runtime::{Builder, Runtime};
 use lazy_static::lazy_static;
 use allo_isolate::Isolate;
 
-// code in workspace.
-// use ldk_lib::cli::{ LdkUserInfo, setup_ldkuserinfo};
 
 // Create runtime for tokio in the static scope 
 lazy_static! {
@@ -48,16 +45,6 @@ lazy_static! {
 	};
 }
 
-// Get references to channels on the static scope.
-// macro_rules! channel {
-//     (ldk) => {
-// 	    (&(*LDK_CHANNEL).0, &(*LDK_CHANNEL).1)
-//     };
-//     (ffi) => {
-// 	    (&(*FFI_CHANNEL).0, &(*FFI_CHANNEL).1)
-//     };
-// }
-
 // get senders for static channels
 macro_rules! sender {
     (ldk) => {
@@ -78,6 +65,7 @@ macro_rules! receiver {
     };
 }
 
+// get error
 #[allow(unused_macros)]
 macro_rules! error {
     ($result:expr) => {
@@ -123,6 +111,7 @@ pub unsafe extern "C" fn error_message_utf8(buf: *mut c_char, length: i32) -> i3
     ffi_helpers::error_handling::error_message_utf8(buf, length)
 }
 
+/// ffi interface for starting the LDK.
 #[no_mangle]
 pub extern "C" fn start_ldk(
     rpc_info: *const c_char,
@@ -133,7 +122,7 @@ pub extern "C" fn start_ldk(
     address: *const c_char,
     mnemonic_key_phrase: *const c_char,
     func: unsafe extern "C" fn(*mut c_char)
-) -> *mut c_char  {
+) {
 
     // let callback = move |msg| {
     //     unsafe {
@@ -142,11 +131,10 @@ pub extern "C" fn start_ldk(
     // };
 
     let rt = runtime!(); 
-    // let ffi_receiver = receiver!(ffi);
 
     let success = Arc::new(tokio::sync::Mutex::new(String::new()));
     let _success = success.clone();
-    let res = rt.block_on(async move {
+    rt.block_on(async move {
         let ffi_sender = sender!(ffi);
         let ldk_receiver = receiver!(ldk);
         ldk_lib::start_ldk(
@@ -164,17 +152,7 @@ pub extern "C" fn start_ldk(
                 func(CString::new(msg).unwrap().into_raw());
             }
         })).await;
-
-        // if let Some(ldk_lib::Message::Success(res)) = ffi_receiver.lock().await.recv().await {
-        //     return res;
-        // }
-        // else {
-        //     return "error with ldk".to_string();
-        // }
-        return "LDK exited".to_string();
     });
-
-    CString::new(res).unwrap().into_raw()
 }
 
 #[no_mangle]

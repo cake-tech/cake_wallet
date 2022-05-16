@@ -14,6 +14,16 @@ use crate::{
 	Message
 };
 
+pub(crate) fn list_peers(peer_manager: Arc<PeerManager>) -> String {
+	let mut res: String = String::new();
+	res.push_str("{ \"peers\": [");
+	for pubkey in peer_manager.get_peer_node_ids() {
+		res.push_str(format!("{{ \"pubkey\": {} }},", pubkey).as_str());
+	}
+	res.push_str("]}");
+    res
+}
+
 pub(crate) fn node_info(channel_manager: &Arc<ChannelManager>, peer_manager: &Arc<PeerManager>) -> String {
 	let mut res: String = String::new();
 	res.push_str(format!("\t{{").as_str());

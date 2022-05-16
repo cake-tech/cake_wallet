@@ -56,8 +56,8 @@ typedef _send_message_Dart = int Function(
   int isolate_port,
 );
 
-/// C function `start_ldk`.
-Pointer<ffi.Utf8> start_ldk(
+/// <p class="para-brief"> ffi interface for starting the LDK.</p>
+void start_ldk(
   Pointer<ffi.Utf8> rpc_info,
   Pointer<ffi.Utf8> ldk_storage_path,
   int port,
@@ -67,10 +67,10 @@ Pointer<ffi.Utf8> start_ldk(
   Pointer<ffi.Utf8> mnemonic_key_phrase,
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
 ) {
-  return _start_ldk(rpc_info, ldk_storage_path, port, network, node_name, address, mnemonic_key_phrase, func);
+  _start_ldk(rpc_info, ldk_storage_path, port, network, node_name, address, mnemonic_key_phrase, func);
 }
 final _start_ldk_Dart _start_ldk = _dl.lookupFunction<_start_ldk_C, _start_ldk_Dart>('start_ldk');
-typedef _start_ldk_C = Pointer<ffi.Utf8> Function(
+typedef _start_ldk_C = Void Function(
   Pointer<ffi.Utf8> rpc_info,
   Pointer<ffi.Utf8> ldk_storage_path,
   Uint16 port,
@@ -80,7 +80,7 @@ typedef _start_ldk_C = Pointer<ffi.Utf8> Function(
   Pointer<ffi.Utf8> mnemonic_key_phrase,
   Pointer<NativeFunction<Void Function(Pointer<ffi.Utf8>)>> func,
 );
-typedef _start_ldk_Dart = Pointer<ffi.Utf8> Function(
+typedef _start_ldk_Dart = void Function(
   Pointer<ffi.Utf8> rpc_info,
   Pointer<ffi.Utf8> ldk_storage_path,
   int port,

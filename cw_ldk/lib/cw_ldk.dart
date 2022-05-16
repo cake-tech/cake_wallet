@@ -126,7 +126,7 @@ class CwLdk {
 
   static void __startLDKIsolate(StartLDKParams params) async {
     final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
-    final _res = native.start_ldk(
+    native.start_ldk(
         params.rpcInfo.toNativeUtf8(),
         params.path.toNativeUtf8(),
         params.port,
@@ -135,11 +135,6 @@ class CwLdk {
         params.address.toNativeUtf8(),
         params.mnemonicKeyPhrase.toNativeUtf8(),
         wrappedPrintPointer);
-
-    // final res = _res.toDartString();
-    // ldkIsRunning = true;
-    // calloc.free(_res);
-    // return res;
   }
 
   /// Starts the LDK.
@@ -149,15 +144,14 @@ class CwLdk {
   /// [address] you will be listening to, and the [mnemonicKeyPhrase] for
   /// extracting the public key and private key for assigning funds and signing
   /// transaction.
-  static Future<String> startLDK(String rpcInfo, int port, String network,
+  static Future<Void> startLDK(String rpcInfo, int port, String network,
       String nodeName, String address, String mnemonicKeyPhrase) async {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
+    // ignore: unawaited_futures
     compute<StartLDKParams, void>(
         __startLDKIsolate,
         StartLDKParams(rpcInfo, appDocDir.path, port, network, nodeName,
             address, mnemonicKeyPhrase));
-
-    return "isolate done";
   }
 
   /// Send message to LDK

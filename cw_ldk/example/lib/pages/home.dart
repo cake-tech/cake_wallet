@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
 
 class _MyAppState extends State<HomePage> {
   String _platformVersion = 'Unknown';
-  // ignore: unused_field
+
   final _mnomonicKeyPhrase =
       "stool outside acoustic correct craft attitude scheme urge grape again chalk gas";
 
@@ -35,25 +35,11 @@ class _MyAppState extends State<HomePage> {
     // setup pointer for isolate communication.
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
-    await CwLdk.clear();
+    // await CwLdk.clear();
 
-    // final startLDK = await CwLdk.startLDK(
-    //     "polaruser:polarpass@192.168.0.12:18443",
-    //     9732,
-    //     "regtest",
-    //     "hellolightning",
-    //     "0.0.0.0",
-    //     _mnomonicKeyPhrase);
-
-    // final logs = await CwLdk.showLogs();
-    // print(logs);
-
-    // final nodeInfo = await CwLdk.nodeInfo();
-    // print(nodeInfo);
-
-    // final res = await CwLdk.connectPeer(
-    //     "03231a0d3d72bc70465e360ea516e5d747fd377f0316c6a068d1618fc048bf8be6@192.168.0.8:9735");
-    // print(res);
+    // ignore: unawaited_futures
+    CwLdk.startLDK("polaruser:polarpass@192.168.0.12:18443", 9732, "regtest",
+        "hellolightning", "0.0.0.0", _mnomonicKeyPhrase);
 
     if (!mounted) return;
 
@@ -136,13 +122,13 @@ class _MyAppState extends State<HomePage> {
             ListTile(
               title: Text("Close Channel"),
               leading: Icon(Icons.close),
-              onTap: () {
-                // Navigator.of(context).pushNamed("/channel/close");
-                showDialog<void>(
+              onTap: () async {
+                final res = await CwLdk.closeChannel("1234ad56");
+                await showDialog<void>(
                   context: context,
                   builder: (_) => AlertDialog(
                       title: Text("Channel Created"),
-                      content: Text("You successfuly closed the channel."),
+                      content: Text(res),
                       actions: <Widget>[
                         TextButton(
                           child: const Text('Ok'),

@@ -45,6 +45,7 @@ use lightning_block_sync::SpvClient;
 use lightning_block_sync::UnboundedCache;
 use lightning_invoice::payment;
 use lightning_invoice::utils::DefaultRouter;
+use lightning_invoice::Invoice;
 use lightning_net_tokio::SocketDescriptor;
 use lightning_persister::FilesystemPersister;
 use rand::{thread_rng, Rng};
@@ -61,6 +62,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, SystemTime};
 use std::sync::mpsc::{SyncSender, Receiver, sync_channel};
+use std::str::FromStr;
 
 pub(crate) enum HTLCStatus {
 	Pending,
@@ -814,21 +816,7 @@ pub async fn start_ldk(
 
     callback("Regularly broadcast our node_announcement.");
 
-	// Start the CLI.
-	// cli::poll_for_user_input(
-	// 	Arc::clone(&invoice_payer),
-	// 	Arc::clone(&peer_manager),
-	// 	Arc::clone(&channel_manager),
-	// 	Arc::clone(&keys_manager),
-	// 	Arc::clone(&network_graph),
-	// 	inbound_payments,
-	// 	outbound_payments,
-	// 	ldk_data_dir.clone(),
-	// 	network,
-	// )
-	// .await;
-
-    callback("TODO: Start the CLI.");
+    callback("Ready to receive messages from ldk channel");
 
 	while let Some(message) = ldk_receiver.lock().await.recv().await {
 
@@ -844,6 +832,10 @@ pub async fn start_ldk(
 						"nodeinfo" => {
 							res = flutter_ffi::node_info(&channel_manager, &peer_manager);
 						},
+                        "listchannels" => {
+                            // list_channels(&channel_manager, &network_graph)
+                            res = format!("{{ \"channels\": [] }}");
+                        },
 						"connectpeer" => {
 							let peer_pubkey_and_ip_addr = words.next();
 							if peer_pubkey_and_ip_addr.is_none() {
@@ -870,6 +862,59 @@ pub async fn start_ldk(
 								res = format!("couldn't connect to peer :(");
 							}
 						},
+                        "listpeers" => {
+                            res = flutter_ffi::list_peers(peer_manager.clone());
+                        },
+                        "openchannel" => {
+                            let peer_pubkey_and_ip_addr = words.next();
+                            let channel_value_sat = words.next();
+                            res = format!("a channel for {} was created for {} sats", peer_pubkey_and_ip_addr.unwrap(), channel_value_sat.unwrap());
+                        },
+                        "closechannel" => {
+                            let channel_id_str = words.next();
+                            res = format!("channel: {} was closed", channel_id_str.unwrap());
+                        },
+                        "getinvoice" => {
+                            let amt_str = words.next();
+                            if amt_str.is_none() {
+                                res = format!("ERROR: getinvoice requires an amount in millisatoshis");
+                            }
+                            else {
+                                let amt_msat: Result<u64, _> = amt_str.unwrap().parse();
+                                if amt_msat.is_err() {
+                                    res = format!("ERROR: getinvoice provided payment amount was not a number");
+                                }
+                                else {
+                                    // get_invoice(
+                                    //     amt_msat.unwrap(),
+                                    //     inbound_payments.clone(),
+                                    //     channel_manager.clone(),
+                                    //     keys_manager.clone(),
+                                    //     network,
+                                    // );
+                                    res = "lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzqj9n4evl6mr5aj9f58zp6fyjzup6ywn3x6sk8akg5v4tgn2q8g4fhx05wf6juaxu9760yp46454gpg5mtzgerlzezqcqvjnhjh8z3g2qqdhhwkj".to_string();
+                                }
+                            }
+                        },
+                        "sendpayment" => {
+                            let invoice_str = words.next();
+                            if invoice_str.is_none() {
+                                res = format!("ERROR: sendpayment requires an invoice: `sendpayment <invoice>`");
+                            }
+                            else {
+                                // let invoice = match Invoice::from_str(invoice_str.unwrap()) {
+                                //     Ok(invoice) => {
+                                //         send_payment(&*invoice_payer, &invoice, outbound_payments.clone());
+                                //     },
+                                //     Err(e) => {
+                                //         res = format!("ERROR: invalid invoice: {:?}", e);
+                                //     }
+                                // };
+                                res = format!("invoice: {} was paid", invoice_str.unwrap())
+
+                            }
+
+                        },
 						_ => {
 							res = msg.clone(); 
 						}
@@ -886,13 +931,6 @@ pub async fn start_ldk(
 				ffi_sender.send(Message::Error("LDK should only accepts requests".to_string())).await.unwrap();
 			}
 		};
-		// if let Message::Request(msg) = message {
-		// 	callback(format!("callback: {}", msg).as_str());
-		// 	ffi_sender.send(Message::Success(msg)).await.unwrap();
-		// }
-		// else {
-		// 	ffi_sender.send(Message::Error("huuuu".to_string())).await.unwrap();
-		// }
 	}
 
 	//---- run this on a isolate.
@@ -925,7 +963,7 @@ pub async fn start_ldk(
 	// 	// _ffi_sender.send(Message::Error("exiting from ldk".to_string())).await.unwrap();
 	// });
 
-	ffi_sender.send(Message::Success("finished setting up start_ldk".to_string())).await.unwrap();
+	// ffi_sender.send(Message::Success("finished setting up start_ldk".to_string())).await.unwrap();
 }
 
 

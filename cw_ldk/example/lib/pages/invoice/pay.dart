@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cw_ldk/cw_ldk.dart';
 
 class PayInvoicePage extends StatefulWidget {
   @override
@@ -38,8 +39,8 @@ class _PayInvoiceState extends State<PayInvoicePage> {
                 ),
                 ElevatedButton(
                     onPressed: isValidBolt11
-                        ? () {
-                            showDialog<void>(
+                        ? () async {
+                            await showDialog<void>(
                               context: context,
                               builder: (_) => AlertDialog(
                                   title: Text("Channel Created"),

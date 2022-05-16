@@ -467,7 +467,7 @@ fn node_info(channel_manager: &Arc<ChannelManager>, peer_manager: &Arc<PeerManag
 	println!("\t}},");
 }
 
-fn list_peers(peer_manager: Arc<PeerManager>) {
+pub(crate) fn list_peers(peer_manager: Arc<PeerManager>) {
 	println!("\t{{");
 	for pubkey in peer_manager.get_peer_node_ids() {
 		println!("\t\t pubkey: {}", pubkey);

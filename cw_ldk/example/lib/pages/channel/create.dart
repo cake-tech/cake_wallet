@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:cw_ldk/cw_ldk.dart';
 
 class CreateChannelPage extends StatefulWidget {
   @override
@@ -24,15 +27,17 @@ class _CreateChannelState extends State<CreateChannelPage> {
             ),
             ElevatedButton(
               child: Text("Create Channel"),
-              onPressed: () {
+              onPressed: () async {
                 // Navigator.pop(context);
-                print(amount.text);
-                showDialog<void>(
+                final res = await CwLdk.openChannel(
+                    "03efcf3a659de7ca716cea0044617549c5bc82dd71f7d43363d6bceeb7321b34a6@192.168.0.12:9735",
+                    amount.text);
+
+                await showDialog<void>(
                   context: context,
                   builder: (_) => AlertDialog(
                       title: Text("Channel Created"),
-                      content:
-                          Text("You successfuly created a channel with cake."),
+                      content: Text(res),
                       actions: <Widget>[
                         TextButton(
                           child: const Text('Ok'),
@@ -56,6 +61,18 @@ class _CreateChannelState extends State<CreateChannelPage> {
   void initState() {
     super.initState();
     amount = TextEditingController();
+    initStateAsync();
+  }
+
+  Future<void> initStateAsync() async {
+    final String peersJson = await CwLdk.listPeers();
+    // final peersJson = "{ \"peers\": []}";
+    final Map<String, dynamic> res =
+        jsonDecode(peersJson) as Map<String, dynamic>;
+    if ((res['peers'] as List).length == 0) {
+      // await CwLdk.connectPeer(
+      //     "03efcf3a659de7ca716cea0044617549c5bc82dd71f7d43363d6bceeb7321b34a6@192.168.0.12:9735");
+    }
   }
 
   @override
