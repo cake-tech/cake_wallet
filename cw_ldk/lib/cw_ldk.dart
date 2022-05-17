@@ -180,7 +180,7 @@ class CwLdk {
     return res;
   }
 
-  /// Connect to peer for connecting creating channels.
+  /// Todo: Connect to peer for connecting creating channels.
   ///
   /// [url] should have the form pubkey@host:port
   static Future<String> connectPeer(String url) async {
@@ -188,13 +188,13 @@ class CwLdk {
     return res;
   }
 
-  /// Show peers that we are setup with.
+  /// Todo: Show peers that we are setup with.
   static Future<String> listPeers() async {
     final res = await sendMessage("listpeers");
     return res;
   }
 
-  /// Open a channel.
+  /// Todo: Open a channel.
   ///
   /// Returns the channel ID.
   /// [url] url to node to connect.  should have form (pubkey@host:port)
@@ -204,7 +204,7 @@ class CwLdk {
     return res;
   }
 
-  /// Close a channel.
+  /// Todo: Close a channel.
   ///
   /// [channelID] is the channel ID.
   static Future<String> closeChannel(String channelID) async {
@@ -212,7 +212,7 @@ class CwLdk {
     return res;
   }
 
-  /// Create an invoice in [amount]
+  /// Todo: Create an invoice in [amount]
   ///
   /// Returns a bolt11 string.
   static Future<String> getInvoice(String amount) async {
@@ -220,7 +220,7 @@ class CwLdk {
     return res;
   }
 
-  /// pays invoice.
+  /// Todo: pays invoice.
   ///
   /// [invoice] is the bolt11 string.
   static Future<String> sendPayment(String invoice) async {
@@ -228,7 +228,7 @@ class CwLdk {
     return res;
   }
 
-  /// List channels you have setup.
+  /// Todo: List channels you have setup.
   static Future<String> listChannels() async {
     final res = await sendMessage("listchannels");
     return res;
@@ -260,14 +260,5 @@ class CwLdk {
     final error = message.toDartString();
     print(error);
     throw Exception(error);
-  }
-
-  static void __testIsolate(String msg) {
-    print(msg);
-  }
-
-  // for testing isolates
-  static void testIsolate() async {
-    await compute<String, void>(__testIsolate, "hello isolate");
   }
 }

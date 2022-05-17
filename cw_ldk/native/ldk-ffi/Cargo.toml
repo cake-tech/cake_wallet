@@ -11,8 +11,6 @@ crate-type = ["lib", "cdylib", "staticlib"] # c dyamic libary and a static libar
 
 [dependencies]
 ldk_lib = { path = "../ldk-lib" }
-# tokio = { version = "0.2", features = ["rt-threaded", "macros"] }
-# tokio = { version = "1", features = [ "full" ] }
 tokio = { version = "1", features = [ "io-util", "macros", "rt", "rt-multi-thread", "sync", "net", "time" ] }
 lazy_static = "1.4"
 ffi_helpers = "0.2"

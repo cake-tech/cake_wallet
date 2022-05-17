@@ -1,23 +1,16 @@
-// #![allow(unused_imports)]
-// #![allow(unused_variables)]
-// #![allow(unused_macros)]
 
 /// this is the code that creates an interface to the flutter ffi.
 
-// standard libary
 use std::os::raw::c_char;
 use std::ffi::{CString, CStr};
 use std::io;
 use std::sync::Arc;
-
-
-// packages.
 use tokio::runtime::{Builder, Runtime};
 use lazy_static::lazy_static;
 use allo_isolate::Isolate;
 
 
-// Create runtime for tokio in the static scope 
+/// Create runtime for tokio in the static scope 
 lazy_static! {
     static ref RUNTIME: io::Result<Runtime> = Builder::new_multi_thread()
         .worker_threads(3)

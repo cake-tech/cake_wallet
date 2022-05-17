@@ -36,16 +36,21 @@ class _PayInvoiceState extends State<PayInvoicePage> {
                 TextField(
                   decoration: InputDecoration(labelText: "bolt11"),
                   controller: bolt11,
+                  onChanged: (_) {
+                    setState(() {
+                      isValidBolt11 = true;
+                    });
+                  },
                 ),
                 ElevatedButton(
                     onPressed: isValidBolt11
                         ? () async {
+                            final res = await CwLdk.sendPayment(bolt11.text);
                             await showDialog<void>(
                               context: context,
                               builder: (_) => AlertDialog(
                                   title: Text("Channel Created"),
-                                  content: Text(
-                                      "You successfuly payed the invoice."),
+                                  content: Text(res),
                                   actions: <Widget>[
                                     TextButton(
                                       child: const Text('Ok'),

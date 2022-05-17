@@ -165,22 +165,27 @@ extern "C" {
  */
 int32_t destroy_runtime(RuntimePtr runtime);
 
-int32_t hello_async(int64_t _port);
-
-char *test_ldk(const char *rpc_info);
+//// begin insert 
 
 int32_t last_error_length(void);
 
 int32_t error_message_utf8(char *buf, int32_t length);
 
-char *ldk_start(void);
+/**
+ * ffi interface for starting the LDK.
+ */
+void start_ldk(const char *rpc_info,
+               const char *ldk_storage_path,
+               uint16_t port,
+               const char *network,
+               const char *node_name,
+               const char *address,
+               const char *mnemonic_key_phrase,
+               void (*func)(char*));
 
-char *ldk_connect(void);
+int32_t send_message(const char *msg, int64_t isolate_port);
 
-char *hello_world(void);
-
-int64_t add(int64_t a, int64_t b);
-
+//// end insert
 /**
  * Setup a new Tokio Runtime and return a pointer to it so it could be used later to run tasks
  */
