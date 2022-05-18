@@ -1,27 +1,52 @@
 # Read me for CW_LDK #
 
-This document is for explaining what is CW_LDK plug is, how it was implemented, and where does it need more work in.
+This document is for explaining what is the **CW_LDK** plugin, how it was implemented, and what is left to do.
+
+---
+## What is the CW_LDK ##
+
+The **CW_LDK** is a flutter plugin that allows bitcoin wallets to use the Lightning network.
+
+---
+### what is the Lightning network?
 
 The lightning network is a second layer solution for handling bitcoin transaction off chain.
-[Here](https://www.youtube.com/watch?v=dZBiod8fe1M&t=239s) is an excellent simple presentation by Hannah Rosenburg on how it works. 
+[Here](https://www.youtube.com/watch?v=dZBiod8fe1M&t=239s) is an excellent presentation by Hannah Rosenberg on a high level on how it works. 
 
 One of the challenges of creating a custodial Lightning wallet is that if by any chance you close out a channel by posting an outdated commitment transaction, you could be penalized and lose all your funds that you had setup in that channel.  So it crucial that the lightning node is always running in the background to receive the latest commitment transaction and revocation secrets.
 
-After much research it was decided to go with a framework called the LDK (Lightning Development Kit: https://lightningdevkit.org/) which was just released this December and is funded by Jack Dorsey.  The only other option for implementing a lightning custodian wallet is writing one from scratch. 
+---
+## How does it works ##
 
-The LDK is developed in a system programming language called Rust but also it has bindings in Swift, Java, and C now.    We decided to go with the Rust version so that we could just write the code that setup and run the LDK once and have it interface with flutter through the FFI (Foreign Function Interface).
+After some research it was decided to go with a framework name the LDK (Lightning Development Kit: https://lightningdevkit.org/) which was just released this December and is funded by Jack Dorsey.  The only other option for implementing a lightning custodian wallet is by writing one from scratch. 
 
-We took a sample project that was written in rust called the [ldk-sample](https://github.com/lightningdevkit/ldk-sample) project .  It was a basic lightning wallet written for the command line.  We just modified it to that it could interface with flutter through the FFI.  We also modified it so that instead of receiving input through a command prompt, messages would be passed using [thread channels](https://www.youtube.com/watch?v=FE1BkKqYCGU), which is a message passing service that rust provides for threads to communicate with each other.  I would like to reiterate that the LDK must always be running and the code that setup and runs the LDK executes on a separate background thread.  Thread Channels is how to you have separate threads communicate with each other in rust.
+---
+### Why Rust? ###
 
-The Rust code that works with the LDK is located under cw_ldk/native.  Inside you will find two rust projects ldk-lib and ldk-ffi.  The ldk-lib is the code that works with the ldk.  The ldk-ffi is where we make ffi interfaces to communicate with flutter.  The ldk-ffi references the ldk-lib as a seperate libary.
+The **LDK** is developed in a system programming language called Rust but it also has bindings in Swift, Java, and C now.    It was decided to go with Rust because most of the documentation and samples provided are in rust.  Also there is a sample project written in rust called the [ldk-sample](https://github.com/lightningdevkit/ldk-sample).  The code for setup and running the LDK would be written only once and then a interface for it would be written in flutter using the FFI (Foreign Function Interface).
 
-Inside ldk-ffi, you will notice a file named libldk_ffi.h.  This is a c header file that is created each time you compile ldk-ffi.  For Android, you don't need to bother with this.  But for iOS you need to include this.   So If you change any of the interfaces in ldk-ffi, you need to go to under cw_ldk/ios/Classes/libldk_ffi.h, and insert the new interface function, between the section commented  //// begin insert,  and ///// end insert
+---
+### What is ldk-sample? ###
 
-The ldk-lib libary is basically the ldk-sample project with some modifications.  You will notice some duplicated code between lib.rs and main.rs.  and between cli.rs and flutter_ffi.rs.  This is because you still run the comand prompt version if you want for testing a debuging reasons.  
+The ldk-sample project is a basic lightning wallet written for the command line, using the LDK.  We just modified it so that it could interface with flutter through the FFI.  it was modified so that instead of receiving input through a command prompt, messages would be passed using [thread channels](https://www.youtube.com/watch?v=FE1BkKqYCGU), which is a message passing service that rust provides for threads to communicate with each other.  
 
-To be able to compile for Android or iOS, it important to follow the instuctions outlined in howto-build-cw_ldk.md.  once that is done you will notice that there is a make file located in cw_ldk/Makefile, where you can execute comands for compiling your rust code for Android and iOS and copying the ouput to the approriate folders.  
+It is important to reiterate that the LDK must always be running and the code that setup and runs the LDK executes on a separate background thread.  Thread Channels is how to you have separate threads communicate with each other in rust.
 
-To compile for only Android just type 
+--- 
+### What is **ldk_lib** and **ldk_ffi**? ###
+
+The Rust code that works with the LDK is located under **cw_ldk/native**.  Inside you will find two rust projects **ldk-lib** and **ldk-ffi**.  The **ldk-lib** is the code that works with the ldk.  The **ldk-ffi** is where the ffi interfaces are setup to communicate with flutter.  The **ldk-ffi** references the **ldk-lib** as a separate library.
+
+Inside **ldk-ffi**, you will notice a file named ***libldk_ffi.h***.  This is a c header file that is created each time you compile **ldk-ffi**.  For Android, you don't need to bother with this.  But for iOS you need to include this.   So If you change any of the interfaces in ldk-ffi, you need to go under ***cw_ldk/ios/Classes/libldk_ffi.h***, and insert the interface changes, between the section commented  `//// begin insert`,  and `///// end insert`
+
+The **ldk-lib** library is basically the **ldk-sample** project with some modifications.  You will notice some duplicated code between ***lib.rs*** and ***main.rs*** and between ***cli.rs*** and ***flutter_ffi.rs***.  That is because you can still run the command prompt for testing and debugging purposes.  
+
+---
+### How to compile? ###
+
+To be able to compile for Android or iOS, it important to follow the instructions outlined in ***howto-build-cw_ldk.md***.  once that is done you will notice that there is a make file located in ***cw_ldk/Makefile***, where you can execute commands for compiling your rust code for Android and iOS and copying the output to the appropriate folders.  
+
+To compile for Android just type 
 ```
 make android
 ```
@@ -29,41 +54,112 @@ To compile for iOS type
 ```
 make ios
 ```
-To build for all type
+To compile for both type
 ```
 make build
 ```
-again it's important to remind you if you change the ldk-ffi interface in any way you need to copy and past those changes to ios/Classes/libldk_ffi.h
+again it's important to reiterate if the ldk-ffi interface is changed in any way you need to copy and past those changes to ***ios/Classes/libldk_ffi.h***.  In order for it to work for iOS.
 
-there is a file located at cw_ldk/lib/ffi.dart, which gets generated automatically each time we compile ldk-ffi.  each function defined in ldk-ffi gets a function in dart to call it.
-the cw_ldk/lib/cw_ldk.dart file is just another layer on top of ffi.dart for a flutter app to call.
+---
+### What is **ffi.dart** and **cw_ldk.dart**? ###
 
-inside cw_ldk there is a an example project to show you how to use the cw_ldk in your application.
+there is a file located at ***cw_ldk/lib/ffi.dart***, which gets generated automatically each time we compile **ldk-ffi**.  each interface function defined in ldk-ffi gets a function in dart created for it in dart in ***cw_ldk/lib/ffi.dart***.
 
+the ***cw_ldk/lib/cw_ldk.dart*** file is just another layer on top of ffi.dart for a flutter app to call from.  Which your application will be primarily interacting with.
 
-## setup polar.
+---
+### What is **cw_ldk/example** ? ###
 
-In order to run the example project for cw_ldk, you need a local regtest setup on your development machine.  I would sugest using a tool that runs on top of docker called polar.
-here is a youtube clip show how to use and set on up.  https://www.youtube.com/watch?v=XvEjZs3fifk.  Once you have a regtest network running on your machine you should be good to go.
+inside **cw_ldk** there is a an example project to show how to use the **cw_ldk** in a application.
 
-## what got done.
+you will find examples on how to call all the functions defined in ***cw_ldk***
 
-The interfacing of rust to flutter is pretty much done.  However we have only gotten compiling rust for Android to work for Android 18.***.  We have not figured out how to get rust to compile for the newer NDKs.
+---
+## What is left to do
 
-So one of the challenges for compiling for the ffi is that flutter can not print to the debugging console using the print! macro.  if you want to print to the console you have to pass in a function pointer to a function you wrote in flutter that prints to the console.
-another challenge is that you can only print to the debugging console if you you are running on the main thread.  But since the LDK must run in a background thread it can be hard to figure out what is happening if something crashes.
+---
+### Setup polar ###
+In order to run the example project for **cw_ldk**, you need to run a local *regtest* setup on your development machine.  I would suggest using a tool that runs a local *regtest* setup using docker called [polar](https://lightningpolar.com/).
 
-The way we figure around this was to use isolates which is flutter way of handling parallel execution.  even though the ldk is running as a background process it can now print to the debugging console show something if an exception was thrown.  That was not the case when we first attempted to run it as a rust thread.  Something would crash and we would not know what happened unless we consulted the error logs.
+Here is a youtube [clip](https://www.youtube.com/watch?v=XvEjZs3fifk) that gives an into and shows how to use and setup polar.  Once you have a *regtest* network running on your machine you should be ready to run the example project.
 
-the function CwLdk.startLDK which starts the LDK in a background thread works.  
-the function CwLdk.nodeInfo works, which shows the information of your node.
+---
+### Why does it build with only Android NDK 18.*** and below ? ###
 
+The interfacing of rust to flutter is pretty much done.  However we have only gotten rust to compiling for Android with NDK 18.*** and bellow.  We have not figured out how to get rust to compile for the newer NDKs yet.
 
-## what is left to do.
+--- 
+### Any difficulties to be aware of? ###
 
-every function that is left to be implemented is mark with Todo: in the comments, in cw_ldk/lib/cw_ldk.dart
+One of the challenges for compiling for the ffi is that you can't run a debugger to step through it or print to the debugging console using any of the print! macros.  if you want to print to the console you have to pass in a function pointer to a function you wrote in flutter that prints to the console.
 
-Where we got stuck is the connectToPeer method. 
+Another challenge is that you can only print to the debugging console if you you are running on the main thread of execution.  Since the LDK must run in a background thread and flutter is single threaded by design, it can be hard to figure out what is happening if something crashes.
+
+The way we figure around this was to use isolates which is flutter's way of handling parallel execution.  Even though the ldk code is running as a background process it can now print to the debugging console and show something if an exception happens.  That was not the case when we first attempted to run it using threads created in rust.  Something would crash and we would not know what happened unless we consulted the error logs that are save in the device.
+
+---
+
+### List Functions of the CwLdk which are done. ###
+
+---
+### startLDK ###
+```
+static Future<Void> startLDK(String rpcInfo, int port, String network,
+      String nodeName, String address, String mnemonicKeyPhrase)
+```
+
+this starts the code that runs the LDK in a background isolate process.
+This must be called before any of the other CwLdk functions.
+
+*** note: the mnemonicKeyPhrase doesn't do anything yet.  it currently creates a random key phrase which is used to extract the pub and priv key.  you need to create the code that uses the mnemonicKeyPhrase as the seed phrase to extract the pub and priv keys.  This shouldn't be too hard just look were the keyseed is being setup in the start_ldk function.  look at the section commented 'Step 6: Initialize the KeysManager' ***
+
+---
+### sendMessage ###
+```
+  static Future<String> sendMessage(String msg) 
+```
+
+Every command and message that is passed to the LDK is passed through this function.
+
+Every other function is build on top of this function.
+
+It currently returns for all the commands you can pass to the LDK.
+
+Though some of them are just place holders for demoing purposes.
+
+---
+### nodeInfo ###
+```
+  static Future<String> nodeInfo()
+```
+
+returns node info of your lighting wallet.  need this information if you lose your device and want to close a channel you setup.
+
+---
+
+### List of functions that still need to be completed. ###
+
+all these functions do compile and they do return values for demoing purposes.
+
+Where they need to be implemented is in the ldk_lib project.
+
+These functions do work on the command line.  it's when we attempt to run this code on a device where we are experiencing problems.
+
+The implementations for these functions already exist in **cw_ldk/native/ldk-lib/src/cli.rs**.
+
+Once it is figured out what is causing the problems with communicating with a peer in the lightning network from a phone, we should be able to move the rest of the code from cli.rs to flutter_ffi.rs and adjust it to work for a mobile device.
+
+Where the problems begin is when we attempt to connect to a lightning peer.
+
+---
+### connectPeer ###
+
+```
+  static Future<String> connectPeer(String url) async {
+    final res = await sendMessage("connectpeer $url");
+    return res;
+  }
+```
 
 it is throwing the following exception when we attempt to connect to a peer in a regtest network that I setup with polar. 
 
@@ -122,13 +218,75 @@ Exited (sigterm)
 
 The weird thing is that this does not happen when I run the ldk-sample for the command prompt.  So I wonder if the is a firewall issue.
 
-Once this is figured out.  The rest of the functions should fall into place.  since all you have to do is copy the code for the cli interface.
+Once this is figured out.  The rest of the functions should fall into place.  since all you have to do is copy the code for the cli interface and adjust it to run on mobil.
 
+---
+### listPeers ###
 
+```
+  static Future<String> listPeers() async {
+    final res = await sendMessage("listpeers");
+    return res;
+  }
+```
 
+this is supposed to show the list of peers you are currently connected to.
+You need to be connected to a peer in order to create a channel or invoice.
 
+---
+### openChannel ###
+```
+  static Future<String> openChannel(String url, String amount) async {
+    final res = await sendMessage("openchannel $url $amount");
+    return res;
+  }
+```
 
+this is suppose to create a channel by specifying a [url] to a peer and [amount] in sats.
 
+---
+### closeChannel ###
+```
+  static Future<String> closeChannel(String channelID) async {
+    final res = await sendMessage("closechannel $channelID");
+    return res;
+  }
+```
 
+this is supposed to closes a channel by specifying a [channelID]
 
+---
+### getInvoice ###
 
+```
+  static Future<String> getInvoice(String amount) async {
+    final res = await sendMessage("getinvoice $amount");
+    return res;
+  }
+```
+
+this is supposed to create a bolt11 invoice by specifying an [amount] in sats
+
+---
+### sendPayment ###
+```
+  static Future<String> sendPayment(String invoice) async {
+    final res = await sendMessage("sendpayment $invoice");
+    return res;
+  }
+```
+
+this is supposed to pay an invoice by providing a bolt11 [invoice] string
+
+---
+### listChannels ###
+```
+  static Future<String> listChannels() async {
+    final res = await sendMessage("listchannels");
+    return res;
+  }
+```
+
+This is supposed to lists channels that you have currently setup.  you will need this information if you lose a device and would like to contact CakeWallet to close the channels manually.
+
+---

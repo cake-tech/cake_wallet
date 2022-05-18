@@ -10,7 +10,7 @@ use lazy_static::lazy_static;
 use allo_isolate::Isolate;
 
 
-/// Create runtime for tokio in the static scope 
+// Create runtime for tokio in the static scope 
 lazy_static! {
     static ref RUNTIME: io::Result<Runtime> = Builder::new_multi_thread()
         .worker_threads(3)

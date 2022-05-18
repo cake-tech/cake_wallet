@@ -70,8 +70,8 @@ class _CreateChannelState extends State<CreateChannelPage> {
     final Map<String, dynamic> res =
         jsonDecode(peersJson) as Map<String, dynamic>;
     if ((res['peers'] as List).length == 0) {
-      await CwLdk.connectPeer(
-          "03efcf3a659de7ca716cea0044617549c5bc82dd71f7d43363d6bceeb7321b34a6@192.168.0.12:9735");
+      // await CwLdk.connectPeer(
+      //     "03efcf3a659de7ca716cea0044617549c5bc82dd71f7d43363d6bceeb7321b34a6@192.168.0.12:9735");
     }
   }
 

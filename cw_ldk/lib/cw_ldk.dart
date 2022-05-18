@@ -124,6 +124,7 @@ class CwLdk {
     print(res);
   }
 
+  /// Starts the LDK in a isolate
   static void __startLDKIsolate(StartLDKParams params) async {
     final wrappedPrintPointer = Pointer.fromFunction<_print_C>(wrappedPrint);
     native.start_ldk(
