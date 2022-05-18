@@ -22,7 +22,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
-const havenDefaultNodeUri = 'vault.havenprotocol.org:443';
+const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 
 Future defaultSettingsMigration(
     {@required int version,
