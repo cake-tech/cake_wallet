@@ -39,7 +39,9 @@ class PickerItemWidget extends StatelessWidget {
                     clipBehavior: Clip.none,
                     alignment: Alignment.centerLeft,
                     children: [
-                      Text(
+                      FittedBox(
+                        fit: BoxFit.fitWidth,
+                      child: Text(
                         title,
                         style: TextStyle(
                           color: isSelected
@@ -48,7 +50,7 @@ class PickerItemWidget extends StatelessWidget {
                           fontSize: 18.0,
                           fontFamily: 'Lato',
                         ),
-                      ),
+                      )),
                       tag != null
                           ? Positioned(
                               top: -20.0,

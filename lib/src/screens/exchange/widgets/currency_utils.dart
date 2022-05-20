@@ -117,6 +117,10 @@ class CurrencyUtils {
         return 'BNB';
       case CryptoCurrency.usdterc20:
         return 'USDT';
+      case CryptoCurrency.zec:
+        return 'tZEC';
+      case CryptoCurrency.zaddr:
+        return 'zZEC';
       default:
         return cur.title;
     }
