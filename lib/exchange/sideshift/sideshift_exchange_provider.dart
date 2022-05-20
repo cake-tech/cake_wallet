@@ -258,6 +258,10 @@ class SideShiftExchangeProvider extends ExchangeProvider {
         return bnbTitle;
       case CryptoCurrency.usdterc20:
         return usdterc20;
+      case CryptoCurrency.zec:
+        return 'zec';
+      case CryptoCurrency.zaddr:
+        return 'zaddr';
       default:
         return currency.title.toLowerCase();
     }
