@@ -104,6 +104,7 @@ pub unsafe extern "C" fn error_message_utf8(buf: *mut c_char, length: i32) -> i3
     ffi_helpers::error_handling::error_message_utf8(buf, length)
 }
 
+
 /// ffi interface for starting the LDK.
 #[no_mangle]
 pub extern "C" fn start_ldk(
@@ -179,6 +180,11 @@ pub extern "C" fn send_message(
     1
 }
 
+/// dummy function to call in ios to avoid tree shacking.
+#[no_mangle]
+pub extern "C" fn hello_world(){
+    print!("hello world");
+}
 
 /// my tests.
 #[cfg(test)]
