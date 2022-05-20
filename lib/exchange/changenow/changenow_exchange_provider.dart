@@ -242,13 +242,23 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
 
   static String normalizeCryptoCurrency(CryptoCurrency currency) {
-    const bnbTitle = 'bnb';
 
     switch(currency) {
       case CryptoCurrency.bnb:
-        return bnbTitle;
+        return 'bnb';
+      case CryptoCurrency.bttbsc:
+        return 'btt';
+
       case CryptoCurrency.usdterc20:
-        return CryptoCurrency.usdt.title.toLowerCase();
+      case CryptoCurrency.usdttrc20:
+        return 'usdt';
+
+      case CryptoCurrency.zec:
+        return 'zec';
+
+      case CryptoCurrency.avaxc:
+        return 'avax';
+
       default:
         return currency.title.toLowerCase();
     }

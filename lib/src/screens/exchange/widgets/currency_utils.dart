@@ -218,8 +218,14 @@ class CurrencyUtils {
       case CryptoCurrency.usdt:
         return 'btc';
 
+      case CryptoCurrency.avaxc:
+        return 'cchain';
+
       case CryptoCurrency.ust:
         return 'luna';
+
+      case CryptoCurrency.zec:
+        return 'zec';
       default:
         return cur.title.toLowerCase();
     }
