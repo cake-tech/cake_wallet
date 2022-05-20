@@ -196,4 +196,32 @@ class CurrencyUtils {
         return cur.title;
     }
   }
+
+  static String networkForCurrency(CryptoCurrency cur) {
+    switch (cur) {
+      case CryptoCurrency.ape:
+      case CryptoCurrency.usdterc20:
+      case CryptoCurrency.usdc:
+      case CryptoCurrency.dai:
+        return 'eth';
+
+      case CryptoCurrency.btt:
+      case CryptoCurrency.usdttrc20:
+        return 'trx';
+
+      case CryptoCurrency.bttbsc:
+        return 'bsc';
+
+      case CryptoCurrency.usdcsol:
+        return 'sol';
+
+      case CryptoCurrency.usdt:
+        return 'btc';
+
+      case CryptoCurrency.ust:
+        return 'luna';
+      default:
+        return cur.title.toLowerCase();
+    }
+  }
 }
