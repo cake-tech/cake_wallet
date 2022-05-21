@@ -71,17 +71,19 @@ pub(crate) fn parse_peer_info(
 }
 
 pub(crate) async fn connect_peer_if_necessary(
-	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, logger: Arc<FilesystemLogger>
+	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, 
+    callback: &Box<dyn Fn(&str) + Send + Sync>
 ) -> Result<(), ()> {
 
 	for node_pubkey in peer_manager.get_peer_node_ids() {
 		if node_pubkey == pubkey {
-			log_trace!(logger, "connect_peer_if_necessary: peer_found");
+			callback("connect_peer_if_necessary: peer_found");
 			return Ok(());
 		}
 	}
 
-	let res = do_connect_peer(pubkey, peer_addr, peer_manager, logger.clone()).await;
+    callback("do_connect_peer");
+	let res = do_connect_peer(pubkey, peer_addr, peer_manager, callback).await;
 	if res.is_err() {
 		println!("ERROR: failed to connect to peer");
 	}
@@ -89,20 +91,22 @@ pub(crate) async fn connect_peer_if_necessary(
 }
 
 pub(crate) async fn do_connect_peer(
-	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, logger: Arc<FilesystemLogger>
+	pubkey: PublicKey, peer_addr: SocketAddr, peer_manager: Arc<PeerManager>, 
+    callback: &Box<dyn Fn(&str) + Send + Sync>
 ) -> Result<(), ()> {
-	log_trace!(logger, "inside do_connect_peer");
+	callback("inside do_connect_peer");
+	callback(format!("lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), {}, {})", pubkey, peer_addr).as_str());
 	let test = lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await;
-	match test {
-		Some(connection_closed_future) => {
-			log_trace!(logger, "connect_outbound worked!!!");
-			return Ok(());
-		},
-		None => {
-			log_trace!(logger, "connect_outbound failed!!!");
-			return Err(());
-		}
-	};
+	// match test {
+	// 	Some(connection_closed_future) => {
+	// 		log_trace!(logger, "connect_outbound worked!!!");
+	// 		return Ok(());
+	// 	},
+	// 	None => {
+	// 		log_trace!(logger, "connect_outbound failed!!!");
+	// 		return Err(());
+	// 	}
+	// };
 
 	
 	// match lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await
@@ -128,7 +132,7 @@ pub(crate) async fn do_connect_peer(
 	// 	}
 	// 	None => Err(()),
 	// }
-	// Ok(())
+	Ok(())
 }
 
 #[allow(dead_code)]
@@ -171,15 +175,15 @@ pub(crate) async fn get_messages_from_channel(
 								}
 							};
 
-						if connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), logger.clone())
-							.await
-							.is_ok()
-						{
-							sender.send(Message::Success(format!("SUCCESS: connected to peer {}", pubkey))).await.unwrap();
-						}
-						else {
-							sender.send(Message::Error("there was a problem connecting to peer".to_string())).await.unwrap();
-						}
+						// if connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), logger.clone())
+						// 	.await
+						// 	.is_ok()
+						// {
+						// 	sender.send(Message::Success(format!("SUCCESS: connected to peer {}", pubkey))).await.unwrap();
+						// }
+						// else {
+						// 	sender.send(Message::Error("there was a problem connecting to peer".to_string())).await.unwrap();
+						// }
 
 					},
 					msg => {

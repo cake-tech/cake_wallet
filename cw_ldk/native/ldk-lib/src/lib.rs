@@ -851,8 +851,9 @@ pub async fn start_ldk(
 										continue;
 									}
 								};
-
-							if cli::connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone())
+                            
+                            callback("cli::connect_peer_if_necessary");
+							if flutter_ffi::connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), &callback)
 								.await
 								.is_ok()
 							{

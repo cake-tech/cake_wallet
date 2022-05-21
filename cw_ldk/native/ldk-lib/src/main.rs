@@ -748,7 +748,6 @@ async fn start_ldk() {
 fn main(){
 	let runtime = tokio::runtime::Runtime::new().unwrap();
 	runtime.block_on(async move {
-		// println!("hello ldk...");
 		start_ldk().await;
 	})
 }

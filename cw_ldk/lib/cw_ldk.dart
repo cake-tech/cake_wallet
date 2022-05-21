@@ -145,6 +145,7 @@ class CwLdk {
   /// [address] you will be listening to, and the [mnemonicKeyPhrase] for
   /// extracting the public key and private key for assigning funds and signing
   /// transaction.
+  // ignore: missing_return
   static Future<Void> startLDK(String rpcInfo, int port, String network,
       String nodeName, String address, String mnemonicKeyPhrase) async {
     final Directory appDocDir = await getApplicationDocumentsDirectory();
