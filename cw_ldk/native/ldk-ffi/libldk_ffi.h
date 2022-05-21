@@ -25,6 +25,11 @@ void start_ldk(const char *rpc_info,
 
 int32_t send_message(const char *msg, int64_t isolate_port);
 
+/**
+ * dummy function to call in ios to avoid tree shacking.
+ */
+void hello_world(void);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

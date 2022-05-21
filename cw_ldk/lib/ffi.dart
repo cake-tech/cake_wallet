@@ -31,6 +31,14 @@ typedef _error_message_utf8_Dart = int Function(
   int length,
 );
 
+/// <p class="para-brief"> dummy function to call in ios to avoid tree shacking.</p>
+void hello_world() {
+  _hello_world();
+}
+final _hello_world_Dart _hello_world = _dl.lookupFunction<_hello_world_C, _hello_world_Dart>('hello_world');
+typedef _hello_world_C = Void Function();
+typedef _hello_world_Dart = void Function();
+
 /// C function `last_error_length`.
 int last_error_length() {
   return _last_error_length();
