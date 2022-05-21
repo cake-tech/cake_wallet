@@ -342,7 +342,8 @@ async fn handle_ldk_events(
 pub enum Message {
 	Request(String),
 	Error(String),
-	Success(String)
+	Success(String),
+    Exit(String),
 }
 
 
@@ -973,32 +974,46 @@ mod tests {
     use futures::channel::oneshot::Receiver;
 
     use super::start_ldk;
+    use super::Message;
 	use std::sync::mpsc::{SyncSender, sync_channel};
+    use tokio::runtime::Builder;
+    use std::sync::Arc;
 
 	#[test]
 	fn test_start_ldk(){
-        // let runtime = tokio::runtime::Runtime::new().unwrap();
+        let runtime = Builder::new_multi_thread()
+            .enable_all()
+            .worker_threads(3)
+            .thread_name("flutterrust")
+            .thread_stack_size(8 * 1024 * 1024)
+            .build()
+            .unwrap();
+        
+        runtime.block_on(async move {
 
-		// let res = sync_channel(1);
-		// let ffi_sender:SyncSender<String> = res.0;
-		// let ffi_receiver = res.1;
-        // runtime.block_on(async move {
-        //     start_ldk(
-        //         "polaruser:polarpass@192.168.0.13:18443".to_string(),
-        //         "./".to_string(),
-        //         9732,
-        //         "regtest".to_string(),
-        //         "hellolighting".to_string(),
-        //         "0.0.0.0".to_string(),
-        //         "mnemonic_key_phrase".to_string(),
-		// 		&ffi_sender,
-        //         Box::new(|msg| { println!("{}",msg)})).await;
-        // });
+            let (send, recv) : (tokio::sync::mpsc::Sender<Message>, tokio::sync::mpsc::Receiver<Message>) = tokio::sync::mpsc::channel(1);
+
+            send.send(Message::Request("test request".to_string())).await.unwrap();
+
+            start_ldk(
+                "polaruser:polarpass@192.168.0.13:18443".to_string(),
+                "./".to_string(),
+                9732,
+                "regtest".to_string(),
+                "hellolighting".to_string(),
+                "0.0.0.0".to_string(),
+                "mnemonic_key_phrase".to_string(),
+				send,
+                Arc::new(tokio::sync::Mutex::new(recv)),
+                Box::new(|msg| { println!("{}",msg)})
+            ).await;
+        });
 
 		// let res = ffi_receiver.recv().unwrap();
 		// println!("{}",res);
 	}
 
+    #[ignore]
 	#[test]
 	fn test_start_ldk_async(){
         let runtime = tokio::runtime::Runtime::new().unwrap();
