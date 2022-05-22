@@ -926,7 +926,7 @@ pub async fn start_ldk(
 					res = "could not parse message".to_string();
 				}
 
-				callback(res.as_str());
+				callback(format!("ldk_recv: Success => {}", msg).as_str());
 				ffi_sender.send(Message::Success(res)).await.unwrap();
 			},
             Message::Exit(msg) => {
@@ -938,7 +938,7 @@ pub async fn start_ldk(
                 //Stop the background processor.
                 background_processor.stop().unwrap();
 
-                callback(format!("exit: {}",msg).as_str());
+                callback(format!("ldk_recv: Exit => {}",msg).as_str());
 				ffi_sender.send(Message::Exit(msg)).await.unwrap();
                 break;
             },
@@ -978,6 +978,7 @@ mod tests {
             let (ffi_send, mut ffi_recv) : (tokio::sync::mpsc::Sender<Message>, tokio::sync::mpsc::Receiver<Message>) = tokio::sync::mpsc::channel(10);
 
             ldk_send.send(Message::Request("test request".to_string())).await.unwrap();
+            ldk_send.send(Message::Request("connectpeer 038f07ba15d065b96efc5cb708e9847f72cb9138871a15e5e4097f15a6a74a914a@192.168.0.13:9735".to_string())).await.unwrap();
             ldk_send.send(Message::Exit("exit from test_start_ldk".to_string())).await.unwrap();
 
             start_ldk(
@@ -996,39 +997,16 @@ mod tests {
             while let Some(res) = ffi_recv.recv().await {
                 match res {
                     Message::Success(_) => {
-                        println!("{:?}",res);
+                        println!("ffi_recv: {:?}",res);
                     },
                     Message::Exit(_) => {
-                        println!("{:?}",res);
+                        println!("ffi_recv: {:?}",res);
                         break;
                     },
                     _ => ()
-
                 }
             }
         });
-
-		// let res = ffi_receiver.recv().unwrap();
-		// println!("{}",res);
 	}
 
-    #[ignore]
-	#[test]
-	fn test_start_ldk_async(){
-        let runtime = tokio::runtime::Runtime::new().unwrap();
-        // runtime.spawn(async move {
-        //     // println!("hello ldk...");
-        //     let res = start_ldk(
-        //         "rpc_info".to_string(),
-        //         "ldk_storage_path".to_string(),
-        //         9732,
-        //         "regtest".to_string(),
-        //         "hellolighting".to_string(),
-        //         "0.0.0.0".to_string(),
-        //         "mnemonic_key_phrase".to_string(),
-        //         Box::new(|msg| { println!("{}",msg)})).await;
-            
-        //     println!("{}",res);
-        // });
-	}
 }
