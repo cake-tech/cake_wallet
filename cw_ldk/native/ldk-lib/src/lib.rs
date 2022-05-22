@@ -929,43 +929,27 @@ pub async fn start_ldk(
 				callback(res.as_str());
 				ffi_sender.send(Message::Success(res)).await.unwrap();
 			},
+            Message::Exit(msg) => {
+                // Disconnect our peers and stop accepting new connections. This ensures we don't continue
+                // updating our channel data after we've stopped the background processor.
+                stop_listen_connect.store(true, Ordering::Release);
+                peer_manager.disconnect_all_peers();
+
+                //Stop the background processor.
+                background_processor.stop().unwrap();
+
+                callback(format!("exit: {}",msg).as_str());
+				ffi_sender.send(Message::Exit(msg)).await.unwrap();
+                break;
+            },
 			_ => {
 				ffi_sender.send(Message::Error("LDK should only accepts requests".to_string())).await.unwrap();
 			}
 		};
 	}
 
-	//---- run this on a isolate.
-	
-	// let _ffi_sender = ffi_sender.clone();
-	// let _ldk_receiver = ldk_receiver.clone();
-	// let _logger = logger.clone();
-	// tokio::spawn(async move {
-
-	// 	// flutter_ffi::get_messages_from_channel(
-	// 	// 	_ffi_sender.clone(), 
-	// 	// 	_ldk_receiver.clone(),
-	// 	// 	Arc::clone(&invoice_payer),
-	// 	// 	Arc::clone(&channel_manager),
-	// 	// 	Arc::clone(&peer_manager),
-	// 	// 	_logger.clone()
-	// 	// 	).await;
-
-	// 	log_trace!(_logger, "disconnect peers and stop accepting new connections.");
-	// 	// Disconnect our peers and stop accepting new connections. This ensures we don't continue
-	// 	// updating our channel data after we've stopped the background processor.
-	// 	stop_listen_connect.store(true, Ordering::Release);
-	// 	peer_manager.disconnect_all_peers();
-
-	// 	log_trace!(_logger, "stop the background processor");
-	// 	//Stop the background processor.
-	// 	background_processor.stop().unwrap();
 		
-	// 	log_trace!(_logger, "ldk is shutdown");
-	// 	// _ffi_sender.send(Message::Error("exiting from ldk".to_string())).await.unwrap();
-	// });
 
-	// ffi_sender.send(Message::Success("finished setting up start_ldk".to_string())).await.unwrap();
 }
 
 
@@ -991,9 +975,12 @@ mod tests {
         
         runtime.block_on(async move {
 
-            let (send, recv) : (tokio::sync::mpsc::Sender<Message>, tokio::sync::mpsc::Receiver<Message>) = tokio::sync::mpsc::channel(1);
+            let (ldk_send, ldk_recv) : (tokio::sync::mpsc::Sender<Message>, tokio::sync::mpsc::Receiver<Message>) = tokio::sync::mpsc::channel(10);
 
-            send.send(Message::Request("test request".to_string())).await.unwrap();
+            let (ffi_send, mut ffi_recv) : (tokio::sync::mpsc::Sender<Message>, tokio::sync::mpsc::Receiver<Message>) = tokio::sync::mpsc::channel(10);
+
+            ldk_send.send(Message::Request("test request".to_string())).await.unwrap();
+            ldk_send.send(Message::Exit("exit from test_start_ldk".to_string())).await.unwrap();
 
             start_ldk(
                 "polaruser:polarpass@192.168.0.13:18443".to_string(),
@@ -1003,10 +990,24 @@ mod tests {
                 "hellolighting".to_string(),
                 "0.0.0.0".to_string(),
                 "mnemonic_key_phrase".to_string(),
-				send,
-                Arc::new(tokio::sync::Mutex::new(recv)),
+				ffi_send,
+                Arc::new(tokio::sync::Mutex::new(ldk_recv)),
                 Box::new(|msg| { println!("{}",msg)})
             ).await;
+
+            while let Some(res) = ffi_recv.recv().await {
+                match res {
+                    Message::Success(_) => {
+                        println!("{:?}",res);
+                    },
+                    Message::Exit(_) => {
+                        println!("{:?}",res);
+                        break;
+                    },
+                    _ => ()
+
+                }
+            }
         });
 
 		// let res = ffi_receiver.recv().unwrap();
