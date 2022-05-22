@@ -942,9 +942,7 @@ pub async fn start_ldk(
 				ffi_sender.send(Message::Exit(msg)).await.unwrap();
                 break;
             },
-			_ => {
-				ffi_sender.send(Message::Error("LDK should only accepts requests".to_string())).await.unwrap();
-			}
+			_ => ()
 		};
 	}
 
