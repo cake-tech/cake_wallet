@@ -35,10 +35,14 @@ class _MyAppState extends State<HomePage> {
     // setup pointer for isolate communication.
     CwLdk.storeDartPostCobject(NativeApi.postCObject);
 
+    // show previous logs
+    // final logs = await CwLdk.showLogs();
+    // print(logs);
+
     // await CwLdk.clear();
 
     // ignore: unawaited_futures
-    CwLdk.startLDK("polaruser:polarpass@192.168.0.12:18443", 9732, "regtest",
+    CwLdk.startLDK("polaruser:polarpass@192.168.0.13:18443", 9732, "regtest",
         "hellolightning", "0.0.0.0", _mnomonicKeyPhrase);
 
     if (!mounted) return;

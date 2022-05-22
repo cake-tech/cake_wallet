@@ -833,10 +833,10 @@ pub async fn start_ldk(
 						"nodeinfo" => {
 							res = flutter_ffi::node_info(&channel_manager, &peer_manager);
 						},
-                        "listchannels" => {
-                            // list_channels(&channel_manager, &network_graph)
-                            res = format!("{{ \"channels\": [] }}");
-                        },
+            "listchannels" => {
+                // list_channels(&channel_manager, &network_graph)
+                res = format!("{{ \"channels\": [] }}");
+            },
 						"connectpeer" => {
 							let peer_pubkey_and_ip_addr = words.next();
 							if peer_pubkey_and_ip_addr.is_none() {
@@ -853,7 +853,7 @@ pub async fn start_ldk(
 									}
 								};
                             
-                            callback("cli::connect_peer_if_necessary");
+              callback("cli::connect_peer_if_necessary");
 							if flutter_ffi::connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), &callback)
 								.await
 								.is_ok()
@@ -864,59 +864,59 @@ pub async fn start_ldk(
 								res = format!("couldn't connect to peer :(");
 							}
 						},
-                        "listpeers" => {
-                            res = flutter_ffi::list_peers(peer_manager.clone());
-                        },
-                        "openchannel" => {
-                            let peer_pubkey_and_ip_addr = words.next();
-                            let channel_value_sat = words.next();
-                            res = format!("a channel for {} was created for {} sats", peer_pubkey_and_ip_addr.unwrap(), channel_value_sat.unwrap());
-                        },
-                        "closechannel" => {
-                            let channel_id_str = words.next();
-                            res = format!("channel: {} was closed", channel_id_str.unwrap());
-                        },
-                        "getinvoice" => {
-                            let amt_str = words.next();
-                            if amt_str.is_none() {
-                                res = format!("ERROR: getinvoice requires an amount in millisatoshis");
-                            }
-                            else {
-                                let amt_msat: Result<u64, _> = amt_str.unwrap().parse();
-                                if amt_msat.is_err() {
-                                    res = format!("ERROR: getinvoice provided payment amount was not a number");
-                                }
-                                else {
-                                    // get_invoice(
-                                    //     amt_msat.unwrap(),
-                                    //     inbound_payments.clone(),
-                                    //     channel_manager.clone(),
-                                    //     keys_manager.clone(),
-                                    //     network,
-                                    // );
-                                    res = "lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzqj9n4evl6mr5aj9f58zp6fyjzup6ywn3x6sk8akg5v4tgn2q8g4fhx05wf6juaxu9760yp46454gpg5mtzgerlzezqcqvjnhjh8z3g2qqdhhwkj".to_string();
-                                }
-                            }
-                        },
-                        "sendpayment" => {
-                            let invoice_str = words.next();
-                            if invoice_str.is_none() {
-                                res = format!("ERROR: sendpayment requires an invoice: `sendpayment <invoice>`");
-                            }
-                            else {
-                                // let invoice = match Invoice::from_str(invoice_str.unwrap()) {
-                                //     Ok(invoice) => {
-                                //         send_payment(&*invoice_payer, &invoice, outbound_payments.clone());
-                                //     },
-                                //     Err(e) => {
-                                //         res = format!("ERROR: invalid invoice: {:?}", e);
-                                //     }
-                                // };
-                                res = format!("invoice: {} was paid", invoice_str.unwrap())
+            "listpeers" => {
+                res = flutter_ffi::list_peers(peer_manager.clone());
+            },
+            "openchannel" => {
+                let peer_pubkey_and_ip_addr = words.next();
+                let channel_value_sat = words.next();
+                res = format!("a channel for {} was created for {} sats", peer_pubkey_and_ip_addr.unwrap(), channel_value_sat.unwrap());
+            },
+            "closechannel" => {
+                let channel_id_str = words.next();
+                res = format!("channel: {} was closed", channel_id_str.unwrap());
+            },
+            "getinvoice" => {
+                let amt_str = words.next();
+                if amt_str.is_none() {
+                    res = format!("ERROR: getinvoice requires an amount in millisatoshis");
+                }
+                else {
+                    let amt_msat: Result<u64, _> = amt_str.unwrap().parse();
+                    if amt_msat.is_err() {
+                        res = format!("ERROR: getinvoice provided payment amount was not a number");
+                    }
+                    else {
+                        // get_invoice(
+                        //     amt_msat.unwrap(),
+                        //     inbound_payments.clone(),
+                        //     channel_manager.clone(),
+                        //     keys_manager.clone(),
+                        //     network,
+                        // );
+                        res = "lnbc20m1pvjluezpp5qqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqqqsyqcyq5rqwzqfqypqhp58yjmdan79s6qqdhdzgynm4zwqd5d7xmw5fk98klysy043l2ahrqsfpp3qjmp7lwpagxun9pygexvgpjdc4jdj85fr9yq20q82gphp2nflc7jtzrcazrra7wwgzxqc8u7754cdlpfrmccae92qgzqvzq2ps8pqqqqqqpqqqqq9qqqvpeuqafqxu92d8lr6fvg0r5gv0heeeqgcrqlnm6jhphu9y00rrhy4grqszsvpcgpy9qqqqqqgqqqqq7qqzqj9n4evl6mr5aj9f58zp6fyjzup6ywn3x6sk8akg5v4tgn2q8g4fhx05wf6juaxu9760yp46454gpg5mtzgerlzezqcqvjnhjh8z3g2qqdhhwkj".to_string();
+                    }
+                }
+            },
+            "sendpayment" => {
+                let invoice_str = words.next();
+                if invoice_str.is_none() {
+                    res = format!("ERROR: sendpayment requires an invoice: `sendpayment <invoice>`");
+                }
+                else {
+                    // let invoice = match Invoice::from_str(invoice_str.unwrap()) {
+                    //     Ok(invoice) => {
+                    //         send_payment(&*invoice_payer, &invoice, outbound_payments.clone());
+                    //     },
+                    //     Err(e) => {
+                    //         res = format!("ERROR: invalid invoice: {:?}", e);
+                    //     }
+                    // };
+                    res = format!("invoice: {} was paid", invoice_str.unwrap())
 
-                            }
+                }
 
-                        },
+            },
 						_ => {
 							res = msg.clone(); 
 						}
@@ -929,19 +929,19 @@ pub async fn start_ldk(
 				callback(format!("ldk_recv: Success => {}", msg).as_str());
 				ffi_sender.send(Message::Success(res)).await.unwrap();
 			},
-            Message::Exit(msg) => {
-                // Disconnect our peers and stop accepting new connections. This ensures we don't continue
-                // updating our channel data after we've stopped the background processor.
-                stop_listen_connect.store(true, Ordering::Release);
-                peer_manager.disconnect_all_peers();
+      Message::Exit(msg) => {
+          // Disconnect our peers and stop accepting new connections. This ensures we don't continue
+          // updating our channel data after we've stopped the background processor.
+          stop_listen_connect.store(true, Ordering::Release);
+          peer_manager.disconnect_all_peers();
 
-                //Stop the background processor.
-                background_processor.stop().unwrap();
+          //Stop the background processor.
+          background_processor.stop().unwrap();
 
-                callback(format!("ldk_recv: Exit => {}",msg).as_str());
-				ffi_sender.send(Message::Exit(msg)).await.unwrap();
-                break;
-            },
+          callback(format!("ldk_recv: Exit => {}",msg).as_str());
+          ffi_sender.send(Message::Exit(msg)).await.unwrap();
+          break;
+      },
 			_ => ()
 		};
 	}
