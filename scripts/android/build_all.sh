@@ -8,8 +8,12 @@ fi
 DIR=$(dirname "$0")
 
 case $APP_ANDROID_TYPE in
-	"monero.com") $DIR/build_monero_all.sh ;;
-	"cakewallet") $DIR/build_monero_all.sh
-				  $DIR/build_haven.sh ;;
-	"haven")      $DIR/build_haven_all.sh ;;
+"monero.com") $DIR/build_monero_all.sh ;;
+"cakewallet")
+  $DIR/build_monero_all.sh
+  $DIR/build_haven.sh
+  $DIR/build_wownero.sh
+  ;;
+"haven") $DIR/build_haven_all.sh ;;
+"wownero") $DIR/build_wownero_all.sh ;;
 esac

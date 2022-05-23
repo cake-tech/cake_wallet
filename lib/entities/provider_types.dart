@@ -53,6 +53,7 @@ class ProvidersHelper {
       case WalletType.banano:
         return [ProviderType.askEachTime, ProviderType.onramper];
       case WalletType.monero:
+      case WalletType.wownero:
         return [ProviderType.askEachTime, ProviderType.onramper, ProviderType.dfx];
       case WalletType.bitcoin:
       case WalletType.ethereum:
@@ -98,6 +99,7 @@ class ProvidersHelper {
           ProviderType.moonpaySell,
         ];
       case WalletType.monero:
+      case WalletType.wownero:
       case WalletType.nano:
       case WalletType.banano:
       case WalletType.none:

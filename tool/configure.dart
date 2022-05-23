@@ -3,6 +3,7 @@ import 'dart:io';
 const bitcoinOutputPath = 'lib/bitcoin/bitcoin.dart';
 const moneroOutputPath = 'lib/monero/monero.dart';
 const havenOutputPath = 'lib/haven/haven.dart';
+const wowneroOutputPath = 'lib/wownero/wownero.dart';
 const ethereumOutputPath = 'lib/ethereum/ethereum.dart';
 const bitcoinCashOutputPath = 'lib/bitcoin_cash/bitcoin_cash.dart';
 const nanoOutputPath = 'lib/nano/nano.dart';
@@ -17,6 +18,7 @@ Future<void> main(List<String> args) async {
   final hasBitcoin = args.contains('${prefix}bitcoin');
   final hasMonero = args.contains('${prefix}monero');
   final hasHaven = args.contains('${prefix}haven');
+  final hasWownero = args.contains('${prefix}wownero');
   final hasEthereum = args.contains('${prefix}ethereum');
   final hasBitcoinCash = args.contains('${prefix}bitcoinCash');
   final hasNano = args.contains('${prefix}nano');
@@ -27,6 +29,7 @@ Future<void> main(List<String> args) async {
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
   await generateHaven(hasHaven);
+  await generateWownero(hasWownero);
   await generateEthereum(hasEthereum);
   await generateBitcoinCash(hasBitcoinCash);
   await generateNano(hasNano);
@@ -38,6 +41,7 @@ Future<void> main(List<String> args) async {
     hasMonero: hasMonero,
     hasBitcoin: hasBitcoin,
     hasHaven: hasHaven,
+    hasWownero: hasWownero,
     hasEthereum: hasEthereum,
     hasNano: hasNano,
     hasBanano: hasBanano,
@@ -49,6 +53,7 @@ Future<void> main(List<String> args) async {
     hasMonero: hasMonero,
     hasBitcoin: hasBitcoin,
     hasHaven: hasHaven,
+    hasWownero: hasWownero,
     hasEthereum: hasEthereum,
     hasNano: hasNano,
     hasBanano: hasBanano,
@@ -525,6 +530,175 @@ abstract class HavenAccountList {
   await outputFile.writeAsString(output);
 }
 
+Future<void> generateWownero(bool hasImplementation) async {
+  final outputFile = File(wowneroOutputPath);
+  const wowneroCommonHeaders = """
+import 'package:cw_core/unspent_transaction_output.dart';
+import 'package:cw_core/unspent_coins_info.dart';
+import 'package:cw_wownero/wownero_unspent.dart';
+import 'package:mobx/mobx.dart';
+import 'package:cw_core/wallet_credentials.dart';
+import 'package:cw_core/wallet_info.dart';
+import 'package:cw_core/transaction_priority.dart';
+import 'package:cw_core/transaction_history.dart';
+import 'package:cw_core/transaction_info.dart';
+import 'package:cw_core/balance.dart';
+import 'package:cw_core/output_info.dart';
+import 'package:cake_wallet/view_model/send/output.dart';
+import 'package:cw_core/wallet_service.dart';
+import 'package:hive/hive.dart';""";
+  const wowneroCWHeaders = """
+import 'package:cw_core/get_height_by_date.dart';
+import 'package:cw_core/wownero_amount_format.dart';
+import 'package:cw_core/monero_transaction_priority.dart';
+import 'package:cw_wownero/wownero_wallet_service.dart';
+import 'package:cw_wownero/wownero_wallet.dart';
+import 'package:cw_wownero/wownero_transaction_info.dart';
+import 'package:cw_wownero/wownero_transaction_creation_credentials.dart';
+import 'package:cw_core/account.dart' as wownero_account;
+import 'package:cw_wownero/api/wallet.dart' as wownero_wallet_api;
+import 'package:cw_wownero/mnemonics/english.dart';
+import 'package:cw_wownero/pending_wownero_transaction.dart';
+""";
+  const wowneroCwPart = "part 'cw_wownero.dart';";
+  const wowneroContent = """
+class Account {
+  Account({required this.id, required this.label, this.balance});
+  final int id;
+  final String label;
+  final String? balance;
+}
+
+class Subaddress {
+  Subaddress({
+    required this.id,
+    required this.label,
+    required this.address});
+  final int id;
+  final String label;
+  final String address;
+}
+
+class WowneroBalance extends Balance {
+  WowneroBalance({required this.fullBalance, required this.unlockedBalance})
+      : formattedFullBalance = wownero!.formatterWowneroAmountToString(amount: fullBalance),
+        formattedUnlockedBalance =
+        wownero!.formatterWowneroAmountToString(amount: unlockedBalance),
+        super(unlockedBalance, fullBalance);
+
+  WowneroBalance.fromString(
+      {required this.formattedFullBalance,
+        required this.formattedUnlockedBalance})
+      : fullBalance = wownero!.formatterWowneroParseAmount(amount: formattedFullBalance),
+        unlockedBalance = wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
+        super(wownero!.formatterWowneroParseAmount(amount: formattedUnlockedBalance),
+          wownero!.formatterWowneroParseAmount(amount: formattedFullBalance));
+
+  final int fullBalance;
+  final int unlockedBalance;
+  final String formattedFullBalance;
+  final String formattedUnlockedBalance;
+
+  @override
+  String get formattedAvailableBalance => formattedUnlockedBalance;
+
+  @override
+  String get formattedAdditionalBalance => formattedFullBalance;
+}
+
+abstract class WowneroWalletDetails {
+  @observable
+  late Account account;
+
+  @observable
+  late WowneroBalance balance;
+}
+
+abstract class Wownero {
+  WowneroAccountList getAccountList(Object wallet);
+
+  WowneroSubaddressList getSubaddressList(Object wallet);
+
+  TransactionHistoryBase getTransactionHistory(Object wallet);
+
+  WowneroWalletDetails getWowneroWalletDetails(Object wallet);
+
+  String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
+
+  String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
+
+  int getHeightByDate({required DateTime date});
+  TransactionPriority getDefaultTransactionPriority();
+  TransactionPriority getWowneroTransactionPrioritySlow();
+  TransactionPriority getWowneroTransactionPriorityAutomatic();
+  TransactionPriority deserializeWowneroTransactionPriority({required int raw});
+  List<TransactionPriority> getTransactionPriorities();
+  List<String> getWowneroWordList(String language);
+
+  List<Unspent> getUnspents(Object wallet);
+  void updateUnspents(Object wallet);
+
+  WalletCredentials createWowneroRestoreWalletFromKeysCredentials({
+    required String name,
+    required String spendKey,
+    required String viewKey,
+    required String address,
+    required String password,
+    required String language,
+    required int height});
+  WalletCredentials createWowneroRestoreWalletFromSeedCredentials({required String name, required String password, required int height, required String mnemonic});
+  WalletCredentials createWowneroNewWalletCredentials({required String name, required String language, required bool isPolyseed, String password});
+  Map<String, String> getKeys(Object wallet);
+  Object createWowneroTransactionCreationCredentials({required List<Output> outputs, required TransactionPriority priority});
+  Object createWowneroTransactionCreationCredentialsRaw({required List<OutputInfo> outputs, required TransactionPriority priority});
+  String formatterWowneroAmountToString({required int amount});
+  double formatterWowneroAmountToDouble({required int amount});
+  int formatterWowneroParseAmount({required String amount});
+  Account getCurrentAccount(Object wallet);
+  void setCurrentAccount(Object wallet, int id, String label, String? balance);
+  void onStartup();
+  int getTransactionInfoAccountId(TransactionInfo tx);
+  WalletService createWowneroWalletService(Box<WalletInfo> walletInfoSource, Box<UnspentCoinsInfo> unspentCoinSource);
+  Map<String, String> pendingTransactionInfo(Object transaction);
+}
+
+abstract class WowneroSubaddressList {
+  ObservableList<Subaddress> get subaddresses;
+  void update(Object wallet, {required int accountIndex});
+  void refresh(Object wallet, {required int accountIndex});
+  List<Subaddress> getAll(Object wallet);
+  Future<void> addSubaddress(Object wallet, {required int accountIndex, required String label});
+  Future<void> setLabelSubaddress(Object wallet,
+      {required int accountIndex, required int addressIndex, required String label});
+}
+
+abstract class WowneroAccountList {
+  ObservableList<Account> get accounts;
+  void update(Object wallet);
+  void refresh(Object wallet);
+  List<Account> getAll(Object wallet);
+  Future<void> addAccount(Object wallet, {required String label});
+  Future<void> setLabelAccount(Object wallet, {required int accountIndex, required String label});
+}
+  """;
+
+  const wowneroEmptyDefinition = 'Wownero wownero;\n';
+  const wowneroCWDefinition = 'Wownero? wownero = CWWownero();\n';
+
+  final output = '$wowneroCommonHeaders\n'
+      + (hasImplementation ? '$wowneroCWHeaders\n' : '\n')
+      + (hasImplementation ? '$wowneroCwPart\n\n' : '\n')
+      + (hasImplementation ? wowneroCWDefinition : wowneroEmptyDefinition)
+      + '\n'
+      + wowneroContent;
+
+  if (outputFile.existsSync()) {
+    await outputFile.delete();
+  }
+
+  await outputFile.writeAsString(output);
+}
+
 Future<void> generateEthereum(bool hasImplementation) async {
   final outputFile = File(ethereumOutputPath);
   const ethereumCommonHeaders = """
@@ -980,6 +1154,7 @@ Future<void> generatePubspec(
     {required bool hasMonero,
     required bool hasBitcoin,
     required bool hasHaven,
+    required bool hasWownero,
     required bool hasEthereum,
     required bool hasNano,
     required bool hasBanano,
@@ -1001,6 +1176,10 @@ Future<void> generatePubspec(
   const cwHaven = """
   cw_haven:
     path: ./cw_haven
+  """;
+  const cwWownero = """
+  cw_wownero:
+    path: ./cw_wownero
   """;
   const cwSharedExternal = """
   cw_shared_external:
@@ -1078,6 +1257,12 @@ Future<void> generatePubspec(
     output += '\n$cwHaven';
   }
 
+  if (hasWownero && !hasMonero) {
+    output += '\n$cwSharedExternal\n$cwWownero';
+  } else if (hasWownero) {
+    output += '\n$cwWownero';
+  }
+
   if (hasEthereum || hasPolygon) {
     output += '\n$cwEVM';
   }
@@ -1098,6 +1283,7 @@ Future<void> generateWalletTypes(
     {required bool hasMonero,
     required bool hasBitcoin,
     required bool hasHaven,
+    required bool hasWownero,
     required bool hasEthereum,
     required bool hasNano,
     required bool hasBanano,
@@ -1152,6 +1338,10 @@ Future<void> generateWalletTypes(
 
   if (hasHaven) {
     outputContent += '\tWalletType.haven,\n';
+  }
+
+  if (hasWownero) {
+    outputContent += '\tWalletType.wownero,\n';
   }
 
   outputContent += '];\n';

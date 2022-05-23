@@ -45,6 +45,9 @@ abstract class TransactionDetailsViewModelBase with Store {
       case WalletType.haven:
         _addHavenListItems(tx, dateFormat);
         break;
+      case WalletType.wownero:
+        _addWowneroListItems(tx, dateFormat);
+        break;
       case WalletType.ethereum:
         _addEthereumListItems(tx, dateFormat);
         break;
@@ -126,6 +129,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://blockchair.com/bitcoin-cash/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
+      case WalletType.wownero:
+        return 'https://muchwow.lol/tx?id=${txId}';
       case WalletType.ethereum:
         return 'https://etherscan.io/tx/${txId}';
       case WalletType.nano:
@@ -152,6 +157,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
+      case WalletType.wownero:
+        return S.current.view_transaction_on + 'muchwow.lol';
       case WalletType.ethereum:
         return S.current.view_transaction_on + 'etherscan.io';
       case WalletType.nano:
@@ -223,6 +230,18 @@ abstract class TransactionDetailsViewModelBase with Store {
   }
 
   void _addHavenListItems(TransactionInfo tx, DateFormat dateFormat) {
+    items.addAll([
+      StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
+      StandartListItem(
+          title: S.current.transaction_details_date, value: dateFormat.format(tx.date)),
+      StandartListItem(title: S.current.transaction_details_height, value: '${tx.height}'),
+      StandartListItem(title: S.current.transaction_details_amount, value: tx.amountFormatted()),
+      if (tx.feeFormatted()?.isNotEmpty ?? false)
+        StandartListItem(title: S.current.transaction_details_fee, value: tx.feeFormatted()!),
+    ]);
+  }
+
+  void _addWowneroListItems(TransactionInfo tx, DateFormat dateFormat) {
     items.addAll([
       StandartListItem(title: S.current.transaction_details_transaction_id, value: tx.id),
       StandartListItem(

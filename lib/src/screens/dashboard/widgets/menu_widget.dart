@@ -34,7 +34,8 @@ class MenuWidgetState extends State<MenuWidget> {
         this.bananoIcon = Image.asset('assets/images/nano_icon.png'),
         this.bitcoinCashIcon = Image.asset('assets/images/bch_icon.png'),
         this.polygonIcon = Image.asset('assets/images/matic_icon.png'),
-        this.solanaIcon = Image.asset('assets/images/sol_icon.png');
+        this.solanaIcon = Image.asset('assets/images/sol_icon.png'),
+        this.wowneroIcon = Image.asset('assets/images/wownero_icon.png');
 
   final largeScreen = 731;
 
@@ -51,6 +52,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image bitcoinIcon;
   Image litecoinIcon;
   Image havenIcon;
+  Image wowneroIcon;
   Image ethereumIcon;
   Image bitcoinCashIcon;
   Image nanoIcon;
@@ -214,6 +216,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return litecoinIcon;
       case WalletType.haven:
         return havenIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       case WalletType.ethereum:
         return ethereumIcon;
       case WalletType.bitcoinCash:
