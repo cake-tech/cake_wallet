@@ -67,7 +67,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
       Image.asset('assets/images/wallet_type_light.png');
   final havenIcon =
       Image.asset('assets/images/haven_logo.png', height: 24, width: 24);
-
+  final wowneroIcon =
+      Image.asset('assets/images/wownero_logo.png', height: 24, width: 24);
   WalletType selected;
   List<WalletType> types;
   Flushbar<void> _progressBar;
@@ -133,6 +134,8 @@ class WalletTypeFormState extends State<WalletTypeForm> {
         return litecoinIcon;
       case WalletType.haven:
         return havenIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       default:
         return null;
     }

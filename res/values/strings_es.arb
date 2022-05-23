@@ -12,6 +12,9 @@
   "haven_app": "Haven by Cake Wallet",
   "haven_app_wallet_text": "Awesome wallet for Haven",
 
+  "wownero_app": "Wownero by Cake Wallet",
+  "wownero_app_wallet_text": "Awesome wallet for Wownero",
+
   "accounts" : "Cuentas",
   "edit" : "Editar",
   "account" : "Cuenta",

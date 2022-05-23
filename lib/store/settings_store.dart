@@ -38,6 +38,7 @@ abstract class SettingsStoreBase with Store {
       @required Map<WalletType, Node> nodes,
       @required TransactionPriority initialBitcoinTransactionPriority,
       @required TransactionPriority initialMoneroTransactionPriority,
+        @required TransactionPriority initialWowneroTransactionPriority,
       @required this.shouldShowYatPopup,
       @required this.isBitcoinBuyEnabled,
       this.actionlistDisplayMode}) {
@@ -50,7 +51,8 @@ abstract class SettingsStoreBase with Store {
     languageCode = initialLanguageCode;
     priority = ObservableMap<WalletType, TransactionPriority>.of({
       WalletType.monero: initialMoneroTransactionPriority,
-      WalletType.bitcoin: initialBitcoinTransactionPriority
+      WalletType.bitcoin: initialBitcoinTransactionPriority,
+      WalletType.wownero: initialWowneroTransactionPriority
     });
     this.nodes = ObservableMap<WalletType, Node>.of(nodes);
     _sharedPreferences = sharedPreferences;
@@ -229,10 +231,13 @@ abstract class SettingsStoreBase with Store {
         .getInt(PreferencesKey.currentLitecoinElectrumSererIdKey);
     final havenNodeId = sharedPreferences
         .getInt(PreferencesKey.currentHavenNodeIdKey);
+    final wowneroNodeId = sharedPreferences
+        .getInt(PreferencesKey.currentWowneroNodeIdKey);
     final moneroNode = nodeSource.get(nodeId);
     final bitcoinElectrumServer = nodeSource.get(bitcoinElectrumServerId);
     final litecoinElectrumServer = nodeSource.get(litecoinElectrumServerId);
     final havenNode = nodeSource.get(havenNodeId);
+    final wowneroNode = nodeSource.get(wowneroNodeId);
     final packageInfo = await PackageInfo.fromPlatform();
     final shouldShowYatPopup =
         sharedPreferences.getBool(PreferencesKey.shouldShowYatPopup) ?? true;
@@ -243,7 +248,8 @@ abstract class SettingsStoreBase with Store {
           WalletType.monero: moneroNode,
           WalletType.bitcoin: bitcoinElectrumServer,
           WalletType.litecoin: litecoinElectrumServer,
-          WalletType.haven: havenNode
+          WalletType.haven: havenNode,
+          WalletType.wownero: wowneroNode
         },
         appVersion: packageInfo.version,
         isBitcoinBuyEnabled: isBitcoinBuyEnabled,
@@ -313,6 +319,10 @@ abstract class SettingsStoreBase with Store {
       case WalletType.monero:
         await _sharedPreferences.setInt(
             PreferencesKey.currentNodeIdKey, node.key as int);
+        break;
+      case WalletType.wownero:
+        await _sharedPreferences.setInt(
+            PreferencesKey.currentWowneroNodeIdKey, node.key as int);
         break;
       default:
         break;

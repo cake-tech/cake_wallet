@@ -13,6 +13,7 @@ import 'package:cw_core/wallet_info.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 
 part 'wallet_restore_view_model.g.dart';
 
@@ -37,6 +38,7 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
     _walletCreationService.changeWalletType(type: type);
   }
 
+  static const wowneroSeedMnemonicLength = 14;
   static const moneroSeedMnemonicLength = 25;
   static const electrumSeedMnemonicLength = 24;
   static const electrumShortSeedMnemonicLength = 12;
@@ -84,6 +86,12 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
               height: height ?? 0,
               mnemonic: seed,
               password: password);
+        case WalletType.wownero:
+          return wownero.createWowneroRestoreWalletFromSeedCredentials(
+              name: name,
+              height: height ?? 0,
+              mnemonic: seed,
+              password: password);
         default:
           break;
       }
@@ -107,6 +115,17 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
 
       if (type == WalletType.haven) {
         return haven.createHavenRestoreWalletFromKeysCredentials(
+            name: name,
+            height: height,
+            spendKey: spendKey,
+            viewKey: viewKey,
+            address: address,
+            password: password,
+            language: 'English');
+      }
+
+      if (type == WalletType.wownero) {
+        return wownero.createWowneroRestoreWalletFromKeysCredentials(
             name: name,
             height: height,
             spendKey: spendKey,

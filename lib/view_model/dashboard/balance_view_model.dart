@@ -91,6 +91,7 @@ abstract class BalanceViewModelBase with Store {
     switch(wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
         return S.current.xmr_available_balance;
       default:
         return S.current.confirmed;
@@ -102,6 +103,7 @@ abstract class BalanceViewModelBase with Store {
     switch(wallet.type) {
       case WalletType.monero:
       case WalletType.haven:
+      case WalletType.wownero:
         return S.current.xmr_full_balance;
       default:
         return S.current.unconfirmed;

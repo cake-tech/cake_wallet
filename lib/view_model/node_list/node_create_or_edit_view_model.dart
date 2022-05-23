@@ -42,7 +42,7 @@ abstract class NodeCreateOrEditViewModelBase with Store {
       (address?.isNotEmpty ?? false) && (port?.isNotEmpty ?? false);
 
   bool get hasAuthCredentials => _wallet.type == WalletType.monero ||
-    _wallet.type == WalletType.haven;
+    _wallet.type == WalletType.haven || _wallet.type == WalletType.wownero;
 
   String get uri {
     var uri = address;

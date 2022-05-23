@@ -10,15 +10,23 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 class PreSeedPage extends BasePage {
   PreSeedPage(this.type)
       : imageLight = Image.asset('assets/images/pre_seed_light.png'),
-        imageDark = Image.asset('assets/images/pre_seed_dark.png'),
-        wordsCount = type == WalletType.monero
-            ? 25
-            : 24; // FIXME: Stupid fast implementation
+        imageDark = Image.asset('assets/images/pre_seed_dark.png');
 
   final Image imageDark;
   final Image imageLight;
   final WalletType type;
-  final int wordsCount;
+
+  @override
+  int wordsCount() {
+    switch(this.type) {
+      case WalletType.monero:
+        return 25;
+      case WalletType.wownero:
+        return 14;
+      default:
+        return 24;
+    }
+  }
 
   @override
   Widget leading(BuildContext context) => null;
@@ -51,7 +59,7 @@ class PreSeedPage extends BasePage {
                         child: Text(
                           S
                               .of(context)
-                              .pre_seed_description(wordsCount.toString()),
+                              .pre_seed_description(wordsCount().toString()),
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontSize: 14,

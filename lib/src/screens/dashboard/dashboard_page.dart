@@ -322,6 +322,7 @@ class DashboardPage extends BasePage {
 
     switch (walletType) {
       case WalletType.haven:
+      case WalletType.wownero:
         await showPopUp<void>(
             context: context,
             builder: (BuildContext context) {

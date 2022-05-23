@@ -5,6 +5,7 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
@@ -55,6 +56,11 @@ class TransactionListItem extends ActionListItem with Keyable {
         amount = calculateFiatAmountRaw(
           cryptoAmount: haven.formatterMoneroAmountToDouble(amount: transaction.amount),
           price: price);
+        break;
+      case WalletType.wownero:
+        amount = calculateFiatAmountRaw(
+            cryptoAmount: wownero.formatterWowneroAmountToDouble(amount: transaction.amount),
+            price: price);
         break;
       default:
         break;

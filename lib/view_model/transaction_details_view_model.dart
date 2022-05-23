@@ -15,6 +15,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 
 part 'transaction_details_view_model.g.dart';
 
@@ -110,7 +111,7 @@ abstract class TransactionDetailsViewModelBase with Store {
       items.addAll(_items);
     }
 
-    if (wallet.type == WalletType.haven) {
+    if (wallet.type == WalletType.haven || wallet.type == WalletType.wownero) {
       items.addAll([
         StandartListItem(
             title: S.current.transaction_details_transaction_id, value: tx.id),
@@ -183,6 +184,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return 'https://blockchair.com/litecoin/transaction/${txId}';
       case WalletType.haven:
         return 'https://explorer.havenprotocol.org/search?value=${txId}';
+      case WalletType.wownero:
+        return 'https://explore.wownero.com/tx/${txId}';
       default:
         return '';
     }
@@ -198,6 +201,8 @@ abstract class TransactionDetailsViewModelBase with Store {
         return S.current.view_transaction_on + 'Blockchair.com';
       case WalletType.haven:
         return S.current.view_transaction_on + 'explorer.havenprotocol.org';
+      case WalletType.haven:
+        return S.current.view_transaction_on + 'explore.wownero.com';
       default:
         return '';
     }

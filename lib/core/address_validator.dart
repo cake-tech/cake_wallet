@@ -61,6 +61,7 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xnok:
       case CryptoCurrency.xnzd:
       case CryptoCurrency.xusd:
+      case CryptoCurrency.wow:
         return '[0-9a-zA-Z]';
       default:
         return '[0-9a-zA-Z]';
@@ -117,6 +118,8 @@ class AddressValidator extends TextValidator {
       case CryptoCurrency.xnzd:
       case CryptoCurrency.xusd:
         return [98, 99, 106];
+      case CryptoCurrency.wow:
+        return [97];
       default:
         return [];
     }

@@ -26,6 +26,7 @@ import 'package:cake_wallet/view_model/send/send_view_model_state.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 
 part 'send_view_model.g.dart';
 
@@ -149,7 +150,7 @@ abstract class SendViewModelBase with Store {
 
   List<CryptoCurrency> currencies;
 
-  bool get hasMultiRecipient => _wallet.type != WalletType.haven;
+  bool get hasMultiRecipient => _wallet.type != WalletType.haven && _wallet.type != WalletType.wownero;
 
   bool get hasYat => outputs.any((out) =>
       out.isParsedAddress &&
@@ -237,6 +238,11 @@ abstract class SendViewModelBase with Store {
 
         return haven.createHavenTransactionCreationCredentials(
             outputs: outputs, priority: priority, assetType: selectedCryptoCurrency.title);
+      case WalletType.wownero:
+        final priority = _settingsStore.priority[_wallet.type];
+
+        return wownero.createWowneroTransactionCreationCredentials(
+            outputs: outputs, priority: priority);
       default:
         return null;
     }

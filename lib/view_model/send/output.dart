@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/src/screens/send/widgets/extract_address_from_parsed.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:flutter/material.dart';
@@ -82,6 +83,9 @@ abstract class OutputBase with Store {
           case WalletType.haven:
             _amount = haven.formatterMoneroParseAmount(amount: _cryptoAmount);
             break;
+          case WalletType.wownero:
+            _amount = wownero.formatterWowneroParseAmount(amount: _cryptoAmount);
+            break;
           default:
             break;
         }
@@ -114,6 +118,10 @@ abstract class OutputBase with Store {
 
       if (_wallet.type == WalletType.haven) {
         return haven.formatterMoneroAmountToDouble(amount: fee);
+      }
+
+      if (_wallet.type == WalletType.wownero) {
+        return wownero.formatterWowneroAmountToDouble(amount: fee);
       }
     } catch (e) {
       print(e.toString());
@@ -218,6 +226,9 @@ abstract class OutputBase with Store {
         maximumFractionDigits = 8;
         break;
       case WalletType.haven:
+        maximumFractionDigits = 12;
+        break;
+      case WalletType.wownero:
         maximumFractionDigits = 12;
         break;
       default:

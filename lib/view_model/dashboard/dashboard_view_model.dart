@@ -337,14 +337,16 @@ abstract class DashboardViewModelBase with Store {
   }
 
   void updateActions() {
-    isEnabledExchangeAction = wallet.type != WalletType.haven;
-    hasExchangeAction = !isHaven;
+    isEnabledExchangeAction = wallet.type != WalletType.haven && wallet.type != WalletType.wownero;
+    hasExchangeAction = !isHaven && !isWownero;
     isEnabledBuyAction = wallet.type != WalletType.haven
-      && wallet.type != WalletType.monero;
-    hasBuyAction = !isMoneroOnly && !isHaven;
+      && wallet.type != WalletType.monero
+      && wallet.type != WalletType.wownero;
+    hasBuyAction = !isMoneroOnly && !isHaven && !isWownero;
     isEnabledSellAction = wallet.type != WalletType.haven
       && wallet.type != WalletType.monero
+      && wallet.type != WalletType.wownero
       && wallet.type != WalletType.litecoin;
-    hasSellAction = !isMoneroOnly && !isHaven;
+    hasSellAction = !isMoneroOnly && !isHaven && !isWownero;
   }
 }

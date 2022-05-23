@@ -23,6 +23,7 @@ class MenuWidgetState extends State<MenuWidget> {
   Image bitcoinIcon;
   Image litecoinIcon;
   Image havenIcon;
+  Image wowneroIcon;
   final largeScreen = 731;
 
   double menuWidth;
@@ -80,6 +81,7 @@ class MenuWidgetState extends State<MenuWidget> {
         color: Theme.of(context).accentTextTheme.overline.decorationColor);
     litecoinIcon = Image.asset('assets/images/litecoin_menu.png');
     havenIcon = Image.asset('assets/images/haven_menu.png');
+    wowneroIcon = Image.asset('assets/images/wownero_menu.png');
 
     return Row(
       mainAxisSize: MainAxisSize.max,
@@ -245,6 +247,8 @@ class MenuWidgetState extends State<MenuWidget> {
         return litecoinIcon;
       case WalletType.haven:
         return havenIcon;
+      case WalletType.wownero:
+        return wowneroIcon;
       default:
         return null;
     }

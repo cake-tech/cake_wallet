@@ -16,6 +16,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'dart:async';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 
 part 'wallet_address_list_view_model.g.dart';
 
@@ -52,6 +53,22 @@ class HavenURI extends PaymentURI {
   @override
   String toString() {
     var base = 'haven:' + address;
+
+    if (amount?.isNotEmpty ?? false) {
+      base += '?tx_amount=${amount.replaceAll(',', '.')}';
+    }
+
+    return base;
+  }
+}
+
+class WowneroURI extends PaymentURI {
+  WowneroURI({String amount, String address})
+      : super(amount: amount, address: address);
+
+  @override
+  String toString() {
+    var base = 'wownero:' + address;
 
     if (amount?.isNotEmpty ?? false) {
       base += '?tx_amount=${amount.replaceAll(',', '.')}';
@@ -131,6 +148,10 @@ abstract class WalletAddressListViewModelBase with Store {
       return HavenURI(amount: amount, address: address.address);
     }
 
+    if (_wallet.type == WalletType.wownero) {
+      return WowneroURI(amount: amount, address: address.address);
+    }
+
     if (_wallet.type == WalletType.bitcoin) {
       return BitcoinURI(amount: amount, address: address.address);
     }
@@ -185,6 +206,23 @@ abstract class WalletAddressListViewModelBase with Store {
       addressList.addAll(addressItems);
     }
 
+    if (wallet.type == WalletType.wownero) {
+      final primaryAddress = wownero.getSubaddressList(wallet).subaddresses.first;
+      final addressItems = wownero
+          .getSubaddressList(wallet)
+          .subaddresses
+          .map((subaddress) {
+        final isPrimary = subaddress == primaryAddress;
+
+        return WalletAddressListItem(
+            id: subaddress.id,
+            isPrimary: isPrimary,
+            name: subaddress.label,
+            address: subaddress.address);
+      });
+      addressList.addAll(addressItems);
+    }
+
     if (wallet.type == WalletType.bitcoin) {
       final primaryAddress = bitcoin.getAddress(wallet);
       final bitcoinAddresses = bitcoin.getAddresses(wallet).map((addr) {
@@ -214,11 +252,15 @@ abstract class WalletAddressListViewModelBase with Store {
       return haven.getCurrentAccount(wallet).label;
     }
 
+    if (wallet.type == WalletType.wownero) {
+      return wownero.getCurrentAccount(wallet).label;
+    }
+
     return null;
   }
 
   @computed
-  bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven;
+  bool get hasAddressList => _wallet.type == WalletType.monero || _wallet.type == WalletType.haven || _wallet.type == WalletType.wownero;
 
   @observable
   WalletBase<Balance, TransactionHistoryBase<TransactionInfo>, TransactionInfo>

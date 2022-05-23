@@ -215,8 +215,12 @@ class WalletRestorePage extends BasePage {
       .text
       .split(' ');
 
-    if ((walletRestoreViewModel.type == WalletType.monero || walletRestoreViewModel.type == WalletType.haven) &&
+    if ((walletRestoreViewModel.type == WalletType.monero ||
+        walletRestoreViewModel.type == WalletType.haven) &&
         seedWords.length != WalletRestoreViewModelBase.moneroSeedMnemonicLength) {
+      return false;
+    } else if(walletRestoreViewModel.type == WalletType.wownero &&
+        seedWords.length != WalletRestoreViewModelBase.wowneroSeedMnemonicLength) {
       return false;
     }
     

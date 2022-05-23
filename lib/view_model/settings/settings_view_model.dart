@@ -15,6 +15,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cw_core/node.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 import 'package:cake_wallet/entities/action_list_display_mode.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:cake_wallet/view_model/settings/picker_list_item.dart';
@@ -46,6 +47,8 @@ List<TransactionPriority> priorityForWalletType(WalletType type) {
       return bitcoin.getLitecoinTransactionPriorities();
     case WalletType.haven:
       return haven.getTransactionPriorities();
+    case WalletType.wownero:
+      return wownero.getTransactionPriorities();
     default:
       return [];
   }
@@ -105,7 +108,7 @@ abstract class SettingsViewModelBase with Store {
             selectedItem: () => balanceDisplayMode,
             onItemSelected: (BalanceDisplayMode mode) =>
                 _settingsStore.balanceDisplayMode = mode),
-        if (!isHaven)
+        if (!isHaven && !isWownero)
           PickerListItem(
               title: S.current.settings_currency,
               items: FiatCurrency.all,

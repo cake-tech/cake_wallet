@@ -11,6 +11,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/view_model/wallet_creation_vm.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/haven/haven.dart';
+import 'package:cake_wallet/wownero/wownero.dart';
 
 part 'wallet_new_vm.g.dart';
 
@@ -43,6 +44,9 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
       case WalletType.haven:
         return haven.createHavenNewWalletCredentials(
             name: name, language: options as String);
+      case WalletType.wownero:
+        return wownero.createWowneroNewWalletCredentials(
+            name: name, language: 'English');
       default:
         return null;
     }
