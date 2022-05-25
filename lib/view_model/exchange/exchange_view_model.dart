@@ -33,8 +33,8 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
       this.tradesStore, this._settingsStore) {
-    const excludeDepositCurrencies = [CryptoCurrency.xhv];
-    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
+    const excludeDepositCurrencies = [CryptoCurrency.xhv,CryptoCurrency.btt,CryptoCurrency.nano];
+    const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv,CryptoCurrency.btt,CryptoCurrency.nano];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
