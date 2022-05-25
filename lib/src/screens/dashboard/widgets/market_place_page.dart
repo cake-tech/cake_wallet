@@ -35,7 +35,7 @@ class MarketPlacePage extends StatelessWidget {
                   children: <Widget>[
                     SizedBox(height: 20),
                     MarketPlaceItem(
-                      onTap: () => Navigator.of(context).pushNamed(Routes.manageCardsPage),
+                      onTap: () => Navigator.of(context).pushNamed(Routes.cakePayWelcomePage),
                       title: S.of(context).cake_pay_title,
                       subTitle: S.of(context).cake_pay_subtitle,
                     ),

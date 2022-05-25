@@ -9,8 +9,6 @@ import 'package:cake_wallet/src/screens/cake_pay/auth/create_account_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/forgot_password_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/login_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/buy_gift_card.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/manage_cards_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -419,12 +417,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePayForgotPasswordPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<ForgotPassword>());
-    
-    case Routes.manageCardsPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ManageCardsPage>());
-
-    case Routes.buyGiftCardPage:
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<BuyGiftCardPage>());
 
     default:
       return MaterialPageRoute<void>(
