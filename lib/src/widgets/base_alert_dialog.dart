@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class BaseAlertDialog extends StatelessWidget {
-  String get titleText => '';
+ String get titleText => '';
   String get contentText => '';
   String get leftActionButtonText => '';
   String get rightActionButtonText => '';
   bool get isDividerExists => false;
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
+  EdgeInsets get actionButtonPadding => EdgeInsets.only(left: 6, right: 6);
+  Color get rightButtonColor => Colors.transparent;
+  Color get leftButtonColor => Colors.transparent;
+
   bool get barrierDismissible => true;
 
   Widget title(BuildContext context) {
@@ -46,30 +50,28 @@ class BaseAlertDialog extends StatelessWidget {
       children: <Widget>[
         Flexible(
             child: Container(
-              height: 52,
-              padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body2.decorationColor,
-              child: ButtonTheme(
-                minWidth: double.infinity,
-                child: FlatButton(
-                    onPressed: actionLeft,
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: Text(
-                      leftActionButtonText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryTextTheme.body2
-                            .backgroundColor,
-                        decoration: TextDecoration.none,
-                      ),
-                    )),
-              ),
-            )
-        ),
+          height: 52,
+          padding: actionButtonPadding,
+          color: leftButtonColor ?? Theme.of(context).accentTextTheme.body2.decorationColor,
+          child: ButtonTheme(
+            minWidth: double.infinity,
+            child: FlatButton(
+                onPressed: actionLeft,
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                child: Text(
+                  leftActionButtonText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: leftButtonColor != null ? Colors.white : Theme.of(context).primaryTextTheme.body2.backgroundColor,
+                    decoration: TextDecoration.none,
+                  ),
+                )),
+          ),
+        )),
         Container(
           width: 1,
           height: 52,
@@ -77,30 +79,28 @@ class BaseAlertDialog extends StatelessWidget {
         ),
         Flexible(
             child: Container(
-              height: 52,
-              padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body1.backgroundColor,
-              child: ButtonTheme(
-                minWidth: double.infinity,
-                child: FlatButton(
-                    onPressed: actionRight,
-                    highlightColor: Colors.transparent,
-                    splashColor: Colors.transparent,
-                    child: Text(
-                      rightActionButtonText,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontFamily: 'Lato',
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryTextTheme.body1
-                            .backgroundColor,
-                        decoration: TextDecoration.none,
-                      ),
-                    )),
-              ),
-            )
-        ),
+          height: 52,
+          padding: actionButtonPadding,
+          color: rightButtonColor ?? Theme.of(context).accentTextTheme.body1.backgroundColor,
+          child: ButtonTheme(
+            minWidth: double.infinity,
+            child: FlatButton(
+                onPressed: actionRight,
+                highlightColor: Colors.transparent,
+                splashColor: Colors.transparent,
+                child: Text(
+                  rightActionButtonText,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontFamily: 'Lato',
+                    fontWeight: FontWeight.w600,
+                    color: rightButtonColor != null ? Colors.white : Theme.of(context).primaryTextTheme.body1.backgroundColor,
+                    decoration: TextDecoration.none,
+                  ),
+                )),
+          ),
+        )),
       ],
     );
   }

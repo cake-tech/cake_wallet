@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/cake_pay/auth/create_account_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/forgot_password_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/login_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'package:cake_wallet/src/screens/cake_pay/cards/buy_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cards/buy_gift_card.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cards/manage_cards_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
@@ -655,7 +656,9 @@ Future setup(
 
   getIt.registerFactory(() => ManageCardsPage());
 
-    getIt.registerFactory(() => BuyGiftCardPage());
+  getIt.registerFactory(() => BuyGiftCardPage());
+
+  getIt.registerFactory(() => BuyGiftCardDetailPage());
 
   _isSetupFinished = true;
 }

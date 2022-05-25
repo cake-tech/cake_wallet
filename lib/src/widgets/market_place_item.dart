@@ -1,3 +1,5 @@
+import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -8,6 +10,7 @@ class MarketPlaceItem extends StatelessWidget {
   final String logoUrl;
   final EdgeInsets padding;
   final bool hasDiscount;
+  final bool isWhiteBackground;
 
   MarketPlaceItem({
     @required this.onTap,
@@ -16,6 +19,7 @@ class MarketPlaceItem extends StatelessWidget {
     this.logoUrl,
     this.padding,
     this.hasDiscount = false,
+    this.isWhiteBackground = false,
   });
 
   @override
@@ -28,7 +32,7 @@ class MarketPlaceItem extends StatelessWidget {
             padding: padding ?? EdgeInsets.all(20),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.20),
+              color: isWhiteBackground ? Colors.black.withOpacity(0.1) : Colors.white.withOpacity(0.20),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Colors.white.withOpacity(0.20),
@@ -54,7 +58,7 @@ class MarketPlaceItem extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: Colors.white,
+                        color: isWhiteBackground ? Palette.stateGray : Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
                       ),
@@ -63,37 +67,23 @@ class MarketPlaceItem extends StatelessWidget {
                     Text(
                       subTitle,
                       style: TextStyle(
-                        color: Colors.white,
-                      ),
+                          color: isWhiteBackground ? Palette.niagara : Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Lato'),
                     )
                   ],
                 ),
               ],
             ),
           ),
-          if (hasDiscount) ...[
+          if (hasDiscount)
             Align(
-              alignment: Alignment.centerRight,
+              alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: Image.asset('assets/images/badge_discount.png'),
+                child: DiscountBadge(),
               ),
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 22.0, right: 2),
-                child: Text(
-                  'Save 20%',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w500,
-                    fontFamily: 'Lato',
-                  ),
-                ),
-              ),
-            )
-          ],
         ],
       ),
     );

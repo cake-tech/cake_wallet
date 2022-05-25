@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/screens/cake_pay/auth/create_account_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/forgot_password_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/login_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
+import 'package:cake_wallet/src/screens/cake_pay/cards/buy_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cards/buy_gift_card.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cards/manage_cards_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
@@ -425,6 +426,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.buyGiftCardPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<BuyGiftCardPage>());
+    
+    case Routes.buyGiftCardDetailPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<BuyGiftCardDetailPage>());
+
 
     default:
       return MaterialPageRoute<void>(

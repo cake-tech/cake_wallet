@@ -543,5 +543,6 @@
   "manage_cards": "Manage Cards",
   "setup_your_debit_card": "Set up your debit card",
   "no_id_required": "No ID required. Top up and spend anywhere",
-  "how_to_use_card": "How to use this card"
+  "how_to_use_card": "How to use this card",
+  "purchase_gift_card": "Purchase Gift Card"
 }

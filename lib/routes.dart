@@ -66,4 +66,5 @@ class Routes {
   static const cakePayForgotPasswordPage = '/cake_pay_forgot_password_page';
   static const manageCardsPage = '/manage_cards_page';
   static const buyGiftCardPage = '/buy_gift_card_page';
+  static const buyGiftCardDetailPage = '/buy_gift_card_detail_page';
 }
