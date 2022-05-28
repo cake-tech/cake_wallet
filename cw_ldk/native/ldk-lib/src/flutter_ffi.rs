@@ -18,7 +18,7 @@ pub(crate) fn list_peers(peer_manager: Arc<PeerManager>) -> String {
 	let mut res: String = String::new();
 	res.push_str("{ \"peers\": [");
 	for pubkey in peer_manager.get_peer_node_ids() {
-		res.push_str(format!("{{ \"pubkey\": {} }},", pubkey).as_str());
+		res.push_str(format!("{{ \"pubkey\": \"{}\" }}", pubkey).as_str());
 	}
 	res.push_str("]}");
     res
@@ -96,43 +96,30 @@ pub(crate) async fn do_connect_peer(
 ) -> Result<(), ()> {
 	callback("inside do_connect_peer");
 	callback(format!("lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), {}, {})", pubkey, peer_addr).as_str());
-	let test = lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await;
-	// match test {
-	// 	Some(connection_closed_future) => {
-	// 		log_trace!(logger, "connect_outbound worked!!!");
-	// 		return Ok(());
-	// 	},
-	// 	None => {
-	// 		log_trace!(logger, "connect_outbound failed!!!");
-	// 		return Err(());
-	// 	}
-	// };
-
 	
-	// match lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await
-	// {
-	// 	Some(connection_closed_future) => {
-	// 		log_trace!(logger, "...do_connect_peer connection_close_future");
-	// 		let mut connection_closed_future = Box::pin(connection_closed_future);
-	// 		loop {
-	// 			log_trace!(logger, "...do_connect_peer looping");
-	// 			match futures::poll!(&mut connection_closed_future) {
-	// 				std::task::Poll::Ready(_) => {
-	// 					return Err(());
-	// 				}
-	// 				std::task::Poll::Pending => {}
-	// 			}
-	// 			// Avoid blocking the tokio context by sleeping a bit
-	// 			log_trace!(logger, "...do_connect_peer Avoid blocking the tokio context by sleeping a bit");
-	// 			match peer_manager.get_peer_node_ids().iter().find(|id| **id == pubkey) {
-	// 				Some(_) => return Ok(()),
-	// 				None => tokio::time::sleep(Duration::from_millis(10)).await,
-	// 			}
-	// 		}
-	// 	}
-	// 	None => Err(()),
-	// }
-	Ok(())
+	match lightning_net_tokio::connect_outbound(Arc::clone(&peer_manager), pubkey, peer_addr).await
+	{
+		Some(connection_closed_future) => {
+			callback("...do_connect_peer connection_close_future");
+			let mut connection_closed_future = Box::pin(connection_closed_future);
+			loop {
+				callback("...do_connect_peer looping");
+				match futures::poll!(&mut connection_closed_future) {
+					std::task::Poll::Ready(_) => {
+						return Err(());
+					}
+					std::task::Poll::Pending => {}
+				}
+				// Avoid blocking the tokio context by sleeping a bit
+				callback("...do_connect_peer Avoid blocking the tokio context by sleeping a bit");
+				match peer_manager.get_peer_node_ids().iter().find(|id| **id == pubkey) {
+					Some(_) => return Ok(()),
+					None => tokio::time::sleep(Duration::from_millis(10)).await,
+				}
+			}
+		}
+		None => Err(()),
+	}
 }
 
 #[allow(dead_code)]

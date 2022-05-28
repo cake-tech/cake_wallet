@@ -837,33 +837,33 @@ pub async fn start_ldk(
                 // list_channels(&channel_manager, &network_graph)
                 res = format!("{{ \"channels\": [] }}");
             },
-						"connectpeer" => {
-							let peer_pubkey_and_ip_addr = words.next();
-							if peer_pubkey_and_ip_addr.is_none() {
-								ffi_sender.send(Message::Error("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string())).await.unwrap();
-								continue;
-							}
+			"connectpeer" => {
+				let peer_pubkey_and_ip_addr = words.next();
+				if peer_pubkey_and_ip_addr.is_none() {
+					ffi_sender.send(Message::Error("ERROR: connectpeer requires peer connection info: `connectpeer pubkey@host:port`".to_string())).await.unwrap();
+					continue;
+				}
 
-							let (pubkey, peer_addr) =
-								match flutter_ffi::parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
-									Ok(info) => info,
-									Err(e) => {
-										println!("{:?}", e.into_inner().unwrap());
-										continue;
-									}
-								};
-                            
-              callback("cli::connect_peer_if_necessary");
-							if flutter_ffi::connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), &callback)
-								.await
-								.is_ok()
-							{
-								res = format!("SUCCESS: connected to peer {}", pubkey);
-							}
-							else {
-								res = format!("couldn't connect to peer :(");
-							}
-						},
+				let (pubkey, peer_addr) =
+					match flutter_ffi::parse_peer_info(peer_pubkey_and_ip_addr.unwrap().to_string()) {
+						Ok(info) => info,
+						Err(e) => {
+							println!("{:?}", e.into_inner().unwrap());
+							continue;
+						}
+					};
+				
+				callback("cli::connect_peer_if_necessary");
+				if flutter_ffi::connect_peer_if_necessary(pubkey, peer_addr, peer_manager.clone(), &callback)
+					.await
+					.is_ok()
+				{
+					res = format!("SUCCESS: connected to peer {}", pubkey);
+				}
+				else {
+					res = format!("couldn't connect to peer :(");
+				}
+			},
             "listpeers" => {
                 res = flutter_ffi::list_peers(peer_manager.clone());
             },
