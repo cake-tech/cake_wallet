@@ -1,3 +1,5 @@
+import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
+import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cw_core/wallet_base.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/sync_status.dart';
@@ -33,7 +35,7 @@ abstract class ExchangeViewModelBase with Store {
       this.tradesStore, this._settingsStore) {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
-    providerList = [ChangeNowExchangeProvider()];
+    providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -252,6 +254,18 @@ abstract class ExchangeViewModelBase with Store {
     TradeRequest request;
     String amount;
     CryptoCurrency currency;
+
+     if (provider is SideShiftExchangeProvider) {
+      request = SideShiftRequest(
+          depositMethod: depositCurrency,
+          settleMethod: receiveCurrency,
+          depositAmount: depositAmount?.replaceAll(',', '.'),
+          settleAddress: receiveAddress,
+          refundAddress: depositAddress,
+          );
+      amount = depositAmount;
+      currency = depositCurrency;
+    }
 
     if (provider is XMRTOExchangeProvider) {
       request = XMRTOTradeRequest(

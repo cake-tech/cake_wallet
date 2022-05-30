@@ -343,10 +343,12 @@ Future setup(
       getIt.get<AppStore>().settingsStore,
       getIt.get<SendTemplateViewModel>(),
       getIt.get<FiatConversionStore>(),
+      getIt.get<BalanceViewModel>(),
       _transactionDescriptionBox));
 
   getIt.registerFactory(
-      () => SendPage(sendViewModel: getIt.get<SendViewModel>()));
+      () => SendPage(sendViewModel: getIt.get<SendViewModel>(),
+          settingsViewModel: getIt.get<SettingsViewModel>()));
 
   getIt.registerFactory(() => SendTemplatePage(
       sendTemplateViewModel: getIt.get<SendTemplateViewModel>()));
@@ -392,7 +394,7 @@ Future setup(
           AccountListItem, void>(
       (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
           monero.getAccountList(getIt.get<AppStore>().wallet),
-          haven.getAccountList(getIt.get<AppStore>().wallet),
+          haven?.getAccountList(getIt.get<AppStore>().wallet),
           wallet: getIt.get<AppStore>().wallet,
           accountListItem: account));
 

@@ -1,9 +1,7 @@
 import 'package:cake_wallet/entities/balance_display_mode.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cw_core/crypto_currency.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/utils/mobx.dart';
 import 'package:cake_wallet/view_model/dashboard/action_list_item.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
@@ -12,7 +10,6 @@ import 'package:cake_wallet/entities/calculate_fiat_amount_raw.dart';
 import 'package:cake_wallet/view_model/dashboard/balance_view_model.dart';
 import 'package:cw_core/keyable.dart';
 import 'package:cw_core/wallet_type.dart';
-import 'package:cw_haven/haven_transaction_info.dart';
 
 class TransactionListItem extends ActionListItem with Keyable {
   TransactionListItem(
@@ -53,8 +50,7 @@ class TransactionListItem extends ActionListItem with Keyable {
           price: price);
         break;
       case WalletType.haven:
-        final tx = transaction as HavenTransactionInfo;
-        final asset = CryptoCurrency.fromString(tx.assetType);
+        final asset = haven.assetOfTransaction(transaction);
         final price = balanceViewModel.fiatConvertationStore.prices[asset];
         amount = calculateFiatAmountRaw(
           cryptoAmount: haven.formatterMoneroAmountToDouble(amount: transaction.amount),

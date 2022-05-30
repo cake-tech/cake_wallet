@@ -120,3 +120,7 @@ typedef close_current_wallet = Void Function();
 typedef on_startup = Void Function();
 
 typedef rescan_blockchain = Void Function();
+
+typedef get_subaddress_label = Pointer<Utf8> Function(
+    Int32 accountIndex,
+    Int32 addressIndex);

@@ -12,7 +12,7 @@ import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/view_model/contact_list/contact_list_view_model.dart';
-import 'package:cake_wallet/src/widgets/standard_list.dart';
+import 'package:cake_wallet/src/widgets/collapsible_standart_list.dart';
 
 class ContactListPage extends BasePage {
   ContactListPage(this.contactListViewModel, {this.isEditable = true});
@@ -62,9 +62,12 @@ class ContactListPage extends BasePage {
         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Observer(
           builder: (_) {
-            return SectionStandardList(
+            return CollapsibleSectionList(
               context: context,
               sectionCount: 2,
+              themeColor: Theme.of(context).primaryTextTheme.title.color,
+              dividerThemeColor:
+              Theme.of(context).primaryTextTheme.caption.decorationColor,
               sectionTitleBuilder: (_, int sectionIndex) {
                 var title = 'Contacts';
 
@@ -73,7 +76,7 @@ class ContactListPage extends BasePage {
                 }
 
                 return Container(
-                    padding: EdgeInsets.only(left: 24, bottom: 20),
+                    padding: EdgeInsets.only(bottom: 10),
                     child: Text(title, style: TextStyle(fontSize: 36)));
               },
               itemCounter: (int sectionIndex) => sectionIndex == 0
@@ -144,11 +147,10 @@ class ContactListPage extends BasePage {
       child: Container(
         color: Colors.transparent,
         padding:
-            const EdgeInsets.only(left: 24, top: 16, bottom: 16, right: 24),
+            const EdgeInsets.only(top: 16, bottom: 16, right: 24),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             image ?? Offstage(),
             Expanded(

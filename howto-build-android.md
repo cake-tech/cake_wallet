@@ -19,6 +19,8 @@ These steps will help you configure and execute a build of CakeWallet from its s
 
 CakeWallet cannot be built without the following packages installed on your build system.
 
+- curl
+
 - unzip
 
 - automake
@@ -41,9 +43,11 @@ CakeWallet cannot be built without the following packages installed on your buil
 
 - openjdk-8-jre-headless
 
+- clang
+
 You may easily install them on your build system with the following command:
 
-`$ sudo apt-get install -y unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake openjdk-8-jre-headless`
+`$ sudo apt-get install -y curl unzip automake build-essential file pkg-config git python libtool libtinfo5 cmake openjdk-8-jre-headless clang`
 
 ### 2. Installing Android Studio and Android toolchain
 

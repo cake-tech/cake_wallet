@@ -36,6 +36,24 @@ abstract class SendTemplateViewModelBase with Store {
 
   FiatCurrency get fiat => _settingsStore.fiatCurrency;
 
+  @observable
+  bool isCurrencySelected = true;
+
+  @observable
+  bool isFiatSelected = false;
+
+  @action
+  void selectCurrency () {
+    isCurrencySelected = true;
+    isFiatSelected = false;
+  }
+
+  @action
+  void selectFiat () {
+    isFiatSelected = true;
+    isCurrencySelected = false;
+  }
+
   @computed
   ObservableList<Template> get templates => _sendTemplateStore.templates;
 
@@ -48,14 +66,20 @@ abstract class SendTemplateViewModelBase with Store {
 
   void addTemplate(
       {String name,
+        bool isCurrencySelected,
         String address,
         String cryptoCurrency,
-        String amount}) {
+        String fiatCurrency,
+        String amount,
+        String amountFiat}) {
     _sendTemplateStore.addTemplate(
         name: name,
+        isCurrencySelected: isCurrencySelected,
         address: address,
         cryptoCurrency: cryptoCurrency,
-        amount: amount);
+        fiatCurrency: fiatCurrency,
+        amount: amount,
+        amountFiat: amountFiat);
     updateTemplate();
   }
 
