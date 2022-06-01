@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/ionia/ionia.dart';
+import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/haven/haven.dart';
@@ -8,8 +10,10 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/create_account_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/forgot_password_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/login_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/auth/verify_otp_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -645,13 +649,23 @@ Future setup(
 
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
-  getIt.registerFactory(() => WelcomePage());
-
-  getIt.registerFactory(() => LoginPage());
-
-  getIt.registerFactory(() => CreateAccountPage());
-
   getIt.registerFactory(() => ForgotPassword());
+
+  getIt.registerFactory(() => IoniaApi());
+
+  getIt.registerFactory<IoniaService>(
+      () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
+
+  getIt.registerFactory(() => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
+
+  getIt.registerFactory(() => CreateAccountPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => LoginPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => VerifyIoniaOtp(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => WelcomePage(getIt.get<IoniaViewModel>()));
+
 
   _isSetupFinished = true;
 }

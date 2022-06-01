@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/create_account_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/forgot_password_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/auth/login_page.dart';
+import 'package:cake_wallet/src/screens/cake_pay/auth/verify_otp_page.dart';
 import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
@@ -417,6 +418,9 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePayForgotPasswordPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<ForgotPassword>());
+    
+    case Routes.verifyIoniaOtpPage:
+    return CupertinoPageRoute<void>(builder: (_) => getIt.get<VerifyIoniaOtp>());
 
     default:
       return MaterialPageRoute<void>(

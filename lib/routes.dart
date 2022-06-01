@@ -64,4 +64,5 @@ class Routes {
   static const cakePayCreateAccountPage = '/cake_pay_create_account_page';
   static const cakePayLoginPage = '/cake_pay_login_page';
   static const cakePayForgotPasswordPage = '/cake_pay_forgot_password_page';
+  static const verifyIoniaOtpPage = '/cake_pay_verify_otp_page';
 }

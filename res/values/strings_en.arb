@@ -546,5 +546,9 @@
   "manage_cards": "Manage Cards",
   "setup_your_debit_card": "Set up your debit card",
   "no_id_required": "No ID required. Top up and spend anywhere",
-  "how_to_use_card": "How to use this card"
+  "how_to_use_card": "How to use this card",
+  "verification": "Verification",
+  "fill_code": "Please fill in the verification code provided to your email",
+  "dont_get_code": "Don't get code",
+  "resend_code": "Please resend it"
 }
