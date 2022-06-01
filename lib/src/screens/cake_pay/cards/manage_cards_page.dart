@@ -129,7 +129,7 @@ class ManageCardsPage extends BasePage {
                     logoUrl: '',
                     onTap: ()=>Navigator.of(context).pushNamed(Routes.buyGiftCardPage),
                     title: 'Amazon',
-                    subTitle: 'Online',
+                    subTitle: 'Onlin',
                     hasDiscount: true,
                   );
                 },
