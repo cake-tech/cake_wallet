@@ -15,6 +15,7 @@ Future<void> main(List<String> args) async {
   final hasHaven = args.contains('${prefix}haven');
   await generateBitcoin(hasBitcoin);
   await generateMonero(hasMonero);
+  await generateHaven(hasHaven);
   await generatePubspec(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
   await generateWalletTypes(hasMonero: hasMonero, hasBitcoin: hasBitcoin, hasHaven: hasHaven);
 }
@@ -208,6 +209,8 @@ abstract class Monero {
 
   String getTransactionAddress(Object wallet, int accountIndex, int addressIndex);
 
+  String getSubaddressLabel(Object wallet, int accountIndex, int addressIndex);
+
   int getHeigthByDate({DateTime date});
   TransactionPriority getDefaultTransactionPriority();
   TransactionPriority deserializeMoneroTransactionPriority({int raw});
@@ -274,7 +277,8 @@ abstract class MoneroAccountList {
 }
 
 Future<void> generateHaven(bool hasImplementation) async {
-  final outputFile = File(moneroOutputPath);
+  
+  final outputFile = File(havenOutputPath);
   const havenCommonHeaders = """
 import 'package:mobx/mobx.dart';
 import 'package:flutter/foundation.dart';
@@ -287,7 +291,8 @@ import 'package:cw_core/balance.dart';
 import 'package:cw_core/output_info.dart';
 import 'package:cake_wallet/view_model/send/output.dart';
 import 'package:cw_core/wallet_service.dart';
-import 'package:hive/hive.dart';""";
+import 'package:hive/hive.dart';
+import 'package:cw_core/crypto_currency.dart';""";
   const havenCWHeaders = """
 import 'package:cw_core/get_height_by_date.dart';
 import 'package:cw_core/monero_amount_format.dart';
@@ -309,6 +314,7 @@ import 'package:cw_haven/mnemonics/portuguese.dart';
 import 'package:cw_haven/mnemonics/french.dart';
 import 'package:cw_haven/mnemonics/italian.dart';
 import 'package:cw_haven/haven_transaction_creation_credentials.dart';
+import 'package:cw_haven/api/balance_list.dart';
 """;
   const havenCwPart = "part 'cw_haven.dart';";
   const havenContent = """
@@ -351,6 +357,13 @@ class HavenBalance extends Balance {
 
   @override
   String get formattedAdditionalBalance => formattedFullBalance;
+}
+
+class AssetRate {
+  final String asset;
+  final int rate;
+
+  AssetRate(this.asset, this.rate);
 }
 
 abstract class HavenWalletDetails {
@@ -398,6 +411,8 @@ abstract class Haven {
   void onStartup();
   int getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createHavenWalletService(Box<WalletInfo> walletInfoSource);
+  CryptoCurrency assetOfTransaction(TransactionInfo tx);
+  List<AssetRate> getAssetRate();
 }
 
 abstract class MoneroSubaddressList {
@@ -420,8 +435,8 @@ abstract class HavenAccountList {
 }
   """;
 
-  const havenEmptyDefinition = 'Monero monero;\n';
-  const havenCWDefinition = 'Monero monero = CWMonero();\n';
+  const havenEmptyDefinition = 'Haven haven;\n';
+  const havenCWDefinition = 'Haven haven = CWHaven();\n';
 
   final output = '$havenCommonHeaders\n'
     + (hasImplementation ? '$havenCWHeaders\n' : '\n')

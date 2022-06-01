@@ -2,11 +2,17 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:mobx/mobx.dart';
 
 class WelcomePage extends BasePage {
+  final IoniaViewModel _ioniaViewModel;
+
+  WelcomePage(this._ioniaViewModel);
+
   @override
   Color get titleColor => Colors.black;
 
@@ -24,6 +30,11 @@ class WelcomePage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    reaction((_) => _ioniaViewModel.isLoggedIn, (bool state) {
+      if (state) {
+        // TODO:: Navigate to main page
+      }
+    });
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(

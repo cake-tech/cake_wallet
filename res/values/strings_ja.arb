@@ -268,6 +268,7 @@
   "new_subaddress_label_name" : "ラベル名",
   "new_subaddress_create" : "作成する",
 
+  "address_label" : "Address label",
 
   "subaddress_title" : "サブアドレス一覧",
 
@@ -442,6 +443,8 @@
   "enter_your_note" : "メモを入力してください…",
   "note_optional" : "注（オプション）",
   "note_tap_to_change" : "注（タップして変更）",
+  "view_in_block_explorer" : "View in Block Explorer",
+  "view_transaction_on" : "View Transaction on ",
   "transaction_key" : "トランザクションキー",
   "confirmations" : "確認",
   "recipient_address" : "受信者のアドレス",

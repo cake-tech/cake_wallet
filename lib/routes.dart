@@ -67,4 +67,5 @@ class Routes {
   static const manageCardsPage = '/manage_cards_page';
   static const buyGiftCardPage = '/buy_gift_card_page';
   static const buyGiftCardDetailPage = '/buy_gift_card_detail_page';
+  static const verifyIoniaOtpPage = '/cake_pay_verify_otp_page';
 }

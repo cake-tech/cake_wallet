@@ -48,6 +48,8 @@ class CurrencyUtils {
         return 'assets/images/xlm_icon.png';
       case CryptoCurrency.xrp:
         return 'assets/images/xrp_icon.png';
+      case CryptoCurrency.xhv:
+        return 'assets/images/xhv_logo.png';
       default:
         return null;
     }

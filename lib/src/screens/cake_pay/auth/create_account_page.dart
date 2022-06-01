@@ -1,14 +1,33 @@
+import 'package:cake_wallet/core/email_validator.dart';
+import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class CreateAccountPage extends BasePage {
-  CreateAccountPage() : _formKey = GlobalKey<FormState>();
+  final IoniaViewModel _ioniaViewModel;
+
+  CreateAccountPage(this._ioniaViewModel)
+      : _emailFocus = FocusNode(),
+        _emailController = TextEditingController(),
+        _formKey = GlobalKey<FormState>() {
+    _emailController.text = _ioniaViewModel.email;
+    _emailController.addListener(() => _ioniaViewModel.email = _emailController.text);
+  }
 
   final GlobalKey<FormState> _formKey;
+
+  final FocusNode _emailFocus;
+  final TextEditingController _emailController;
 
   @override
   Widget middle(BuildContext context) {
@@ -24,21 +43,24 @@ class CreateAccountPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    reaction((_) => _ioniaViewModel.createUserState, (IoniaCreateState state) {
+      if (state is IoniaCreateStateFailure) {
+        _onCreateUserFailure(context, state.error);
+      }
+      if (state is IoniaCreateStateSuccess) {
+        _onCreateSuccessful(context);
+      }
+    });
+
     return ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Form(
         key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            BaseTextFormField(
-              hintText: 'Email Address *',
-            ),
-            SizedBox(height: 20),
-            BaseTextFormField(
-              hintText: 'Password *',
-            ),
-          ],
+        child: BaseTextFormField(
+          hintText: 'Email Address',
+          focusNode: _emailFocus,
+          validator: EmailValidator(),
+          controller: _emailController,
         ),
       ),
       bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),
@@ -47,11 +69,19 @@ class CreateAccountPage extends BasePage {
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              PrimaryButton(
-                text: S.of(context).create_account,
-                onPressed: () {},
-                color: Theme.of(context).accentTextTheme.body2.color,
-                textColor: Colors.white,
+              Observer(
+                builder: (_) => LoadingPrimaryButton(
+                  text: S.of(context).create_account,
+                  onPressed: () async {
+                    if (!_formKey.currentState.validate()) {
+                      return;
+                    }
+                    await _ioniaViewModel.createUser(_emailController.text);
+                  },
+                  isLoading: _ioniaViewModel.createUserState is IoniaCreateStateLoading,
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white,
+                ),
               ),
               SizedBox(
                 height: 20,
@@ -92,3 +122,17 @@ class CreateAccountPage extends BasePage {
     );
   }
 }
+
+void _onCreateUserFailure(BuildContext context, String error) {
+  showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+            alertTitle: S.current.create_account,
+            alertContent: error,
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop());
+      });
+}
+
+void _onCreateSuccessful(BuildContext context) => Navigator.pushNamed(context, Routes.verifyIoniaOtpPage);

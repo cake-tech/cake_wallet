@@ -112,6 +112,10 @@ final rescanBlockchainAsyncNative = moneroApi
     .lookup<NativeFunction<rescan_blockchain>>('rescan_blockchain')
     .asFunction<RescanBlockchainAsync>();
 
+final getSubaddressLabelNative = moneroApi
+    .lookup<NativeFunction<get_subaddress_label>>('get_subaddress_label')
+    .asFunction<GetSubaddressLabel>();
+
 int getSyncingHeight() => getSyncingHeightNative();
 
 bool isNeededToRefresh() => isNeededToRefreshNative() != 0;
@@ -327,3 +331,7 @@ Future<bool> isConnected() => compute(_isConnected, 0);
 Future<int> getNodeHeight() => compute(_getNodeHeight, 0);
 
 void rescanBlockchainAsync() => rescanBlockchainAsyncNative();
+
+String getSubaddressLabel(int accountIndex, int addressIndex) {
+  return convertUTF8ToString(pointer: getSubaddressLabelNative(accountIndex, addressIndex));
+}
