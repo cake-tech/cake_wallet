@@ -1,13 +1,18 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/widgets/card_menu.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/widgets/market_place_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-class ManageCardsPage extends BasePage {
+class IoniaManageCardsPage extends BasePage {
+  final IoniaViewModel _ioniaViewModel;
+
+  IoniaManageCardsPage(this._ioniaViewModel);
+
   @override
   Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
 
@@ -40,6 +45,29 @@ class ManageCardsPage extends BasePage {
   Widget get endDrawer => CardMenu();
 
   @override
+  Widget leading(BuildContext context) {
+    final _backButton = Icon(
+      Icons.arrow_back_ios,
+      color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
+      size: 16,
+    );
+
+    return SizedBox(
+      height: 37,
+      width: 37,
+      child: ButtonTheme(
+        minWidth: double.minPositive,
+        child: FlatButton(
+            highlightColor: Colors.transparent,
+            splashColor: Colors.transparent,
+            padding: EdgeInsets.all(0),
+            onPressed: () => Navigator.pushReplacementNamed(context, Routes.dashboard),
+            child: _backButton),
+      ),
+    );
+  }
+
+  @override
   Widget middle(BuildContext context) {
     return Text(
       S.of(context).manage_cards,
@@ -60,7 +88,7 @@ class ManageCardsPage extends BasePage {
       children: [
         _TrailingIcon(
           asset: 'assets/images/card.png',
-          onPressed: () {},
+          onPressed: () => Navigator.pushNamed(context, Routes.ioniaDebitCardPage),
         ),
         SizedBox(width: 16),
         _TrailingIcon(
@@ -127,7 +155,7 @@ class ManageCardsPage extends BasePage {
                   return MarketPlaceItem(
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                     logoUrl: '',
-                    onTap: ()=>Navigator.of(context).pushNamed(Routes.buyGiftCardPage),
+                    onTap: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage),
                     title: 'Amazon',
                     subTitle: 'Onlin',
                     hasDiscount: true,

@@ -1,5 +1,6 @@
 import 'package:cake_wallet/ionia/ionia.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
+import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_view_model.g.dart';
 
@@ -8,17 +9,24 @@ class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
 abstract class IoniaViewModelBase with Store {
   IoniaViewModelBase({this.ioniaService})
       : createUserState = IoniaCreateStateSuccess(),
-        otpState = IoniaOtpSendDisabled() {
+        otpState = IoniaOtpSendDisabled(), cardState = IoniaNoCardState() {
+          _getCard();
     _getAuthStatus().then((value) => isLoggedIn = value);
   }
 
   final IoniaService ioniaService;
 
   @observable
-  IoniaCreateState createUserState;
+  IoniaCreateAccountState createUserState;
 
   @observable
   IoniaOtpState otpState;
+
+  @observable
+  IoniaCreateCardState createCardState;
+
+  @observable
+  IoniaFetchCardState cardState;
 
   @observable
   String email;
@@ -54,5 +62,32 @@ abstract class IoniaViewModelBase with Store {
 
   Future<bool> _getAuthStatus() async {
     return await ioniaService.isLogined();
+  }
+
+  @action
+  Future<IoniaVirtualCard> createCard() async {
+    createCardState = IoniaCreateCardLoading();
+    try {
+      final card = await ioniaService.createCard();
+      createCardState = IoniaCreateCardSuccess();
+      return card;
+    } catch (e) {
+      final error = e as Exception;
+      createCardState = IoniaCreateCardFailure(error: error.toString());
+    }
+    return null;
+  }
+
+  Future<void> _getCard() async {
+
+    cardState = IoniaFetchingCard();
+    try {
+      final card = await ioniaService.getCard();
+
+      cardState = IoniaCardSuccess(card: card);
+
+    } catch (_) {
+      cardState = IoniaFetchCardFailure();
+    }
   }
 }

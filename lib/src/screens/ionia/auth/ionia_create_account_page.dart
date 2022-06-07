@@ -13,10 +13,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
-class CreateAccountPage extends BasePage {
+class IoniaCreateAccountPage extends BasePage {
   final IoniaViewModel _ioniaViewModel;
 
-  CreateAccountPage(this._ioniaViewModel)
+  IoniaCreateAccountPage(this._ioniaViewModel)
       : _emailFocus = FocusNode(),
         _emailController = TextEditingController(),
         _formKey = GlobalKey<FormState>() {
@@ -43,12 +43,12 @@ class CreateAccountPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _ioniaViewModel.createUserState, (IoniaCreateState state) {
+    reaction((_) => _ioniaViewModel.createUserState, (IoniaCreateAccountState state) {
       if (state is IoniaCreateStateFailure) {
         _onCreateUserFailure(context, state.error);
       }
       if (state is IoniaCreateStateSuccess) {
-        _onCreateSuccessful(context);
+        _onCreateSuccessful(context, _ioniaViewModel);
       }
     });
 
@@ -135,4 +135,8 @@ void _onCreateUserFailure(BuildContext context, String error) {
       });
 }
 
-void _onCreateSuccessful(BuildContext context) => Navigator.pushNamed(context, Routes.verifyIoniaOtpPage);
+void _onCreateSuccessful(BuildContext context, IoniaViewModel ioniaViewModel) => Navigator.pushNamed(
+      context,
+      Routes.ioniaVerifyIoniaOtpPage,
+      arguments: [ioniaViewModel.email, ioniaViewModel],
+    );

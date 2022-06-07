@@ -1,18 +1,24 @@
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
-class VerifyIoniaOtp extends BasePage {
+class IoniaVerifyIoniaOtp extends BasePage {
   final IoniaViewModel _ioniaViewModel;
+  final String _email;
 
-  VerifyIoniaOtp(this._ioniaViewModel)
+  IoniaVerifyIoniaOtp(this._ioniaViewModel, this._email)
       : _codeController = TextEditingController(),
         _codeFocus = FocusNode() {
     _codeController.addListener(() {
@@ -43,6 +49,14 @@ class VerifyIoniaOtp extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+    reaction((_) => _ioniaViewModel.otpState, (IoniaOtpState state) {
+      if (state is IoniaOtpFailure) {
+        _onOtpFailure(context, state.error);
+      }
+      if (state is IoniaOtpSuccess) {
+        _onOtpSuccessful(context);
+      }
+    });
     return ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Column(
@@ -63,12 +77,11 @@ class VerifyIoniaOtp extends BasePage {
             children: [
               Text(S.of(context).dont_get_code),
               SizedBox(width: 20),
-              Text(
-                S.of(context).resend_code,
-                style: TextStyle(
-                  color: Palette.blueCraiola,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
+              InkWell(
+                onTap: () => _ioniaViewModel.createUser(_email),
+                child: Text(
+                  S.of(context).resend_code,
+                  style: textSmallSemiBold(color: Palette.blueCraiola),
                 ),
               ),
             ],
@@ -91,9 +104,7 @@ class VerifyIoniaOtp extends BasePage {
                   textColor: Colors.white,
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
+              SizedBox(height: 20),
             ],
           ),
         ],
@@ -101,3 +112,18 @@ class VerifyIoniaOtp extends BasePage {
     );
   }
 }
+
+void _onOtpFailure(BuildContext context, String error) {
+  showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+            alertTitle: S.current.verification,
+            alertContent: error,
+            buttonText: S.of(context).ok,
+            buttonAction: () => Navigator.of(context).pop());
+      });
+}
+
+void _onOtpSuccessful(BuildContext context) =>
+    Navigator.pushNamedAndRemoveUntil(context, Routes.ioniaManageCardsPage, ModalRoute.withName(Routes.dashboard));

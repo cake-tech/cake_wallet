@@ -11,8 +11,8 @@ import 'package:flutter/services.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-class BuyGiftCardPage extends BasePage {
-  BuyGiftCardPage()
+class IoniaBuyGiftCardPage extends BasePage {
+  IoniaBuyGiftCardPage()
       : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController();
   @override
@@ -143,14 +143,13 @@ class BuyGiftCardPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
-                  onPressed: () =>Navigator.of(context).pushNamed(Routes.buyGiftCardDetailPage),
+                  onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardDetailPage),
                   text: S.of(context).continue_text,
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white,
                 ),
               ),
-              SizedBox(height: 20),
-              SizedBox(height: 10)
+              SizedBox(height: 30),
             ],
           ),
         ),

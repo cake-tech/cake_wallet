@@ -1,6 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -13,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-class BuyGiftCardDetailPage extends StatelessWidget {
+class IoniaBuyGiftCardDetailPage extends StatelessWidget {
   ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
   Color get backgroundLightColor => Colors.white;
@@ -175,24 +176,11 @@ class BuyGiftCardDetailPage extends StatelessWidget {
             SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: InkWell(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      S.of(context).how_to_use_card,
-                      style: textMediumSemiBold(
-                        color: Theme.of(context).primaryTextTheme.title.color,
-                      ),
-                    ),
-                    Icon(
-                      Icons.chevron_right_rounded,
-                      color: Theme.of(context).primaryTextTheme.title.color,
-                    ),
-                  ],
-                ),
+              child: TextIconButton(
+                label: S.of(context).how_to_use_card,
+                onTap: () {},
               ),
-            )
+            ),
           ],
         ),
         bottomSection: Column(
@@ -308,7 +296,7 @@ class TipButton extends StatelessWidget {
             SizedBox(height: 4),
             Text(
               subTitle,
-              style: textXSmallSemiBold(color: Palette.gray),
+              style: textXxSmallSemiBold(color: Palette.gray),
             ),
           ]
         ],

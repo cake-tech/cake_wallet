@@ -7,14 +7,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
-import 'package:cake_wallet/src/screens/cake_pay/auth/create_account_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/auth/forgot_password_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/auth/login_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/auth/verify_otp_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cake_pay.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/buy_card_detail_page.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/buy_gift_card.dart';
-import 'package:cake_wallet/src/screens/cake_pay/cards/manage_cards_page.dart';
+import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -652,8 +645,6 @@ Future setup(
 
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
-  getIt.registerFactory(() => ForgotPassword());
-
   getIt.registerFactory(() => IoniaApi());
 
   getIt.registerFactory<IoniaService>(
@@ -661,17 +652,29 @@ Future setup(
 
   getIt.registerFactory(() => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(() => CreateAccountPage(getIt.get<IoniaViewModel>()));
+  getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaViewModel>()));
 
-  getIt.registerFactory(() => LoginPage(getIt.get<IoniaViewModel>()));
+  getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaViewModel>()));
 
-  getIt.registerFactory(() => VerifyIoniaOtp(getIt.get<IoniaViewModel>()));
+  getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List, void>((List args, _) {
+    final email = args.first as String;
+    final ioniaViewModel = args[1] as IoniaViewModel;
 
-  getIt.registerFactory(() => WelcomePage(getIt.get<IoniaViewModel>()));
+    return IoniaVerifyIoniaOtp(ioniaViewModel, email);
+  });
 
-  getIt.registerFactory(() => BuyGiftCardPage());
+  getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaViewModel>()));
 
-  getIt.registerFactory(() => BuyGiftCardDetailPage());
+  getIt.registerFactory(() => IoniaBuyGiftCardPage());
+
+  getIt.registerFactory(() => IoniaBuyGiftCardDetailPage());
+
+  getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<IoniaViewModel>()));
+
 
   _isSetupFinished = true;
 }

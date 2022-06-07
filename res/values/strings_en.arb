@@ -551,5 +551,14 @@
   "verification": "Verification",
   "fill_code": "Please fill in the verification code provided to your email",
   "dont_get_code": "Don't get code",
-  "resend_code": "Please resend it"
+  "resend_code": "Please resend it",
+  "debit_card": "Debit Card",
+  "cakepay_prepaid_card": "CakePay Prepaid Debit Card",
+  "no_id_needed": "No ID needed!",
+  "frequently_asked_questions": "Frequently asked questions",
+  "debit_card_terms": "The storage and usage of your payment card number (and credentials corresponding to your payment card number) in this digital wallet are subject to the Terms and Conditions of the applicable cardholder agreement with the payment card issuer, as in effect from time to time.",
+  "please_reference_document": "Please reference the documents below for more information.",
+  "cardholder_agreement": "Cardholder Agreement",
+  "e_sign_consent": "E-Sign Consent",
+  "agree_and_continue": "Agree & Continue"
 }

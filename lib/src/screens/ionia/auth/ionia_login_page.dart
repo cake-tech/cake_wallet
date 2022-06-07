@@ -14,9 +14,9 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
-class LoginPage extends BasePage {
+class IoniaLoginPage extends BasePage {
   final IoniaViewModel _ioniaViewModel;
-  LoginPage(this._ioniaViewModel)
+  IoniaLoginPage(this._ioniaViewModel)
       : _formKey = GlobalKey<FormState>(),
         _emailFocus = FocusNode(),
         _emailController = TextEditingController() {
@@ -45,12 +45,12 @@ class LoginPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _ioniaViewModel.createUserState, (IoniaCreateState state) {
+    reaction((_) => _ioniaViewModel.createUserState, (IoniaCreateAccountState state) {
       if (state is IoniaCreateStateFailure) {
         _onLoginUserFailure(context, state.error);
       }
       if (state is IoniaCreateStateSuccess) {
-        _onLoginSuccessful(context);
+        _onLoginSuccessful(context, _ioniaViewModel);
       }
     });
     return ScrollableWithBottomSection(
@@ -86,17 +86,6 @@ class LoginPage extends BasePage {
               SizedBox(
                 height: 20,
               ),
-              InkWell(
-                onTap: () => Navigator.of(context).pushNamed(Routes.cakePayForgotPasswordPage),
-                child: Text(
-                  S.of(context).forgot_password,
-                  style: TextStyle(
-                    color: Palette.blueCraiola,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              )
             ],
           ),
         ],
@@ -117,4 +106,8 @@ void _onLoginUserFailure(BuildContext context, String error) {
       });
 }
 
-void _onLoginSuccessful(BuildContext context) => Navigator.pushNamed(context, Routes.verifyIoniaOtpPage);
+void _onLoginSuccessful(BuildContext context, IoniaViewModel ioniaViewModel) => Navigator.pushNamed(
+      context,
+      Routes.ioniaVerifyIoniaOtpPage,
+      arguments: [ioniaViewModel.email, ioniaViewModel],
+    );

@@ -8,10 +8,10 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:mobx/mobx.dart';
 
-class WelcomePage extends BasePage {
+class IoniaWelcomePage extends BasePage {
   final IoniaViewModel _ioniaViewModel;
 
-  WelcomePage(this._ioniaViewModel);
+  IoniaWelcomePage(this._ioniaViewModel);
 
   @override
   Color get titleColor => Colors.black;
@@ -32,7 +32,7 @@ class WelcomePage extends BasePage {
   Widget body(BuildContext context) {
     reaction((_) => _ioniaViewModel.isLoggedIn, (bool state) {
       if (state) {
-        // TODO:: Navigate to main page
+        Navigator.pushReplacementNamed(context, Routes.ioniaDebitCardPage);
       }
     });
     return Padding(
@@ -69,7 +69,7 @@ class WelcomePage extends BasePage {
             children: <Widget>[
               PrimaryButton(
                 text: S.of(context).create_account,
-                onPressed: () => Navigator.of(context).pushNamed(Routes.cakePayCreateAccountPage),
+                onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaCreateAccountPage),
                 color: Theme.of(context).accentTextTheme.body2.color,
                 textColor: Colors.white,
               ),
@@ -87,7 +87,7 @@ class WelcomePage extends BasePage {
               ),
               SizedBox(height: 8),
               InkWell(
-                onTap: () => Navigator.of(context).pushNamed(Routes.cakePayLoginPage),
+                onTap: () => Navigator.of(context).pushNamed(Routes.ioniaLoginPage),
                 child: Text(
                   S.of(context).login,
                   style: TextStyle(

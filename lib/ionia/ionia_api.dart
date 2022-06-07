@@ -88,7 +88,7 @@ class IoniaApi {
 		final isSuccessful = bodyJson['Successful'] as bool;
 
 		if (!isSuccessful) {
-			throw Exception(data['ErrorMessage'] as String);
+			throw Exception(data['message'] as String);
 		}
 
 		final virtualCard = data['VirtualCard'] as Map<String, Object>;
@@ -117,7 +117,7 @@ class IoniaApi {
 		final isSuccessful = bodyJson['Successful'] as bool;
 
 		if (!isSuccessful) {
-			throw Exception(data['ErrorMessage'] as String);
+			throw Exception(data['message'] as String);
 		}
 
 		return IoniaVirtualCard.fromMap(data);
