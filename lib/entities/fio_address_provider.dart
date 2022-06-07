@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class FioAddressProvider {
-  static const apiKey = '';
   static const apiAuthority = 'fio.blockpane.com';
   static const availCheck = '/v1/chain/avail_check';
   static const getAddress = '/v1/chain/get_pub_address';
