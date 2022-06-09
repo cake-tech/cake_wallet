@@ -27,10 +27,10 @@ class AddressResolver {
 
   Future<ParsedAddress> resolve(String text, String ticker) async {
     try {
-      if(text.contains('@')){
+      if (text.contains('@') && !text.contains('.')) {
         final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
-        if(isFioRegistered){
-          final address = await FioAddressProvider.getPubAddress(text,ticker);
+        if (isFioRegistered) {
+          final address = await FioAddressProvider.getPubAddress(text, ticker);
           return ParsedAddress.fetchFioAddress(address: address, name: text);
       }
 

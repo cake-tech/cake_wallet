@@ -2,7 +2,7 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 import 'package:flutter/material.dart';
 
-enum ParseFrom { unstoppableDomains, openAlias, yatRecord,fio, notParsed }
+enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed }
 
 class ParsedAddress {
   ParsedAddress({
