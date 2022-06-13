@@ -1,3 +1,5 @@
+import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
+import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,10 +12,11 @@ import 'package:cake_wallet/core/validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
-  WalletRestoreFromKeysFrom({Key key, this.onHeightOrDateEntered})
+  WalletRestoreFromKeysFrom({Key key, this.onHeightOrDateEntered, this.walletRestoreViewModel})
       : super(key: key);
 
   final Function(bool) onHeightOrDateEntered;
+  final WalletRestoreViewModel walletRestoreViewModel;
 
   @override
   WalletRestoreFromKeysFromState createState() =>
@@ -113,6 +116,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                     maxLines: null)),
             BlockchainHeightWidget(
                 key: blockchainHeightKey,
+                hasDatePicker: widget.walletRestoreViewModel.type != WalletType.haven,
                 onHeightChange: (_) => null,
                 onHeightOrDateEntered: widget.onHeightOrDateEntered)
           ]),
