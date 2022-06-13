@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/parsed_address.dart';
 import 'package:cake_wallet/entities/unstoppable_domain_address.dart';
 import 'package:cake_wallet/entities/emoji_string_extension.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cake_wallet/entities/fio_address_provider.dart';
 
 class AddressResolver {
   
@@ -26,6 +27,14 @@ class AddressResolver {
 
   Future<ParsedAddress> resolve(String text, String ticker) async {
     try {
+      if (text.contains('@') && !text.contains('.')) {
+        final bool isFioRegistered = await FioAddressProvider.checkAvail(text);
+        if (isFioRegistered) {
+          final address = await FioAddressProvider.getPubAddress(text, ticker);
+          return ParsedAddress.fetchFioAddress(address: address, name: text);
+      }
+
+      }
       if (text.hasOnlyEmojis) {
         final addresses = await yatService.fetchYatAddress(text, ticker);
         return ParsedAddress.fetchEmojiAddress(addresses: addresses, name: text);
