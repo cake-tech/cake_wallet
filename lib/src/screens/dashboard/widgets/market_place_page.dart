@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class MarketPlacePage extends StatelessWidget {
-  final ScrollController _scrollController = ScrollController();
+  final _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Padding(

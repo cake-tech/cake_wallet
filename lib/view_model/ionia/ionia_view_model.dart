@@ -9,8 +9,9 @@ class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
 abstract class IoniaViewModelBase with Store {
   IoniaViewModelBase({this.ioniaService})
       : createUserState = IoniaCreateStateSuccess(),
-        otpState = IoniaOtpSendDisabled(), cardState = IoniaNoCardState() {
-          _getCard();
+        otpState = IoniaOtpSendDisabled(),
+        cardState = IoniaNoCardState() {
+    _getCard();
     _getAuthStatus().then((value) => isLoggedIn = value);
   }
 
@@ -44,8 +45,8 @@ abstract class IoniaViewModelBase with Store {
       await ioniaService.createUser(email);
 
       createUserState = IoniaCreateStateSuccess();
-    } catch (e) {
-      createUserState = IoniaCreateStateFailure(error: 'Something went wrong!');
+    } on Exception catch (e) {
+      createUserState = IoniaCreateStateFailure(error: e.toString());
     }
   }
 
@@ -71,21 +72,18 @@ abstract class IoniaViewModelBase with Store {
       final card = await ioniaService.createCard();
       createCardState = IoniaCreateCardSuccess();
       return card;
-    } catch (e) {
-      final error = e as Exception;
-      createCardState = IoniaCreateCardFailure(error: error.toString());
+    } on Exception catch (e) {
+      createCardState = IoniaCreateCardFailure(error: e.toString());
     }
     return null;
   }
 
   Future<void> _getCard() async {
-
     cardState = IoniaFetchingCard();
     try {
       final card = await ioniaService.getCard();
 
       cardState = IoniaCardSuccess(card: card);
-
     } catch (_) {
       cardState = IoniaFetchCardFailure();
     }

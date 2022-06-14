@@ -57,7 +57,7 @@ class IoniaCreateAccountPage extends BasePage {
       content: Form(
         key: _formKey,
         child: BaseTextFormField(
-          hintText: 'Email Address',
+          hintText: S.of(context).email_address,
           focusNode: _emailFocus,
           validator: EmailValidator(),
           controller: _emailController,
@@ -89,7 +89,7 @@ class IoniaCreateAccountPage extends BasePage {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  text: 'By creating account you agree to the ',
+                  text: S.of(context).agree_to,
                   style: TextStyle(
                     color: Color(0xff7A93BA),
                     fontSize: 12,
@@ -103,7 +103,7 @@ class IoniaCreateAccountPage extends BasePage {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    TextSpan(text: ' and '),
+                    TextSpan(text: ' ${S.of(context).and} '),
                     TextSpan(
                       text: S.of(context).privacy_policy,
                       style: TextStyle(
@@ -121,22 +121,22 @@ class IoniaCreateAccountPage extends BasePage {
       ),
     );
   }
-}
 
-void _onCreateUserFailure(BuildContext context, String error) {
-  showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-            alertTitle: S.current.create_account,
-            alertContent: error,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop());
-      });
-}
+  void _onCreateUserFailure(BuildContext context, String error) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.current.create_account,
+              alertContent: error,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+  }
 
-void _onCreateSuccessful(BuildContext context, IoniaViewModel ioniaViewModel) => Navigator.pushNamed(
-      context,
-      Routes.ioniaVerifyIoniaOtpPage,
-      arguments: [ioniaViewModel.email, ioniaViewModel],
-    );
+  void _onCreateSuccessful(BuildContext context, IoniaViewModel ioniaViewModel) => Navigator.pushNamed(
+        context,
+        Routes.ioniaVerifyIoniaOtpPage,
+        arguments: [ioniaViewModel.email, ioniaViewModel],
+      );
+}

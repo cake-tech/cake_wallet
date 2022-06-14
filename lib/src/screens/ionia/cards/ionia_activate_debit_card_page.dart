@@ -81,34 +81,34 @@ class IoniaActivateDebitCardPage extends BasePage {
       ),
     );
   }
-}
 
-void _onCreateCardFailure(BuildContext context, String errorMessage) {
-  showPopUp<void>(
+  void _onCreateCardFailure(BuildContext context, String errorMessage) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.current.error,
+              alertContent: errorMessage,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+  }
+
+  void _onCreateCardSuccess(BuildContext context) {
+    Navigator.pushNamed(
+      context,
+      Routes.ioniaDebitCardPage,
+    );
+    showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
         return AlertWithOneAction(
-            alertTitle: S.current.error,
-            alertContent: errorMessage,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop());
-      });
-}
-
-void _onCreateCardSuccess(BuildContext context) {
-  Navigator.pushNamed(
-    context,
-    Routes.ioniaDebitCardPage,
-  );
-  showPopUp<void>(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertWithOneAction(
-        alertTitle: 'Congratulations!',
-        alertContent: 'You now have a debit card',
-        buttonText: S.of(context).ok,
-        buttonAction: () => Navigator.of(context).pop(),
-      );
-    },
-  );
+          alertTitle: S.of(context).congratulations,
+          alertContent: S.of(context).you_now_have_debit_card,
+          buttonText: S.of(context).ok,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
+    );
+  }
 }

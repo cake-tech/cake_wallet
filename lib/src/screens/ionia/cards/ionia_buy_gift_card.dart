@@ -16,7 +16,7 @@ class IoniaBuyGiftCardPage extends BasePage {
       : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController();
   @override
-  String get title => 'Enter Amount';
+  String get title => S.current.enter_amount;
 
   @override
   Color get titleColor => Colors.white;
@@ -107,13 +107,13 @@ class IoniaBuyGiftCardPage extends BasePage {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Min: \$5',
+                          S.of(context).min_amount('5'),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
                         ),
                         Text(
-                          'Max: \$20000',
+                          S.of(context).max_amount('20000'),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),

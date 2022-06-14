@@ -56,21 +56,21 @@ class IoniaDebitCardPage extends BasePage {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Text(
-                    'If asked for a billing address, provide your shipping address',
+                    S.of(context).billing_address_info,
                     style: textSmall(color: Theme.of(context).textTheme.display1.color),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 SizedBox(height: 24),
                 PrimaryButton(
-                  text: 'Order Physical Card',
+                  text: S.of(context).order_physical_card,
                   onPressed: () {},
                   color: Color(0xffE9F2FC),
                   textColor: Theme.of(context).textTheme.display2.color,
                 ),
                 SizedBox(height: 8),
                 PrimaryButton(
-                  text: 'Add Value',
+                  text: S.of(context).add_value,
                   onPressed: () {},
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white,
@@ -117,16 +117,18 @@ class IoniaDebitCardPage extends BasePage {
                   ),
                   child: RichText(
                       text: TextSpan(
-                          text: 'Get a',
-                          style: textMedium(color: Theme.of(context).textTheme.display2.color),
-                          children: [
-                        TextSpan(
-                          text: ' digital and physical prepaid debit card',
-                          style: textMediumBold(color: Theme.of(context).textTheme.display2.color),
-                        ),
-                        TextSpan(
-                            text: ' that you can reload with digital currencies. No additional information needed!')
-                      ])),
+                    text: S.of(context).get_a,
+                    style: textMedium(color: Theme.of(context).textTheme.display2.color),
+                    children: [
+                      TextSpan(
+                        text: S.of(context).digital_and_physical_card,
+                        style: textMediumBold(color: Theme.of(context).textTheme.display2.color),
+                      ),
+                      TextSpan(
+                        text: S.of(context).get_card_note,
+                      )
+                    ],
+                  )),
                 ),
               ],
             ),
@@ -136,7 +138,7 @@ class IoniaDebitCardPage extends BasePage {
             vertical: 32,
           ),
           bottomSection: PrimaryButton(
-            text: 'Activate',
+            text: S.of(context).activate,
             onPressed: () => _showHowToUseCard(context, activate: true),
             color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
@@ -167,7 +169,7 @@ class IoniaDebitCardPage extends BasePage {
                     child: Column(
                       children: [
                         Text(
-                          'How to use this card',
+                          S.of(context).how_to_use_card,
                           style: textLargeSemiBold(
                             color: Theme.of(context).textTheme.body1.color,
                           ),
@@ -176,7 +178,7 @@ class IoniaDebitCardPage extends BasePage {
                         Align(
                           alignment: Alignment.bottomLeft,
                           child: Text(
-                            'Sign up for the card and accept the terms.',
+                            S.of(context).signup_for_card_accept_terms,
                             style: textSmallSemiBold(
                               color: Theme.of(context).textTheme.display2.color,
                             ),
@@ -184,21 +186,20 @@ class IoniaDebitCardPage extends BasePage {
                         ),
                         SizedBox(height: 24),
                         _TitleSubtitleTile(
-                          title: 'Add prepaid funds to the cards (up to \$1000)',
-                          subtitle:
-                              'Funds are converted to USD when the held in the prepaid account, not in digital currencies.',
+                          title: S.of(context).add_fund_to_card('1000'),
+                          subtitle: S.of(context).use_card_info_two,
                         ),
                         SizedBox(height: 21),
                         _TitleSubtitleTile(
-                          title: 'Use the digital card online or with contactless payment methods.',
-                          subtitle: 'Optionally order a physical card.',
+                          title: S.of(context).use_card_info_three,
+                          subtitle: S.of(context).optionally_order_card,
                         ),
                         SizedBox(height: 35),
                         PrimaryButton(
                           onPressed: () => activate
                               ? Navigator.pushNamed(context, Routes.ioniaActivateDebitCardPage)
                               : Navigator.pop(context),
-                          text: 'Got it!',
+                          text: S.of(context).send_got_it,
                           color: Color.fromRGBO(233, 242, 252, 1),
                           textColor: Theme.of(context).textTheme.display2.color,
                         ),
@@ -287,7 +288,7 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
             ],
           ),
           Text(
-            widget.isCardSample ? 'up to \$$spendLimit' : '\$$spendLimit',
+            widget.isCardSample ? S.of(context).upto(spendLimit) : '\$$spendLimit',
             style: textXLargeSemiBold(),
           ),
           SizedBox(height: 16),
@@ -341,7 +342,7 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
               child: InkWell(
                 onTap: () => _toggleVisibility(),
                 child: Text(
-                  _showDetails ? 'Hide Details' : 'Show Details',
+                  _showDetails ? S.of(context).hide_details : S.of(context).show_details,
                   style: textSmall(),
                 ),
               ),

@@ -62,7 +62,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
       content: Column(
         children: [
           BaseTextFormField(
-            hintText: 'Enter code',
+            hintText: S.of(context).enter_code,
             focusNode: _codeFocus,
             controller: _codeController,
           ),
@@ -111,19 +111,19 @@ class IoniaVerifyIoniaOtp extends BasePage {
       ),
     );
   }
-}
 
-void _onOtpFailure(BuildContext context, String error) {
-  showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-            alertTitle: S.current.verification,
-            alertContent: error,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop());
-      });
-}
+  void _onOtpFailure(BuildContext context, String error) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.current.verification,
+              alertContent: error,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+  }
 
-void _onOtpSuccessful(BuildContext context) =>
-    Navigator.pushNamedAndRemoveUntil(context, Routes.ioniaManageCardsPage, ModalRoute.withName(Routes.dashboard));
+  void _onOtpSuccessful(BuildContext context) =>
+      Navigator.pushNamedAndRemoveUntil(context, Routes.ioniaManageCardsPage, ModalRoute.withName(Routes.dashboard));
+}

@@ -58,7 +58,7 @@ class IoniaLoginPage extends BasePage {
       content: Form(
         key: _formKey,
         child: BaseTextFormField(
-          hintText: 'Email Address',
+          hintText: S.of(context).email_address,
           validator: EmailValidator(),
           controller: _emailController,
         ),
@@ -92,22 +92,22 @@ class IoniaLoginPage extends BasePage {
       ),
     );
   }
-}
 
-void _onLoginUserFailure(BuildContext context, String error) {
-  showPopUp<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertWithOneAction(
-            alertTitle: S.current.login,
-            alertContent: error,
-            buttonText: S.of(context).ok,
-            buttonAction: () => Navigator.of(context).pop());
-      });
-}
+  void _onLoginUserFailure(BuildContext context, String error) {
+    showPopUp<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertWithOneAction(
+              alertTitle: S.current.login,
+              alertContent: error,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+  }
 
-void _onLoginSuccessful(BuildContext context, IoniaViewModel ioniaViewModel) => Navigator.pushNamed(
-      context,
-      Routes.ioniaVerifyIoniaOtpPage,
-      arguments: [ioniaViewModel.email, ioniaViewModel],
-    );
+  void _onLoginSuccessful(BuildContext context, IoniaViewModel ioniaViewModel) => Navigator.pushNamed(
+        context,
+        Routes.ioniaVerifyIoniaOtpPage,
+        arguments: [ioniaViewModel.email, ioniaViewModel],
+      );
+}
