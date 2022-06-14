@@ -1,5 +1,6 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/widgets/market_place_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -9,9 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaManageCardsPage extends BasePage {
-  final IoniaViewModel _ioniaViewModel;
-
   IoniaManageCardsPage(this._ioniaViewModel);
+
+  final IoniaViewModel _ioniaViewModel;
 
   @override
   Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -152,8 +153,7 @@ class IoniaManageCardsPage extends BasePage {
                 itemCount: 20,
                 separatorBuilder: (_, __) => SizedBox(height: 4),
                 itemBuilder: (_, index) {
-                  return MarketPlaceItem(
-                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  return CardItem(
                     logoUrl: '',
                     onTap: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage),
                     title: 'Amazon',

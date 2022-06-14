@@ -25,6 +25,7 @@ class IoniaDebitCardPage extends BasePage {
       style: TextStyle(
         fontSize: 22,
         fontFamily: 'Lato',
+        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
         fontWeight: FontWeight.w900,
       ),
     );
@@ -43,12 +44,8 @@ class IoniaDebitCardPage extends BasePage {
             contentPadding: EdgeInsets.zero,
             content: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  _IoniaDebitCard(
-                    cardInfo: cardState.card,
-                  )
-                ],
+              child: _IoniaDebitCard(
+                cardInfo: cardState.card,
               ),
             ),
             bottomSection: Column(
@@ -252,10 +249,12 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
     return pan.replaceAllMapped(RegExp(r'.{4}'), (match) => '${match.group(0)}  ');
   }
 
+  String get _getLast4 => widget.isCardSample ? '0000' : widget.cardInfo.pan.substring(widget.cardInfo.pan.length - 5);
+
+  String get _getSpendLimit => widget.isCardSample ? '10000' : widget.cardInfo.spendLimit.toStringAsFixed(2);
+
   @override
   Widget build(BuildContext context) {
-    final last4 = widget.isCardSample ? '0000' : widget.cardInfo.pan.substring(widget.cardInfo.pan.length - 5);
-    final spendLimit = widget.isCardSample ? '10000' : widget.cardInfo.spendLimit.toStringAsFixed(2);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24, vertical: 19),
       decoration: BoxDecoration(
@@ -288,12 +287,12 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
             ],
           ),
           Text(
-            widget.isCardSample ? S.of(context).upto(spendLimit) : '\$$spendLimit',
+            widget.isCardSample ? S.of(context).upto(_getSpendLimit) : '\$$_getSpendLimit',
             style: textXLargeSemiBold(),
           ),
           SizedBox(height: 16),
           Text(
-            _showDetails ? _formatPan(widget.cardInfo.pan) : '****  ****  ****  $last4',
+            _showDetails ? _formatPan(widget.cardInfo.pan) : '****  ****  ****  $_getLast4',
             style: textMediumSemiBold(),
           ),
           SizedBox(height: 32),
@@ -323,12 +322,12 @@ class _IoniaDebitCardState extends State<_IoniaDebitCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Expires',
+                      S.of(context).expires,
                       style: textXSmallSemiBold(),
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '${widget.cardInfo.expirationMonth ?? 'MM'}/${widget.cardInfo.expirationYear ?? 'YY'}',
+                      '${widget.cardInfo.expirationMonth ?? S.of(context).mm}/${widget.cardInfo.expirationYear ?? S.of(context).yy}',
                       style: textMediumSemiBold(),
                     )
                   ],

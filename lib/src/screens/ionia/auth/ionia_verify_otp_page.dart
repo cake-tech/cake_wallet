@@ -15,9 +15,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaVerifyIoniaOtp extends BasePage {
-  final IoniaViewModel _ioniaViewModel;
-  final String _email;
-
+  
   IoniaVerifyIoniaOtp(this._ioniaViewModel, this._email)
       : _codeController = TextEditingController(),
         _codeFocus = FocusNode() {
@@ -32,6 +30,10 @@ class IoniaVerifyIoniaOtp extends BasePage {
     });
   }
 
+  final IoniaViewModel _ioniaViewModel;
+
+  final String _email;
+
   @override
   Widget middle(BuildContext context) {
     return Text(
@@ -39,6 +41,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
       style: TextStyle(
         fontSize: 22,
         fontFamily: 'Lato',
+        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
         fontWeight: FontWeight.w900,
       ),
     );

@@ -1,8 +1,8 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
-import 'package:cake_wallet/src/widgets/market_place_item.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
@@ -126,12 +126,10 @@ class IoniaBuyGiftCardPage extends BasePage {
               ),
               Padding(
                 padding: const EdgeInsets.all(24.0),
-                child: MarketPlaceItem(
+                child: CardItem(
                   onTap: () {},
                   title: 'Applebee’s',
                   hasDiscount: true,
-                  isWhiteBackground: true,
-                  padding: EdgeInsets.all(12),
                   subTitle: 'subTitle',
                   logoUrl: '',
                 ),

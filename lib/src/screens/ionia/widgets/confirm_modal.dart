@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 
-class ConfirmModal extends StatelessWidget {
-  ConfirmModal({
+class IoniaConfirmModal extends StatelessWidget {
+  IoniaConfirmModal({
     @required this.alertTitle,
     @required this.alertContent,
     @required this.leftButtonText,
@@ -28,7 +28,7 @@ class ConfirmModal extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
-        ActionButton(
+        IoniaActionButton(
           buttonText: leftButtonText,
           action: actionLeftButton,
           backgoundColor: leftActionColor,
@@ -38,12 +38,26 @@ class ConfirmModal extends StatelessWidget {
           height: 52,
           color: Theme.of(context).dividerColor,
         ),
-        ActionButton(
+        IoniaActionButton(
           buttonText: rightButtonText,
           action: actionRightButton,
           backgoundColor: rightActionColor,
         ),
       ],
+    );
+  }
+
+  Widget title(BuildContext context) {
+    return Text(
+      alertTitle,
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 20,
+        fontFamily: 'Lato',
+        fontWeight: FontWeight.w600,
+        color: Theme.of(context).primaryTextTheme.title.color,
+        decoration: TextDecoration.none,
+      ),
     );
   }
 
@@ -61,7 +75,27 @@ class ConfirmModal extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.all(Radius.circular(30)),
                 child: Container(
-                    width: 300, color: Theme.of(context).accentTextTheme.title.decorationColor, child: alertContent),
+                  width: 327,
+                  color: Theme.of(context).accentTextTheme.title.decorationColor,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(24, 20, 24, 0),
+                        child: title(context),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 16, bottom: 8),
+                        child: Container(
+                          height: 1,
+                          color: Theme.of(context).dividerColor,
+                        ),
+                      ),
+                      alertContent,
+                      actionButtons(context),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
@@ -71,8 +105,8 @@ class ConfirmModal extends StatelessWidget {
   }
 }
 
-class ActionButton extends StatelessWidget {
-  const ActionButton({
+class IoniaActionButton extends StatelessWidget {
+  const IoniaActionButton({
     @required this.buttonText,
     @required this.action,
     this.backgoundColor,

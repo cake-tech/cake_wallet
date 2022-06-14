@@ -3,17 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/palette.dart';
 
 class BaseAlertDialog extends StatelessWidget {
- String get titleText => '';
+  String get titleText => '';
   String get contentText => '';
   String get leftActionButtonText => '';
   String get rightActionButtonText => '';
   bool get isDividerExists => false;
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
-  EdgeInsets get actionButtonPadding => EdgeInsets.only(left: 6, right: 6);
-  Color get rightButtonColor => Colors.transparent;
-  Color get leftButtonColor => Colors.transparent;
-
   bool get barrierDismissible => true;
 
   Widget title(BuildContext context) {
@@ -51,8 +47,8 @@ class BaseAlertDialog extends StatelessWidget {
         Flexible(
             child: Container(
           height: 52,
-          padding: actionButtonPadding,
-          color: leftButtonColor ?? Theme.of(context).accentTextTheme.body2.decorationColor,
+          padding: EdgeInsets.only(left: 6, right: 6),
+          color: Theme.of(context).accentTextTheme.body2.decorationColor,
           child: ButtonTheme(
             minWidth: double.infinity,
             child: FlatButton(
@@ -66,7 +62,7 @@ class BaseAlertDialog extends StatelessWidget {
                     fontSize: 15,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w600,
-                    color: leftButtonColor != null ? Colors.white : Theme.of(context).primaryTextTheme.body2.backgroundColor,
+                    color: Theme.of(context).primaryTextTheme.body2.backgroundColor,
                     decoration: TextDecoration.none,
                   ),
                 )),
@@ -80,8 +76,8 @@ class BaseAlertDialog extends StatelessWidget {
         Flexible(
             child: Container(
           height: 52,
-          padding: actionButtonPadding,
-          color: rightButtonColor ?? Theme.of(context).accentTextTheme.body1.backgroundColor,
+          padding: EdgeInsets.only(left: 6, right: 6),
+          color: Theme.of(context).accentTextTheme.body1.backgroundColor,
           child: ButtonTheme(
             minWidth: double.infinity,
             child: FlatButton(
@@ -95,7 +91,7 @@ class BaseAlertDialog extends StatelessWidget {
                     fontSize: 15,
                     fontFamily: 'Lato',
                     fontWeight: FontWeight.w600,
-                    color: rightButtonColor != null ? Colors.white : Theme.of(context).primaryTextTheme.body1.backgroundColor,
+                    color: Theme.of(context).primaryTextTheme.body1.backgroundColor,
                     decoration: TextDecoration.none,
                   ),
                 )),
@@ -108,9 +104,7 @@ class BaseAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => barrierDismissible
-      ? Navigator.of(context).pop()
-      : null,
+      onTap: () => barrierDismissible ? Navigator.of(context).pop() : null,
       child: Container(
         color: Colors.transparent,
         child: BackdropFilter(
@@ -136,14 +130,14 @@ class BaseAlertDialog extends StatelessWidget {
                               child: title(context),
                             ),
                             isDividerExists
-                            ? Padding(
-                                padding: EdgeInsets.only(top: 16, bottom: 8),
-                                child: Container(
-                                  height: 1,
-                                  color: Theme.of(context).dividerColor,
-                                ),
-                            )
-                            : Offstage(),
+                                ? Padding(
+                                    padding: EdgeInsets.only(top: 16, bottom: 8),
+                                    child: Container(
+                                      height: 1,
+                                      color: Theme.of(context).dividerColor,
+                                    ),
+                                  )
+                                : Offstage(),
                             Padding(
                               padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
                               child: content(context),

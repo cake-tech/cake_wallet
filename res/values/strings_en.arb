@@ -584,5 +584,15 @@
   "optionally_order_card": "Optionally order a physical card.",
   "hide_details" : "Hide Details",
   "show_details" : "Show Details",
-  "upto": "up to ${value}"
+  "upto": "up to ${value}",
+  "discount": "Save ${value}%",
+  "gift_card_amount": "Gift Card Amount",
+  "bill_amount": "Bill amount",
+  "you_pay": "You pay",
+  "tip": "Tip:",
+  "custom": "custom",
+  "by_cake_pay": "by CakePay",
+  "expires": "Expires",
+  "mm": "MM",
+  "yy": "YY"
 }

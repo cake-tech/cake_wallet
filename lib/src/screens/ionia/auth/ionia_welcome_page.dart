@@ -9,12 +9,7 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaWelcomePage extends BasePage {
-  final IoniaViewModel _ioniaViewModel;
-
   IoniaWelcomePage(this._ioniaViewModel);
-
-  @override
-  Color get titleColor => Colors.black;
 
   @override
   Widget middle(BuildContext context) {
@@ -23,10 +18,13 @@ class IoniaWelcomePage extends BasePage {
       style: TextStyle(
         fontSize: 22,
         fontFamily: 'Lato',
+        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
         fontWeight: FontWeight.w900,
       ),
     );
   }
+
+  final IoniaViewModel _ioniaViewModel;
 
   @override
   Widget body(BuildContext context) {

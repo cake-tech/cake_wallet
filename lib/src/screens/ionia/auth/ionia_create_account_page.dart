@@ -14,8 +14,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaCreateAccountPage extends BasePage {
-  final IoniaViewModel _ioniaViewModel;
-
   IoniaCreateAccountPage(this._ioniaViewModel)
       : _emailFocus = FocusNode(),
         _emailController = TextEditingController(),
@@ -23,6 +21,8 @@ class IoniaCreateAccountPage extends BasePage {
     _emailController.text = _ioniaViewModel.email;
     _emailController.addListener(() => _ioniaViewModel.email = _emailController.text);
   }
+
+  final IoniaViewModel _ioniaViewModel;
 
   final GlobalKey<FormState> _formKey;
 
@@ -36,6 +36,7 @@ class IoniaCreateAccountPage extends BasePage {
       style: TextStyle(
         fontSize: 22,
         fontFamily: 'Lato',
+        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
         fontWeight: FontWeight.w900,
       ),
     );
@@ -111,7 +112,7 @@ class IoniaCreateAccountPage extends BasePage {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    TextSpan(text: ' by CakePay'),
+                    TextSpan(text: ' ${S.of(context).by_cake_pay}'),
                   ],
                 ),
               ),

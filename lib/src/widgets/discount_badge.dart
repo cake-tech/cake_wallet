@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cake_wallet/generated/i18n.dart';
+
 
 class DiscountBadge extends StatelessWidget {
   const DiscountBadge({
@@ -14,7 +16,7 @@ class DiscountBadge extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 10.0),
           child: Text(
-            'Save 20%',
+            S.of(context).discount('20'),
             style: TextStyle(
               color: Colors.white,
               fontSize: 12,

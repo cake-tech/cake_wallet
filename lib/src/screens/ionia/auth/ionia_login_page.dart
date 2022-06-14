@@ -1,6 +1,5 @@
 import 'package:cake_wallet/core/email_validator.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -15,20 +14,20 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaLoginPage extends BasePage {
-  final IoniaViewModel _ioniaViewModel;
   IoniaLoginPage(this._ioniaViewModel)
       : _formKey = GlobalKey<FormState>(),
-        _emailFocus = FocusNode(),
         _emailController = TextEditingController() {
     _emailController.text = _ioniaViewModel.email;
     _emailController.addListener(() => _ioniaViewModel.email = _emailController.text);
   }
 
   final GlobalKey<FormState> _formKey;
+
+  final IoniaViewModel _ioniaViewModel;
+
   @override
   Color get titleColor => Colors.black;
 
-  final FocusNode _emailFocus;
   final TextEditingController _emailController;
 
   @override

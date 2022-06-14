@@ -1,6 +1,6 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
@@ -11,7 +11,6 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
@@ -95,7 +94,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    'Gift Card Amount',
+                    S.of(context).gift_card_amount,
                     style: textSmall(),
                   ),
                   SizedBox(height: 4),
@@ -113,7 +112,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Bill Amount',
+                              S.of(context).bill_amount,
                               style: textSmall(),
                             ),
                             SizedBox(height: 4),
@@ -127,7 +126,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Text(
-                              'Tip',
+                              S.of(context).tip,
                               style: textSmall(),
                             ),
                             SizedBox(height: 4),
@@ -144,7 +143,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                   Divider(),
                   SizedBox(height: 16),
                   Text(
-                    'You Pay',
+                    S.of(context).you_pay,
                     style: textSmall(),
                   ),
                   SizedBox(height: 4),
@@ -161,7 +160,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tip:',
+                    S.of(context).tip,
                     style: TextStyle(
                       color: Theme.of(context).primaryTextTheme.title.color,
                       fontWeight: FontWeight.w700,
@@ -205,25 +204,27 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       ),
     );
   }
-}
 
-void purchaseCard(BuildContext context) {
-  showPopUp<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertWithTwoActions(
-            alertTitle: S.of(context).save_backup_password_alert,
-            alertContent: S.of(context).change_backup_password_alert,
-            rightButtonText: S.of(context).ok,
-            leftButtonText: S.of(context).cancel,
-            leftActionColor: Color(0xffFF6600),
-            isDividerExist: true,
-            rightActionColor: Theme.of(context).accentTextTheme.body2.color,
-            actionRightButton: () async {
-              Navigator.of(dialogContext)..pop()..pop();
-            },
-            actionLeftButton: () => Navigator.of(dialogContext).pop());
-      });
+  void purchaseCard(BuildContext context) {
+    showPopUp<void>(
+        context: context,
+        builder: (_) {
+          return IoniaConfirmModal(
+              alertTitle: S.of(context).confirm_sending,
+              alertContent: SizedBox(
+                //Todo:: substitute this widget with modal content
+                height: 200,
+              ),
+              rightButtonText: S.of(context).ok,
+              leftButtonText: S.of(context).cancel,
+              leftActionColor: Color(0xffFF6600),
+              rightActionColor: Theme.of(context).accentTextTheme.body2.color,
+              actionRightButton: () async {
+                Navigator.of(context).pop();
+              },
+              actionLeftButton: () => Navigator.of(context).pop());
+        });
+  }
 }
 
 class TipButtonGroup extends StatefulWidget {
@@ -264,7 +265,7 @@ class _TipButtonGroupState extends State<TipButtonGroup> {
         SizedBox(width: 4),
         TipButton(
           isSelected: _isSelected('299'),
-          caption: 'Custom',
+          caption: S.of(context).custom,
         ),
       ],
     );

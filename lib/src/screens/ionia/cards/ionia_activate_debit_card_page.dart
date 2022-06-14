@@ -12,9 +12,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaActivateDebitCardPage extends BasePage {
-  final IoniaViewModel _ioniaViewModel;
 
   IoniaActivateDebitCardPage(this._ioniaViewModel);
+
+  final IoniaViewModel _ioniaViewModel;
 
   @override
   Widget middle(BuildContext context) {
@@ -22,6 +23,7 @@ class IoniaActivateDebitCardPage extends BasePage {
       S.current.debit_card,
       style: TextStyle(
         fontSize: 22,
+        color: Theme.of(context).accentTextTheme.display4.backgroundColor,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w900,
       ),
