@@ -144,6 +144,7 @@ bool setupNodeSync(
     String password,
     bool useSSL = false,
     bool isLightWallet = false}) {
+  print("SetupNodeSync begin");
   final addressPointer = address.toNativeUtf8();
   Pointer<Utf8> loginPointer;
   Pointer<Utf8> passwordPointer;
@@ -175,6 +176,7 @@ bool setupNodeSync(
     throw SetupWalletException(
         message: convertUTF8ToString(pointer: errorMessagePointer));
   }
+  print("setup nodesync end");
 
   return isSetupNode;
 }
@@ -285,7 +287,7 @@ SyncListener setListeners(void Function(int, int, double) onNewBlock,
 
 void onStartup() => onStartupNative();
 
-void _storeSync(Object _) => storeSync();
+Future<void> _storeSync(Object _) async => await storeSync();
 
 bool _setupNodeSync(Map args) {
   final address = args['address'] as String;
@@ -322,7 +324,18 @@ Future setupNode(
       'isLightWallet': isLightWallet
     });
 
-Future store() => compute<int, void>(_storeSync, 0);
+int storeTime = 0;
+
+Future store() async {
+  // print(DateTime.now().millisecondsSinceEpoch);
+  if (DateTime.now().millisecondsSinceEpoch < storeTime + 1000) {
+    await Future.delayed(Duration(seconds: 1));
+    return store();
+  }
+  // print("released $storeTime");
+  storeTime = DateTime.now().millisecondsSinceEpoch;
+  await compute<int, void>(_storeSync, 0);
+}
 
 Future<bool> isConnected() => compute(_isConnected, 0);
 
