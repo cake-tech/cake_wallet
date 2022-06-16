@@ -125,6 +125,8 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
+import 'package:cake_wallet/ionia/ionia_merchant_service.dart';
+import 'package:cake_wallet/ionia/ionia_token_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -217,6 +219,10 @@ Future setup(
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>()));
+
+  getIt.registerFactory(() => IoniaTokenService(getIt.get<FlutterSecureStorage>()));
+  
+  getIt.registerFactory(() => IoniaMerchantService(getIt.get<IoniaTokenService>(), isDevEnv: true));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
       WalletNewVM(getIt.get<AppStore>(),
