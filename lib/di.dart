@@ -1,11 +1,15 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/ionia/ionia.dart';
+import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -647,5 +651,36 @@ Future setup(
 
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
+  getIt.registerFactory(() => IoniaApi());
+
+  getIt.registerFactory<IoniaService>(
+      () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
+
+  getIt.registerFactory(() => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
+
+  getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List, void>((List args, _) {
+    final email = args.first as String;
+    final ioniaViewModel = args[1] as IoniaViewModel;
+
+    return IoniaVerifyIoniaOtp(ioniaViewModel, email);
+  });
+
+  getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => IoniaBuyGiftCardPage());
+
+  getIt.registerFactory(() => IoniaBuyGiftCardDetailPage());
+
+  getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<IoniaViewModel>()));
+
+  getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<IoniaViewModel>()));
+
+
   _isSetupFinished = true;
 }

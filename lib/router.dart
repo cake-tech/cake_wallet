@@ -70,6 +70,7 @@ import 'package:hive/hive.dart';
 import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
+import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -401,6 +402,34 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<UnspentCoinsDetailsPage>(
                   param1: args));
+
+    case Routes.ioniaWelcomePage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaWelcomePage>());  
+    
+    case Routes.ioniaLoginPage:
+      return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaLoginPage>());
+
+    case Routes.ioniaCreateAccountPage:
+      return CupertinoPageRoute<void>( builder: (_) => getIt.get<IoniaCreateAccountPage>());
+
+    case Routes.ioniaManageCardsPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaManageCardsPage>());
+
+    case Routes.ioniaBuyGiftCardPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardPage>());
+    
+    case Routes.ioniaBuyGiftCardDetailPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaBuyGiftCardDetailPage>());
+
+    case Routes.ioniaVerifyIoniaOtpPage:
+    final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) =>getIt.get<IoniaVerifyIoniaOtp>(param1: args));
+
+    case Routes.ioniaDebitCardPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaDebitCardPage>());
+
+    case Routes.ioniaActivateDebitCardPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaActivateDebitCardPage>());
 
     default:
       return MaterialPageRoute<void>(
