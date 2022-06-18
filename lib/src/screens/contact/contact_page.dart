@@ -94,7 +94,10 @@ class ContactPage extends BasePage {
                 child: Observer(
                     builder: (_) => AddressTextField(
                       controller: _addressController,
-                      options: [AddressTextFieldOption.qrCode],
+                      options: [
+                        AddressTextFieldOption.paste,
+                        AddressTextFieldOption.qrCode,
+                      ],
                       buttonColor: Theme.of(context).accentTextTheme.display2.color,
                       iconColor: PaletteDark.gray,
                       borderColor: Theme.of(context).primaryTextTheme.title.backgroundColor,
