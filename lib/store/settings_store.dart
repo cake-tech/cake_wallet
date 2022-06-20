@@ -314,6 +314,10 @@ abstract class SettingsStoreBase with Store {
         await _sharedPreferences.setInt(
             PreferencesKey.currentNodeIdKey, node.key as int);
         break;
+      case WalletType.haven:
+        await _sharedPreferences.setInt(
+            PreferencesKey.currentHavenNodeIdKey, node.key as int);
+        break;
       default:
         break;
     }
