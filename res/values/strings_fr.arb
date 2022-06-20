@@ -1,7 +1,7 @@
 {
   "welcome" : "Bienvenue sur",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Super portefeuille pour Monero, Bitcoin et Litecoin",
+  "first_wallet_text" : "Super portefeuille pour Monero, Bitcoin, Litecoin, et Haven",
   "please_make_selection" : "Merci de faire un choix ci-dessous pour créer ou restaurer votre portefeuille.",
   "create_new" : "Créer un Nouveau Portefeuille",
   "restore_wallet" : "Restaurer un Portefeuille",

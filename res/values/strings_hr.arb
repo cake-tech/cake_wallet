@@ -1,7 +1,7 @@
 {
   "welcome" : "Dobrodošli na",
   "cake_wallet" : "Cake Wallet",
-  "first_wallet_text" : "Odličan novčanik za Monero, Bitcoin i Litecoin",
+  "first_wallet_text" : "Odličan novčanik za Monero, Bitcoin, Litecoin, i Haven",
   "please_make_selection" : "Molimo odaberite opcije niže za izradu novog novčanika ili za oporavak postojećeg.",
   "create_new" : "Izradi novi novčanik",
   "restore_wallet" : "Oporavi novčanik",
