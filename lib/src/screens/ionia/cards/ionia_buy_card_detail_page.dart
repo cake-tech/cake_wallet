@@ -1,8 +1,8 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
-import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -14,6 +14,11 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
+
+  const IoniaBuyGiftCardDetailPage(this.merchant);
+
+  final IoniaMerchant merchant;
+
   ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
   Color get backgroundLightColor => Colors.white;
@@ -52,7 +57,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
 
   Widget middle(BuildContext context) {
     return Text(
-      'AppleBees',
+      merchant.legalName,
       style: TextStyle(
         fontSize: 22,
         fontFamily: 'Lato',
@@ -74,7 +79,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
             SizedBox(height: 60),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [leading(context), middle(context), DiscountBadge()],
+              children: [leading(context), middle(context), DiscountBadge(percentage: merchant.minimumDiscount,)],
             ),
             SizedBox(height: 36),
             Container(

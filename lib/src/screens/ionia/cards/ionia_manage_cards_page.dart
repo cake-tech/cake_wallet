@@ -8,6 +8,8 @@ import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class IoniaManageCardsPage extends BasePage {
   IoniaManageCardsPage(this._ioniaViewModel);
@@ -49,7 +51,7 @@ class IoniaManageCardsPage extends BasePage {
   Widget leading(BuildContext context) {
     final _backButton = Icon(
       Icons.arrow_back_ios,
-      color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
+      color: Theme.of(context).accentTextTheme.display3.backgroundColor,
       size: 16,
     );
 
@@ -141,27 +143,43 @@ class IoniaManageCardsPage extends BasePage {
           ),
           SizedBox(height: 8),
           Expanded(
-            child: RawScrollbar(
-              thumbColor: Colors.white.withOpacity(0.15),
-              radius: Radius.circular(20),
-              isAlwaysShown: true,
-              thickness: 2,
-              controller: _scrollController,
-              child: ListView.separated(
-                padding: EdgeInsets.only(left: 2, right: 22),
-                controller: _scrollController,
-                itemCount: 20,
-                separatorBuilder: (_, __) => SizedBox(height: 4),
-                itemBuilder: (_, index) {
-                  return CardItem(
-                    logoUrl: '',
-                    onTap: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage),
-                    title: 'Amazon',
-                    subTitle: 'Onlin',
-                    hasDiscount: true,
-                  );
-                },
-              ),
+            child: Observer(
+              builder: (_) {
+                final merchantsList = _ioniaViewModel.ioniaMerchants;
+                return RawScrollbar(
+                  thumbColor: Colors.white.withOpacity(0.15),
+                  radius: Radius.circular(20),
+                  isAlwaysShown: true,
+                  thickness: 2,
+                  controller: _scrollController,
+                  child: ListView.separated(
+                    padding: EdgeInsets.only(left: 2, right: 22),
+                    controller: _scrollController,
+                    itemCount: merchantsList.length,
+                    separatorBuilder: (_, __) => SizedBox(height: 4),
+                    itemBuilder: (_, index) {
+                      final merchant = merchantsList[index];
+                      return CardItem(
+                        logoUrl: merchant.logoUrl,
+                        onTap: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage,
+                              arguments: [merchant]),
+                        title: merchant.legalName,
+                        subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
+                        backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
+                        titleColor: Theme.of(context)
+                              .accentTextTheme
+                              .display3
+                              .backgroundColor,
+                        subtitleColor: Theme.of(context)
+                            .accentTextTheme
+                            .display2
+                            .backgroundColor,
+                        discount: merchant.minimumDiscount,
+                      );
+                    },
+                  ),
+                );
+              }
             ),
           ),
         ],

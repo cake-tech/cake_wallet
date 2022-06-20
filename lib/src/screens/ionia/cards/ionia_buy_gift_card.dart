@@ -1,3 +1,4 @@
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -12,9 +13,12 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaBuyGiftCardPage extends BasePage {
-  IoniaBuyGiftCardPage()
+  IoniaBuyGiftCardPage(this.merchant)
       : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController();
+
+  final IoniaMerchant merchant;
+
   @override
   String get title => S.current.enter_amount;
 
@@ -93,7 +97,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                           left: _width / 4,
                         ),
                         child: Text(
-                          'USD: ',
+                          '${merchant.acceptedCurrency}: ',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w900,
@@ -107,13 +111,13 @@ class IoniaBuyGiftCardPage extends BasePage {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          S.of(context).min_amount('5'),
+                          S.of(context).min_amount(merchant.minimumCardPurchase.toString()),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
                         ),
                         Text(
-                          S.of(context).max_amount('20000'),
+                          S.of(context).max_amount(merchant.maximumCardPurchase.toString()),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
@@ -127,11 +131,13 @@ class IoniaBuyGiftCardPage extends BasePage {
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: CardItem(
-                  onTap: () {},
-                  title: 'Applebee’s',
-                  hasDiscount: true,
-                  subTitle: 'subTitle',
-                  logoUrl: '',
+                  title: merchant.legalName,
+                  backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
+                  discount: 0.0,
+                  titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
+                  subtitleColor: Theme.of(context).hintColor,
+                  subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
+                  logoUrl: merchant.logoUrl,
                 ),
               )
             ],
@@ -141,10 +147,10 @@ class IoniaBuyGiftCardPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
-                  onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardDetailPage),
+                  onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardDetailPage, arguments: [merchant] ),
                   text: S.of(context).continue_text,
                   color: Theme.of(context).accentTextTheme.body2.color,
-                  textColor: Colors.white,
+                  textColor: Theme.of(context).primaryTextTheme.body1.color,
                 ),
               ),
               SizedBox(height: 30),
