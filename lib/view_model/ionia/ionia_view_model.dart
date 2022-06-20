@@ -1,4 +1,4 @@
-import 'package:cake_wallet/ionia/ionia.dart';
+import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:mobx/mobx.dart';

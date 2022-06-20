@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/ionia_order.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/ionia/ionia_user_credentials.dart';
@@ -11,6 +13,8 @@ class IoniaApi {
 	static final verifyEmailUri = Uri.https(baseUri, '/$pathPrefix/VerifyEmail');
 	static final createCardUri = Uri.https(baseUri, '/$pathPrefix/CreateCard');
 	static final getCardsUri = Uri.https(baseUri, '/$pathPrefix/GetCards');
+	static final getMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchants');
+  	static final getPurchaseMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/PurchaseGiftCard');
 
 	// Create user
 
@@ -121,5 +125,70 @@ class IoniaApi {
 		}
 
 		return IoniaVirtualCard.fromMap(data);
+	}
+
+	// Get Merchants
+
+	Future<List<IoniaMerchant>> getMerchants({
+		@required String username,
+		@required String password,
+		@required String clientId}) async {
+	    final headers = <String, String>{
+			'clientId': clientId,
+			'username': username,
+			'password': password};
+		final response = await post(getMerchantsUrl, headers: headers);
+
+		if (response.statusCode != 200) {
+			return [];
+		}
+
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final isSuccessful = decodedBody['Successful'] as bool ?? false;
+    
+		if (!isSuccessful) {
+			return [];
+		}
+
+		final data = decodedBody['Data'] as List<dynamic>;
+		return data.map((dynamic e) {
+			final element = e as Map<String, dynamic>;
+			return IoniaMerchant.fromJsonMap(element);
+		}).toList();
+	}
+
+	// Purchase Gift Card
+
+	Future<IoniaOrder> purchaseGiftCard({
+		@required String merchId,
+		@required double amount,
+		@required String currency,
+		@required String username,
+		@required String password,
+		@required String clientId}) async {
+		final headers = <String, String>{
+			'clientId': clientId,
+			'username': username,
+			'password': password,
+			'Content-Type': 'application/json'};
+		final body = <String, dynamic>{
+			'Amount': amount,
+	    'Currency': currency,
+	    'MerchantId': merchId};
+		final response = await post(getPurchaseMerchantsUrl, headers: headers, body: json.encode(body));
+
+    	if (response.statusCode != 200) {
+			return null;
+		}
+
+    	final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final isSuccessful = decodedBody['Successful'] as bool ?? false;
+    
+		if (!isSuccessful) {
+			return null;
+		}
+
+		final data = decodedBody['Data'] as Map<String, dynamic>;
+    	return IoniaOrder.fromMap(data);
 	}
 }

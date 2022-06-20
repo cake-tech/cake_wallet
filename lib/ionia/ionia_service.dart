@@ -1,4 +1,7 @@
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/ionia_order.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/ionia/ionia_api.dart';
@@ -58,5 +61,30 @@ class IoniaService {
 		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
 		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
 		return ioniaApi.getCards(username: username, password: password, clientId: clientId);
+	}
+
+	// Get Merchants
+
+	Future<List<IoniaMerchant>> getMerchants() async {
+		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
+		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		return ioniaApi.getMerchants(username: username, password: password, clientId: clientId);
+	}
+
+	// Purchase Gift Card
+
+	Future<IoniaOrder> purchaseGiftCard({
+		@required String merchId,
+		@required double amount,
+		@required String currency}) async {
+		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
+		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		return ioniaApi.purchaseGiftCard(
+			merchId: merchId,
+			amount: amount,
+			currency: currency,
+			username: username,
+			password: password,
+			clientId: clientId);
 	}
 }
