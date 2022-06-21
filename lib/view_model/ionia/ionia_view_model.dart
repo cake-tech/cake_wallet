@@ -1,7 +1,6 @@
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
-import 'package:cake_wallet/ionia/ionia_merchant_service.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_view_model.g.dart';
@@ -10,7 +9,7 @@ class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
 
 abstract class IoniaViewModelBase with Store {
 
-  IoniaViewModelBase({this.ioniaService, this.ioniaMerchantService})
+  IoniaViewModelBase({this.ioniaService})
       : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
         cardState = IoniaNoCardState(), ioniaMerchants = [] {
@@ -19,8 +18,6 @@ abstract class IoniaViewModelBase with Store {
     });
     _getAuthStatus().then((value) => isLoggedIn = value);
   }
-
-  final IoniaMerchantService ioniaMerchantService;
 
   final IoniaService ioniaService;
 
@@ -100,6 +97,6 @@ abstract class IoniaViewModelBase with Store {
   }
 
    Future<List<IoniaMerchant>> _getMerchants()async{
-    return await ioniaMerchantService.getMerchants();
+    return await ioniaService.getMerchants();
   }
 }

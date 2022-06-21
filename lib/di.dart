@@ -655,7 +655,7 @@ Future setup(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
   
   getIt.registerFactory(
-      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>(), ioniaMerchantService: getIt.get<IoniaMerchantService>()));
+      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaViewModel>()));
 
