@@ -1,22 +1,28 @@
-import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:flutter/material.dart';
 
 class CardItem extends StatelessWidget {
 
   CardItem({
-    @required this.onTap,
     @required this.title,
     @required this.subTitle,
+    @required this.backgroundColor,
+    @required this.titleColor,
+    @required this.subtitleColor,
+    this.onTap,
     this.logoUrl,
-    this.hasDiscount = false,
+    this.discount,
+
   });
 
   final VoidCallback onTap;
   final String title;
   final String subTitle;
   final String logoUrl;
-  final bool hasDiscount;
+  final double discount;
+  final Color backgroundColor;
+  final Color titleColor;
+  final Color subtitleColor;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +34,7 @@ class CardItem extends StatelessWidget {
             padding: EdgeInsets.all(12),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.1),
+              color: backgroundColor,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: Colors.white.withOpacity(0.20),
@@ -57,19 +63,23 @@ class CardItem extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color:  Palette.stateGray,
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
+                    SizedBox(
+                      width: 200,
+                      child: Text(
+                        title,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color:  titleColor,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                     SizedBox(height: 5),
                     Text(
                       subTitle,
                       style: TextStyle(
-                          color:  Palette.niagara ,
+                          color: subtitleColor,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Lato'),
                     )
@@ -78,12 +88,12 @@ class CardItem extends StatelessWidget {
               ],
             ),
           ),
-          if (hasDiscount)
+          if (discount != 0.0)
             Align(
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: DiscountBadge(),
+                child: DiscountBadge(percentage: discount),
               ),
             ),
         ],

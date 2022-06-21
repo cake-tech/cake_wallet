@@ -30,7 +30,7 @@ class IoniaWelcomePage extends BasePage {
   Widget body(BuildContext context) {
     reaction((_) => _ioniaViewModel.isLoggedIn, (bool state) {
       if (state) {
-        Navigator.pushReplacementNamed(context, Routes.ioniaDebitCardPage);
+        Navigator.pushReplacementNamed(context, Routes.ioniaManageCardsPage);
       }
     });
     return Padding(

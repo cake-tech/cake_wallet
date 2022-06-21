@@ -5,7 +5,10 @@ import 'package:cake_wallet/generated/i18n.dart';
 class DiscountBadge extends StatelessWidget {
   const DiscountBadge({
     Key key,
+    @required this.percentage,
   }) : super(key: key);
+
+  final double percentage;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +19,7 @@ class DiscountBadge extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(right: 10.0),
           child: Text(
-            S.of(context).discount('20'),
+            S.of(context).discount(percentage.toString()),
             style: TextStyle(
               color: Colors.white,
               fontSize: 12,
