@@ -594,5 +594,7 @@
   "by_cake_pay": "by CakePay",
   "expires": "Expires",
   "mm": "MM",
-  "yy": "YY"
+  "yy": "YY",
+  "online": "Online",
+  "offline": "Offline"
 }

@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia.dart';
 import 'package:cake_wallet/ionia/ionia_api.dart';
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/haven/haven.dart';
@@ -655,8 +656,9 @@ Future setup(
 
   getIt.registerFactory<IoniaService>(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
-
-  getIt.registerFactory(() => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
+  
+  getIt.registerFactory(
+      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>(), ioniaMerchantService: getIt.get<IoniaMerchantService>()));
 
   getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaViewModel>()));
 
@@ -671,9 +673,17 @@ Future setup(
 
   getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaViewModel>()));
 
-  getIt.registerFactory(() => IoniaBuyGiftCardPage());
+  getIt.registerFactoryParam<IoniaBuyGiftCardPage, List, void>((List args, _) {
+    final merchant = args.first as IoniaMerchant;
 
-  getIt.registerFactory(() => IoniaBuyGiftCardDetailPage());
+    return IoniaBuyGiftCardPage(merchant);
+  }); 
+
+  getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List, void>((List args, _) {
+    final merchant = args.first as IoniaMerchant;
+
+    return IoniaBuyGiftCardDetailPage(merchant);
+  });
 
   getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaViewModel>()));
 
