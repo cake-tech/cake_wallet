@@ -11,9 +11,9 @@ class WalletNameValidator extends TextValidator {
   WalletNameValidator(this.context)
       : super(
             errorMessage: S.current.error_text_wallet_name,
-            pattern: '^[a-zA-Z0-9_ ]+\$',
+            pattern: '^[a-zA-Z0-9\-_ ]+\$',
             minLength: 1,
-            maxLength: 15) {
+            maxLength: 33) {
     this.walletListViewModel = getIt.get<WalletListViewModel>();
   }
 
