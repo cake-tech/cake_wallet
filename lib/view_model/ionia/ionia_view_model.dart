@@ -14,10 +14,9 @@ abstract class IoniaViewModelBase with Store {
       : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
         cardState = IoniaNoCardState(), ioniaMerchants = [] {
-   // _getCard();
-   _getMerchants().then((value){
-     ioniaMerchants = value;
-   });
+    _getMerchants().then((value){
+      ioniaMerchants = value;
+    });
     _getAuthStatus().then((value) => isLoggedIn = value);
   }
 
