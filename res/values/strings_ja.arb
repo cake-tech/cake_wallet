@@ -151,6 +151,7 @@
   "subaddresses" : "サブアドレス",
   "addresses" : "住所",
   "scan_qr_code" : "QRコードをスキャンして住所を取得します",
+  "qr_fullscreen" : "タップして全画面QRコードを開く",
   "rename" : "リネーム",
   "choose_account" : "アカウントを選択",
   "create_new_account" : "新しいアカウントを作成する",

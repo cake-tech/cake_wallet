@@ -11,9 +11,6 @@
 
   "haven_app": "Haven by Cake Wallet",
   "haven_app_wallet_text": "Awesome wallet for Haven",
-
-  "haven_app": "Haven by Cake Wallet",
-  "haven_app_wallet_text": "Awesome wallet for Haven",
   
   "accounts" : "Konta",
   "edit" : "Edytować",
@@ -154,6 +151,7 @@
   "subaddresses" : "Podadresy",
   "addresses" : "Adresy",
   "scan_qr_code" : "Zeskanuj kod QR, aby uzyskać adres",
+  "qr_fullscreen" : "Dotknij, aby otworzyć pełnoekranowy kod QR",
   "rename" : "Przemianować",
   "choose_account" : "Wybierz konto",
   "create_new_account" : "Stwórz nowe konto",
