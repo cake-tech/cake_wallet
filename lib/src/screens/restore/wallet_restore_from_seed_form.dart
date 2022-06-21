@@ -10,7 +10,7 @@ import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 
 class WalletRestoreFromSeedForm extends StatefulWidget {
   WalletRestoreFromSeedForm(
@@ -41,6 +41,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   WalletRestoreFromSeedFormState(this.language)
       : seedWidgetStateKey = GlobalKey<SeedWidgetState>(),
         blockchainHeightKey = GlobalKey<BlockchainHeightState>(),
+        formKey = GlobalKey<FormState>(),
         languageController = TextEditingController(),
         nameTextEditingController = TextEditingController();
 
@@ -48,6 +49,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
   final GlobalKey<BlockchainHeightState> blockchainHeightKey;
   final TextEditingController languageController;
   final TextEditingController nameTextEditingController;
+  final GlobalKey<FormState> formKey;
   String language;
 
   @override
@@ -61,13 +63,15 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
     return Container(
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Column(children: [
-          Stack(
+          Form(
+            key: formKey,
+          child: Stack(
             alignment: Alignment.centerRight,
             children: [
               BaseTextFormField(
                 controller: nameTextEditingController,
                 hintText: S.of(context).wallet_name,
-                validator: WalletNameValidator(),
+                validator: WalletNameValidator(context),
               ),
               Container(
                 width: 34,
@@ -97,7 +101,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
                 ),
               ),
             ],
-          ),
+          )),
           Container(height: 20),
           SeedWidget(
               key: seedWidgetStateKey,

@@ -528,5 +528,6 @@
   "learn_more" : "En savoir plus",
 
   "new_template" : "Nouveau Modèle",
-  "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
+  "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner",
+  "wallet_name_exists": "Le portefeuille portant ce nom existe déjà"
 }

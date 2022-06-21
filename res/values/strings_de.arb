@@ -530,5 +530,6 @@
   "learn_more" : "Erfahren Sie mehr",
   "search": "Suche",
   "new_template" : "neue Vorlage",
-  "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin"
+  "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin",
+  "wallet_name_exists": "Wallet mit diesem Namen existiert bereits"
 }

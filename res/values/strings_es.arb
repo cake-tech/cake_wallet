@@ -530,5 +530,6 @@
   "learn_more" : "Aprende más",
   "search": "Búsqueda",
   "new_template" : "Nueva plantilla",
-  "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando"
+  "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando",
+  "wallet_name_exists": "Wallet con ese nombre ya ha existido"
 }

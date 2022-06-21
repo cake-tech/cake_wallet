@@ -193,8 +193,7 @@ class WalletRestorePage extends BasePage {
           child: Observer(
             builder: (context) {
               return LoadingPrimaryButton(
-                onPressed: () =>
-                    walletRestoreViewModel.create(options: _credentials()),
+                onPressed: _confirmForm,
                 text: S.of(context).restore_recover,
                 color:
                     Theme.of(context).accentTextTheme.subtitle.decorationColor,
@@ -267,5 +266,24 @@ class WalletRestorePage extends BasePage {
     }
 
     return credentials;
+  }
+
+  void _confirmForm() {
+
+    if (walletRestoreFromSeedFormKey.currentState != null) {
+      if (!walletRestoreFromSeedFormKey.currentState.formKey.currentState
+          .validate()) {
+        return;
+      } else {
+        walletRestoreViewModel.create(options: _credentials());
+      }
+    } else {
+      if (!walletRestoreFromKeysFormKey.currentState.formKey.currentState
+          .validate()) {
+        return;
+      } else {
+        walletRestoreViewModel.create(options: _credentials());
+      }
+    }
   }
 }

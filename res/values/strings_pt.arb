@@ -530,5 +530,6 @@
   "learn_more" : "Saber mais",
   "search": "Procurar",
   "new_template" : "Novo modelo",
-  "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando"
+  "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
+  "wallet_name_exists": "A carteira com esse nome já existe"
 }

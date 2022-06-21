@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
@@ -109,7 +109,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                       child: BaseTextFormField(
                         controller: _nameController,
                         hintText: S.of(context).restore_wallet_name,
-                        validator: WalletNameValidator(),
+                        validator: WalletNameValidator(context),
                       )
                     ))
               ],

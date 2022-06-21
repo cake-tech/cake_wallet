@@ -8,7 +8,7 @@ import 'package:cake_wallet/src/widgets/blockchain_height_widget.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/entities/generate_name.dart';
 
 class WalletRestoreFromKeysFrom extends StatefulWidget {
@@ -63,7 +63,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                 BaseTextFormField(
                   controller: nameTextEditingController,
                   hintText: S.of(context).wallet_name,
-                  validator: WalletNameValidator(),
+                  validator: WalletNameValidator(context),
                 ),
                 IconButton(
                   onPressed: () async {
