@@ -1,5 +1,6 @@
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -9,7 +10,6 @@ import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/view_model/wallet_address_list/wallet_address_list_view_model.dart';
-import 'package:flutter_screen_wake/flutter_screen_wake.dart';
 
 class QRWidget extends StatelessWidget {
   QRWidget(
@@ -61,10 +61,10 @@ class QRWidget extends StatelessWidget {
                     child: GestureDetector(
                       onTap: () async {
                         // Get the current brightness:
-                        final double brightness = await FlutterScreenWake.brightness;
+                        final double brightness = await DeviceDisplayBrightness.getBrightness();
 
                         // ignore: unawaited_futures
-                        FlutterScreenWake.setBrightness(1);
+                        DeviceDisplayBrightness.setBrightness(1.0);
                         await Navigator.pushNamed(
                           context,
                           Routes.fullscreenQR,
@@ -74,7 +74,7 @@ class QRWidget extends StatelessWidget {
                           },
                         );
                         // ignore: unawaited_futures
-                        FlutterScreenWake.setBrightness(brightness);
+                        DeviceDisplayBrightness.setBrightness(brightness);
                       },
                       child: Hero(
                         tag: Key(addressListViewModel.uri.toString()),
