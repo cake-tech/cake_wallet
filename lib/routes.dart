@@ -60,4 +60,5 @@ class Routes {
   static const moneroRestoreWalletFromWelcome = '/monero_restore_wallet';
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const addressPage = '/address_page';
+  static const fullscreenQR = '/fullscreen_qr';
 }
