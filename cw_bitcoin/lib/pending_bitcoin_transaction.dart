@@ -25,6 +25,9 @@ class PendingBitcoinTransaction with PendingTransaction {
   String get id => _tx.getId();
 
   @override
+  String get hex => '';
+
+  @override
   String get amountFormatted => bitcoinAmountToString(amount: amount);
 
   @override
