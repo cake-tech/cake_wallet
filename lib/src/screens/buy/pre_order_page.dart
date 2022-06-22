@@ -125,7 +125,7 @@ class PreOrderPage extends BasePage {
                                 context: context,
                                 builder: (BuildContext context) {
                                   return CurrencyAlertDialog((FiatCurrency selectedCurrency) {
-                                    buyViewModel.buyAmountViewModel.selectedFiatCurrency = selectedCurrency;
+                                    buyViewModel.buyAmountViewModel.fiatCurrency = selectedCurrency;
                                   });
                                 },
                               );

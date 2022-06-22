@@ -11,9 +11,8 @@ abstract class BuyAmountViewModelBase with Store {
   @observable
   String amount;
 
-  FiatCurrency selectedFiatCurrency = FiatCurrency.usd;
-
-  FiatCurrency get fiatCurrency => selectedFiatCurrency;
+  @observable
+  FiatCurrency fiatCurrency = FiatCurrency.usd;
 
   @computed
   double get doubleAmount {

@@ -52,6 +52,7 @@ class CurrencyAlertDialog extends StatelessWidget {
                               child: InkWell(
                                 onTap: () {
                                   onCurrencySelect(FiatCurrency.all[index]);
+                                  Navigator.pop(context);
                                 },
                                 splashColor: Color(0xff456EFF).withOpacity(0.1),
                                 highlightColor: Color(0xff456EFF).withOpacity(0.1),
