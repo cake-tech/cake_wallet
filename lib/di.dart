@@ -639,7 +639,8 @@ Future setup(
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
+  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
+    walletType: getIt.get<AppStore>().wallet.type));
   
   _isSetupFinished = true;
 }
