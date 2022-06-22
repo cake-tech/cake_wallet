@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/widgets/market_place_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +65,7 @@ class IoniaManageCardsPage extends BasePage {
             highlightColor: Colors.transparent,
             splashColor: Colors.transparent,
             padding: EdgeInsets.all(0),
-            onPressed: () => Navigator.pushReplacementNamed(context, Routes.dashboard),
+            onPressed: () => Navigator.pop(context),
             child: _backButton),
       ),
     );
@@ -74,9 +75,7 @@ class IoniaManageCardsPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.of(context).manage_cards,
-      style: TextStyle(
-        fontSize: 24,
-        fontWeight: FontWeight.w500,
+      style: textLargeSemiBold(
         color: Theme.of(context).accentTextTheme.display3.backgroundColor,
       ),
     );
