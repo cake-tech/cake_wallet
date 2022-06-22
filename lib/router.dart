@@ -397,7 +397,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
                   param1: args));
 
     case Routes.fullscreenQR:
-      final args = settings.arguments as Map;
+      final args = settings.arguments as Map<String, dynamic>;
 
       return MaterialPageRoute<void>(
           builder: (_) =>

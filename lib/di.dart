@@ -124,8 +124,7 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
-
-import 'src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 
 final getIt = GetIt.instance;
 

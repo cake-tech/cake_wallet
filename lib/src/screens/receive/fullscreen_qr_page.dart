@@ -1,9 +1,8 @@
+import 'package:cake_wallet/src/screens/receive/widgets/qr_image.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
-
-import 'widgets/qr_image.dart';
 
 class FullscreenQRPage extends BasePage {
   FullscreenQRPage({@required this.qrData, @required this.isLight});
