@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/src/widgets/currency_alert_dialog.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -27,7 +29,6 @@ class PreOrderPage extends BasePage {
   PreOrderPage({@required this.buyViewModel})
       : _amountFocus = FocusNode(),
         _amountController = TextEditingController() {
-
     _amountController.addListener(() {
       final amount = _amountController.text;
 
@@ -72,92 +73,97 @@ class PreOrderPage extends BasePage {
   AppBarStyle get appBarStyle => AppBarStyle.transparent;
 
   @override
-  Widget trailing(context) => TrailButton(
-      caption: S.of(context).clear,
-      onPressed: () => buyViewModel.reset());
+  Widget trailing(context) => TrailButton(caption: S.of(context).clear, onPressed: () => buyViewModel.reset());
 
   @override
   Widget body(BuildContext context) {
     return KeyboardActions(
       config: KeyboardActionsConfig(
-            keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
-            keyboardBarColor: Theme.of(context).accentTextTheme.body2
-                .backgroundColor,
-            nextFocus: false,
-            actions: [
-              KeyboardActionsItem(
-                focusNode: _amountFocus,
-                toolbarButtons: [(_) => KeyboardDoneButton()],
-              ),
-            ]),
+        keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+        keyboardBarColor: Theme.of(context).accentTextTheme.body2.backgroundColor,
+        nextFocus: false,
+        actions: [
+          KeyboardActionsItem(
+            focusNode: _amountFocus,
+            toolbarButtons: [(_) => KeyboardDoneButton()],
+          ),
+        ],
+      ),
       child: Container(
-          height: 0,
-          color: Theme.of(context).backgroundColor,
-          child: ScrollableWithBottomSection(
-            contentPadding: EdgeInsets.only(bottom: 24),
-            content: Observer(builder: (_) => Column(
+        height: 0,
+        color: Theme.of(context).backgroundColor,
+        child: ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.only(bottom: 24),
+          content: Observer(
+            builder: (_) => Column(
               children: [
                 Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(24),
-                          bottomRight: Radius.circular(24)),
-                      gradient: LinearGradient(colors: [
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(bottomLeft: Radius.circular(24), bottomRight: Radius.circular(24)),
+                    gradient: LinearGradient(
+                      colors: [
                         Theme.of(context).primaryTextTheme.subhead.color,
-                        Theme.of(context)
-                            .primaryTextTheme
-                            .subhead
-                            .decorationColor,
-                      ], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                        Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: Padding(
-                        padding: EdgeInsets.only(top: 100, bottom: 65),
-                        child: Center(
-                            child: Container(
-                                width: 210,
-                                child: BaseTextFormField(
-                                  focusNode: _amountFocus,
-                                  controller: _amountController,
-                                  keyboardType:
-                                  TextInputType.numberWithOptions(
-                                      signed: false, decimal: true),
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter
-                                        .allow(RegExp(_amountPattern))
-                                  ],
-                                  prefixIcon: Padding(
-                                    padding: EdgeInsets.only(top: 2),
-                                    child:
-                                    Text(buyViewModel.fiatCurrency.title + ': ',
-                                        style: TextStyle(
-                                          fontSize: 36,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                        )),
-                                  ),
-                                  hintText: '0.00',
-                                  borderColor: Theme.of(context)
-                                      .primaryTextTheme
-                                      .body2
-                                      .decorationColor,
-                                  borderWidth: 0.5,
-                                  textStyle: TextStyle(
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 100, bottom: 65),
+                    child: Center(
+                      child: Container(
+                        width: 210,
+                        child: BaseTextFormField(
+                          focusNode: _amountFocus,
+                          controller: _amountController,
+                          keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(_amountPattern))],
+                          prefixIcon: GestureDetector(
+                            onTap: () {
+                              showPopUp<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return CurrencyAlertDialog((FiatCurrency selectedCurrency) {
+                                    buyViewModel.buyAmountViewModel.selectedFiatCurrency = selectedCurrency;
+                                  });
+                                },
+                              );
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 2),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                                  Text(
+                                    buyViewModel.fiatCurrency.title + ': ',
+                                    style: TextStyle(
                                       fontSize: 36,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white),
-                                  placeholderTextStyle: TextStyle(
-                                      color: Theme.of(context)
-                                          .primaryTextTheme
-                                          .headline
-                                          .decorationColor,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 36),
-                                )
-                            )
-                        )
-                    )
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          hintText: '0.00',
+                          borderColor: Theme.of(context).primaryTextTheme.body2.decorationColor,
+                          borderWidth: 0.5,
+                          textStyle: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: Colors.white),
+                          placeholderTextStyle: TextStyle(
+                            color: Theme.of(context).primaryTextTheme.headline.decorationColor,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 36,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                if (buyViewModel.isShowProviderButtons) Padding(
+                if (buyViewModel.isShowProviderButtons)
+                  Padding(
                     padding: EdgeInsets.only(top: 38, bottom: 18),
                     child: Text(
                       S.of(context).buy_with + ':',
@@ -165,14 +171,13 @@ class PreOrderPage extends BasePage {
                       style: TextStyle(
                           color: Theme.of(context).primaryTextTheme.title.color,
                           fontSize: 18,
-                          fontWeight: FontWeight.bold
-                      ),
-                    )
-                ),
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 if (buyViewModel.isShowProviderButtons)
                   ...buyViewModel.items.map(
-                        (item) => Observer(builder: (_) =>
-                        FutureBuilder<BuyAmount>(
+                    (item) => Observer(
+                      builder: (_) => FutureBuilder<BuyAmount>(
                         future: item.buyAmount,
                         builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
                           double sourceAmount;
@@ -192,78 +197,71 @@ class PreOrderPage extends BasePage {
                           }
 
                           return Padding(
-                              padding:
-                              EdgeInsets.only(left: 15, top: 20, right: 15),
-                              child: Observer(builder: (_) {
+                            padding: EdgeInsets.only(left: 15, top: 20, right: 15),
+                            child: Observer(
+                              builder: (_) {
                                 return BuyListItem(
-                                    selectedProvider:
-                                      buyViewModel.selectedProvider,
-                                    provider: item.provider,
-                                    sourceAmount: sourceAmount,
-                                    sourceCurrency: buyViewModel.fiatCurrency,
-                                    destAmount: destAmount,
-                                    destCurrency: buyViewModel.cryptoCurrency,
-                                    achSourceAmount: achAmount,
-                                    onTap: ((buyViewModel.doubleAmount != 0.0)
-                                        && (snapshot.hasData)) ? () =>
-                                        onSelectBuyProvider(
+                                  selectedProvider: buyViewModel.selectedProvider,
+                                  provider: item.provider,
+                                  sourceAmount: sourceAmount,
+                                  sourceCurrency: buyViewModel.fiatCurrency,
+                                  destAmount: destAmount,
+                                  destCurrency: buyViewModel.cryptoCurrency,
+                                  achSourceAmount: achAmount,
+                                  onTap: ((buyViewModel.doubleAmount != 0.0) && (snapshot.hasData))
+                                      ? () => onSelectBuyProvider(
                                           context: context,
                                           provider: item.provider,
                                           sourceAmount: sourceAmount,
-                                          minAmount: minAmount
-                                        ) : null
+                                          minAmount: minAmount)
+                                      : null,
                                 );
-                              })
+                              },
+                            ),
                           );
-                        }
-                    ))
-                )
+                        },
+                      ),
+                    ),
+                  ),
               ],
-            )),
-            bottomSectionPadding:
-              EdgeInsets.only(left: 24, right: 24, bottom: 24),
-            bottomSection: Observer(builder: (_) {
-                return LoadingPrimaryButton(
-                    onPressed: () => onPresentProvider(context: context),
-                    text: buyViewModel.selectedProvider == null
-                          ? S.of(context).buy
-                          : S.of(context).buy_with +
-                            ' ${buyViewModel.selectedProvider
-                             .description.title}',
-                    color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Colors.white,
-                    isLoading: buyViewModel.isRunning,
-                    isDisabled: (buyViewModel.selectedProvider == null) ||
-                                buyViewModel.isDisabled
-                );
-              })
-          )
-      )
+            ),
+          ),
+          bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
+          bottomSection: Observer(
+            builder: (_) {
+              return LoadingPrimaryButton(
+                onPressed: () => onPresentProvider(context: context),
+                text: buyViewModel.selectedProvider == null
+                    ? S.of(context).buy
+                    : S.of(context).buy_with + ' ${buyViewModel.selectedProvider.description.title}',
+                color: Theme.of(context).accentTextTheme.body2.color,
+                textColor: Colors.white,
+                isLoading: buyViewModel.isRunning,
+                isDisabled: (buyViewModel.selectedProvider == null) || buyViewModel.isDisabled,
+              );
+            },
+          ),
+        ),
+      ),
     );
   }
 
-  void onSelectBuyProvider({BuildContext context, BuyProvider provider,
-    double sourceAmount, int minAmount}) {
-
-    if ((provider is MoonPayBuyProvider)&&
-        (buyViewModel.buyAmountViewModel.doubleAmount < minAmount)) {
+  void onSelectBuyProvider({BuildContext context, BuyProvider provider, double sourceAmount, int minAmount}) {
+    if ((provider is MoonPayBuyProvider) && (buyViewModel.buyAmountViewModel.doubleAmount < minAmount)) {
       showPopUp<void>(
           context: context,
           builder: (BuildContext context) {
             return AlertWithOneAction(
                 alertTitle: 'MoonPay',
-                alertContent: S.of(context).moonpay_alert_text(
-                    minAmount.toString(),
-                    buyViewModel.fiatCurrency.toString()),
+                alertContent:
+                    S.of(context).moonpay_alert_text(minAmount.toString(), buyViewModel.fiatCurrency.toString()),
                 buttonText: S.of(context).ok,
                 buttonAction: () => Navigator.of(context).pop());
           });
       return;
     }
     buyViewModel.selectedProvider = provider;
-    sourceAmount > 0
-        ? buyViewModel.isDisabled = false
-        : buyViewModel.isDisabled = true;
+    sourceAmount > 0 ? buyViewModel.isDisabled = false : buyViewModel.isDisabled = true;
   }
 
   Future<void> onPresentProvider({BuildContext context}) async {
@@ -273,15 +271,13 @@ class PreOrderPage extends BasePage {
 
     buyViewModel.isRunning = true;
     final url = await buyViewModel.fetchUrl();
-    
+
     if (url.isNotEmpty) {
       if (buyViewModel.selectedProvider is MoonPayBuyProvider) {
-         if (await canLaunch(url)) await launch(url);
+        if (await canLaunch(url)) await launch(url);
       } else {
-        await Navigator.of(context)
-          .pushNamed(Routes.buyWebView,
-          arguments: [url, buyViewModel]);
-        }
+        await Navigator.of(context).pushNamed(Routes.buyWebView, arguments: [url, buyViewModel]);
+      }
     }
 
     buyViewModel.reset();
