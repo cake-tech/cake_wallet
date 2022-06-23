@@ -100,6 +100,30 @@ class IoniaDebitCardPage extends BasePage {
                     ],
                   ),
                 ),
+                SizedBox(height: 50),
+                Container(
+                  padding: EdgeInsets.all(20),
+                  margin: EdgeInsets.all(8),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(233, 242, 252, 1),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: RichText(
+                      text: TextSpan(
+                    text: S.of(context).get_a,
+                    style: textMedium(color: Theme.of(context).textTheme.display2.color),
+                    children: [
+                      TextSpan(
+                        text: S.of(context).digital_and_physical_card,
+                        style: textMediumBold(color: Theme.of(context).textTheme.display2.color),
+                      ),
+                      TextSpan(
+                        text: S.of(context).get_card_note,
+                      )
+                    ],
+                  )),
+                ),
               ],
             ),
           ),

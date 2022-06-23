@@ -112,12 +112,6 @@ class IoniaManageCardsPage extends BasePage {
       padding: const EdgeInsets.all(14.0),
       child: Column(
         children: [
-          MarketPlaceItem(
-            onTap: () {},
-            title: S.of(context).setup_your_debit_card,
-            subTitle: S.of(context).no_id_required,
-          ),
-          SizedBox(height: 48),
           Container(
             padding: EdgeInsets.only(left: 2, right: 22),
             height: 32,
