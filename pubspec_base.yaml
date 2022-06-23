@@ -54,6 +54,7 @@ dependencies:
   file_picker: ^3.0.0-nullsafety.2
   unorm_dart: ^0.2.0
   permission_handler: ^5.0.1+1
+  device_display_brightness: ^0.0.6
 
 dev_dependencies:
   flutter_test:

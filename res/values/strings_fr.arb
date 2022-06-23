@@ -149,6 +149,7 @@
   "subaddresses" : "Sous-adresses",
   "addresses" : "Adresses",
   "scan_qr_code" : "Scannez le QR code pour obtenir l'adresse",
+  "qr_fullscreen" : "Appuyez pour ouvrir le code QR en plein écran",
   "rename" : "Renommer",
   "choose_account" : "Choisir le compte",
   "create_new_account" : "Créer un nouveau compte",

@@ -3,7 +3,6 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -125,6 +124,7 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -640,6 +640,9 @@ Future setup(
   getIt.registerFactory(() => YatService());
 
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
-  
+
+  getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
+          (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
+
   _isSetupFinished = true;
 }

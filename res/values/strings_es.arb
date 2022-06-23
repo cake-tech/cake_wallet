@@ -151,6 +151,7 @@
   "subaddresses" : "Subdirecciones",
   "addresses" : "Direcciones",
   "scan_qr_code" : "Escanee el código QR para obtener la dirección",
+  "qr_fullscreen" : "Toque para abrir el código QR en pantalla completa",
   "rename" : "Rebautizar",
   "choose_account" : "Elegir cuenta",
   "create_new_account" : "Crear una nueva cuenta",
