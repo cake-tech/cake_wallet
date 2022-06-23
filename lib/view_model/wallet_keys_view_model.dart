@@ -12,7 +12,9 @@ class WalletKeysViewModel = WalletKeysViewModelBase with _$WalletKeysViewModel;
 
 abstract class WalletKeysViewModelBase with Store {
   WalletKeysViewModelBase(WalletBase wallet)
-      : walletType = wallet.type,
+      : title = wallet.type == WalletType.bitcoin || wallet.type == WalletType.litecoin
+            ? S.current.wallet_seed
+            : S.current.wallet_keys,
         items = ObservableList<StandartListItem>() {
     if (wallet.type == WalletType.monero) {
       final keys = monero.getKeys(wallet);
@@ -47,5 +49,5 @@ abstract class WalletKeysViewModelBase with Store {
 
   final ObservableList<StandartListItem> items;
 
-  final WalletType walletType;
+  final String title;
 }

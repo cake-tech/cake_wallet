@@ -1,5 +1,4 @@
 import 'package:cake_wallet/utils/show_bar.dart';
-import 'package:cw_core/wallet_type.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -13,10 +12,7 @@ class WalletKeysPage extends BasePage {
   WalletKeysPage(this.walletKeysViewModel);
 
   @override
-  String get title =>
-      walletKeysViewModel.walletType == WalletType.bitcoin || walletKeysViewModel.walletType == WalletType.litecoin
-          ? S.current.wallet_seed
-          : S.current.wallet_keys;
+  String get title => walletKeysViewModel.title;
 
   final WalletKeysViewModel walletKeysViewModel;
 
