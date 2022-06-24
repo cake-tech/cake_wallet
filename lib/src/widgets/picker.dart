@@ -93,7 +93,7 @@ class PickerState<Item> extends State<Picker> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     child: Container(
-                      color: Colors.white,
+                      color: Theme.of(context).accentTextTheme.title.color,
                       child: ConstrainedBox(
                         constraints: BoxConstraints(
                           maxHeight: MediaQuery.of(context).size.height * 0.65,
