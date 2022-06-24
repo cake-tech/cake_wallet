@@ -34,6 +34,7 @@ class LanguageListPage extends BasePage {
 
               return LanguageRow(
                 title: item,
+                code: code,
                 isSelected: isCurrent,
                 handler: (context) async {
                   if (!isCurrent) {

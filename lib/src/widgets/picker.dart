@@ -1,8 +1,8 @@
 import 'dart:ui';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
-import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cake_wallet/palette.dart';
 
@@ -10,12 +10,14 @@ class Picker<Item extends Object> extends StatefulWidget {
   Picker({
     @required this.selectedAtIndex,
     @required this.items,
-    @required this.title,
     @required this.onItemSelected,
+    this.title,
     this.displayItem,
     this.images,
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
+    this.isGridView = false,
+    this.hintText,
   });
 
   final int selectedAtIndex;
@@ -26,6 +28,8 @@ class Picker<Item extends Object> extends StatefulWidget {
   final Function(Item) onItemSelected;
   final MainAxisAlignment mainAxisAlignment;
   final String Function(Item) displayItem;
+  final bool isGridView;
+  final String hintText;
 
   @override
   PickerState createState() => PickerState<Item>(items, images, onItemSelected);
@@ -52,9 +56,7 @@ class PickerState<Item> extends State<Picker> {
   Widget build(BuildContext context) {
     controller.addListener(() {
       fromTop = controller.hasClients
-          ? (controller.offset /
-              controller.position.maxScrollExtent *
-              (backgroundHeight - thumbHeight))
+          ? (controller.offset / controller.position.maxScrollExtent * (backgroundHeight - thumbHeight))
           : 0;
       setState(() {});
     });
@@ -62,143 +64,184 @@ class PickerState<Item> extends State<Picker> {
     final isShowScrollThumb = items != null ? items.length > 3 : false;
 
     return AlertBackground(
-        child: Stack(
-      alignment: Alignment.center,
-      children: <Widget>[
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              padding: EdgeInsets.only(left: 24, right: 24),
-              child: Text(
-                widget.title,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    fontSize: 18,
-                    fontFamily: 'Lato',
-                    fontWeight: FontWeight.bold,
-                    decoration: TextDecoration.none,
-                    color: Colors.white),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-              child: GestureDetector(
-                onTap: () => null,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(14)),
-                  child: Container(
-                      height: 233,
-                      color: Theme.of(context).accentTextTheme.title.color,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: <Widget>[
-                          ListView.separated(
-                            padding: EdgeInsets.all(0),
-                            controller: controller,
-                            separatorBuilder: (context, index) => Divider(
-                              color: Theme.of(context)
-                                  .accentTextTheme
-                                  .title
-                                  .backgroundColor,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (widget.title?.isNotEmpty ?? false)
+                Container(
+                  padding: EdgeInsets.only(left: 24, right: 24),
+                  child: Text(
+                    widget.title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontFamily: 'Lato',
+                      fontWeight: FontWeight.bold,
+                      decoration: TextDecoration.none,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              Padding(
+                padding: EdgeInsets.only(left: 24, right: 24, top: 24),
+                child: GestureDetector(
+                  onTap: () => null,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.all(Radius.circular(30)),
+                    child: Container(
+                      color: Colors.white,
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxHeight: MediaQuery.of(context).size.height * 0.65,
+                        ),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: widget.hintText ?? S.of(context).search,
+                                  prefixIcon: Image.asset("assets/images/search_icon.png"),
+                                  filled: true,
+                                  fillColor: const Color(0xffF2F0FA),
+                                  alignLabelWithHint: false,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                      )),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                      )),
+                                ),
+                              ),
+                            ),
+                            Divider(
+                              color: Theme.of(context).accentTextTheme.title.backgroundColor,
                               height: 1,
                             ),
-                            itemCount: items == null ? 0 : items.length,
-                            itemBuilder: (context, index) {
-                              final item = items[index];
-                              final image =
-                                  images != null ? images[index] : null;
-                              final isItemSelected =
-                                  index == widget.selectedAtIndex;
-
-                              final color = isItemSelected
-                                  ? Theme.of(context).textTheme.body2.color
-                                  : Theme.of(context)
-                                      .accentTextTheme
-                                      .title
-                                      .color;
-                              final textColor = isItemSelected
-                                  ? Palette.blueCraiola
-                                  : Theme.of(context)
-                                      .primaryTextTheme
-                                      .title
-                                      .color;
-
-                              return GestureDetector(
-                                onTap: () {
-                                  if (onItemSelected == null) {
-                                    return;
-                                  }
-                                  Navigator.of(context).pop();
-                                  onItemSelected(item);
-                                },
-                                child: Container(
-                                  height: 77,
-                                  padding: EdgeInsets.only(left: 24, right: 24),
-                                  color: color,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: widget.mainAxisAlignment,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: <Widget>[
-                                      image ?? Offstage(),
-                                      Padding(
-                                        padding: EdgeInsets.only(
-                                            left: image != null ? 12 : 0),
-                                        child: Text(
-                                          widget.displayItem?.call(item) ??
-                                              item.toString(),
-                                          style: TextStyle(
-                                            fontSize: 18,
-                                            fontFamily: 'Lato',
-                                            fontWeight: FontWeight.w600,
-                                            color: textColor,
-                                            decoration: TextDecoration.none,
+                            Expanded(
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: <Widget>[
+                                  isShowScrollThumb
+                                      ? Scrollbar(
+                                          controller: controller,
+                                          child: itemsList(),
+                                        )
+                                      : itemsList(),
+                                  (widget.description?.isNotEmpty ?? false)
+                                      ? Positioned(
+                                          bottom: 24,
+                                          left: 24,
+                                          right: 24,
+                                          child: Text(
+                                            widget.description,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                              fontFamily: 'Lato',
+                                              decoration: TextDecoration.none,
+                                              color: Theme.of(context).primaryTextTheme.title.color,
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                          ((widget.description != null) &&
-                                  (widget.description.isNotEmpty))
-                              ? Positioned(
-                                  bottom: 24,
-                                  left: 24,
-                                  right: 24,
-                                  child: Text(
-                                    widget.description,
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                        fontFamily: 'Lato',
-                                        decoration: TextDecoration.none,
-                                        color: Theme.of(context)
-                                            .primaryTextTheme
-                                            .title
-                                            .color),
-                                  ))
-                              : Offstage(),
-                          isShowScrollThumb
-                              ? CakeScrollbar(
-                                  backgroundHeight: backgroundHeight,
-                                  thumbHeight: thumbHeight,
-                                  fromTop: fromTop)
-                              : Offstage(),
-                        ],
-                      )),
+                                        )
+                                      : Offstage(),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+          AlertCloseButton(image: closeButton)
+        ],
+      ),
+    );
+  }
+
+  Widget itemsList() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(14)),
+        color: Colors.white,
+      ),
+      child: widget.isGridView ? GridView.builder(
+        padding: EdgeInsets.zero,
+        controller: controller,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 2,
+        ),
+        itemBuilder: (context, index) => buildItem(index),
+      ) : ListView.separated(
+        padding: EdgeInsets.zero,
+        controller: controller,
+        separatorBuilder: (context, index) => Divider(
+          color: Theme.of(context).accentTextTheme.title.backgroundColor,
+          height: 1,
+        ),
+        itemCount: items == null ? 0 : items.length,
+        itemBuilder: (context, index) => buildItem(index),
+      ),
+    );
+  }
+
+  Widget buildItem(int index) {
+    final item = items[index];
+    final image = images != null ? images[index] : null;
+    final isItemSelected = index == widget.selectedAtIndex;
+
+    final color =
+        isItemSelected ? Theme.of(context).textTheme.body2.color : Theme.of(context).accentTextTheme.title.color;
+    final textColor = isItemSelected ? Palette.blueCraiola : Theme.of(context).primaryTextTheme.title.color;
+
+    return GestureDetector(
+      onTap: () {
+        if (onItemSelected == null) {
+          return;
+        }
+        Navigator.of(context).pop();
+        onItemSelected(item);
+      },
+      child: Container(
+        height: 77,
+        padding: EdgeInsets.only(left: 24, right: 24),
+        color: color,
+        child: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: widget.mainAxisAlignment,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            image ?? Offstage(),
+            Padding(
+              padding: EdgeInsets.only(left: image != null ? 12 : 0),
+              child: Text(
+                widget.displayItem?.call(item) ?? item.toString(),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w600,
+                  color: textColor,
+                  decoration: TextDecoration.none,
                 ),
               ),
             )
           ],
         ),
-        AlertCloseButton(image: closeButton)
-      ],
-    ));
+      ),
+    );
   }
 }

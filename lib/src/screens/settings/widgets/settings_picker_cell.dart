@@ -2,7 +2,6 @@ import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
-import 'package:cake_wallet/generated/i18n.dart';
 
 class SettingsPickerCell<ItemType> extends StandardListRow {
   SettingsPickerCell(
@@ -23,7 +22,6 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
                       items: items,
                       displayItem: displayItem,
                       selectedAtIndex: selectedAtIndex,
-                      title: S.current.please_select,
                       mainAxisAlignment: MainAxisAlignment.center,
                       onItemSelected: (ItemType item) =>
                           onItemSelected?.call(item)));

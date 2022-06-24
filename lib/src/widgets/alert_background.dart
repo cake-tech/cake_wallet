@@ -10,15 +10,18 @@ class AlertBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: double.infinity,
-      width: double.infinity,
-      color: Colors.transparent,
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
-        child: Container(
-          decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
-          child: child,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: Colors.transparent,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
+          child: Container(
+            decoration: BoxDecoration(color: PaletteDark.darkNightBlue.withOpacity(0.75)),
+            child: child,
+          ),
         ),
       ),
     );

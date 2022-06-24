@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/standard_list.dart';
 
 class LanguageRow extends StandardListRow {
-  LanguageRow({@required String title, @required this.isSelected, @required Function(BuildContext context) handler}) :
+  LanguageRow({@required String title, @required this.code, @required this.isSelected, @required Function(BuildContext context) handler}) :
         super(title: title, isSelected: isSelected, onTap: handler);
 
   @override
   final bool isSelected;
+
+  final String code;
+
+  @override
+  Widget buildLeading(BuildContext context) => Image.asset("assets/images/flags/$code.png");
 
   @override
   Widget buildCenter(BuildContext context, {@required bool hasLeftOffset}) {
