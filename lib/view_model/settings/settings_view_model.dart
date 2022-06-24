@@ -163,11 +163,6 @@ abstract class SettingsViewModelBase with Store {
             },
           images: LanguageService.list.keys.map((e) => Image.asset("assets/images/flags/$e.png")).toList(),
         ),
-        RegularListItem(
-          title: S.current.settings_change_language,
-          handler: (BuildContext context) =>
-              Navigator.of(context).pushNamed(Routes.changeLanguage),
-        ),
         SwitcherListItem(
             title: S.current.settings_allow_biometrical_authentication,
             value: () => allowBiometricalAuthentication,

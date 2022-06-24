@@ -41,7 +41,6 @@ class Routes {
   static const unlock = '/auth_not_closable';
   static const rescan = '/rescan';
   static const faq = '/faq';
-  static const changeLanguage = '/change_language';
   static const newWalletType = '/new_wallet_type';
   static const sendTemplate = '/send_template';
   static const exchangeTemplate = '/exchange_template';

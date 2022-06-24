@@ -38,7 +38,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
-import 'package:cake_wallet/src/screens/settings/change_language.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
@@ -506,8 +505,6 @@ Future setup(
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
 
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
-
-  getIt.registerFactory(() => LanguageListPage(getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>(
       (type, _) => WalletRestoreViewModel(getIt.get<AppStore>(),

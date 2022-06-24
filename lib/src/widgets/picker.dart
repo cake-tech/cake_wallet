@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -101,29 +100,30 @@ class PickerState<Item> extends State<Picker> {
                         ),
                         child: Column(
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: TextFormField(
-                                decoration: InputDecoration(
-                                  hintText: widget.hintText ?? S.of(context).search,
-                                  prefixIcon: Image.asset("assets/images/search_icon.png"),
-                                  filled: true,
-                                  fillColor: const Color(0xffF2F0FA),
-                                  alignLabelWithHint: false,
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                                  enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(
-                                        color: Colors.transparent,
-                                      )),
-                                  focusedBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(14),
-                                      borderSide: const BorderSide(
-                                        color: Colors.transparent,
-                                      )),
+                            if (widget.hintText != null)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: TextFormField(
+                                  decoration: InputDecoration(
+                                    hintText: widget.hintText,
+                                    prefixIcon: Image.asset("assets/images/search_icon.png"),
+                                    filled: true,
+                                    fillColor: const Color(0xffF2F0FA),
+                                    alignLabelWithHint: false,
+                                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                    enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: const BorderSide(
+                                          color: Colors.transparent,
+                                        )),
+                                    focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                        borderSide: const BorderSide(
+                                          color: Colors.transparent,
+                                        )),
+                                  ),
                                 ),
                               ),
-                            ),
                             Divider(
                               color: Theme.of(context).accentTextTheme.title.backgroundColor,
                               height: 1,
