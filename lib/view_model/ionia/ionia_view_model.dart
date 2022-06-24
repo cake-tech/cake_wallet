@@ -8,18 +8,22 @@ part 'ionia_view_model.g.dart';
 class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
 
 abstract class IoniaViewModelBase with Store {
-
   IoniaViewModelBase({this.ioniaService})
       : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
-        cardState = IoniaNoCardState(), ioniaMerchants = [] {
-    _getMerchants().then((value){
+        cardState = IoniaNoCardState(),
+        ioniaMerchants = [],
+        scrollOffsetFromTop = 0.0 {
+    _getMerchants().then((value) {
       ioniaMerchants = value;
     });
     _getAuthStatus().then((value) => isLoggedIn = value);
   }
 
   final IoniaService ioniaService;
+
+  @observable
+  double scrollOffsetFromTop;
 
   @observable
   IoniaCreateAccountState createUserState;
@@ -96,7 +100,11 @@ abstract class IoniaViewModelBase with Store {
     }
   }
 
-   Future<List<IoniaMerchant>> _getMerchants()async{
+  Future<List<IoniaMerchant>> _getMerchants() async {
     return await ioniaService.getMerchants();
+  }
+
+  void setScrollOffsetFromTop(double scrollOffset) {
+    scrollOffsetFromTop = scrollOffset;
   }
 }
