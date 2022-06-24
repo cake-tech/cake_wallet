@@ -128,6 +128,7 @@ class PickerState<Item> extends State<Picker> {
                               color: Theme.of(context).accentTextTheme.title.backgroundColor,
                               height: 1,
                             ),
+                            buildItem(widget.selectedAtIndex, selected: true),
                             Expanded(
                               child: Stack(
                                 alignment: Alignment.center,
@@ -201,14 +202,17 @@ class PickerState<Item> extends State<Picker> {
     );
   }
 
-  Widget buildItem(int index) {
+  Widget buildItem(int index, {bool selected = false}) {
     final item = items[index];
     final image = images != null ? images[index] : null;
     final isItemSelected = index == widget.selectedAtIndex;
 
-    final color =
-        isItemSelected ? Theme.of(context).textTheme.body2.color : Theme.of(context).accentTextTheme.title.color;
-    final textColor = isItemSelected ? Palette.blueCraiola : Theme.of(context).primaryTextTheme.title.color;
+    /// don't show selected item in the list
+    if (index == widget.selectedAtIndex && selected == false) {
+      return const SizedBox();
+    }
+
+    final textColor = isItemSelected ? Color(0xff815DFB) : Theme.of(context).primaryTextTheme.title.color;
 
     return GestureDetector(
       onTap: () {
@@ -219,28 +223,31 @@ class PickerState<Item> extends State<Picker> {
         onItemSelected(item);
       },
       child: Container(
-        height: 77,
+        height: 55,
         padding: EdgeInsets.only(left: 24, right: 24),
-        color: color,
         child: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: widget.mainAxisAlignment,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             image ?? Offstage(),
-            Padding(
-              padding: EdgeInsets.only(left: image != null ? 12 : 0),
-              child: Text(
-                widget.displayItem?.call(item) ?? item.toString(),
-                style: TextStyle(
-                  fontSize: 18,
-                  fontFamily: 'Lato',
-                  fontWeight: FontWeight.w600,
-                  color: textColor,
-                  decoration: TextDecoration.none,
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(left: image != null ? 12 : 0),
+                child: Text(
+                  widget.displayItem?.call(item) ?? item.toString(),
+                  style: TextStyle(
+                    fontSize: selected ? 16 : 14,
+                    fontFamily: 'Lato',
+                    fontWeight: selected ? FontWeight.w900 : FontWeight.w600,
+                    color: textColor,
+                    decoration: TextDecoration.none,
+                  ),
                 ),
               ),
-            )
+            ),
+            if (selected)
+              Icon(Icons.check_circle, color: Color(0xff815DFB)),
           ],
         ),
       ),
