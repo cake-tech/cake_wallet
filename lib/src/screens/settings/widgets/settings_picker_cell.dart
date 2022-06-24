@@ -9,28 +9,37 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
       @required this.displayItem,
       this.selectedItem,
       this.items,
+      this.images,
+      this.searchHintText,
       this.onItemSelected})
       : super(
-            title: title,
-            isSelected: false,
-            onTap: (BuildContext context) async {
-              final selectedAtIndex = items.indexOf(selectedItem);
+          title: title,
+          isSelected: false,
+          onTap: (BuildContext context) async {
+            final selectedAtIndex = items.indexOf(selectedItem);
 
-              await showPopUp<void>(
-                  context: context,
-                  builder: (_) => Picker(
-                      items: items,
-                      displayItem: displayItem,
-                      selectedAtIndex: selectedAtIndex,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      onItemSelected: (ItemType item) =>
-                          onItemSelected?.call(item)));
-            });
+            await showPopUp<void>(
+              context: context,
+              builder: (_) => Picker(
+                items: items,
+                displayItem: displayItem,
+                selectedAtIndex: selectedAtIndex,
+                mainAxisAlignment: MainAxisAlignment.start,
+                onItemSelected: (ItemType item) => onItemSelected?.call(item),
+                images: images,
+                isSeparated: false,
+                hintText: searchHintText,
+              ),
+            );
+          },
+        );
 
   final ItemType selectedItem;
   final List<ItemType> items;
   final void Function(ItemType item) onItemSelected;
   final String Function(ItemType item) displayItem;
+  final List<Image> images;
+  final String searchHintText;
 
   @override
   Widget buildTrailing(BuildContext context) {
@@ -38,9 +47,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
       displayItem?.call(selectedItem) ?? selectedItem.toString(),
       textAlign: TextAlign.right,
       style: TextStyle(
-          fontSize: 14.0,
-          fontWeight: FontWeight.w500,
-          color: Theme.of(context).primaryTextTheme.overline.color),
+          fontSize: 14.0, fontWeight: FontWeight.w500, color: Theme.of(context).primaryTextTheme.overline.color),
     );
   }
 }

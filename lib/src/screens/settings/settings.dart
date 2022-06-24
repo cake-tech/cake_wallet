@@ -46,6 +46,8 @@ class SettingsPage extends BasePage {
                 selectedItem: item.selectedItem(),
                 items: item.items,
                 onItemSelected: (dynamic value) => item.onItemSelected(value),
+                images: item.images,
+                searchHintText: item.searchHintText,
               );
             });
           }

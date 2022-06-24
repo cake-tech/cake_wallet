@@ -17,6 +17,7 @@ class Picker<Item extends Object> extends StatefulWidget {
     this.description,
     this.mainAxisAlignment = MainAxisAlignment.start,
     this.isGridView = false,
+    this.isSeparated = true,
     this.hintText,
   });
 
@@ -29,6 +30,7 @@ class Picker<Item extends Object> extends StatefulWidget {
   final MainAxisAlignment mainAxisAlignment;
   final String Function(Item) displayItem;
   final bool isGridView;
+  final bool isSeparated;
   final String hintText;
 
   @override
@@ -72,7 +74,7 @@ class PickerState<Item> extends State<Picker> {
             children: <Widget>[
               if (widget.title?.isNotEmpty ?? false)
                 Container(
-                  padding: EdgeInsets.only(left: 24, right: 24),
+                  padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Text(
                     widget.title,
                     textAlign: TextAlign.center,
@@ -173,12 +175,8 @@ class PickerState<Item> extends State<Picker> {
   }
 
   Widget itemsList() {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(14)),
-        color: Colors.white,
-      ),
-      child: widget.isGridView ? GridView.builder(
+    if (widget.isGridView) {
+      return GridView.builder(
         padding: EdgeInsets.zero,
         controller: controller,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -186,16 +184,20 @@ class PickerState<Item> extends State<Picker> {
           childAspectRatio: 2,
         ),
         itemBuilder: (context, index) => buildItem(index),
-      ) : ListView.separated(
-        padding: EdgeInsets.zero,
-        controller: controller,
-        separatorBuilder: (context, index) => Divider(
-          color: Theme.of(context).accentTextTheme.title.backgroundColor,
-          height: 1,
-        ),
-        itemCount: items == null ? 0 : items.length,
-        itemBuilder: (context, index) => buildItem(index),
-      ),
+      );
+    }
+
+    return ListView.separated(
+      padding: EdgeInsets.zero,
+      controller: controller,
+      separatorBuilder: (context, index) => widget.isSeparated
+          ? Divider(
+              color: Theme.of(context).accentTextTheme.title.backgroundColor,
+              height: 1,
+            )
+          : const SizedBox(),
+      itemCount: items == null ? 0 : items.length,
+      itemBuilder: (context, index) => buildItem(index),
     );
   }
 

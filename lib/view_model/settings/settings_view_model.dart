@@ -1,6 +1,6 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/settings/link_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -75,7 +75,7 @@ abstract class SettingsViewModelBase with Store {
     //var connectYatUrl = YatLink.baseUrl + YatLink.signInSuffix;
     //final connectYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (connectYatUrlParameters.isNotEmpty) {
     //  connectYatUrl += YatLink.queryParameter + connectYatUrlParameters;
     //}
@@ -83,7 +83,7 @@ abstract class SettingsViewModelBase with Store {
     //var manageYatUrl = YatLink.baseUrl + YatLink.managePath;
     //final manageYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (manageYatUrlParameters.isNotEmpty) {
     //  manageYatUrl += YatLink.queryParameter + manageYatUrlParameters;
     //}
@@ -91,12 +91,12 @@ abstract class SettingsViewModelBase with Store {
     //var createNewYatUrl = YatLink.startFlowUrl;
     //final createNewYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (createNewYatUrlParameters.isNotEmpty) {
     //  createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
     //}
 
-    
+
     sections = [
       [
         PickerListItem(
@@ -150,6 +150,19 @@ abstract class SettingsViewModelBase with Store {
                 }
               });
             }),
+        PickerListItem(
+            title: S.current.settings_change_language,
+            searchHintText: S.current.search_country,
+            items: LanguageService.list.keys.toList(),
+            displayItem: (dynamic code) {
+              return LanguageService.list[code];
+            },
+            selectedItem: () => getIt.get<SettingsStore>().languageCode,
+            onItemSelected: (String code) {
+              getIt.get<SettingsStore>().languageCode = code;
+            },
+          images: LanguageService.list.keys.map((e) => Image.asset("assets/images/flags/$e.png")).toList(),
+        ),
         RegularListItem(
           title: S.current.settings_change_language,
           handler: (BuildContext context) =>
