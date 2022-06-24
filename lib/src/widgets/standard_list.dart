@@ -37,11 +37,15 @@ class StandardListRow extends StatelessWidget {
     return Expanded(
         child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
       if (hasLeftOffset) SizedBox(width: 10),
-      Text(title,
-          style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.normal,
-              color: titleColor(context)))
+      Expanded(
+        child: Text(title,
+            style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.normal,
+                color: titleColor(context),
+            ),
+        ),
+      )
     ]));
   }
 
