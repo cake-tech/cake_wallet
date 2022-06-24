@@ -111,7 +111,11 @@ abstract class SettingsViewModelBase with Store {
               items: FiatCurrency.all,
               selectedItem: () => fiatCurrency,
               onItemSelected: (FiatCurrency currency) =>
-                  setFiatCurrency(currency)),
+                  setFiatCurrency(currency),
+            images: FiatCurrency.all.map(
+                    (e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                .toList(),
+          ),
         PickerListItem(
             title: S.current.settings_fee_priority,
             items: priorityForWalletType(wallet.type),
@@ -161,7 +165,9 @@ abstract class SettingsViewModelBase with Store {
             onItemSelected: (String code) {
               getIt.get<SettingsStore>().languageCode = code;
             },
-          images: LanguageService.list.keys.map((e) => Image.asset("assets/images/flags/$e.png")).toList(),
+          images: LanguageService.list.keys.map(
+              (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
+              .toList(),
         ),
         SwitcherListItem(
             title: S.current.settings_allow_biometrical_authentication,

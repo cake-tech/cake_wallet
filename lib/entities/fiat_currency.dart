@@ -1,43 +1,45 @@
 import 'package:cw_core/enumerable_item.dart';
 
 class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
-  const FiatCurrency({String symbol}) : super(title: symbol, raw: symbol);
+  const FiatCurrency({String symbol, this.countryCode}) : super(title: symbol, raw: symbol);
+
+  final String countryCode;
 
   static List<FiatCurrency> get all => _all.values.toList();
 
-  static const aud = FiatCurrency(symbol: 'AUD');
+  static const aud = FiatCurrency(symbol: 'AUD', countryCode: "aus");
   static const bgn = FiatCurrency(symbol: 'BGN');
-  static const brl = FiatCurrency(symbol: 'BRL');
-  static const cad = FiatCurrency(symbol: 'CAD');
-  static const chf = FiatCurrency(symbol: 'CHF');
-  static const cny = FiatCurrency(symbol: 'CNY');
-  static const czk = FiatCurrency(symbol: 'CZK');
-  static const eur = FiatCurrency(symbol: 'EUR');
-  static const dkk = FiatCurrency(symbol: 'DKK');
-  static const gbp = FiatCurrency(symbol: 'GBP');
+  static const brl = FiatCurrency(symbol: 'BRL', countryCode: "bra");
+  static const cad = FiatCurrency(symbol: 'CAD', countryCode: "cad");
+  static const chf = FiatCurrency(symbol: 'CHF', countryCode: "che");
+  static const cny = FiatCurrency(symbol: 'CNY', countryCode: "chn");
+  static const czk = FiatCurrency(symbol: 'CZK', countryCode: "czk");
+  static const eur = FiatCurrency(symbol: 'EUR', countryCode: "eur");
+  static const dkk = FiatCurrency(symbol: 'DKK', countryCode: "dnk");
+  static const gbp = FiatCurrency(symbol: 'GBP', countryCode: "gbr");
   static const hkd = FiatCurrency(symbol: 'HKD');
-  static const hrk = FiatCurrency(symbol: 'HRK');
-  static const huf = FiatCurrency(symbol: 'HUF');
-  static const idr = FiatCurrency(symbol: 'IDR');
-  static const ils = FiatCurrency(symbol: 'ILS');
-  static const inr = FiatCurrency(symbol: 'INR');
-  static const isk = FiatCurrency(symbol: 'ISK');
-  static const jpy = FiatCurrency(symbol: 'JPY');
-  static const krw = FiatCurrency(symbol: 'KRW');
-  static const mxn = FiatCurrency(symbol: 'MXN');
-  static const myr = FiatCurrency(symbol: 'MYR');
-  static const nok = FiatCurrency(symbol: 'NOK');
-  static const nzd = FiatCurrency(symbol: 'NZD');
-  static const php = FiatCurrency(symbol: 'PHP');
-  static const pln = FiatCurrency(symbol: 'PLN');
-  static const ron = FiatCurrency(symbol: 'RON');
-  static const rub = FiatCurrency(symbol: 'RUB');
-  static const sek = FiatCurrency(symbol: 'SEK');
-  static const sgd = FiatCurrency(symbol: 'SGD');
-  static const thb = FiatCurrency(symbol: 'THB');
-  static const usd = FiatCurrency(symbol: 'USD');
-  static const zar = FiatCurrency(symbol: 'ZAR');
-  static const vef = FiatCurrency(symbol: 'VEF');
+  static const hrk = FiatCurrency(symbol: 'HRK', countryCode: "hrv");
+  static const huf = FiatCurrency(symbol: 'HUF', countryCode: "hun");
+  static const idr = FiatCurrency(symbol: 'IDR', countryCode: "idn");
+  static const ils = FiatCurrency(symbol: 'ILS', countryCode: "isr");
+  static const inr = FiatCurrency(symbol: 'INR', countryCode: "ind");
+  static const isk = FiatCurrency(symbol: 'ISK', countryCode: "isl");
+  static const jpy = FiatCurrency(symbol: 'JPY', countryCode: "jpn");
+  static const krw = FiatCurrency(symbol: 'KRW', countryCode: "kor");
+  static const mxn = FiatCurrency(symbol: 'MXN', countryCode: "mex");
+  static const myr = FiatCurrency(symbol: 'MYR', countryCode: "mys");
+  static const nok = FiatCurrency(symbol: 'NOK', countryCode: "nor");
+  static const nzd = FiatCurrency(symbol: 'NZD', countryCode: "nzl");
+  static const php = FiatCurrency(symbol: 'PHP', countryCode: "phl");
+  static const pln = FiatCurrency(symbol: 'PLN', countryCode: "pol");
+  static const ron = FiatCurrency(symbol: 'RON', countryCode: "rou");
+  static const rub = FiatCurrency(symbol: 'RUB', countryCode: "rus");
+  static const sek = FiatCurrency(symbol: 'SEK', countryCode: "swe");
+  static const sgd = FiatCurrency(symbol: 'SGD', countryCode: "sgp");
+  static const thb = FiatCurrency(symbol: 'THB', countryCode: "tha");
+  static const usd = FiatCurrency(symbol: 'USD', countryCode: "usa");
+  static const zar = FiatCurrency(symbol: 'ZAR', countryCode: "saf");
+  static const vef = FiatCurrency(symbol: 'VEF', countryCode: "ven");
 
   static final _all = {
     FiatCurrency.aud.raw: FiatCurrency.aud,

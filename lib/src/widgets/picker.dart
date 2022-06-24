@@ -128,7 +128,7 @@ class PickerState<Item> extends State<Picker> {
                               color: Theme.of(context).accentTextTheme.title.backgroundColor,
                               height: 1,
                             ),
-                            buildItem(widget.selectedAtIndex, selected: true),
+                            if (widget.selectedAtIndex != -1) buildItem(widget.selectedAtIndex, selected: true),
                             Expanded(
                               child: Stack(
                                 alignment: Alignment.center,
@@ -180,6 +180,7 @@ class PickerState<Item> extends State<Picker> {
       return GridView.builder(
         padding: EdgeInsets.zero,
         controller: controller,
+        itemCount: items == null ? 0 : items.length,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           childAspectRatio: 2,
@@ -246,8 +247,7 @@ class PickerState<Item> extends State<Picker> {
                 ),
               ),
             ),
-            if (selected)
-              Icon(Icons.check_circle, color: Color(0xff815DFB)),
+            if (selected) Icon(Icons.check_circle, color: Color(0xff815DFB)),
           ],
         ),
       ),
