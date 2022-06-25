@@ -181,10 +181,11 @@ class PickerState<Item> extends State<Picker> {
       return GridView.builder(
         padding: EdgeInsets.zero,
         controller: controller,
-        itemCount: items == null ? 0 : items.length,
+        itemCount: items == null ? 0 : items.length - 1,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 2,
+          crossAxisSpacing: 2,
+          childAspectRatio: 3,
         ),
         itemBuilder: (context, index) => buildItem(index),
       );
@@ -206,14 +207,14 @@ class PickerState<Item> extends State<Picker> {
   }
 
   Widget buildItem(int index, {bool selected = false}) {
+    /// skip selected item and don't show it in the list
+    if (index >= widget.selectedAtIndex && selected == false && index < items.length - 1) {
+      index++;
+    }
+
     final item = items[index];
     final image = images != null ? images[index] : null;
     final isItemSelected = index == widget.selectedAtIndex;
-
-    /// don't show selected item in the list
-    if (index == widget.selectedAtIndex && selected == false) {
-      return const SizedBox();
-    }
 
     final textColor = isItemSelected ? Color(0xff815DFB) : Theme.of(context).primaryTextTheme.title.color;
 

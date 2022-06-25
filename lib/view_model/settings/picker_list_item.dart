@@ -10,6 +10,7 @@ class PickerListItem<ItemType> extends SettingsListItem {
       this.displayItem,
       this.images,
       this.searchHintText,
+      this.isGridView = false,
       void Function(ItemType item) onItemSelected})
       : _onItemSelected = onItemSelected,
         super(title);
@@ -20,6 +21,7 @@ class PickerListItem<ItemType> extends SettingsListItem {
   final void Function(ItemType item) _onItemSelected;
   final List<Image> images;
   final String searchHintText;
+  final bool isGridView;
 
   void onItemSelected(dynamic item) {
     if (item is ItemType) {

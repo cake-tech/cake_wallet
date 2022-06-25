@@ -48,6 +48,7 @@ class SettingsPage extends BasePage {
                 onItemSelected: (dynamic value) => item.onItemSelected(value),
                 images: item.images,
                 searchHintText: item.searchHintText,
+                isGridView: item.isGridView,
               );
             });
           }

@@ -116,6 +116,7 @@ abstract class SettingsViewModelBase with Store {
               images: FiatCurrency.all.map(
                     (e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
                 .toList(),
+              isGridView: true,
           ),
         PickerListItem(
             title: S.current.settings_fee_priority,

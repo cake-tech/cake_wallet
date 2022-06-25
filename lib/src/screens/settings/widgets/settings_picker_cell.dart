@@ -11,6 +11,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
       this.items,
       this.images,
       this.searchHintText,
+      this.isGridView = false,
       this.onItemSelected})
       : super(
           title: title,
@@ -29,6 +30,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
                 images: images,
                 isSeparated: false,
                 hintText: searchHintText,
+                isGridView: isGridView,
               ),
             );
           },
@@ -40,6 +42,7 @@ class SettingsPickerCell<ItemType> extends StandardListRow {
   final String Function(ItemType item) displayItem;
   final List<Image> images;
   final String searchHintText;
+  final bool isGridView;
 
   @override
   Widget buildTrailing(BuildContext context) {
