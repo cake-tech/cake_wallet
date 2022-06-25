@@ -99,6 +99,7 @@ class PickerState<Item> extends State<Picker> {
                           maxHeight: MediaQuery.of(context).size.height * 0.65,
                         ),
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             if (widget.hintText != null)
                               Padding(
@@ -129,7 +130,7 @@ class PickerState<Item> extends State<Picker> {
                               height: 1,
                             ),
                             if (widget.selectedAtIndex != -1) buildItem(widget.selectedAtIndex, selected: true),
-                            Expanded(
+                            Flexible(
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: <Widget>[
@@ -192,6 +193,7 @@ class PickerState<Item> extends State<Picker> {
     return ListView.separated(
       padding: EdgeInsets.zero,
       controller: controller,
+      shrinkWrap: true,
       separatorBuilder: (context, index) => widget.isSeparated
           ? Divider(
               color: Theme.of(context).accentTextTheme.title.backgroundColor,
