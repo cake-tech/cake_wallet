@@ -201,7 +201,7 @@ class PickerState<Item> extends State<Picker> {
               height: 1,
             )
           : const SizedBox(),
-      itemCount: items == null ? 0 : items.length,
+      itemCount: items == null ? 0 : items.length - 1,
       itemBuilder: (context, index) => buildItem(index),
     );
   }
