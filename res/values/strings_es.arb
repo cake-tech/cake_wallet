@@ -531,6 +531,7 @@
   "learn_more" : "Aprende más",
   "search": "Búsqueda",
   "search_country": "Buscar pais",
+  "search_currency": "Moneda de búsqueda",
   "new_template" : "Nueva plantilla",
   "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando"
 }

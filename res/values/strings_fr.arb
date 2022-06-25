@@ -527,7 +527,9 @@
   "third_intro_title" : "Yat joue bien avec les autres",
   "third_intro_content" : "Les Yats existent aussi en dehors de Cake Wallet. Toute adresse sur terre peut être remplacée par un Yat !",
   "learn_more" : "En savoir plus",
-
+  "search": "Chercher",
+  "search_country": "Pays de recherche",
+  "search_currency": "Devise de recherche",
   "new_template" : "Nouveau Modèle",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
 }

@@ -531,6 +531,7 @@
   "learn_more" : "Learn More",
   "search": "Search",
   "search_country": "Search country",
+  "search_currency": "Search currency",
   "new_template" : "New Template",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
 }

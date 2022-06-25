@@ -108,11 +108,12 @@ abstract class SettingsViewModelBase with Store {
         if (!isHaven)
           PickerListItem(
               title: S.current.settings_currency,
+              searchHintText: S.current.search_currency,
               items: FiatCurrency.all,
               selectedItem: () => fiatCurrency,
               onItemSelected: (FiatCurrency currency) =>
                   setFiatCurrency(currency),
-            images: FiatCurrency.all.map(
+              images: FiatCurrency.all.map(
                     (e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
                 .toList(),
           ),

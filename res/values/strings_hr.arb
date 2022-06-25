@@ -531,6 +531,7 @@
   "learn_more" : "Saznajte više",
   "search": "Traži",
   "search_country": "Traži zemlju",
+  "search_currency": "Traži valutu",
   "new_template" : "novi predložak",
   "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek"
 }
