@@ -8,7 +8,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static List<FiatCurrency> get all => _all.values.toList();
 
   static const aud = FiatCurrency(symbol: 'AUD', countryCode: "aus");
-  static const bgn = FiatCurrency(symbol: 'BGN');
+  static const bgn = FiatCurrency(symbol: 'BGN', countryCode: "bgr");
   static const brl = FiatCurrency(symbol: 'BRL', countryCode: "bra");
   static const cad = FiatCurrency(symbol: 'CAD', countryCode: "cad");
   static const chf = FiatCurrency(symbol: 'CHF', countryCode: "che");
@@ -17,7 +17,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static const eur = FiatCurrency(symbol: 'EUR', countryCode: "eur");
   static const dkk = FiatCurrency(symbol: 'DKK', countryCode: "dnk");
   static const gbp = FiatCurrency(symbol: 'GBP', countryCode: "gbr");
-  static const hkd = FiatCurrency(symbol: 'HKD');
+  static const hkd = FiatCurrency(symbol: 'HKD', countryCode: "hkg");
   static const hrk = FiatCurrency(symbol: 'HRK', countryCode: "hrv");
   static const huf = FiatCurrency(symbol: 'HUF', countryCode: "hun");
   static const idr = FiatCurrency(symbol: 'IDR', countryCode: "idn");
