@@ -177,32 +177,33 @@ class PickerState<Item> extends State<Picker> {
   }
 
   Widget itemsList() {
-    if (widget.isGridView) {
-      return GridView.builder(
-        padding: EdgeInsets.zero,
-        controller: controller,
-        itemCount: items == null ? 0 : items.length - 1,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 2,
-          childAspectRatio: 3,
-        ),
-        itemBuilder: (context, index) => buildItem(index),
-      );
-    }
-
-    return ListView.separated(
-      padding: EdgeInsets.zero,
-      controller: controller,
-      shrinkWrap: true,
-      separatorBuilder: (context, index) => widget.isSeparated
-          ? Divider(
-              color: Theme.of(context).accentTextTheme.title.backgroundColor,
-              height: 1,
+    return Container(
+      color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
+      child: widget.isGridView
+          ? GridView.builder(
+              padding: EdgeInsets.zero,
+              controller: controller,
+              itemCount: items == null ? 0 : items.length - 1,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 2,
+                childAspectRatio: 3,
+              ),
+              itemBuilder: (context, index) => buildItem(index),
             )
-          : const SizedBox(),
-      itemCount: items == null ? 0 : items.length - 1,
-      itemBuilder: (context, index) => buildItem(index),
+          : ListView.separated(
+              padding: EdgeInsets.zero,
+              controller: controller,
+              shrinkWrap: true,
+              separatorBuilder: (context, index) => widget.isSeparated
+                  ? Divider(
+                      color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                      height: 1,
+                    )
+                  : const SizedBox(),
+              itemCount: items == null ? 0 : items.length - 1,
+              itemBuilder: (context, index) => buildItem(index),
+            ),
     );
   }
 
@@ -228,6 +229,7 @@ class PickerState<Item> extends State<Picker> {
       },
       child: Container(
         height: 55,
+        color: Theme.of(context).accentTextTheme.headline6.color,
         padding: EdgeInsets.only(left: 24, right: 24),
         child: Row(
           mainAxisSize: MainAxisSize.max,
