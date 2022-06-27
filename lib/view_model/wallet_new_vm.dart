@@ -28,6 +28,12 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
 
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
 
+  @override
+  bool nameExists(String name) {
+    return super.nameExists(name);
+  }
+
+
   final WalletCreationService _walletCreationService;
 
   @override

@@ -35,9 +35,9 @@ abstract class WalletCreationVMBase with Store {
   bool nameExists(String name) {
     final List<String> walletNameList = [];
     _walletInfoSource.values
-        .forEach((element) => walletNameList.add(element.name));
+        .forEach((element) => walletNameList.add(element.name.toLowerCase()));
 
-    return walletNameList.contains(name);
+    return walletNameList.contains(name.toLowerCase());
   }
 
   Future<void> create({dynamic options}) async {

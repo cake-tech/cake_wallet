@@ -218,10 +218,21 @@ class _WalletNameFormState extends State<WalletNameForm> {
     if (!_formKey.currentState.validate()) {
       return;
     }
-
-    _walletNewVM.create(
-        options: _walletNewVM.hasLanguageSelector
-            ? _languageSelectorKey.currentState.selected
-            : null);
+    if (_walletNewVM.nameExists(_walletNewVM.name)) {
+      showPopUp<void>(
+          context: context,
+          builder: (_) {
+            return AlertWithOneAction(
+                alertTitle: '',
+                alertContent: S.of(context).wallet_name_exists,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    } else {
+      _walletNewVM.create(
+          options: _walletNewVM.hasLanguageSelector
+              ? _languageSelectorKey.currentState.selected
+              : null);
+    }
   }
 }
