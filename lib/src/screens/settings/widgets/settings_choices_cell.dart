@@ -48,13 +48,13 @@ class SettingsChoicesCell extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: 32, vertical: 8),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
-                          color: isSelected ? Color(0xff815DFB) : null,
+                          color: isSelected ? Theme.of(context).accentTextTheme.body2.color : null,
                         ),
                         child: Text(
                           choicesListItem.displayItem?.call(e) ?? e.toString(),
                           style: TextStyle(
                             color: isSelected ? Colors.white : Theme.of(context).primaryTextTheme.caption.color,
-                            fontWeight: isSelected ? FontWeight.w900 : FontWeight.normal,
+                            fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
                           ),
                         ),
                       ),
