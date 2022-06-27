@@ -288,7 +288,7 @@ class PickerState<Item> extends State<Picker> {
                   fontSize: 16,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w900,
-                  color: Color(0xff355688),
+                  color: Theme.of(context).primaryTextTheme.title.color,
                   decoration: TextDecoration.none,
                 ),
               ),
