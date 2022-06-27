@@ -1,6 +1,7 @@
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -211,12 +212,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
-        PickerListItem(
-            title: S.current.color_theme,
-            items: ThemeList.all,
-            selectedItem: () => theme,
-            onItemSelected: (ThemeBase theme) =>
-                _settingsStore.currentTheme = theme)
+        ChoicesListItem(
+          title: S.current.color_theme,
+          items: ThemeList.all,
+          selectedItem: theme,
+          onItemSelected: (ThemeBase theme) => _settingsStore.currentTheme = theme,
+        ),
       ],
       //[
         //if (_yatStore.emoji.isNotEmpty) ...[
