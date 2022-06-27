@@ -109,7 +109,7 @@ class _RestoreFromKeysFromState extends State<RestoreFromKeysFrom> {
                       child: BaseTextFormField(
                         controller: _nameController,
                         hintText: S.of(context).restore_wallet_name,
-                        validator: WalletNameValidator(context),
+                        validator: WalletNameValidator(),
                       )
                     ))
               ],

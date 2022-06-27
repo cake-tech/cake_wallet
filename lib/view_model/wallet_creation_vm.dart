@@ -32,6 +32,14 @@ abstract class WalletCreationVMBase with Store {
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
 
+  bool nameExists(String name) {
+    final List<String> walletNameList = [];
+    _walletInfoSource.values
+        .forEach((element) => walletNameList.add(element.name));
+
+    return walletNameList.contains(name);
+  }
+
   Future<void> create({dynamic options}) async {
     try {
       state = IsExecutingState();

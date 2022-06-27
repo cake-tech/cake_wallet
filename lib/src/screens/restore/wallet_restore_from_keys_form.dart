@@ -63,7 +63,7 @@ class WalletRestoreFromKeysFromState extends State<WalletRestoreFromKeysFrom> {
                 BaseTextFormField(
                   controller: nameTextEditingController,
                   hintText: S.of(context).wallet_name,
-                  validator: WalletNameValidator(context),
+                  validator: WalletNameValidator(),
                 ),
                 IconButton(
                   onPressed: () async {

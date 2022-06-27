@@ -71,7 +71,7 @@ class WalletRestoreFromSeedFormState extends State<WalletRestoreFromSeedForm> {
               BaseTextFormField(
                 controller: nameTextEditingController,
                 hintText: S.of(context).wallet_name,
-                validator: WalletNameValidator(context),
+                validator: WalletNameValidator(),
               ),
               Container(
                 width: 34,

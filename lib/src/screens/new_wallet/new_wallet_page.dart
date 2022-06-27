@@ -142,7 +142,7 @@ class _WalletNameFormState extends State<WalletNameForm> {
                               width: 1.0),
                         ),
                       ),
-                      validator: WalletNameValidator(context),
+                      validator: WalletNameValidator(),
                     ),
                     IconButton(
                       onPressed: () async {

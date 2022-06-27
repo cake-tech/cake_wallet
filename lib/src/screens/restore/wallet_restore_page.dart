@@ -269,17 +269,42 @@ class WalletRestorePage extends BasePage {
   }
 
   void _confirmForm() {
+    final formContext = walletRestoreFromSeedFormKey.currentContext ??
+        walletRestoreFromKeysFormKey.currentContext;
+
+    Future<void> showNameExistsAlert() {
+      return showPopUp<void>(
+          context: formContext,
+          builder: (_) {
+            return AlertWithOneAction(
+                alertTitle: '',
+                alertContent: S.of(formContext).wallet_name_exists,
+                buttonText: S.of(formContext).ok,
+                buttonAction: () => Navigator.of(formContext).pop());
+          });
+    }
 
     if (walletRestoreFromSeedFormKey.currentState != null) {
+      final name = walletRestoreFromSeedFormKey
+          .currentState.nameTextEditingController.value.text;
+
       if (!walletRestoreFromSeedFormKey.currentState.formKey.currentState
           .validate()) {
+        return;
+      } else if (walletRestoreViewModel.nameExists(name)) {
+        showNameExistsAlert();
         return;
       } else {
         walletRestoreViewModel.create(options: _credentials());
       }
     } else {
+      final name = walletRestoreFromKeysFormKey
+          .currentState.nameTextEditingController.value.text;
       if (!walletRestoreFromKeysFormKey.currentState.formKey.currentState
           .validate()) {
+        return;
+      } else if (walletRestoreViewModel.nameExists(name)) {
+        showNameExistsAlert();
         return;
       } else {
         walletRestoreViewModel.create(options: _credentials());
