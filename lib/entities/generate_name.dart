@@ -16,9 +16,9 @@ Future<String> generateName() async {
   final nounStringRaw =
       await rootBundle.loadString('assets/text/Wallet_Nouns.txt');
 
-  final LineSplitter ls = LineSplitter();
-  final List<String> adjectives = ls.convert(adjectiveStringRaw);
-  final List<String> nouns = ls.convert(nounStringRaw);
+  final ls = LineSplitter();
+  final adjectives = ls.convert(adjectiveStringRaw);
+  final nouns = ls.convert(nounStringRaw);
 
   final chosenAdjective = adjectives[randomThing.nextInt(adjectives.length)];
   final chosenNoun = nouns[randomThing.nextInt(nouns.length)];
