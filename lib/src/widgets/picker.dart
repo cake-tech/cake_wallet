@@ -141,15 +141,15 @@ class PickerState<Item> extends State<Picker> {
                               color: Theme.of(context).accentTextTheme.title.backgroundColor,
                               height: 1,
                             ),
-                            if (widget.selectedAtIndex != -1) buildItem(widget.selectedAtIndex, selected: true),
+                            if (widget.selectedAtIndex != -1) buildSelectedItem(),
                             Flexible(
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: <Widget>[
-                                  Scrollbar(
+                                  (items?.length ?? 0) > 3 ? Scrollbar(
                                     controller: controller,
                                     child: itemsList(),
-                                  ),
+                                  ) : itemsList(),
                                   (widget.description?.isNotEmpty ?? false)
                                       ? Positioned(
                                           bottom: 24,
@@ -217,16 +217,14 @@ class PickerState<Item> extends State<Picker> {
     );
   }
 
-  Widget buildItem(int index, {bool selected = false}) {
+  Widget buildItem(int index) {
     /// don't show selected item in the list view
-    if (index == widget.selectedAtIndex && selected == false && !widget.isGridView) {
+    if (widget.items[widget.selectedAtIndex] == items[index] && !widget.isGridView) {
       return const SizedBox();
     }
 
-    final item = selected ? widget.items[index] : items[index];
-    final image = images != null ? selected ? widget.images[index] : images[index] : null;
-
-    final textColor = selected ? Color(0xff815DFB) : Theme.of(context).primaryTextTheme.title.color;
+    final item = items[index];
+    final image = images != null ? images[index] : null;
 
     return GestureDetector(
       onTap: () {
@@ -234,7 +232,7 @@ class PickerState<Item> extends State<Picker> {
           return;
         }
         Navigator.of(context).pop();
-        onItemSelected(item as Item);
+        onItemSelected(item);
       },
       child: Container(
         height: 55,
@@ -252,18 +250,52 @@ class PickerState<Item> extends State<Picker> {
                 child: Text(
                   widget.displayItem?.call(item) ?? item.toString(),
                   style: TextStyle(
-                    fontSize: selected ? 16 : 14,
+                    fontSize: 14,
                     fontFamily: 'Lato',
-                    fontWeight: selected ? FontWeight.w900 : FontWeight.w600,
-                    color: textColor,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).primaryTextTheme.title.color,
                     decoration: TextDecoration.none,
                   ),
                 ),
               ),
             ),
-            if (selected) Icon(Icons.check_circle, color: Color(0xff815DFB)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget buildSelectedItem() {
+    final item = widget.items[widget.selectedAtIndex];
+    final image = images != null ? widget.images[widget.selectedAtIndex] : null;
+
+    return Container(
+      height: 55,
+      color: Theme.of(context).accentTextTheme.headline6.color,
+      padding: EdgeInsets.only(left: 24, right: 24),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: widget.mainAxisAlignment,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          image ?? Offstage(),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(left: image != null ? 12 : 0),
+              child: Text(
+                widget.displayItem?.call(item) ?? item.toString(),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w900,
+                  color: Theme.of(context).primaryTextTheme.title.color,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+          ),
+          Icon(Icons.check_circle, color: Theme.of(context).accentTextTheme.body2.color),
+        ],
       ),
     );
   }

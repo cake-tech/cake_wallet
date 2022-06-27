@@ -530,7 +530,7 @@
   "third_intro_content" : "Yats leben auch außerhalb von Cake Wallet. Jede Wallet-Adresse auf der Welt kann durch ein Yat ersetzt werden!",
   "learn_more" : "Erfahren Sie mehr",
   "search": "Suche",
-  "search_country": "Land suchen",
+  "search_language": "Sprache suchen",
   "search_currency": "Währung suchen",
   "new_template" : "neue Vorlage",
   "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin"

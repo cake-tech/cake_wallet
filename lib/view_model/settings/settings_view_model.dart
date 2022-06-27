@@ -171,7 +171,7 @@ abstract class SettingsViewModelBase with Store {
             }),
         PickerListItem(
             title: S.current.settings_change_language,
-            searchHintText: S.current.search_country,
+            searchHintText: S.current.search_language,
             items: LanguageService.list.keys.toList(),
             displayItem: (dynamic code) {
               return LanguageService.list[code];
@@ -184,6 +184,9 @@ abstract class SettingsViewModelBase with Store {
               (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
               .toList(),
             matchingCriteria: (String code, String searchText) {
+              print(searchText);
+              print(LanguageService.list[code]);
+              print(LanguageService.list[code].toLowerCase().contains(searchText));
               return LanguageService.list[code].toLowerCase().contains(searchText);
             },
         ),
