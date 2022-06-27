@@ -117,6 +117,13 @@ abstract class SettingsViewModelBase with Store {
                     (e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
                 .toList(),
               isGridView: true,
+              matchingCriteria: (FiatCurrency currency, String searchText) {
+                if (currency.fullName.toLowerCase().contains(searchText)) {
+                  print(currency.fullName);
+
+                }
+                return currency.title.toLowerCase().contains(searchText) || currency.fullName.toLowerCase().contains(searchText);
+              },
           ),
         PickerListItem(
             title: S.current.settings_fee_priority,
@@ -167,9 +174,12 @@ abstract class SettingsViewModelBase with Store {
             onItemSelected: (String code) {
               getIt.get<SettingsStore>().languageCode = code;
             },
-          images: LanguageService.list.keys.map(
+            images: LanguageService.list.keys.map(
               (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
               .toList(),
+            matchingCriteria: (String code, String searchText) {
+              return LanguageService.list[code].toLowerCase().contains(searchText);
+            },
         ),
         SwitcherListItem(
             title: S.current.settings_allow_biometrical_authentication,

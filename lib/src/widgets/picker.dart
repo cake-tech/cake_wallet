@@ -18,7 +18,10 @@ class Picker<Item extends Object> extends StatefulWidget {
     this.isGridView = false,
     this.isSeparated = true,
     this.hintText,
-  });
+    this.matchingCriteria,
+  }) : assert(hintText == null ||
+            matchingCriteria !=
+                null); // make sure that if the search field is enabled then there is a searching criteria provided
 
   final int selectedAtIndex;
   final List<Item> items;
@@ -31,6 +34,7 @@ class Picker<Item extends Object> extends StatefulWidget {
   final bool isGridView;
   final bool isSeparated;
   final String hintText;
+  final bool Function(Item, String) matchingCriteria;
 
   @override
   PickerState createState() => PickerState<Item>(items, images, onItemSelected);
@@ -40,8 +44,10 @@ class PickerState<Item> extends State<Picker> {
   PickerState(this.items, this.images, this.onItemSelected);
 
   final Function(Item) onItemSelected;
-  final List<Item> items;
-  final List<Image> images;
+  List<Item> items;
+  List<Image> images;
+
+  final TextEditingController searchController = TextEditingController();
 
   final closeButton = Image.asset(
     'assets/images/close.png',
@@ -49,21 +55,25 @@ class PickerState<Item> extends State<Picker> {
   );
   ScrollController controller = ScrollController();
 
-  final double backgroundHeight = 193;
-  final double thumbHeight = 72;
-  double fromTop = 0;
+  @override
+  void initState() {
+    super.initState();
+
+    searchController.addListener(() {
+      items = [];
+      images = [];
+      for (int i=0;i<widget.items.length;i++) {
+        if (widget.matchingCriteria?.call(widget.items[i], searchController.text) ?? true) {
+          items.add(widget.items[i] as Item);
+          images.add(widget.images[i]);
+        }
+      }
+      setState(() {});
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    controller.addListener(() {
-      fromTop = controller.hasClients
-          ? (controller.offset / controller.position.maxScrollExtent * (backgroundHeight - thumbHeight))
-          : 0;
-      setState(() {});
-    });
-
-    final isShowScrollThumb = items != null ? items.length > 3 : false;
-
     return AlertBackground(
       child: Stack(
         alignment: Alignment.center,
@@ -105,6 +115,8 @@ class PickerState<Item> extends State<Picker> {
                               Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: TextFormField(
+                                  controller: searchController,
+                                  style: TextStyle(color: Theme.of(context).primaryTextTheme.title.color),
                                   decoration: InputDecoration(
                                     hintText: widget.hintText,
                                     prefixIcon: Image.asset("assets/images/search_icon.png"),
@@ -134,12 +146,10 @@ class PickerState<Item> extends State<Picker> {
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: <Widget>[
-                                  isShowScrollThumb
-                                      ? Scrollbar(
-                                          controller: controller,
-                                          child: itemsList(),
-                                        )
-                                      : itemsList(),
+                                  Scrollbar(
+                                    controller: controller,
+                                    child: itemsList(),
+                                  ),
                                   (widget.description?.isNotEmpty ?? false)
                                       ? Positioned(
                                           bottom: 24,
@@ -183,7 +193,7 @@ class PickerState<Item> extends State<Picker> {
           ? GridView.builder(
               padding: EdgeInsets.zero,
               controller: controller,
-              itemCount: items == null ? 0 : items.length - 1,
+              itemCount: items == null || items.isEmpty ? 0 : items.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 2,
@@ -201,23 +211,17 @@ class PickerState<Item> extends State<Picker> {
                       height: 1,
                     )
                   : const SizedBox(),
-              itemCount: items == null ? 0 : items.length - 1,
+              itemCount: items == null || items.isEmpty ? 0 : items.length,
               itemBuilder: (context, index) => buildItem(index),
             ),
     );
   }
 
   Widget buildItem(int index, {bool selected = false}) {
-    /// skip selected item and don't show it in the list
-    if (index >= widget.selectedAtIndex && selected == false && index < items.length - 1) {
-      index++;
-    }
+    final item = selected ? widget.items[index] : items[index];
+    final image = images != null ? selected ? widget.images[index] : images[index] : null;
 
-    final item = items[index];
-    final image = images != null ? images[index] : null;
-    final isItemSelected = index == widget.selectedAtIndex;
-
-    final textColor = isItemSelected ? Color(0xff815DFB) : Theme.of(context).primaryTextTheme.title.color;
+    final textColor = selected ? Color(0xff815DFB) : Theme.of(context).primaryTextTheme.title.color;
 
     return GestureDetector(
       onTap: () {
@@ -225,7 +229,7 @@ class PickerState<Item> extends State<Picker> {
           return;
         }
         Navigator.of(context).pop();
-        onItemSelected(item);
+        onItemSelected(item as Item);
       },
       child: Container(
         height: 55,

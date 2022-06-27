@@ -49,6 +49,7 @@ class SettingsPage extends BasePage {
                 images: item.images,
                 searchHintText: item.searchHintText,
                 isGridView: item.isGridView,
+                matchingCriteria: (dynamic value, String searchText) => item.matchingCriteria(value, searchText),
               );
             });
           }
