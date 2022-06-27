@@ -327,12 +327,12 @@ Future setupNode(
 int storeTime = 0;
 
 Future store() async {
-  // print(DateTime.now().millisecondsSinceEpoch);
-  if (DateTime.now().millisecondsSinceEpoch < storeTime + 1000) {
+  print(DateTime.now().millisecondsSinceEpoch);
+  if (DateTime.now().millisecondsSinceEpoch < storeTime + 10000) {
     await Future.delayed(Duration(seconds: 1));
     return store();
   }
-  // print("released $storeTime");
+  print("released $storeTime");
   storeTime = DateTime.now().millisecondsSinceEpoch;
   await compute<int, void>(_storeSync, 0);
 }

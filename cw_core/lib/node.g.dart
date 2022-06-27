@@ -8,7 +8,7 @@ part of 'node.dart';
 
 class NodeAdapter extends TypeAdapter<Node> {
   @override
-  final int typeId = 1;
+  final int typeId = 11;
 
   @override
   Node read(BinaryReader reader) {

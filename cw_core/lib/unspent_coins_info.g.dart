@@ -8,7 +8,7 @@ part of 'unspent_coins_info.dart';
 
 class UnspentCoinsInfoAdapter extends TypeAdapter<UnspentCoinsInfo> {
   @override
-  final int typeId = 9;
+  final int typeId = 19;
 
   @override
   UnspentCoinsInfo read(BinaryReader reader) {
