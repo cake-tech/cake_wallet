@@ -228,7 +228,7 @@
   "settings_nodes" : "节点数",
   "settings_current_node" : "当前节点",
   "settings_wallets" : "钱包",
-  "settings_display_balance_as" : "将余额显示为",
+  "settings_display_balance" : "显示余额为",
   "settings_currency" : "货币",
   "settings_fee_priority" : "交易优先级",
   "settings_save_recipient_address" : "保存收件人地址",

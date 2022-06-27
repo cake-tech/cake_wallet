@@ -228,7 +228,7 @@
   "settings_nodes" : "Nodi",
   "settings_current_node" : "Nodo attuale",
   "settings_wallets" : "Portafogli",
-  "settings_display_balance_as" : "Mostra saldo come",
+  "settings_display_balance" : "Mostra saldo",
   "settings_currency" : "Moneta",
   "settings_fee_priority" : "Priorità commissione",
   "settings_save_recipient_address" : "Salva indirizzo di destinazione",

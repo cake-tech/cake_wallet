@@ -228,7 +228,7 @@
   "settings_nodes" : "Ноды",
   "settings_current_node" : "Текущая нода",
   "settings_wallets" : "Кошельки",
-  "settings_display_balance_as" : "Отображать баланс как",
+  "settings_display_balance" : "Отображать баланс",
   "settings_currency" : "Валюта",
   "settings_fee_priority" : "Приоритет транзакции",
   "settings_save_recipient_address" : "Сохранять адрес получателя",

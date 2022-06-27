@@ -228,7 +228,7 @@
   "settings_nodes" : "노드",
   "settings_current_node" : "현재 노드",
   "settings_wallets" : "지갑",
-  "settings_display_balance_as" : "잔액 표시",
+  "settings_display_balance" : "디스플레이 잔액",
   "settings_currency" : "통화",
   "settings_fee_priority" : "수수료 우선",
   "settings_save_recipient_address" : "수신자 주소 저장",

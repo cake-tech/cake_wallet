@@ -228,7 +228,7 @@
   "settings_nodes" : "Knoten",
   "settings_current_node" : "Aktueller Knoten",
   "settings_wallets" : "Wallets",
-  "settings_display_balance_as" : "Kontostand anzeigen in",
+  "settings_display_balance" : "Kontostand anzeigen",
   "settings_currency" : "Währung",
   "settings_fee_priority" : "Gebührenpriorität",
   "settings_save_recipient_address" : "Empfängeradresse speichern",

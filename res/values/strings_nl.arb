@@ -228,7 +228,7 @@
   "settings_nodes" : "knooppunten",
   "settings_current_node" : "Huidige knooppunt",
   "settings_wallets" : "Portemonnee",
-  "settings_display_balance_as" : "Toon saldo als",
+  "settings_display_balance" : "Saldo weergeven",
   "settings_currency" : "Valuta",
   "settings_fee_priority" : "Tariefprioriteit",
   "settings_save_recipient_address" : "Adres ontvanger opslaan",

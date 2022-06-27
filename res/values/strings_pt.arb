@@ -228,7 +228,7 @@
   "settings_nodes" : "Nós",
   "settings_current_node" : "Nó atual",
   "settings_wallets" : "Carteiras",
-  "settings_display_balance_as" : "Saldo a exibir",
+  "settings_display_balance" : "Exibir saldo",
   "settings_currency" : "Moeda",
   "settings_fee_priority" : "Prioridade da taxa",
   "settings_save_recipient_address" : "Salvar endereço do destinatário",

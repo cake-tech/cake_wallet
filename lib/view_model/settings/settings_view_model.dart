@@ -99,12 +99,17 @@ abstract class SettingsViewModelBase with Store {
 
     sections = [
       [
-        PickerListItem(
-            title: S.current.settings_display_balance_as,
-            items: BalanceDisplayMode.all,
-            selectedItem: () => balanceDisplayMode,
-            onItemSelected: (BalanceDisplayMode mode) =>
-                _settingsStore.balanceDisplayMode = mode),
+        SwitcherListItem(
+            title: S.current.settings_display_balance,
+            value: () => balanceDisplayMode == BalanceDisplayMode.displayableBalance,
+            onValueChange: (_, bool value) {
+              if (value) {
+                _settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
+              } else {
+                _settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
+              }
+            },
+        ),
         if (!isHaven)
           PickerListItem(
               title: S.current.settings_currency,

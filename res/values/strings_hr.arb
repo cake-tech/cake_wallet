@@ -228,7 +228,7 @@
   "settings_nodes" : "Nodovi",
   "settings_current_node" : "Trenutni node",
   "settings_wallets" : "Novčanik",
-  "settings_display_balance_as" : "Prikaži stanje računa kao",
+  "settings_display_balance" : "Prikaži stanje računa",
   "settings_currency" : "Valuta",
   "settings_fee_priority" : "Prioritet naknade",
   "settings_save_recipient_address" : "Spremi primateljevu adresu",

@@ -228,7 +228,7 @@
   "settings_nodes" : "Węzły",
   "settings_current_node" : "Bieżący węzeł",
   "settings_wallets" : "Portfele",
-  "settings_display_balance_as" : "Wyświetl saldo jako",
+  "settings_display_balance" : "Wyświetl saldo",
   "settings_currency" : "Waluta",
   "settings_fee_priority" : "Priorytet opłaty",
   "settings_save_recipient_address" : "Zapisz adres odbiorcy",

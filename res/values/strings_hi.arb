@@ -228,7 +228,7 @@
   "settings_nodes" : "नोड्स",
   "settings_current_node" : "वर्तमान नोड",
   "settings_wallets" : "पर्स",
-  "settings_display_balance_as" : "के रूप में संतुलन प्रदर्शित करें",
+  "settings_display_balance" : "प्रदर्शन संतुलन",
   "settings_currency" : "मुद्रा",
   "settings_fee_priority" : "शुल्क प्राथमिकता",
   "settings_save_recipient_address" : "प्राप्तकर्ता का पता सहेजें",
