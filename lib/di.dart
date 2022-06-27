@@ -8,8 +8,12 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
@@ -141,6 +145,7 @@ Box<Contact> _contactSource;
 Box<Trade> _tradesSource;
 Box<Template> _templates;
 Box<ExchangeTemplate> _exchangeTemplates;
+Box<IoniaMerchant> _ioniaMerchantSource;
 Box<TransactionDescription> _transactionDescriptionBox;
 Box<Order> _ordersSource;
 Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
@@ -154,6 +159,7 @@ Future setup(
     Box<ExchangeTemplate> exchangeTemplates,
     Box<TransactionDescription> transactionDescriptionBox,
     Box<Order> ordersSource,
+    Box<IoniaMerchant> ioniaMerchantSource,
     Box<UnspentCoinsInfo> unspentCoinsInfoSource}) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -164,6 +170,7 @@ Future setup(
   _transactionDescriptionBox = transactionDescriptionBox;
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
+  _ioniaMerchantSource = ioniaMerchantSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
@@ -655,7 +662,10 @@ Future setup(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
   
   getIt.registerFactory(
-      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
+      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>(), ioniaMerchantSource: _ioniaMerchantSource));
+  
+  getIt.registerFactory(
+      () => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaViewModel>()));
 
@@ -670,16 +680,18 @@ Future setup(
 
   getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaViewModel>()));
 
-  getIt.registerFactoryParam<IoniaBuyGiftCardPage, List, void>((List args, _) {
-    final merchant = args.first as IoniaMerchant;
-
-    return IoniaBuyGiftCardPage(merchant);
-  }); 
+  getIt..registerFactory(() => IoniaBuyGiftCardPage(getIt.get<IoniaViewModel>())); 
 
   getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List, void>((List args, _) {
-    final merchant = args.first as IoniaMerchant;
+    final amount = args.first as String;
 
-    return IoniaBuyGiftCardDetailPage(merchant);
+    return IoniaBuyGiftCardDetailPage(amount, getIt.get<IoniaViewModel>());
+  });
+
+  getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {
+    final amount = args.first as String;
+
+    return IoniaCustomTipPage(getIt.get<IoniaViewModel>(), amount);
   });
 
   getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaViewModel>()));
@@ -688,6 +700,9 @@ Future setup(
 
   getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<IoniaViewModel>()));
 
+  getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
+
+  getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   _isSetupFinished = true;
 }

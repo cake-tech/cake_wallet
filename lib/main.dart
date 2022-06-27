@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -86,6 +87,10 @@ Future<void> main() async {
     if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
       Hive.registerAdapter(UnspentCoinsInfoAdapter());
     }
+    
+    if (!Hive.isAdapterRegistered(IoniaMerchant.typeId)) {
+      Hive.registerAdapter(IoniaMerchantAdapter());
+    }
 
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
@@ -96,6 +101,7 @@ Future<void> main() async {
         secureStorage: secureStorage, forKey: Order.boxKey);
     final contacts = await Hive.openBox<Contact>(Contact.boxName);
     final nodes = await Hive.openBox<Node>(Node.boxName);
+    final ioniaMerchantSource = await Hive.openBox<IoniaMerchant>(IoniaMerchant.boxName);
     final transactionDescriptions = await Hive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
@@ -121,6 +127,7 @@ Future<void> main() async {
         tradesSource: trades,
         ordersSource: orders,
         unspentCoinsInfoSource: unspentCoinsInfoSource,
+        ioniaMerchantSource: ioniaMerchantSource,
         // fiatConvertationService: fiatConvertationService,
         templates: templates,
         exchangeTemplates: exchangeTemplates,
@@ -154,6 +161,7 @@ Future<void> initialSetup(
     @required Box<ExchangeTemplate> exchangeTemplates,
     @required Box<TransactionDescription> transactionDescriptions,
     @required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
+    @required Box<IoniaMerchant> ioniaMerchantSource,
     FlutterSecureStorage secureStorage,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
@@ -174,7 +182,9 @@ Future<void> initialSetup(
       exchangeTemplates: exchangeTemplates,
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
-      unspentCoinsInfoSource: unspentCoinsInfoSource);
+      unspentCoinsInfoSource: unspentCoinsInfoSource,
+      ioniaMerchantSource: ioniaMerchantSource,
+      );
   await bootstrap(navigatorKey);
   monero?.onStartup();
 }

@@ -596,5 +596,22 @@
   "mm": "MM",
   "yy": "YY",
   "online": "Online",
-  "offline": "Offline"
+  "offline": "Offline",
+  "gift_card_number": "Gift card number",
+  "pin_number": "PIN number",
+  "total_saving": "Total Savings",
+  "last_30_days": "Last 30 days",
+  "avg_savings": "Avg. savings",
+  "view_all": "View all",
+  "active_cards": "Active cards",
+  "delete_account": "Delete Account",
+  "cards": "Cards",
+  "active": "Active",
+  "redeemed": "Redeemed",
+  "gift_card_balance_note": "Gift cards with a balance remaining will appear here",
+  "gift_card_redeemed_note": "Gift cards you’ve redeemed will appear here",
+  "logout": "Logout",
+  "add_tip": "Add Tip",
+  "percentageOf": "of ${amount}",
+  "is_percentage": "is"
 }

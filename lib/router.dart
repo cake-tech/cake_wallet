@@ -5,6 +5,9 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -432,6 +435,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.ioniaActivateDebitCardPage:
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaActivateDebitCardPage>());
+
+    case Routes.ioniaAccountPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountPage>());
+    
+    case Routes.ioniaAccountCardsPage:
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaAccountCardsPage>());
+
+    case Routes.ioniaCustomTipPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) =>getIt.get<IoniaCustomTipPage>(param1: args));
 
     default:
       return MaterialPageRoute<void>(

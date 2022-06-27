@@ -2,24 +2,43 @@ import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
+import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_view_model.g.dart';
 
 class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
 
 abstract class IoniaViewModelBase with Store {
-
-  IoniaViewModelBase({this.ioniaService})
+  IoniaViewModelBase({this.ioniaService, this.ioniaMerchantSource})
       : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
-        cardState = IoniaNoCardState(), ioniaMerchants = [] {
-    _getMerchants().then((value){
-      ioniaMerchants = value;
+        cardState = IoniaNoCardState(),
+        enableCardPurchase = false,
+        amount = '',
+        tipAmount = 0.0,
+        ioniaMerchants = [] {
+    if (ioniaMerchantSource.length > 0) {
+      selectedMerchant = ioniaMerchantSource.getAt(0);
+    }
+    _getMerchants().then((value) {
+      ioniaMerchantList = ioniaMerchants = value;
     });
     _getAuthStatus().then((value) => isLoggedIn = value);
   }
 
   final IoniaService ioniaService;
+
+  Box<IoniaMerchant> ioniaMerchantSource;
+
+  List<IoniaMerchant> ioniaMerchantList;
+
+  String searchString;
+
+  @observable
+  IoniaMerchant selectedMerchant;
+
+  @observable
+  bool enableCardPurchase;
 
   @observable
   IoniaCreateAccountState createUserState;
@@ -35,6 +54,15 @@ abstract class IoniaViewModelBase with Store {
 
   @observable
   List<IoniaMerchant> ioniaMerchants;
+
+  @observable
+  String amount;
+
+  @computed
+  double get giftCardAmount => double.parse(amount) + tipAmount;
+
+  @observable
+  double tipAmount;
 
   @observable
   String email;
@@ -85,6 +113,20 @@ abstract class IoniaViewModelBase with Store {
     return null;
   }
 
+  @action
+  void searchMerchant(String text) {
+    if (text.isEmpty) {
+      ioniaMerchants = ioniaMerchantList;
+    }
+    searchString = text.toLowerCase();
+    ioniaMerchants = ioniaMerchantList.where(_searchFilter).toList();
+  }
+
+  bool _searchFilter(IoniaMerchant merchant) {
+    final name = merchant.legalName;
+    return name.toLowerCase().contains(searchString);
+  }
+
   Future<void> _getCard() async {
     cardState = IoniaFetchingCard();
     try {
@@ -96,7 +138,35 @@ abstract class IoniaViewModelBase with Store {
     }
   }
 
-   Future<List<IoniaMerchant>> _getMerchants()async{
+  Future<List<IoniaMerchant>> _getMerchants() async {
     return await ioniaService.getMerchants();
+  }
+
+  @action
+  void selectMerchant(IoniaMerchant merchant) {
+    if (ioniaMerchantSource.isNotEmpty) {
+      ioniaMerchantSource.putAt(0, merchant);
+    } else {
+      ioniaMerchantSource.add(merchant);
+    }
+  }
+
+  @action
+  void onAmountChanged(String input) {
+    if (input.isEmpty) return;
+    amount = input;
+    final inputAmount = double.parse(input);
+    final min = selectedMerchant.minimumCardPurchase;
+    final max = selectedMerchant.maximumCardPurchase;
+    if (inputAmount >= min && inputAmount <= max) {
+      enableCardPurchase = true;
+    } else {
+      enableCardPurchase = false;
+    }
+  }
+
+  @action
+  void addTip(String tip) {
+    tipAmount = double.parse(tip);
   }
 }

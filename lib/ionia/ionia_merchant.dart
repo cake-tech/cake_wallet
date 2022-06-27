@@ -1,6 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 
-class IoniaMerchant {
+part 'ionia_merchant.g.dart';
+
+@HiveType(typeId: IoniaMerchant.typeId)
+class IoniaMerchant  {
 	IoniaMerchant({
 		@required this.id,
 		@required this.legalName,
@@ -114,57 +118,166 @@ class IoniaMerchant {
       isPayLater: element["IsPayLater"] as bool);
 	}
 
-	final int id;
-	final String legalName;
-	final String systemName;
-	final String description;
-	final String website;
-	final String termsAndConditions;
-	final String logoUrl;
-	final String cardImageUrl;
-	final String cardholderAgreement;
-	final double purchaseFee;
-	final double revenueShare;
-	final double marketingFee;
-	final double minimumDiscount;
-	final double level1;
-	final double level2;
-	final double level3;
-	final double level4;
-	final double level5;
-	final double level6;
-	final double level7;
-	final bool isActive;
-	final bool isDeleted;
-	final bool isOnline;
-	final bool isPhysical;
-	final bool isVariablePurchase;
-	final double minimumCardPurchase;
-	final double maximumCardPurchase;
-	final bool acceptsTips;
-	final String createdDateFormatted;
-	final int createdBy;
-	final bool isRegional;
-	final String modifiedDateFormatted;
-	final int modifiedBy;
-	final String usageInstructions;
-	final String usageInstructionsBak;
-	final int paymentGatewayId;
-	final int giftCardGatewayId;
-	final bool isHtmlDescription;
-	final String purchaseInstructions;
-	final String balanceInstructions;
-	final double amountPerCard;
-	final String processingMessage;
-	final bool hasBarcode;
-	final bool hasInventory;
-	final bool isVoidable;
-	final String receiptMessage;
-	final String cssBorderCode;
-	final String paymentInstructions;
-	final String alderSku;
-	final String ngcSku;
-	final String acceptedCurrency;
-	final String deepLink;
-	final bool isPayLater;
+  static const typeId = 10;
+  static const boxName = 'IoniaMerchant';
+
+  @HiveField(0)
+  final int id;
+  
+  @HiveField(1)
+  final String legalName;
+	
+  @HiveField(2)
+  final String systemName;
+	
+  @HiveField(3)
+  final String description;
+	
+  @HiveField(4)
+  final String website;
+	
+  @HiveField(5)
+  final String termsAndConditions;
+	
+  @HiveField(6)
+  final String logoUrl;
+	
+  @HiveField(7)
+  final String cardImageUrl;
+	
+  @HiveField(8)
+  final String cardholderAgreement;
+	
+  @HiveField(9)
+  final double purchaseFee;
+	
+  @HiveField(10)
+  final double revenueShare;
+	
+  @HiveField(11)
+  final double marketingFee;
+	
+  @HiveField(12)
+  final double minimumDiscount;
+	
+  @HiveField(13)
+  final double level1;
+	
+  @HiveField(14)
+  final double level2;
+	
+  @HiveField(15)
+  final double level3;
+	
+  @HiveField(16)
+  final double level4;
+	
+  @HiveField(17)
+  final double level5;
+	
+  @HiveField(18)
+  final double level6;
+	
+  @HiveField(19)
+  final double level7;
+	
+  @HiveField(20)
+  final bool isActive;
+	
+  @HiveField(21)
+  final bool isDeleted;
+	
+  @HiveField(22)
+  final bool isOnline;
+	
+  @HiveField(23)
+  final bool isPhysical;
+	
+  @HiveField(24)
+  final bool isVariablePurchase;
+	
+  @HiveField(25)
+  final double minimumCardPurchase;
+	
+  @HiveField(26)
+  final double maximumCardPurchase;
+	
+  @HiveField(27)
+  final bool acceptsTips;
+	
+  @HiveField(28)
+  final String createdDateFormatted;
+	
+  @HiveField(29)
+  final int createdBy;
+	
+  @HiveField(30)
+  final bool isRegional;
+	
+  @HiveField(31)
+  final String modifiedDateFormatted;
+	
+  @HiveField(32)
+  final int modifiedBy;
+	
+  @HiveField(33)
+  final String usageInstructions;
+	
+  @HiveField(34)
+  final String usageInstructionsBak;
+	
+  @HiveField(35)
+  final int paymentGatewayId;
+	
+  @HiveField(36)
+  final int giftCardGatewayId;
+	
+  @HiveField(37)
+  final bool isHtmlDescription;
+	
+  @HiveField(38)
+  final String purchaseInstructions;
+	
+  @HiveField(39)
+  final String balanceInstructions;
+	
+  @HiveField(40)
+  final double amountPerCard;
+	
+  @HiveField(41)
+  final String processingMessage;
+	
+  @HiveField(42)
+  final bool hasBarcode;
+	
+  @HiveField(43)
+  final bool hasInventory;
+	
+  @HiveField(44)
+  final bool isVoidable;
+	
+  @HiveField(45)
+  final String receiptMessage;
+	
+  @HiveField(46)
+  final String cssBorderCode;
+	
+  @HiveField(47)
+  final String paymentInstructions;
+	
+  @HiveField(48)
+  final String alderSku;
+	
+  @HiveField(49)
+  final String ngcSku;
+	
+  @HiveField(50)
+  final String acceptedCurrency;
+	
+  @HiveField(51)
+  final String deepLink;
+	
+  @HiveField(52)
+  final bool isPayLater;
+  
 }

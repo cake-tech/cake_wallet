@@ -1,5 +1,3 @@
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -14,19 +12,19 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-class IoniaBuyGiftCardPage extends BasePage {
-  IoniaBuyGiftCardPage(
+class IoniaCustomTipPage extends BasePage {
+  IoniaCustomTipPage(
     this.ioniaViewModel,
+    this.billAmount,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
-   
     _amountController.addListener(() {
       ioniaViewModel.onAmountChanged(_amountController.text);
     });
   }
 
   final IoniaViewModel ioniaViewModel;
-
+  final String billAmount;
 
   @override
   String get title => S.current.enter_amount;
@@ -117,22 +115,18 @@ class IoniaBuyGiftCardPage extends BasePage {
                       ),
                     ),
                     SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          S.of(context).min_amount(merchant.minimumCardPurchase.toString()),
-                          style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.color,
-                          ),
+                    RichText(
+                      text: TextSpan(
+                        text: '\$${_amountController.text}',
+                        style: TextStyle(
+                          color: Theme.of(context).primaryTextTheme.headline.color,
                         ),
-                        Text(
-                          S.of(context).max_amount(merchant.maximumCardPurchase.toString()),
-                          style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.color,
-                          ),
-                        ),
-                      ],
+                        children: [
+                          TextSpan(text: ' ${S.of(context).is_percentage} '),
+                          TextSpan(text: 'XX.XX%'),
+                          TextSpan(text: ' ${S.of(context).percentageOf(ioniaViewModel.amount)} '),
+                        ],
+                      ),
                     ),
                     SizedBox(height: 24),
                   ],
@@ -158,14 +152,11 @@ class IoniaBuyGiftCardPage extends BasePage {
                 return Padding(
                   padding: EdgeInsets.only(bottom: 12),
                   child: PrimaryButton(
-                    onPressed: () => Navigator.of(context).pushNamed(
-                      Routes.ioniaBuyGiftCardDetailPage,
-                      arguments: [
-                        ioniaViewModel.amount,
-                      ],
-                    ),
-                    text: S.of(context).continue_text,
-                    isDisabled: !ioniaViewModel.enableCardPurchase,
+                    onPressed: () {
+                      Navigator.of(context).pop(_amountController.text);
+                      
+                    },
+                    text: S.of(context).add_tip,
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Theme.of(context).primaryTextTheme.body1.color,
                   ),

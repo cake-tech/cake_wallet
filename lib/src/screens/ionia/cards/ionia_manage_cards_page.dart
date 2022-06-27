@@ -96,7 +96,7 @@ class IoniaManageCardsPage extends BasePage {
         SizedBox(width: 16),
         _TrailingIcon(
           asset: 'assets/images/profile.png',
-          onPressed: () {},
+          onPressed: () => Navigator.pushNamed(context, Routes.ioniaAccountPage),
         ),
       ],
     );
@@ -124,7 +124,10 @@ class IoniaManageCardsPage extends BasePage {
             height: 32,
             child: Row(
               children: [
-                Expanded(child: _SearchWidget()),
+                Expanded(
+                    child: _SearchWidget(
+                  ioniaViewModel: _ioniaViewModel,
+                )),
                 SizedBox(width: 10),
                 Container(
                   width: 32,
@@ -143,44 +146,37 @@ class IoniaManageCardsPage extends BasePage {
           ),
           SizedBox(height: 8),
           Expanded(
-            child: Observer(
-              builder: (_) {
-                final merchantsList = _ioniaViewModel.ioniaMerchants;
-                return RawScrollbar(
-                  thumbColor: Colors.white.withOpacity(0.15),
-                  radius: Radius.circular(20),
-                  isAlwaysShown: true,
-                  thickness: 2,
+            child: Observer(builder: (_) {
+              final merchantsList = _ioniaViewModel.ioniaMerchants;
+              return RawScrollbar(
+                thumbColor: Colors.white.withOpacity(0.15),
+                radius: Radius.circular(20),
+                isAlwaysShown: true,
+                thickness: 2,
+                controller: _scrollController,
+                child: ListView.separated(
+                  padding: EdgeInsets.only(left: 2, right: 22),
                   controller: _scrollController,
-                  child: ListView.separated(
-                    padding: EdgeInsets.only(left: 2, right: 22),
-                    controller: _scrollController,
-                    itemCount: merchantsList.length,
-                    separatorBuilder: (_, __) => SizedBox(height: 4),
-                    itemBuilder: (_, index) {
-                      final merchant = merchantsList[index];
-                      return CardItem(
-                        logoUrl: merchant.logoUrl,
-                        onTap: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage,
-                              arguments: [merchant]),
-                        title: merchant.legalName,
-                        subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
-                        backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
-                        titleColor: Theme.of(context)
-                              .accentTextTheme
-                              .display3
-                              .backgroundColor,
-                        subtitleColor: Theme.of(context)
-                            .accentTextTheme
-                            .display2
-                            .backgroundColor,
-                        discount: merchant.minimumDiscount,
-                      );
-                    },
-                  ),
-                );
-              }
-            ),
+                  itemCount: merchantsList.length,
+                  separatorBuilder: (_, __) => SizedBox(height: 4),
+                  itemBuilder: (_, index) {
+                    final merchant = merchantsList[index];
+                    return CardItem(
+                      logoUrl: merchant.logoUrl,
+                      onTap: () {
+                        _ioniaViewModel.selectMerchant(merchant);
+                        Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage);},
+                      title: merchant.legalName,
+                      subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
+                      backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
+                      titleColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                      subtitleColor: Theme.of(context).accentTextTheme.display2.backgroundColor,
+                      discount: merchant.minimumDiscount,
+                    );
+                  },
+                ),
+              );
+            }),
           ),
         ],
       ),
@@ -191,7 +187,9 @@ class IoniaManageCardsPage extends BasePage {
 class _SearchWidget extends StatelessWidget {
   const _SearchWidget({
     Key key,
+    @required this.ioniaViewModel,
   }) : super(key: key);
+  final IoniaViewModel ioniaViewModel;
 
   @override
   Widget build(BuildContext context) {
@@ -205,6 +203,7 @@ class _SearchWidget extends StatelessWidget {
 
     return TextField(
       style: TextStyle(color: Colors.white),
+      onChanged: (text) => ioniaViewModel.searchMerchant(text),
       decoration: InputDecoration(
           filled: true,
           contentPadding: EdgeInsets.only(
