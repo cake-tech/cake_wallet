@@ -218,6 +218,11 @@ class PickerState<Item> extends State<Picker> {
   }
 
   Widget buildItem(int index, {bool selected = false}) {
+    /// don't show selected item in the list view
+    if (index == widget.selectedAtIndex && selected == false && !widget.isGridView) {
+      return const SizedBox();
+    }
+
     final item = selected ? widget.items[index] : items[index];
     final image = images != null ? selected ? widget.images[index] : images[index] : null;
 
