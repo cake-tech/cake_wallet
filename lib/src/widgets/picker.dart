@@ -294,7 +294,7 @@ class PickerState<Item> extends State<Picker> {
               ),
             ),
           ),
-          Icon(Icons.check_circle, color: Color(0xff815DFB)),
+          Icon(Icons.check_circle, color: Theme.of(context).accentTextTheme.body2.color),
         ],
       ),
     );
