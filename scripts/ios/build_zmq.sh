@@ -12,7 +12,7 @@ git clone $ZMQ_URL $ZMQ_PATH
 cd $ZMQ_PATH
 mkdir cmake-build
 cd cmake-build
-cmake ..
+cmake -DCMAKE_CXX_FLAGS=-I\ ${EXTERNAL_IOS_INCLUDE_DIR} ..
 make
 
 

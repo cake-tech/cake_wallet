@@ -65,3 +65,5 @@ fi
 if [ ! -f ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOKitKeys.h ]; then
   cp /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks/IOKit.framework/Versions/A/Headers/IOKitKeys.h ${EXTERNAL_IOS_INCLUDE_DIR}/IOKit/IOKitKeys.h
 fi
+
+cp -r ./missingincludes/gnutls ${EXTERNAL_IOS_INCLUDE_DIR}
