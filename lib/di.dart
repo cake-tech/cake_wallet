@@ -639,7 +639,8 @@ Future setup(
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
+  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
+    walletType: getIt.get<AppStore>().wallet.type));
 
   getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
           (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
