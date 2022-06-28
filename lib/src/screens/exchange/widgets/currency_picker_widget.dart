@@ -30,16 +30,13 @@ class CurrencyPickerWidget extends StatelessWidget {
           child: ClipRRect(
             borderRadius: BorderRadius.circular(14.0),
             child: Scrollbar(
-              showTrackOnHover: true,
-              isAlwaysShown: true,
-              thickness: 6.0,
-              radius: Radius.circular(3),
               child: GridView.builder(
+                  padding: EdgeInsets.zero,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 1,
-                      mainAxisExtent: constraints.maxHeight / 8,
-                      mainAxisSpacing: 1),
+                    crossAxisCount: crossAxisCount,
+                    crossAxisSpacing: 2,
+                    childAspectRatio: 3,
+                  ),
                   itemCount: pickerItemsList.length,
                   itemBuilder: (BuildContext ctx, index) {
                     return PickerItemWidget(
@@ -48,7 +45,6 @@ class CurrencyPickerWidget extends StatelessWidget {
                       },
                       title: pickerItemsList[index].title,
                       iconPath: pickerItemsList[index].iconPath,
-                      isSelected: index == selectedAtIndex,
                       tag: pickerItemsList[index].tag,
                     );
                   }),

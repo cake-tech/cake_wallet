@@ -445,7 +445,7 @@ class ExchangeCardState extends State<ExchangeCard> {
         builder: (_) => CurrencyPicker(
             selectedAtIndex: widget.currencies.indexOf(_selectedCurrency),
             items: widget.currencies,
-            title: S.of(context).change_currency,
+            hintText: S.of(context).search_currency,
             isMoneroWallet: _isMoneroWallet,
             isConvertFrom: widget.hasRefundAddress,
             onItemSelected: (CryptoCurrency item) =>
