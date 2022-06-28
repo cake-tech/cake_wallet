@@ -548,10 +548,6 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final addressHashes = <String, BitcoinAddressRecord>{};
     final normalizedHistories = <Map<String, dynamic>>[];
     walletAddresses.addresses.forEach((addressRecord) {
-      if (addressRecord.isHidden) {
-        return;
-      }
-
       final sh = scriptHash(addressRecord.address, networkType: networkType);
       addressHashes[sh] = addressRecord;
     });
