@@ -35,7 +35,7 @@ class PickerItemWidget extends StatelessWidget {
                       title,
                       style: TextStyle(
                         color: isSelected ? Palette.blueCraiola : Theme.of(context).primaryTextTheme.title.color,
-                        fontSize: 14.0,
+                        fontSize: isSelected ? 16 : 14.0,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
                       ),
