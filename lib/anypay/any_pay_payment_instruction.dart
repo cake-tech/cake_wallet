@@ -22,6 +22,8 @@ class AnyPayPaymentInstruction {
 			outputs: outputs);
 	}
 
+	static const transactionType = 'transaction';
+
 	final String type;
 	final int requiredFeeRate;
 	final bool txKey;
