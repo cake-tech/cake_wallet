@@ -151,6 +151,7 @@
   "subaddresses" : "하위 주소",
   "addresses" : "구애",
   "scan_qr_code" : "QR 코드를 스캔하여 주소를 얻습니다.",
+  "qr_fullscreen" : "전체 화면 QR 코드를 열려면 탭하세요.",
   "rename" : "이름 바꾸기",
   "choose_account" : "계정을 선택하십시오",
   "create_new_account" : "새 계정을 만들",

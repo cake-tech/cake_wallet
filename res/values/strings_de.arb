@@ -151,6 +151,7 @@
   "subaddresses" : "Unteradressen",
   "addresses" : "Adressen",
   "scan_qr_code" : "Scannen Sie den QR-Code, um die Adresse zu erhalten",
+  "qr_fullscreen" : "Tippen Sie hier, um den QR-Code im Vollbildmodus zu öffnen",
   "rename" : "Umbenennen",
   "choose_account" : "Konto auswählen",
   "create_new_account" : "Neues Konto erstellen",

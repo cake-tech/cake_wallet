@@ -152,6 +152,7 @@
   "rename" : "Hernoemen",
   "addresses" : "Adressen",
   "scan_qr_code" : "Scan de QR-code om het adres te krijgen",
+  "qr_fullscreen" : "Tik om de QR-code op volledig scherm te openen",
   "choose_account" : "Kies account",
   "create_new_account" : "Creëer een nieuw account",
   "accounts_subaddresses" : "Accounts en subadressen",

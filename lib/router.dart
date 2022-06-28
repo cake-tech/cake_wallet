@@ -1,6 +1,5 @@
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
-import 'package:cake_wallet/entities/transaction_description.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
@@ -13,10 +12,7 @@ import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
-import 'package:cake_wallet/view_model/unspent_coins/unspent_coins_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/routes.dart';
@@ -26,7 +22,6 @@ import 'package:cake_wallet/utils/language_list.dart';
 import 'package:cake_wallet/view_model/wallet_new_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_seed_vm.dart';
 import 'package:cake_wallet/view_model/wallet_restoration_from_keys_vm.dart';
-import 'package:cake_wallet/entities/contact.dart';
 import 'package:cake_wallet/exchange/trade.dart';
 import 'package:cw_core/transaction_info.dart';
 import 'package:cw_core/wallet_type.dart';
@@ -66,16 +61,15 @@ import 'package:cake_wallet/src/screens/exchange/exchange_template_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_confirm_page.dart';
 import 'package:cake_wallet/src/screens/exchange_trade/exchange_trade_page.dart';
 import 'package:flutter/services.dart';
-import 'package:hive/hive.dart';
-import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 
 RouteSettings currentRouteSettings;
 
 Route<dynamic> createRoute(RouteSettings settings) {
   currentRouteSettings = settings;
-  
+
   switch (settings.name) {
     case Routes.welcome:
       return MaterialPageRoute<void>(builder: (_) => createWelcomePage());
@@ -84,7 +78,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
-	      	  if (availableWalletTypes.length == 1) {    
+	      	  if (availableWalletTypes.length == 1) {
               Navigator.of(context.context).pushNamed(Routes.newWallet, arguments: availableWalletTypes.first);
       		  } else {
       		    Navigator.of(context.context).pushNamed(Routes.newWalletType);
@@ -401,6 +395,16 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) =>
               getIt.get<UnspentCoinsDetailsPage>(
                   param1: args));
+
+    case Routes.fullscreenQR:
+      final args = settings.arguments as Map<String, dynamic>;
+
+      return MaterialPageRoute<void>(
+          builder: (_) =>
+              getIt.get<FullscreenQRPage>(
+                param1: args['qrData'] as String,
+                param2: args['isLight'] as bool,
+              ));
 
     default:
       return MaterialPageRoute<void>(

@@ -151,6 +151,7 @@
   "subaddresses" : "Subaddresses",
   "addresses" : "Addresses",
   "scan_qr_code" : "Scan the QR code to get the address",
+  "qr_fullscreen" : "Tap to open full screen QR code",
   "rename" : "Rename",
   "choose_account" : "Choose account",
   "create_new_account" : "Create new account",

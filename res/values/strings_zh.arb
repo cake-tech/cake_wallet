@@ -151,6 +151,7 @@
   "subaddresses" : "子地址",
   "addresses" : "地址",
   "scan_qr_code" : "扫描二维码获取地址",
+  "qr_fullscreen" : "点击打开全屏二维码",
   "rename" : "重命名",
   "choose_account" : "选择账户",
   "create_new_account" : "建立新账户",
