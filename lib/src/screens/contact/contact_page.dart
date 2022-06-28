@@ -150,6 +150,7 @@ class ContactPage extends BasePage {
                 contactViewModel.currencies.indexOf(contactViewModel.currency),
             items: contactViewModel.currencies,
             title: S.of(context).please_select,
+            hintText: S.of(context).search_currency,
             onItemSelected: (CryptoCurrency item) =>
                 contactViewModel.currency = item),
         context: context);
