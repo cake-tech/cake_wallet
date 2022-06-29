@@ -193,8 +193,7 @@ class WalletRestorePage extends BasePage {
           child: Observer(
             builder: (context) {
               return LoadingPrimaryButton(
-                onPressed: () =>
-                    walletRestoreViewModel.create(options: _credentials()),
+                onPressed: _confirmForm,
                 text: S.of(context).restore_recover,
                 color:
                     Theme.of(context).accentTextTheme.subtitle.decorationColor,
@@ -268,4 +267,45 @@ class WalletRestorePage extends BasePage {
 
     return credentials;
   }
+
+  void _confirmForm() {
+    final formContext = walletRestoreViewModel.mode == WalletRestoreMode.seed
+        ? walletRestoreFromSeedFormKey.currentContext
+        : walletRestoreFromKeysFormKey.currentContext;
+
+    final formKey = walletRestoreViewModel.mode == WalletRestoreMode.seed
+        ? walletRestoreFromSeedFormKey.currentState.formKey
+        : walletRestoreFromKeysFormKey.currentState.formKey;
+
+    final name = walletRestoreViewModel.mode == WalletRestoreMode.seed
+        ? walletRestoreFromSeedFormKey
+        .currentState.nameTextEditingController.value.text
+        : walletRestoreFromKeysFormKey
+        .currentState.nameTextEditingController.value.text;
+
+    if (!formKey.currentState.validate()) {
+      return;
+    }
+
+    if (walletRestoreViewModel.nameExists(name)) {
+      showNameExistsAlert(formContext);
+      return;
+    }
+
+    walletRestoreViewModel.create(options: _credentials());
+  }
+
+  Future<void> showNameExistsAlert(BuildContext context) {
+    return showPopUp<void>(
+        context: context,
+        builder: (_) {
+          return AlertWithOneAction(
+              alertTitle: '',
+              alertContent: S.of(context).wallet_name_exists,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
+  }
 }
+
+

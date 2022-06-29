@@ -327,7 +327,7 @@
   "error_text_fiat" : "Wartość kwoty nie może przekroczyć dostępnego salda.\nLiczba cyfr ułamkowych musi być mniejsza lub równa 2",
   "error_text_subaddress_name" : "Nazwa podadresu nie może zawierać ` , ' \" symbolika\ni musi mieć od 1 do 20 znaków",
   "error_text_amount" : "Kwota może zawierać tylko liczby",
-  "error_text_wallet_name" : "Nazwa portfela może zawierać tylko litery i cyfry\ni musi mieć od 1 do 15 znaków",
+  "error_text_wallet_name" : "Nazwa portfela może zawierać tylko litery, cyfry, _ - symbole\ni musi mieć od 1 do 33 znaków",
   "error_text_keys" : "Klucze portfela mogą zawierać tylko 64 znaki w systemie szesnastkowym",
   "error_text_crypto_currency" : "Liczba cyfr ułamkowych\nmusi być mniejsza lub równa 12",
   "error_text_minimal_limit" : "Wymiana dla ${provider} nie została utworzona. Kwota jest mniejsza niż minimalna: ${min} ${currency}",
@@ -533,5 +533,6 @@
   "search_language": "Wyszukaj język",
   "search_currency": "Wyszukaj walutę",
   "new_template" : "Nowy szablon",
-  "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają"
+  "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają",
+  "wallet_name_exists": "Portfel o tej nazwie już istnieje"
 }

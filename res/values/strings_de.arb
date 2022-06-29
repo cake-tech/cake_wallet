@@ -327,7 +327,7 @@
   "error_text_fiat" : "Der Wert des Betrags darf den verfügbaren Kontostand nicht überschreiten.\nDie Anzahl der Nachkommastellen muss kleiner oder gleich 2 sein",
   "error_text_subaddress_name" : "Der Name der Unteradresse darf nicht die Zeichen ` , ' \" enthalten\nund muss zwischen 1 und 20 Zeichen lang sein",
   "error_text_amount" : "Betrag darf nur Zahlen enthalten",
-  "error_text_wallet_name" : "Der Walletname darf nur Buchstaben und Zahlen enthalten\nund muss zwischen 1 und 15 Zeichen lang sein",
+  "error_text_wallet_name" : "Der Wallet-Name darf nur Buchstaben, Zahlen und _- Symbole enthalten\nund muss zwischen 1 und 33 Zeichen lang sein",
   "error_text_keys" : "Walletschlüssel können nur 64 hexadezimale Zeichen enthalten",
   "error_text_crypto_currency" : "Die Anzahl der Nachkommastellen\nmuss kleiner oder gleich 12 sein.",
   "error_text_minimal_limit" : "Handel für ${provider} wird nicht erstellt. Menge ist unter dem Minimum: ${min} ${currency}",
@@ -533,5 +533,6 @@
   "search_language": "Sprache suchen",
   "search_currency": "Währung suchen",
   "new_template" : "neue Vorlage",
-  "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin"
+  "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin",
+  "wallet_name_exists": "Wallet mit diesem Namen existiert bereits"
 }

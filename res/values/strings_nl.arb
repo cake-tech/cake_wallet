@@ -327,7 +327,7 @@
   "error_text_fiat" : "Waarde van bedrag kan het beschikbare saldo niet overschrijden.\nHet aantal breukcijfers moet kleiner zijn dan of gelijk zijn aan 2",
   "error_text_subaddress_name" : "Naam subadres mag niet bevatten ` , ' \" symbolen\nen moet tussen de 1 en 20 tekens lang zijn",
   "error_text_amount" : "Bedrag kan alleen cijfers bevatten",
-  "error_text_wallet_name" : "Naam portemonnee kan alleen letters, cijfers bevatten\nen moet tussen de 1 en 15 tekens lang zijn",
+  "error_text_wallet_name" : "Naam portemonnee kan alleen letters, cijfers , _ - symbolen bevatten\nen moet tussen de 1 en 33 tekens lang zijn",
   "error_text_keys" : "Portefeuillesleutels kunnen maximaal 64 tekens bevatten in hexadecimale volgorde",
   "error_text_crypto_currency" : "Het aantal breukcijfers\nmoet kleiner zijn dan of gelijk zijn aan 12",
   "error_text_minimal_limit" : "Ruil voor ${provider} is niet gemaakt. Bedrag is minder dan minimaal: ${min} ${currency}",
@@ -533,5 +533,6 @@
   "search_language": "Zoektaal",
   "search_currency": "Zoek valuta",
   "new_template" : "Nieuwe sjabloon",
-  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
+  "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
+  "wallet_name_exists": "Portemonnee met die naam bestaat al"
 }
