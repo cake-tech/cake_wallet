@@ -39,7 +39,7 @@ class SettingsChoicesCell extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: choicesListItem.items.map((dynamic e) {
-                    final bool isSelected = choicesListItem.selectedItem == e;
+                    final isSelected = choicesListItem.selectedItem == e;
                     return GestureDetector(
                       onTap: () {
                         choicesListItem.onItemSelected?.call(e);
