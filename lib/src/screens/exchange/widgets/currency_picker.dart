@@ -159,25 +159,22 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                               ),
                             ),
                           Flexible(
-                            child: Container(
-                              child: CurrencyPickerWidget(
-                                crossAxisCount: 2,
-                                selectedAtIndex: widget.selectedAtIndex,
-                                itemsCount: subPickerItemsList.length,
-                                pickerItemsList: subPickerItemsList,
-                                pickListItem: (int index) {
-                                  setState(() {
-                                    widget.selectedAtIndex = index;
-                                  });
-                                  widget.onItemSelected(subPickerItemsList[index].original);
-                                  if (widget.isConvertFrom &&
-                                      !widget.isMoneroWallet &&
-                                      (subPickerItemsList[index].original == CryptoCurrency.xmr)) {
-                                  } else {
-                                    Navigator.of(context).pop();
-                                  }
-                                },
-                              ),
+                            child: CurrencyPickerWidget(
+                              crossAxisCount: 2,
+                              selectedAtIndex: widget.selectedAtIndex,
+                              pickerItemsList: subPickerItemsList,
+                              pickListItem: (int index) {
+                                setState(() {
+                                  widget.selectedAtIndex = index;
+                                });
+                                widget.onItemSelected(subPickerItemsList[index].original);
+                                if (widget.isConvertFrom &&
+                                    !widget.isMoneroWallet &&
+                                    (subPickerItemsList[index].original == CryptoCurrency.xmr)) {
+                                } else {
+                                  Navigator.of(context).pop();
+                                }
+                              },
                             ),
                           ),
                         ],
