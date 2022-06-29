@@ -185,6 +185,7 @@ class PickerState<Item> extends State<Picker> {
           ? GridView.builder(
               padding: EdgeInsets.zero,
               controller: controller,
+              shrinkWrap: true,
               itemCount: items == null || items.isEmpty ? 0 : items.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,

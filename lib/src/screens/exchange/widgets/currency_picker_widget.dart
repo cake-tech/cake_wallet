@@ -21,34 +21,29 @@ class CurrencyPickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
-        // borderRadius: BorderRadius.circular(14.0),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14.0),
-        child: Scrollbar(
-          controller: _scrollController,
-          child: GridView.builder(
-              controller: _scrollController,
-              padding: EdgeInsets.zero,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: 2,
-                childAspectRatio: 3,
-              ),
-              itemCount: pickerItemsList.length,
-              itemBuilder: (BuildContext ctx, index) {
-                return PickerItemWidget(
-                  onTap: () {
-                    pickListItem(index);
-                  },
-                  title: pickerItemsList[index].title,
-                  iconPath: pickerItemsList[index].iconPath,
-                  tag: pickerItemsList[index].tag,
-                );
-              }),
-        ),
+      color: Theme.of(context).accentTextTheme.headline6.backgroundColor,
+      child: Scrollbar(
+        controller: _scrollController,
+        child: GridView.builder(
+            controller: _scrollController,
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 2,
+              childAspectRatio: 3,
+            ),
+            itemCount: pickerItemsList.length,
+            itemBuilder: (BuildContext ctx, index) {
+              return PickerItemWidget(
+                onTap: () {
+                  pickListItem(index);
+                },
+                title: pickerItemsList[index].title,
+                iconPath: pickerItemsList[index].iconPath,
+                tag: pickerItemsList[index].tag,
+              );
+            }),
       ),
     );
   }
