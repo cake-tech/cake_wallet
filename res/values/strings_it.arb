@@ -228,7 +228,7 @@
   "settings_nodes" : "Nodi",
   "settings_current_node" : "Nodo attuale",
   "settings_wallets" : "Portafogli",
-  "settings_display_balance_as" : "Mostra saldo come",
+  "settings_display_balance" : "Mostra saldo",
   "settings_currency" : "Moneta",
   "settings_fee_priority" : "Priorità commissione",
   "settings_save_recipient_address" : "Salva indirizzo di destinazione",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Anche Yats vive fuori da Cake Wallet. Qualsiasi indirizzo di portafoglio sulla terra può essere sostituito con un Yat!",
   "learn_more" : "Impara di più",
   "search": "Ricerca",
+  "search_language": "Cerca lingua",
+  "search_currency": "Cerca valuta",
   "new_template" : "Nuovo modello",
   "electrum_address_disclaimer": "Generiamo nuovi indirizzi ogni volta che ne utilizzi uno, ma gli indirizzi precedenti continuano a funzionare"
 }

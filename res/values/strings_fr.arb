@@ -226,7 +226,7 @@
   "settings_nodes" : "Nœuds",
   "settings_current_node" : "Nœud actuel",
   "settings_wallets" : "Portefeuilles",
-  "settings_display_balance_as" : "Afficher le solde en",
+  "settings_display_balance" : "Afficher le solde",
   "settings_currency" : "Devise",
   "settings_fee_priority" : "Priorité des frais",
   "settings_save_recipient_address" : "Sauvegarder l'adresse du bénéficiaire",
@@ -527,7 +527,9 @@
   "third_intro_title" : "Yat joue bien avec les autres",
   "third_intro_content" : "Les Yats existent aussi en dehors de Cake Wallet. Toute adresse sur terre peut être remplacée par un Yat !",
   "learn_more" : "En savoir plus",
-
+  "search": "Chercher",
+  "search_language": "Langue de recherche",
+  "search_currency": "Devise de recherche",
   "new_template" : "Nouveau Modèle",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
 }

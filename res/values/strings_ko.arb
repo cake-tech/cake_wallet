@@ -228,7 +228,7 @@
   "settings_nodes" : "노드",
   "settings_current_node" : "현재 노드",
   "settings_wallets" : "지갑",
-  "settings_display_balance_as" : "잔액 표시",
+  "settings_display_balance" : "디스플레이 잔액",
   "settings_currency" : "통화",
   "settings_fee_priority" : "수수료 우선",
   "settings_save_recipient_address" : "수신자 주소 저장",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Yats는 Cake Wallet 밖에서도 살고 있습니다. 지구상의 모든 지갑 주소는 Yat!",
   "learn_more" : "더 알아보기",
   "search": "찾다",
+  "search_language": "검색 언어",
+  "search_currency": "통화 검색",
   "new_template" : "새 템플릿",
   "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다."
 }

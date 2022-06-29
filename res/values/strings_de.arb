@@ -228,7 +228,7 @@
   "settings_nodes" : "Knoten",
   "settings_current_node" : "Aktueller Knoten",
   "settings_wallets" : "Wallets",
-  "settings_display_balance_as" : "Kontostand anzeigen in",
+  "settings_display_balance" : "Kontostand anzeigen",
   "settings_currency" : "Währung",
   "settings_fee_priority" : "Gebührenpriorität",
   "settings_save_recipient_address" : "Empfängeradresse speichern",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Yats leben auch außerhalb von Cake Wallet. Jede Wallet-Adresse auf der Welt kann durch ein Yat ersetzt werden!",
   "learn_more" : "Erfahren Sie mehr",
   "search": "Suche",
+  "search_language": "Sprache suchen",
+  "search_currency": "Währung suchen",
   "new_template" : "neue Vorlage",
   "electrum_address_disclaimer": "Wir generieren jedes Mal neue Adressen, wenn Sie eine verwenden, aber vorherige Adressen funktionieren weiterhin"
 }

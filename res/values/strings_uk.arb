@@ -227,7 +227,7 @@
   "settings_nodes" : "Вузли",
   "settings_current_node" : "Поточний вузол",
   "settings_wallets" : "Гаманці",
-  "settings_display_balance_as" : "Відображати баланс як",
+  "settings_display_balance" : "Відображати баланс",
   "settings_currency" : "Валюта",
   "settings_fee_priority" : "Пріоритет транзакції",
   "settings_save_recipient_address" : "Зберігати адресу отримувача",
@@ -529,6 +529,8 @@
   "third_intro_content" : "Yat знаходиться за межами Cake Wallet. Будь-яку адресу гаманця на землі можна замінити на Yat!",
   "learn_more" : "Дізнатися більше",
   "search": "Пошук",
+  "search_language": "Мова пошуку",
+  "search_currency": "Шукати валюту",
   "new_template" : "Новий шаблон",
   "electrum_address_disclaimer": "Ми створюємо нові адреси щоразу, коли ви використовуєте їх, але попередні адреси продовжують працювати"
 }

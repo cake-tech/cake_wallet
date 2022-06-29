@@ -228,7 +228,7 @@
   "settings_nodes" : "knooppunten",
   "settings_current_node" : "Huidige knooppunt",
   "settings_wallets" : "Portemonnee",
-  "settings_display_balance_as" : "Toon saldo als",
+  "settings_display_balance" : "Saldo weergeven",
   "settings_currency" : "Valuta",
   "settings_fee_priority" : "Tariefprioriteit",
   "settings_save_recipient_address" : "Adres ontvanger opslaan",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Yats wonen ook buiten Cake Wallet. Elk portemonnee-adres op aarde kan worden vervangen door een Yat!",
   "learn_more" : "Kom meer te weten",
   "search": "Zoekopdracht",
+  "search_language": "Zoektaal",
+  "search_currency": "Zoek valuta",
   "new_template" : "Nieuwe sjabloon",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
 }

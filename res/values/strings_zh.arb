@@ -228,7 +228,7 @@
   "settings_nodes" : "节点数",
   "settings_current_node" : "当前节点",
   "settings_wallets" : "钱包",
-  "settings_display_balance_as" : "将余额显示为",
+  "settings_display_balance" : "显示余额为",
   "settings_currency" : "货币",
   "settings_fee_priority" : "交易优先级",
   "settings_save_recipient_address" : "保存收件人地址",
@@ -528,6 +528,8 @@
   "third_intro_content" : "Yats 也住在 Cake Wallet 之外。 地球上任何一個錢包地址都可以用一個Yat來代替！",
   "learn_more" : "了解更多",
   "search": "搜索",
+  "search_language": "搜索语言",
+  "search_currency": "搜索货币",
   "new_template" : "新模板",
   "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效"
 }

@@ -47,7 +47,6 @@ import 'package:cake_wallet/src/screens/monero_accounts/monero_account_edit_or_c
 import 'package:cake_wallet/src/screens/contact/contact_list_page.dart';
 import 'package:cake_wallet/src/screens/contact/contact_page.dart';
 import 'package:cake_wallet/src/screens/wallet_keys/wallet_keys_page.dart';
-import 'package:cake_wallet/src/screens/settings/change_language.dart';
 import 'package:cake_wallet/src/screens/restore/restore_wallet_from_seed_details.dart';
 import 'package:cake_wallet/src/screens/exchange/exchange_page.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
@@ -358,10 +357,6 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.faq:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
-
-    case Routes.changeLanguage:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<LanguageListPage>());
 
     case Routes.preSeed:
       return MaterialPageRoute<void>(

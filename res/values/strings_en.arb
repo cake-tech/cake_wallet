@@ -228,7 +228,7 @@
   "settings_nodes" : "Nodes",
   "settings_current_node" : "Current node",
   "settings_wallets" : "Wallets",
-  "settings_display_balance_as" : "Display balance as",
+  "settings_display_balance" : "Display balance",
   "settings_currency" : "Currency",
   "settings_fee_priority" : "Fee priority",
   "settings_save_recipient_address" : "Save recipient address",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Yats live outside of Cake Wallet, too. Any wallet address on earth can be replaced with a Yat!",
   "learn_more" : "Learn More",
   "search": "Search",
+  "search_language": "Search language",
+  "search_currency": "Search currency",
   "new_template" : "New Template",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work"
 }

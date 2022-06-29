@@ -228,7 +228,7 @@
   "settings_nodes" : "Nodos",
   "settings_current_node" : "Nodo actual",
   "settings_wallets" : "Carteras",
-  "settings_display_balance_as" : "Mostrar saldo como",
+  "settings_display_balance" : "Mostrar saldo",
   "settings_currency" : "Moneda",
   "settings_fee_priority" : "Prioridad de tasa",
   "settings_save_recipient_address" : "Guardar dirección del destinatario",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Los Yats también viven fuera de Cake Wallet. Cualquier dirección de billetera en la tierra se puede reemplazar con un Yat!",
   "learn_more" : "Aprende más",
   "search": "Búsqueda",
+  "search_language": "Idioma de búsqueda",
+  "search_currency": "Moneda de búsqueda",
   "new_template" : "Nueva plantilla",
   "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando"
 }

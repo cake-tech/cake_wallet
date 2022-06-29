@@ -228,7 +228,7 @@
   "settings_nodes" : "Ноды",
   "settings_current_node" : "Текущая нода",
   "settings_wallets" : "Кошельки",
-  "settings_display_balance_as" : "Отображать баланс как",
+  "settings_display_balance" : "Отображать баланс",
   "settings_currency" : "Валюта",
   "settings_fee_priority" : "Приоритет транзакции",
   "settings_save_recipient_address" : "Сохранять адрес получателя",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Yat находятся за пределами Cake Wallet. Любой адрес кошелька на земле можно заменить на Yat!",
   "learn_more" : "Узнать больше",
   "search": "Поиск",
+  "search_language": "Язык поиска",
+  "search_currency": "Валюта поиска",
   "new_template" : "Новый шаблон",
   "electrum_address_disclaimer": "Мы генерируем новые адреса каждый раз, когда вы их используете, но предыдущие адреса продолжают работать."
 }

@@ -228,7 +228,7 @@
   "settings_nodes" : "Nodovi",
   "settings_current_node" : "Trenutni node",
   "settings_wallets" : "Novčanik",
-  "settings_display_balance_as" : "Prikaži stanje računa kao",
+  "settings_display_balance" : "Prikaži stanje računa",
   "settings_currency" : "Valuta",
   "settings_fee_priority" : "Prioritet naknade",
   "settings_save_recipient_address" : "Spremi primateljevu adresu",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Yats žive i izvan Cake Wallet -a. Bilo koja adresa novčanika na svijetu može se zamijeniti Yat!",
   "learn_more" : "Saznajte više",
   "search": "Traži",
+  "search_language": "Jezik pretraživanja",
+  "search_currency": "Traži valutu",
   "new_template" : "novi predložak",
   "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek"
 }

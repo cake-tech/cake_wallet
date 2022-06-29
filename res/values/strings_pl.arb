@@ -228,7 +228,7 @@
   "settings_nodes" : "Węzły",
   "settings_current_node" : "Bieżący węzeł",
   "settings_wallets" : "Portfele",
-  "settings_display_balance_as" : "Wyświetl saldo jako",
+  "settings_display_balance" : "Wyświetl saldo",
   "settings_currency" : "Waluta",
   "settings_fee_priority" : "Priorytet opłaty",
   "settings_save_recipient_address" : "Zapisz adres odbiorcy",
@@ -530,6 +530,8 @@
   "third_intro_content" : "Yats mieszkają również poza Cake Wallet. Każdy adres portfela na ziemi można zastąpić Yat!",
   "learn_more" : "Ucz się więcej",
   "search": "Szukaj",
+  "search_language": "Wyszukaj język",
+  "search_currency": "Wyszukaj walutę",
   "new_template" : "Nowy szablon",
   "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają"
 }

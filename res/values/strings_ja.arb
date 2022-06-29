@@ -228,7 +228,7 @@
   "settings_nodes" : "ノード",
   "settings_current_node" : "現在のノード",
   "settings_wallets" : "財布",
-  "settings_display_balance_as" : "残高を表示",
+  "settings_display_balance" : "ディスプレイバランス",
   "settings_currency" : "通貨",
   "settings_fee_priority" : "料金優先",
   "settings_save_recipient_address" : "受信者のアドレスを保存",
@@ -530,6 +530,8 @@
   "third_intro_content" : "YatsはCakeWalletの外にも住んでいます。 地球上のどのウォレットアドレスもYatに置き換えることができます！",
   "learn_more" : "もっと詳しく知る",
   "search": "検索",
+  "search_language": "検索言語",
+  "search_currency": "検索通貨",
   "new_template" : "新しいテンプレート",
   "electrum_address_disclaimer": "使用するたびに新しいアドレスが生成されますが、以前のアドレスは引き続き機能します"
 }

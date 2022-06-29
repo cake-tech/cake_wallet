@@ -1,6 +1,7 @@
+import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
-import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/settings/link_list_item.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mobx/mobx.dart';
 import 'package:package_info/package_info.dart';
@@ -75,7 +76,7 @@ abstract class SettingsViewModelBase with Store {
     //var connectYatUrl = YatLink.baseUrl + YatLink.signInSuffix;
     //final connectYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (connectYatUrlParameters.isNotEmpty) {
     //  connectYatUrl += YatLink.queryParameter + connectYatUrlParameters;
     //}
@@ -83,7 +84,7 @@ abstract class SettingsViewModelBase with Store {
     //var manageYatUrl = YatLink.baseUrl + YatLink.managePath;
     //final manageYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (manageYatUrlParameters.isNotEmpty) {
     //  manageYatUrl += YatLink.queryParameter + manageYatUrlParameters;
     //}
@@ -91,27 +92,41 @@ abstract class SettingsViewModelBase with Store {
     //var createNewYatUrl = YatLink.startFlowUrl;
     //final createNewYatUrlParameters =
     //    _yatStore.defineQueryParameters();
-    
+
     //if (createNewYatUrlParameters.isNotEmpty) {
     //  createNewYatUrl += '?sub1=' + createNewYatUrlParameters;
     //}
 
-    
+
     sections = [
       [
-        PickerListItem(
-            title: S.current.settings_display_balance_as,
-            items: BalanceDisplayMode.all,
-            selectedItem: () => balanceDisplayMode,
-            onItemSelected: (BalanceDisplayMode mode) =>
-                _settingsStore.balanceDisplayMode = mode),
+        SwitcherListItem(
+            title: S.current.settings_display_balance,
+            value: () => balanceDisplayMode == BalanceDisplayMode.displayableBalance,
+            onValueChange: (_, bool value) {
+              if (value) {
+                _settingsStore.balanceDisplayMode = BalanceDisplayMode.displayableBalance;
+              } else {
+                _settingsStore.balanceDisplayMode = BalanceDisplayMode.hiddenBalance;
+              }
+            },
+        ),
         if (!isHaven)
           PickerListItem(
               title: S.current.settings_currency,
+              searchHintText: S.current.search_currency,
               items: FiatCurrency.all,
               selectedItem: () => fiatCurrency,
               onItemSelected: (FiatCurrency currency) =>
-                  setFiatCurrency(currency)),
+                  setFiatCurrency(currency),
+              images: FiatCurrency.all.map(
+                    (e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                .toList(),
+              isGridView: true,
+              matchingCriteria: (FiatCurrency currency, String searchText) {
+                return currency.title.toLowerCase().contains(searchText) || currency.fullName.toLowerCase().contains(searchText);
+              },
+          ),
         PickerListItem(
             title: S.current.settings_fee_priority,
             items: priorityForWalletType(wallet.type),
@@ -150,10 +165,23 @@ abstract class SettingsViewModelBase with Store {
                 }
               });
             }),
-        RegularListItem(
-          title: S.current.settings_change_language,
-          handler: (BuildContext context) =>
-              Navigator.of(context).pushNamed(Routes.changeLanguage),
+        PickerListItem(
+            title: S.current.settings_change_language,
+            searchHintText: S.current.search_language,
+            items: LanguageService.list.keys.toList(),
+            displayItem: (dynamic code) {
+              return LanguageService.list[code];
+            },
+            selectedItem: () => getIt.get<SettingsStore>().languageCode,
+            onItemSelected: (String code) {
+              getIt.get<SettingsStore>().languageCode = code;
+            },
+            images: LanguageService.list.keys.map(
+              (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
+              .toList(),
+            matchingCriteria: (String code, String searchText) {
+              return LanguageService.list[code].toLowerCase().contains(searchText);
+            },
         ),
         SwitcherListItem(
             title: S.current.settings_allow_biometrical_authentication,
@@ -180,12 +208,12 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
-        PickerListItem(
-            title: S.current.color_theme,
-            items: ThemeList.all,
-            selectedItem: () => theme,
-            onItemSelected: (ThemeBase theme) =>
-                _settingsStore.currentTheme = theme)
+        ChoicesListItem(
+          title: S.current.color_theme,
+          items: ThemeList.all,
+          selectedItem: theme,
+          onItemSelected: (ThemeBase theme) => _settingsStore.currentTheme = theme,
+        ),
       ],
       //[
         //if (_yatStore.emoji.isNotEmpty) ...[
