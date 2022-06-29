@@ -121,19 +121,12 @@ class PreOrderPage extends BasePage {
                           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(_amountPattern))],
                           prefixIcon: GestureDetector(
                             onTap: () {
-                              final selectedIndex =
-                                  FiatCurrency.currenciesAvailableToBuyWith.indexOf(buyViewModel.fiatCurrency);
-
-                              if (selectedIndex == -1) {
-                                FiatCurrency.currenciesAvailableToBuyWith.indexOf(FiatCurrency.usd);
-                              }
-
                               showPopUp<void>(
                                 context: context,
                                 builder: (_) => Picker(
                                   hintText: S.current.search_currency,
                                   items: FiatCurrency.currenciesAvailableToBuyWith,
-                                  selectedAtIndex: selectedIndex,
+                                  selectedAtIndex: FiatCurrency.currenciesAvailableToBuyWith.indexOf(buyViewModel.fiatCurrency),
                                   onItemSelected: (FiatCurrency selectedCurrency) {
                                     buyViewModel.buyAmountViewModel.fiatCurrency = selectedCurrency;
                                   },

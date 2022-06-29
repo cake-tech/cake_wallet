@@ -1,4 +1,3 @@
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
@@ -172,9 +171,9 @@ abstract class SettingsViewModelBase with Store {
             displayItem: (dynamic code) {
               return LanguageService.list[code];
             },
-            selectedItem: () => getIt.get<SettingsStore>().languageCode,
+            selectedItem: () => _settingsStore.languageCode,
             onItemSelected: (String code) {
-              getIt.get<SettingsStore>().languageCode = code;
+              _settingsStore.languageCode = code;
             },
             images: LanguageService.list.keys.map(
               (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
