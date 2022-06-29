@@ -48,10 +48,6 @@ class PickerState<Item> extends State<Picker> {
 
   final TextEditingController searchController = TextEditingController();
 
-  final closeButton = Image.asset(
-    'assets/images/close.png',
-    color: Palette.darkBlueCraiola,
-  );
   ScrollController controller = ScrollController();
 
   @override
@@ -176,7 +172,7 @@ class PickerState<Item> extends State<Picker> {
               )
             ],
           ),
-          AlertCloseButton()
+          AlertCloseButton(),
         ],
       ),
     );
