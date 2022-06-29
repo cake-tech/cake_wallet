@@ -71,6 +71,23 @@ class IoniaService {
 		return ioniaApi.getMerchants(username: username, password: password, clientId: clientId);
 	}
 
+	// Get Merchants By Filter
+
+	Future<List<IoniaMerchant>> getMerchantsByFilter({
+		String search,
+		List<int> categories,
+		int merchantFilterType = 0}) async {
+		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
+		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		return ioniaApi.getMerchantsByFilter(
+			username: username,
+			password: password,
+			clientId: clientId,
+			search: search,
+			categories: categories,
+			merchantFilterType: merchantFilterType);
+	}
+
 	// Purchase Gift Card
 
 	Future<IoniaOrder> purchaseGiftCard({
@@ -86,5 +103,13 @@ class IoniaService {
 			username: username,
 			password: password,
 			clientId: clientId);
+	}
+
+	// Get Current User Gift Card Summaries
+
+	Future<List<IoniaMerchant>> getCurrentUserGiftCardSummaries() async {
+		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
+		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		return ioniaApi.getCurrentUserGiftCardSummaries(username: username, password: password, clientId: clientId);
 	}
 }
