@@ -135,6 +135,7 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/ionia/ionia_token_service.dart';
+import 'package:cake_wallet/anypay/anypay_api.dart';
 
 final getIt = GetIt.instance;
 
@@ -657,6 +658,8 @@ Future setup(
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
   getIt.registerFactory(() => IoniaApi());
+
+  getIt.registerFactory(() => AnyPayApi());
 
   getIt.registerFactory<IoniaService>(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));

@@ -14,6 +14,7 @@ class IoniaApi {
 	static final createCardUri = Uri.https(baseUri, '/$pathPrefix/CreateCard');
 	static final getCardsUri = Uri.https(baseUri, '/$pathPrefix/GetCards');
 	static final getMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchants');
+	static final getMerchantsByFilterUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchantsByFilter');
   	static final getPurchaseMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/PurchaseGiftCard');
 
 	// Create user
@@ -157,6 +158,52 @@ class IoniaApi {
 		}).toList();
 	}
 
+	// Get Merchants By Filter
+
+	Future<List<IoniaMerchant>> getMerchantsByFilter({
+		@required String username,
+		@required String password,
+		@required String clientId,
+		String search,
+		List<int> categories,
+		int merchantFilterType = 0}) async {
+		// MerchantFilterType: {All = 0, Nearby = 1, Popular = 2, Online = 3, MyFaves = 4, Search = 5}
+	    
+	    final headers = <String, String>{
+			'clientId': clientId,
+			'username': username,
+			'password': password,
+			'Content-Type': 'application/json'};
+		final body = <String, dynamic>{'MerchantFilterType': merchantFilterType};
+
+		if (search != null) {
+			body['SearchCriteria'] = search;
+		}
+
+		if (categories != null) {
+			body['Categories'] = categories;
+		}
+
+		final response = await post(getMerchantsByFilterUrl, headers: headers, body: json.encode(body));
+
+		if (response.statusCode != 200) {
+			return [];
+		}
+
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final isSuccessful = decodedBody['Successful'] as bool ?? false;
+
+		if (!isSuccessful) {
+			return [];
+		}
+
+		final data = decodedBody['Data'] as List<dynamic>;
+		return data.map((dynamic e) {
+			final element = e as Map<String, dynamic>;
+			return IoniaMerchant.fromJsonMap(element);
+		}).toList();
+	}
+
 	// Purchase Gift Card
 
 	Future<IoniaOrder> purchaseGiftCard({
@@ -173,8 +220,8 @@ class IoniaApi {
 			'Content-Type': 'application/json'};
 		final body = <String, dynamic>{
 			'Amount': amount,
-	    'Currency': currency,
-	    'MerchantId': merchId};
+		    'Currency': currency,
+		    'MerchantId': merchId};
 		final response = await post(getPurchaseMerchantsUrl, headers: headers, body: json.encode(body));
 
     	if (response.statusCode != 200) {
@@ -190,5 +237,35 @@ class IoniaApi {
 
 		final data = decodedBody['Data'] as Map<String, dynamic>;
     	return IoniaOrder.fromMap(data);
+	}
+
+	// Get Current User Gift Card Summaries
+
+	Future<List<IoniaMerchant>> getCurrentUserGiftCardSummaries({
+		@required String username,
+		@required String password,
+		@required String clientId}) async {
+	    final headers = <String, String>{
+			'clientId': clientId,
+			'username': username,
+			'password': password};
+		final response = await post(getMerchantsUrl, headers: headers);
+
+		if (response.statusCode != 200) {
+			return [];
+		}
+
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final isSuccessful = decodedBody['Successful'] as bool ?? false;
+    
+		if (!isSuccessful) {
+			return [];
+		}
+
+		final data = decodedBody['Data'] as List<dynamic>;
+		return data.map((dynamic e) {
+			final element = e as Map<String, dynamic>;
+			return IoniaMerchant.fromJsonMap(element);
+		}).toList();
 	}
 }

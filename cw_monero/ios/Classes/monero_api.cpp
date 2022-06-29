@@ -166,6 +166,8 @@ extern "C"
         uint64_t amount;
         uint64_t fee;
         char *hash;
+        char *hex;
+        char *txKey;
         Monero::PendingTransaction *transaction;
 
         PendingTransactionRaw(Monero::PendingTransaction *_transaction)
@@ -174,6 +176,8 @@ extern "C"
             amount = _transaction->amount();
             fee = _transaction->fee();
             hash = strdup(_transaction->txid()[0].c_str());
+            hex = strdup(_transaction->hex()[0].c_str());
+            txKey = strdup(_transaction->txKey()[0].c_str());
         }
     };
 
@@ -228,8 +232,6 @@ extern "C"
 
     bool create_wallet(char *path, char *password, char *language, int32_t networkType, char *error)
     {
-        Monero::WalletManagerFactory::setLogLevel(4);
-
         Monero::NetworkType _networkType = static_cast<Monero::NetworkType>(networkType);
         Monero::WalletManager *walletManager = Monero::WalletManagerFactory::getWalletManager();
         Monero::Wallet *wallet = walletManager->createWallet(path, password, language, _networkType);

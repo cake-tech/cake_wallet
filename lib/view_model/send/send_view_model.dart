@@ -222,11 +222,11 @@ abstract class SendViewModelBase with Store {
       case WalletType.bitcoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(outputs, priority);
+        return bitcoin.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.litecoin:
         final priority = _settingsStore.priority[_wallet.type];
 
-        return bitcoin.createBitcoinTransactionCredentials(outputs, priority);
+        return bitcoin.createBitcoinTransactionCredentials(outputs, priority: priority);
       case WalletType.monero:
         final priority = _settingsStore.priority[_wallet.type];
 

@@ -2,9 +2,9 @@
 
 . ./config.sh
 
-MONERO_URL="https://github.com/monero-project/monero.git"
+MONERO_URL="https://github.com/cake-tech/monero.git"
 MONERO_DIR_PATH="${EXTERNAL_IOS_SOURCE_DIR}/monero"
-MONERO_VERSION=tags/v0.17.3.0
+MONERO_VERSION=release-v0.17.3.2
 BUILD_TYPE=release
 PREFIX=${EXTERNAL_IOS_DIR}
 DEST_LIB_DIR=${EXTERNAL_IOS_LIB_DIR}/monero
