@@ -3,7 +3,6 @@ import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
-import 'package:cake_wallet/src/widgets/market_place_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
@@ -100,29 +99,16 @@ class IoniaManageCardsPage extends BasePage {
 
   @override
   Widget trailing(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _TrailingIcon(
-          asset: 'assets/images/card.png',
-          onPressed: () => Navigator.pushNamed(context, Routes.ioniaDebitCardPage),
-        ),
-        SizedBox(width: 16),
+    return 
         _TrailingIcon(
           asset: 'assets/images/profile.png',
           onPressed: () {},
-        ),
-      ],
     );
   }
 
   @override
   Widget body(BuildContext context) {
     backgroundHeight = MediaQuery.of(context).size.height * 0.75;
-    final filterIcon = Image.asset(
-      'assets/images/filter.png',
-      color: Theme.of(context).textTheme.caption.decorationColor,
-    );
 
     return Padding(
       padding: const EdgeInsets.all(14.0),
@@ -131,24 +117,8 @@ class IoniaManageCardsPage extends BasePage {
           Container(
             padding: EdgeInsets.only(left: 2, right: 22),
             height: 32,
-            child: Row(
-              children: [
-                Expanded(child: _SearchWidget()),
-                SizedBox(width: 10),
-                Container(
-                  width: 32,
-                  padding: EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
-                    ),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: filterIcon,
-                )
-              ],
-            ),
+            child:  _SearchWidget()
+            
           ),
           SizedBox(height: 8),
           Expanded(

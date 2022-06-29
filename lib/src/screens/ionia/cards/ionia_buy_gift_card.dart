@@ -69,6 +69,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 150),
                     BaseTextFormField(
@@ -93,7 +94,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                       ),
                       prefixIcon: Padding(
                         padding: EdgeInsets.only(
-                          top: 6.0,
+                          top: 5.0,
                           left: _width / 4,
                         ),
                         child: Text(
@@ -109,6 +110,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                     SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           S.of(context).min_amount(merchant.minimumCardPurchase.toString()),
