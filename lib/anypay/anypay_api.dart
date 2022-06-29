@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cw_core/crypto_currency.dart';
@@ -57,7 +58,7 @@ class AnyPayApi {
     	return AnyPayPayment.fromMap(decodedBody);
 	}
 
-	Future<void> payment(
+	Future<AnyPayPaymentCommittedInfo> payment(
 		String uri,
 		{@required String chain,
 			@required String currency,
@@ -71,9 +72,21 @@ class AnyPayApi {
 			'currency': currency,
 			'transactions': transactions.map((tx) => {'tx': tx.tx, 'tx_hash': tx.id, 'tx_key': tx.key}).toList()};
 		final response = await post(uri, headers: headers, body: utf8.encode(json.encode(body)));
-
-    	if (response.statusCode != 200) {
-			return null;
+		if (response.statusCode == 400) {
+			final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+			throw Exception(decodedBody['message'] as String);
 		}
+
+		if (response.statusCode != 200) {
+			throw Exception('Unexpected response');
+		}
+
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		return AnyPayPaymentCommittedInfo(
+			uri: uri,
+			currency: currency,
+			chain: chain,
+			transactions: transactions,
+			memo: decodedBody['memo'] as String);
 	}
 }

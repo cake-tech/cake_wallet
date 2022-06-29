@@ -12,6 +12,7 @@ import 'package:cake_wallet/anypay/any_pay_chain.dart';
 import 'package:cake_wallet/anypay/any_pay_trasnaction.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 
 class IoniaAnyPay {
 	IoniaAnyPay(this.ioniaService, this.anyPayApi, this.wallet);
@@ -31,7 +32,7 @@ class IoniaAnyPay {
     	return anyPayApi.paymentRequest(invoice.uri);
 	}
 
-	Future<void> commitInvoice(AnyPayPayment payment) async {
+	Future<AnyPayPaymentCommittedInfo> commitInvoice(AnyPayPayment payment) async {
 		final transactionCredentials = payment.instructions
 			.where((instruction) => instruction.type == AnyPayPaymentInstruction.transactionType)
 			.map((AnyPayPaymentInstruction instruction) {
@@ -80,10 +81,10 @@ class IoniaAnyPay {
 			})
 			.toList();
 
-		await anyPayApi.payment(
-				payment.paymentUrl,
-				chain: payment.chain,
-				currency: payment.chain,
-				transactions: transactions);
+		return await anyPayApi.payment(
+			payment.paymentUrl,
+			chain: payment.chain,
+			currency: payment.chain,
+			transactions: transactions);
 	}
 }
