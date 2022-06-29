@@ -34,7 +34,7 @@ class SettingsChoicesCell extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Color(0xffF2F0FA),
+                  color: Theme.of(context).accentTextTheme.display2.color,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,

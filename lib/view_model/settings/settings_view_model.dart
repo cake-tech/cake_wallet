@@ -124,10 +124,6 @@ abstract class SettingsViewModelBase with Store {
                 .toList(),
               isGridView: true,
               matchingCriteria: (FiatCurrency currency, String searchText) {
-                if (currency.fullName.toLowerCase().contains(searchText)) {
-                  print(currency.fullName);
-
-                }
                 return currency.title.toLowerCase().contains(searchText) || currency.fullName.toLowerCase().contains(searchText);
               },
           ),
@@ -184,9 +180,6 @@ abstract class SettingsViewModelBase with Store {
               (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
               .toList(),
             matchingCriteria: (String code, String searchText) {
-              print(searchText);
-              print(LanguageService.list[code]);
-              print(LanguageService.list[code].toLowerCase().contains(searchText));
               return LanguageService.list[code].toLowerCase().contains(searchText);
             },
         ),

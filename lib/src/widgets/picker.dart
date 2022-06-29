@@ -114,7 +114,7 @@ class PickerState<Item> extends State<Picker> {
                                   hintText: widget.hintText,
                                   prefixIcon: Image.asset("assets/images/search_icon.png"),
                                   filled: true,
-                                  fillColor: const Color(0xffF2F0FA),
+                                  fillColor: Theme.of(context).accentTextTheme.display2.color,
                                   alignLabelWithHint: false,
                                   contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
                                   enabledBorder: OutlineInputBorder(
