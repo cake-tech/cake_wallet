@@ -117,16 +117,14 @@ abstract class IoniaViewModelBase with Store {
   void searchMerchant(String text) {
     if (text.isEmpty) {
       ioniaMerchants = ioniaMerchantList;
+      return;
     }
-    searchString = text.toLowerCase();
-    ioniaMerchants = ioniaMerchantList.where(_searchFilter).toList();
+    searchString = text;
+    ioniaService.getMerchantsByFilter(search: searchString).then((value) {
+      ioniaMerchants = value;
+    });
   }
-
-  bool _searchFilter(IoniaMerchant merchant) {
-    final name = merchant.legalName;
-    return name.toLowerCase().contains(searchString);
-  }
-
+  
   Future<void> _getCard() async {
     cardState = IoniaFetchingCard();
     try {

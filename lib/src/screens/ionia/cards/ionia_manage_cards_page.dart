@@ -4,17 +4,28 @@ import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/widgets/market_place_item.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
-
 class IoniaManageCardsPage extends BasePage {
-  IoniaManageCardsPage(this._ioniaViewModel);
+  IoniaManageCardsPage(this._ioniaViewModel){
+    _searchController.addListener(() {
+      if (_searchController.text != _ioniaViewModel.searchString) {
+        _searchDebounce.run(() { 
+          _ioniaViewModel.searchMerchant(
+            _searchController.text);
+        });
+      }
+    });
+  }
 
   final IoniaViewModel _ioniaViewModel;
+
+  final _searchDebounce = Debounce(Duration(milliseconds: 500));
+  final _searchController = TextEditingController();
 
   @override
   Color get backgroundLightColor => currentTheme.type == ThemeType.bright ? Colors.transparent : Colors.white;
@@ -104,6 +115,7 @@ class IoniaManageCardsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
+
     final filterIcon = Image.asset(
       'assets/images/filter.png',
       color: Theme.of(context).textTheme.caption.decorationColor,
@@ -126,7 +138,8 @@ class IoniaManageCardsPage extends BasePage {
               children: [
                 Expanded(
                     child: _SearchWidget(
-                  ioniaViewModel: _ioniaViewModel,
+                  controller: _searchController,
+
                 )),
                 SizedBox(width: 10),
                 Container(
@@ -187,9 +200,9 @@ class IoniaManageCardsPage extends BasePage {
 class _SearchWidget extends StatelessWidget {
   const _SearchWidget({
     Key key,
-    @required this.ioniaViewModel,
+    @required this.controller,
   }) : super(key: key);
-  final IoniaViewModel ioniaViewModel;
+  final TextEditingController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -203,7 +216,7 @@ class _SearchWidget extends StatelessWidget {
 
     return TextField(
       style: TextStyle(color: Colors.white),
-      onChanged: (text) => ioniaViewModel.searchMerchant(text),
+      controller: controller, 
       decoration: InputDecoration(
           filled: true,
           contentPadding: EdgeInsets.only(

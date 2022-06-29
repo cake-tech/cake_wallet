@@ -200,7 +200,7 @@ class IoniaApi {
 		final data = decodedBody['Data'] as List<dynamic>;
 		return data.map((dynamic e) {
 			final element = e as Map<String, dynamic>;
-			return IoniaMerchant.fromJsonMap(element);
+			return IoniaMerchant.fromJsonMap(element['Merchant'] as Map<String, dynamic>);
 		}).toList();
 	}
 
