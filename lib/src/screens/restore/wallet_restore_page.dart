@@ -284,31 +284,38 @@ class WalletRestorePage extends BasePage {
           });
     }
 
-    if (walletRestoreFromSeedFormKey.currentState != null) {
+    if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
       final name = walletRestoreFromSeedFormKey
           .currentState.nameTextEditingController.value.text;
 
       if (!walletRestoreFromSeedFormKey.currentState.formKey.currentState
           .validate()) {
         return;
-      } else if (walletRestoreViewModel.nameExists(name)) {
+      }
+
+      if (walletRestoreViewModel.nameExists(name)) {
         showNameExistsAlert();
         return;
-      } else {
-        walletRestoreViewModel.create(options: _credentials());
       }
-    } else {
+
+      walletRestoreViewModel.create(options: _credentials());
+    }
+
+    if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
       final name = walletRestoreFromKeysFormKey
           .currentState.nameTextEditingController.value.text;
+
       if (!walletRestoreFromKeysFormKey.currentState.formKey.currentState
           .validate()) {
         return;
-      } else if (walletRestoreViewModel.nameExists(name)) {
+      }
+
+      if (walletRestoreViewModel.nameExists(name)) {
         showNameExistsAlert();
         return;
-      } else {
-        walletRestoreViewModel.create(options: _credentials());
       }
+
+      walletRestoreViewModel.create(options: _credentials());
     }
   }
 }

@@ -33,9 +33,7 @@ abstract class WalletCreationVMBase with Store {
   final AppStore _appStore;
 
   bool nameExists(String name) {
-    final List<String> walletNameList = [];
-    _walletInfoSource.values
-        .forEach((element) => walletNameList.add(element.name.toLowerCase()));
+    final walletNameList = _walletInfoSource.values.map((e) => e.name.toLowerCase()).toList();
 
     return walletNameList.contains(name.toLowerCase());
   }
