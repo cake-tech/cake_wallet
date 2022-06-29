@@ -269,8 +269,9 @@ class WalletRestorePage extends BasePage {
   }
 
   void _confirmForm() {
-    final formContext = walletRestoreFromSeedFormKey.currentContext ??
-        walletRestoreFromKeysFormKey.currentContext;
+    final formContext = walletRestoreViewModel.mode == WalletRestoreMode.seed
+        ? walletRestoreFromSeedFormKey.currentContext
+        : walletRestoreFromKeysFormKey.currentContext;
 
     final formKey = walletRestoreViewModel.mode == WalletRestoreMode.seed
         ? walletRestoreFromSeedFormKey.currentState.formKey
