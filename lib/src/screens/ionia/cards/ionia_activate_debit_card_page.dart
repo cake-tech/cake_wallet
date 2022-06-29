@@ -5,6 +5,7 @@ import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/material.dart';
@@ -21,11 +22,8 @@ class IoniaActivateDebitCardPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.current.debit_card,
-      style: TextStyle(
-        fontSize: 22,
+      style: textLargeSemiBold(
         color: Theme.of(context).accentTextTheme.display4.backgroundColor,
-        fontFamily: 'Lato',
-        fontWeight: FontWeight.w900,
       ),
     );
   }

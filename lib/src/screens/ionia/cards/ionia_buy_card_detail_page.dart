@@ -58,11 +58,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
   Widget middle(BuildContext context) {
     return Text(
       merchant.legalName,
-      style: TextStyle(
-        fontSize: 22,
-        fontFamily: 'Lato',
-        fontWeight: FontWeight.w900,
-      ),
+      style: textLargeSemiBold(color: Theme.of(context).accentTextTheme.display4.backgroundColor),
     );
   }
 
