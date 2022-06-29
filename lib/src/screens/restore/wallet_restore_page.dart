@@ -272,50 +272,39 @@ class WalletRestorePage extends BasePage {
     final formContext = walletRestoreFromSeedFormKey.currentContext ??
         walletRestoreFromKeysFormKey.currentContext;
 
-    Future<void> showNameExistsAlert() {
-      return showPopUp<void>(
-          context: formContext,
-          builder: (_) {
-            return AlertWithOneAction(
-                alertTitle: '',
-                alertContent: S.of(formContext).wallet_name_exists,
-                buttonText: S.of(formContext).ok,
-                buttonAction: () => Navigator.of(formContext).pop());
-          });
+    final formKey = walletRestoreViewModel.mode == WalletRestoreMode.seed
+        ? walletRestoreFromSeedFormKey.currentState.formKey
+        : walletRestoreFromKeysFormKey.currentState.formKey;
+
+    final name = walletRestoreViewModel.mode == WalletRestoreMode.seed
+        ? walletRestoreFromSeedFormKey
+        .currentState.nameTextEditingController.value.text
+        : walletRestoreFromKeysFormKey
+        .currentState.nameTextEditingController.value.text;
+
+    if (!formKey.currentState.validate()) {
+      return;
     }
 
-    if (walletRestoreViewModel.mode == WalletRestoreMode.seed) {
-      final name = walletRestoreFromSeedFormKey
-          .currentState.nameTextEditingController.value.text;
-
-      if (!walletRestoreFromSeedFormKey.currentState.formKey.currentState
-          .validate()) {
-        return;
-      }
-
-      if (walletRestoreViewModel.nameExists(name)) {
-        showNameExistsAlert();
-        return;
-      }
-
-      walletRestoreViewModel.create(options: _credentials());
+    if (walletRestoreViewModel.nameExists(name)) {
+      showNameExistsAlert(formContext);
+      return;
     }
 
-    if (walletRestoreViewModel.mode == WalletRestoreMode.keys) {
-      final name = walletRestoreFromKeysFormKey
-          .currentState.nameTextEditingController.value.text;
+    walletRestoreViewModel.create(options: _credentials());
+  }
 
-      if (!walletRestoreFromKeysFormKey.currentState.formKey.currentState
-          .validate()) {
-        return;
-      }
-
-      if (walletRestoreViewModel.nameExists(name)) {
-        showNameExistsAlert();
-        return;
-      }
-
-      walletRestoreViewModel.create(options: _credentials());
-    }
+  Future<void> showNameExistsAlert(BuildContext context) {
+    return showPopUp<void>(
+        context: context,
+        builder: (_) {
+          return AlertWithOneAction(
+              alertTitle: '',
+              alertContent: S.of(context).wallet_name_exists,
+              buttonText: S.of(context).ok,
+              buttonAction: () => Navigator.of(context).pop());
+        });
   }
 }
+
+
