@@ -3,7 +3,7 @@ import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/buy_provider.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
-import 'package:cake_wallet/src/widgets/currency_alert_dialog.dart';
+import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cw_core/wallet_type.dart';
 import 'package:cake_wallet/src/screens/buy/widgets/buy_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -121,13 +121,31 @@ class PreOrderPage extends BasePage {
                           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(_amountPattern))],
                           prefixIcon: GestureDetector(
                             onTap: () {
+                              final selectedIndex =
+                                  FiatCurrency.currenciesAvailableToBuyWith.indexOf(buyViewModel.fiatCurrency);
+
+                              if (selectedIndex == -1) {
+                                FiatCurrency.currenciesAvailableToBuyWith.indexOf(FiatCurrency.usd);
+                              }
+
                               showPopUp<void>(
                                 context: context,
-                                builder: (BuildContext context) {
-                                  return CurrencyAlertDialog((FiatCurrency selectedCurrency) {
+                                builder: (_) => Picker(
+                                  hintText: S.current.search_currency,
+                                  items: FiatCurrency.currenciesAvailableToBuyWith,
+                                  selectedAtIndex: selectedIndex,
+                                  onItemSelected: (FiatCurrency selectedCurrency) {
                                     buyViewModel.buyAmountViewModel.fiatCurrency = selectedCurrency;
-                                  });
-                                },
+                                  },
+                                  images: FiatCurrency.currenciesAvailableToBuyWith
+                                      .map((e) => Image.asset("assets/images/flags/${e.countryCode}.png"))
+                                      .toList(),
+                                  isGridView: true,
+                                  matchingCriteria: (FiatCurrency currency, String searchText) {
+                                    return currency.title.toLowerCase().contains(searchText) ||
+                                        currency.fullName.toLowerCase().contains(searchText);
+                                  },
+                                ),
                               );
                             },
                             child: Padding(

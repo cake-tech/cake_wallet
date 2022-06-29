@@ -6,13 +6,13 @@ part 'buy_amount_view_model.g.dart';
 class BuyAmountViewModel = BuyAmountViewModelBase with _$BuyAmountViewModel;
 
 abstract class BuyAmountViewModelBase with Store {
-  BuyAmountViewModelBase() : amount = '';
+  BuyAmountViewModelBase() : amount = '', fiatCurrency = FiatCurrency.usd;
 
   @observable
   String amount;
 
   @observable
-  FiatCurrency fiatCurrency = FiatCurrency.usd;
+  FiatCurrency fiatCurrency;
 
   @computed
   double get doubleAmount {
