@@ -534,5 +534,15 @@
   "search_currency": "Zoek valuta",
   "new_template" : "Nieuwe sjabloon",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
-  "wallet_name_exists": "Portemonnee met die naam bestaat al"
+  "wallet_name_exists": "Portemonnee met die naam bestaat al",
+  "welcome_to_cake_phone": "Welkom bij Cake Phone",
+  "create_account": "Maak account",
+  "signup": "Aanmelden",
+  "already_have_account": "Heb je al een account?",
+  "cake_phone_terms_conditions_first_section_signup": "Door een account aan te maken gaat u akkoord met de",
+  "cake_phone_terms_conditions_first_section_login": "U gaat akkoord met de",
+  "cake_phone_terms_conditions_second_section": "van Cake Phone, wat aangeeft dat u alle rekeningmeldingen en informatie elektronisch zult ontvangen op het opgegeven e-mailadres",
+  "privacy_policy": "Privacybeleid",
+  "and": "en",
+  "emailAddress": "E-mailadres"
 }

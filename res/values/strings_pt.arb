@@ -534,5 +534,15 @@
   "search_currency": "Pesquisar moeda",
   "new_template" : "Novo modelo",
   "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
-  "wallet_name_exists": "A carteira com esse nome já existe"
+  "wallet_name_exists": "A carteira com esse nome já existe",
+  "welcome_to_cake_phone": "Bem-vindo ao Bolo Telefone",
+  "create_account": "Criar uma conta",
+  "signup": "Inscrever-se",
+  "already_have_account": "já tem uma conta?",
+  "cake_phone_terms_conditions_first_section_signup": "Ao criar uma conta você concorda com os",
+  "cake_phone_terms_conditions_first_section_login": "Você concorda com o",
+  "cake_phone_terms_conditions_second_section": "do Cake Phone, que indica que você receberá todos os avisos e informações da conta eletronicamente no endereço de e-mail fornecido",
+  "privacy_policy": "Política de Privacidade",
+  "and": "e",
+  "emailAddress": "Endereço de email"
 }

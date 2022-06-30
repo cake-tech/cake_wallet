@@ -534,5 +534,15 @@
   "search_currency": "통화 검색",
   "new_template" : "새 템플릿",
   "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다.",
-  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다."
+  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다.",
+  "welcome_to_cake_phone": "케이크폰에 오신 것을 환영합니다",
+  "create_account": "계정 만들기",
+  "signup": "가입하기",
+  "already_have_account": "이미 계정이 있습니까?",
+  "cake_phone_terms_conditions_first_section_signup": "계정을 생성함으로써 귀하는 다음 사항에 동의합니다",
+  "cake_phone_terms_conditions_first_section_login": "귀하는 다음 사항에 동의합니다.",
+  "cake_phone_terms_conditions_second_section": "모든 계정 알림 및 정보를 제공된 이메일 주소로 전자적으로 수신할 것임을 나타내는 Cake Phone의",
+  "privacy_policy": "개인 정보 정책",
+  "and": "그리고",
+  "emailAddress": "이메일 주소"
 }

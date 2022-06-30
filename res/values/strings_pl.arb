@@ -534,5 +534,15 @@
   "search_currency": "Wyszukaj walutę",
   "new_template" : "Nowy szablon",
   "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają",
-  "wallet_name_exists": "Portfel o tej nazwie już istnieje"
+  "wallet_name_exists": "Portfel o tej nazwie już istnieje",
+  "welcome_to_cake_phone": "Witamy w Ciasto Telefon",
+  "create_account": "Utwórz konto",
+  "signup": "Zapisz się",
+  "already_have_account": "Posiadasz już konto?",
+  "cake_phone_terms_conditions_first_section_signup": "Tworząc konto wyrażasz zgodę na",
+  "cake_phone_terms_conditions_first_section_login": "Zgadzasz się na",
+  "cake_phone_terms_conditions_second_section": "Cake Phone, co oznacza, że będziesz otrzymywać wszystkie powiadomienia i informacje dotyczące konta drogą elektroniczną na podany adres e-mail",
+  "privacy_policy": "Polityka prywatności",
+  "and": "oraz",
+  "emailAddress": "Adres e-mail"
 }

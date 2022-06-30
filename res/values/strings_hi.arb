@@ -534,5 +534,15 @@
   "search_currency": "मुद्रा खोजें",
   "new_template" : "नया टेम्पलेट",
   "electrum_address_disclaimer": "हर बार जब आप एक का उपयोग करते हैं तो हम नए पते उत्पन्न करते हैं, लेकिन पिछले पते काम करना जारी रखते हैं",
-  "wallet_name_exists": "उस नाम वाला वॉलेट पहले से मौजूद है"
+  "wallet_name_exists": "उस नाम वाला वॉलेट पहले से मौजूद है",
+  "welcome_to_cake_phone": "केक फोन में आपका स्वागत है",
+  "create_account": "खाता बनाएं",
+  "signup": "साइन अप करें",
+  "already_have_account": "क्या आपके पास पहले से एक खाता मौजूद है?",
+  "cake_phone_terms_conditions_first_section_signup": "खाता बनाकर आप इससे सहमत होते हैं",
+  "cake_phone_terms_conditions_first_section_login": "आप सहमत हैं",
+  "cake_phone_terms_conditions_second_section": "केक फोन का, जो इंगित करता है कि आपको प्रदान किए गए ईमेल पते पर इलेक्ट्रॉनिक रूप से सभी खाता नोटिस और जानकारी प्राप्त होगी",
+  "privacy_policy": "गोपनीयता नीति",
+  "and": "तथा",
+  "emailAddress": "ईमेल पता"
 }

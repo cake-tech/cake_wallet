@@ -534,5 +534,15 @@
   "search_currency": "Traži valutu",
   "new_template" : "novi predložak",
   "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek",
-  "wallet_name_exists": "Novčanik s tim nazivom već postoji"
+  "wallet_name_exists": "Novčanik s tim nazivom već postoji",
+  "welcome_to_cake_phone": "Dobrodošli u Cake Phone",
+  "create_account": "Napravite račun",
+  "signup": "Prijavite se",
+  "already_have_account": "Već imate račun?",
+  "cake_phone_terms_conditions_first_section_signup": "Kreiranjem računa pristajete na",
+  "cake_phone_terms_conditions_first_section_login": "Pristajete na",
+  "cake_phone_terms_conditions_second_section": "od Cake Phone, što znači da ćete sve obavijesti o računu i informacije primati elektroničkim putem na navedenu adresu e-pošte",
+  "privacy_policy": "Politika privatnosti",
+  "and": "i",
+  "emailAddress": "Email adresa"
 }

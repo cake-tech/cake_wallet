@@ -533,5 +533,15 @@
   "search_currency": "Шукати валюту",
   "new_template" : "Новий шаблон",
   "electrum_address_disclaimer": "Ми створюємо нові адреси щоразу, коли ви використовуєте їх, але попередні адреси продовжують працювати",
-  "wallet_name_exists": "Гаманець з такою назвою вже існує"
+  "wallet_name_exists": "Гаманець з такою назвою вже існує",
+  "welcome_to_cake_phone": "Ласкаво просимо до Cake Phone",
+  "create_account": "Створити обліковий запис",
+  "signup": "Зареєструватися",
+  "already_have_account": "Вже є аккаунт?",
+  "cake_phone_terms_conditions_first_section_signup": "Створюючи обліковий запис, ви погоджуєтеся з",
+  "cake_phone_terms_conditions_first_section_login": "Ви погоджуєтеся з",
+  "cake_phone_terms_conditions_second_section": "або Cake Phone, що означає, що ви отримуватимете всі сповіщення облікового запису та інформацію в електронному вигляді на вказану адресу електронної пошти",
+  "privacy_policy": "Політика конфіденційності",
+  "and": "і",
+  "emailAddress": "Адреса електронної пошти"
 }

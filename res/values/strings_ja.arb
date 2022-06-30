@@ -534,5 +534,15 @@
   "search_currency": "検索通貨",
   "new_template" : "新しいテンプレート",
   "electrum_address_disclaimer": "使用するたびに新しいアドレスが生成されますが、以前のアドレスは引き続き機能します",
-  "wallet_name_exists": "その名前のウォレットはすでに存在しています"
+  "wallet_name_exists": "その名前のウォレットはすでに存在しています",
+  "welcome_to_cake_phone": "ケーキフォンへようこそ",
+  "create_account": "アカウントを作成する",
+  "signup": "サインアップ",
+  "already_have_account": "すでにアカウントをお持ちですか？",
+  "cake_phone_terms_conditions_first_section_signup": "アカウントを作成することにより、",
+  "cake_phone_terms_conditions_first_section_login": "あなたは同意します",
+  "cake_phone_terms_conditions_second_section": "ケーキ電話の、あなたが提供された電子メールアドレスに電子的にすべてのアカウント通知と情報を受け取ることを示します",
+  "privacy_policy": "プライバシーポリシー",
+  "and": "と",
+  "emailAddress": "電子メールアドレス"
 }

@@ -532,5 +532,15 @@
   "search_currency": "搜索货币",
   "new_template" : "新模板",
   "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效",
-  "wallet_name_exists": "同名的钱包已经存在"
+  "wallet_name_exists": "同名的钱包已经存在",
+  "welcome_to_cake_phone": "欢迎来到蛋糕电话",
+  "create_account": "创建账户",
+  "signup": "注册",
+  "already_have_account": "已经有一个帐户？",
+  "cake_phone_terms_conditions_first_section_signup": "创建帐户即表示您同意",
+  "cake_phone_terms_conditions_first_section_login": "您同意",
+  "cake_phone_terms_conditions_second_section": "Cake Phone，表示您将通过提供的电子邮件地址以电子方式收到所有帐户通知和信息",
+  "privacy_policy": "隐私政策",
+  "and": "和",
+  "emailAddress": "电子邮件地址"
 }

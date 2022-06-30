@@ -532,5 +532,15 @@
   "search_currency": "Devise de recherche",
   "new_template" : "Nouveau Modèle",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner",
-  "wallet_name_exists": "Le portefeuille portant ce nom existe déjà"
+  "wallet_name_exists": "Le portefeuille portant ce nom existe déjà",
+  "welcome_to_cake_phone": "Bienvenue sur Cake Phone",
+  "create_account": "Créer un compte",
+  "signup": "S'inscrire",
+  "already_have_account": "Vous avez déjà un compte?",
+  "cake_phone_terms_conditions_first_section_signup": "En créant un compte, vous acceptez les",
+  "cake_phone_terms_conditions_first_section_login": "Vous acceptez le",
+  "cake_phone_terms_conditions_second_section": "de Cake Phone, ce qui indique que vous recevrez tous les avis et informations de compte par voie électronique à l'adresse e-mail fournie",
+  "privacy_policy": "Politique de confidentialité",
+  "and": "et",
+  "emailAddress": "Adresse e-mail"
 }

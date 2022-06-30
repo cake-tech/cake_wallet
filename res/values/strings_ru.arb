@@ -534,5 +534,15 @@
   "search_currency": "Валюта поиска",
   "new_template" : "Новый шаблон",
   "electrum_address_disclaimer": "Мы генерируем новые адреса каждый раз, когда вы их используете, но предыдущие адреса продолжают работать.",
-  "wallet_name_exists": "Кошелек с таким именем уже существует"
+  "wallet_name_exists": "Кошелек с таким именем уже существует",
+  "welcome_to_cake_phone": "Добро пожаловать в торт телефон",
+  "create_account": "Зарегистрироваться",
+  "signup": "Подписаться",
+  "already_have_account": "У вас уже есть аккаунт?",
+  "cake_phone_terms_conditions_first_section_signup": "Создавая учетную запись, вы соглашаетесь с",
+  "cake_phone_terms_conditions_first_section_login": "Вы соглашаетесь с",
+  "cake_phone_terms_conditions_second_section": "Cake Phone, что означает, что вы будете получать все уведомления и информацию об учетной записи в электронном виде на указанный адрес электронной почты.",
+  "privacy_policy": "Политика конфиденциальности",
+  "and": "а также",
+  "emailAddress": "Адрес электронной почты"
 }
