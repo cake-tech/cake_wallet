@@ -69,6 +69,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 150),
                     BaseTextFormField(
@@ -79,7 +80,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
                         color: Theme.of(context).primaryTextTheme.headline.color,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                         fontSize: 36,
                       ),
                       borderColor: Theme.of(context).primaryTextTheme.headline.color,
@@ -100,7 +101,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                           '${merchant.acceptedCurrency}: ',
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                             fontSize: 36,
                           ),
                         ),
@@ -109,6 +110,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                     SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           S.of(context).min_amount(merchant.minimumCardPurchase.toString()),
@@ -133,7 +135,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                 child: CardItem(
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
-                  discount: 0.0,
+                  discount: merchant.minimumDiscount,
                   titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
@@ -147,10 +149,15 @@ class IoniaBuyGiftCardPage extends BasePage {
               Padding(
                 padding: EdgeInsets.only(bottom: 12),
                 child: PrimaryButton(
-                  onPressed: () => Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardDetailPage, arguments: [merchant] ),
+                  onPressed: () {
+                    Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardDetailPage, arguments: [merchant] );
+                  },
                   text: S.of(context).continue_text,
                   color: Theme.of(context).accentTextTheme.body2.color,
-                  textColor: Theme.of(context).primaryTextTheme.body1.color,
+                  textColor:  Theme.of(context)
+                          .accentTextTheme
+                          .headline
+                          .decorationColor,
                 ),
               ),
               SizedBox(height: 30),

@@ -38,11 +38,8 @@ class IoniaVerifyIoniaOtp extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.current.verification,
-      style: TextStyle(
-        fontSize: 22,
-        fontFamily: 'Lato',
+      style: textLargeSemiBold(
         color: Theme.of(context).accentTextTheme.display4.backgroundColor,
-        fontWeight: FontWeight.w900,
       ),
     );
   }

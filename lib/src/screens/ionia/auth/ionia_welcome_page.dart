@@ -2,6 +2,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
+import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -15,11 +16,8 @@ class IoniaWelcomePage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.current.welcome_to_cakepay,
-      style: TextStyle(
-        fontSize: 22,
-        fontFamily: 'Lato',
+      style: textLargeSemiBold(
         color: Theme.of(context).accentTextTheme.display4.backgroundColor,
-        fontWeight: FontWeight.w900,
       ),
     );
   }
@@ -90,11 +88,13 @@ class IoniaWelcomePage extends BasePage {
                   S.of(context).login,
                   style: TextStyle(
                     color: Palette.blueCraiola,
-                    fontSize: 16,
+                    fontSize: 18,
+                     letterSpacing: 1.5,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-              )
+              ),
+              SizedBox(height: 20)
             ],
           )
         ],
