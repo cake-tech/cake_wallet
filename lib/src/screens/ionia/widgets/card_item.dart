@@ -46,8 +46,9 @@ class CardItem extends StatelessWidget {
                   ClipOval(
                     child: Image.network(
                       logoUrl,
-                      width: 42.0,
-                      height: 42.0,
+                      width: 40.0,
+                      height: 40.0,
+                      fit: BoxFit.cover,
                       loadingBuilder: (BuildContext _, Widget child, ImageChunkEvent loadingProgress) {
                         if (loadingProgress == null) {
                           return child;

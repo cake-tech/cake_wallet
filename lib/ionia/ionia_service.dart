@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/ionia/ionia_api.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
 
 class IoniaService {
 	IoniaService(this.secureStorage, this.ioniaApi);
@@ -75,7 +76,7 @@ class IoniaService {
 
 	Future<List<IoniaMerchant>> getMerchantsByFilter({
 		String search,
-		List<int> categories,
+		List<IoniaCategory> categories,
 		int merchantFilterType = 0}) async {
 		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
 		final password = await secureStorage.read(key: ioniaPasswordStorageKey);

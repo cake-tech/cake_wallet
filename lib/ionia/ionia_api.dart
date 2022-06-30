@@ -5,9 +5,10 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/ionia/ionia_user_credentials.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
 
 class IoniaApi {
-	static const baseUri = 'apidev.dashdirect.org';
+	static const baseUri = 'apidev.ionia.io';
 	static const pathPrefix = 'cake';
 	static final createUserUri = Uri.https(baseUri, '/$pathPrefix/CreateUser');
 	static final verifyEmailUri = Uri.https(baseUri, '/$pathPrefix/VerifyEmail');
@@ -165,7 +166,7 @@ class IoniaApi {
 		@required String password,
 		@required String clientId,
 		String search,
-		List<int> categories,
+		List<IoniaCategory> categories,
 		int merchantFilterType = 0}) async {
 		// MerchantFilterType: {All = 0, Nearby = 1, Popular = 2, Online = 3, MyFaves = 4, Search = 5}
 	    
@@ -181,7 +182,10 @@ class IoniaApi {
 		}
 
 		if (categories != null) {
-			body['Categories'] = categories;
+			body['Categories'] = categories
+				.map((e) => e.ids)
+				.expand((e) => e)
+				.toList();
 		}
 
 		final response = await post(getMerchantsByFilterUrl, headers: headers, body: json.encode(body));
@@ -199,8 +203,8 @@ class IoniaApi {
 
 		final data = decodedBody['Data'] as List<dynamic>;
 		return data.map((dynamic e) {
-			final element = e as Map<String, dynamic>;
-			return IoniaMerchant.fromJsonMap(element['Merchant'] as Map<String, dynamic>);
+			final element = e['Merchant'] as Map<String, dynamic>;
+			return IoniaMerchant.fromJsonMap(element);
 		}).toList();
 	}
 
@@ -225,14 +229,14 @@ class IoniaApi {
 		final response = await post(getPurchaseMerchantsUrl, headers: headers, body: json.encode(body));
 
     	if (response.statusCode != 200) {
-			return null;
+			throw Exception('Unexpected response');
 		}
 
     	final decodedBody = json.decode(response.body) as Map<String, dynamic>;
 		final isSuccessful = decodedBody['Successful'] as bool ?? false;
-    
+
 		if (!isSuccessful) {
-			return null;
+			throw Exception(decodedBody['ErrorMessage'] as String);
 		}
 
 		final data = decodedBody['Data'] as Map<String, dynamic>;

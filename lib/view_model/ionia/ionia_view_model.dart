@@ -16,12 +16,12 @@ abstract class IoniaViewModelBase with Store {
         enableCardPurchase = false,
         amount = '',
         tipAmount = 0.0,
-        ioniaMerchants = [] {
+        ioniaMerchants = [] , scrollOffsetFromTop = 0.0{
     if (ioniaMerchantSource.length > 0) {
       selectedMerchant = ioniaMerchantSource.getAt(0);
     }
     _getMerchants().then((value) {
-      ioniaMerchantList = ioniaMerchants = value;
+      ioniaMerchants = value;
     });
     _getAuthStatus().then((value) => isLoggedIn = value);
   }
@@ -39,6 +39,9 @@ abstract class IoniaViewModelBase with Store {
 
   @observable
   bool enableCardPurchase;
+
+  @observable
+  double scrollOffsetFromTop;
 
   @observable
   IoniaCreateAccountState createUserState;
@@ -166,5 +169,8 @@ abstract class IoniaViewModelBase with Store {
   @action
   void addTip(String tip) {
     tipAmount = double.parse(tip);
+  void setScrollOffsetFromTop(double scrollOffset) {
+    scrollOffsetFromTop = scrollOffset;
   }
+}
 }
