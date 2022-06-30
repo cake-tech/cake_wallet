@@ -8,7 +8,7 @@ import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 
 class IoniaApi {
-	static const baseUri = 'apidev.dashdirect.org';
+	static const baseUri = 'apidev.ionia.io';
 	static const pathPrefix = 'cake';
 	static final createUserUri = Uri.https(baseUri, '/$pathPrefix/CreateUser');
 	static final verifyEmailUri = Uri.https(baseUri, '/$pathPrefix/VerifyEmail');
@@ -229,14 +229,14 @@ class IoniaApi {
 		final response = await post(getPurchaseMerchantsUrl, headers: headers, body: json.encode(body));
 
     	if (response.statusCode != 200) {
-			return null;
+			throw Exception('Unexpected response');
 		}
 
     	final decodedBody = json.decode(response.body) as Map<String, dynamic>;
 		final isSuccessful = decodedBody['Successful'] as bool ?? false;
-    
+
 		if (!isSuccessful) {
-			return null;
+			throw Exception(decodedBody['ErrorMessage'] as String);
 		}
 
 		final data = decodedBody['Data'] as Map<String, dynamic>;
