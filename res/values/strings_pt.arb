@@ -327,7 +327,7 @@
   "error_text_fiat" : "O valor do valor não pode exceder o saldo disponível.\nO número de dígitos decimais deve ser menor ou igual a 2",
   "error_text_subaddress_name" : "O nome do sub-endereço não pode conter os símbolos ` , ' \" \ne deve ter entre 1 e 20 caracteres",
   "error_text_amount" : "A quantia deve conter apenas números",
-  "error_text_wallet_name" : "O nome da carteira só pode conter letras, números\ne deve ter entre 1 e 15 caracteres",
+  "error_text_wallet_name" : "O nome da carteira só pode conter letras, números, _ - símbolos\ne deve ter entre 1 e 33 caracteres",
   "error_text_keys" : "As chaves da carteira podem conter apenas 64 caracteres em hexadecimal",
   "error_text_crypto_currency" : "O número de dígitos decimais\ndeve ser menor ou igual a 12",
   "error_text_minimal_limit" : "A troca por ${provider} não é criada. O valor é menor que o mínimo: ${min} ${currency}",
@@ -533,5 +533,6 @@
   "search_language": "Idioma de pesquisa",
   "search_currency": "Pesquisar moeda",
   "new_template" : "Novo modelo",
-  "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando"
+  "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
+  "wallet_name_exists": "A carteira com esse nome já existe"
 }

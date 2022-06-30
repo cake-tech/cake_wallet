@@ -40,8 +40,3 @@ class TextValidator extends Validator<String> {
 
   bool match(String value) => RegExp(pattern).hasMatch(value);
 }
-
-class WalletNameValidator extends TextValidator {
-  WalletNameValidator()
-      : super(minLength: 1, maxLength: 15, pattern: '^[a-zA-Z0-9_]\$');
-}

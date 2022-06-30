@@ -327,7 +327,7 @@
   "error_text_fiat" : "금액은 사용 가능한 잔액을 초과 할 수 없습니다.\n소수 자릿수는 2보다 작거나 같아야합니다",
   "error_text_subaddress_name" : "하위 주소 이름은 포함 할 수 없습니다 ` , ' \" 기호 \n1 ~ 20 자 사이 여야합니다",
   "error_text_amount" : "금액은 숫자 만 포함 할 수 있습니다",
-  "error_text_wallet_name" : "지갑 이름은 문자, 숫자 만 포함 할 수 있습니다\n1 ~ 15 자 사이 여야합니다",
+  "error_text_wallet_name" : "지갑 이름은 문자, 숫자, _ - 기호만 포함할 수 있습니다.\n1~33자 사이여야 합니다.",
   "error_text_keys" : "지갑 키는 16 진수로 64 자만 포함 할 수 있습니다",
   "error_text_crypto_currency" : "소수 자릿수\n12 이하 여야합니다",
   "error_text_minimal_limit" : "거래 ${provider} 가 생성되지 않습니다. 금액이 최소보다 적습니다. ${min} ${currency}",
@@ -533,5 +533,6 @@
   "search_language": "검색 언어",
   "search_currency": "통화 검색",
   "new_template" : "새 템플릿",
-  "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다."
+  "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다.",
+  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다."
 }

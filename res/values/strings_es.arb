@@ -327,7 +327,7 @@
   "error_text_fiat" : "El valor de la cantidad no puede exceder el saldo disponible.\nEl número de dígitos de fracción debe ser menor o igual a 2",
   "error_text_subaddress_name" : "El nombre de la subdirección no puede contener símbolos `, '\" \ny debe tener entre 1 y 20 caracteres de longitud",
   "error_text_amount" : "La cantidad solo puede contener números",
-  "error_text_wallet_name" : "El nombre de la billetera solo puede contener letras, números \ny debe tener entre 1 y 15 caracteres de longitud",
+  "error_text_wallet_name" : "El nombre de la billetera solo puede contener letras, números , _ - símbolos\ny debe tener entre 1 y 33 caracteres de longitud",
   "error_text_keys" : "Las llaves de billetera solo pueden contener 64 caracteres en hexadecimal",
   "error_text_crypto_currency" : "El número de dígitos fraccionarios \ndebe ser menor o igual a 12",
   "error_text_minimal_limit" : "El comercio por ${provider} no se crea. La cantidad es menos que mínima: ${min} ${currency}",
@@ -533,5 +533,6 @@
   "search_language": "Idioma de búsqueda",
   "search_currency": "Moneda de búsqueda",
   "new_template" : "Nueva plantilla",
-  "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando"
+  "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando",
+  "wallet_name_exists": "Wallet con ese nombre ya ha existido"
 }

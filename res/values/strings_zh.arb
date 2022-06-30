@@ -327,7 +327,7 @@
   "error_text_fiat" : "金额不能超过可用余额.\n小数位数必须小于或等于2",
   "error_text_subaddress_name" : "子地址名称不能包含`，' \" 符号\n并且必须在1到20个字符之间",
   "error_text_amount" : "金额只能包含数字",
-  "error_text_wallet_name" : "钱包名称只能包含字母，数字\n且必须介于1到15个字符之间",
+  "error_text_wallet_name" : "钱包名称只能包含字母、数字、_ - 符号\n并且长度必须在 1 到 33 个字符之间",
   "error_text_keys" : "钱包密钥只能包含16个字符的十六进制字符",
   "error_text_crypto_currency" : "小数位数\n必须小于或等于12",
   "error_text_minimal_limit" : "未创建 ${provider} 交易。 金额小于最小值：${min} ${currency}",
@@ -531,5 +531,6 @@
   "search_language": "搜索语言",
   "search_currency": "搜索货币",
   "new_template" : "新模板",
-  "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效"
+  "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效",
+  "wallet_name_exists": "同名的钱包已经存在"
 }

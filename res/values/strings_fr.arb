@@ -325,7 +325,7 @@
   "error_text_fiat" : "La valeur du montant ne peut dépasser le solde disponible.\nLa partie décimale doit comporter au plus 2 chiffres",
   "error_text_subaddress_name" : "Le nom de sous-adresse ne peut contenir les symboles ` , ' \"\net sa longueur doit être comprise entre 1 et 20 caractères",
   "error_text_amount" : "Le montant ne peut comporter que des nombres",
-  "error_text_wallet_name" : "Le nom du portefeuille ne peut contenir que des lettres et des chiffres\net sa longueur doit être comprise entre 1 et 15 caractères",
+  "error_text_wallet_name" : "Le nom du portefeuille ne peut contenir que des lettres, des chiffres, des symboles _ -\net doit comporter entre 1 et 33 caractères",
   "error_text_keys" : "Les clefs du portefeuille ne peuvent être constituées que de 64 caractères hexadécimaux",
   "error_text_crypto_currency" : "La partie décimale\ndoit comporter au plus 12 chiffres",
   "error_text_minimal_limit" : "Échange pour ${provider} non créé. Le montant est inférieur au minimum : ${min} ${currency}",
@@ -531,5 +531,6 @@
   "search_language": "Langue de recherche",
   "search_currency": "Devise de recherche",
   "new_template" : "Nouveau Modèle",
-  "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner"
+  "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner",
+  "wallet_name_exists": "Le portefeuille portant ce nom existe déjà"
 }

@@ -327,7 +327,7 @@
   "error_text_fiat" : "Vrijednost iznosa ne smije biti veća od raspoloživog iznosa.\nBroj decimala smije biti 2 ili manji.",
   "error_text_subaddress_name" : "Ime podadrese ne smije sadržavati znakove ` , ' \" \ni mora biti dužine između 1 i 20 znakova",
   "error_text_amount" : "Iznos smije sadržavati samo brojeve",
-  "error_text_wallet_name" : "Ime novčanika smije sadržavati samo slova i brojeve\nte mora biti dužine između 1 i 15 znakova",
+  "error_text_wallet_name" : "Naziv novčanika može sadržavati samo slova, brojeve, _ - simbole\ni mora imati između 1 i 33 znaka",
   "error_text_keys" : "Novčanik smije sadržavati samo 64 znakova hex vrijednosti",
   "error_text_crypto_currency" : "Broj decimala mora\nbiti 12 ili manji",
   "error_text_minimal_limit" : "Razmjena za ${provider} nije izrađena. Iznos je manji od minimalnog: ${min} ${currency}",
@@ -533,5 +533,6 @@
   "search_language": "Jezik pretraživanja",
   "search_currency": "Traži valutu",
   "new_template" : "novi predložak",
-  "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek"
+  "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek",
+  "wallet_name_exists": "Novčanik s tim nazivom već postoji"
 }

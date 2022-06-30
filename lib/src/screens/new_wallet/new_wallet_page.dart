@@ -7,7 +7,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/src/widgets/seed_language_selector.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -218,10 +218,21 @@ class _WalletNameFormState extends State<WalletNameForm> {
     if (!_formKey.currentState.validate()) {
       return;
     }
-
-    _walletNewVM.create(
-        options: _walletNewVM.hasLanguageSelector
-            ? _languageSelectorKey.currentState.selected
-            : null);
+    if (_walletNewVM.nameExists(_walletNewVM.name)) {
+      showPopUp<void>(
+          context: context,
+          builder: (_) {
+            return AlertWithOneAction(
+                alertTitle: '',
+                alertContent: S.of(context).wallet_name_exists,
+                buttonText: S.of(context).ok,
+                buttonAction: () => Navigator.of(context).pop());
+          });
+    } else {
+      _walletNewVM.create(
+          options: _walletNewVM.hasLanguageSelector
+              ? _languageSelectorKey.currentState.selected
+              : null);
+    }
   }
 }
