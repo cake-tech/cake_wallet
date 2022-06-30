@@ -60,4 +60,6 @@ class Routes {
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const addressPage = '/address_page';
   static const fullscreenQR = '/fullscreen_qr';
+  static const cakePhoneWelcome = '/cake_phone_welcome';
+  static const cakePhoneAuth = '/cake_phone_auth';
 }

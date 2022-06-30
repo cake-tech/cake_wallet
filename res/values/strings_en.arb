@@ -534,5 +534,15 @@
   "search_currency": "Search currency",
   "new_template" : "New Template",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
-  "wallet_name_exists": "Wallet with that name has already existed"
+  "wallet_name_exists": "Wallet with that name has already existed",
+  "welcome_to_cake_phone": "Welcome to Cake Phone",
+  "create_account": "Create Account",
+  "signup": "Sign up",
+  "already_have_account": "Already have an account?",
+  "cake_phone_terms_conditions_first_section_signup": "By creating account you agree to the",
+  "cake_phone_terms_conditions_first_section_login": "You agree to the",
+  "cake_phone_terms_conditions_second_section": "of Cake Phone, which indicates you will receive all account notices and information electronically to the email address provided",
+  "privacy_policy": "Privacy Policy",
+  "and": "and",
+  "emailAddress": "Email Address"
 }

@@ -4,6 +4,7 @@ import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/cake_phone_auth_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -63,6 +64,7 @@ import 'package:flutter/services.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/cake_phone_welcome_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -400,6 +402,18 @@ Route<dynamic> createRoute(RouteSettings settings) {
                 param1: args['qrData'] as String,
                 param2: args['isLight'] as bool,
               ));
+
+    case Routes.cakePhoneWelcome:
+      return MaterialPageRoute<CakePhoneWelcomePage>(
+        builder: (_) => CakePhoneWelcomePage(),
+      );
+
+    case Routes.cakePhoneAuth:
+      final isLogin = settings.arguments as bool ?? false;
+
+      return MaterialPageRoute<CakePhoneWelcomePage>(
+        builder: (_) => CakePhoneAuthPage(isLogin: isLogin),
+      );
 
     default:
       return MaterialPageRoute<void>(
