@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/palette.dart';
 
 class Picker<Item extends Object> extends StatefulWidget {
   Picker({
@@ -49,10 +48,6 @@ class PickerState<Item> extends State<Picker> {
 
   final TextEditingController searchController = TextEditingController();
 
-  final closeButton = Image.asset(
-    'assets/images/close.png',
-    color: Palette.darkBlueCraiola,
-  );
   ScrollController controller = ScrollController();
 
   @override
@@ -98,81 +93,78 @@ class PickerState<Item> extends State<Picker> {
                 ),
               Padding(
                 padding: EdgeInsets.only(left: 24, right: 24, top: 24),
-                child: GestureDetector(
-                  onTap: () => null,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.all(Radius.circular(30)),
-                    child: Container(
-                      color: Theme.of(context).accentTextTheme.title.color,
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.65,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (widget.hintText != null)
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: TextFormField(
-                                  controller: searchController,
-                                  style: TextStyle(color: Theme.of(context).primaryTextTheme.title.color),
-                                  decoration: InputDecoration(
-                                    hintText: widget.hintText,
-                                    prefixIcon: Image.asset("assets/images/search_icon.png"),
-                                    filled: true,
-                                    fillColor: Theme.of(context).accentTextTheme.display2.color,
-                                    alignLabelWithHint: false,
-                                    contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
-                                    enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                        borderSide: const BorderSide(
-                                          color: Colors.transparent,
-                                        )),
-                                    focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(14),
-                                        borderSide: const BorderSide(
-                                          color: Colors.transparent,
-                                        )),
-                                  ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  child: Container(
+                    color: Theme.of(context).accentTextTheme.title.color,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.65,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.hintText != null)
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: TextFormField(
+                                controller: searchController,
+                                style: TextStyle(color: Theme.of(context).primaryTextTheme.title.color),
+                                decoration: InputDecoration(
+                                  hintText: widget.hintText,
+                                  prefixIcon: Image.asset("assets/images/search_icon.png"),
+                                  filled: true,
+                                  fillColor: Theme.of(context).accentTextTheme.display2.color,
+                                  alignLabelWithHint: false,
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+                                  enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                      )),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                      borderSide: const BorderSide(
+                                        color: Colors.transparent,
+                                      )),
                                 ),
                               ),
-                            Divider(
-                              color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                              height: 1,
                             ),
-                            if (widget.selectedAtIndex != -1) buildSelectedItem(),
-                            Flexible(
-                              child: Stack(
-                                alignment: Alignment.center,
-                                children: <Widget>[
-                                  (items?.length ?? 0) > 3 ? Scrollbar(
-                                    controller: controller,
-                                    child: itemsList(),
-                                  ) : itemsList(),
-                                  (widget.description?.isNotEmpty ?? false)
-                                      ? Positioned(
-                                          bottom: 24,
-                                          left: 24,
-                                          right: 24,
-                                          child: Text(
-                                            widget.description,
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w500,
-                                              fontFamily: 'Lato',
-                                              decoration: TextDecoration.none,
-                                              color: Theme.of(context).primaryTextTheme.title.color,
-                                            ),
+                          Divider(
+                            color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                            height: 1,
+                          ),
+                          if (widget.selectedAtIndex != -1) buildSelectedItem(),
+                          Flexible(
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: <Widget>[
+                                (items?.length ?? 0) > 3 ? Scrollbar(
+                                  controller: controller,
+                                  child: itemsList(),
+                                ) : itemsList(),
+                                (widget.description?.isNotEmpty ?? false)
+                                    ? Positioned(
+                                        bottom: 24,
+                                        left: 24,
+                                        right: 24,
+                                        child: Text(
+                                          widget.description,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                            fontFamily: 'Lato',
+                                            decoration: TextDecoration.none,
+                                            color: Theme.of(context).primaryTextTheme.title.color,
                                           ),
-                                        )
-                                      : Offstage(),
-                                ],
-                              ),
+                                        ),
+                                      )
+                                    : Offstage(),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -180,7 +172,7 @@ class PickerState<Item> extends State<Picker> {
               )
             ],
           ),
-          AlertCloseButton(image: closeButton)
+          AlertCloseButton(),
         ],
       ),
     );
@@ -193,6 +185,7 @@ class PickerState<Item> extends State<Picker> {
           ? GridView.builder(
               padding: EdgeInsets.zero,
               controller: controller,
+              shrinkWrap: true,
               itemCount: items == null || items.isEmpty ? 0 : items.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
