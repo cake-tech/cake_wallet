@@ -1,3 +1,4 @@
+import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
@@ -33,6 +34,8 @@ abstract class IoniaViewModelBase with Store {
   List<IoniaMerchant> ioniaMerchantList;
 
   String searchString;
+
+  List<IoniaCategory> get ioniaCategories => IoniaCategory.allCategories;
 
   @observable
   IoniaMerchant selectedMerchant;
@@ -169,8 +172,8 @@ abstract class IoniaViewModelBase with Store {
   @action
   void addTip(String tip) {
     tipAmount = double.parse(tip);
+  }
   void setScrollOffsetFromTop(double scrollOffset) {
     scrollOffsetFromTop = scrollOffset;
   }
-}
 }

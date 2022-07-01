@@ -3,10 +3,13 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/ionia_filter_modal.dart';
+import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +17,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaManageCardsPage extends BasePage {
-   IoniaManageCardsPage(this._ioniaViewModel);
+  IoniaManageCardsPage(this._ioniaViewModel) {
+    _searchController.addListener(() {
+      if (_searchController.text != _ioniaViewModel.searchString) {
+        _searchDebounce.run(() {
+          _ioniaViewModel.searchMerchant(_searchController.text);
+        });
+      }
+    });
+  }
   final IoniaViewModel _ioniaViewModel;
 
   final _searchDebounce = Debounce(Duration(milliseconds: 500));
@@ -84,23 +95,22 @@ class IoniaManageCardsPage extends BasePage {
     );
   }
 
-
   @override
   Widget trailing(BuildContext context) {
-    return 
-        _TrailingIcon(
-          asset: 'assets/images/profile.png',
-          onPressed: () => Navigator.pushNamed(context, Routes.ioniaAccountPage),
-        );
+    return _TrailingIcon(
+      asset: 'assets/images/profile.png',
+      onPressed: () => Navigator.pushNamed(context, Routes.ioniaAccountPage),
+    );
   }
 
   @override
   Widget body(BuildContext context) {
-
-    final filterIcon = Image.asset(
-      'assets/images/filter.png',
-      color: Theme.of(context).textTheme.caption.decorationColor,
-    );
+    final filterIcon = InkWell(
+        onTap: () => showCategoryFilter(context),
+        child: Image.asset(
+          'assets/images/filter.png',
+          color: Theme.of(context).textTheme.caption.decorationColor,
+        ));
 
     return Padding(
       padding: const EdgeInsets.all(14.0),
@@ -114,7 +124,6 @@ class IoniaManageCardsPage extends BasePage {
                 Expanded(
                     child: _SearchWidget(
                   controller: _searchController,
-
                 )),
                 SizedBox(width: 10),
                 Container(
@@ -134,15 +143,21 @@ class IoniaManageCardsPage extends BasePage {
           ),
           SizedBox(height: 8),
           Expanded(
-            child: Observer(builder: (_) {
-              return IoniaManageCardsPageBody(scrollOffsetFromTop: _ioniaViewModel.scrollOffsetFromTop, 
-              ioniaMerchants: _ioniaViewModel.ioniaMerchants, 
-              onSetScrollOffset: (offset) => _ioniaViewModel.setScrollOffsetFromTop(offset),
-              );
-            }),
+            child: IoniaManageCardsPageBody(
+              ioniaViewModel: _ioniaViewModel,
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  void showCategoryFilter(BuildContext context) {
+    showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return IoniaFilterModal(categories: _ioniaViewModel.ioniaCategories);
+      },
     );
   }
 }
@@ -150,41 +165,35 @@ class IoniaManageCardsPage extends BasePage {
 class IoniaManageCardsPageBody extends StatefulWidget {
   const IoniaManageCardsPageBody({
     Key key,
-    @required this.scrollOffsetFromTop,
-    @required this.ioniaMerchants,
-     @required this.onSetScrollOffset,
+    @required this.ioniaViewModel,
   }) : super(key: key);
 
-
-  final List<IoniaMerchant> ioniaMerchants;
-  final double scrollOffsetFromTop;
-  final Function(double) onSetScrollOffset;
+  final IoniaViewModel ioniaViewModel;
 
   @override
   _IoniaManageCardsPageBodyState createState() => _IoniaManageCardsPageBodyState();
 }
 
 class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
+  double get backgroundHeight => MediaQuery.of(context).size.height * 0.75;
+  double thumbHeight = 72;
+  bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
 
-   double get backgroundHeight => MediaQuery.of(context).size.height * 0.75;
-   double  thumbHeight = 72;
-   bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
-
-
-  List<IoniaMerchant> get merchantsList => widget.ioniaMerchants;
+  List<IoniaMerchant> get merchantsList => widget.ioniaViewModel.ioniaMerchants;
 
   final _scrollController = ScrollController();
 
-@override
+  @override
   void initState() {
     _scrollController.addListener(() {
       final scrollOffsetFromTop = _scrollController.hasClients
           ? (_scrollController.offset / _scrollController.position.maxScrollExtent * (backgroundHeight - thumbHeight))
           : 0.0;
-      widget.onSetScrollOffset(scrollOffsetFromTop);
+      widget.ioniaViewModel.setScrollOffsetFromTop(scrollOffsetFromTop);
     });
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
@@ -197,8 +206,8 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
           final merchant = merchantsList[index];
           return CardItem(
             logoUrl: merchant.logoUrl,
-            onTap: (){
-              _ioniaViewModel.selectMerchant(merchant);
+            onTap: () {
+              widget.ioniaViewModel.selectMerchant(merchant);
               Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage);
             },
             title: merchant.legalName,
@@ -218,7 +227,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
               width: 3,
               backgroundColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.05),
               thumbColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.5),
-              fromTop: widget.scrollOffsetFromTop,
+              fromTop: widget.ioniaViewModel.scrollOffsetFromTop,
             )
           : Offstage()
     ]);
@@ -244,7 +253,7 @@ class _SearchWidget extends StatelessWidget {
 
     return TextField(
       style: TextStyle(color: Colors.white),
-      controller: controller, 
+      controller: controller,
       decoration: InputDecoration(
           filled: true,
           contentPadding: EdgeInsets.only(
@@ -303,5 +312,3 @@ class _TrailingIcon extends StatelessWidget {
     );
   }
 }
-
-

@@ -613,5 +613,6 @@
   "logout": "Logout",
   "add_tip": "Add Tip",
   "percentageOf": "of ${amount}",
-  "is_percentage": "is"
+  "is_percentage": "is",
+  "search_category": "Search category"
 }
