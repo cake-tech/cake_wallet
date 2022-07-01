@@ -2,6 +2,7 @@ import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter/material.dart';
 
 class IoniaFilterModal extends StatefulWidget {
