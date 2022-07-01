@@ -544,5 +544,12 @@
   "cake_phone_terms_conditions_second_section": "van Cake Phone, wat aangeeft dat u alle rekeningmeldingen en informatie elektronisch zult ontvangen op het opgegeven e-mailadres",
   "privacy_policy": "Privacybeleid",
   "and": "en",
-  "emailAddress": "E-mailadres"
+  "email_address": "E-mailadres",
+  "email_verification": "email verificatie",
+  "fill_verification_code": "Vul de verificatiecode in die u in uw e-mail hebt ontvangen:",
+  "verification_code": "Verificatie code",
+  "did_not_get_code": "Heb je de code niet ontvangen?",
+  "resend_code_in": "Verstuur code opnieuw in",
+  "get_code": "Code ophalen",
+  "cake_phone_introduction": "Met Cake Phone kunt u virtuele telefoonnummers kopen met digitale activa!\n\nAlleen een e-mail is vereist."
 }

@@ -544,5 +544,12 @@
   "cake_phone_terms_conditions_second_section": "od Cake Phone, što znači da ćete sve obavijesti o računu i informacije primati elektroničkim putem na navedenu adresu e-pošte",
   "privacy_policy": "Politika privatnosti",
   "and": "i",
-  "emailAddress": "Email adresa"
+  "email_address": "Email adresa",
+  "email_verification": "Potvrda e-pošte",
+  "fill_verification_code": "Molimo ispunite kontrolni kod koji ste dobili na e-mail:",
+  "verification_code": "Verifikacijski kod",
+  "did_not_get_code": "Niste dobili kod?",
+  "resend_code_in": "Ponovno pošalji kod",
+  "get_code": "Nabavite kod",
+  "cake_phone_introduction": "Cake Phone vam omogućuje kupnju virtualnih telefonskih brojeva s digitalnom imovinom!\n\nPotreban je samo email."
 }

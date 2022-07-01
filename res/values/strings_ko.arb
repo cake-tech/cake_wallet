@@ -544,5 +544,12 @@
   "cake_phone_terms_conditions_second_section": "모든 계정 알림 및 정보를 제공된 이메일 주소로 전자적으로 수신할 것임을 나타내는 Cake Phone의",
   "privacy_policy": "개인 정보 정책",
   "and": "그리고",
-  "emailAddress": "이메일 주소"
+  "email_address": "이메일 주소",
+  "email_verification": "이메일 확인",
+  "fill_verification_code": "이메일에 제공된 인증 코드를 입력하세요.。",
+  "verification_code": "확인 코드",
+  "did_not_get_code": "코드를 받지 못하셨나요?？",
+  "resend_code_in": "코드 재전송",
+  "get_code": "코드 받기",
+  "cake_phone_introduction": "Cake Phone을 사용하면 디지털 자산으로 가상 전화 번호를 구입할 수 있습니다!\n\n이메일만 있으면 됩니다."
 }

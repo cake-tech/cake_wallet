@@ -542,5 +542,12 @@
   "cake_phone_terms_conditions_second_section": "Cake Phone，表示您将通过提供的电子邮件地址以电子方式收到所有帐户通知和信息",
   "privacy_policy": "隐私政策",
   "and": "和",
-  "emailAddress": "电子邮件地址"
+  "email_address": "电子邮件地址",
+  "email_verification": "电子邮件验证",
+  "fill_verification_code": "请填写提供给您邮箱的验证码：",
+  "verification_code": "验证码",
+  "did_not_get_code": "没拿到代码？",
+  "resend_code_in": "重新发送代码",
+  "get_code": "获取代码",
+  "cake_phone_introduction": "Cake Phone 让您可以用数字资产购买虚拟电话号码！\n\n只需要一封电子邮件。"
 }

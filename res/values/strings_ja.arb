@@ -544,5 +544,12 @@
   "cake_phone_terms_conditions_second_section": "ケーキ電話の、あなたが提供された電子メールアドレスに電子的にすべてのアカウント通知と情報を受け取ることを示します",
   "privacy_policy": "プライバシーポリシー",
   "and": "と",
-  "emailAddress": "電子メールアドレス"
+  "email_address": "電子メールアドレス",
+  "email_verification": "電子メールの検証",
+  "fill_verification_code": "メールに記載されている確認コードを入力してください。",
+  "verification_code": "検証コード",
+  "did_not_get_code": "コードを取得できませんでしたか？",
+  "resend_code_in": "でコードを再送する",
+  "get_code": "コードを取得",
+  "cake_phone_introduction": "Cake Phoneを使用すると、デジタル資産を使用して仮想電話番号を購入できます。\n\nメールのみが必要です。"
 }

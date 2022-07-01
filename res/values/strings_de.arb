@@ -544,5 +544,12 @@
   "cake_phone_terms_conditions_second_section": "von Cake Phone, was bedeutet, dass Sie alle Kontomitteilungen und Informationen elektronisch an die angegebene E-Mail-Adresse erhalten",
   "privacy_policy": "Datenschutz-Bestimmungen",
   "and": "und",
-  "emailAddress": "E-Mail-Addresse"
+  "email_address": "E-Mail-Addresse",
+  "email_verification": "E-Mail-Verifizierung",
+  "fill_verification_code": "Bitte geben Sie den Bestätigungscode ein, der in Ihrer E-Mail angegeben ist:",
+  "verification_code": "Verifizierungs-Schlüssel",
+  "did_not_get_code": "Code nicht erhalten?",
+  "resend_code_in": "Code erneut einsenden",
+  "get_code": "Code erhalten",
+  "cake_phone_introduction": "Mit Cake Phone können Sie virtuelle Telefonnummern mit digitalen Assets kaufen!\n\nNur eine E-Mail ist erforderlich."
 }
