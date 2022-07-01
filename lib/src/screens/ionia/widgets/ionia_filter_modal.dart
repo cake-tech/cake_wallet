@@ -68,7 +68,7 @@ class _IoniaFilterModalState extends State<IoniaFilterModal> {
                         decoration: InputDecoration(
                           filled: true,
                           prefixIcon: searchIcon,
-                          hintText: 'Search category',
+                          hintText: S.of(context).search_category,
                           contentPadding: EdgeInsets.only(bottom: 10),
                           fillColor: Theme.of(context).textTheme.subhead.backgroundColor,
                           border: OutlineInputBorder(
