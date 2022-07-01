@@ -67,6 +67,7 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_welcome_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_verification_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products/phone_number_product_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -425,6 +426,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.cakePhoneProducts:
       return MaterialPageRoute<CakePhoneProductsPage>(
         builder: (_) => CakePhoneProductsPage(),
+      );
+
+    case Routes.phoneNumberProduct:
+      return MaterialPageRoute<PhoneNumberProductPage>(
+        builder: (_) => PhoneNumberProductPage(),
       );
 
     default:

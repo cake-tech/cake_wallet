@@ -18,7 +18,7 @@ class CakePhoneProductsPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w600,
           fontFamily: 'Lato',
-          color: titleColor ?? Theme.of(context).primaryTextTheme.title.color),
+          color: Theme.of(context).primaryTextTheme.title.color),
     );
   }
 }
@@ -48,47 +48,52 @@ class CakePhoneProductsBodyState extends State<CakePhoneProductsBody> {
                   fontFamily: 'Lato',
                 ),
               ),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(24)),
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).primaryTextTheme.subhead.color,
-                      Theme.of(context).primaryTextTheme.subhead.decorationColor,
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, Routes.phoneNumberProduct);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(24)),
+                    gradient: LinearGradient(
+                      colors: [
+                        Theme.of(context).primaryTextTheme.subhead.color,
+                        Theme.of(context).primaryTextTheme.subhead.decorationColor,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
-                ),
-                padding: const EdgeInsets.all(24),
-                margin: const EdgeInsets.only(top: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Text(
-                        S.of(context).phone_number,
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                  padding: const EdgeInsets.all(24),
+                  margin: const EdgeInsets.only(top: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(
+                          S.of(context).phone_number,
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 60),
-                      child: Text(
-                        S.of(context).phone_number_product_description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 60),
+                        child: Text(
+                          S.of(context).phone_number_product_description,
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
-                    ),
 
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
