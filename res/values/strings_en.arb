@@ -551,5 +551,9 @@
   "did_not_get_code": "Didn't get the code?",
   "resend_code_in": "Resend code in",
   "get_code": "Get Code",
-  "cake_phone_introduction": "Cake Phone allows you to purchase virtual phone numbers with digital assets!\n\nOnly an email is required."
+  "cake_phone_introduction": "Cake Phone allows you to purchase virtual phone numbers with digital assets!\n\nOnly an email is required.",
+  "get_phone_number": "Get Phone Number",
+  "choose_phone_products": "Choose from the following available options:",
+  "phone_number": "Phone Number",
+  "phone_number_product_description": "SMS messages are forwarded to your email address. Includes 20 free SMS messages for each month of service with the option to pay for more."
 }

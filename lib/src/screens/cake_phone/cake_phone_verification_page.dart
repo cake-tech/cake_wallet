@@ -122,7 +122,9 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
         bottomSection: Column(
           children: <Widget>[
             PrimaryButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, Routes.cakePhoneProducts);
+              },
               text: S.of(context).continue_text,
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
