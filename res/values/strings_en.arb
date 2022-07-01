@@ -544,5 +544,12 @@
   "cake_phone_terms_conditions_second_section": "of Cake Phone, which indicates you will receive all account notices and information electronically to the email address provided",
   "privacy_policy": "Privacy Policy",
   "and": "and",
-  "emailAddress": "Email Address"
+  "email_address": "Email Address",
+  "email_verification": "Email Verification",
+  "fill_verification_code": "Please fill in the verification code provided to your email:",
+  "verification_code": "Verification code",
+  "did_not_get_code": "Didn't get the code?",
+  "resend_code_in": "Resend code in",
+  "get_code": "Get Code",
+  "cake_phone_introduction": "Cake Phone allows you to purchase virtual phone numbers with digital assets!\n\nOnly an email is required."
 }

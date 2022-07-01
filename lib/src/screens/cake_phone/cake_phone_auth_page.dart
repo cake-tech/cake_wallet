@@ -50,13 +50,19 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           maxLines: 1,
-          hintText: S.of(context).emailAddress,
+          hintText: S.of(context).email_address,
         ),
         bottomSectionPadding: EdgeInsets.only(bottom: 24, right: 24, left: 24),
         bottomSection: Column(
           children: <Widget>[
             PrimaryButton(
-              onPressed: () {},
+              onPressed: () {
+                if (widget.isLogin) {
+                  _loginCakePhone();
+                } else {
+                  _registerCakePhone();
+                }
+              },
               text: widget.isLogin ? S.of(context).login : S.of(context).create_account,
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
@@ -104,5 +110,15 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
         ),
       ),
     );
+  }
+
+  void _registerCakePhone() {
+    // TODO: Add Registration logic
+    Navigator.pushNamed(context, Routes.cakePhoneVerification);
+  }
+
+  void _loginCakePhone() {
+    // TODO: Add Login logic
+    Navigator.pushNamed(context, Routes.cakePhoneVerification);
   }
 }

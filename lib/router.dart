@@ -65,6 +65,7 @@ import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_welcome_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/cake_phone_verification_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -413,6 +414,11 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return MaterialPageRoute<CakePhoneWelcomePage>(
         builder: (_) => CakePhoneAuthPage(isLogin: isLogin),
+      );
+
+    case Routes.cakePhoneVerification:
+      return MaterialPageRoute<CakePhoneVerificationPage>(
+        builder: (_) => CakePhoneVerificationPage(),
       );
 
     default:

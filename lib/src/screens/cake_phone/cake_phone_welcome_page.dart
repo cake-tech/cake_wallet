@@ -41,9 +41,7 @@ class CakePhoneWelcomeBodyState extends State<CakePhoneWelcomeBody> {
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.fromLTRB(24, 100, 24, 20),
         content: Text(
-          '''Cake Phone allows you to purchase virtual phone numbers with digital assets!
-
-Only an email is required.''',
+          S.of(context).cake_phone_introduction,
           style: TextStyle(
             fontSize: 16,
             color: Theme.of(context).primaryTextTheme.title.color,

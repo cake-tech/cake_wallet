@@ -62,4 +62,5 @@ class Routes {
   static const fullscreenQR = '/fullscreen_qr';
   static const cakePhoneWelcome = '/cake_phone_welcome';
   static const cakePhoneAuth = '/cake_phone_auth';
+  static const cakePhoneVerification = '/cake_phone_verification';
 }
