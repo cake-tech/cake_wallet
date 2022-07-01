@@ -46,7 +46,7 @@ class IoniaAccountPage extends BasePage {
                   ),
                 ),
                 InkWell(
-                  onTap: ()=> Navigator.pushNamed(context, Routes.ioniaAccountCardsPage),
+                  onTap: () => Navigator.pushNamed(context, Routes.ioniaAccountCardsPage),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -121,7 +121,7 @@ class IoniaAccountPage extends BasePage {
           SizedBox(height: 40),
           IoniaTile(
             title: S.of(context).email_address,
-            subTitle: 'godwin@cakewallet.com',
+            subTitle: '',
           ),
           Divider()
         ],

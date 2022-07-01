@@ -196,41 +196,43 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      ListView.separated(
-        padding: EdgeInsets.only(left: 2, right: 22),
-        controller: _scrollController,
-        itemCount: merchantsList.length,
-        separatorBuilder: (_, __) => SizedBox(height: 4),
-        itemBuilder: (_, index) {
-          final merchant = merchantsList[index];
-          return CardItem(
-            logoUrl: merchant.logoUrl,
-            onTap: () {
-              widget.ioniaViewModel.selectMerchant(merchant);
-              Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage);
-            },
-            title: merchant.legalName,
-            subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
-            backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
-            titleColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
-            subtitleColor: Theme.of(context).accentTextTheme.display2.backgroundColor,
-            discount: merchant.minimumDiscount,
-          );
-        },
-      ),
-      isAlwaysShowScrollThumb
-          ? CakeScrollbar(
-              backgroundHeight: backgroundHeight,
-              thumbHeight: thumbHeight,
-              rightOffset: 1,
-              width: 3,
-              backgroundColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.05),
-              thumbColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.5),
-              fromTop: widget.ioniaViewModel.scrollOffsetFromTop,
-            )
-          : Offstage()
-    ]);
+    return Observer(
+      builder: (_) => Stack(children: [
+        ListView.separated(
+          padding: EdgeInsets.only(left: 2, right: 22),
+          controller: _scrollController,
+          itemCount: merchantsList.length,
+          separatorBuilder: (_, __) => SizedBox(height: 4),
+          itemBuilder: (_, index) {
+            final merchant = merchantsList[index];
+            return CardItem(
+              logoUrl: merchant.logoUrl,
+              onTap: () {
+                widget.ioniaViewModel.selectMerchant(merchant);
+                Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage);
+              },
+              title: merchant.legalName,
+              subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
+              backgroundColor: Theme.of(context).textTheme.title.backgroundColor,
+              titleColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+              subtitleColor: Theme.of(context).accentTextTheme.display2.backgroundColor,
+              discount: merchant.minimumDiscount,
+            );
+          },
+        ),
+        isAlwaysShowScrollThumb
+            ? CakeScrollbar(
+                backgroundHeight: backgroundHeight,
+                thumbHeight: thumbHeight,
+                rightOffset: 1,
+                width: 3,
+                backgroundColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.05),
+                thumbColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.5),
+                fromTop: widget.ioniaViewModel.scrollOffsetFromTop,
+              )
+            : Offstage()
+      ]),
+    );
   }
 }
 

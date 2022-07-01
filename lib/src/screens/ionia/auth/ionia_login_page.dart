@@ -57,6 +57,7 @@ class IoniaLoginPage extends BasePage {
         key: _formKey,
         child: BaseTextFormField(
           hintText: S.of(context).email_address,
+          keyboardType: TextInputType.emailAddress,
           validator: EmailValidator(),
           controller: _emailController,
         ),

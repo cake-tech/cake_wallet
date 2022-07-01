@@ -17,14 +17,16 @@ abstract class IoniaViewModelBase with Store {
         enableCardPurchase = false,
         amount = '',
         tipAmount = 0.0,
-        ioniaMerchants = [] , scrollOffsetFromTop = 0.0{
+        ioniaMerchants = [],
+        scrollOffsetFromTop = 0.0 {
     if (ioniaMerchantSource.length > 0) {
       selectedMerchant = ioniaMerchantSource.getAt(0);
     }
-    _getMerchants().then((value) {
-      ioniaMerchants = value;
-    });
     _getAuthStatus().then((value) => isLoggedIn = value);
+
+    _getMerchants().then((value) {
+      ioniaMerchants = ioniaMerchantList = value;
+    });
   }
 
   final IoniaService ioniaService;
@@ -130,7 +132,7 @@ abstract class IoniaViewModelBase with Store {
       ioniaMerchants = value;
     });
   }
-  
+
   Future<void> _getCard() async {
     cardState = IoniaFetchingCard();
     try {
@@ -162,17 +164,15 @@ abstract class IoniaViewModelBase with Store {
     final inputAmount = double.parse(input);
     final min = selectedMerchant.minimumCardPurchase;
     final max = selectedMerchant.maximumCardPurchase;
-    if (inputAmount >= min && inputAmount <= max) {
-      enableCardPurchase = true;
-    } else {
-      enableCardPurchase = false;
-    }
+
+    enableCardPurchase = inputAmount >= min && inputAmount <= max;
   }
 
   @action
   void addTip(String tip) {
     tipAmount = double.parse(tip);
   }
+
   void setScrollOffsetFromTop(double scrollOffset) {
     scrollOffsetFromTop = scrollOffset;
   }

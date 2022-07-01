@@ -59,6 +59,7 @@ class IoniaCreateAccountPage extends BasePage {
           hintText: S.of(context).email_address,
           focusNode: _emailFocus,
           validator: EmailValidator(),
+          keyboardType: TextInputType.emailAddress,
           controller: _emailController,
         ),
       ),

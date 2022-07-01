@@ -4,6 +4,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
@@ -12,10 +13,10 @@ import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaVerifyIoniaOtp extends BasePage {
-  
   IoniaVerifyIoniaOtp(this._ioniaViewModel, this._email)
       : _codeController = TextEditingController(),
         _codeFocus = FocusNode() {
@@ -57,57 +58,74 @@ class IoniaVerifyIoniaOtp extends BasePage {
         _onOtpSuccessful(context);
       }
     });
-    return ScrollableWithBottomSection(
-      contentPadding: EdgeInsets.all(24),
-      content: Column(
-        children: [
-          BaseTextFormField(
-            hintText: S.of(context).enter_code,
-            focusNode: _codeFocus,
-            controller: _codeController,
-          ),
-          SizedBox(height: 14),
-          Text(
-            S.of(context).fill_code,
-            style: TextStyle(color: Color(0xff7A93BA), fontSize: 12),
-          ),
-          SizedBox(height: 34),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return KeyboardActions(
+      config: KeyboardActionsConfig(
+          keyboardActionsPlatform: KeyboardActionsPlatform.IOS,
+          keyboardBarColor: Theme.of(context).accentTextTheme.body2.backgroundColor,
+          nextFocus: false,
+          actions: [
+            KeyboardActionsItem(
+              focusNode: _codeFocus,
+              toolbarButtons: [(_) => KeyboardDoneButton()],
+            ),
+          ]),
+      child: Container(
+        height: 0,
+        color: Theme.of(context).backgroundColor,
+        child: ScrollableWithBottomSection(
+          contentPadding: EdgeInsets.all(24),
+          content: Column(
             children: [
-              Text(S.of(context).dont_get_code),
-              SizedBox(width: 20),
-              InkWell(
-                onTap: () => _ioniaViewModel.createUser(_email),
-                child: Text(
-                  S.of(context).resend_code,
-                  style: textSmallSemiBold(color: Palette.blueCraiola),
-                ),
+              BaseTextFormField(
+                hintText: S.of(context).enter_code,
+                keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
+                focusNode: _codeFocus,
+                controller: _codeController,
+              ),
+              SizedBox(height: 14),
+              Text(
+                S.of(context).fill_code,
+                style: TextStyle(color: Color(0xff7A93BA), fontSize: 12),
+              ),
+              SizedBox(height: 34),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(S.of(context).dont_get_code),
+                  SizedBox(width: 20),
+                  InkWell(
+                    onTap: () => _ioniaViewModel.createUser(_email),
+                    child: Text(
+                      S.of(context).resend_code,
+                      style: textSmallSemiBold(color: Palette.blueCraiola),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-      bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),
-      bottomSection: Column(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Observer(
-                builder: (_) => LoadingPrimaryButton(
-                  text: S.of(context).continue_text,
-                  onPressed: () async => await _ioniaViewModel.verifyEmail(_codeController.text),
-                  isDisabled: _ioniaViewModel.otpState is IoniaOtpSendDisabled,
-                  isLoading: _ioniaViewModel.otpState is IoniaOtpValidating,
-                  color: Theme.of(context).accentTextTheme.body2.color,
-                  textColor: Colors.white,
-                ),
+          bottomSectionPadding: EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+          bottomSection: Column(
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Observer(
+                    builder: (_) => LoadingPrimaryButton(
+                      text: S.of(context).continue_text,
+                      onPressed: () async => await _ioniaViewModel.verifyEmail(_codeController.text),
+                      isDisabled: _ioniaViewModel.otpState is IoniaOtpSendDisabled,
+                      isLoading: _ioniaViewModel.otpState is IoniaOtpValidating,
+                      color: Theme.of(context).accentTextTheme.body2.color,
+                      textColor: Colors.white,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                ],
               ),
-              SizedBox(height: 20),
             ],
           ),
-        ],
+        ),
       ),
     );
   }
