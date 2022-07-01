@@ -1,8 +1,8 @@
 class WalletOpeningException implements Exception {
   WalletOpeningException({this.message});
 
-  final String message;
+  final String? message;
 
   @override
-  String toString() => message;
+  String toString() => message!;
 }

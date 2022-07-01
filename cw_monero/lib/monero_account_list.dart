@@ -49,12 +49,12 @@ abstract class MoneroAccountListBase with Store {
         label: accountRow.getLabel()))
       .toList();
 
-  Future addAccount({String label}) async {
+  Future addAccount({String? label}) async {
     await account_list.addAccount(label: label);
     update();
   }
 
-  Future setLabelAccount({int accountIndex, String label}) async {
+  Future setLabelAccount({int? accountIndex, String? label}) async {
     await account_list.setLabelForAccount(
         accountIndex: accountIndex, label: label);
     update();

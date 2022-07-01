@@ -27,17 +27,17 @@ class MoneroTransactionInfo extends TransactionInfo {
         date = DateTime.fromMillisecondsSinceEpoch(
             (int.parse(map['timestamp'] as String) ?? 0) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
-        amount = map['amount'] as int,
+        amount = map['amount'] as int?,
         accountIndex = int.parse(map['accountIndex'] as String),
-        addressIndex = map['addressIndex'] as int,
+        addressIndex = map['addressIndex'] as int?,
         key = getTxKey((map['hash'] ?? '') as String),
-        fee = map['fee'] as int ?? 0 {
+        fee = map['fee'] as int? ?? 0 {
     additionalInfo = {
       'key': key,
       'accountIndex': accountIndex,
       'addressIndex': addressIndex
     };
-    confirmations = map['confirmations'] as int;
+    confirmations = map['confirmations'] as int?;
   }
 
   MoneroTransactionInfo.fromRow(TransactionInfoRow row)
@@ -61,22 +61,22 @@ class MoneroTransactionInfo extends TransactionInfo {
   }
 
   final String id;
-  final int height;
+  final int? height;
   final TransactionDirection direction;
   final DateTime date;
-  final int accountIndex;
+  final int? accountIndex;
   final bool isPending;
-  final int amount;
-  final int fee;
-  final int addressIndex;
-  String recipientAddress;
-  String key;
+  final int? amount;
+  final int? fee;
+  final int? addressIndex;
+  String? recipientAddress;
+  String? key;
 
-  String _fiatAmount;
+  String? _fiatAmount;
 
   @override
   String amountFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: amount))} XMR';
+      '${formatAmount(moneroAmountToString(amount: amount!))} XMR';
 
   @override
   String fiatAmount() => _fiatAmount ?? '';
@@ -86,10 +86,10 @@ class MoneroTransactionInfo extends TransactionInfo {
 
   @override
   String feeFormatted() =>
-      '${formatAmount(moneroAmountToString(amount: fee))} XMR';
+      '${formatAmount(moneroAmountToString(amount: fee!))} XMR';
 
   @override
   String toString() {
-    return "\nheight: ${height}\n amount: ${moneroAmountToString(amount: amount)}\n date: ${date}";
+    return "\nheight: ${height}\n amount: ${moneroAmountToString(amount: amount!)}\n date: ${date}";
   }
 }

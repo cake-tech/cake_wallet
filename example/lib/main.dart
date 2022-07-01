@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:math';
 
 import 'package:cw_core/monero_amount_format.dart';
 import 'package:cw_core/pending_transaction.dart';
@@ -30,12 +31,12 @@ import 'package:flutter_libmonero/view_model/send/output.dart';
 
 import 'package:cw_monero/api/wallet.dart';
 
-FlutterSecureStorage storage;
-WalletService walletService;
-SharedPreferences prefs;
-KeyService keysStorage;
-MoneroWalletBase walletBase;
-WalletCreationService _walletCreationService;
+FlutterSecureStorage? storage;
+WalletService? walletService;
+SharedPreferences? prefs;
+KeyService? keysStorage;
+MoneroWalletBase? walletBase;
+late WalletCreationService _walletCreationService;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,14 +65,14 @@ void main() async {
   walletService = monero.createMoneroWalletService(_walletInfoSource);
   storage = FlutterSecureStorage();
   prefs = await SharedPreferences.getInstance();
-  keysStorage = KeyService(storage);
+  keysStorage = KeyService(storage!);
   WalletInfo walletInfo;
-  WalletCredentials credentials;
+  late WalletCredentials credentials;
   try {
     // if (name?.isEmpty ?? true) {
     // name = await generateName();
     // }
-    String name = "namee";
+    String name = "namee${Random().nextInt(10000000)}";
     final dirPath = await pathForWalletDir(name: name, type: WalletType.monero);
     final path = await pathForWallet(name: name, type: WalletType.monero);
     final password = generateWalletPassword(WalletType.monero);
@@ -90,6 +91,7 @@ void main() async {
         restoreHeight: credentials.height ?? 0,
         date: DateTime.now(),
         path: path,
+        address: "",
         dirPath: dirPath);
     credentials.walletInfo = walletInfo;
 
@@ -117,14 +119,14 @@ void main() async {
   }
   // print(walletBase);
   // loggerPrint(walletBase.toString());
-  loggerPrint("name: ${walletBase.name}  seed: ${walletBase.seed} id: "
-      "${walletBase.id} walletinfo: ${toStringForinfo(walletBase.walletInfo)} type: ${walletBase.type} balance: "
-      "${walletBase.balance.entries.first.value.available} currency: ${walletBase.currency}");
-  await walletBase.connectToNode(
+  // loggerPrint("name: ${walletBase!.name}  seed: ${walletBase!.seed} id: "
+  //     "${walletBase!.id} walletinfo: ${toStringForinfo(walletBase!.walletInfo)} type: ${walletBase!.type} balance: "
+  //     "${walletBase!.balance.entries.first.value.available} currency: ${walletBase!.currency}");
+  await walletBase?.connectToNode(
       node:
           Node(uri: "xmr-node.cakewallet.com:18081", type: WalletType.monero));
-  walletBase.rescan(height: credentials.height);
-  walletBase.getNodeHeight();
+  walletBase!.rescan(height: credentials.height);
+  walletBase!.getNodeHeight();
   runApp(MyApp());
 }
 
@@ -135,7 +137,7 @@ String toStringForinfo(WalletInfo info) {
 }
 
 Future<String> pathForWalletDir(
-    {@required String name, @required WalletType type}) async {
+    {required String name, required WalletType type}) async {
   final root = await getApplicationDocumentsDirectory();
   final prefix = walletTypeToString(type).toLowerCase();
   final walletsDir = Directory('${root.path}/wallets');
@@ -149,7 +151,7 @@ Future<String> pathForWalletDir(
 }
 
 Future<String> pathForWallet(
-        {@required String name, @required WalletType type}) async =>
+        {required String name, required WalletType type}) async =>
     await pathForWalletDir(name: name, type: type)
         .then((path) => path + '/$name');
 
@@ -159,7 +161,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String? _platformVersion = 'Unknown';
 
   @override
   void initState() {
@@ -169,7 +171,7 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
+    String? platformVersion;
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       platformVersion = await FlutterLibmonero.platformVersion;
@@ -199,10 +201,10 @@ class _MyAppState extends State<MyApp> {
           child: ListView(
             children: [
               Text(
-                  "Transactions:${walletBase.transactionHistory.transactions}"),
+                  "Transactions:${walletBase!.transactionHistory!.transactions}"),
               TextButton(
                   onPressed: () async {
-                    for (var bal in walletBase.balance.entries) {
+                    for (var bal in walletBase!.balance!.entries) {
                       loggerPrint(
                           "key: ${bal.key}, amount ${moneroAmountToString(amount: bal.value.available)}");
                     }
@@ -210,10 +212,10 @@ class _MyAppState extends State<MyApp> {
                   child: Text("amount")),
               TextButton(
                 onPressed: () async {
-                  Output output = Output(walletBase);
+                  Output output = Output(walletBase!); //
                   output.address =
                       "45ssGbDbLTnjdhpAm89PDpHpj6r5xWXBwL6Bh8hpy3PUcEnLgroo9vFJ9UE3HsAT5TTSk3Cqe2boJQHePAXisQSu9i6tz5A";
-                  output.setCryptoAmount("1.0");
+                  output.setCryptoAmount("0.00001011");
                   List<Output> outputs = [output];
                   Object tmp =
                       monero.createMoneroTransactionCreationCredentials(
@@ -221,7 +223,7 @@ class _MyAppState extends State<MyApp> {
                           priority: monero.getDefaultTransactionPriority());
                   loggerPrint(tmp);
                   Future<PendingTransaction> awaitPendingTransaction =
-                      walletBase.createTransaction(tmp);
+                      walletBase!.createTransaction(tmp);
                   loggerPrint(output);
                   PendingMoneroTransaction pendingMoneroTransaction =
                       await awaitPendingTransaction as PendingMoneroTransaction;
@@ -252,7 +254,7 @@ class _MyAppState extends State<MyApp> {
               // Text(
               //     "bob ${moneroAmountToString(amount: walletBase.transactionHistory.transactions.entries.first.value.amount)}"),
               FutureBuilder(
-                future: walletBase
+                future: walletBase!
                     .getNodeHeight(), // a previously-obtained Future<String> or null
                 builder: (BuildContext context, AsyncSnapshot snapshot) {
                   List<Widget> children;
@@ -311,7 +313,7 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-void loggerPrint(core.Object object) async {
+void loggerPrint(core.Object? object) async {
   final utcTime = core.DateTime.now().toUtc().toString() + ": ";
   core.int defaultPrintLength = 1020 - utcTime.length;
   if (object == null || object.toString().length <= defaultPrintLength) {

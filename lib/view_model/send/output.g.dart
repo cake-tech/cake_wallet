@@ -9,21 +9,21 @@ part of 'output.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$Output on OutputBase, Store {
-  Computed<bool> _$isParsedAddressComputed;
+  Computed<bool>? _$isParsedAddressComputed;
 
   @override
   bool get isParsedAddress =>
       (_$isParsedAddressComputed ??= Computed<bool>(() => super.isParsedAddress,
               name: 'OutputBase.isParsedAddress'))
           .value;
-  Computed<int> _$formattedCryptoAmountComputed;
+  Computed<int>? _$formattedCryptoAmountComputed;
 
   @override
   int get formattedCryptoAmount => (_$formattedCryptoAmountComputed ??=
           Computed<int>(() => super.formattedCryptoAmount,
               name: 'OutputBase.formattedCryptoAmount'))
       .value;
-  Computed<double> _$estimatedFeeComputed;
+  Computed<double>? _$estimatedFeeComputed;
 
   @override
   double get estimatedFee =>
@@ -41,13 +41,13 @@ mixin _$Output on OutputBase, Store {
   final _$fiatAmountAtom = Atom(name: 'OutputBase.fiatAmount');
 
   @override
-  String get fiatAmount {
+  String? get fiatAmount {
     _$fiatAmountAtom.reportRead();
     return super.fiatAmount;
   }
 
   @override
-  set fiatAmount(String value) {
+  set fiatAmount(String? value) {
     _$fiatAmountAtom.reportWrite(value, super.fiatAmount, () {
       super.fiatAmount = value;
     });
@@ -56,13 +56,13 @@ mixin _$Output on OutputBase, Store {
   final _$cryptoAmountAtom = Atom(name: 'OutputBase.cryptoAmount');
 
   @override
-  String get cryptoAmount {
+  String? get cryptoAmount {
     _$cryptoAmountAtom.reportRead();
     return super.cryptoAmount;
   }
 
   @override
-  set cryptoAmount(String value) {
+  set cryptoAmount(String? value) {
     _$cryptoAmountAtom.reportWrite(value, super.cryptoAmount, () {
       super.cryptoAmount = value;
     });
@@ -71,13 +71,13 @@ mixin _$Output on OutputBase, Store {
   final _$addressAtom = Atom(name: 'OutputBase.address');
 
   @override
-  String get address {
+  String? get address {
     _$addressAtom.reportRead();
     return super.address;
   }
 
   @override
-  set address(String value) {
+  set address(String? value) {
     _$addressAtom.reportWrite(value, super.address, () {
       super.address = value;
     });
@@ -86,13 +86,13 @@ mixin _$Output on OutputBase, Store {
   final _$noteAtom = Atom(name: 'OutputBase.note');
 
   @override
-  String get note {
+  String? get note {
     _$noteAtom.reportRead();
     return super.note;
   }
 
   @override
-  set note(String value) {
+  set note(String? value) {
     _$noteAtom.reportWrite(value, super.note, () {
       super.note = value;
     });
@@ -101,13 +101,13 @@ mixin _$Output on OutputBase, Store {
   final _$sendAllAtom = Atom(name: 'OutputBase.sendAll');
 
   @override
-  bool get sendAll {
+  bool? get sendAll {
     _$sendAllAtom.reportRead();
     return super.sendAll;
   }
 
   @override
-  set sendAll(bool value) {
+  set sendAll(bool? value) {
     _$sendAllAtom.reportWrite(value, super.sendAll, () {
       super.sendAll = value;
     });
@@ -116,13 +116,13 @@ mixin _$Output on OutputBase, Store {
   final _$parsedAddressAtom = Atom(name: 'OutputBase.parsedAddress');
 
   @override
-  ParsedAddress get parsedAddress {
+  ParsedAddress? get parsedAddress {
     _$parsedAddressAtom.reportRead();
     return super.parsedAddress;
   }
 
   @override
-  set parsedAddress(ParsedAddress value) {
+  set parsedAddress(ParsedAddress? value) {
     _$parsedAddressAtom.reportWrite(value, super.parsedAddress, () {
       super.parsedAddress = value;
     });
@@ -131,13 +131,13 @@ mixin _$Output on OutputBase, Store {
   final _$extractedAddressAtom = Atom(name: 'OutputBase.extractedAddress');
 
   @override
-  String get extractedAddress {
+  String? get extractedAddress {
     _$extractedAddressAtom.reportRead();
     return super.extractedAddress;
   }
 
   @override
-  set extractedAddress(String value) {
+  set extractedAddress(String? value) {
     _$extractedAddressAtom.reportWrite(value, super.extractedAddress, () {
       super.extractedAddress = value;
     });

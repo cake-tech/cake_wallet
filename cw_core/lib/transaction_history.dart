@@ -7,7 +7,7 @@ abstract class TransactionHistoryBase<TransactionType extends TransactionInfo> {
   // : _isUpdating = false;
 
   @observable
-  ObservableMap<String, TransactionType> transactions;
+  ObservableMap<String, TransactionType>? transactions;
 
   Future<void> save();
 

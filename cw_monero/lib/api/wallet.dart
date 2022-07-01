@@ -126,10 +126,10 @@ String getSeed() => convertUTF8ToString(pointer: getSeedNative());
 String getAddress({int accountIndex = 0, int addressIndex = 0}) =>
     convertUTF8ToString(pointer: getAddressNative(accountIndex, addressIndex));
 
-int getFullBalance({int accountIndex = 0}) =>
+int getFullBalance({int? accountIndex = 0}) =>
     getFullBalanceNative(accountIndex);
 
-int getUnlockedBalance({int accountIndex = 0}) =>
+int getUnlockedBalance({int? accountIndex = 0}) =>
     getUnlockedBalanceNative(accountIndex);
 
 int getCurrentHeight() => getCurrentHeightNative();
@@ -139,15 +139,15 @@ int getNodeHeightSync() => getNodeHeightNative();
 bool isConnectedSync() => isConnectedNative() != 0;
 
 bool setupNodeSync(
-    {String address,
-    String login,
-    String password,
+    {required String address,
+    String? login,
+    String? password,
     bool useSSL = false,
     bool isLightWallet = false}) {
   print("SetupNodeSync begin");
   final addressPointer = address.toNativeUtf8();
-  Pointer<Utf8> loginPointer;
-  Pointer<Utf8> passwordPointer;
+  Pointer<Utf8>? loginPointer;
+  Pointer<Utf8>? passwordPointer;
 
   if (login != null) {
     loginPointer = login.toNativeUtf8();
@@ -161,8 +161,8 @@ bool setupNodeSync(
       pkgffi.calloc.allocate<Utf8>(sizeOf<Pointer<Utf8>>());
   final isSetupNode = setupNodeNative(
           addressPointer,
-          loginPointer,
-          passwordPointer,
+          loginPointer!,
+          passwordPointer!,
           _boolToInt(useSSL),
           _boolToInt(isLightWallet),
           errorMessagePointer) !=
@@ -185,10 +185,10 @@ void startRefreshSync() => startRefreshNative();
 
 Future<bool> connectToNode() async => connecToNodeNative() != 0;
 
-void setRefreshFromBlockHeight({int height}) =>
+void setRefreshFromBlockHeight({int? height}) =>
     setRefreshFromBlockHeightNative(height);
 
-void setRecoveringFromSeed({bool isRecovery}) =>
+void setRecoveringFromSeed({required bool isRecovery}) =>
     setRecoveringFromSeedNative(_boolToInt(isRecovery));
 
 void storeSync() {
@@ -221,13 +221,13 @@ class SyncListener {
   void Function(int, int, double) onNewBlock;
   void Function() onNewTransaction;
 
-  Timer _updateSyncInfoTimer;
-  int _cachedBlockchainHeight;
-  int _lastKnownBlockHeight;
-  int _initialSyncHeight;
+  Timer? _updateSyncInfoTimer;
+  int? _cachedBlockchainHeight;
+  int? _lastKnownBlockHeight;
+  late int _initialSyncHeight;
 
-  Future<int> getNodeHeightOrUpdate(int baseHeight) async {
-    if (_cachedBlockchainHeight < baseHeight || _cachedBlockchainHeight == 0) {
+  Future<int?> getNodeHeightOrUpdate(int baseHeight) async {
+    if (_cachedBlockchainHeight! < baseHeight || _cachedBlockchainHeight == 0) {
       _cachedBlockchainHeight = await getNodeHeight();
     }
 
@@ -241,7 +241,7 @@ class SyncListener {
     _updateSyncInfoTimer ??=
         Timer.periodic(Duration(milliseconds: 1200), (_) async {
       if (isNewTransactionExist()) {
-        onNewTransaction?.call();
+        onNewTransaction.call();
       }
 
       var syncHeight = getSyncingHeight();
@@ -261,7 +261,7 @@ class SyncListener {
       }
 
       _lastKnownBlockHeight = syncHeight;
-      final track = bchHeight - _initialSyncHeight;
+      final track = bchHeight! - _initialSyncHeight;
       final diff = track - (bchHeight - syncHeight);
       final ptc = diff <= 0 ? 0.0 : diff / track;
       final left = bchHeight - syncHeight;
@@ -271,7 +271,7 @@ class SyncListener {
       }
 
       // 1. Actual new height; 2. Blocks left to finish; 3. Progress in percents;
-      onNewBlock?.call(syncHeight, left, ptc);
+      onNewBlock.call(syncHeight, left, ptc);
     });
   }
 
@@ -287,7 +287,7 @@ SyncListener setListeners(void Function(int, int, double) onNewBlock,
 
 void onStartup() => onStartupNative();
 
-Future<void> _storeSync(Object _) async => await storeSync();
+Future<void> _storeSync(Object _) async => storeSync();
 
 bool _setupNodeSync(Map args) {
   final address = args['address'] as String;
@@ -311,12 +311,12 @@ int _getNodeHeight(Object _) => getNodeHeightSync();
 void startRefresh() => startRefreshSync();
 
 Future setupNode(
-        {String address,
-        String login,
-        String password,
+        {String? address,
+        String? login,
+        String? password,
         bool useSSL = false,
         bool isLightWallet = false}) =>
-    compute<Map<String, Object>, void>(_setupNodeSync, {
+    compute<Map<String, Object?>, void>(_setupNodeSync, {
       'address': address,
       'login': login,
       'password': password,

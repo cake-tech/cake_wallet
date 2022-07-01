@@ -12,7 +12,7 @@ class ParsedAddress {
     this.parseFrom = ParseFrom.notParsed,
   });
 
-  final List<String> addresses;
+  final List<String>? addresses;
   final String name;
   final String description;
   final ParseFrom parseFrom;
@@ -32,10 +32,10 @@ class ParsedAddress {
   // }
 
   factory ParsedAddress.fetchUnstoppableDomainAddress({
-    @required String address,
-    @required String name,
+    required String address,
+    required String name,
   }) {
-    if (address?.isEmpty ?? true) {
+    if (address.isEmpty ?? true) {
       return ParsedAddress(addresses: [name]);
     }
     return ParsedAddress(

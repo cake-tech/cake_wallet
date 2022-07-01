@@ -17,7 +17,7 @@ class AmountConverter {
     ..maximumFractionDigits = _moneroAmountLength
     ..minimumFractionDigits = 1;
 
-  static double amountIntToDouble(CryptoCurrency cryptoCurrency, int amount) {
+  static double? amountIntToDouble(CryptoCurrency cryptoCurrency, int amount) {
     switch (cryptoCurrency) {
       case CryptoCurrency.xmr:
         return _moneroAmountToDouble(amount);
@@ -51,7 +51,7 @@ class AmountConverter {
     }
   }
 
-  static int amountStringToInt(CryptoCurrency cryptoCurrency, String amount) {
+  static int? amountStringToInt(CryptoCurrency cryptoCurrency, String amount) {
     switch (cryptoCurrency) {
       case CryptoCurrency.xmr:
         return _moneroParseAmount(amount);
@@ -75,7 +75,7 @@ class AmountConverter {
     }
   }
 
-  static String amountIntToString(CryptoCurrency cryptoCurrency, int amount) {
+  static String? amountIntToString(CryptoCurrency cryptoCurrency, int amount) {
     switch (cryptoCurrency) {
       case CryptoCurrency.xmr:
         return _moneroAmountToString(amount);
@@ -101,7 +101,7 @@ class AmountConverter {
     }
   }
 
-  static double cryptoAmountToDouble({num amount, num divider}) =>
+  static double cryptoAmountToDouble({required num amount, required num divider}) =>
       amount / divider;
 
   static String _moneroAmountToString(int amount) => _moneroAmountFormat.format(

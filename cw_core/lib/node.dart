@@ -10,14 +10,14 @@ import 'package:http/io_client.dart' as ioc;
 
 part 'node.g.dart';
 
-Uri createUriFromElectrumAddress(String address) =>
+Uri? createUriFromElectrumAddress(String? address) =>
     Uri.tryParse('tcp://$address');
 
 @HiveType(typeId: Node.typeId)
 class Node extends HiveObject with Keyable {
   Node(
-      {@required String uri,
-      @required WalletType type,
+      {required String uri,
+      required WalletType type,
       this.login,
       this.password,
       this.useSSL}) {
@@ -26,42 +26,42 @@ class Node extends HiveObject with Keyable {
   }
 
   Node.fromMap(Map map)
-      : uriRaw = map['uri'] as String ?? '',
-        login = map['login'] as String,
-        password = map['password'] as String,
-        typeRaw = map['typeRaw'] as int,
-        useSSL = map['useSSL'] as bool;
+      : uriRaw = map['uri'] as String? ?? '',
+        login = map['login'] as String?,
+        password = map['password'] as String?,
+        typeRaw = map['typeRaw'] as int?,
+        useSSL = map['useSSL'] as bool?;
 
   static const typeId = 1;
   static const boxName = 'Nodes';
 
   @HiveField(0)
-  String uriRaw;
+  String? uriRaw;
 
   @HiveField(1)
-  String login;
+  String? login;
 
   @HiveField(2)
-  String password;
+  String? password;
 
   @HiveField(3)
-  int typeRaw;
+  int? typeRaw;
 
   @HiveField(4)
-  bool useSSL;
+  bool? useSSL;
 
   bool get isSSL => useSSL ?? false;
 
-  Uri get uri {
+  Uri? get uri {
     switch (type) {
       case WalletType.monero:
-        return Uri.http(uriRaw, '');
+        return Uri.http(uriRaw!, '');
       case WalletType.bitcoin:
         return createUriFromElectrumAddress(uriRaw);
       case WalletType.litecoin:
         return createUriFromElectrumAddress(uriRaw);
       case WalletType.haven:
-        return Uri.http(uriRaw, '');
+        return Uri.http(uriRaw!, '');
       default:
         return null;
     }
@@ -73,9 +73,9 @@ class Node extends HiveObject with Keyable {
     return _keyIndex;
   }
 
-  WalletType get type => deserializeFromInt(typeRaw);
+  WalletType? get type => deserializeFromInt(typeRaw);
 
-  set type(WalletType type) => typeRaw = serializeToInt(type);
+  set type(WalletType? type) => typeRaw = serializeToInt(type);
 
   dynamic _keyIndex;
 
@@ -99,7 +99,7 @@ class Node extends HiveObject with Keyable {
   Future<bool> requestMoneroNode() async {
   
     final path = '/json_rpc';
-    final rpcUri = isSSL ? Uri.https(uri.authority, path) : Uri.http(uri.authority, path);
+    final rpcUri = isSSL ? Uri.https(uri!.authority, path) : Uri.http(uri!.authority, path);
     final realm = 'monero-rpc';
     final body = {
         'jsonrpc': '2.0', 
@@ -135,7 +135,7 @@ class Node extends HiveObject with Keyable {
 
   Future<bool> requestElectrumServer() async {
     try {
-      await SecureSocket.connect(uri.host, uri.port,
+      await SecureSocket.connect(uri!.host, uri!.port,
           timeout: Duration(seconds: 5), onBadCertificate: (_) => true);
       return true;
     } catch (_) {

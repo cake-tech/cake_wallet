@@ -1,6 +1,6 @@
 enum TransactionDirection { incoming, outgoing }
 
-TransactionDirection parseTransactionDirectionFromInt(int raw) {
+TransactionDirection? parseTransactionDirectionFromInt(int raw) {
   switch (raw) {
     case 0: return TransactionDirection.incoming;
     case 1: return TransactionDirection.outgoing;
@@ -8,7 +8,7 @@ TransactionDirection parseTransactionDirectionFromInt(int raw) {
   }
 }
 
-TransactionDirection parseTransactionDirectionFromNumber(String raw) {
+TransactionDirection? parseTransactionDirectionFromNumber(String raw) {
   switch (raw) {
     case "0": return TransactionDirection.incoming;
     case "1": return TransactionDirection.outgoing;

@@ -7,11 +7,11 @@ abstract class WalletAddresses {
 
   final WalletInfo walletInfo;
 
-  String get address;
+  String? get address;
 
-  set address(String address);
+  set address(String? address);
 
-  Map<String, String> addressesMap;
+  Map<String, String>? addressesMap;
 
   Future<void> init();
 

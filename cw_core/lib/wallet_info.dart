@@ -19,18 +19,18 @@ class WalletInfo extends HiveObject {
       this.address,
       this.yatEid,
       this.yatLastUsedAddressRaw)
-      : _yatLastUsedAddressController = StreamController<String>.broadcast();
+      : _yatLastUsedAddressController = StreamController<String?>.broadcast();
 
   factory WalletInfo.external(
-      {@required String id,
-      @required String name,
-      @required WalletType type,
-      @required bool isRecovery,
-      @required int restoreHeight,
-      @required DateTime date,
-      @required String dirPath,
-      @required String path,
-      @required String address,
+      {required String id,
+      required String name,
+      required WalletType type,
+      required bool isRecovery,
+      required int restoreHeight,
+      required DateTime date,
+      required String dirPath,
+      required String path,
+      required String address,
       String yatEid = '',
       String yatLastUsedAddressRaw = ''}) {
     return WalletInfo(
@@ -51,54 +51,54 @@ class WalletInfo extends HiveObject {
   static const boxName = 'WalletInfo';
 
   @HiveField(0)
-  String id;
+  String? id;
 
   @HiveField(1)
-  String name;
+  String? name;
 
   @HiveField(2)
-  WalletType type;
+  WalletType? type;
 
   @HiveField(3)
-  bool isRecovery;
+  bool? isRecovery;
 
   @HiveField(4)
-  int restoreHeight;
+  int? restoreHeight;
 
   @HiveField(5)
-  int timestamp;
+  int? timestamp;
 
   @HiveField(6)
-  String dirPath;
+  String? dirPath;
 
   @HiveField(7)
-  String path;
+  String? path;
 
   @HiveField(8)
-  String address;
+  String? address;
 
   @HiveField(10)
-  Map<String, String> addresses;
+  Map<String, String>? addresses;
 
   @HiveField(11)
-  String yatEid;
+  String? yatEid;
 
   @HiveField(12)
-  String yatLastUsedAddressRaw;
+  String? yatLastUsedAddressRaw;
 
-  String get yatLastUsedAddress => yatLastUsedAddressRaw;
+  String? get yatLastUsedAddress => yatLastUsedAddressRaw;
 
-  set yatLastUsedAddress(String address) {
+  set yatLastUsedAddress(String? address) {
     yatLastUsedAddressRaw = address;
     _yatLastUsedAddressController.add(address);
   }
 
   String get yatEmojiId => yatEid ?? '';
 
-  DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp);
+  DateTime get date => DateTime.fromMillisecondsSinceEpoch(timestamp!);
 
-  Stream<String> get yatLastUsedAddressStream =>
+  Stream<String?> get yatLastUsedAddressStream =>
       _yatLastUsedAddressController.stream;
 
-  StreamController<String> _yatLastUsedAddressController;
+  StreamController<String?> _yatLastUsedAddressController;
 }

@@ -17,18 +17,18 @@ class WalletInfoAdapter extends TypeAdapter<WalletInfo> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return WalletInfo(
-      fields[0] as String,
-      fields[1] as String,
-      fields[2] as WalletType,
-      fields[3] as bool,
-      fields[4] as int,
-      fields[5] as int,
-      fields[6] as String,
-      fields[7] as String,
-      fields[8] as String,
-      fields[11] as String,
-      fields[12] as String,
-    )..addresses = (fields[10] as Map)?.cast<String, String>();
+      fields[0] as String?,
+      fields[1] as String?,
+      fields[2] as WalletType?,
+      fields[3] as bool?,
+      fields[4] as int?,
+      fields[5] as int?,
+      fields[6] as String?,
+      fields[7] as String?,
+      fields[8] as String?,
+      fields[11] as String?,
+      fields[12] as String?,
+    )..addresses = (fields[10] as Map?)?.cast<String, String>();
   }
 
   @override

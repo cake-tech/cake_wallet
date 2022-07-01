@@ -13,13 +13,13 @@ mixin _$MoneroSubaddressList on MoneroSubaddressListBase, Store {
       Atom(name: 'MoneroSubaddressListBase.subaddresses');
 
   @override
-  ObservableList<Subaddress> get subaddresses {
+  ObservableList<Subaddress>? get subaddresses {
     _$subaddressesAtom.reportRead();
     return super.subaddresses;
   }
 
   @override
-  set subaddresses(ObservableList<Subaddress> value) {
+  set subaddresses(ObservableList<Subaddress>? value) {
     _$subaddressesAtom.reportWrite(value, super.subaddresses, () {
       super.subaddresses = value;
     });

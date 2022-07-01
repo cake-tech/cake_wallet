@@ -440,7 +440,7 @@ abstract class HavenAccountList {
 }
 
 Future<void> generatePubspec(
-    {bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
+    {required bool hasMonero, required bool hasBitcoin, required bool hasHaven}) async {
   const cwCore = """
   cw_core:
     path: ./cw_core
@@ -495,7 +495,7 @@ Future<void> generatePubspec(
 }
 
 Future<void> generateWalletTypes(
-    {bool hasMonero, bool hasBitcoin, bool hasHaven}) async {
+    {required bool hasMonero, required bool hasBitcoin, required bool hasHaven}) async {
   final walletTypesFile = File(walletTypesPath);
 
   if (walletTypesFile.existsSync()) {

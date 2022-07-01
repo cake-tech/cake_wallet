@@ -120,7 +120,7 @@ Future<void> main(List<String> args) async {
   });
 }
 
-String localizedStrings({Map<String, dynamic> config, bool hasOverride}) {
+String localizedStrings({required Map<String, dynamic> config, bool? hasOverride}) {
   var output = '';
 
   final pattern = RegExp('[\$]{(.*?)}');
@@ -128,7 +128,7 @@ String localizedStrings({Map<String, dynamic> config, bool hasOverride}) {
   config.forEach((key, dynamic value) {
     final matches = pattern.allMatches(value as String);
 
-    if (hasOverride) {
+    if (hasOverride!) {
       output += '  @override' + '\n';
     }
 

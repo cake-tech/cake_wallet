@@ -4,7 +4,7 @@ import 'package:cw_core/wallet_type.dart';
 import 'package:cw_core/enumerable_item.dart';
 
 class MoneroTransactionPriority extends TransactionPriority {
-  const MoneroTransactionPriority({String title, int raw})
+  const MoneroTransactionPriority({String? title, int? raw})
       : super(title: title, raw: raw);
 
   static const all = [
@@ -36,7 +36,7 @@ class MoneroTransactionPriority extends TransactionPriority {
     }
   }
 
-  static MoneroTransactionPriority deserialize({int raw}) {
+  static MoneroTransactionPriority? deserialize({int? raw}) {
     switch (raw) {
       case 0:
         return slow;

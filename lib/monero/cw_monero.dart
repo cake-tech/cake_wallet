@@ -36,14 +36,14 @@ class CWMoneroAccountList extends MoneroAccountList {
   }
 
   @override
-  Future<void> addAccount(Object wallet, {String label}) async {
+  Future<void> addAccount(Object wallet, {String? label}) async {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.accountList.addAccount(label: label);
   }
 
   @override
   Future<void> setLabelAccount(Object wallet,
-      {int accountIndex, String label}) async {
+      {int? accountIndex, String? label}) async {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.accountList
         .setLabelAccount(accountIndex: accountIndex, label: label);
@@ -59,7 +59,7 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses {
     final moneroWallet = _wallet as MoneroWallet;
     final subAddresses = moneroWallet
-        .walletAddresses.subaddressList.subaddresses
+        .walletAddresses.subaddressList.subaddresses!
         .map((sub) =>
             Subaddress(id: sub.id, address: sub.address, label: sub.label))
         .toList();
@@ -67,14 +67,14 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
   }
 
   @override
-  void update(Object wallet, {int accountIndex}) {
+  void update(Object wallet, {int? accountIndex}) {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.subaddressList
         .update(accountIndex: accountIndex);
   }
 
   @override
-  void refresh(Object wallet, {int accountIndex}) {
+  void refresh(Object wallet, {int? accountIndex}) {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.subaddressList
         .refresh(accountIndex: accountIndex);
@@ -92,7 +92,7 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
 
   @override
   Future<void> addSubaddress(Object wallet,
-      {int accountIndex, String label}) async {
+      {int? accountIndex, String? label}) async {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.subaddressList
         .addSubaddress(accountIndex: accountIndex, label: label);
@@ -100,7 +100,7 @@ class CWMoneroSubaddressList extends MoneroSubaddressList {
 
   @override
   Future<void> setLabelSubaddress(Object wallet,
-      {int accountIndex, int addressIndex, String label}) async {
+      {int? accountIndex, int? addressIndex, String? label}) async {
     final moneroWallet = wallet as MoneroWallet;
     moneroWallet.walletAddresses.subaddressList.setLabelSubaddress(
         accountIndex: accountIndex, addressIndex: addressIndex, label: label);
@@ -114,7 +114,7 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
   @computed
   Account get account {
     final moneroWallet = _wallet as MoneroWallet;
-    final acc = moneroWallet.walletAddresses.account;
+    final acc = moneroWallet.walletAddresses.account!;
     return Account(id: acc.id, label: acc.label);
   }
 
@@ -122,7 +122,15 @@ class CWMoneroWalletDetails extends MoneroWalletDetails {
   MoneroBalance get balance {
     final moneroWallet = _wallet as MoneroWallet;
     final balance = moneroWallet.balance;
-    return MoneroBalance();
+    var fullBalance = 0;
+    var unlockedBalance = 0;
+    // TODO: put actual values
+    balance?.entries.forEach((element) {
+      unlockedBalance += element.value.unlockedBalance;
+      fullBalance += element.value.fullBalance;
+    });
+    return MoneroBalance(
+        fullBalance: fullBalance, unlockedBalance: unlockedBalance);
     //return MoneroBalance(
     //	fullBalance: balance.fullBalance,
     //	unlockedBalance: balance.unlockedBalance);
@@ -138,7 +146,7 @@ class CWMonero extends Monero {
     return CWMoneroSubaddressList(wallet);
   }
 
-  TransactionHistoryBase getTransactionHistory(Object wallet) {
+  TransactionHistoryBase? getTransactionHistory(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     return moneroWallet.transactionHistory;
   }
@@ -147,15 +155,15 @@ class CWMonero extends Monero {
     return CWMoneroWalletDetails(wallet);
   }
 
-  int getHeigthByDate({DateTime date}) {
-    return getMoneroHeigthByDate(date: date);
+  int getHeigthByDate({DateTime? date}) {
+    return getMoneroHeigthByDate(date: date!);
   }
 
   TransactionPriority getDefaultTransactionPriority() {
     return MoneroTransactionPriority.slow;
   }
 
-  TransactionPriority deserializeMoneroTransactionPriority({int raw}) {
+  TransactionPriority? deserializeMoneroTransactionPriority({int? raw}) {
     return MoneroTransactionPriority.deserialize(raw: raw);
   }
 
@@ -191,13 +199,13 @@ class CWMonero extends Monero {
   }
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials(
-      {String name,
-      String spendKey,
-      String viewKey,
-      String address,
-      String password,
-      String language,
-      int height}) {
+      {String? name,
+      String? spendKey,
+      String? viewKey,
+      String? address,
+      String? password,
+      String? language,
+      int? height}) {
     return MoneroRestoreWalletFromKeysCredentials(
         name: name,
         spendKey: spendKey,
@@ -209,21 +217,21 @@ class CWMonero extends Monero {
   }
 
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
-      {String name, String password, int height, String mnemonic}) {
+      {String? name, String? password, int? height, String? mnemonic}) {
     return MoneroRestoreWalletFromSeedCredentials(
         name: name, password: password, height: height, mnemonic: mnemonic);
   }
 
   WalletCredentials createMoneroNewWalletCredentials(
-      {String name, String password, String language}) {
+      {String? name, String? password, String? language}) {
     return MoneroNewWalletCredentials(
         name: name, password: password, language: language);
   }
 
-  Map<String, String> getKeys(Object wallet) {
+  Map<String, String?> getKeys(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
     final keys = moneroWallet.keys;
-    return <String, String>{
+    return <String, String?>{
       'privateSpendKey': keys.privateSpendKey,
       'privateViewKey': keys.privateViewKey,
       'publicSpendKey': keys.publicSpendKey,
@@ -232,9 +240,9 @@ class CWMonero extends Monero {
   }
 
   Object createMoneroTransactionCreationCredentials(
-      {List<Output> outputs, TransactionPriority priority}) {
+      {List<Output>? outputs, TransactionPriority? priority}) {
     return MoneroTransactionCreationCredentials(
-        outputs: outputs
+        outputs: outputs!
             .map((out) => OutputInfo(
                 fiatAmount: out.fiatAmount,
                 cryptoAmount: out.cryptoAmount,
@@ -245,24 +253,24 @@ class CWMonero extends Monero {
                 isParsedAddress: out.isParsedAddress,
                 formattedCryptoAmount: out.formattedCryptoAmount))
             .toList(),
-        priority: priority as MoneroTransactionPriority);
+        priority: priority as MoneroTransactionPriority?);
   }
 
-  String formatterMoneroAmountToString({int amount}) {
-    return moneroAmountToString(amount: amount);
+  String formatterMoneroAmountToString({int? amount}) {
+    return moneroAmountToString(amount: amount!);
   }
 
-  double formatterMoneroAmountToDouble({int amount}) {
-    return moneroAmountToDouble(amount: amount);
+  double formatterMoneroAmountToDouble({int? amount}) {
+    return moneroAmountToDouble(amount: amount!);
   }
 
-  int formatterMoneroParseAmount({String amount}) {
-    return moneroParseAmount(amount: amount);
+  int formatterMoneroParseAmount({String? amount}) {
+    return moneroParseAmount(amount: amount!);
   }
 
   Account getCurrentAccount(Object wallet) {
     final moneroWallet = wallet as MoneroWallet;
-    final acc = moneroWallet.walletAddresses.account;
+    final acc = moneroWallet.walletAddresses.account!;
     return Account(id: acc.id, label: acc.label);
   }
 
@@ -276,7 +284,7 @@ class CWMonero extends Monero {
     monero_wallet_api.onStartup();
   }
 
-  int getTransactionInfoAccountId(TransactionInfo tx) {
+  int? getTransactionInfoAccountId(TransactionInfo tx) {
     final moneroTransactionInfo = tx as MoneroTransactionInfo;
     return moneroTransactionInfo.accountIndex;
   }

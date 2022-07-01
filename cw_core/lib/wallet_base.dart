@@ -24,23 +24,23 @@ abstract class WalletBase<
 
   WalletInfo walletInfo;
 
-  WalletType get type => walletInfo.type;
+  WalletType? get type => walletInfo.type;
 
-  CryptoCurrency get currency => currencyForWalletType(type);
+  CryptoCurrency? get currency => currencyForWalletType(type);
 
-  String get id => walletInfo.id;
+  String? get id => walletInfo.id;
 
-  String get name => walletInfo.name;
+  String? get name => walletInfo.name;
 
   //String get address;
 
   //set address(String address);
 
-  ObservableMap<CryptoCurrency, BalanceType> get balance;
+  ObservableMap<CryptoCurrency?, BalanceType>? get balance;
 
-  SyncStatus get syncStatus;
+  SyncStatus? get syncStatus;
 
-  set syncStatus(SyncStatus status);
+  set syncStatus(SyncStatus? status);
 
   String get seed;
 
@@ -48,9 +48,9 @@ abstract class WalletBase<
 
   WalletAddresses get walletAddresses;
 
-  HistoryType transactionHistory;
+  HistoryType? transactionHistory;
 
-  Future<void> connectToNode({@required Node node});
+  Future<void> connectToNode({required Node node});
 
   Future<void> startSync();
 
@@ -66,7 +66,7 @@ abstract class WalletBase<
 
   Future<void> save();
 
-  Future<void> rescan({int height});
+  Future<void> rescan({int? height});
 
   void close();
 }

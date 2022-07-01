@@ -19,9 +19,9 @@ abstract class MoneroTransactionHistoryBase
 
   @override
   void addOne(MoneroTransactionInfo transaction) =>
-      transactions[transaction.id] = transaction;
+      transactions![transaction.id] = transaction;
 
   @override
   void addMany(Map<String, MoneroTransactionInfo> transactions) =>
-      this.transactions.addAll(transactions);
+      this.transactions!.addAll(transactions);
 }

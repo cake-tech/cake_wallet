@@ -51,33 +51,33 @@ List<AccountRow> getAllAccount() {
       .toList();
 }
 
-void addAccountSync({String label}) {
+void addAccountSync({required String label}) {
   final labelPointer = label.toNativeUtf8();
   accountAddNewNative(labelPointer);
   pkgffi.calloc.free(labelPointer);
 }
 
-void setLabelForAccountSync({int accountIndex, String label}) {
+void setLabelForAccountSync({int? accountIndex, required String label}) {
   final labelPointer = label.toNativeUtf8();
   accountSetLabelNative(accountIndex, labelPointer);
   pkgffi.calloc.free(labelPointer);
 }
 
-void _addAccount(String label) => addAccountSync(label: label);
+void _addAccount(String? label) => addAccountSync(label: label!);
 
 void _setLabelForAccount(Map<String, dynamic> args) {
   final label = args['label'] as String;
-  final accountIndex = args['accountIndex'] as int;
+  final accountIndex = args['accountIndex'] as int?;
 
   setLabelForAccountSync(label: label, accountIndex: accountIndex);
 }
 
-Future<void> addAccount({String label}) async {
+Future<void> addAccount({String? label}) async {
   await compute(_addAccount, label);
   await store();
 }
 
-Future<void> setLabelForAccount({int accountIndex, String label}) async {
+Future<void> setLabelForAccount({int? accountIndex, String? label}) async {
   await compute(
       _setLabelForAccount, {'accountIndex': accountIndex, 'label': label});
   await store();

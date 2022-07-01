@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 
 abstract class Validator<T> {
-  Validator({@required this.errorMessage});
+  Validator({required this.errorMessage});
 
-  final String errorMessage;
+  final String? errorMessage;
 
   bool isValid(T value);
 
-  String call(T value) => !isValid(value) ? errorMessage : null;
+  String? call(T value) => !isValid(value) ? errorMessage : null;
 }
 
 class TextValidator extends Validator<String> {
@@ -17,14 +17,14 @@ class TextValidator extends Validator<String> {
       this.pattern,
       this.length,
       this.isAutovalidate = false,
-      String errorMessage})
+      String? errorMessage})
       : super(errorMessage: errorMessage);
 
-  final int minLength;
-  final int maxLength;
-  final List<int> length;
+  final int? minLength;
+  final int? maxLength;
+  final List<int>? length;
   final bool isAutovalidate;
-  String pattern;
+  String? pattern;
 
   @override
   bool isValid(String value) {
@@ -34,11 +34,11 @@ class TextValidator extends Validator<String> {
 
     return value.length > (minLength ?? 0) &&
         (length?.contains(value.length) ?? true) &&
-        ((maxLength ?? 0) > 0 ? (value.length <= maxLength) : true) &&
+        ((maxLength ?? 0) > 0 ? (value.length <= maxLength!) : true) &&
         (pattern != null ? match(value) : true);
   }
 
-  bool match(String value) => RegExp(pattern).hasMatch(value);
+  bool match(String value) => RegExp(pattern!).hasMatch(value);
 }
 
 class WalletNameValidator extends TextValidator {

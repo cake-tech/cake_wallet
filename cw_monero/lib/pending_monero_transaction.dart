@@ -20,21 +20,21 @@ class PendingMoneroTransaction with PendingTransaction {
   final PendingTransactionDescription pendingTransactionDescription;
 
   @override
-  String get id => pendingTransactionDescription.hash;
+  String get id => pendingTransactionDescription.hash!;
 
   @override
   String get amountFormatted => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.amount);
+      CryptoCurrency.xmr, pendingTransactionDescription.amount!)!;
 
   @override
   String get feeFormatted => AmountConverter.amountIntToString(
-      CryptoCurrency.xmr, pendingTransactionDescription.fee);
+      CryptoCurrency.xmr, pendingTransactionDescription.fee!)!;
 
   @override
   Future<void> commit() async {
     try {
       monero_transaction_history.commitTransactionFromPointerAddress(
-          address: pendingTransactionDescription.pointerAddress);
+          address: pendingTransactionDescription.pointerAddress!);
     } catch (e) {
       final message = e.toString();
 

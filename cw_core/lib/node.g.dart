@@ -17,12 +17,12 @@ class NodeAdapter extends TypeAdapter<Node> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Node(
-      login: fields[1] as String,
-      password: fields[2] as String,
-      useSSL: fields[4] as bool,
-    )
-      ..uriRaw = fields[0] as String
-      ..typeRaw = fields[3] as int;
+      login: fields[1] as String?,
+      password: fields[2] as String?,
+      useSSL: fields[4] as bool?,
+      uri: fields[0] as String,
+      type: fields[3] as WalletType,
+    );
   }
 
   @override

@@ -41,7 +41,7 @@ final getTxKeyNative = moneroApi
     .lookup<NativeFunction<get_tx_key>>('get_tx_key')
     .asFunction<GetTxKey>();
 
-String getTxKey(String txId) {
+String? getTxKey(String txId) {
   final txIdPointer = txId.toNativeUtf8();
   final keyPointer = getTxKeyNative(txIdPointer);
 
@@ -69,11 +69,11 @@ List<TransactionInfoRow> getAllTransations() {
 }
 
 PendingTransactionDescription createTransactionSync(
-    {String address,
-    String paymentId,
-    String amount,
-    int priorityRaw,
-    int accountIndex = 0}) {
+    {required String address,
+    required String paymentId,
+    String? amount,
+    int? priorityRaw,
+    int? accountIndex = 0}) {
   final addressPointer = address.toNativeUtf8();
   final paymentIdPointer = paymentId.toNativeUtf8();
   final amountPointer = amount != null ? amount.toNativeUtf8() : nullptr;
@@ -113,13 +113,13 @@ PendingTransactionDescription createTransactionSync(
 }
 
 PendingTransactionDescription createTransactionMultDestSync(
-    {List<MoneroOutput> outputs,
-    String paymentId,
-    int priorityRaw,
-    int accountIndex = 0}) {
+    {required List<MoneroOutput> outputs,
+    required String paymentId,
+    int? priorityRaw,
+    int? accountIndex = 0}) {
   final int size = outputs.length;
   final List<Pointer<Utf8>> addressesPointers =
-      outputs.map((output) => output.address.toNativeUtf8()).toList();
+      outputs.map((output) => output.address!.toNativeUtf8()).toList();
   final Pointer<Pointer<Utf8>> addressesPointerPointer =
       pkgffi.calloc.allocate(size * sizeOf<Pointer<Utf8>>());
   final List<Pointer<Utf8>> amountsPointers =
@@ -168,14 +168,16 @@ PendingTransactionDescription createTransactionMultDestSync(
       pointerAddress: pendingTransactionRawPointer.address);
 }
 
-void commitTransactionFromPointerAddress({int address}) => commitTransaction(
-    transactionPointer: Pointer<PendingTransactionRaw>.fromAddress(address));
+void commitTransactionFromPointerAddress({required int address}) =>
+    commitTransaction(
+        transactionPointer:
+            Pointer<PendingTransactionRaw>.fromAddress(address));
 
-void commitTransaction({Pointer<PendingTransactionRaw> transactionPointer}) {
+void commitTransaction({Pointer<PendingTransactionRaw>? transactionPointer}) {
   final errorMessagePointer =
       pkgffi.calloc.allocate<Utf8Box>(sizeOf<Utf8Box>());
   final isCommited =
-      transactionCommitNative(transactionPointer, errorMessagePointer) != 0;
+      transactionCommitNative(transactionPointer!, errorMessagePointer) != 0;
 
   if (!isCommited) {
     final message = errorMessagePointer.ref.getValue();
@@ -187,9 +189,9 @@ void commitTransaction({Pointer<PendingTransactionRaw> transactionPointer}) {
 PendingTransactionDescription _createTransactionSync(Map args) {
   final address = args['address'] as String;
   final paymentId = args['paymentId'] as String;
-  final amount = args['amount'] as String;
-  final priorityRaw = args['priorityRaw'] as int;
-  final accountIndex = args['accountIndex'] as int;
+  final amount = args['amount'] as String?;
+  final priorityRaw = args['priorityRaw'] as int?;
+  final accountIndex = args['accountIndex'] as int?;
 
   return createTransactionSync(
       address: address,
@@ -202,8 +204,8 @@ PendingTransactionDescription _createTransactionSync(Map args) {
 PendingTransactionDescription _createTransactionMultDestSync(Map args) {
   final outputs = args['outputs'] as List<MoneroOutput>;
   final paymentId = args['paymentId'] as String;
-  final priorityRaw = args['priorityRaw'] as int;
-  final accountIndex = args['accountIndex'] as int;
+  final priorityRaw = args['priorityRaw'] as int?;
+  final accountIndex = args['accountIndex'] as int?;
 
   return createTransactionMultDestSync(
       outputs: outputs,
@@ -213,11 +215,11 @@ PendingTransactionDescription _createTransactionMultDestSync(Map args) {
 }
 
 Future<PendingTransactionDescription> createTransaction(
-        {String address,
+        {String? address,
         String paymentId = '',
-        String amount,
-        int priorityRaw,
-        int accountIndex = 0}) =>
+        String? amount,
+        int? priorityRaw,
+        int? accountIndex = 0}) =>
     compute(_createTransactionSync, {
       'address': address,
       'paymentId': paymentId,
@@ -227,10 +229,10 @@ Future<PendingTransactionDescription> createTransaction(
     });
 
 Future<PendingTransactionDescription> createTransactionMultDest(
-        {List<MoneroOutput> outputs,
+        {List<MoneroOutput>? outputs,
         String paymentId = '',
-        int priorityRaw,
-        int accountIndex = 0}) =>
+        int? priorityRaw,
+        int? accountIndex = 0}) =>
     compute(_createTransactionMultDestSync, {
       'outputs': outputs,
       'paymentId': paymentId,

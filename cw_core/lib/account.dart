@@ -5,6 +5,6 @@ class Account {
       : this.id = map['id'] == null ? 0 : int.parse(map['id'] as String),
         this.label = (map['label'] ?? '') as String;
 
-  final int id;
-  final String label;
+  final int? id;
+  final String? label;
 }

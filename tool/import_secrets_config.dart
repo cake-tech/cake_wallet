@@ -10,7 +10,7 @@ Future<void> main(List<String> args) async => importSecretsConfig();
 Future<void> importSecretsConfig() async {
   final outputFile = File(outputPath);
   final input = json.decode(File(configPath).readAsStringSync())
-          as Map<String, dynamic> ??
+          as Map<String, dynamic>? ??
       <String, dynamic>{};
   final output = input.keys
       .fold('', (String acc, String val) => acc + generateConst(val, input));

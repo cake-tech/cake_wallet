@@ -10,7 +10,7 @@ import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
 
 class WalletCreationService {
-  WalletService walletService;
+  WalletService? walletService;
   WalletCreationService(
       {this.secureStorage,
       this.keyService,
@@ -22,10 +22,10 @@ class WalletCreationService {
   }
 
   WalletType type = WalletType.monero;
-  final FlutterSecureStorage secureStorage;
-  final SharedPreferences sharedPreferences;
-  final KeyService keyService;
-  WalletService _service;
+  final FlutterSecureStorage? secureStorage;
+  final SharedPreferences? sharedPreferences;
+  final KeyService? keyService;
+  WalletService? _service;
 
   void changeWalletType() {
     this.type = WalletType.monero;
@@ -35,24 +35,24 @@ class WalletCreationService {
   Future<WalletBase> create(WalletCredentials credentials) async {
     final password = generateWalletPassword(type);
     credentials.password = password;
-    await keyService.saveWalletPassword(
+    await keyService!.saveWalletPassword(
         password: password, walletName: credentials.name);
-    return await _service.create(credentials);
+    return await _service!.create(credentials);
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials) async {
     final password = generateWalletPassword(type);
     credentials.password = password;
-    await keyService.saveWalletPassword(
+    await keyService!.saveWalletPassword(
         password: password, walletName: credentials.name);
-    return await _service.restoreFromKeys(credentials);
+    return await _service!.restoreFromKeys(credentials);
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
     final password = generateWalletPassword(type);
     credentials.password = password;
-    await keyService.saveWalletPassword(
+    await keyService!.saveWalletPassword(
         password: password, walletName: credentials.name);
-    return await _service.restoreFromSeed(credentials);
+    return await _service!.restoreFromSeed(credentials);
   }
 }

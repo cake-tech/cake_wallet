@@ -32,33 +32,33 @@ abstract class OutputBase with Store {
     key = UniqueKey();
   }
 
-  Key key;
+  Key? key;
 
   @observable
-  String fiatAmount;
+  String? fiatAmount;
 
   @observable
-  String cryptoAmount;
+  String? cryptoAmount;
 
   @observable
-  String address;
+  String? address;
 
   @observable
-  String note;
+  String? note;
 
   @observable
-  bool sendAll;
+  bool? sendAll;
 
   @observable
-  ParsedAddress parsedAddress;
+  ParsedAddress? parsedAddress;
 
   @observable
-  String extractedAddress;
+  String? extractedAddress;
 
   @computed
   bool get isParsedAddress =>
-      parsedAddress.parseFrom != ParseFrom.notParsed &&
-      parsedAddress.name.isNotEmpty;
+      parsedAddress!.parseFrom != ParseFrom.notParsed &&
+      parsedAddress!.name.isNotEmpty;
 
   @computed
   int get formattedCryptoAmount {
@@ -66,7 +66,7 @@ abstract class OutputBase with Store {
 
     try {
       if (cryptoAmount?.isNotEmpty ?? false) {
-        final _cryptoAmount = cryptoAmount.replaceAll(',', '.');
+        final _cryptoAmount = cryptoAmount!.replaceAll(',', '.');
         int _amount = 0;
         switch (walletType) {
           case WalletType.monero:
@@ -116,7 +116,7 @@ abstract class OutputBase with Store {
   //   }
   // }
 
-  WalletType get walletType => _wallet.type;
+  WalletType? get walletType => _wallet.type;
   // final CryptoCurrency Function() cryptoCurrencyHandler;
   final WalletBase _wallet;
   // final SettingsStore _settingsStore;

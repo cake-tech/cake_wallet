@@ -17,11 +17,11 @@ class UnspentCoinsInfoAdapter extends TypeAdapter<UnspentCoinsInfo> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UnspentCoinsInfo(
-      walletId: fields[0] as String,
-      hash: fields[1] as String,
-      isFrozen: fields[2] as bool,
-      isSending: fields[3] as bool,
-      note: fields[4] as String,
+      walletId: fields[0] as String?,
+      hash: fields[1] as String?,
+      isFrozen: fields[2] as bool?,
+      isSending: fields[3] as bool?,
+      note: fields[4] as String?,
     );
   }
 

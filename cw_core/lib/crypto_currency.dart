@@ -4,8 +4,8 @@ import 'package:hive/hive.dart';
 part 'crypto_currency.g.dart';
 
 @HiveType(typeId: 0)
-class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
-  const CryptoCurrency({final String title, final int raw})
+class CryptoCurrency extends EnumerableItem<int?> with Serializable<int?> {
+  const CryptoCurrency({final String? title, final int? raw})
       : super(title: title, raw: raw);
 
   static const all = [
@@ -43,7 +43,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const xlm = CryptoCurrency(title: 'XLM', raw: 14);
   static const xrp = CryptoCurrency(title: 'XRP', raw: 15);
   static const xhv = CryptoCurrency(title: 'XHV', raw: 16);
-  
+
   static const xag = CryptoCurrency(title: 'XAG', raw: 17);
   static const xau = CryptoCurrency(title: 'XAU', raw: 18);
   static const xaud = CryptoCurrency(title: 'XAUD', raw: 19);
@@ -58,7 +58,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const xnzd = CryptoCurrency(title: 'XNZD', raw: 28);
   static const xusd = CryptoCurrency(title: 'XUSD', raw: 29);
 
-  static CryptoCurrency deserialize({int raw}) {
+  static CryptoCurrency? deserialize({int? raw}) {
     switch (raw) {
       case 0:
         return CryptoCurrency.xmr;
@@ -125,7 +125,7 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
     }
   }
 
-  static CryptoCurrency fromString(String raw) {
+  static CryptoCurrency? fromString(String raw) {
     switch (raw.toLowerCase()) {
       case 'xmr':
         return CryptoCurrency.xmr;
@@ -193,5 +193,5 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   }
 
   @override
-  String toString() => title;
+  String toString() => title!;
 }

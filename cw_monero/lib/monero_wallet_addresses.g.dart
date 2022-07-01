@@ -12,13 +12,13 @@ mixin _$MoneroWalletAddresses on MoneroWalletAddressesBase, Store {
   final _$addressAtom = Atom(name: 'MoneroWalletAddressesBase.address');
 
   @override
-  String get address {
+  String? get address {
     _$addressAtom.reportRead();
     return super.address;
   }
 
   @override
-  set address(String value) {
+  set address(String? value) {
     _$addressAtom.reportWrite(value, super.address, () {
       super.address = value;
     });
@@ -27,13 +27,13 @@ mixin _$MoneroWalletAddresses on MoneroWalletAddressesBase, Store {
   final _$accountAtom = Atom(name: 'MoneroWalletAddressesBase.account');
 
   @override
-  Account get account {
+  Account? get account {
     _$accountAtom.reportRead();
     return super.account;
   }
 
   @override
-  set account(Account value) {
+  set account(Account? value) {
     _$accountAtom.reportWrite(value, super.account, () {
       super.account = value;
     });
@@ -42,13 +42,13 @@ mixin _$MoneroWalletAddresses on MoneroWalletAddressesBase, Store {
   final _$subaddressAtom = Atom(name: 'MoneroWalletAddressesBase.subaddress');
 
   @override
-  Subaddress get subaddress {
+  Subaddress? get subaddress {
     _$subaddressAtom.reportRead();
     return super.subaddress;
   }
 
   @override
-  set subaddress(Subaddress value) {
+  set subaddress(Subaddress? value) {
     _$subaddressAtom.reportWrite(value, super.subaddress, () {
       super.subaddress = value;
     });

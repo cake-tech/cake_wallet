@@ -5,15 +5,15 @@ const pinCodePassword = "PIN_CODE_PASSWORD";
 const backupPassword = "BACKUP_CODE_PASSWORD";
 
 String generateStoreKeyFor({
-  SecretStoreKey key,
-  String walletName = "",
+  SecretStoreKey? key,
+  String? walletName = "",
 }) {
   var _key = "";
 
   switch (key) {
     case SecretStoreKey.moneroWalletPassword:
       {
-        _key = moneroWalletPassword + "_" + walletName.toUpperCase();
+        _key = moneroWalletPassword + "_" + walletName!.toUpperCase();
       }
       break;
 

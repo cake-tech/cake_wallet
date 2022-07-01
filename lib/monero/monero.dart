@@ -37,20 +37,20 @@ Monero monero = CWMonero();
 
 class Account {
   Account({this.id, this.label});
-  final int id;
-  final String label;
+  final int? id;
+  final String? label;
 }
 
 class Subaddress {
   Subaddress({this.id, this.accountId, this.label, this.address});
-  final int id;
-  final int accountId;
-  final String label;
-  final String address;
+  final int? id;
+  final int? accountId;
+  final String? label;
+  final String? address;
 }
 
 class MoneroBalance extends Balance {
-  MoneroBalance({@required this.fullBalance, @required this.unlockedBalance})
+  MoneroBalance({required this.fullBalance, required this.unlockedBalance})
       : formattedFullBalance =
             monero.formatterMoneroAmountToString(amount: fullBalance),
         formattedUnlockedBalance =
@@ -58,8 +58,8 @@ class MoneroBalance extends Balance {
         super(unlockedBalance, fullBalance);
 
   MoneroBalance.fromString(
-      {@required this.formattedFullBalance,
-      @required this.formattedUnlockedBalance})
+      {required this.formattedFullBalance,
+      required this.formattedUnlockedBalance})
       : fullBalance =
             monero.formatterMoneroParseAmount(amount: formattedFullBalance),
         unlockedBalance =
@@ -82,10 +82,10 @@ class MoneroBalance extends Balance {
 
 abstract class MoneroWalletDetails {
   @observable
-  Account account;
+  Account? account;
 
   @observable
-  MoneroBalance balance;
+  MoneroBalance? balance;
 }
 
 abstract class Monero {
@@ -93,52 +93,52 @@ abstract class Monero {
 
   MoneroSubaddressList getSubaddressList(Object wallet);
 
-  TransactionHistoryBase getTransactionHistory(Object wallet);
+  TransactionHistoryBase? getTransactionHistory(Object wallet);
 
   MoneroWalletDetails getMoneroWalletDetails(Object wallet);
 
   String getTransactionAddress(
       Object wallet, int accountIndex, int addressIndex);
 
-  int getHeigthByDate({DateTime date});
+  int getHeigthByDate({DateTime? date});
   TransactionPriority getDefaultTransactionPriority();
-  TransactionPriority deserializeMoneroTransactionPriority({int raw});
+  TransactionPriority? deserializeMoneroTransactionPriority({int? raw});
   List<TransactionPriority> getTransactionPriorities();
   List<String> getMoneroWordList(String language);
 
   WalletCredentials createMoneroRestoreWalletFromKeysCredentials(
-      {String name,
-      String spendKey,
-      String viewKey,
-      String address,
-      String password,
-      String language,
-      int height});
+      {String? name,
+      String? spendKey,
+      String? viewKey,
+      String? address,
+      String? password,
+      String? language,
+      int? height});
   WalletCredentials createMoneroRestoreWalletFromSeedCredentials(
-      {String name, String password, int height, String mnemonic});
+      {String? name, String? password, int? height, String? mnemonic});
   WalletCredentials createMoneroNewWalletCredentials(
-      {String name, String password, String language});
-  Map<String, String> getKeys(Object wallet);
+      {String? name, String? password, String? language});
+  Map<String, String?> getKeys(Object wallet);
   Object createMoneroTransactionCreationCredentials(
-      {List<Output> outputs, TransactionPriority priority});
-  String formatterMoneroAmountToString({int amount});
-  double formatterMoneroAmountToDouble({int amount});
-  int formatterMoneroParseAmount({String amount});
+      {List<Output>? outputs, TransactionPriority? priority});
+  String formatterMoneroAmountToString({int? amount});
+  double formatterMoneroAmountToDouble({int? amount});
+  int formatterMoneroParseAmount({String? amount});
   Account getCurrentAccount(Object wallet);
   void setCurrentAccount(Object wallet, int id, String label);
   void onStartup();
-  int getTransactionInfoAccountId(TransactionInfo tx);
+  int? getTransactionInfoAccountId(TransactionInfo tx);
   WalletService createMoneroWalletService(Box<WalletInfo> walletInfoSource);
 }
 
 abstract class MoneroSubaddressList {
   ObservableList<Subaddress> get subaddresses;
-  void update(Object wallet, {int accountIndex});
-  void refresh(Object wallet, {int accountIndex});
+  void update(Object wallet, {int? accountIndex});
+  void refresh(Object wallet, {int? accountIndex});
   List<Subaddress> getAll(Object wallet);
-  Future<void> addSubaddress(Object wallet, {int accountIndex, String label});
+  Future<void> addSubaddress(Object wallet, {int? accountIndex, String? label});
   Future<void> setLabelSubaddress(Object wallet,
-      {int accountIndex, int addressIndex, String label});
+      {int? accountIndex, int? addressIndex, String? label});
 }
 
 abstract class MoneroAccountList {
@@ -146,6 +146,6 @@ abstract class MoneroAccountList {
   void update(Object wallet);
   void refresh(Object wallet);
   List<Account> getAll(Object wallet);
-  Future<void> addAccount(Object wallet, {String label});
-  Future<void> setLabelAccount(Object wallet, {int accountIndex, String label});
+  Future<void> addAccount(Object wallet, {String? label});
+  Future<void> setLabelAccount(Object wallet, {int? accountIndex, String? label});
 }

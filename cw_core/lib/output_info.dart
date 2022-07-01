@@ -9,12 +9,12 @@ class OutputInfo {
 		this.isParsedAddress,
 		this.formattedCryptoAmount});
 
-  	final String fiatAmount;
-  	final String cryptoAmount;
-  	final String address;
-  	final String note;
-  	final String extractedAddress;
-  	final bool sendAll;
-  	final bool isParsedAddress;
-  	final int formattedCryptoAmount;
+  	final String? fiatAmount;
+  	final String? cryptoAmount;
+  	final String? address;
+  	final String? note;
+  	final String? extractedAddress;
+  	final bool? sendAll;
+  	final bool? isParsedAddress;
+  	final int? formattedCryptoAmount;
 }

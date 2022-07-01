@@ -12,13 +12,13 @@ mixin _$MoneroWallet on MoneroWalletBase, Store {
   final _$syncStatusAtom = Atom(name: 'MoneroWalletBase.syncStatus');
 
   @override
-  SyncStatus get syncStatus {
+  SyncStatus? get syncStatus {
     _$syncStatusAtom.reportRead();
     return super.syncStatus;
   }
 
   @override
-  set syncStatus(SyncStatus value) {
+  set syncStatus(SyncStatus? value) {
     _$syncStatusAtom.reportWrite(value, super.syncStatus, () {
       super.syncStatus = value;
     });
@@ -27,13 +27,13 @@ mixin _$MoneroWallet on MoneroWalletBase, Store {
   final _$balanceAtom = Atom(name: 'MoneroWalletBase.balance');
 
   @override
-  ObservableMap<CryptoCurrency, MoneroBalance> get balance {
+  ObservableMap<CryptoCurrency?, MoneroBalance>? get balance {
     _$balanceAtom.reportRead();
     return super.balance;
   }
 
   @override
-  set balance(ObservableMap<CryptoCurrency, MoneroBalance> value) {
+  set balance(ObservableMap<CryptoCurrency?, MoneroBalance>? value) {
     _$balanceAtom.reportWrite(value, super.balance, () {
       super.balance = value;
     });

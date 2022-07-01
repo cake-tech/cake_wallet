@@ -6,7 +6,7 @@ class Subaddress {
         this.address = (map['address'] ?? '') as String,
         this.label = (map['label'] ?? '') as String;
 
-  final int id;
-  final String address;
-  final String label;
+  final int? id;
+  final String? address;
+  final String? label;
 }

@@ -29,7 +29,7 @@ enum WalletType {
   haven
 }
 
-int serializeToInt(WalletType type) {
+int serializeToInt(WalletType? type) {
   switch (type) {
     case WalletType.monero:
       return 0;
@@ -44,7 +44,7 @@ int serializeToInt(WalletType type) {
   }
 }
 
-WalletType deserializeFromInt(int raw) {
+WalletType? deserializeFromInt(int? raw) {
   switch (raw) {
     case 0:
       return WalletType.monero;
@@ -89,7 +89,7 @@ String walletTypeToDisplayName(WalletType type) {
   }
 }
 
-CryptoCurrency walletTypeToCryptoCurrency(WalletType type) {
+CryptoCurrency? walletTypeToCryptoCurrency(WalletType type) {
   switch (type) {
     case WalletType.monero:
       return CryptoCurrency.xmr;

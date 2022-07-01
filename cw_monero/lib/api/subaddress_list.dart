@@ -30,7 +30,7 @@ final subaddrressSetLabelNative = moneroApi
 
 bool isUpdating = false;
 
-void refreshSubaddresses({@required int accountIndex}) {
+void refreshSubaddresses({required int? accountIndex}) {
   try {
     isUpdating = true;
     subaddressRefreshNative(accountIndex);
@@ -51,14 +51,14 @@ List<SubaddressRow> getAllSubaddresses() {
       .toList();
 }
 
-void addSubaddressSync({int accountIndex, String label}) {
+void addSubaddressSync({int? accountIndex, required String label}) {
   final labelPointer = label.toNativeUtf8();
   subaddrressAddNewNative(accountIndex, labelPointer);
   pkgffi.calloc.free(labelPointer);
 }
 
 void setLabelForSubaddressSync(
-    {int accountIndex, int addressIndex, String label}) {
+    {int? accountIndex, int? addressIndex, required String label}) {
   final labelPointer = label.toNativeUtf8();
 
   subaddrressSetLabelNative(accountIndex, addressIndex, labelPointer);
@@ -67,29 +67,29 @@ void setLabelForSubaddressSync(
 
 void _addSubaddress(Map<String, dynamic> args) {
   final label = args['label'] as String;
-  final accountIndex = args['accountIndex'] as int;
+  final accountIndex = args['accountIndex'] as int?;
 
   addSubaddressSync(accountIndex: accountIndex, label: label);
 }
 
 void _setLabelForSubaddress(Map<String, dynamic> args) {
   final label = args['label'] as String;
-  final accountIndex = args['accountIndex'] as int;
-  final addressIndex = args['addressIndex'] as int;
+  final accountIndex = args['accountIndex'] as int?;
+  final addressIndex = args['addressIndex'] as int?;
 
   setLabelForSubaddressSync(
       accountIndex: accountIndex, addressIndex: addressIndex, label: label);
 }
 
-Future addSubaddress({int accountIndex, String label}) async {
-  await compute<Map<String, Object>, void>(
+Future addSubaddress({int? accountIndex, String? label}) async {
+  await compute<Map<String, Object?>, void>(
       _addSubaddress, {'accountIndex': accountIndex, 'label': label});
   await store();
 }
 
 Future setLabelForSubaddress(
-    {int accountIndex, int addressIndex, String label}) async {
-  await compute<Map<String, Object>, void>(_setLabelForSubaddress, {
+    {int? accountIndex, int? addressIndex, String? label}) async {
+  await compute<Map<String, Object?>, void>(_setLabelForSubaddress, {
     'accountIndex': accountIndex,
     'addressIndex': addressIndex,
     'label': label

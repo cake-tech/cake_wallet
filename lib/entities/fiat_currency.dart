@@ -1,7 +1,7 @@
 import 'package:cw_core/enumerable_item.dart';
 
-class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
-  const FiatCurrency({String symbol}) : super(title: symbol, raw: symbol);
+class FiatCurrency extends EnumerableItem<String?> with Serializable<String?> {
+  const FiatCurrency({String? symbol}) : super(title: symbol, raw: symbol);
 
   static List<FiatCurrency> get all => _all.values.toList();
 
@@ -75,7 +75,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
     FiatCurrency.vef.raw: FiatCurrency.vef
   };
 
-  static FiatCurrency deserialize({String raw}) => _all[raw];
+  static FiatCurrency? deserialize({String? raw}) => _all[raw];
 
   @override
   bool operator ==(Object other) => other is FiatCurrency && other.raw == raw;

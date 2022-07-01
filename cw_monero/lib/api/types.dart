@@ -7,10 +7,18 @@ typedef CreateWallet = int Function(
     Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, Pointer<Utf8>);
 
 typedef RestoreWalletFromSeed = int Function(
-    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
+    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int?, Pointer<Utf8>);
 
-typedef RestoreWalletFromKeys = int Function(Pointer<Utf8>, Pointer<Utf8>,
-    Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, Pointer<Utf8>, int, int, Pointer<Utf8>);
+typedef RestoreWalletFromKeys = int Function(
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    Pointer<Utf8>,
+    int,
+    int?,
+    Pointer<Utf8>);
 
 typedef IsWalletExist = int Function(Pointer<Utf8>);
 
@@ -24,9 +32,9 @@ typedef GetSeed = Pointer<Utf8> Function();
 
 typedef GetAddress = Pointer<Utf8> Function(int, int);
 
-typedef GetFullBalance = int Function(int);
+typedef GetFullBalance = int Function(int?);
 
-typedef GetUnlockedBalance = int Function(int);
+typedef GetUnlockedBalance = int Function(int?);
 
 typedef GetCurrentHeight = int Function();
 
@@ -41,7 +49,7 @@ typedef StartRefresh = void Function();
 
 typedef ConnectToNode = int Function();
 
-typedef SetRefreshFromBlockHeight = void Function(int);
+typedef SetRefreshFromBlockHeight = void Function(int?);
 
 typedef SetRecoveringFromSeed = void Function(int);
 
@@ -57,14 +65,15 @@ typedef IsNewTransactionExist = int Function();
 
 typedef SubaddressSize = int Function();
 
-typedef SubaddressRefresh = void Function(int);
+typedef SubaddressRefresh = void Function(int?);
 
 typedef SubaddressGetAll = Pointer<Int64> Function();
 
-typedef SubaddressAddNew = void Function(int accountIndex, Pointer<Utf8> label);
+typedef SubaddressAddNew = void Function(
+    int? accountIndex, Pointer<Utf8> label);
 
 typedef SubaddressSetLabel = void Function(
-    int accountIndex, int addressIndex, Pointer<Utf8> label);
+    int? accountIndex, int? addressIndex, Pointer<Utf8> label);
 
 typedef AccountSize = int Function();
 
@@ -74,7 +83,7 @@ typedef AccountGetAll = Pointer<Int64> Function();
 
 typedef AccountAddNew = void Function(Pointer<Utf8> label);
 
-typedef AccountSetLabel = void Function(int accountIndex, Pointer<Utf8> label);
+typedef AccountSetLabel = void Function(int? accountIndex, Pointer<Utf8> label);
 
 typedef TransactionsRefresh = void Function();
 
@@ -88,8 +97,8 @@ typedef TransactionCreate = int Function(
     Pointer<Utf8> address,
     Pointer<Utf8> paymentId,
     Pointer<Utf8> amount,
-    int priorityRaw,
-    int subaddrAccount,
+    int? priorityRaw,
+    int? subaddrAccount,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
@@ -98,12 +107,13 @@ typedef TransactionCreateMultDest = int Function(
     Pointer<Utf8> paymentId,
     Pointer<Pointer<Utf8>> amounts,
     int size,
-    int priorityRaw,
-    int subaddrAccount,
+    int? priorityRaw,
+    int? subaddrAccount,
     Pointer<Utf8Box> error,
     Pointer<PendingTransactionRaw> pendingTransaction);
 
-typedef TransactionCommit = int Function(Pointer<PendingTransactionRaw>, Pointer<Utf8Box>);
+typedef TransactionCommit = int Function(
+    Pointer<PendingTransactionRaw>, Pointer<Utf8Box>);
 
 typedef SecretViewKey = Pointer<Utf8> Function();
 

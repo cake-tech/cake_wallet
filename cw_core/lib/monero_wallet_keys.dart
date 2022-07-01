@@ -5,8 +5,8 @@ class MoneroWalletKeys {
         this.publicSpendKey,
         this.publicViewKey});
 
-  final String publicViewKey;
-  final String privateViewKey;
-  final String publicSpendKey;
-  final String privateSpendKey;
+  final String? publicViewKey;
+  final String? privateViewKey;
+  final String? publicSpendKey;
+  final String? privateSpendKey;
 }

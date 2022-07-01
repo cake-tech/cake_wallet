@@ -19,23 +19,23 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   @override
   @observable
-  String address;
+  String? address;
 
   @observable
-  Account account;
+  Account? account;
 
   @observable
-  Subaddress subaddress;
+  Subaddress? subaddress;
 
-  MoneroSubaddressList subaddressList;
+  late MoneroSubaddressList subaddressList;
 
-  MoneroAccountList accountList;
+  late MoneroAccountList accountList;
 
   @override
   Future<void> init() async {
     accountList.update();
     account = accountList.accounts.first;
-    updateSubaddressList(accountIndex: account.id ?? 0);
+    updateSubaddressList(accountIndex: account!.id ?? 0);
     await updateAddressesInBox();
   }
 
@@ -44,12 +44,12 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     try {
       final _subaddressList = MoneroSubaddressList();
 
-      addressesMap.clear();
+      addressesMap!.clear();
 
       accountList.accounts.forEach((account) {
         _subaddressList.update(accountIndex: account.id);
-        _subaddressList.subaddresses.forEach((subaddress) {
-          addressesMap[subaddress.address] = subaddress.label;
+        _subaddressList.subaddresses!.forEach((subaddress) {
+          addressesMap![subaddress.address!] = subaddress.label!;
         });
       });
 
@@ -77,9 +77,9 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
     return true;
   }
 
-  void updateSubaddressList({int accountIndex}) {
+  void updateSubaddressList({int? accountIndex}) {
     subaddressList.update(accountIndex: accountIndex);
-    subaddress = subaddressList.subaddresses.first;
-    address = subaddress.address;
+    subaddress = subaddressList.subaddresses!.first;
+    address = subaddress!.address!;
   }
 }

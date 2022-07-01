@@ -17,12 +17,12 @@ abstract class MoneroSubaddressListBase with Store {
   }
 
   @observable
-  ObservableList<Subaddress> subaddresses;
+  ObservableList<Subaddress>? subaddresses;
 
-  bool _isRefreshing;
-  bool _isUpdating;
+  late bool _isRefreshing;
+  late bool _isUpdating;
 
-  void update({int accountIndex}) {
+  void update({int? accountIndex}) {
     if (_isUpdating) {
       return;
     }
@@ -30,8 +30,8 @@ abstract class MoneroSubaddressListBase with Store {
     try {
       _isUpdating = true;
       refresh(accountIndex: accountIndex);
-      subaddresses.clear();
-      subaddresses.addAll(getAll());
+      subaddresses!.clear();
+      subaddresses!.addAll(getAll());
       _isUpdating = false;
     } catch (e) {
       _isUpdating = false;
@@ -59,20 +59,20 @@ abstract class MoneroSubaddressListBase with Store {
         .toList();
   }
 
-  Future addSubaddress({int accountIndex, String label}) async {
+  Future addSubaddress({int? accountIndex, String? label}) async {
     await subaddress_list.addSubaddress(
         accountIndex: accountIndex, label: label);
     update(accountIndex: accountIndex);
   }
 
   Future setLabelSubaddress(
-      {int accountIndex, int addressIndex, String label}) async {
+      {int? accountIndex, int? addressIndex, String? label}) async {
     await subaddress_list.setLabelForSubaddress(
         accountIndex: accountIndex, addressIndex: addressIndex, label: label);
     update(accountIndex: accountIndex);
   }
 
-  void refresh({int accountIndex}) {
+  void refresh({int? accountIndex}) {
     if (_isRefreshing) {
       return;
     }
