@@ -17,7 +17,7 @@ class FiatCurrency extends EnumerableItem<String> with Serializable<String> {
   static const cad = FiatCurrency(symbol: 'CAD', countryCode: "cad", fullName: "Canadian Dollar");
   static const chf = FiatCurrency(symbol: 'CHF', countryCode: "che", fullName: "Swiss Franc");
   static const cny = FiatCurrency(symbol: 'CNY', countryCode: "chn", fullName: "Chinese Yuan");
-  static const czk = FiatCurrency(symbol: 'CZK', countryCode: "czk", fullName: "Czech Koruna");
+  static const czk = FiatCurrency(symbol: 'CZK', countryCode: "cze", fullName: "Czech Koruna");
   static const eur = FiatCurrency(symbol: 'EUR', countryCode: "eur", fullName: "Euro");
   static const dkk = FiatCurrency(symbol: 'DKK', countryCode: "dnk", fullName: "Danish Krone");
   static const gbp = FiatCurrency(symbol: 'GBP', countryCode: "gbr", fullName: "Pound sterling");

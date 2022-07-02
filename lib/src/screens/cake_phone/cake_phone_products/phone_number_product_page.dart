@@ -1,5 +1,8 @@
+import 'package:country_pickers/country.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:country_pickers/country_pickers.dart';
+import 'package:country_pickers/countries.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/service_plan.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -40,6 +43,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
     ServicePlan(id: "4", duration: 12, price: 5, quantity: 200),
   ];
 
+  Country selectedCountry = countryList.firstWhere((element) => element.iso3Code == "USA");
+
   final int rateInCents = 20;
 
   ServicePlan selectedPlan;
@@ -56,8 +61,9 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
     return Container(
       padding: EdgeInsets.only(top: 16),
       child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 20).copyWith(right: 0),
         content: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               S.of(context).initial_service_term,
@@ -69,7 +75,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 24),
+              padding: const EdgeInsets.only(top: 8, bottom: 24, right: 24),
               child: Text(
                 S.of(context).phone_number_promotion_text,
                 style: TextStyle(
@@ -86,27 +92,74 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               ),
             ),
             const SizedBox(height: 40),
-            Text(
-              S.of(context).free_sms_email_forward,
-              style: TextStyle(
-                color: Theme.of(context).accentTextTheme.subhead.color,
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.only(top: 8, bottom: 16),
-              decoration: BoxDecoration(
-                  border: Border(
-                      bottom: BorderSide(
-                color: Theme.of(context).accentTextTheme.title.backgroundColor,
-              ))),
-              child: Text(
-                "${selectedPlan.quantity}, " +
-                    "${S.of(context).then} " +
-                    "\$${(rateInCents / 100).toStringAsFixed(2)} " +
-                    "${S.of(context).per_message}",
-                style: TextStyle(
-                  color: Theme.of(context).accentTextTheme.caption.backgroundColor,
-                ),
+            Padding(
+              padding: const EdgeInsets.only(right: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    S.of(context).free_sms_email_forward,
+                    style: TextStyle(
+                      color: Theme.of(context).accentTextTheme.subhead.color,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 8, bottom: 16),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                        ),
+                      ),
+                    ),
+                    child: Text(
+                      "${selectedPlan.quantity}, " +
+                          "${S.of(context).then} " +
+                          "\$${(rateInCents / 100).toStringAsFixed(2)} " +
+                          "${S.of(context).per_message}",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).primaryTextTheme.title.color,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    S.of(context).phone_number_country,
+                    style: TextStyle(
+                      color: Theme.of(context).accentTextTheme.subhead.color,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(top: 8, bottom: 16),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
+                        ),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Image.asset(
+                          CountryPickerUtils.getFlagImageAssetPath(selectedCountry.isoCode),
+                          height: 20.0,
+                          width: 36.0,
+                          fit: BoxFit.fill,
+                          package: "country_pickers",
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8, right: 6),
+                          child: Text(selectedCountry.name),
+                        ),
+                        Text(selectedCountry.phoneCode),
+                      ]
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -120,7 +173,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                   TextSpan(text: "${S.of(context).due_today} "),
                   TextSpan(
                     text: "\$35.00 ",
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).primaryTextTheme.title.color,
+                    ),
                   ),
                 ],
                 style: TextStyle(
