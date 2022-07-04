@@ -1,5 +1,6 @@
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:country_pickers/country.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,12 +11,15 @@ import 'package:cake_wallet/entities/service_plan.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class PhoneNumberProductPage extends BasePage {
-  PhoneNumberProductPage();
+  PhoneNumberProductPage(this.phonePlanViewModel);
+
+  final PhonePlanViewModel phonePlanViewModel;
 
   @override
-  Widget body(BuildContext context) => PhoneNumberProductBody();
+  Widget body(BuildContext context) => PhoneNumberProductBody(phonePlanViewModel);
 
   @override
   Widget middle(BuildContext context) {
@@ -31,53 +35,42 @@ class PhoneNumberProductPage extends BasePage {
 }
 
 class PhoneNumberProductBody extends StatefulWidget {
-  PhoneNumberProductBody();
+  PhoneNumberProductBody(this.phonePlanViewModel);
+
+  final PhonePlanViewModel phonePlanViewModel;
 
   @override
-  PhoneNumberProductBodyState createState() => PhoneNumberProductBodyState();
+  PhoneNumberProductBodyState createState() => PhoneNumberProductBodyState(phonePlanViewModel);
 }
 
 class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
-  final List<ServicePlan> dummyPlans = [
-    ServicePlan(id: "1", duration: 1, price: 20, quantity: 30),
-    ServicePlan(id: "2", duration: 3, price: 10, quantity: 60),
-    ServicePlan(id: "3", duration: 6, price: 9, quantity: 120),
-    ServicePlan(id: "4", duration: 12, price: 5, quantity: 200),
-  ];
+  PhoneNumberProductBodyState(this.phonePlanViewModel);
 
-  Country selectedCountry = countryList.firstWhere((element) => element.iso3Code == "USA");
-
-  final int rateInCents = 20;
-
-  ServicePlan selectedPlan;
-
-  @override
-  void initState() {
-    super.initState();
-
-    selectedPlan = dummyPlans.first;
-  }
+  final PhonePlanViewModel phonePlanViewModel;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(top: 16),
       child: ScrollableWithBottomSection(
-        contentPadding: EdgeInsets.symmetric(horizontal: 24, vertical: 20).copyWith(right: 0),
+        contentPadding: EdgeInsets.symmetric(vertical: 20),
         content: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              S.of(context).initial_service_term,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).primaryTextTheme.title.color,
-                fontFamily: 'Lato',
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Text(
+                S.of(context).initial_service_term,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).primaryTextTheme.title.color,
+                  fontFamily: 'Lato',
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 24, right: 24),
+              padding: const EdgeInsets.all(24).copyWith(top: 8),
               child: Text(
                 S.of(context).phone_number_promotion_text,
                 style: TextStyle(
@@ -87,15 +80,20 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                 ),
               ),
             ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: dummyPlans.map((e) => planCard(e)).toList(),
-              ),
-            ),
+            Observer(builder: (_) {
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    children: phonePlanViewModel.servicePlans.map((e) => planCard(e)).toList(),
+                  ),
+                ),
+              );
+            }),
             const SizedBox(height: 40),
             Padding(
-              padding: const EdgeInsets.only(right: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -115,17 +113,19 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         ),
                       ),
                     ),
-                    child: Text(
-                      "${selectedPlan.quantity}, " +
-                          "${S.of(context).then} " +
-                          "\$${(rateInCents / 100).toStringAsFixed(2)} " +
-                          "${S.of(context).per_message}",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context).primaryTextTheme.title.color,
-                      ),
-                    ),
+                    child: Observer(builder: (_) {
+                      return Text(
+                        "${phonePlanViewModel.selectedPlan.quantity}, " +
+                            "${S.of(context).then} " +
+                            "\$${(phonePlanViewModel.rateInCents / 100).toStringAsFixed(2)} " +
+                            "${S.of(context).per_message}",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).primaryTextTheme.title.color,
+                        ),
+                      );
+                    }),
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -154,12 +154,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                               final Country _country = country as Country;
                               return "${_country.name} (+${_country.phoneCode})";
                             },
-                            selectedAtIndex: countryList.indexOf(selectedCountry),
+                            selectedAtIndex: countryList.indexOf(phonePlanViewModel.selectedCountry),
                             mainAxisAlignment: MainAxisAlignment.start,
                             onItemSelected: (Country country) {
-                              // TODO: update view model
-                              selectedCountry = country;
-                              setState(() {});
+                              phonePlanViewModel.selectedCountry = country;
                             },
                             images: countryList
                                 .map((e) => Image.asset(
@@ -183,49 +181,51 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           ),
                         );
                       },
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            CountryPickerUtils.getFlagImageAssetPath(selectedCountry.isoCode),
-                            height: 20.0,
-                            width: 36.0,
-                            fit: BoxFit.fill,
-                            package: "country_pickers",
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8, right: 6),
-                                    child: Text(
-                                      selectedCountry.name,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: Theme.of(context).primaryTextTheme.title.color,
+                      child: Observer(builder: (_) {
+                        return Row(
+                          children: [
+                            Image.asset(
+                              CountryPickerUtils.getFlagImageAssetPath(phonePlanViewModel.selectedCountry.isoCode),
+                              height: 20.0,
+                              width: 36.0,
+                              fit: BoxFit.fill,
+                              package: "country_pickers",
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 8, right: 6),
+                                      child: Text(
+                                        phonePlanViewModel.selectedCountry.name,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context).primaryTextTheme.title.color,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  "(+${selectedCountry.phoneCode})",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                  Text(
+                                    "(+${phonePlanViewModel.selectedCountry.phoneCode})",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).primaryTextTheme.title.color,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            color: Theme.of(context).primaryTextTheme.title.color,
-                            size: 16,
-                          ),
-                        ],
-                      ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: Theme.of(context).primaryTextTheme.title.color,
+                              size: 16,
+                            ),
+                          ],
+                        );
+                      }),
                     ),
                   ),
                   const SizedBox(height: 49),
@@ -245,34 +245,42 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         ),
                         child: Row(
                           children: [
-                            Container( // TODO: add action
-                              padding: const EdgeInsets.all(8),
-                              margin: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).accentTextTheme.body2.color,
-                                shape: BoxShape.circle,
+                            GestureDetector(
+                              onTap: () => phonePlanViewModel.removeAdditionalSms(),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                margin: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).accentTextTheme.body2.color,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.remove, color: Colors.white, size: 15),
                               ),
-                              child: Icon(Icons.remove, color: Colors.white, size: 15),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: Text(
-                                "25", // TODO: get from view model
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Theme.of(context).primaryTextTheme.title.color,
-                                ),
-                              ),
+                              child: Observer(builder: (_) {
+                                return Text(
+                                  phonePlanViewModel.additionalSms.toString(),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                  ),
+                                );
+                              }),
                             ),
-                            Container( // TODO: add action
-                              padding: const EdgeInsets.all(8),
-                              margin: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).accentTextTheme.body2.color,
-                                shape: BoxShape.circle,
+                            GestureDetector(
+                              onTap: () => phonePlanViewModel.addAdditionalSms(),
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                margin: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).accentTextTheme.body2.color,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.add, color: Colors.white, size: 15),
                               ),
-                              child: Icon(Icons.add, color: Colors.white, size: 15),
                             ),
                           ],
                         ),
@@ -287,25 +295,27 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         bottomSectionPadding: EdgeInsets.only(bottom: 24, right: 24, left: 24),
         bottomSection: Column(
           children: <Widget>[
-            RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(text: "${S.of(context).due_today} "),
-                  TextSpan(
-                    text: "\$35.00 ",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: Theme.of(context).primaryTextTheme.title.color,
+            Observer(builder: (_) {
+              return RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(text: "${S.of(context).due_today} "),
+                    TextSpan(
+                      text: "\$${phonePlanViewModel.totalPrice}",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).primaryTextTheme.title.color,
+                      ),
                     ),
+                  ],
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Theme.of(context).accentTextTheme.subhead.color,
+                    fontFamily: 'Lato',
                   ),
-                ],
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Theme.of(context).accentTextTheme.subhead.color,
-                  fontFamily: 'Lato',
                 ),
-              ),
-            ),
+              );
+            }),
             const SizedBox(height: 24),
             PrimaryButton(
               onPressed: () {},
@@ -327,11 +337,11 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
   }
 
   Widget planCard(ServicePlan e) {
+    final isSelected = phonePlanViewModel.selectedPlan == e;
     return GestureDetector(
       onTap: () {
-        if (e != selectedPlan) {
-          selectedPlan = e;
-          setState(() {});
+        if (!isSelected) {
+          phonePlanViewModel.selectedPlan = e;
         }
       },
       child: Container(
@@ -339,7 +349,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
-          gradient: selectedPlan == e
+          gradient: isSelected
               ? LinearGradient(
                   colors: [
                     Theme.of(context).primaryTextTheme.subhead.color,
@@ -349,7 +359,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                   end: Alignment.bottomRight,
                 )
               : null,
-          color: selectedPlan == e ? null : Theme.of(context).primaryTextTheme.display3.decorationColor,
+          color: isSelected ? null : Theme.of(context).primaryTextTheme.display3.decorationColor,
         ),
         child: Column(
           children: [
@@ -357,7 +367,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               "\$${e.price}/${S.of(context).month}",
               style: TextStyle(
                 fontWeight: FontWeight.w500,
-                color: selectedPlan == e ? Colors.white : Theme.of(context).primaryTextTheme.title.color,
+                color: isSelected ? Colors.white : Theme.of(context).primaryTextTheme.title.color,
               ),
             ),
             Text(
@@ -365,7 +375,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: selectedPlan == e ? Colors.white : Theme.of(context).accentTextTheme.subhead.color,
+                color: isSelected ? Colors.white : Theme.of(context).accentTextTheme.subhead.color,
                 fontFamily: 'Lato',
               ),
             ),

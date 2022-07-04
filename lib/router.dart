@@ -13,6 +13,7 @@ import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -430,7 +431,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.phoneNumberProduct:
       return MaterialPageRoute<PhoneNumberProductPage>(
-        builder: (_) => PhoneNumberProductPage(),
+        builder: (_) => PhoneNumberProductPage(getIt.get<PhonePlanViewModel>()),
       );
 
     default:

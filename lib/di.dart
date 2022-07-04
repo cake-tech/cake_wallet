@@ -5,6 +5,7 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -641,6 +642,8 @@ Future setup(
 
   getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
           (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
+
+  getIt.registerFactory(() => PhonePlanViewModel());
 
   _isSetupFinished = true;
 }
