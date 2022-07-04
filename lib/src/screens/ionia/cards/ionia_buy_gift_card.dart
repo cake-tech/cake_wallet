@@ -1,4 +1,3 @@
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -7,7 +6,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -16,16 +15,16 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaBuyGiftCardPage extends BasePage {
   IoniaBuyGiftCardPage(
-    this.ioniaViewModel,
+    this.ioniaPurchaseViewModel,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
    
     _amountController.addListener(() {
-      ioniaViewModel.onAmountChanged(_amountController.text);
+      ioniaPurchaseViewModel.onAmountChanged(_amountController.text);
     });
   }
 
-  final IoniaViewModel ioniaViewModel;
+  final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
 
 
   @override
@@ -48,7 +47,7 @@ class IoniaBuyGiftCardPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
-    final merchant = ioniaViewModel.selectedMerchant;
+    final merchant = ioniaPurchaseViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
       config: KeyboardActionsConfig(
@@ -163,11 +162,11 @@ class IoniaBuyGiftCardPage extends BasePage {
                     onPressed: () => Navigator.of(context).pushNamed(
                       Routes.ioniaBuyGiftCardDetailPage,
                       arguments: [
-                        ioniaViewModel.amount,
+                        ioniaPurchaseViewModel.amount,
                       ],
                     ),
                     text: S.of(context).continue_text,
-                    isDisabled: !ioniaViewModel.enableCardPurchase,
+                    isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
                     color: Theme.of(context).accentTextTheme.body2.color,
                       textColor:  Theme.of(context)
                           .accentTextTheme

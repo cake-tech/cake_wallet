@@ -5,7 +5,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -14,16 +14,16 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaCustomTipPage extends BasePage {
   IoniaCustomTipPage(
-    this.ioniaViewModel,
+    this.ioniaPurchaseViewModel,
     this.billAmount,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
     _amountController.addListener(() {
-      ioniaViewModel.onAmountChanged(_amountController.text);
+      ioniaPurchaseViewModel.onAmountChanged(_amountController.text);
     });
   }
 
-  final IoniaViewModel ioniaViewModel;
+  final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
   final String billAmount;
 
   @override
@@ -46,7 +46,7 @@ class IoniaCustomTipPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
-    final merchant = ioniaViewModel.selectedMerchant;
+    final merchant = ioniaPurchaseViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
       config: KeyboardActionsConfig(
@@ -124,7 +124,7 @@ class IoniaCustomTipPage extends BasePage {
                         children: [
                           TextSpan(text: ' ${S.of(context).is_percentage} '),
                           TextSpan(text: 'XX.XX%'),
-                          TextSpan(text: ' ${S.of(context).percentageOf(ioniaViewModel.amount)} '),
+                          TextSpan(text: ' ${S.of(context).percentageOf(ioniaPurchaseViewModel.amount)} '),
                         ],
                       ),
                     ),

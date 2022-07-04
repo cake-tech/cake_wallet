@@ -12,15 +12,15 @@ import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
-  const IoniaBuyGiftCardDetailPage(this.amount, this.ioniaViewModel);
+  const IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel);
 
-  final IoniaViewModel ioniaViewModel;
+  final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
 
   final String amount;
 
@@ -62,22 +62,22 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
 
   Widget middle(BuildContext context) {
     return Text(
-      ioniaViewModel.selectedMerchant.legalName,
+      ioniaPurchaseViewModel.ioniaMerchant.legalName,
       style: textLargeSemiBold(color: Theme.of(context).accentTextTheme.display4.backgroundColor),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final merchant = ioniaViewModel.selectedMerchant;
+    final merchant =  ioniaPurchaseViewModel.ioniaMerchant;
     final _backgroundColor = currentTheme.type == ThemeType.dark ? backgroundDarkColor : backgroundLightColor;
-    ioniaViewModel.onAmountChanged(amount);
+    ioniaPurchaseViewModel.onAmountChanged(amount);
     return Scaffold(
       backgroundColor: _backgroundColor,
       body: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.zero,
         content: Observer(builder: (_) {
-          final tipAmount = ioniaViewModel.tipAmount;
+          final tipAmount = ioniaPurchaseViewModel.tipAmount;
           return Column(
             children: [
               SizedBox(height: 60),
@@ -114,7 +114,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '\$$amount',
+                      '\$${ioniaPurchaseViewModel.giftCardAmount}',
                       style: textXLargeSemiBold(),
                     ),
                     SizedBox(height: 24),
@@ -188,10 +188,10 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                       onSelect: (value) async {
                         if (value == 'custom') {
                          final tip = await Navigator.pushNamed(context, Routes.ioniaCustomTipPage, arguments: [amount]);
-                           ioniaViewModel.addTip(tip as String);
+                           ioniaPurchaseViewModel.addTip(tip as String);
                           return;
                         }
-                        ioniaViewModel.addTip(value);
+                        ioniaPurchaseViewModel.addTip(value);
                       },
                     )
                   ],

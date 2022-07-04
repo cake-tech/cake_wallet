@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -666,6 +667,9 @@ Future setup(
   
   getIt.registerFactory(
       () => IoniaViewModel(ioniaService: getIt.get<IoniaService>(), ioniaMerchantSource: _ioniaMerchantSource));
+
+  getIt.registerFactory(
+      () => IoniaMerchPurchaseViewModel(ioniaMerchantSource: _ioniaMerchantSource));
   
   getIt.registerFactory(
       () => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));
@@ -683,18 +687,19 @@ Future setup(
 
   getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaViewModel>()));
 
-  getIt..registerFactory(() => IoniaBuyGiftCardPage(getIt.get<IoniaViewModel>())); 
+  getIt..registerFactory(() => IoniaBuyGiftCardPage(getIt.get<IoniaMerchPurchaseViewModel>())); 
 
   getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List, void>((List args, _) {
     final amount = args.first as String;
+    
 
-    return IoniaBuyGiftCardDetailPage(amount, getIt.get<IoniaViewModel>());
+    return IoniaBuyGiftCardDetailPage(amount, getIt.get<IoniaMerchPurchaseViewModel>());
   });
 
   getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {
     final amount = args.first as String;
 
-    return IoniaCustomTipPage(getIt.get<IoniaViewModel>(), amount);
+    return IoniaCustomTipPage(getIt.get<IoniaMerchPurchaseViewModel>(), amount);
   });
 
   getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaViewModel>()));

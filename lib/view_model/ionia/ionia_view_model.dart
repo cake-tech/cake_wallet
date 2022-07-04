@@ -14,14 +14,9 @@ abstract class IoniaViewModelBase with Store {
       : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
         cardState = IoniaNoCardState(),
-        enableCardPurchase = false,
-        amount = '',
-        tipAmount = 0.0,
         ioniaMerchants = [],
         scrollOffsetFromTop = 0.0 {
-    if (ioniaMerchantSource.length > 0) {
-      selectedMerchant = ioniaMerchantSource.getAt(0);
-    }
+   
     _getAuthStatus().then((value) => isLoggedIn = value);
 
     _getMerchants().then((value) {
@@ -40,12 +35,6 @@ abstract class IoniaViewModelBase with Store {
   List<IoniaCategory> get ioniaCategories => IoniaCategory.allCategories;
 
   @observable
-  IoniaMerchant selectedMerchant;
-
-  @observable
-  bool enableCardPurchase;
-
-  @observable
   double scrollOffsetFromTop;
 
   @observable
@@ -62,15 +51,6 @@ abstract class IoniaViewModelBase with Store {
 
   @observable
   List<IoniaMerchant> ioniaMerchants;
-
-  @observable
-  String amount;
-
-  @computed
-  double get giftCardAmount => double.parse(amount) + tipAmount;
-
-  @observable
-  double tipAmount;
 
   @observable
   String email;
@@ -155,22 +135,6 @@ abstract class IoniaViewModelBase with Store {
     } else {
       ioniaMerchantSource.add(merchant);
     }
-  }
-
-  @action
-  void onAmountChanged(String input) {
-    if (input.isEmpty) return;
-    amount = input;
-    final inputAmount = double.parse(input);
-    final min = selectedMerchant.minimumCardPurchase;
-    final max = selectedMerchant.maximumCardPurchase;
-
-    enableCardPurchase = inputAmount >= min && inputAmount <= max;
-  }
-
-  @action
-  void addTip(String tip) {
-    tipAmount = double.parse(tip);
   }
 
   void setScrollOffsetFromTop(double scrollOffset) {
