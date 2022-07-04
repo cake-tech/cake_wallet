@@ -228,6 +228,57 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 49),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        S.of(context).additional_sms_messages,
+                        style: TextStyle(
+                          color: Theme.of(context).accentTextTheme.subhead.color,
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Theme.of(context).primaryTextTheme.display3.decorationColor,
+                        ),
+                        child: Row(
+                          children: [
+                            Container( // TODO: add action
+                              padding: const EdgeInsets.all(8),
+                              margin: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).accentTextTheme.body2.color,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.remove, color: Colors.white, size: 15),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                "25", // TODO: get from view model
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                ),
+                              ),
+                            ),
+                            Container( // TODO: add action
+                              padding: const EdgeInsets.all(8),
+                              margin: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).accentTextTheme.body2.color,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.add, color: Colors.white, size: 15),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
