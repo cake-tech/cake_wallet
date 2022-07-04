@@ -1,8 +1,12 @@
+import 'package:cake_wallet/buy/buy_amount.dart';
+import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
+import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:country_pickers/country.dart';
 import 'package:flutter/material.dart';
@@ -331,8 +335,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              cakePayReceiptRow(S.of(context).amount, phonePlanViewModel.totalPrice),
-                              cakePayReceiptRow(S.of(context).cake_pay_balance, 100),
+                              receiptRow(S.of(context).amount, amountText(phonePlanViewModel.totalPrice)),
+                              receiptRow(S.of(context).cake_pay_balance, amountText(100)),
                             ],
                           ),
                           isDividerExists: true,
@@ -350,7 +354,38 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
             ),
             const SizedBox(height: 8),
             PrimaryButton(
-              onPressed: () {},
+              onPressed: () {
+                showPopUp<void>(
+                    context: context,
+                    builder: (dialogContext) {
+                      return AlertWithTwoActions(
+                          alertTitle: S.of(context).confirm_payment,
+                          alertContent: S.of(context).confirm_delete_template,
+                          contentWidget: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              receiptRow(S.of(context).amount, cryptoAmount(phonePlanViewModel.totalPrice)),
+                              receiptRow(
+                                  S.of(context).send_fee,
+                                  cryptoAmount(getIt
+                                      .get<AppStore>()
+                                      .wallet
+                                      .calculateEstimatedFee(
+                                        getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet.type],
+                                        phonePlanViewModel.totalPrice.floor(),
+                                      )
+                                      .toDouble())),
+                            ],
+                          ),
+                          isDividerExists: true,
+                          rightButtonText: S.of(context).ok,
+                          leftButtonText: S.of(context).cancel,
+                          actionRightButton: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                          actionLeftButton: () => Navigator.of(dialogContext).pop());
+                    });
+              },
               text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet.currency.toString()}",
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
@@ -410,7 +445,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
     );
   }
 
-  Widget cakePayReceiptRow(String title, double amount) {
+  Widget receiptRow(String title, Widget value) {
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Row(
@@ -424,16 +459,50 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               color: Theme.of(context).accentTextTheme.subhead.color,
             ),
           ),
-          Text(
-            "\$${amount.roundToDouble() == amount ? amount.round() : amount}",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Theme.of(context).primaryTextTheme.title.color,
-            ),
-          ),
+          value,
         ],
       ),
     );
+  }
+
+  Widget amountText(double amount) {
+    return Text(
+      "\$${amount.roundToDouble() == amount ? amount.round() : amount}",
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: Theme.of(context).primaryTextTheme.title.color,
+      ),
+    );
+  }
+
+  Widget cryptoAmount(double totalPrice) {
+    return FutureBuilder<BuyAmount>(
+        future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet)
+            .calculateAmount(totalPrice.toString(), FiatCurrency.usd.title),
+        builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
+          double sourceAmount;
+          double destAmount;
+          double achAmount;
+          int minAmount;
+
+          if (snapshot.hasData) {
+            sourceAmount = snapshot.data.sourceAmount;
+            destAmount = snapshot.data.destAmount;
+            minAmount = snapshot.data.minAmount;
+            achAmount = snapshot.data.achSourceAmount;
+          } else {
+            sourceAmount = 0.0;
+            destAmount = 0.0;
+            minAmount = 0;
+          }
+
+          return Column(
+            children: [
+              Text(sourceAmount.toString()),
+              Text(destAmount.toString()),
+            ],
+          );
+        });
   }
 }
