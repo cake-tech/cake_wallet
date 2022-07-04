@@ -566,5 +566,6 @@
   "month": "month",
   "then": "then",
   "per_message": "per message",
-  "phone_number_country": "Phone Number Country"
+  "phone_number_country": "Phone Number Country",
+  "additional_sms_messages": "Additional SMS Messages"
 }
