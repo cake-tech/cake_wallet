@@ -11,6 +11,7 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionLeft => () {};
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
+  Widget get contentWidget => null;
 
   Widget title(BuildContext context) {
     return Text(
@@ -27,8 +28,8 @@ class BaseAlertDialog extends StatelessWidget {
   }
 
   Widget content(BuildContext context) {
-    return Text(
-      contentText,
+    return contentWidget ?? Text(
+      contentText.toString(),
       textAlign: TextAlign.center,
       style: TextStyle(
         fontSize: 16,

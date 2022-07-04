@@ -567,5 +567,7 @@
   "then": "then",
   "per_message": "per message",
   "phone_number_country": "Phone Number Country",
-  "additional_sms_messages": "Additional SMS Messages"
+  "additional_sms_messages": "Additional SMS Messages",
+  "confirm_payment": "Confirm payment",
+  "cake_pay_balance": "CakePay Balance"
 }

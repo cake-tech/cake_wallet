@@ -5,13 +5,15 @@ import 'package:flutter/cupertino.dart';
 class AlertWithTwoActions extends BaseAlertDialog {
   AlertWithTwoActions({
     @required this.alertTitle,
-    @required this.alertContent,
     @required this.leftButtonText,
     @required this.rightButtonText,
     @required this.actionLeftButton,
     @required this.actionRightButton,
-    this.alertBarrierDismissible = true
-  });
+    this.alertBarrierDismissible = true,
+    this.isDividerExists = false,
+    this.alertContent,
+    this.contentWidget,
+  }) : assert(alertContent != null || contentWidget != null);
 
   final String alertTitle;
   final String alertContent;
@@ -20,6 +22,10 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final VoidCallback actionLeftButton;
   final VoidCallback actionRightButton;
   final bool alertBarrierDismissible;
+  @override
+  final Widget contentWidget;
+  @override
+  final bool isDividerExists;
 
   @override
   String get titleText => alertTitle;

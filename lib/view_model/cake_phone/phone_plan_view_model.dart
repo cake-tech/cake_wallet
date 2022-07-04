@@ -10,7 +10,7 @@ class PhonePlanViewModel = PhonePlanViewModelBase with _$PhonePlanViewModel;
 abstract class PhonePlanViewModelBase with Store {
   PhonePlanViewModelBase({this.selectedPlan}) {
     additionalSms = 0;
-    rateInCents = 20;
+    rateInCents = 20; // TODO: get from api
 
     servicePlans = [
       ServicePlan(id: "1", duration: 1, price: 20, quantity: 30),

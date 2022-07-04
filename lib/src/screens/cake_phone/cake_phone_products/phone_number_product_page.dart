@@ -1,3 +1,4 @@
+import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
@@ -318,7 +319,29 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
             }),
             const SizedBox(height: 24),
             PrimaryButton(
-              onPressed: () {},
+              onPressed: () {
+                showPopUp<void>(
+                    context: context,
+                    builder: (dialogContext) {
+                      return AlertWithTwoActions(
+                          alertTitle: S.of(context).confirm_payment,
+                          alertContent: S.of(context).confirm_delete_template,
+                          contentWidget: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              receiptRow(S.of(context).amount, phonePlanViewModel.totalPrice),
+                              receiptRow(S.of(context).cake_pay_balance, 100),
+                            ],
+                          ),
+                          isDividerExists: true,
+                          rightButtonText: S.of(context).ok,
+                          leftButtonText: S.of(context).cancel,
+                          actionRightButton: () {
+                            Navigator.of(dialogContext).pop();
+                          },
+                          actionLeftButton: () => Navigator.of(dialogContext).pop());
+                    });
+              },
               text: S.of(context).pay_with_cake_phone,
               color: Theme.of(context).accentTextTheme.caption.backgroundColor,
               textColor: Theme.of(context).primaryTextTheme.title.color,
@@ -383,5 +406,31 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         ),
       ),
     );
+  }
+
+  Widget receiptRow(String title, double amount) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          "$title:",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).accentTextTheme.subhead.color,
+          ),
+        ),
+        Text(
+          "\$${amount.roundToDouble() == amount ? amount.round() : amount}",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).primaryTextTheme.title.color,
+          ),
+        ),
+      ],
+    ),);
   }
 }
