@@ -1,5 +1,7 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:country_pickers/country.dart';
@@ -329,8 +331,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              receiptRow(S.of(context).amount, phonePlanViewModel.totalPrice),
-                              receiptRow(S.of(context).cake_pay_balance, 100),
+                              cakePayReceiptRow(S.of(context).amount, phonePlanViewModel.totalPrice),
+                              cakePayReceiptRow(S.of(context).cake_pay_balance, 100),
                             ],
                           ),
                           isDividerExists: true,
@@ -342,14 +344,14 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           actionLeftButton: () => Navigator.of(dialogContext).pop());
                     });
               },
-              text: S.of(context).pay_with_cake_phone,
+              text: "${S.of(context).pay_with} ${S.of(context).cake_pay_balance}",
               color: Theme.of(context).accentTextTheme.caption.backgroundColor,
               textColor: Theme.of(context).primaryTextTheme.title.color,
             ),
             const SizedBox(height: 8),
             PrimaryButton(
               onPressed: () {},
-              text: S.of(context).pay_with_xmr,
+              text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet.currency.toString()}",
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
             ),
@@ -408,29 +410,30 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
     );
   }
 
-  Widget receiptRow(String title, double amount) {
+  Widget cakePayReceiptRow(String title, double amount) {
     return Padding(
       padding: const EdgeInsets.only(top: 24),
       child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          "$title:",
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: Theme.of(context).accentTextTheme.subhead.color,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            "$title:",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Theme.of(context).accentTextTheme.subhead.color,
+            ),
           ),
-        ),
-        Text(
-          "\$${amount.roundToDouble() == amount ? amount.round() : amount}",
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Theme.of(context).primaryTextTheme.title.color,
+          Text(
+            "\$${amount.roundToDouble() == amount ? amount.round() : amount}",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).primaryTextTheme.title.color,
+            ),
           ),
-        ),
-      ],
-    ),);
+        ],
+      ),
+    );
   }
 }
