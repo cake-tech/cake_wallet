@@ -532,6 +532,7 @@
   "search": "Zoekopdracht",
   "search_language": "Zoektaal",
   "search_currency": "Zoek valuta",
+  "search_country": "Land zoeken",
   "new_template" : "Nieuwe sjabloon",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
   "wallet_name_exists": "Portemonnee met die naam bestaat al",

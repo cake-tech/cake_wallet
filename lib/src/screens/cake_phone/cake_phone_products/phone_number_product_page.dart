@@ -1,3 +1,5 @@
+import 'package:cake_wallet/src/widgets/picker.dart';
+import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:country_pickers/country.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -142,21 +144,88 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         ),
                       ),
                     ),
-                    child: Row(
-                      children: [
-                        Image.asset(
-                          CountryPickerUtils.getFlagImageAssetPath(selectedCountry.isoCode),
-                          height: 20.0,
-                          width: 36.0,
-                          fit: BoxFit.fill,
-                          package: "country_pickers",
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8, right: 6),
-                          child: Text(selectedCountry.name),
-                        ),
-                        Text(selectedCountry.phoneCode),
-                      ]
+                    child: InkWell(
+                      onTap: () {
+                        showPopUp<void>(
+                          context: context,
+                          builder: (_) => Picker(
+                            items: countryList,
+                            displayItem: (dynamic country) {
+                              final Country _country = country as Country;
+                              return "${_country.name} (+${_country.phoneCode})";
+                            },
+                            selectedAtIndex: countryList.indexOf(selectedCountry),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            onItemSelected: (Country country) {
+                              // TODO: update view model
+                              selectedCountry = country;
+                              setState(() {});
+                            },
+                            images: countryList
+                                .map((e) => Image.asset(
+                                      CountryPickerUtils.getFlagImageAssetPath(e.isoCode),
+                                      height: 20.0,
+                                      width: 36.0,
+                                      fit: BoxFit.fill,
+                                      package: "country_pickers",
+                                    ))
+                                .toList(),
+                            isSeparated: false,
+                            hintText: S.of(context).search_country,
+                            matchingCriteria: (dynamic country, String searchText) {
+                              final Country _country = country as Country;
+                              searchText = searchText.toLowerCase();
+                              return _country.name.toLowerCase().contains(searchText) ||
+                                  _country.phoneCode.contains(searchText) ||
+                                  _country.isoCode.toLowerCase().contains(searchText) ||
+                                  _country.iso3Code.toLowerCase().contains(searchText);
+                            },
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            CountryPickerUtils.getFlagImageAssetPath(selectedCountry.isoCode),
+                            height: 20.0,
+                            width: 36.0,
+                            fit: BoxFit.fill,
+                            package: "country_pickers",
+                          ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8, right: 6),
+                                    child: Text(
+                                      selectedCountry.name,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Theme.of(context).primaryTextTheme.title.color,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  "(+${selectedCountry.phoneCode})",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: Theme.of(context).primaryTextTheme.title.color,
+                            size: 16,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],

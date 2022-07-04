@@ -123,7 +123,8 @@ abstract class SettingsViewModelBase with Store {
                 .toList(),
               isGridView: true,
               matchingCriteria: (FiatCurrency currency, String searchText) {
-                return currency.title.toLowerCase().contains(searchText) || currency.fullName.toLowerCase().contains(searchText);
+                return currency.title.toLowerCase().contains(searchText.toLowerCase())
+                    || currency.fullName.toLowerCase().contains(searchText.toLowerCase());
               },
           ),
         PickerListItem(
@@ -179,7 +180,7 @@ abstract class SettingsViewModelBase with Store {
               (e) => Image.asset("assets/images/flags/${LanguageService.localeCountryCode[e]}.png"))
               .toList(),
             matchingCriteria: (String code, String searchText) {
-              return LanguageService.list[code].toLowerCase().contains(searchText);
+              return LanguageService.list[code].toLowerCase().contains(searchText.toLowerCase());
             },
         ),
         SwitcherListItem(

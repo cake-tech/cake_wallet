@@ -532,6 +532,7 @@
   "search": "Szukaj",
   "search_language": "Wyszukaj język",
   "search_currency": "Wyszukaj walutę",
+  "search_country": "Wyszukaj kraj",
   "new_template" : "Nowy szablon",
   "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają",
   "wallet_name_exists": "Portfel o tej nazwie już istnieje",
