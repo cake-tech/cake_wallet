@@ -8,23 +8,23 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaLoginPage extends BasePage {
-  IoniaLoginPage(this._giftCardsListViewModel)
+  IoniaLoginPage(this._authViewModel)
       : _formKey = GlobalKey<FormState>(),
         _emailController = TextEditingController() {
-    _emailController.text = _giftCardsListViewModel.email;
-    _emailController.addListener(() => _giftCardsListViewModel.email = _emailController.text);
+    _emailController.text = _authViewModel.email;
+    _emailController.addListener(() => _authViewModel.email = _emailController.text);
   }
 
   final GlobalKey<FormState> _formKey;
 
-  final IoniaGiftCardsListViewModel _giftCardsListViewModel;
+  final IoniaAuthViewModel _authViewModel;
 
   @override
   Color get titleColor => Colors.black;
@@ -43,12 +43,12 @@ class IoniaLoginPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _giftCardsListViewModel.createUserState, (IoniaCreateAccountState state) {
+    reaction((_) => _authViewModel.createUserState, (IoniaCreateAccountState state) {
       if (state is IoniaCreateStateFailure) {
         _onLoginUserFailure(context, state.error);
       }
       if (state is IoniaCreateStateSuccess) {
-        _onLoginSuccessful(context, _giftCardsListViewModel);
+        _onLoginSuccessful(context, _authViewModel);
       }
     });
     return ScrollableWithBottomSection(
@@ -75,9 +75,9 @@ class IoniaLoginPage extends BasePage {
                     if (!_formKey.currentState.validate()) {
                       return;
                     }
-                    await _giftCardsListViewModel.createUser(_emailController.text);
+                    await _authViewModel.createUser(_emailController.text);
                   },
-                  isLoading: _giftCardsListViewModel.createUserState is IoniaCreateStateLoading,
+                  isLoading: _authViewModel.createUserState is IoniaCreateStateLoading,
                   color: Theme.of(context).accentTextTheme.body2.color,
                   textColor: Colors.white,
                 ),
@@ -104,9 +104,9 @@ class IoniaLoginPage extends BasePage {
         });
   }
 
-  void _onLoginSuccessful(BuildContext context, IoniaGiftCardsListViewModel giftCardsListViewModel) => Navigator.pushNamed(
+  void _onLoginSuccessful(BuildContext context, IoniaAuthViewModel authViewModel) => Navigator.pushNamed(
         context,
         Routes.ioniaVerifyIoniaOtpPage,
-        arguments: [giftCardsListViewModel.email, giftCardsListViewModel],
+        arguments: [authViewModel.email, authViewModel],
       );
 }

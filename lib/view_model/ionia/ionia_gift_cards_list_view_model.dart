@@ -12,14 +12,12 @@ class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase with _$Ionia
 abstract class IoniaGiftCardsListViewModelBase with Store {
   IoniaGiftCardsListViewModelBase({
     @required this.ioniaService,
-  })  : createUserState = IoniaCreateStateSuccess(),
-        otpState = IoniaOtpSendDisabled(),
+  })  : 
         cardState = IoniaNoCardState(),
         ioniaMerchants = [],
         scrollOffsetFromTop = 0.0 {
     selectedFilters = [];
-
-    _getAuthStatus().then((value) => isLoggedIn = value);
+        _getAuthStatus().then((value) => isLoggedIn = value);
 
     _getMerchants();
   }
@@ -36,12 +34,6 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   double scrollOffsetFromTop;
 
   @observable
-  IoniaCreateAccountState createUserState;
-
-  @observable
-  IoniaOtpState otpState;
-
-  @observable
   IoniaCreateCardState createCardState;
 
   @observable
@@ -51,36 +43,7 @@ abstract class IoniaGiftCardsListViewModelBase with Store {
   List<IoniaMerchant> ioniaMerchants;
 
   @observable
-  String email;
-
-  @observable
-  String otp;
-
-  @observable
   bool isLoggedIn;
-
-  @action
-  Future<void> createUser(String email) async {
-    createUserState = IoniaCreateStateLoading();
-    try {
-      await ioniaService.createUser(email);
-
-      createUserState = IoniaCreateStateSuccess();
-    } on Exception catch (e) {
-      createUserState = IoniaCreateStateFailure(error: e.toString());
-    }
-  }
-
-  @action
-  Future<void> verifyEmail(String code) async {
-    try {
-      otpState = IoniaOtpValidating();
-      await ioniaService.verifyEmail(code);
-      otpState = IoniaOtpSuccess();
-    } catch (_) {
-      otpState = IoniaOtpFailure(error: 'Invalid OTP. Try again');
-    }
-  }
 
   Future<bool> _getAuthStatus() async {
     return await ioniaService.isLogined();

@@ -99,7 +99,6 @@ class IoniaFilterModal extends StatelessWidget {
                                 ),
                                 Observer(builder: (_) {
                                   final value = filterViewModel.selectedIndices;
-                                  print(value);
                                   return RoundedCheckbox(
                                     value: value.contains(category.index),
                                   );
