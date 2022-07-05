@@ -2,6 +2,7 @@ import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -14,7 +15,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:country_pickers/country_pickers.dart';
 import 'package:country_pickers/countries.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/service_plan.dart';
+import 'package:cake_wallet/entities/cake_phone_entities/service_plan.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -34,7 +35,7 @@ class PhoneNumberProductPage extends BasePage {
       S.of(context).phone_number,
       style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
           color: Theme.of(context).primaryTextTheme.title.color),
     );
@@ -336,7 +337,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               receiptRow(S.of(context).amount, amountText(phonePlanViewModel.totalPrice)),
-                              receiptRow(S.of(context).cake_pay_balance, amountText(100)),
+                              receiptRow("${S.of(context).cake_pay_balance}: ", amountText(100)),
                             ],
                           ),
                           isDividerExists: true,
@@ -344,6 +345,11 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           leftButtonText: S.of(context).cancel,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
+                            Navigator.pushNamedAndRemoveUntil(
+                              context,
+                              Routes.cakePhoneActiveServices,
+                              ModalRoute.withName(Routes.cakePhoneWelcome),
+                            );
                           },
                           actionLeftButton: () => Navigator.of(dialogContext).pop());
                     });
@@ -452,7 +458,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            "$title:",
+            title,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -478,31 +484,42 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
 
   Widget cryptoAmount(double totalPrice) {
     return FutureBuilder<BuyAmount>(
-        future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet)
-            .calculateAmount(totalPrice.toString(), FiatCurrency.usd.title),
-        builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
-          double sourceAmount;
-          double destAmount;
-          double achAmount;
-          int minAmount;
+      future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet)
+          .calculateAmount(totalPrice.toString(), FiatCurrency.usd.title),
+      builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
+        double sourceAmount;
+        double destAmount;
 
-          if (snapshot.hasData) {
-            sourceAmount = snapshot.data.sourceAmount;
-            destAmount = snapshot.data.destAmount;
-            minAmount = snapshot.data.minAmount;
-            achAmount = snapshot.data.achSourceAmount;
-          } else {
-            sourceAmount = 0.0;
-            destAmount = 0.0;
-            minAmount = 0;
-          }
+        if (snapshot.hasData) {
+          sourceAmount = snapshot.data.sourceAmount;
+          destAmount = snapshot.data.destAmount;
+        } else {
+          sourceAmount = 0.0;
+          destAmount = 0.0;
+        }
 
-          return Column(
-            children: [
-              Text(sourceAmount.toString()),
-              Text(destAmount.toString()),
-            ],
-          );
-        });
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              "${sourceAmount} ${getIt.get<AppStore>().wallet.currency.toString()}",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).primaryTextTheme.title.color,
+              ),
+            ),
+            Text(
+              "${destAmount} ${FiatCurrency.usd.title}",
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).accentTextTheme.subhead.color,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

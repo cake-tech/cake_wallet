@@ -568,5 +568,12 @@
   "phone_number_country": "Phone Number Country",
   "additional_sms_messages": "Additional SMS Messages",
   "confirm_payment": "Confirm payment",
-  "cake_pay_balance": "CakePay Balance"
+  "cake_pay_balance": "CakePay Balance",
+  "active_services": "Active Services",
+  "new_phone_number": "New Phone Number",
+  "free_sms_balance": "Free SMS Balance",
+  "free_data_balance": "Free Data Balance",
+  "account_balance": "Account Balance",
+  "days_of_service_remaining": "days of service remaining",
+  "active": "Active"
 }

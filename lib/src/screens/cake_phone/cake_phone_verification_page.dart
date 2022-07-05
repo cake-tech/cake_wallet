@@ -21,7 +21,7 @@ class CakePhoneVerificationPage extends BasePage {
       S.of(context).email_verification,
       style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
           color: Theme.of(context).primaryTextTheme.title.color),
     );
@@ -123,7 +123,11 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
           children: <Widget>[
             PrimaryButton(
               onPressed: () {
-                Navigator.pushNamed(context, Routes.cakePhoneProducts);
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  Routes.cakePhoneProducts,
+                  ModalRoute.withName(Routes.cakePhoneWelcome),
+                );
               },
               text: S.of(context).continue_text,
               color: Theme.of(context).accentTextTheme.body2.color,

@@ -16,7 +16,7 @@ class CakePhoneProductsPage extends BasePage {
       S.of(context).get_phone_number,
       style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
           color: Theme.of(context).primaryTextTheme.title.color),
     );

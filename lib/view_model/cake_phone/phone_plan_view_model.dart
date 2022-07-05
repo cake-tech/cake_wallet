@@ -1,4 +1,4 @@
-import 'package:cake_wallet/entities/service_plan.dart';
+import 'package:cake_wallet/entities/cake_phone_entities/service_plan.dart';
 import 'package:country_pickers/countries.dart';
 import 'package:country_pickers/country.dart';
 import 'package:mobx/mobx.dart';

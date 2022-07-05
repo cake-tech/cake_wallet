@@ -65,4 +65,5 @@ class Routes {
   static const cakePhoneVerification = '/cake_phone_verification';
   static const cakePhoneProducts = '/cake_phone_products';
   static const phoneNumberProduct = '/phone_number_product';
+  static const cakePhoneActiveServices = '/cake_phone_active_services';
 }

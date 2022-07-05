@@ -18,7 +18,7 @@ class CakePhoneWelcomePage extends BasePage {
       S.of(context).welcome_to_cake_phone,
       style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
           color: titleColor ??
               Theme.of(context).primaryTextTheme.title.color),

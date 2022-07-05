@@ -21,7 +21,7 @@ class CakePhoneAuthPage extends BasePage {
       isLogin ? S.of(context).login : S.of(context).signup,
       style: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
           color: Theme.of(context).primaryTextTheme.title.color),
     );

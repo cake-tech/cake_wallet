@@ -69,6 +69,7 @@ import 'package:cake_wallet/src/screens/cake_phone/cake_phone_welcome_page.dart'
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_verification_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products/phone_number_product_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/active_services_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -409,6 +410,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.cakePhoneWelcome:
       return MaterialPageRoute<CakePhoneWelcomePage>(
+        settings: RouteSettings(name: Routes.cakePhoneWelcome),
         builder: (_) => CakePhoneWelcomePage(),
       );
 
@@ -416,22 +418,32 @@ Route<dynamic> createRoute(RouteSettings settings) {
       final isLogin = settings.arguments as bool ?? false;
 
       return MaterialPageRoute<CakePhoneWelcomePage>(
+        settings: RouteSettings(name: Routes.cakePhoneAuth),
         builder: (_) => CakePhoneAuthPage(isLogin: isLogin),
       );
 
     case Routes.cakePhoneVerification:
       return MaterialPageRoute<CakePhoneVerificationPage>(
+        settings: RouteSettings(name: Routes.cakePhoneVerification),
         builder: (_) => CakePhoneVerificationPage(),
       );
 
     case Routes.cakePhoneProducts:
       return MaterialPageRoute<CakePhoneProductsPage>(
+        settings: RouteSettings(name: Routes.cakePhoneProducts),
         builder: (_) => CakePhoneProductsPage(),
       );
 
     case Routes.phoneNumberProduct:
       return MaterialPageRoute<PhoneNumberProductPage>(
+        settings: RouteSettings(name: Routes.phoneNumberProduct),
         builder: (_) => PhoneNumberProductPage(getIt.get<PhonePlanViewModel>()),
+      );
+
+    case Routes.cakePhoneActiveServices:
+      return MaterialPageRoute<ActiveServicesPage>(
+        settings: RouteSettings(name: Routes.cakePhoneActiveServices),
+        builder: (_) => ActiveServicesPage(),
       );
 
     default:

@@ -82,7 +82,7 @@ class WalletMenu {
 	  handler: () => Navigator.of(context).pushNamed(Routes.support)),
       // TODO: Move this to marketplace screen when ready
       WalletMenuItem(
-          title: S.current.settings_support,
+          title: "Temp Cake Phone",
           image: Image.asset('assets/images/question_mark.png',
               height: 16, width: 16, color: Palette.darkBlue),
 	  handler: () => Navigator.of(context).pushNamed(Routes.cakePhoneWelcome)),
