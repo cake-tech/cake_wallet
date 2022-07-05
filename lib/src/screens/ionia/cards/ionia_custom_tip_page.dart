@@ -20,9 +20,10 @@ class IoniaCustomTipPage extends BasePage {
     this.merchant,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
-          ioniaPurchaseViewModel.setSelectedMerchant(merchant);
+    ioniaPurchaseViewModel.setSelectedMerchant(merchant);
+    ioniaPurchaseViewModel.onAmountChanged(billAmount);
     _amountController.addListener(() {
-      ioniaPurchaseViewModel.onAmountChanged(_amountController.text);
+      ioniaPurchaseViewModel.onTipChanged(_amountController.text);
     });
   }
 
@@ -119,22 +120,26 @@ class IoniaCustomTipPage extends BasePage {
                       ),
                     ),
                     SizedBox(height: 8),
-                    _amountController.text.isNotEmpty ? Observer(
-                      builder: (_) => RichText(
+                    Observer(builder: (_) {
+                      if (ioniaPurchaseViewModel.percentage == 0.0) {
+                        return SizedBox.shrink();
+                      }
+
+                      return RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                          text: '\$${ioniaPurchaseViewModel.amount}',
+                          text: '\$${_amountController.text}',
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
                           children: [
                             TextSpan(text: ' ${S.of(context).is_percentage} '),
-                            TextSpan(text: 'XX.XX%'),
+                            TextSpan(text: '${ioniaPurchaseViewModel.percentage}%'),
                             TextSpan(text: ' ${S.of(context).percentageOf(billAmount)} '),
                           ],
                         ),
-                      ),
-                    ) : SizedBox.shrink(),
+                      );
+                    }),
                     SizedBox(height: 24),
                   ],
                 ),
@@ -155,16 +160,16 @@ class IoniaCustomTipPage extends BasePage {
           ),
           bottomSection: Column(
             children: [
-                 Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: PrimaryButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(_amountController.text);
-                    },
-                    text: S.of(context).add_tip,
-                    color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Colors.white,
-                  ),
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: PrimaryButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(_amountController.text);
+                  },
+                  text: S.of(context).add_tip,
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white,
+                ),
               ),
               SizedBox(height: 30),
             ],
