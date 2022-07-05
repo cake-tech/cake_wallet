@@ -18,9 +18,13 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
-  const IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel);
+   IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel, this.merchant){
+    ioniaPurchaseViewModel.setSelectedMerchant(merchant);
+  }
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
+
+  final IoniaMerchant merchant;
 
   final String amount;
 
@@ -187,8 +191,10 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                       selectedTip: tipAmount,
                       onSelect: (value) async {
                         if (value == 'custom') {
-                         final tip = await Navigator.pushNamed(context, Routes.ioniaCustomTipPage, arguments: [amount]);
-                           ioniaPurchaseViewModel.addTip(tip as String);
+                         final tip = await Navigator.pushNamed(context, Routes.ioniaCustomTipPage, arguments: [amount, merchant]);
+                          if(tip != null) {
+                            ioniaPurchaseViewModel.addTip(tip as String);
+                          }
                           return;
                         }
                         ioniaPurchaseViewModel.addTip(value);

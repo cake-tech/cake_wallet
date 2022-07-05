@@ -1,3 +1,4 @@
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -16,8 +17,10 @@ class IoniaCustomTipPage extends BasePage {
   IoniaCustomTipPage(
     this.ioniaPurchaseViewModel,
     this.billAmount,
+    this.merchant,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
+          ioniaPurchaseViewModel.setSelectedMerchant(merchant);
     _amountController.addListener(() {
       ioniaPurchaseViewModel.onAmountChanged(_amountController.text);
     });
@@ -25,6 +28,7 @@ class IoniaCustomTipPage extends BasePage {
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
   final String billAmount;
+  final IoniaMerchant merchant;
 
   @override
   String get title => S.current.enter_amount;
@@ -105,7 +109,7 @@ class IoniaCustomTipPage extends BasePage {
                           left: _width / 4,
                         ),
                         child: Text(
-                          '${merchant.acceptedCurrency}: ',
+                          'USD: ',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w900,
@@ -115,19 +119,22 @@ class IoniaCustomTipPage extends BasePage {
                       ),
                     ),
                     SizedBox(height: 8),
-                    RichText(
-                      text: TextSpan(
-                        text: '\$${_amountController.text}',
-                        style: TextStyle(
-                          color: Theme.of(context).primaryTextTheme.headline.color,
+                    _amountController.text.isNotEmpty ? Observer(
+                      builder: (_) => RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: '\$${ioniaPurchaseViewModel.amount}',
+                          style: TextStyle(
+                            color: Theme.of(context).primaryTextTheme.headline.color,
+                          ),
+                          children: [
+                            TextSpan(text: ' ${S.of(context).is_percentage} '),
+                            TextSpan(text: 'XX.XX%'),
+                            TextSpan(text: ' ${S.of(context).percentageOf(billAmount)} '),
+                          ],
                         ),
-                        children: [
-                          TextSpan(text: ' ${S.of(context).is_percentage} '),
-                          TextSpan(text: 'XX.XX%'),
-                          TextSpan(text: ' ${S.of(context).percentageOf(ioniaPurchaseViewModel.amount)} '),
-                        ],
                       ),
-                    ),
+                    ) : SizedBox.shrink(),
                     SizedBox(height: 24),
                   ],
                 ),
@@ -148,20 +155,17 @@ class IoniaCustomTipPage extends BasePage {
           ),
           bottomSection: Column(
             children: [
-              Observer(builder: (_) {
-                return Padding(
+                 Padding(
                   padding: EdgeInsets.only(bottom: 12),
                   child: PrimaryButton(
                     onPressed: () {
                       Navigator.of(context).pop(_amountController.text);
-                      
                     },
                     text: S.of(context).add_tip,
                     color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Theme.of(context).primaryTextTheme.body1.color,
+                    textColor: Colors.white,
                   ),
-                );
-              }),
+              ),
               SizedBox(height: 30),
             ],
           ),

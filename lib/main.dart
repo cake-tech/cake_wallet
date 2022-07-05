@@ -156,8 +156,6 @@ Future<void> initialSetup(
     @required Box<ExchangeTemplate> exchangeTemplates,
     @required Box<TransactionDescription> transactionDescriptions,
     @required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
-    @required Box<IoniaMerchant> ioniaMerchantSource,
-    @required Box<IoniaCategory> ioniaFilterBox,
     FlutterSecureStorage secureStorage,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
@@ -179,8 +177,6 @@ Future<void> initialSetup(
       transactionDescriptionBox: transactionDescriptions,
       ordersSource: ordersSource,
       unspentCoinsInfoSource: unspentCoinsInfoSource,
-      ioniaMerchantSource: ioniaMerchantSource,
-      ioniaFilterSource: ioniaFilterBox,
       );
   await bootstrap(navigatorKey);
   monero?.onStartup();

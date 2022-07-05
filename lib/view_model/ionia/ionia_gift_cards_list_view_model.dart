@@ -5,12 +5,12 @@ import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-part 'ionia_view_model.g.dart';
+part 'ionia_gift_cards_list_view_model.g.dart';
 
-class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
+class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase with _$IoniaGiftCardsListViewModel;
 
-abstract class IoniaViewModelBase with Store {
-  IoniaViewModelBase({
+abstract class IoniaGiftCardsListViewModelBase with Store {
+  IoniaGiftCardsListViewModelBase({
     @required this.ioniaService,
   })  : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
@@ -25,9 +25,6 @@ abstract class IoniaViewModelBase with Store {
   }
 
   final IoniaService ioniaService;
-
-  // Box<IoniaMerchant> ioniaMerchantSource;
-  // Box<IoniaCategory> ioniaCategorySource;
 
   List<IoniaMerchant> ioniaMerchantList;
 

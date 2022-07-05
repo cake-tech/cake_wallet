@@ -9,7 +9,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -17,21 +17,21 @@ import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaVerifyIoniaOtp extends BasePage {
-  IoniaVerifyIoniaOtp(this._ioniaViewModel, this._email)
+  IoniaVerifyIoniaOtp(this._cardsListViewModel, this._email)
       : _codeController = TextEditingController(),
         _codeFocus = FocusNode() {
     _codeController.addListener(() {
       final otp = _codeController.text;
-      _ioniaViewModel.otp = otp;
+      _cardsListViewModel.otp = otp;
       if (otp.length > 3) {
-        _ioniaViewModel.otpState = IoniaOtpSendEnabled();
+        _cardsListViewModel.otpState = IoniaOtpSendEnabled();
       } else {
-        _ioniaViewModel.otpState = IoniaOtpSendDisabled();
+        _cardsListViewModel.otpState = IoniaOtpSendDisabled();
       }
     });
   }
 
-  final IoniaViewModel _ioniaViewModel;
+  final IoniaGiftCardsListViewModel _cardsListViewModel;
 
   final String _email;
 
@@ -50,7 +50,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _ioniaViewModel.otpState, (IoniaOtpState state) {
+    reaction((_) => _cardsListViewModel.otpState, (IoniaOtpState state) {
       if (state is IoniaOtpFailure) {
         _onOtpFailure(context, state.error);
       }
@@ -94,7 +94,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
                   Text(S.of(context).dont_get_code),
                   SizedBox(width: 20),
                   InkWell(
-                    onTap: () => _ioniaViewModel.createUser(_email),
+                    onTap: () => _cardsListViewModel.createUser(_email),
                     child: Text(
                       S.of(context).resend_code,
                       style: textSmallSemiBold(color: Palette.blueCraiola),
@@ -113,9 +113,9 @@ class IoniaVerifyIoniaOtp extends BasePage {
                   Observer(
                     builder: (_) => LoadingPrimaryButton(
                       text: S.of(context).continue_text,
-                      onPressed: () async => await _ioniaViewModel.verifyEmail(_codeController.text),
-                      isDisabled: _ioniaViewModel.otpState is IoniaOtpSendDisabled,
-                      isLoading: _ioniaViewModel.otpState is IoniaOtpValidating,
+                      onPressed: () async => await _cardsListViewModel.verifyEmail(_codeController.text),
+                      isDisabled: _cardsListViewModel.otpState is IoniaOtpSendDisabled,
+                      isLoading: _cardsListViewModel.otpState is IoniaOtpValidating,
                       color: Theme.of(context).accentTextTheme.body2.color,
                       textColor: Colors.white,
                     ),

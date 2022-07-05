@@ -8,15 +8,15 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaDebitCardPage extends BasePage {
-  final IoniaViewModel _ioniaViewModel;
+  final IoniaGiftCardsListViewModel _cardsListViewModel;
 
-  IoniaDebitCardPage(this._ioniaViewModel);
+  IoniaDebitCardPage(this._cardsListViewModel);
 
   @override
   Widget middle(BuildContext context) {
@@ -32,7 +32,7 @@ class IoniaDebitCardPage extends BasePage {
   Widget body(BuildContext context) {
     return Observer(
       builder: (_) {
-        final cardState = _ioniaViewModel.cardState;
+        final cardState = _cardsListViewModel.cardState;
         if (cardState is IoniaFetchingCard) {
           return Center(child: CircularProgressIndicator());
         }

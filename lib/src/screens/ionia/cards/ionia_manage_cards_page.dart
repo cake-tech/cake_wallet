@@ -11,7 +11,7 @@ import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,16 +19,16 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaManageCardsPage extends BasePage {
-  IoniaManageCardsPage(this._ioniaViewModel) {
+  IoniaManageCardsPage(this._cardsListViewModel) {
     _searchController.addListener(() {
-      if (_searchController.text != _ioniaViewModel.searchString) {
+      if (_searchController.text != _cardsListViewModel.searchString) {
         _searchDebounce.run(() {
-          _ioniaViewModel.searchMerchant(_searchController.text);
+          _cardsListViewModel.searchMerchant(_searchController.text);
         });
       }
     });
   }
-  final IoniaViewModel _ioniaViewModel;
+  final IoniaGiftCardsListViewModel _cardsListViewModel;
 
   final _searchDebounce = Debounce(Duration(milliseconds: 500));
   final _searchController = TextEditingController();
@@ -109,8 +109,8 @@ class IoniaManageCardsPage extends BasePage {
   Widget body(BuildContext context) {
     final filterIcon = InkWell(
         onTap: () async {
-          final selectedFilters = await showCategoryFilter(context, _ioniaViewModel);
-          _ioniaViewModel.setSelectedFilter(selectedFilters);
+          final selectedFilters = await showCategoryFilter(context, _cardsListViewModel);
+          _cardsListViewModel.setSelectedFilter(selectedFilters);
         },
         child: Image.asset(
           'assets/images/filter.png',
@@ -149,7 +149,7 @@ class IoniaManageCardsPage extends BasePage {
           SizedBox(height: 8),
           Expanded(
             child: IoniaManageCardsPageBody(
-              ioniaViewModel: _ioniaViewModel,
+              cardsListViewModel: _cardsListViewModel,
             ),
           ),
         ],
@@ -159,7 +159,7 @@ class IoniaManageCardsPage extends BasePage {
 
   Future<List<IoniaCategory>> showCategoryFilter(
     BuildContext context,
-    IoniaViewModel viewModel,
+    IoniaGiftCardsListViewModel viewModel,
   ) async {
     return await showPopUp<List<IoniaCategory>>(
       context: context,
@@ -176,10 +176,10 @@ class IoniaManageCardsPage extends BasePage {
 class IoniaManageCardsPageBody extends StatefulWidget {
   const IoniaManageCardsPageBody({
     Key key,
-    @required this.ioniaViewModel,
+    @required this.cardsListViewModel,
   }) : super(key: key);
 
-  final IoniaViewModel ioniaViewModel;
+  final IoniaGiftCardsListViewModel cardsListViewModel;
 
   @override
   _IoniaManageCardsPageBodyState createState() => _IoniaManageCardsPageBodyState();
@@ -190,7 +190,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
   double thumbHeight = 72;
   bool get isAlwaysShowScrollThumb => merchantsList == null ? false : merchantsList.length > 3;
 
-  List<IoniaMerchant> get merchantsList => widget.ioniaViewModel.ioniaMerchants;
+  List<IoniaMerchant> get merchantsList => widget.cardsListViewModel.ioniaMerchants;
 
   final _scrollController = ScrollController();
 
@@ -200,7 +200,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
       final scrollOffsetFromTop = _scrollController.hasClients
           ? (_scrollController.offset / _scrollController.position.maxScrollExtent * (backgroundHeight - thumbHeight))
           : 0.0;
-      widget.ioniaViewModel.setScrollOffsetFromTop(scrollOffsetFromTop);
+      widget.cardsListViewModel.setScrollOffsetFromTop(scrollOffsetFromTop);
     });
     super.initState();
   }
@@ -219,8 +219,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
             return CardItem(
               logoUrl: merchant.logoUrl,
               onTap: () {
-                // widget.ioniaViewModel.selectMerchant(merchant);
-                Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage);
+                Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage, arguments: [merchant]);
               },
               title: merchant.legalName,
               subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
@@ -239,7 +238,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
                 width: 3,
                 backgroundColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.05),
                 thumbColor: Theme.of(context).textTheme.caption.decorationColor.withOpacity(0.5),
-                fromTop: widget.ioniaViewModel.scrollOffsetFromTop,
+                fromTop: widget.cardsListViewModel.scrollOffsetFromTop,
               )
             : Offstage()
       ]),

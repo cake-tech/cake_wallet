@@ -1,3 +1,4 @@
+import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -15,16 +16,17 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaBuyGiftCardPage extends BasePage {
   IoniaBuyGiftCardPage(
-    this.ioniaPurchaseViewModel,
+    this.ioniaPurchaseViewModel, this.merchant,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
-   
+    ioniaPurchaseViewModel.setSelectedMerchant(merchant);
     _amountController.addListener(() {
       ioniaPurchaseViewModel.onAmountChanged(_amountController.text);
     });
   }
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
+  final IoniaMerchant merchant;
 
 
   @override
@@ -107,7 +109,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                           left: _width / 4,
                         ),
                         child: Text(
-                          '${merchant.acceptedCurrency}: ',
+                          'USD: ',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -163,6 +165,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                       Routes.ioniaBuyGiftCardDetailPage,
                       arguments: [
                         ioniaPurchaseViewModel.amount,
+                        ioniaPurchaseViewModel.ioniaMerchant,
                       ],
                     ),
                     text: S.of(context).continue_text,
