@@ -1,6 +1,7 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
@@ -656,12 +657,18 @@ Future setup(
 
   getIt.registerFactory<IoniaService>(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
+
+  getIt.registerFactory<IoniaAnyPay>(
+      () => IoniaAnyPay(
+        getIt.get<IoniaService>(),
+        getIt.get<AnyPayApi>(),
+        getIt.get<AppStore>().wallet));
   
   getIt.registerFactory<IoniaFilterViewModel>(() => IoniaFilterViewModel());
 
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(() => IoniaMerchPurchaseViewModel());
+  getIt.registerFactory(() => IoniaMerchPurchaseViewModel(getIt.get<IoniaAnyPay>()));
 
   getIt.registerFactory(() => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));
 

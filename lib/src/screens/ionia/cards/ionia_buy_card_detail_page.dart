@@ -1,10 +1,13 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
+import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
+import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -16,6 +19,7 @@ import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dar
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
    IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel, this.merchant){
@@ -75,6 +79,48 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final merchant =  ioniaPurchaseViewModel.ioniaMerchant;
     final _backgroundColor = currentTheme.type == ThemeType.dark ? backgroundDarkColor : backgroundLightColor;
+
+    reaction((_) => ioniaPurchaseViewModel.invoiceCreationState, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+          });
+      }
+    });
+
+    reaction((_) => ioniaPurchaseViewModel.invoiceCommittingState, (ExecutionState state) {
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showPopUp<void>(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertWithOneAction(
+                  alertTitle: S.of(context).error,
+                  alertContent: state.error,
+                  buttonText: S.of(context).ok,
+                  buttonAction: () => Navigator.of(context).pop());
+            });
+          });
+      }
+
+       if (state is ExecutedSuccessfullyState) {
+        //WidgetsBinding.instance.addPostFrameCallback((_) {
+        //  showPopUp<void>(
+        //      context: context,
+        //      builder: (BuildContext context) {
+        //      });
+        //});
+      }
+    });
+
     ioniaPurchaseViewModel.onAmountChanged(amount);
     return Scaffold(
       backgroundColor: _backgroundColor,
@@ -158,18 +204,6 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    SizedBox(height: 16),
-                    Divider(),
-                    SizedBox(height: 16),
-                    Text(
-                      S.of(context).you_pay,
-                      style: textSmall(),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      '22.3435345000 XMR',
-                      style: textLargeSemiBold(),
-                    ),
                   ],
                 ),
               ),
@@ -218,12 +252,16 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.only(bottom: 12),
-              child: PrimaryButton(
-                onPressed: () => purchaseCard(context),
-                text: S.of(context).purchase_gift_card,
-                color: Theme.of(context).accentTextTheme.body2.color,
-                textColor: Colors.white,
-              ),
+              child: Observer(builder: (_) {
+                  return LoadingPrimaryButton(
+                      isLoading: ioniaPurchaseViewModel.invoiceCreationState is IsExecutingState
+                        || ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
+                      isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
+                      onPressed: () => purchaseCard(context),
+                      text: S.of(context).purchase_gift_card,
+                      color: Theme.of(context).accentTextTheme.body2.color,
+                      textColor: Colors.white,
+                    );}),
             ),
             SizedBox(height: 8),
             Text(S.of(context).settings_terms_and_conditions,
@@ -237,26 +275,12 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
     );
   }
 
-  void purchaseCard(BuildContext context) {
-    showPopUp<void>(
-      context: context,
-      builder: (_) {
-        return IoniaConfirmModal(
-            alertTitle: S.of(context).confirm_sending,
-            alertContent: SizedBox(
-              //Todo:: substitute this widget with modal content
-              height: 200,
-            ),
-            rightButtonText: S.of(context).ok,
-            leftButtonText: S.of(context).cancel,
-            leftActionColor: Color(0xffFF6600),
-            rightActionColor: Theme.of(context).accentTextTheme.body2.color,
-            actionRightButton: () async {
-              Navigator.of(context).pop();
-            },
-            actionLeftButton: () => Navigator.of(context).pop());
-      },
-    );
+  Future<void> purchaseCard(BuildContext context) async {
+    await ioniaPurchaseViewModel.createInvoice();
+
+    if (ioniaPurchaseViewModel.invoiceCreationState is ExecutedSuccessfullyState) {
+      await _presentSuccessfulInvoiceCreationPopup(context); 
+    }
   }
 
   void _showHowToUseCard(BuildContext context, IoniaMerchant merchant,) {
@@ -289,7 +313,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                         Align(
                           alignment: Alignment.bottomLeft,
                           child: Text(
-                            merchant.purchaseInstructions,
+                            merchant.usageInstructionsBak,
                             style: textMedium(
                               color: Theme.of(context).textTheme.display2.color,
                             ),
@@ -324,6 +348,88 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
             ),
           );
         });
+  }
+
+  Future<void> _presentSuccessfulInvoiceCreationPopup(BuildContext context) async {
+    final amount = ioniaPurchaseViewModel.invoice.totalAmount;
+    final addresses = ioniaPurchaseViewModel.invoice.outAddresses;
+
+    await showPopUp<void>(
+      context: context,
+      builder: (_) {
+        return IoniaConfirmModal(
+            alertTitle: S.of(context).confirm_sending,
+            alertContent: Container(
+              height: 200,
+              padding: EdgeInsets.all(15),
+              child: Column(
+                children: [
+                Row(
+                  children: [
+                  Text(S.of(context).payment_id,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: PaletteDark.pigeonBlue,
+                      decoration: TextDecoration.none)),
+                  Text(ioniaPurchaseViewModel.invoice.paymentId,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: PaletteDark.pigeonBlue,
+                        decoration: TextDecoration.none))],
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                  Text(S.of(context).amount,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: PaletteDark.pigeonBlue,
+                      decoration: TextDecoration.none)),
+                  Text('$amount ${ioniaPurchaseViewModel.invoice.chain}',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: PaletteDark.pigeonBlue,
+                        decoration: TextDecoration.none))],
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                SizedBox(height: 25),
+                Row(children: [
+                  Text(S.of(context).recipient_address,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: PaletteDark.pigeonBlue,
+                          decoration: TextDecoration.none))],
+                    mainAxisAlignment: MainAxisAlignment.center),
+                Expanded(child:
+                  ListView.builder(
+                    itemBuilder: (_, int index) {
+                      return Text(addresses[index],
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                              color: PaletteDark.pigeonBlue,
+                              decoration: TextDecoration.none));
+                      },
+                    itemCount: addresses.length,
+                    physics: NeverScrollableScrollPhysics()))
+                ])),
+            rightButtonText: S.of(context).ok,
+            leftButtonText: S.of(context).cancel,
+            leftActionColor: Color(0xffFF6600),
+            rightActionColor: Theme.of(context).accentTextTheme.body2.color,
+            actionRightButton: () async {
+              Navigator.of(context).pop();
+              await ioniaPurchaseViewModel.commitPaymentInvoice();
+            },
+            actionLeftButton: () => Navigator.of(context).pop());
+        },
+      );
   }
 }
 
