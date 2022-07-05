@@ -1,48 +1,38 @@
 import 'package:cake_wallet/ionia/ionia_category.dart';
-import 'package:flutter/foundation.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ionia_filter_view_model.g.dart';
 
-class IoniaFilterViewModel =  IoniaFilterViewModelBase with _$IoniaFilterViewModel;
+class IoniaFilterViewModel = IoniaFilterViewModelBase with _$IoniaFilterViewModel;
 
 abstract class IoniaFilterViewModelBase with Store {
-
-   IoniaFilterViewModelBase({@required this.ioniaCategorySource}){
-    selectedFilters = ioniaCategorySource.values.map((e) => e.title).toList();
+  IoniaFilterViewModelBase() {
+    selectedIndices = ObservableList<int>();
     ioniaCategories = IoniaCategory.allCategories;
-    ioniaCategorySource.watch().listen((event) {
-       selectedFilters = ioniaCategorySource.values.map((e) => e.title).toList(); 
-    });
   }
 
-  Box<IoniaCategory> ioniaCategorySource;
+  List<IoniaCategory> get selectedCategories => ioniaCategories.where(_isSelected).toList();
 
   @observable
-  List<String> selectedFilters; 
-
+  ObservableList<int> selectedIndices;
 
   @observable
   List<IoniaCategory> ioniaCategories;
 
-
   @action
-  void selectFilter(IoniaCategory ioniaCategory){
-    if(ioniaCategory == IoniaCategory.all && !ioniaCategorySource.containsKey(0)){
-      final keys = ioniaCategorySource.keys;
-      ioniaCategorySource.deleteAll(keys);
-      ioniaCategorySource.put(0, ioniaCategory);
+  void selectFilter(IoniaCategory ioniaCategory) {
+    if (ioniaCategory == IoniaCategory.all && !selectedIndices.contains(0)) {
+      selectedIndices.clear();
+      selectedIndices.add(0);
       return;
     }
-    if(selectedFilters.contains(ioniaCategory.title) && ioniaCategory.index != 0){
-     ioniaCategorySource.delete(ioniaCategory.index);
-     return;
+    if (selectedIndices.contains(ioniaCategory.index) && ioniaCategory.index != 0) {
+      selectedIndices.remove(ioniaCategory.index);
+      return;
     }
-    ioniaCategorySource.put(ioniaCategory.index, ioniaCategory);
-    ioniaCategorySource.delete(0);
+    selectedIndices.add(ioniaCategory.index);
+    selectedIndices.remove(0);
   }
-
 
   @action
   void onSearchFilter(String text) {
@@ -57,4 +47,12 @@ abstract class IoniaFilterViewModelBase with Store {
     }
   }
 
+  @action
+  void setSelectedCategories(List<IoniaCategory> selectedCategories) {
+    selectedIndices = ObservableList.of(selectedCategories.map((e) => e.index));
+  }
+
+  bool _isSelected(IoniaCategory ioniaCategory) {
+    return selectedIndices.contains(ioniaCategory.index);
+  }
 }

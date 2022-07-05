@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
@@ -107,7 +108,10 @@ class IoniaManageCardsPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final filterIcon = InkWell(
-        onTap: () => showCategoryFilter(context),
+        onTap: () async {
+          final selectedFilters = await showCategoryFilter(context, _ioniaViewModel);
+          _ioniaViewModel.setSelectedFilter(selectedFilters);
+        },
         child: Image.asset(
           'assets/images/filter.png',
           color: Theme.of(context).textTheme.caption.decorationColor,
@@ -153,11 +157,17 @@ class IoniaManageCardsPage extends BasePage {
     );
   }
 
-  void showCategoryFilter(BuildContext context) {
-    showPopUp<void>(
+  Future<List<IoniaCategory>> showCategoryFilter(
+    BuildContext context,
+    IoniaViewModel viewModel,
+  ) async {
+    return await showPopUp<List<IoniaCategory>>(
       context: context,
       builder: (BuildContext context) {
-        return IoniaFilterModal(getIt.get<IoniaFilterViewModel>());
+        return IoniaFilterModal(
+          filterViewModel: getIt.get<IoniaFilterViewModel>(),
+          selectedCategories: viewModel.selectedFilters,
+        );
       },
     );
   }
@@ -209,7 +219,7 @@ class _IoniaManageCardsPageBodyState extends State<IoniaManageCardsPageBody> {
             return CardItem(
               logoUrl: merchant.logoUrl,
               onTap: () {
-                widget.ioniaViewModel.selectMerchant(merchant);
+                // widget.ioniaViewModel.selectMerchant(merchant);
                 Navigator.of(context).pushNamed(Routes.ioniaBuyGiftCardPage);
               },
               title: merchant.legalName,

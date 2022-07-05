@@ -4,7 +4,6 @@ import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_view_model.g.dart';
 
@@ -12,36 +11,28 @@ class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
 
 abstract class IoniaViewModelBase with Store {
   IoniaViewModelBase({
-        @required this.ioniaService, 
-        @required this.ioniaMerchantSource, 
-        @required this.ioniaCategorySource,
-      })
-      : createUserState = IoniaCreateStateSuccess(),
+    @required this.ioniaService,
+  })  : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
         cardState = IoniaNoCardState(),
         ioniaMerchants = [],
         scrollOffsetFromTop = 0.0 {
-        selectedFilters = ioniaCategorySource.values.toList();
+    selectedFilters = [];
 
     _getAuthStatus().then((value) => isLoggedIn = value);
-    
-    ioniaCategorySource.watch().listen((event) {
-      selectedFilters = ioniaCategorySource.values.toList();
-    _getMerchants();
-    });
 
     _getMerchants();
   }
 
   final IoniaService ioniaService;
 
-  Box<IoniaMerchant> ioniaMerchantSource;
-  Box<IoniaCategory> ioniaCategorySource;
+  // Box<IoniaMerchant> ioniaMerchantSource;
+  // Box<IoniaCategory> ioniaCategorySource;
 
   List<IoniaMerchant> ioniaMerchantList;
 
   String searchString;
-  
+
   List<IoniaCategory> selectedFilters;
 
   @observable
@@ -135,18 +126,15 @@ abstract class IoniaViewModelBase with Store {
   }
 
   void _getMerchants() {
-     ioniaService.getMerchantsByFilter(categories: selectedFilters).then((value){
-        ioniaMerchants = ioniaMerchantList = value;
-     });
+    ioniaService.getMerchantsByFilter(categories: selectedFilters).then((value) {
+      ioniaMerchants = ioniaMerchantList = value;
+    });
   }
 
   @action
-  void selectMerchant(IoniaMerchant merchant) {
-    if (ioniaMerchantSource.isNotEmpty) {
-      ioniaMerchantSource.putAt(0, merchant);
-    } else {
-      ioniaMerchantSource.add(merchant);
-    }
+  void setSelectedFilter(List<IoniaCategory> filters) {
+    selectedFilters = filters;
+    _getMerchants();
   }
 
   void setScrollOffsetFromTop(double scrollOffset) {

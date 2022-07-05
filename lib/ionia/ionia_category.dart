@@ -1,9 +1,3 @@
-import 'package:hive/hive.dart';
-
-part 'ionia_category.g.dart';
-
-
-@HiveType(typeId: IoniaCategory.typeId)
 class IoniaCategory {
   const IoniaCategory({this.index, this.title, this.ids, this.iconPath});
 
@@ -16,18 +10,9 @@ class IoniaCategory {
   static const delivery = IoniaCategory(index: 5, title: 'Delivery', ids: [114, 109], iconPath: 'assets/images/delivery.png');
   static const travel = IoniaCategory(index: 6, title: 'Travel', ids: [12], iconPath: 'assets/images/airplane.png');
 
-  static const typeId = 11;
-  static const boxName = 'IoniaCategory';
 
-  @HiveField(0)
   final int index;
-
-  @HiveField(1)
   final String title;
-  
-  @HiveField(2)
   final List<int> ids;
-  
-  @HiveField(3)
   final String iconPath;
 }

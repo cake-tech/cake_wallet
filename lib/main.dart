@@ -88,14 +88,6 @@ Future<void> main() async {
     if (!isMoneroOnly && !Hive.isAdapterRegistered(UnspentCoinsInfo.typeId)) {
       Hive.registerAdapter(UnspentCoinsInfoAdapter());
     }
-    
-    if (!Hive.isAdapterRegistered(IoniaMerchant.typeId)) {
-      Hive.registerAdapter(IoniaMerchantAdapter());
-    }
-
-    if (!Hive.isAdapterRegistered(IoniaCategory.typeId)) {
-      Hive.registerAdapter(IoniaCategoryAdapter());
-    }
 
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
@@ -106,8 +98,6 @@ Future<void> main() async {
         secureStorage: secureStorage, forKey: Order.boxKey);
     final contacts = await Hive.openBox<Contact>(Contact.boxName);
     final nodes = await Hive.openBox<Node>(Node.boxName);
-    final ioniaMerchantSource = await Hive.openBox<IoniaMerchant>(IoniaMerchant.boxName);
-    final ioniaFilterBox = await Hive.openBox<IoniaCategory>(IoniaCategory.boxName);
     final transactionDescriptions = await Hive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
@@ -132,9 +122,7 @@ Future<void> main() async {
         contactSource: contacts,
         tradesSource: trades,
         ordersSource: orders,
-        ioniaFilterBox: ioniaFilterBox,
         unspentCoinsInfoSource: unspentCoinsInfoSource,
-        ioniaMerchantSource: ioniaMerchantSource,
         // fiatConvertationService: fiatConvertationService,
         templates: templates,
         exchangeTemplates: exchangeTemplates,

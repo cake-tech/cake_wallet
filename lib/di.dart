@@ -671,11 +671,10 @@ Future setup(
   getIt.registerFactory<IoniaService>(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
   
-  getIt.registerFactory<IoniaFilterViewModel>(() => IoniaFilterViewModel(ioniaCategorySource: _ioniaFilterSource));
+  getIt.registerFactory<IoniaFilterViewModel>(() => IoniaFilterViewModel());
   
   getIt.registerFactory(
-      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>(), ioniaMerchantSource: _ioniaMerchantSource, 
-      ioniaCategorySource: _ioniaFilterSource,));
+      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
 
   getIt.registerFactory(
       () => IoniaMerchPurchaseViewModel(ioniaMerchantSource: _ioniaMerchantSource));
