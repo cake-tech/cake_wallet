@@ -3,6 +3,7 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_api.dart';
@@ -668,19 +669,21 @@ Future setup(
 
   getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
+  getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
+
   getIt.registerFactory(() => IoniaMerchPurchaseViewModel(getIt.get<IoniaAnyPay>()));
 
   getIt.registerFactory(() => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaGiftCardsListViewModel>()));
+  getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaAuthViewModel>()));
 
-  getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaGiftCardsListViewModel>()));
+  getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaAuthViewModel>()));
 
   getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List, void>((List args, _) {
     final email = args.first as String;
-    final ioniaGiftCardsListViewModel = args[1] as IoniaGiftCardsListViewModel;
+    final ioniaAuthViewModel = args[1] as IoniaAuthViewModel;
 
-    return IoniaVerifyIoniaOtp(ioniaGiftCardsListViewModel, email);
+    return IoniaVerifyIoniaOtp(ioniaAuthViewModel, email);
   });
 
   getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaGiftCardsListViewModel>()));
