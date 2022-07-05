@@ -1,6 +1,8 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
@@ -112,6 +114,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -151,6 +154,7 @@ Box<IoniaMerchant> _ioniaMerchantSource;
 Box<TransactionDescription> _transactionDescriptionBox;
 Box<Order> _ordersSource;
 Box<UnspentCoinsInfo> _unspentCoinsInfoSource;
+Box<IoniaCategory> _ioniaFilterSource;
 
 Future setup(
     {Box<WalletInfo> walletInfoSource,
@@ -162,6 +166,7 @@ Future setup(
     Box<TransactionDescription> transactionDescriptionBox,
     Box<Order> ordersSource,
     Box<IoniaMerchant> ioniaMerchantSource,
+    Box<IoniaCategory> ioniaFilterSource,
     Box<UnspentCoinsInfo> unspentCoinsInfoSource}) async {
   _walletInfoSource = walletInfoSource;
   _nodeSource = nodeSource;
@@ -173,6 +178,7 @@ Future setup(
   _ordersSource = ordersSource;
   _unspentCoinsInfoSource = unspentCoinsInfoSource;
   _ioniaMerchantSource = ioniaMerchantSource;
+  _ioniaFilterSource = ioniaFilterSource;
 
   if (!_isSetupFinished) {
     getIt.registerSingletonAsync<SharedPreferences>(
@@ -665,11 +671,15 @@ Future setup(
   getIt.registerFactory<IoniaService>(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
   
+  getIt.registerFactory<IoniaFilterViewModel>(() => IoniaFilterViewModel(ioniaCategorySource: _ioniaFilterSource));
+  
   getIt.registerFactory(
-      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>(), ioniaMerchantSource: _ioniaMerchantSource));
+      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>(), ioniaMerchantSource: _ioniaMerchantSource, 
+      ioniaCategorySource: _ioniaFilterSource,));
 
   getIt.registerFactory(
       () => IoniaMerchPurchaseViewModel(ioniaMerchantSource: _ioniaMerchantSource));
+  
   
   getIt.registerFactory(
       () => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));

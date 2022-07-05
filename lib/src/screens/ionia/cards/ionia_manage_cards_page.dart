@@ -1,16 +1,17 @@
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_menu.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_filter_modal.dart';
-import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/cake_scrollbar.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/utils/debounce.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
@@ -156,7 +157,7 @@ class IoniaManageCardsPage extends BasePage {
     showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
-        return IoniaFilterModal(categories: _ioniaViewModel.ioniaCategories);
+        return IoniaFilterModal(getIt.get<IoniaFilterViewModel>());
       },
     );
   }

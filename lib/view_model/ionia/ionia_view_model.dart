@@ -3,6 +3,7 @@ import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
 part 'ionia_view_model.g.dart';
@@ -10,29 +11,38 @@ part 'ionia_view_model.g.dart';
 class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
 
 abstract class IoniaViewModelBase with Store {
-  IoniaViewModelBase({this.ioniaService, this.ioniaMerchantSource})
+  IoniaViewModelBase({
+        @required this.ioniaService, 
+        @required this.ioniaMerchantSource, 
+        @required this.ioniaCategorySource,
+      })
       : createUserState = IoniaCreateStateSuccess(),
         otpState = IoniaOtpSendDisabled(),
         cardState = IoniaNoCardState(),
         ioniaMerchants = [],
         scrollOffsetFromTop = 0.0 {
-   
-    _getAuthStatus().then((value) => isLoggedIn = value);
+        selectedFilters = ioniaCategorySource.values.toList();
 
-    _getMerchants().then((value) {
-      ioniaMerchants = ioniaMerchantList = value;
+    _getAuthStatus().then((value) => isLoggedIn = value);
+    
+    ioniaCategorySource.watch().listen((event) {
+      selectedFilters = ioniaCategorySource.values.toList();
+    _getMerchants();
     });
+
+    _getMerchants();
   }
 
   final IoniaService ioniaService;
 
   Box<IoniaMerchant> ioniaMerchantSource;
+  Box<IoniaCategory> ioniaCategorySource;
 
   List<IoniaMerchant> ioniaMerchantList;
 
   String searchString;
-
-  List<IoniaCategory> get ioniaCategories => IoniaCategory.allCategories;
+  
+  List<IoniaCategory> selectedFilters;
 
   @observable
   double scrollOffsetFromTop;
@@ -124,8 +134,10 @@ abstract class IoniaViewModelBase with Store {
     }
   }
 
-  Future<List<IoniaMerchant>> _getMerchants() async {
-    return await ioniaService.getMerchants();
+  void _getMerchants() {
+     ioniaService.getMerchantsByFilter(categories: selectedFilters).then((value){
+        ioniaMerchants = ioniaMerchantList = value;
+     });
   }
 
   @action

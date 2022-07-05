@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/entities/language_service.dart';
 import 'package:cake_wallet/buy/order.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/store/yat/yat_store.dart';
 import 'package:flutter/foundation.dart';
@@ -92,6 +93,10 @@ Future<void> main() async {
       Hive.registerAdapter(IoniaMerchantAdapter());
     }
 
+    if (!Hive.isAdapterRegistered(IoniaCategory.typeId)) {
+      Hive.registerAdapter(IoniaCategoryAdapter());
+    }
+
     final secureStorage = FlutterSecureStorage();
     final transactionDescriptionsBoxKey = await getEncryptionKey(
         secureStorage: secureStorage, forKey: TransactionDescription.boxKey);
@@ -102,6 +107,7 @@ Future<void> main() async {
     final contacts = await Hive.openBox<Contact>(Contact.boxName);
     final nodes = await Hive.openBox<Node>(Node.boxName);
     final ioniaMerchantSource = await Hive.openBox<IoniaMerchant>(IoniaMerchant.boxName);
+    final ioniaFilterBox = await Hive.openBox<IoniaCategory>(IoniaCategory.boxName);
     final transactionDescriptions = await Hive.openBox<TransactionDescription>(
         TransactionDescription.boxName,
         encryptionKey: transactionDescriptionsBoxKey);
@@ -126,6 +132,7 @@ Future<void> main() async {
         contactSource: contacts,
         tradesSource: trades,
         ordersSource: orders,
+        ioniaFilterBox: ioniaFilterBox,
         unspentCoinsInfoSource: unspentCoinsInfoSource,
         ioniaMerchantSource: ioniaMerchantSource,
         // fiatConvertationService: fiatConvertationService,
@@ -162,6 +169,7 @@ Future<void> initialSetup(
     @required Box<TransactionDescription> transactionDescriptions,
     @required Box<UnspentCoinsInfo> unspentCoinsInfoSource,
     @required Box<IoniaMerchant> ioniaMerchantSource,
+    @required Box<IoniaCategory> ioniaFilterBox,
     FlutterSecureStorage secureStorage,
     int initialMigrationVersion = 15}) async {
   LanguageService.loadLocaleList();
@@ -184,6 +192,7 @@ Future<void> initialSetup(
       ordersSource: ordersSource,
       unspentCoinsInfoSource: unspentCoinsInfoSource,
       ioniaMerchantSource: ioniaMerchantSource,
+      ioniaFilterSource: ioniaFilterBox,
       );
   await bootstrap(navigatorKey);
   monero?.onStartup();
