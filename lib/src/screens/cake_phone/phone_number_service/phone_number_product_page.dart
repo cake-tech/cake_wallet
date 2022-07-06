@@ -12,6 +12,7 @@ import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:country_pickers/country.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:country_pickers/country_pickers.dart';
@@ -322,6 +323,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
+                          rightActionButtonColor: Theme.of(context).accentTextTheme.body2.color,
+                          leftActionButtonColor: Theme.of(context).primaryTextTheme.body2.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
                             Navigator.pushNamedAndRemoveUntil(
@@ -344,7 +347,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     context: context,
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
-                          alertTitle: S.of(context).confirm_payment,
+                          alertTitle: S.of(context).confirm_sending,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -360,13 +363,35 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                         widget.phonePlanViewModel.totalPrice.floor(),
                                       )
                                       .toDouble())),
+                              const SizedBox(height: 45),
+                              Text(
+                                S.of(context).recipient_address,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text( //TODO: remove static address if it will be generated everytime
+                                "4B6c5ApfayzRN8jYxXyprv9me1vttSjF21WAz4HQ8JvS13RgRbgfQg7PPgvm2QMA8N1ed7izqPFsnCKGWWwFoGyjTFstzXm",
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ],
                           ),
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
+                          rightActionButtonColor: Theme.of(context).accentTextTheme.body2.color,
+                          leftActionButtonColor: Theme.of(context).primaryTextTheme.body2.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
+                            showPaymentConfirmationPopup();
                           },
                           actionLeftButton: () => Navigator.of(dialogContext).pop());
                     });
@@ -382,14 +407,33 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
   }
 
   Widget icon(IconData icon) {
+    if (widget.phoneNumberService == null) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Theme.of(context).accentTextTheme.body2.color,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: Colors.white, size: 15),
+      );
+    }
     return Container(
-      padding: const EdgeInsets.all(8),
       margin: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Theme.of(context).accentTextTheme.body2.color,
-        shape: BoxShape.circle,
+      child: DottedBorder(
+        borderType: BorderType.Circle,
+        dashPattern: [3, 3],
+        color: Theme.of(context).primaryTextTheme.display3.color,
+        strokeWidth: 3,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Icon(
+            icon,
+            color: Theme.of(context).primaryTextTheme.display3.color,
+            size: 15,
+          ),
+        ),
       ),
-      child: Icon(icon, color: Colors.white, size: 15),
     );
   }
 
@@ -463,5 +507,13 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         );
       },
     );
+  }
+
+  void showPaymentConfirmationPopup() {
+    // showPopUp<void>(
+    //     context: context,
+    //     builder: (dialogContext) {
+    //
+    //     });
   }
 }

@@ -13,6 +13,8 @@ class AlertWithTwoActions extends BaseAlertDialog {
     this.isDividerExists = false,
     this.alertContent,
     this.contentWidget,
+    this.leftActionButtonColor,
+    this.rightActionButtonColor,
   }) : assert(alertContent != null || contentWidget != null);
 
   final String alertTitle;
@@ -22,10 +24,6 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final VoidCallback actionLeftButton;
   final VoidCallback actionRightButton;
   final bool alertBarrierDismissible;
-  @override
-  final Widget contentWidget;
-  @override
-  final bool isDividerExists;
 
   @override
   String get titleText => alertTitle;
@@ -41,4 +39,12 @@ class AlertWithTwoActions extends BaseAlertDialog {
   VoidCallback get actionRight => actionRightButton;
   @override
   bool get barrierDismissible => alertBarrierDismissible;
+  @override
+  final Widget contentWidget;
+  @override
+  final bool isDividerExists;
+  @override
+  final Color leftActionButtonColor;
+  @override
+  final Color rightActionButtonColor;
 }

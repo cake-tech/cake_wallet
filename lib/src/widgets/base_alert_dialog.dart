@@ -12,6 +12,8 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
   Widget get contentWidget => null;
+  Color get leftActionButtonColor => null;
+  Color get rightActionButtonColor => null;
 
   Widget title(BuildContext context) {
     return Text(
@@ -49,7 +51,7 @@ class BaseAlertDialog extends StatelessWidget {
             child: Container(
               height: 52,
               padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body2.decorationColor,
+              color: leftActionButtonColor ?? Theme.of(context).accentTextTheme.body2.decorationColor,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -63,24 +65,26 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryTextTheme.body2
-                            .backgroundColor,
+                        color: leftActionButtonColor != null
+                            ? Colors.white
+                            : Theme.of(context).primaryTextTheme.body2.backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
               ),
             )
         ),
-        Container(
-          width: 1,
-          height: 52,
-          color: Theme.of(context).dividerColor,
-        ),
+        if (leftActionButtonColor == null && rightActionButtonColor == null)
+          Container(
+            width: 1,
+            height: 52,
+            color: Theme.of(context).dividerColor,
+          ),
         Flexible(
             child: Container(
               height: 52,
               padding: EdgeInsets.only(left: 6, right: 6),
-              color: Theme.of(context).accentTextTheme.body1.backgroundColor,
+              color: rightActionButtonColor ?? Theme.of(context).accentTextTheme.body1.backgroundColor,
               child: ButtonTheme(
                 minWidth: double.infinity,
                 child: FlatButton(
@@ -94,8 +98,9 @@ class BaseAlertDialog extends StatelessWidget {
                         fontSize: 15,
                         fontFamily: 'Lato',
                         fontWeight: FontWeight.w600,
-                        color: Theme.of(context).primaryTextTheme.body1
-                            .backgroundColor,
+                        color: rightActionButtonColor != null
+                            ? Colors.white
+                            : Theme.of(context).primaryTextTheme.body1.backgroundColor,
                         decoration: TextDecoration.none,
                       ),
                     )),
