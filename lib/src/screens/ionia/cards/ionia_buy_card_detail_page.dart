@@ -123,74 +123,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
             barrierColor: PaletteDark.darkNightBlue.withOpacity(0.75),
             builder: (BuildContext context) {
               return Center(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(30)),
-                  child: Container(
-                    width: 327,
-                    height: 340,
-                    color: Theme.of(context).accentTextTheme.title.decorationColor,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(40, 20, 40, 0),
-                            child: Text(
-                              S.of(context).awaiting_payment_confirmation,
-                              textAlign: TextAlign.center,
-                              style: textMediumSemiBold(
-                                color: Theme.of(context).accentTextTheme.display4.backgroundColor,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 16, bottom: 8),
-                            child: Container(
-                              height: 1,
-                              color: Theme.of(context).dividerColor,
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  S.of(context).transaction_sent,
-                                  style: textMedium(
-                                    color: Theme.of(context).primaryTextTheme.title.color,
-                                  ).copyWith(fontWeight: FontWeight.w500),
-                                ),
-                                SizedBox(height: 20),
-                                Text(
-                                  S.of(context).transaction_sent_notice,
-                                  style: textMedium(
-                                    color: Theme.of(context).primaryTextTheme.title.color,
-                                  ).copyWith(fontWeight: FontWeight.w500),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 16, bottom: 8),
-                            child: Container(
-                              height: 1,
-                              color: Theme.of(context).dividerColor,
-                            ),
-                          ),
-                          StandartListRow(
-                            title: '${S.current.transaction_details_transaction_id}:',
-                            value: transactionInfo.chain,
-                          ),
-                          StandartListRow(
-                              title: '${S.current.view_in_block_explorer}:',
-                              value: '${S.current.view_transaction_on} XMRChain.net'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+                child: _IoniaTransactionCommitedAlert(transactionInfo: transactionInfo),
               );
             },
           );
@@ -520,6 +453,87 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
             },
             actionLeftButton: () => Navigator.of(context).pop());
       },
+    );
+  }
+}
+
+class _IoniaTransactionCommitedAlert extends StatelessWidget {
+  const _IoniaTransactionCommitedAlert({
+    Key key,
+    @required this.transactionInfo,
+  }) : super(key: key);
+
+  final AnyPayPaymentCommittedInfo transactionInfo;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.all(Radius.circular(30)),
+      child: Container(
+        width: 327,
+        height: 340,
+        color: Theme.of(context).accentTextTheme.title.decorationColor,
+        child: Material(
+          color: Colors.transparent,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(40, 20, 40, 0),
+                child: Text(
+                  S.of(context).awaiting_payment_confirmation,
+                  textAlign: TextAlign.center,
+                  style: textMediumSemiBold(
+                    color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 16, bottom: 8),
+                child: Container(
+                  height: 1,
+                  color: Theme.of(context).dividerColor,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.of(context).transaction_sent,
+                      style: textMedium(
+                        color: Theme.of(context).primaryTextTheme.title.color,
+                      ).copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    SizedBox(height: 20),
+                    Text(
+                      S.of(context).transaction_sent_notice,
+                      style: textMedium(
+                        color: Theme.of(context).primaryTextTheme.title.color,
+                      ).copyWith(fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 16, bottom: 8),
+                child: Container(
+                  height: 1,
+                  color: Theme.of(context).dividerColor,
+                ),
+              ),
+              StandartListRow(
+                title: '${S.current.transaction_details_transaction_id}:',
+                value: transactionInfo.chain,
+              ),
+              StandartListRow(
+                  title: '${S.current.view_in_block_explorer}:',
+                  value: '${S.current.view_transaction_on} XMRChain.net'),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

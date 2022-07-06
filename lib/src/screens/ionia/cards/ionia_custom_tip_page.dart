@@ -23,7 +23,7 @@ class IoniaCustomTipPage extends BasePage {
     ioniaPurchaseViewModel.setSelectedMerchant(merchant);
     ioniaPurchaseViewModel.onAmountChanged(billAmount);
     _amountController.addListener(() {
-      ioniaPurchaseViewModel.onTipChanged(_amountController.text);
+      // ioniaPurchaseViewModel.onTipChanged(_amountController.text);
     });
   }
 

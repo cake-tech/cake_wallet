@@ -58,16 +58,6 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
     enableCardPurchase = inputAmount >= min && inputAmount <= max;
   }
 
-  void onTipChanged(String input) {
-    if (input.isEmpty) {
-      percentage = 0.00;
-      return;
-    }
-    final tip = double.parse(input);
-    final billAmount = double.parse(amount);
-    percentage = (tip / billAmount) * 100;
-  }
-
   void setSelectedMerchant(IoniaMerchant merchant) {
     ioniaMerchant = merchant;
   }
