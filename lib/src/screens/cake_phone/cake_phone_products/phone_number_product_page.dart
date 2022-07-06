@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/cake_phone/widgets/plan_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
@@ -14,7 +15,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:country_pickers/country_pickers.dart';
 import 'package:country_pickers/countries.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/entities/cake_phone_entities/service_plan.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
@@ -89,7 +89,17 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Row(
-                    children: widget.phonePlanViewModel.servicePlans.map((e) => planCard(e)).toList(),
+                    children: widget.phonePlanViewModel.servicePlans
+                        .map((e) => PlanCard(
+                              plan: e,
+                              onTap: () {
+                                if (widget.phonePlanViewModel.selectedPlan != e) {
+                                  widget.phonePlanViewModel.selectedPlan = e;
+                                }
+                              },
+                              isSelected: widget.phonePlanViewModel.selectedPlan == e,
+                            ))
+                        .toList(),
                   ),
                 ),
               );
@@ -188,7 +198,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         return Row(
                           children: [
                             Image.asset(
-                              CountryPickerUtils.getFlagImageAssetPath(widget.phonePlanViewModel.selectedCountry.isoCode),
+                              CountryPickerUtils.getFlagImageAssetPath(
+                                  widget.phonePlanViewModel.selectedCountry.isoCode),
                               height: 20.0,
                               width: 36.0,
                               fit: BoxFit.fill,
@@ -390,55 +401,6 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet.currency.toString()}",
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget planCard(ServicePlan e) {
-    final isSelected = widget.phonePlanViewModel.selectedPlan == e;
-    return GestureDetector(
-      onTap: () {
-        if (!isSelected) {
-          widget.phonePlanViewModel.selectedPlan = e;
-        }
-      },
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 2),
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [
-                    Theme.of(context).primaryTextTheme.subhead.color,
-                    Theme.of(context).primaryTextTheme.subhead.decorationColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isSelected ? null : Theme.of(context).primaryTextTheme.display3.decorationColor,
-        ),
-        child: Column(
-          children: [
-            Text(
-              "\$${e.price}/${S.of(context).month}",
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : Theme.of(context).primaryTextTheme.title.color,
-              ),
-            ),
-            Text(
-              "${e.duration} ${S.of(context).month}",
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                color: isSelected ? Colors.white : Theme.of(context).accentTextTheme.subhead.color,
-                fontFamily: 'Lato',
-              ),
             ),
           ],
         ),
