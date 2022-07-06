@@ -43,12 +43,12 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const eth = CryptoCurrency(title: 'ETH', iconPath: 'assets/images/eth_icon.png', name: 'Ethereum', raw: 8);
   static const ltc = CryptoCurrency(title: 'LTC', iconPath: 'assets/images/litecoin-ltc_icon.png', name: 'Litecoin',raw: 9);
   static const nano = CryptoCurrency(title: 'NANO', raw: 10);
-  static const trx = CryptoCurrency(title: 'TRX', iconPath: 'assets/images/trx_icon.png', name: 'Tron', raw: 11);
+  static const trx = CryptoCurrency(title: 'TRX', iconPath: 'assets/images/trx_icon.png', name: 'TRON', raw: 11);
   static const usdt = CryptoCurrency(title: 'USDT', iconPath: 'assets/images/usdt_icon.png', tag: 'OMNI', name: 'USDT', raw: 12);
   static const usdterc20 = CryptoCurrency(title: 'USDT', iconPath: 'assets/images/usdterc20_icon.png', tag: 'ETH', name: 'USDT', raw: 13);
-  static const xlm = CryptoCurrency(title: 'XLM', iconPath: 'assets/images/xlm_icon.png', raw: 14);
-  static const xrp = CryptoCurrency(title: 'XRP', iconPath: 'assets/images/xrp_icon.png', raw: 15);
-  static const xhv = CryptoCurrency(title: 'XHV', iconPath: 'assets/images/xhv_logo.png', raw: 16);
+  static const xlm = CryptoCurrency(title: 'XLM', iconPath: 'assets/images/xlm_icon.png', name: 'Stellar', raw: 14);
+  static const xrp = CryptoCurrency(title: 'XRP', iconPath: 'assets/images/xrp_icon.png', name: 'Ripple', raw: 15);
+  static const xhv = CryptoCurrency(title: 'XHV', iconPath: 'assets/images/xhv_logo.png', name: 'Haven Protocol', raw: 16);
 
   static const xag = CryptoCurrency(title: 'XAG', tag: 'XHV',  raw: 17);
   static const xau = CryptoCurrency(title: 'XAU', tag: 'XHV', raw: 18);

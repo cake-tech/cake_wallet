@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/src/screens/exchange/widgets/currency_picker_item_widget.dart';
+import 'package:cake_wallet/src/screens/exchange/widgets/picker_item.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,12 +11,12 @@ import 'currency_picker_widget.dart';
 class CurrencyPicker extends StatefulWidget {
   CurrencyPicker(
       {@required this.selectedAtIndex,
-      @required this.items,
-      @required this.onItemSelected,
-      this.title,
-      this.hintText,
-      this.isMoneroWallet = false,
-      this.isConvertFrom = false});
+        @required this.items,
+        @required this.onItemSelected,
+        this.title,
+        this.hintText,
+        this.isMoneroWallet = false,
+        this.isConvertFrom = false});
 
   int selectedAtIndex;
   final List<CryptoCurrency> items;
@@ -35,8 +36,11 @@ class CurrencyPickerState extends State<CurrencyPicker> {
         textFieldValue = '',
         subPickerItemsList = items,
         appBarTextStyle =
-            TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white);
+        TextStyle(fontSize: 20, fontFamily: 'Lato', backgroundColor: Colors.transparent, color: Colors.white);
 
+
+
+  List<PickerItem<CryptoCurrency>> pickerItemsList;
   List<CryptoCurrency> items;
   bool isSearchBarActive;
   String textFieldValue;
@@ -45,17 +49,18 @@ class CurrencyPickerState extends State<CurrencyPicker> {
 
   void cleanSubPickerItemsList() => subPickerItemsList = items;
 
-  void currencySearchBySubstring(String subString, List<CryptoCurrency> list) {
+  void currencySearchBySubstring(String subString) {
     setState(() {
       if (subString.isNotEmpty) {
-        subPickerItemsList = items.where((element) =>
-            (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
-                (element.tag != null ? element.tag.toLowerCase().contains(subString.toLowerCase()) : false) ||
-                (element.name != null ? element.name.toLowerCase().contains(subString.toLowerCase()) : false))
+        subPickerItemsList = items
+            .where((element) =>
+        (element.title != null ? element.title.toLowerCase().contains(subString.toLowerCase()) : false) ||
+            (element.tag != null ? element.tag.toLowerCase().contains(subString.toLowerCase()) : false) ||
+            (element.name != null ? element.name.toLowerCase().contains(subString.toLowerCase()) : false))
             .toList();
         return;
       }
-        cleanSubPickerItemsList();
+      cleanSubPickerItemsList();
     });
   }
 
@@ -122,7 +127,7 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                                 onChanged: (value) {
                                   this.textFieldValue = value;
                                   cleanSubPickerItemsList();
-                                  currencySearchBySubstring(textFieldValue, subPickerItemsList);
+                                  currencySearchBySubstring(textFieldValue);
                                 },
                               ),
                             ),
@@ -134,10 +139,10 @@ class CurrencyPickerState extends State<CurrencyPicker> {
                             AspectRatio(
                               aspectRatio: 6,
                               child: PickerItemWidget(
-                                title: subPickerItemsList[widget.selectedAtIndex].title,
-                                iconPath: subPickerItemsList[widget.selectedAtIndex].iconPath,
+                                title: items[widget.selectedAtIndex].title,
+                                iconPath: items[widget.selectedAtIndex].iconPath,
                                 isSelected: true,
-                                tag: subPickerItemsList[widget.selectedAtIndex].tag,
+                                tag: items[widget.selectedAtIndex].tag,
                               ),
                             ),
                           Flexible(
