@@ -1,5 +1,4 @@
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
@@ -14,20 +13,23 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 
-class IoniaBuyGiftCardPage extends BasePage {
-  IoniaBuyGiftCardPage(
-    this.ioniaPurchaseViewModel, this.merchant,
+class IoniaCustomTipPage extends BasePage {
+  IoniaCustomTipPage(
+    this.ioniaPurchaseViewModel,
+    this.billAmount,
+    this.merchant,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
     ioniaPurchaseViewModel.setSelectedMerchant(merchant);
+    ioniaPurchaseViewModel.onAmountChanged(billAmount);
     _amountController.addListener(() {
-      ioniaPurchaseViewModel.onAmountChanged(_amountController.text);
+      // ioniaPurchaseViewModel.onTipChanged(_amountController.text);
     });
   }
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
+  final String billAmount;
   final IoniaMerchant merchant;
-
 
   @override
   String get title => S.current.enter_amount;
@@ -80,7 +82,6 @@ class IoniaBuyGiftCardPage extends BasePage {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(height: 150),
                     BaseTextFormField(
@@ -91,7 +92,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
                         color: Theme.of(context).primaryTextTheme.headline.color,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w500,
                         fontSize: 36,
                       ),
                       borderColor: Theme.of(context).primaryTextTheme.headline.color,
@@ -112,31 +113,33 @@ class IoniaBuyGiftCardPage extends BasePage {
                           'USD: ',
                           style: TextStyle(
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w900,
                             fontSize: 36,
                           ),
                         ),
                       ),
                     ),
                     SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          S.of(context).min_amount(merchant.minimumCardPurchase.toString()),
+                    Observer(builder: (_) {
+                      if (ioniaPurchaseViewModel.percentage == 0.0) {
+                        return SizedBox.shrink();
+                      }
+
+                      return RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          text: '\$${_amountController.text}',
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
+                          children: [
+                            TextSpan(text: ' ${S.of(context).is_percentage} '),
+                            TextSpan(text: '${ioniaPurchaseViewModel.percentage}%'),
+                            TextSpan(text: ' ${S.of(context).percentageOf(billAmount)} '),
+                          ],
                         ),
-                        Text(
-                          S.of(context).max_amount(merchant.maximumCardPurchase.toString()),
-                          style: TextStyle(
-                            color: Theme.of(context).primaryTextTheme.headline.color,
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    }),
                     SizedBox(height: 24),
                   ],
                 ),
@@ -146,7 +149,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                 child: CardItem(
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
-                  discount: merchant.minimumDiscount,
+                  discount: 0.0,
                   titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: merchant.isOnline ? S.of(context).online : S.of(context).offline,
@@ -157,27 +160,17 @@ class IoniaBuyGiftCardPage extends BasePage {
           ),
           bottomSection: Column(
             children: [
-              Observer(builder: (_) {
-                return Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: PrimaryButton(
-                    onPressed: () => Navigator.of(context).pushNamed(
-                      Routes.ioniaBuyGiftCardDetailPage,
-                      arguments: [
-                        ioniaPurchaseViewModel.amount,
-                        ioniaPurchaseViewModel.ioniaMerchant,
-                      ],
-                    ),
-                    text: S.of(context).continue_text,
-                    isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
-                    color: Theme.of(context).accentTextTheme.body2.color,
-                      textColor:  Theme.of(context)
-                          .accentTextTheme
-                          .headline
-                          .decorationColor,
-                  ),
-                );
-              }),
+              Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: PrimaryButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(_amountController.text);
+                  },
+                  text: S.of(context).add_tip,
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white,
+                ),
+              ),
               SizedBox(height: 30),
             ],
           ),

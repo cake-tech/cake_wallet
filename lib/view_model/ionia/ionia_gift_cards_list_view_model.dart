@@ -1,35 +1,37 @@
+import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_create_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
+import 'package:flutter/material.dart';
 import 'package:mobx/mobx.dart';
-part 'ionia_view_model.g.dart';
+part 'ionia_gift_cards_list_view_model.g.dart';
 
-class IoniaViewModel = IoniaViewModelBase with _$IoniaViewModel;
+class IoniaGiftCardsListViewModel = IoniaGiftCardsListViewModelBase with _$IoniaGiftCardsListViewModel;
 
-abstract class IoniaViewModelBase with Store {
-  IoniaViewModelBase({this.ioniaService})
-      : createUserState = IoniaCreateStateSuccess(),
-        otpState = IoniaOtpSendDisabled(),
+abstract class IoniaGiftCardsListViewModelBase with Store {
+  IoniaGiftCardsListViewModelBase({
+    @required this.ioniaService,
+  })  : 
         cardState = IoniaNoCardState(),
         ioniaMerchants = [],
         scrollOffsetFromTop = 0.0 {
-    _getMerchants().then((value) {
-      ioniaMerchants = value;
-    });
-    _getAuthStatus().then((value) => isLoggedIn = value);
+    selectedFilters = [];
+        _getAuthStatus().then((value) => isLoggedIn = value);
+
+    _getMerchants();
   }
 
   final IoniaService ioniaService;
 
+  List<IoniaMerchant> ioniaMerchantList;
+
+  String searchString;
+
+  List<IoniaCategory> selectedFilters;
+
   @observable
   double scrollOffsetFromTop;
-
-  @observable
-  IoniaCreateAccountState createUserState;
-
-  @observable
-  IoniaOtpState otpState;
 
   @observable
   IoniaCreateCardState createCardState;
@@ -41,36 +43,7 @@ abstract class IoniaViewModelBase with Store {
   List<IoniaMerchant> ioniaMerchants;
 
   @observable
-  String email;
-
-  @observable
-  String otp;
-
-  @observable
   bool isLoggedIn;
-
-  @action
-  Future<void> createUser(String email) async {
-    createUserState = IoniaCreateStateLoading();
-    try {
-      await ioniaService.createUser(email);
-
-      createUserState = IoniaCreateStateSuccess();
-    } on Exception catch (e) {
-      createUserState = IoniaCreateStateFailure(error: e.toString());
-    }
-  }
-
-  @action
-  Future<void> verifyEmail(String code) async {
-    try {
-      otpState = IoniaOtpValidating();
-      await ioniaService.verifyEmail(code);
-      otpState = IoniaOtpSuccess();
-    } catch (_) {
-      otpState = IoniaOtpFailure(error: 'Invalid OTP. Try again');
-    }
-  }
 
   Future<bool> _getAuthStatus() async {
     return await ioniaService.isLogined();
@@ -89,6 +62,18 @@ abstract class IoniaViewModelBase with Store {
     return null;
   }
 
+  @action
+  void searchMerchant(String text) {
+    if (text.isEmpty) {
+      ioniaMerchants = ioniaMerchantList;
+      return;
+    }
+    searchString = text;
+    ioniaService.getMerchantsByFilter(search: searchString).then((value) {
+      ioniaMerchants = value;
+    });
+  }
+
   Future<void> _getCard() async {
     cardState = IoniaFetchingCard();
     try {
@@ -100,8 +85,16 @@ abstract class IoniaViewModelBase with Store {
     }
   }
 
-  Future<List<IoniaMerchant>> _getMerchants() async {
-    return await ioniaService.getMerchants();
+  void _getMerchants() {
+    ioniaService.getMerchantsByFilter(categories: selectedFilters).then((value) {
+      ioniaMerchants = ioniaMerchantList = value;
+    });
+  }
+
+  @action
+  void setSelectedFilter(List<IoniaCategory> filters) {
+    selectedFilters = filters;
+    _getMerchants();
   }
 
   void setScrollOffsetFromTop(double scrollOffset) {

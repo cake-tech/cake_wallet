@@ -10,6 +10,7 @@ import 'package:cake_wallet/ionia/ionia_category.dart';
 class IoniaService {
 	IoniaService(this.secureStorage, this.ioniaApi);
 
+	static const ioniaEmailStorageKey = 'ionia_email';
 	static const ioniaUsernameStorageKey = 'ionia_username';
 	static const ioniaPasswordStorageKey = 'ionia_password';
 
@@ -22,6 +23,7 @@ class IoniaService {
 
 	Future<void> createUser(String email) async {
 		final username = await ioniaApi.createUser(email, clientId: clientId);
+		await secureStorage.write(key: ioniaEmailStorageKey, value: email);
 		await secureStorage.write(key: ioniaUsernameStorageKey, value: username);
 	}
 
@@ -31,6 +33,10 @@ class IoniaService {
 		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
 		final credentials = await ioniaApi.verifyEmail(username: username, code: code, clientId: clientId);
 		await secureStorage.write(key: ioniaPasswordStorageKey, value: credentials.password);
+	}
+
+	Future<String> getUserEmail() async {
+		return secureStorage.read(key: ioniaEmailStorageKey);
 	}
 
 	// Check is user logined

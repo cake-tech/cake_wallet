@@ -1,3 +1,6 @@
+import 'package:cake_wallet/anypay/any_pay_chain.dart';
+import 'package:cw_bitcoin/bitcoin_amount_format.dart';
+import 'package:cw_core/monero_amount_format.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_instruction.dart';
 
@@ -35,4 +38,27 @@ class AnyPayPayment {
 	final String chain;
 	final String network;
 	final List<AnyPayPaymentInstruction> instructions;
+
+	String get totalAmount {
+		final total = instructions
+			.fold<int>(0, (int acc, instruction) => acc + instruction.outputs
+				.fold<int>(0, (int outAcc, out) => outAcc + out.amount));
+		switch (chain) {
+			case AnyPayChain.xmr:
+				return moneroAmountToString(amount: total);
+			case AnyPayChain.btc:
+				return bitcoinAmountToString(amount: total);
+			case AnyPayChain.ltc:
+				return bitcoinAmountToString(amount: total);
+			default:
+				return null;
+		}
+	}
+
+	List<String> get outAddresses {
+		return instructions
+			.map((instuction) => instuction.outputs.map((out) => out.address))
+			.expand((e) => e)
+			.toList();
+	}
 }

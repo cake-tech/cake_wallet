@@ -1,6 +1,10 @@
 import 'package:cake_wallet/core/yat_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
+import 'package:cake_wallet/ionia/ionia_anypay.dart';
+import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
@@ -8,9 +12,14 @@ import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/ionia.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -107,6 +116,7 @@ import 'package:cake_wallet/view_model/wallet_list/wallet_list_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_restore_view_model.dart';
 import 'package:cake_wallet/view_model/wallet_seed_view_model.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive/hive.dart';
@@ -263,7 +273,6 @@ Future setup(
       fiatConvertationStore: getIt.get<FiatConversionStore>()));
 
   getIt.registerFactory(() => DashboardViewModel(
-    
       balanceViewModel: getIt.get<BalanceViewModel>(),
       appStore: getIt.get<AppStore>(),
       tradesStore: getIt.get<TradesStore>(),
@@ -564,10 +573,6 @@ Future setup(
 
   getIt.registerFactory(() => BackupPage(getIt.get<BackupViewModel>()));
 
-  getIt.registerFactory(() => EditBackupPasswordViewModel(
-      getIt.get<FlutterSecureStorage>(), getIt.get<SecretStore>())
-    ..init());
-
   getIt.registerFactory(
       () => EditBackupPasswordPage(getIt.get<EditBackupPasswordViewModel>()));
 
@@ -600,10 +605,7 @@ Future setup(
     final url = args.first as String;
     final buyViewModel = args[1] as BuyViewModel;
 
-    return BuyWebViewPage(
-        buyViewModel: buyViewModel,
-        ordersStore: getIt.get<OrdersStore>(),
-        url: url);
+    return BuyWebViewPage(buyViewModel: buyViewModel, ordersStore: getIt.get<OrdersStore>(), url: url);
   });
 
   getIt.registerFactoryParam<OrderDetailsViewModel, Order, void>((order, _) {
@@ -656,41 +658,65 @@ Future setup(
 
   getIt.registerFactory<IoniaService>(
       () => IoniaService(getIt.get<FlutterSecureStorage>(), getIt.get<IoniaApi>()));
+
+  getIt.registerFactory<IoniaAnyPay>(
+      () => IoniaAnyPay(
+        getIt.get<IoniaService>(),
+        getIt.get<AnyPayApi>(),
+        getIt.get<AppStore>().wallet));
   
-  getIt.registerFactory(
-      () => IoniaViewModel(ioniaService: getIt.get<IoniaService>()));
+  getIt.registerFactory<IoniaFilterViewModel>(() => IoniaFilterViewModel());
 
-  getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaViewModel>()));
+  getIt.registerFactory(() => IoniaGiftCardsListViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaViewModel>()));
+  getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
+
+  getIt.registerFactory(() => IoniaMerchPurchaseViewModel(getIt.get<IoniaAnyPay>()));
+
+  getIt.registerFactory(() => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));
+
+  getIt.registerFactory(() => IoniaCreateAccountPage(getIt.get<IoniaAuthViewModel>()));
+
+  getIt.registerFactory(() => IoniaLoginPage(getIt.get<IoniaAuthViewModel>()));
 
   getIt.registerFactoryParam<IoniaVerifyIoniaOtp, List, void>((List args, _) {
     final email = args.first as String;
-    final ioniaViewModel = args[1] as IoniaViewModel;
+    final ioniaAuthViewModel = args[1] as IoniaAuthViewModel;
 
-    return IoniaVerifyIoniaOtp(ioniaViewModel, email);
+    return IoniaVerifyIoniaOtp(ioniaAuthViewModel, email);
   });
 
-  getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaViewModel>()));
+  getIt.registerFactory(() => IoniaWelcomePage(getIt.get<IoniaGiftCardsListViewModel>()));
 
   getIt.registerFactoryParam<IoniaBuyGiftCardPage, List, void>((List args, _) {
     final merchant = args.first as IoniaMerchant;
 
-    return IoniaBuyGiftCardPage(merchant);
-  }); 
-
-  getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List, void>((List args, _) {
-    final merchant = args.first as IoniaMerchant;
-
-    return IoniaBuyGiftCardDetailPage(merchant);
+    return IoniaBuyGiftCardPage(getIt.get<IoniaMerchPurchaseViewModel>(), merchant);
   });
 
-  getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaViewModel>()));
+  getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List, void>((List args, _) {
+    final amount = args.first as String; 
+    final merchant = args.last as IoniaMerchant;
 
-  getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<IoniaViewModel>()));
+    return IoniaBuyGiftCardDetailPage(amount, getIt.get<IoniaMerchPurchaseViewModel>(), merchant);
+  });
 
-  getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<IoniaViewModel>()));
+  getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {
+    final amount = args.first as String;
+    final merchant = args.last as IoniaMerchant;
 
+    return IoniaCustomTipPage(getIt.get<IoniaMerchPurchaseViewModel>(), amount, merchant);
+  });
+
+  getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaGiftCardsListViewModel>()));
+
+  getIt.registerFactory(() => IoniaDebitCardPage(getIt.get<IoniaGiftCardsListViewModel>()));
+
+  getIt.registerFactory(() => IoniaActivateDebitCardPage(getIt.get<IoniaGiftCardsListViewModel>()));
+
+  getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
+
+  getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
 
   _isSetupFinished = true;
 }

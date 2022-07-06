@@ -69,5 +69,8 @@ class Routes {
   static const ioniaVerifyIoniaOtpPage = '/cake_pay_verify_otp_page';
   static const ioniaDebitCardPage = '/debit_card_page';
   static const ioniaActivateDebitCardPage = '/activate_debit_card_page';
+  static const ioniaAccountPage = 'ionia_account_page';
+  static const ioniaAccountCardsPage = 'ionia_account_cards_page';
+  static const ioniaCustomTipPage = 'ionia_custom_tip_page';
 
 }

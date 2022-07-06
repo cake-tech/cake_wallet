@@ -7,16 +7,16 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/ionia/ionia_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaActivateDebitCardPage extends BasePage {
 
-  IoniaActivateDebitCardPage(this._ioniaViewModel);
+  IoniaActivateDebitCardPage(this._cardsListViewModel);
 
-  final IoniaViewModel _ioniaViewModel;
+  final IoniaGiftCardsListViewModel _cardsListViewModel;
 
   @override
   Widget middle(BuildContext context) {
@@ -30,7 +30,7 @@ class IoniaActivateDebitCardPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    reaction((_) => _ioniaViewModel.createCardState, (IoniaCreateCardState state) {
+    reaction((_) => _cardsListViewModel.createCardState, (IoniaCreateCardState state) {
       if (state is IoniaCreateCardFailure) {
         _onCreateCardFailure(context, state.error);
       }
@@ -72,9 +72,9 @@ class IoniaActivateDebitCardPage extends BasePage {
       ),
       bottomSection: LoadingPrimaryButton(
         onPressed: () {
-          _ioniaViewModel.createCard();
+          _cardsListViewModel.createCard();
         },
-        isLoading: _ioniaViewModel.createCardState is IoniaCreateCardLoading,
+        isLoading: _cardsListViewModel.createCardState is IoniaCreateCardLoading,
         text: S.of(context).agree_and_continue,
         color: Theme.of(context).accentTextTheme.body2.color,
         textColor: Colors.white,

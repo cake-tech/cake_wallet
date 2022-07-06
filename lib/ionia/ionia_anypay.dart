@@ -23,12 +23,11 @@ class IoniaAnyPay {
 
 	Future<AnyPayPayment> purchase({
 		@required String merchId,
-		@required double amount,
-		@required String currency}) async {
+		@required double amount}) async {
 		final invoice = await ioniaService.purchaseGiftCard(
 			merchId: merchId,
 			amount: amount,
-			currency: currency);
+			currency: wallet.currency.title.toUpperCase());
     	return anyPayApi.paymentRequest(invoice.uri);
 	}
 

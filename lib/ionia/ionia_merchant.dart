@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
-
-class IoniaMerchant {
+class IoniaMerchant  {
 	IoniaMerchant({
 		@required this.id,
 		@required this.legalName,
@@ -114,57 +113,49 @@ class IoniaMerchant {
       isPayLater: element["IsPayLater"] as bool);
 	}
 
-	final int id;
-	final String legalName;
-	final String systemName;
-	final String description;
-	final String website;
-	final String termsAndConditions;
-	final String logoUrl;
-	final String cardImageUrl;
-	final String cardholderAgreement;
-	final double purchaseFee;
-	final double revenueShare;
-	final double marketingFee;
-	final double minimumDiscount;
-	final double level1;
-	final double level2;
-	final double level3;
-	final double level4;
-	final double level5;
-	final double level6;
-	final double level7;
-	final bool isActive;
-	final bool isDeleted;
-	final bool isOnline;
-	final bool isPhysical;
-	final bool isVariablePurchase;
-	final double minimumCardPurchase;
-	final double maximumCardPurchase;
-	final bool acceptsTips;
-	final String createdDateFormatted;
-	final int createdBy;
-	final bool isRegional;
-	final String modifiedDateFormatted;
-	final int modifiedBy;
-	final String usageInstructions;
-	final String usageInstructionsBak;
-	final int paymentGatewayId;
-	final int giftCardGatewayId;
-	final bool isHtmlDescription;
-	final String purchaseInstructions;
-	final String balanceInstructions;
-	final double amountPerCard;
-	final String processingMessage;
-	final bool hasBarcode;
-	final bool hasInventory;
-	final bool isVoidable;
-	final String receiptMessage;
-	final String cssBorderCode;
-	final String paymentInstructions;
-	final String alderSku;
-	final String ngcSku;
-	final String acceptedCurrency;
-	final String deepLink;
-	final bool isPayLater;
+  final int id;  final String legalName;  final String systemName;  final String description;  final String website;  final String termsAndConditions;  final String logoUrl;  final String cardImageUrl;  final String cardholderAgreement;  final double purchaseFee;
+  final double revenueShare;
+  final double marketingFee;
+  final double minimumDiscount;
+  final double level1;
+  final double level2;
+  final double level3;
+  final double level4;
+  final double level5;
+  final double level6;
+  final double level7;
+  final bool isActive;
+  final bool isDeleted;
+  final bool isOnline;
+  final bool isPhysical;
+  final bool isVariablePurchase;
+  final double minimumCardPurchase;
+  final double maximumCardPurchase;
+  final bool acceptsTips;
+  final String createdDateFormatted;
+  final int createdBy;
+  final bool isRegional;
+  final String modifiedDateFormatted;
+  final int modifiedBy;
+  final String usageInstructions;
+  final String usageInstructionsBak;
+  final int paymentGatewayId;
+  final int giftCardGatewayId;
+  final bool isHtmlDescription;
+  final String purchaseInstructions;
+  final String balanceInstructions;
+  final double amountPerCard;
+  final String processingMessage;
+  final bool hasBarcode;
+  final bool hasInventory;
+  final bool isVoidable;
+  final String receiptMessage;
+  final String cssBorderCode;
+  final String paymentInstructions;
+  final String alderSku;
+  final String ngcSku;
+  final String acceptedCurrency;
+  final String deepLink;
+  final bool isPayLater;
+  
 }
