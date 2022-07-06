@@ -1,6 +1,7 @@
 import 'package:cake_wallet/buy/buy_amount.dart';
 import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/cake_phone_entities/phone_number_service.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
@@ -22,12 +23,13 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class PhoneNumberProductPage extends BasePage {
-  PhoneNumberProductPage(this.phonePlanViewModel);
+  PhoneNumberProductPage(this.phonePlanViewModel, {this.phoneNumberService});
 
   final PhonePlanViewModel phonePlanViewModel;
+  final PhoneNumberService phoneNumberService;
 
   @override
-  Widget body(BuildContext context) => PhoneNumberProductBody(phonePlanViewModel);
+  Widget body(BuildContext context) => PhoneNumberProductBody(phonePlanViewModel, phoneNumberService);
 
   @override
   Widget middle(BuildContext context) {
@@ -43,9 +45,10 @@ class PhoneNumberProductPage extends BasePage {
 }
 
 class PhoneNumberProductBody extends StatefulWidget {
-  PhoneNumberProductBody(this.phonePlanViewModel);
+  PhoneNumberProductBody(this.phonePlanViewModel, this.phoneNumberService);
 
   final PhonePlanViewModel phonePlanViewModel;
+  final PhoneNumberService phoneNumberService;
 
   @override
   PhoneNumberProductBodyState createState() => PhoneNumberProductBodyState();
@@ -64,7 +67,8 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
-                S.of(context).initial_service_term,
+                "${widget.phoneNumberService != null ? S.of(context).additional : S.of(context).initial} " +
+                    "${S.of(context).service_term}",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -76,7 +80,9 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
             Padding(
               padding: const EdgeInsets.all(24).copyWith(top: 8),
               child: Text(
-                S.of(context).phone_number_promotion_text,
+                widget.phoneNumberService != null
+                    ? S.of(context).phone_number_addition_promotion_text
+                    : S.of(context).phone_number_promotion_text,
                 style: TextStyle(
                   fontSize: 12,
                   color: Theme.of(context).accentTextTheme.subhead.color,
@@ -127,90 +133,104 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       );
                     }),
                   ),
-                  CakePhoneSettingsTile(
-                    title: S.of(context).phone_number_country,
-                    value: Observer(builder: (_) {
-                      return Row(
-                        children: [
-                          Image.asset(
-                            CountryPickerUtils.getFlagImageAssetPath(widget.phonePlanViewModel.selectedCountry.isoCode),
-                            height: 20.0,
-                            width: 36.0,
-                            fit: BoxFit.fill,
-                            package: "country_pickers",
-                          ),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 8, right: 6),
-                                    child: Text(
-                                      widget.phonePlanViewModel.selectedCountry.name,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: Theme.of(context).primaryTextTheme.title.color,
+                  if (widget.phoneNumberService != null)
+                    CakePhoneSettingsTile(
+                      title: S.of(context).phone_number,
+                      value: Text(
+                        widget.phoneNumberService.phoneNumber,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).primaryTextTheme.title.color,
+                        ),
+                      ),
+                    ),
+                  if (widget.phoneNumberService == null)
+                    CakePhoneSettingsTile(
+                      title: S.of(context).phone_number_country,
+                      value: Observer(builder: (_) {
+                        return Row(
+                          children: [
+                            Image.asset(
+                              CountryPickerUtils.getFlagImageAssetPath(
+                                  widget.phonePlanViewModel.selectedCountry.isoCode),
+                              height: 20.0,
+                              width: 36.0,
+                              fit: BoxFit.fill,
+                              package: "country_pickers",
+                            ),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 8, right: 6),
+                                      child: Text(
+                                        widget.phonePlanViewModel.selectedCountry.name,
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context).primaryTextTheme.title.color,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                Text(
-                                  "(+${widget.phonePlanViewModel.selectedCountry.phoneCode})",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w400,
-                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                  Text(
+                                    "(+${widget.phonePlanViewModel.selectedCountry.phoneCode})",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).primaryTextTheme.title.color,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
+                            Icon(
+                              Icons.arrow_forward_ios,
+                              color: Theme.of(context).primaryTextTheme.title.color,
+                              size: 16,
+                            ),
+                          ],
+                        );
+                      }),
+                      onTap: () {
+                        showPopUp<void>(
+                          context: context,
+                          builder: (_) => Picker(
+                            items: countryList,
+                            displayItem: (dynamic country) {
+                              final Country _country = country as Country;
+                              return "${_country.name} (+${_country.phoneCode})";
+                            },
+                            selectedAtIndex: countryList.indexOf(widget.phonePlanViewModel.selectedCountry),
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            onItemSelected: (Country country) {
+                              widget.phonePlanViewModel.selectedCountry = country;
+                            },
+                            images: countryList
+                                .map((e) => Image.asset(
+                                      CountryPickerUtils.getFlagImageAssetPath(e.isoCode),
+                                      height: 20.0,
+                                      width: 36.0,
+                                      fit: BoxFit.fill,
+                                      package: "country_pickers",
+                                    ))
+                                .toList(),
+                            isSeparated: false,
+                            hintText: S.of(context).search_country,
+                            matchingCriteria: (dynamic country, String searchText) {
+                              final Country _country = country as Country;
+                              searchText = searchText.toLowerCase();
+                              return _country.name.toLowerCase().contains(searchText) ||
+                                  _country.phoneCode.contains(searchText) ||
+                                  _country.isoCode.toLowerCase().contains(searchText) ||
+                                  _country.iso3Code.toLowerCase().contains(searchText);
+                            },
                           ),
-                          Icon(
-                            Icons.arrow_forward_ios,
-                            color: Theme.of(context).primaryTextTheme.title.color,
-                            size: 16,
-                          ),
-                        ],
-                      );
-                    }),
-                    onTap: () {
-                      showPopUp<void>(
-                        context: context,
-                        builder: (_) => Picker(
-                          items: countryList,
-                          displayItem: (dynamic country) {
-                            final Country _country = country as Country;
-                            return "${_country.name} (+${_country.phoneCode})";
-                          },
-                          selectedAtIndex: countryList.indexOf(widget.phonePlanViewModel.selectedCountry),
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          onItemSelected: (Country country) {
-                            widget.phonePlanViewModel.selectedCountry = country;
-                          },
-                          images: countryList
-                              .map((e) => Image.asset(
-                                    CountryPickerUtils.getFlagImageAssetPath(e.isoCode),
-                                    height: 20.0,
-                                    width: 36.0,
-                                    fit: BoxFit.fill,
-                                    package: "country_pickers",
-                                  ))
-                              .toList(),
-                          isSeparated: false,
-                          hintText: S.of(context).search_country,
-                          matchingCriteria: (dynamic country, String searchText) {
-                            final Country _country = country as Country;
-                            searchText = searchText.toLowerCase();
-                            return _country.name.toLowerCase().contains(searchText) ||
-                                _country.phoneCode.contains(searchText) ||
-                                _country.isoCode.toLowerCase().contains(searchText) ||
-                                _country.iso3Code.toLowerCase().contains(searchText);
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                        );
+                      },
+                    ),
                   const SizedBox(height: 25),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

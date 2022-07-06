@@ -368,7 +368,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.phoneNumberProduct:
       return MaterialPageRoute<PhoneNumberProductPage>(
         settings: RouteSettings(name: Routes.phoneNumberProduct),
-        builder: (_) => PhoneNumberProductPage(getIt.get<PhonePlanViewModel>()),
+        builder: (_) => PhoneNumberProductPage(
+          getIt.get<PhonePlanViewModel>(),
+          phoneNumberService: settings.arguments as PhoneNumberService,
+        ),
       );
 
     case Routes.cakePhoneActiveServices:

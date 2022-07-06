@@ -104,28 +104,28 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
             ),
             CakePhoneSettingsTile(
               title: S.of(context).manually_add_balance,
-              value: InkWell(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "${widget.phoneNumberService.usedUntil.difference(DateTime.now()).inDays} ${S.of(context).days_of_service_remaining}",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.title.color,
-                        ),
+              value: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "${widget.phoneNumberService.usedUntil.difference(DateTime.now()).inDays} ${S.of(context).days_of_service_remaining}",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).primaryTextTheme.title.color,
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Theme.of(context).primaryTextTheme.title.color,
-                      size: 16,
-                    ),
-                  ],
-                ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Theme.of(context).primaryTextTheme.title.color,
+                    size: 16,
+                  ),
+                ],
               ),
+              onTap: () {
+                Navigator.pushNamed(context, Routes.phoneNumberProduct, arguments: widget.phoneNumberService);
+              },
             ),
             CakePhoneSettingsTile(
               value: Row(
