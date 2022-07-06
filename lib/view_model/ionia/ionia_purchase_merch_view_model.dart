@@ -93,7 +93,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
     try {
       invoiceCommittingState = IsExecutingState();
       committedInfo = await ioniaAnyPayService.commitInvoice(invoice);
-      invoiceCommittingState = ExecutedSuccessfullyState();
+      invoiceCommittingState = ExecutedSuccessfullyState(payload: committedInfo);
     } catch (e) {
       invoiceCommittingState = FailureState(e.toString());
     }

@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
@@ -114,6 +115,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       }
 
       if (state is ExecutedSuccessfullyState) {
+        final transactionInfo = state.payload as AnyPayPaymentCommittedInfo;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showDialog<void>(
             context: context,
@@ -177,7 +179,10 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                               color: Theme.of(context).dividerColor,
                             ),
                           ),
-                          StandartListRow(title: '${S.current.transaction_details_transaction_id}:', value: ''),
+                          StandartListRow(
+                            title: '${S.current.transaction_details_transaction_id}:',
+                            value: transactionInfo.chain,
+                          ),
                           StandartListRow(
                               title: '${S.current.view_in_block_explorer}:',
                               value: '${S.current.view_transaction_on} XMRChain.net'),
