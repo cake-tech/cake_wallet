@@ -164,9 +164,9 @@ class SendCardState extends State<SendCard>
                             .headline
                             .color,
                         textStyle: TextStyle(
-                             fontSize: 14,
-                             fontWeight: FontWeight.w500,
-                             color: Colors.white),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white),
                         validator: sendViewModel.addressValidator
                       )
                     ),
