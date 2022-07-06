@@ -12,8 +12,10 @@ class BaseAlertDialog extends StatelessWidget {
   VoidCallback get actionRight => () {};
   bool get barrierDismissible => true;
   Widget get contentWidget => null;
+  EdgeInsets get contentPadding => null;
   Color get leftActionButtonColor => null;
   Color get rightActionButtonColor => null;
+  Color get titleColor => null;
 
   Widget title(BuildContext context) {
     return Text(
@@ -23,7 +25,7 @@ class BaseAlertDialog extends StatelessWidget {
         fontSize: 20,
         fontFamily: 'Lato',
         fontWeight: FontWeight.w600,
-        color: Theme.of(context).primaryTextTheme.title.color,
+        color: titleColor ?? Theme.of(context).primaryTextTheme.title.color,
         decoration: TextDecoration.none,
       ),
     );
@@ -151,7 +153,7 @@ class BaseAlertDialog extends StatelessWidget {
                             )
                             : Offstage(),
                             Padding(
-                              padding: EdgeInsets.fromLTRB(24, 8, 24, 32),
+                              padding: contentPadding ?? EdgeInsets.fromLTRB(24, 8, 24, 32),
                               child: content(context),
                             )
                           ],

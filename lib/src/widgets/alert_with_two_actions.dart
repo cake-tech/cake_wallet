@@ -15,6 +15,7 @@ class AlertWithTwoActions extends BaseAlertDialog {
     this.contentWidget,
     this.leftActionButtonColor,
     this.rightActionButtonColor,
+    this.alertTitleColor,
   }) : assert(alertContent != null || contentWidget != null);
 
   final String alertTitle;
@@ -24,6 +25,7 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final VoidCallback actionLeftButton;
   final VoidCallback actionRightButton;
   final bool alertBarrierDismissible;
+  final Color alertTitleColor;
 
   @override
   String get titleText => alertTitle;
@@ -47,4 +49,6 @@ class AlertWithTwoActions extends BaseAlertDialog {
   final Color leftActionButtonColor;
   @override
   final Color rightActionButtonColor;
+  @override
+  Color get titleColor => alertTitleColor;
 }

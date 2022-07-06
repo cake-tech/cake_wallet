@@ -88,7 +88,8 @@ class DarkTheme extends ThemeBase {
       primaryTextTheme: TextTheme(
           title: TextStyle(
               color: Colors.white, // title color
-              backgroundColor: PaletteDark.darkOceanBlue // textfield underline
+              backgroundColor: PaletteDark.darkOceanBlue, // textfield underline
+              decorationColor: Colors.white // cake phone title color
           ),
           caption: TextStyle(
               color: PaletteDark.darkCyanBlue, // secondary text

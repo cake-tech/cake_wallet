@@ -23,7 +23,7 @@ class CakePhoneVerificationPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.color),
+          color: Theme.of(context).primaryTextTheme.title.decorationColor),
     );
   }
 }

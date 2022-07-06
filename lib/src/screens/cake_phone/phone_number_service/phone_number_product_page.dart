@@ -7,6 +7,7 @@ import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/plan_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
+import 'package:cake_wallet/src/widgets/info_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -40,7 +41,7 @@ class PhoneNumberProductPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.color),
+          color: Theme.of(context).primaryTextTheme.title.decorationColor),
     );
   }
 }
@@ -73,7 +74,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.title.decorationColor,
                   fontFamily: 'Lato',
                 ),
               ),
@@ -312,6 +313,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
                           alertTitle: S.of(context).confirm_payment,
+                          alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -348,6 +350,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     builder: (dialogContext) {
                       return AlertWithTwoActions(
                           alertTitle: S.of(context).confirm_sending,
+                          alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -373,12 +376,13 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Text( //TODO: remove static address if it will be generated everytime
+                              Text(
+                                //TODO: remove static address if it will be generated everytime
                                 "4B6c5ApfayzRN8jYxXyprv9me1vttSjF21WAz4HQ8JvS13RgRbgfQg7PPgvm2QMA8N1ed7izqPFsnCKGWWwFoGyjTFstzXm",
                                 style: TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                  color: Theme.of(context).accentTextTheme.subhead.color,
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -510,10 +514,87 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
   }
 
   void showPaymentConfirmationPopup() {
-    // showPopUp<void>(
-    //     context: context,
-    //     builder: (dialogContext) {
-    //
-    //     });
+    showPopUp<void>(
+        context: context,
+        builder: (dialogContext) {
+          return InfoAlertDialog(
+            alertTitle: S.of(context).awaiting_payment_confirmation,
+            alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
+            alertContentPadding: EdgeInsets.zero,
+            alertContent: Padding(
+              padding: const EdgeInsets.only(top: 8, bottom: 32),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      S.of(context).transaction_sent_popup_info,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).primaryTextTheme.title.color,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Container(
+                      height: 1,
+                      color: Theme.of(context).dividerColor,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${S.of(context).transaction_details_transaction_id}:",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).accentTextTheme.subhead.color,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4, bottom: 16),
+                          child: Text(
+                            // TODO: Replace with the transaction id
+                            "dsyf5ind7akwryewkmf5nf4eakdrm4infd4i8rm4fd8nrmsein",
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).primaryTextTheme.title.color,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          "${S.of(context).view_in_block_explorer}:",
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).accentTextTheme.subhead.color,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            // TODO: get it from transaction details view model
+                            S.of(context).view_transaction_on,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).primaryTextTheme.title.color,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

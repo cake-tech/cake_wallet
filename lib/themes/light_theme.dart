@@ -89,7 +89,8 @@ class LightTheme extends ThemeBase {
       primaryTextTheme: TextTheme(
           title: TextStyle(
               color: Palette.darkBlueCraiola, // title color
-              backgroundColor: Palette.wildPeriwinkle // textfield underline
+              backgroundColor: Palette.wildPeriwinkle, // textfield underline
+              decorationColor: Palette.darkBlueCraiola // cake phone title color
           ),
           caption: TextStyle(
               color: PaletteDark.pigeonBlue, // secondary text

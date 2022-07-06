@@ -49,6 +49,7 @@ class Palette {
   static const Color manatee = Color.fromRGBO(153, 161, 176, 1.0);
   static const Color stateGray = Color.fromRGBO(68, 74, 89, 1.0);
   static const Color frostySky = Color.fromRGBO(0, 184, 250, 1.0);
+  static const Color darkShade = Color.fromRGBO(50, 50, 50, 1.0);
 }
 
 class PaletteDark {

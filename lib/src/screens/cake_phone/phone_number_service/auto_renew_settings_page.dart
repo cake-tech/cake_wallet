@@ -32,7 +32,7 @@ class AutoRenewSettingsPage extends BasePage {
           fontSize: 22,
           fontWeight: FontWeight.w700,
           fontFamily: 'Lato',
-          color: Theme.of(context).primaryTextTheme.title.color),
+          color: Theme.of(context).primaryTextTheme.title.decorationColor),
     );
   }
 }
@@ -64,7 +64,7 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: Theme.of(context).primaryTextTheme.title.decorationColor,
                   fontFamily: 'Lato',
                 ),
               ),
