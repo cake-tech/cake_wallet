@@ -6,6 +6,7 @@ import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_auth_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/auto_renew_settings_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -69,9 +70,9 @@ import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_welcome_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_verification_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products_page.dart';
-import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products/phone_number_product_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/phone_number_product_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/active_services_page.dart';
-import 'package:cake_wallet/src/screens/cake_phone/number_settings_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/number_settings_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -380,6 +381,15 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<NumberSettingsPage>(
         settings: RouteSettings(name: Routes.numberSettings),
         builder: (_) => NumberSettingsPage(
+          phoneNumberService: settings.arguments as PhoneNumberService,
+          phonePlanViewModel: getIt.get<PhonePlanViewModel>(),
+        ),
+      );
+
+    case Routes.autoRenewSettings:
+      return MaterialPageRoute<AutoRenewSettingsPage>(
+        settings: RouteSettings(name: Routes.autoRenewSettings),
+        builder: (_) => AutoRenewSettingsPage(
           phoneNumberService: settings.arguments as PhoneNumberService,
           phonePlanViewModel: getIt.get<PhonePlanViewModel>(),
         ),

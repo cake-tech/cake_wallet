@@ -3,6 +3,7 @@ import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/routes.dart';
+import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/plan_card.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -53,8 +54,8 @@ class PhoneNumberProductBody extends StatefulWidget {
 class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(top: 16),
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.symmetric(vertical: 20),
         content: Column(
@@ -110,23 +111,9 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    S.of(context).free_sms_email_forward,
-                    style: TextStyle(
-                      color: Theme.of(context).accentTextTheme.subhead.color,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 8, bottom: 16),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                        ),
-                      ),
-                    ),
-                    child: Observer(builder: (_) {
+                  CakePhoneSettingsTile(
+                    title: S.of(context).free_sms_email_forward,
+                    value: Observer(builder: (_) {
                       return Text(
                         "${widget.phonePlanViewModel.selectedPlan.quantity}, " +
                             "${S.of(context).then} " +
@@ -140,109 +127,91 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                       );
                     }),
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    S.of(context).phone_number_country,
-                    style: TextStyle(
-                      color: Theme.of(context).accentTextTheme.subhead.color,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.only(top: 8, bottom: 16),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Theme.of(context).accentTextTheme.title.backgroundColor,
-                        ),
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        showPopUp<void>(
-                          context: context,
-                          builder: (_) => Picker(
-                            items: countryList,
-                            displayItem: (dynamic country) {
-                              final Country _country = country as Country;
-                              return "${_country.name} (+${_country.phoneCode})";
-                            },
-                            selectedAtIndex: countryList.indexOf(widget.phonePlanViewModel.selectedCountry),
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            onItemSelected: (Country country) {
-                              widget.phonePlanViewModel.selectedCountry = country;
-                            },
-                            images: countryList
-                                .map((e) => Image.asset(
-                                      CountryPickerUtils.getFlagImageAssetPath(e.isoCode),
-                                      height: 20.0,
-                                      width: 36.0,
-                                      fit: BoxFit.fill,
-                                      package: "country_pickers",
-                                    ))
-                                .toList(),
-                            isSeparated: false,
-                            hintText: S.of(context).search_country,
-                            matchingCriteria: (dynamic country, String searchText) {
-                              final Country _country = country as Country;
-                              searchText = searchText.toLowerCase();
-                              return _country.name.toLowerCase().contains(searchText) ||
-                                  _country.phoneCode.contains(searchText) ||
-                                  _country.isoCode.toLowerCase().contains(searchText) ||
-                                  _country.iso3Code.toLowerCase().contains(searchText);
-                            },
+                  CakePhoneSettingsTile(
+                    title: S.of(context).phone_number_country,
+                    value: Observer(builder: (_) {
+                      return Row(
+                        children: [
+                          Image.asset(
+                            CountryPickerUtils.getFlagImageAssetPath(widget.phonePlanViewModel.selectedCountry.isoCode),
+                            height: 20.0,
+                            width: 36.0,
+                            fit: BoxFit.fill,
+                            package: "country_pickers",
                           ),
-                        );
-                      },
-                      child: Observer(builder: (_) {
-                        return Row(
-                          children: [
-                            Image.asset(
-                              CountryPickerUtils.getFlagImageAssetPath(
-                                  widget.phonePlanViewModel.selectedCountry.isoCode),
-                              height: 20.0,
-                              width: 36.0,
-                              fit: BoxFit.fill,
-                              package: "country_pickers",
-                            ),
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  Flexible(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(left: 8, right: 6),
-                                      child: Text(
-                                        widget.phonePlanViewModel.selectedCountry.name,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: Theme.of(context).primaryTextTheme.title.color,
-                                        ),
+                          Expanded(
+                            child: Row(
+                              children: [
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8, right: 6),
+                                    child: Text(
+                                      widget.phonePlanViewModel.selectedCountry.name,
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                        color: Theme.of(context).primaryTextTheme.title.color,
                                       ),
                                     ),
                                   ),
-                                  Text(
-                                    "(+${widget.phonePlanViewModel.selectedCountry.phoneCode})",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).primaryTextTheme.title.color,
-                                    ),
+                                ),
+                                Text(
+                                  "(+${widget.phonePlanViewModel.selectedCountry.phoneCode})",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w400,
+                                    color: Theme.of(context).primaryTextTheme.title.color,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Icon(
-                              Icons.arrow_forward_ios,
-                              color: Theme.of(context).primaryTextTheme.title.color,
-                              size: 16,
-                            ),
-                          ],
-                        );
-                      }),
-                    ),
+                          ),
+                          Icon(
+                            Icons.arrow_forward_ios,
+                            color: Theme.of(context).primaryTextTheme.title.color,
+                            size: 16,
+                          ),
+                        ],
+                      );
+                    }),
+                    onTap: () {
+                      showPopUp<void>(
+                        context: context,
+                        builder: (_) => Picker(
+                          items: countryList,
+                          displayItem: (dynamic country) {
+                            final Country _country = country as Country;
+                            return "${_country.name} (+${_country.phoneCode})";
+                          },
+                          selectedAtIndex: countryList.indexOf(widget.phonePlanViewModel.selectedCountry),
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          onItemSelected: (Country country) {
+                            widget.phonePlanViewModel.selectedCountry = country;
+                          },
+                          images: countryList
+                              .map((e) => Image.asset(
+                                    CountryPickerUtils.getFlagImageAssetPath(e.isoCode),
+                                    height: 20.0,
+                                    width: 36.0,
+                                    fit: BoxFit.fill,
+                                    package: "country_pickers",
+                                  ))
+                              .toList(),
+                          isSeparated: false,
+                          hintText: S.of(context).search_country,
+                          matchingCriteria: (dynamic country, String searchText) {
+                            final Country _country = country as Country;
+                            searchText = searchText.toLowerCase();
+                            return _country.name.toLowerCase().contains(searchText) ||
+                                _country.phoneCode.contains(searchText) ||
+                                _country.isoCode.toLowerCase().contains(searchText) ||
+                                _country.iso3Code.toLowerCase().contains(searchText);
+                          },
+                        ),
+                      );
+                    },
                   ),
-                  const SizedBox(height: 49),
+                  const SizedBox(height: 25),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -261,15 +230,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           children: [
                             GestureDetector(
                               onTap: () => widget.phonePlanViewModel.removeAdditionalSms(),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                margin: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).accentTextTheme.body2.color,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.remove, color: Colors.white, size: 15),
-                              ),
+                              child: icon(Icons.remove),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -286,15 +247,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             ),
                             GestureDetector(
                               onTap: () => widget.phonePlanViewModel.addAdditionalSms(),
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                margin: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).accentTextTheme.body2.color,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.add, color: Colors.white, size: 15),
-                              ),
+                              child: icon(Icons.add),
                             ),
                           ],
                         ),
@@ -405,6 +358,18 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget icon(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Theme.of(context).accentTextTheme.body2.color,
+        shape: BoxShape.circle,
+      ),
+      child: Icon(icon, color: Colors.white, size: 15),
     );
   }
 

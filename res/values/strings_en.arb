@@ -581,5 +581,10 @@
   "renews_every": "Renews every",
   "for_amount": "for",
   "manually_add_balance": "Manually Add Balance",
-  "block_incoming_sms": "Block incoming SMS"
+  "block_incoming_sms": "Block incoming SMS",
+  "auto_renew": "Auto-Renew",
+  "term": "Term",
+  "disable": "Disable",
+  "update": "Update",
+  "auto_renew_term_description": "Optionally auto-renew your phone number if a sufficient balance is available. We will attempt to pay the balance a day before the service is set to expire."
 }

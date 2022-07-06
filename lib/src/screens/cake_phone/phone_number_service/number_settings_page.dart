@@ -1,6 +1,6 @@
 import 'package:cake_wallet/entities/cake_phone_entities/service_plan.dart';
 import 'package:cake_wallet/routes.dart';
-import 'package:cake_wallet/src/screens/settings/widgets/settings_switcher_cell.dart';
+import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -65,7 +65,7 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            numberSettingsTile(
+            CakePhoneSettingsTile(
               title: S.of(context).phone_number,
               value: Text(
                 widget.phoneNumberService.phoneNumber,
@@ -76,33 +76,33 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
                 ),
               ),
             ),
-            numberSettingsTile(
+            CakePhoneSettingsTile(
               title: S.of(context).auto_renew_settings,
-              value: InkWell(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        "${S.of(context).renews_every} ${selectedPhoneNumberPlan?.duration ?? 0} ${S.of(context).month} " +
-                            "${S.of(context).for_amount} \$${selectedPhoneNumberPlan?.price ?? 0}",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Theme.of(context).primaryTextTheme.title.color,
-                        ),
+              value: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "${S.of(context).renews_every} ${selectedPhoneNumberPlan?.duration ?? 0} ${S.of(context).month} " +
+                          "${S.of(context).for_amount} \$${selectedPhoneNumberPlan?.price ?? 0}",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).primaryTextTheme.title.color,
                       ),
                     ),
-                    Icon(
-                      Icons.arrow_forward_ios,
-                      color: Theme.of(context).primaryTextTheme.title.color,
-                      size: 16,
-                    ),
-                  ],
-                ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    color: Theme.of(context).primaryTextTheme.title.color,
+                    size: 16,
+                  ),
+                ],
               ),
+              onTap: () {
+                Navigator.pushNamed(context, Routes.autoRenewSettings, arguments: widget.phoneNumberService);
+              },
             ),
-            numberSettingsTile(
+            CakePhoneSettingsTile(
               title: S.of(context).manually_add_balance,
               value: InkWell(
                 onTap: () {},
@@ -127,7 +127,7 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
                 ),
               ),
             ),
-            numberSettingsTile(
+            CakePhoneSettingsTile(
               value: Row(
                 children: [
                   Expanded(
@@ -153,34 +153,6 @@ class NumberSettingsBodyState extends State<NumberSettingsBody> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget numberSettingsTile({String title, @required Widget value}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (title != null)
-          Text(
-            title,
-            style: TextStyle(
-              color: Theme.of(context).accentTextTheme.subhead.color,
-            ),
-          ),
-        Container(
-          padding: const EdgeInsets.only(top: 8, bottom: 16),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(
-                color: Theme.of(context).accentTextTheme.title.backgroundColor,
-              ),
-            ),
-          ),
-          child: value,
-        ),
-        const SizedBox(height: 24),
-      ],
     );
   }
 }

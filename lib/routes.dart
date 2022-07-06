@@ -67,4 +67,5 @@ class Routes {
   static const phoneNumberProduct = '/phone_number_product';
   static const cakePhoneActiveServices = '/cake_phone_active_services';
   static const numberSettings = '/number_settings';
+  static const autoRenewSettings = '/auto_renew_settings';
 }
