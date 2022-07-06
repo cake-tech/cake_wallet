@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class IoniaAccountPage extends BasePage {
   IoniaAccountPage(this.ioniaAccountViewModel);
@@ -34,17 +35,18 @@ class IoniaAccountPage extends BasePage {
             content: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RichText(
-                  text: TextSpan(
-                    text: '0',
-                    style: textLargeSemiBold(),
-                    children: [
-                      TextSpan(
-                          text: ' ${S.of(context).active_cards}',
-                          style: textSmall(color: Colors.white.withOpacity(0.7))),
-                    ],
-                  ),
-                ),
+                Observer(builder: (_) =>
+                  RichText(
+                    text: TextSpan(
+                      text: '${ioniaAccountViewModel.countOfMerch}',
+                      style: textLargeSemiBold(),
+                      children: [
+                        TextSpan(
+                            text: ' ${S.of(context).active_cards}',
+                            style: textSmall(color: Colors.white.withOpacity(0.7))),
+                      ],
+                    ),
+                  )),
                 InkWell(
                   onTap: () => Navigator.pushNamed(context, Routes.ioniaAccountCardsPage),
                   child: Padding(
@@ -59,83 +61,76 @@ class IoniaAccountPage extends BasePage {
             ),
           ),
           SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _GradiantContainer(
-                padding: EdgeInsets.all(16),
-                width: deviceWidth * 0.28,
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.of(context).total_saving,
-                      style: textSmall(),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '\$100',
-                      style: textMediumSemiBold(),
-                    ),
-                  ],
-                ),
-              ),
-              _GradiantContainer(
-                padding: EdgeInsets.all(16),
-                width: deviceWidth * 0.28,
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.of(context).last_30_days,
-                      style: textSmall(),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '\$100',
-                      style: textMediumSemiBold(),
-                    ),
-                  ],
-                ),
-              ),
-              _GradiantContainer(
-                padding: EdgeInsets.all(16),
-                width: deviceWidth * 0.28,
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.of(context).avg_savings,
-                      style: textSmall(),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '10%',
-                      style: textMediumSemiBold(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          //Row(
+          //  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //  children: [
+          //    _GradiantContainer(
+          //      padding: EdgeInsets.all(16),
+          //      width: deviceWidth * 0.28,
+          //      content: Column(
+          //        crossAxisAlignment: CrossAxisAlignment.start,
+          //        children: [
+          //          Text(
+          //            S.of(context).total_saving,
+          //            style: textSmall(),
+          //          ),
+          //          SizedBox(height: 8),
+          //          Text(
+          //            '\$100',
+          //            style: textMediumSemiBold(),
+          //          ),
+          //        ],
+          //      ),
+          //    ),
+          //    _GradiantContainer(
+          //      padding: EdgeInsets.all(16),
+          //      width: deviceWidth * 0.28,
+          //      content: Column(
+          //        crossAxisAlignment: CrossAxisAlignment.start,
+          //        children: [
+          //          Text(
+          //            S.of(context).last_30_days,
+          //            style: textSmall(),
+          //          ),
+          //          SizedBox(height: 8),
+          //          Text(
+          //            '\$100',
+          //            style: textMediumSemiBold(),
+          //          ),
+          //        ],
+          //      ),
+          //    ),
+          //    _GradiantContainer(
+          //      padding: EdgeInsets.all(16),
+          //      width: deviceWidth * 0.28,
+          //      content: Column(
+          //        crossAxisAlignment: CrossAxisAlignment.start,
+          //        children: [
+          //          Text(
+          //            S.of(context).avg_savings,
+          //            style: textSmall(),
+          //          ),
+          //          SizedBox(height: 8),
+          //          Text(
+          //            '10%',
+          //            style: textMediumSemiBold(),
+          //          ),
+          //        ],
+          //      ),
+          //    ),
+          //  ],
+          //),
           SizedBox(height: 40),
-          IoniaTile(
-            title: S.of(context).email_address,
-            subTitle: '',
-          ),
+          Observer(builder: (_) =>
+             IoniaTile(
+              title: S.of(context).email_address,
+              subTitle: ioniaAccountViewModel.email)),
           Divider()
         ],
       ),
       bottomSectionPadding: EdgeInsets.all(30),
       bottomSection: Column(
         children: [
-          PrimaryButton(
-            color: Color.fromRGBO(233, 242, 252, 1),
-            textColor: Theme.of(context).textTheme.display2.color,
-            text: S.of(context).delete_account,
-            onPressed: () {},
-          ),
-          SizedBox(height: 10),
           PrimaryButton(
             color: Theme.of(context).accentTextTheme.body2.color,
             textColor: Colors.white,
