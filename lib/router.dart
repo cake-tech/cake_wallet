@@ -73,6 +73,7 @@ import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products_page.dart
 import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/phone_number_product_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/active_services_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/number_settings_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/add_balance_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -383,19 +384,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.numberSettings:
       return MaterialPageRoute<NumberSettingsPage>(
         settings: RouteSettings(name: Routes.numberSettings),
-        builder: (_) => NumberSettingsPage(
-          phoneNumberService: settings.arguments as PhoneNumberService,
-          phonePlanViewModel: getIt.get<PhonePlanViewModel>(),
-        ),
+        builder: (_) => getIt.get<NumberSettingsPage>(),
       );
 
     case Routes.autoRenewSettings:
       return MaterialPageRoute<AutoRenewSettingsPage>(
         settings: RouteSettings(name: Routes.autoRenewSettings),
-        builder: (_) => AutoRenewSettingsPage(
-          phoneNumberService: settings.arguments as PhoneNumberService,
-          phonePlanViewModel: getIt.get<PhonePlanViewModel>(),
-        ),
+        builder: (_) => getIt.get<AutoRenewSettingsPage>(),
+      );
+
+    case Routes.addBalance:
+      return MaterialPageRoute<void>(
+        settings: RouteSettings(name: Routes.addBalance),
+        builder: (_) => getIt.get<AddBalancePage>(),
       );
 
     default:

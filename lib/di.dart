@@ -1,9 +1,12 @@
 import 'package:cake_wallet/core/yat_service.dart';
+import 'package:cake_wallet/entities/cake_phone_entities/phone_number_service.dart';
 import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
+import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/auto_renew_settings_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/number_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -125,6 +128,7 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/add_balance_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -644,6 +648,22 @@ Future setup(
           (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
 
   getIt.registerFactory(() => PhonePlanViewModel());
+
+  getIt.registerFactoryParam<NumberSettingsPage, PhoneNumberService, void>(
+          (PhoneNumberService phoneNumberService, _) => NumberSettingsPage(
+            phoneNumberService: phoneNumberService,
+            phonePlanViewModel: getIt.get<PhonePlanViewModel>(),
+          ));
+
+  getIt.registerFactoryParam<AutoRenewSettingsPage, PhoneNumberService, void>(
+          (PhoneNumberService phoneNumberService, _) => AutoRenewSettingsPage(
+      phoneNumberService: phoneNumberService,
+      phonePlanViewModel: getIt.get<PhonePlanViewModel>(),
+    ));
+
+  getIt.registerFactory(() {
+    return AddBalancePage(buyViewModel: getIt.get<BuyViewModel>());
+  });
 
   _isSetupFinished = true;
 }

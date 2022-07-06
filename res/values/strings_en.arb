@@ -591,5 +591,8 @@
   "update": "Update",
   "auto_renew_term_description": "Optionally auto-renew your phone number if a sufficient balance is available. We will attempt to pay the balance a day before the service is set to expire.",
   "awaiting_payment_confirmation": "Awaiting Payment Confirmation",
-  "transaction_sent_popup_info": "Your transaction was sent. \n\nIf the screen doesn’t proceed after 1 minute, check a block explorer and your email."
+  "transaction_sent_popup_info": "Your transaction was sent. \n\nIf the screen doesn’t proceed after 1 minute, check a block explorer and your email.",
+  "cake_phone_products_example": "Example independent uses",
+  "add_balance": "Add Balance",
+  "forwards": "forwards"
 }

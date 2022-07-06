@@ -83,6 +83,9 @@ class ActiveServicesBodyState extends State<ActiveServicesBody> {
                 subtitle: "\$${accountBalance.toStringAsFixed(2)}",
                 isReversed: true,
               ),
+              onTap: () {
+                Navigator.pushNamed(context, Routes.addBalance);
+              },
             ),
             const SizedBox(height: 64),
             SubscribedPhoneNumbers(),
