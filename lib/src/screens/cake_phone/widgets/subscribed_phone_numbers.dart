@@ -1,3 +1,4 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/entities/cake_phone_entities/phone_number_service.dart';
@@ -14,10 +15,14 @@ class SubscribedPhoneNumbers extends StatefulWidget {
 class _SubscribedPhoneNumbersState extends State<SubscribedPhoneNumbers> {
   int selectedTab = 0;
   final List<PhoneNumberService> subscribedPhoneNumbers = [
-    PhoneNumberService(id: "1", phoneNumber: "+1 888-888-8888", usedUntil: DateTime.now().add(Duration(days: 24))),
-    PhoneNumberService(id: "2", phoneNumber: "+1 888-888-8888", usedUntil: DateTime.now().add(Duration(days: 26))),
-    PhoneNumberService(id: "3", phoneNumber: "+1 999-999-9999", usedUntil: DateTime.now().subtract(Duration(days: 24))),
-    PhoneNumberService(id: "4", phoneNumber: "+1 999-999-9999", usedUntil: DateTime.now().subtract(Duration(days: 26))),
+    PhoneNumberService(
+        id: "1", planId: "1", phoneNumber: "+1 888-888-8888", usedUntil: DateTime.now().add(Duration(days: 24))),
+    PhoneNumberService(
+        id: "2", planId: "2", phoneNumber: "+1 888-888-8888", usedUntil: DateTime.now().add(Duration(days: 26))),
+    PhoneNumberService(
+        id: "3", planId: "3", phoneNumber: "+1 999-999-9999", usedUntil: DateTime.now().subtract(Duration(days: 24))),
+    PhoneNumberService(
+        id: "4", planId: "4", phoneNumber: "+1 999-999-9999", usedUntil: DateTime.now().subtract(Duration(days: 26))),
   ];
 
   final List<PhoneNumberService> activePhoneNumbers = [];
@@ -66,6 +71,9 @@ class _SubscribedPhoneNumbersState extends State<SubscribedPhoneNumbers> {
                     ? "${e.usedUntil.difference(DateTime.now()).inDays} ${S.of(context).days_of_service_remaining}"
                     : S.of(context).expired,
               ),
+              onTap: () {
+                Navigator.pushNamed(context, Routes.numberSettings, arguments: e);
+              },
             ),
           ),
         ),

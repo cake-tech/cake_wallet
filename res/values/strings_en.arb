@@ -575,5 +575,11 @@
   "free_data_balance": "Free Data Balance",
   "account_balance": "Account Balance",
   "days_of_service_remaining": "days of service remaining",
-  "active": "Active"
+  "active": "Active",
+  "number_settings": "Number Settings",
+  "auto_renew_settings": "Auto Renew Settings",
+  "renews_every": "Renews every",
+  "for_amount": "for",
+  "manually_add_balance": "Manually Add Balance",
+  "block_incoming_sms": "Block incoming SMS"
 }

@@ -1,3 +1,4 @@
+import 'package:cake_wallet/entities/cake_phone_entities/phone_number_service.dart';
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
@@ -70,6 +71,7 @@ import 'package:cake_wallet/src/screens/cake_phone/cake_phone_verification_page.
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/cake_phone_products/phone_number_product_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/active_services_page.dart';
+import 'package:cake_wallet/src/screens/cake_phone/number_settings_page.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -82,61 +84,53 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.newWalletFromWelcome:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(
-              param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
-	      	  if (availableWalletTypes.length == 1) {
-              Navigator.of(context.context).pushNamed(Routes.newWallet, arguments: availableWalletTypes.first);
-      		  } else {
-      		    Navigator.of(context.context).pushNamed(Routes.newWalletType);
-      		  }
-		  }),
+          builder: (_) => getIt.get<SetupPinCodePage>(param1: (PinCodeState<PinCodeWidget> context, dynamic _) {
+                if (availableWalletTypes.length == 1) {
+                  Navigator.of(context.context).pushNamed(Routes.newWallet, arguments: availableWalletTypes.first);
+                } else {
+                  Navigator.of(context.context).pushNamed(Routes.newWalletType);
+                }
+              }),
           fullscreenDialog: true);
 
     case Routes.newWalletType:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
               param1: (BuildContext context, WalletType type) =>
-                  Navigator.of(context)
-                      .pushNamed(Routes.newWallet, arguments: type),
+                  Navigator.of(context).pushNamed(Routes.newWallet, arguments: type),
               param2: false));
 
     case Routes.newWallet:
       final type = settings.arguments as WalletType;
       final walletNewVM = getIt.get<WalletNewVM>(param1: type);
 
-      return CupertinoPageRoute<void>(
-          builder: (_) => NewWalletPage(walletNewVM));
+      return CupertinoPageRoute<void>(builder: (_) => NewWalletPage(walletNewVM));
 
     case Routes.setupPin:
       Function(PinCodeState<PinCodeWidget>, String) callback;
 
       if (settings.arguments is Function(PinCodeState<PinCodeWidget>, String)) {
-        callback =
-            settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
+        callback = settings.arguments as Function(PinCodeState<PinCodeWidget>, String);
       }
 
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SetupPinCodePage>(param1: callback));
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SetupPinCodePage>(param1: callback));
 
     case Routes.moneroRestoreWalletFromWelcome:
-     return CupertinoPageRoute<void>(
+      return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.pushNamed(
-                      context.context, Routes.restoreWallet, arguments: WalletType.monero)),
+                  Navigator.pushNamed(context.context, Routes.restoreWallet, arguments: WalletType.monero)),
           fullscreenDialog: true);
 
     case Routes.restoreWalletType:
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<NewWalletTypePage>(
               param1: (BuildContext context, WalletType type) =>
-                  Navigator.of(context)
-                      .pushNamed(Routes.restoreWallet, arguments: type),
+                  Navigator.of(context).pushNamed(Routes.restoreWallet, arguments: type),
               param2: false));
 
     case Routes.restoreOptions:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<RestoreOptionsPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<RestoreOptionsPage>());
 
     case Routes.restoreWalletOptions:
       final type = WalletType.monero; //settings.arguments as WalletType;
@@ -145,22 +139,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
           builder: (_) => RestoreWalletOptionsPage(
               type: type,
               onRestoreFromSeed: (context) {
-                final route = type == WalletType.monero
-                    ? Routes.seedLanguage
-                    : Routes.restoreWalletFromSeed;
-                final args = type == WalletType.monero
-                    ? [type, Routes.restoreWalletFromSeed]
-                    : [type];
+                final route = type == WalletType.monero ? Routes.seedLanguage : Routes.restoreWalletFromSeed;
+                final args = type == WalletType.monero ? [type, Routes.restoreWalletFromSeed] : [type];
 
                 Navigator.of(context).pushNamed(route, arguments: args);
               },
               onRestoreFromKeys: (context) {
-                final route = type == WalletType.monero
-                    ? Routes.seedLanguage
-                    : Routes.restoreWalletFromKeys;
-                final args = type == WalletType.monero
-                    ? [type, Routes.restoreWalletFromKeys]
-                    : [type];
+                final route = type == WalletType.monero ? Routes.seedLanguage : Routes.restoreWalletFromKeys;
+                final args = type == WalletType.monero ? [type, Routes.restoreWalletFromKeys] : [type];
 
                 Navigator.of(context).pushNamed(route, arguments: args);
               }));
@@ -169,76 +155,58 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(
           builder: (_) => getIt.get<SetupPinCodePage>(
               param1: (PinCodeState<PinCodeWidget> context, dynamic _) =>
-                  Navigator.pushNamed(
-                      context.context, Routes.restoreWalletType)),
+                  Navigator.pushNamed(context.context, Routes.restoreWalletType)),
           fullscreenDialog: true);
 
     case Routes.seed:
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<WalletSeedPage>(param1: settings.arguments as bool));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<WalletSeedPage>(param1: settings.arguments as bool));
 
     case Routes.restoreWallet:
       return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletRestorePage>(
-              param1: settings.arguments as WalletType));
+          builder: (_) => getIt.get<WalletRestorePage>(param1: settings.arguments as WalletType));
 
     case Routes.restoreWalletFromSeed:
       final type = settings.arguments as WalletType;
-      return CupertinoPageRoute<void>(
-          builder: (_) => RestoreWalletFromSeedPage(type: type));
+      return CupertinoPageRoute<void>(builder: (_) => RestoreWalletFromSeedPage(type: type));
 
     case Routes.restoreWalletFromKeys:
       final args = settings.arguments as List<dynamic>;
       final type = args.first as WalletType;
-      final language =
-          type == WalletType.monero ? args[1] as String : LanguageList.english;
+      final language = type == WalletType.monero ? args[1] as String : LanguageList.english;
 
-      final walletRestorationFromKeysVM =
-          getIt.get<WalletRestorationFromKeysVM>(param1: [type, language]);
+      final walletRestorationFromKeysVM = getIt.get<WalletRestorationFromKeysVM>(param1: [type, language]);
 
       return CupertinoPageRoute<void>(
-          builder: (_) => RestoreWalletFromKeysPage(
-              walletRestorationFromKeysVM: walletRestorationFromKeysVM));
+          builder: (_) => RestoreWalletFromKeysPage(walletRestorationFromKeysVM: walletRestorationFromKeysVM));
 
     case Routes.dashboard:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<DashboardPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<DashboardPage>());
 
     case Routes.send:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<SendPage>());
+      return CupertinoPageRoute<void>(fullscreenDialog: true, builder: (_) => getIt.get<SendPage>());
 
     case Routes.sendTemplate:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true,
-          builder: (_) => getIt.get<SendTemplatePage>());
+      return CupertinoPageRoute<void>(fullscreenDialog: true, builder: (_) => getIt.get<SendTemplatePage>());
 
     case Routes.receive:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<ReceivePage>());
+      return CupertinoPageRoute<void>(fullscreenDialog: true, builder: (_) => getIt.get<ReceivePage>());
 
     case Routes.addressPage:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<AddressPage>());
+      return CupertinoPageRoute<void>(fullscreenDialog: true, builder: (_) => getIt.get<AddressPage>());
 
     case Routes.transactionDetails:
       return CupertinoPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<TransactionDetailsPage>(
-              param1: settings.arguments as TransactionInfo));
+          builder: (_) => getIt.get<TransactionDetailsPage>(param1: settings.arguments as TransactionInfo));
 
     case Routes.newSubaddress:
-      return CupertinoPageRoute<void>(
-          builder: (_) =>
-              getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<AddressEditOrCreatePage>(param1: settings.arguments));
 
     case Routes.disclaimer:
       return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage());
 
     case Routes.readDisclaimer:
-      return CupertinoPageRoute<void>(
-          builder: (_) => DisclaimerPage(isReadOnly: true));
+      return CupertinoPageRoute<void>(builder: (_) => DisclaimerPage(isReadOnly: true));
 
     case Routes.seedLanguage:
       final args = settings.arguments as List<dynamic>;
@@ -247,114 +215,87 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return CupertinoPageRoute<void>(builder: (_) {
         return SeedLanguage(
-            onConfirm: (context, lang) => Navigator.of(context)
-                .popAndPushNamed(redirectRoute, arguments: [type, lang]));
+            onConfirm: (context, lang) =>
+                Navigator.of(context).popAndPushNamed(redirectRoute, arguments: [type, lang]));
       });
 
     case Routes.walletList:
-      return MaterialPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
+      return MaterialPageRoute<void>(fullscreenDialog: true, builder: (_) => getIt.get<WalletListPage>());
 
     case Routes.auth:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
-          builder: (_) => getIt.get<AuthPage>(
-              param1: settings.arguments as OnAuthenticationFinished,
-              param2: true));
+          builder: (_) => getIt.get<AuthPage>(param1: settings.arguments as OnAuthenticationFinished, param2: true));
 
     case Routes.unlock:
       return MaterialPageRoute<void>(
           fullscreenDialog: true,
           builder: (_) => WillPopScope(
-              child: getIt.get<AuthPage>(
-                  param1: settings.arguments as OnAuthenticationFinished,
-                  param2: false),
+              child: getIt.get<AuthPage>(param1: settings.arguments as OnAuthenticationFinished, param2: false),
               onWillPop: () async => false));
 
     case Routes.nodeList:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeListPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<NodeListPage>());
 
     case Routes.newNode:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<NodeCreateOrEditPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<NodeCreateOrEditPage>());
 
     case Routes.login:
       return CupertinoPageRoute<void>(
           builder: (context) => WillPopScope(
               child: getIt.get<AuthPage>(instanceName: 'login'),
-              onWillPop: () =>
-                  SystemChannels.platform.invokeMethod('SystemNavigator.pop')),
+              onWillPop: () => SystemChannels.platform.invokeMethod('SystemNavigator.pop')),
           fullscreenDialog: true);
 
     case Routes.accountCreation:
       return CupertinoPageRoute<String>(
-          builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(
-              param1: settings.arguments as AccountListItem));
+          builder: (_) => getIt.get<MoneroAccountEditOrCreatePage>(param1: settings.arguments as AccountListItem));
 
     case Routes.addressBook:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: true));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ContactListPage>(param1: true));
 
     case Routes.pickerAddressBook:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ContactListPage>(param1: false));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ContactListPage>(param1: false));
 
     case Routes.addressBookAddContact:
       return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<ContactPage>(
-              param1: settings.arguments as ContactRecord));
+          builder: (_) => getIt.get<ContactPage>(param1: settings.arguments as ContactRecord));
 
     case Routes.showKeys:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<WalletKeysPage>(), fullscreenDialog: true);
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<WalletKeysPage>(), fullscreenDialog: true);
 
     case Routes.exchangeTrade:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<ExchangeTradePage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTradePage>());
 
     case Routes.exchangeConfirm:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<ExchangeConfirmPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<ExchangeConfirmPage>());
 
     case Routes.tradeDetails:
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<TradeDetailsPage>(param1: settings.arguments as Trade));
 
     case Routes.orderDetails:
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<OrderDetailsPage>(param1: settings.arguments as Order));
 
     case Routes.preOrder:
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<PreOrderPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<PreOrderPage>());
 
     case Routes.buyWebView:
       final args = settings.arguments as List;
 
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<BuyWebViewPage>(param1: args));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<BuyWebViewPage>(param1: args));
 
     case Routes.restoreWalletFromSeedDetails:
       final args = settings.arguments as List;
-      final walletRestorationFromSeedVM =
-          getIt.get<WalletRestorationFromSeedVM>(param1: args);
+      final walletRestorationFromSeedVM = getIt.get<WalletRestorationFromSeedVM>(param1: args);
 
       return CupertinoPageRoute<void>(
-          builder: (_) => RestoreWalletFromSeedDetailsPage(
-              walletRestorationFromSeedVM: walletRestorationFromSeedVM));
+          builder: (_) => RestoreWalletFromSeedDetailsPage(walletRestorationFromSeedVM: walletRestorationFromSeedVM));
 
     case Routes.exchange:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<ExchangePage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangePage>());
 
     case Routes.exchangeTemplate:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<ExchangeTemplatePage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<ExchangeTemplatePage>());
 
     case Routes.settings:
       return MaterialPageRoute<void>(builder: (_) => getIt.get<SettingsPage>());
@@ -366,44 +307,33 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return MaterialPageRoute<void>(builder: (_) => getIt.get<FaqPage>());
 
     case Routes.preSeed:
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<PreSeedPage>(param1: settings.arguments as WalletType));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<PreSeedPage>(param1: settings.arguments as WalletType));
 
     case Routes.backup:
-      return CupertinoPageRoute<void>(
-          fullscreenDialog: true, builder: (_) => getIt.get<BackupPage>());
+      return CupertinoPageRoute<void>(fullscreenDialog: true, builder: (_) => getIt.get<BackupPage>());
 
     case Routes.editBackupPassword:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<EditBackupPasswordPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<EditBackupPasswordPage>());
 
     case Routes.restoreFromBackup:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<RestoreFromBackupPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<RestoreFromBackupPage>());
 
     case Routes.support:
-      return CupertinoPageRoute<void>(
-          builder: (_) => getIt.get<SupportPage>());
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<SupportPage>());
 
     case Routes.unspentCoinsList:
-      return MaterialPageRoute<void>(
-          builder: (_) => getIt.get<UnspentCoinsListPage>());
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<UnspentCoinsListPage>());
 
     case Routes.unspentCoinsDetails:
       final args = settings.arguments as List;
 
-      return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<UnspentCoinsDetailsPage>(
-                  param1: args));
+      return MaterialPageRoute<void>(builder: (_) => getIt.get<UnspentCoinsDetailsPage>(param1: args));
 
     case Routes.fullscreenQR:
       final args = settings.arguments as Map<String, dynamic>;
 
       return MaterialPageRoute<void>(
-          builder: (_) =>
-              getIt.get<FullscreenQRPage>(
+          builder: (_) => getIt.get<FullscreenQRPage>(
                 param1: args['qrData'] as String,
                 param2: args['isLight'] as bool,
               ));
@@ -446,10 +376,17 @@ Route<dynamic> createRoute(RouteSettings settings) {
         builder: (_) => ActiveServicesPage(),
       );
 
+    case Routes.numberSettings:
+      return MaterialPageRoute<NumberSettingsPage>(
+        settings: RouteSettings(name: Routes.numberSettings),
+        builder: (_) => NumberSettingsPage(
+          phoneNumberService: settings.arguments as PhoneNumberService,
+          phonePlanViewModel: getIt.get<PhonePlanViewModel>(),
+        ),
+      );
+
     default:
       return MaterialPageRoute<void>(
-          builder: (_) => Scaffold(
-              body: Center(
-                  child: Text(S.current.router_no_route(settings.name)))));
+          builder: (_) => Scaffold(body: Center(child: Text(S.current.router_no_route(settings.name)))));
   }
 }

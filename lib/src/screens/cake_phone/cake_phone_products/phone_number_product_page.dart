@@ -7,7 +7,6 @@ import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
-import 'package:cake_wallet/view_model/buy/buy_view_model.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:country_pickers/country.dart';
 import 'package:flutter/material.dart';
@@ -48,14 +47,10 @@ class PhoneNumberProductBody extends StatefulWidget {
   final PhonePlanViewModel phonePlanViewModel;
 
   @override
-  PhoneNumberProductBodyState createState() => PhoneNumberProductBodyState(phonePlanViewModel);
+  PhoneNumberProductBodyState createState() => PhoneNumberProductBodyState();
 }
 
 class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
-  PhoneNumberProductBodyState(this.phonePlanViewModel);
-
-  final PhonePlanViewModel phonePlanViewModel;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -94,7 +89,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Row(
-                    children: phonePlanViewModel.servicePlans.map((e) => planCard(e)).toList(),
+                    children: widget.phonePlanViewModel.servicePlans.map((e) => planCard(e)).toList(),
                   ),
                 ),
               );
@@ -123,9 +118,9 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                     ),
                     child: Observer(builder: (_) {
                       return Text(
-                        "${phonePlanViewModel.selectedPlan.quantity}, " +
+                        "${widget.phonePlanViewModel.selectedPlan.quantity}, " +
                             "${S.of(context).then} " +
-                            "\$${(phonePlanViewModel.rateInCents / 100).toStringAsFixed(2)} " +
+                            "\$${(widget.phonePlanViewModel.rateInCents / 100).toStringAsFixed(2)} " +
                             "${S.of(context).per_message}",
                         style: TextStyle(
                           fontSize: 16,
@@ -162,10 +157,10 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                               final Country _country = country as Country;
                               return "${_country.name} (+${_country.phoneCode})";
                             },
-                            selectedAtIndex: countryList.indexOf(phonePlanViewModel.selectedCountry),
+                            selectedAtIndex: countryList.indexOf(widget.phonePlanViewModel.selectedCountry),
                             mainAxisAlignment: MainAxisAlignment.start,
                             onItemSelected: (Country country) {
-                              phonePlanViewModel.selectedCountry = country;
+                              widget.phonePlanViewModel.selectedCountry = country;
                             },
                             images: countryList
                                 .map((e) => Image.asset(
@@ -193,7 +188,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         return Row(
                           children: [
                             Image.asset(
-                              CountryPickerUtils.getFlagImageAssetPath(phonePlanViewModel.selectedCountry.isoCode),
+                              CountryPickerUtils.getFlagImageAssetPath(widget.phonePlanViewModel.selectedCountry.isoCode),
                               height: 20.0,
                               width: 36.0,
                               fit: BoxFit.fill,
@@ -206,7 +201,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                     child: Padding(
                                       padding: const EdgeInsets.only(left: 8, right: 6),
                                       child: Text(
-                                        phonePlanViewModel.selectedCountry.name,
+                                        widget.phonePlanViewModel.selectedCountry.name,
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w700,
@@ -216,7 +211,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                     ),
                                   ),
                                   Text(
-                                    "(+${phonePlanViewModel.selectedCountry.phoneCode})",
+                                    "(+${widget.phonePlanViewModel.selectedCountry.phoneCode})",
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w400,
@@ -254,7 +249,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                         child: Row(
                           children: [
                             GestureDetector(
-                              onTap: () => phonePlanViewModel.removeAdditionalSms(),
+                              onTap: () => widget.phonePlanViewModel.removeAdditionalSms(),
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 margin: const EdgeInsets.all(4),
@@ -269,7 +264,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                               padding: const EdgeInsets.symmetric(horizontal: 16),
                               child: Observer(builder: (_) {
                                 return Text(
-                                  phonePlanViewModel.additionalSms.toString(),
+                                  widget.phonePlanViewModel.additionalSms.toString(),
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w700,
@@ -279,7 +274,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                               }),
                             ),
                             GestureDetector(
-                              onTap: () => phonePlanViewModel.addAdditionalSms(),
+                              onTap: () => widget.phonePlanViewModel.addAdditionalSms(),
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 margin: const EdgeInsets.all(4),
@@ -309,7 +304,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                   children: [
                     TextSpan(text: "${S.of(context).due_today} "),
                     TextSpan(
-                      text: "\$${phonePlanViewModel.totalPrice}",
+                      text: "\$${widget.phonePlanViewModel.totalPrice}",
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).primaryTextTheme.title.color,
@@ -336,7 +331,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              receiptRow(S.of(context).amount, amountText(phonePlanViewModel.totalPrice)),
+                              receiptRow(S.of(context).amount, amountText(widget.phonePlanViewModel.totalPrice)),
                               receiptRow("${S.of(context).cake_pay_balance}: ", amountText(100)),
                             ],
                           ),
@@ -370,7 +365,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              receiptRow(S.of(context).amount, cryptoAmount(phonePlanViewModel.totalPrice)),
+                              receiptRow(S.of(context).amount, cryptoAmount(widget.phonePlanViewModel.totalPrice)),
                               receiptRow(
                                   S.of(context).send_fee,
                                   cryptoAmount(getIt
@@ -378,7 +373,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                                       .wallet
                                       .calculateEstimatedFee(
                                         getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet.type],
-                                        phonePlanViewModel.totalPrice.floor(),
+                                        widget.phonePlanViewModel.totalPrice.floor(),
                                       )
                                       .toDouble())),
                             ],
@@ -403,11 +398,11 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
   }
 
   Widget planCard(ServicePlan e) {
-    final isSelected = phonePlanViewModel.selectedPlan == e;
+    final isSelected = widget.phonePlanViewModel.selectedPlan == e;
     return GestureDetector(
       onTap: () {
         if (!isSelected) {
-          phonePlanViewModel.selectedPlan = e;
+          widget.phonePlanViewModel.selectedPlan = e;
         }
       },
       child: Container(
