@@ -13,9 +13,9 @@ class KeyService {
     final key = generateStoreKeyFor(
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
     final encodedPassword =
-        await (_secureStorage.read(key: key) as FutureOr<String>);
+        await (_secureStorage.read(key: key) as FutureOr<String?>);
 
-    return decodeWalletPassword(password: encodedPassword);
+    return decodeWalletPassword(password: encodedPassword!);
   }
 
   Future<void> saveWalletPassword(
