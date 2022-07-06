@@ -26,8 +26,8 @@ class SendCard extends StatefulWidget {
 
   @override
   SendCardState createState() => SendCardState(
-      output: output,
-      sendViewModel: sendViewModel
+    output: output,
+    sendViewModel: sendViewModel
   );
 }
 
@@ -155,20 +155,20 @@ class SendCardState extends State<SendCard>
                       );
                     }),
                     if (output.isParsedAddress) Padding(
-                        padding: const EdgeInsets.only(top: 20),
-                        child: BaseTextFormField(
-                            controller: extractedAddressController,
-                            readOnly: true,
-                            borderColor: Theme.of(context)
-                                .primaryTextTheme
-                                .headline
-                                .color,
-                            textStyle: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                            validator: sendViewModel.addressValidator
-                        )
+                      padding: const EdgeInsets.only(top: 20),
+                      child: BaseTextFormField(
+                        controller: extractedAddressController,
+                        readOnly: true,
+                        borderColor: Theme.of(context)
+                            .primaryTextTheme
+                            .headline
+                            .color,
+                        textStyle: TextStyle(
+                             fontSize: 14,
+                             fontWeight: FontWeight.w500,
+                             color: Colors.white),
+                        validator: sendViewModel.addressValidator
+                      )
                     ),
                     Observer(
                         builder: (_) => Padding(

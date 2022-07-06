@@ -11,12 +11,12 @@ import 'currency_picker_widget.dart';
 class CurrencyPicker extends StatefulWidget {
   CurrencyPicker(
       {@required this.selectedAtIndex,
-        @required this.items,
-        @required this.onItemSelected,
-        this.title,
-        this.hintText,
-        this.isMoneroWallet = false,
-        this.isConvertFrom = false});
+      @required this.items,
+      @required this.onItemSelected,
+      this.title,
+      this.hintText,
+      this.isMoneroWallet = false,
+      this.isConvertFrom = false});
 
   int selectedAtIndex;
   final List<CryptoCurrency> items;
