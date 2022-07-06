@@ -13,7 +13,7 @@ class CakePhoneProductsPage extends BasePage {
   @override
   Widget middle(BuildContext context) {
     return Text(
-      S.of(context).get_phone_number,
+      "${S.of(context).get} ${S.of(context).phone_number}",
       style: TextStyle(
           fontSize: 22,
           fontWeight: FontWeight.w700,
@@ -41,7 +41,7 @@ class CakePhoneProductsBodyState extends State<CakePhoneProductsBody> {
           child: Column(
             children: [
               Text(
-                S.of(context).choose_phone_products,
+                "${S.of(context).choose_phone_products}:",
                 style: TextStyle(
                   fontSize: 16,
                   color: Theme.of(context).primaryTextTheme.title.color,

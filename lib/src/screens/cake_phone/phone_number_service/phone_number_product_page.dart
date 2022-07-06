@@ -288,7 +288,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
               return RichText(
                 text: TextSpan(
                   children: [
-                    TextSpan(text: "${S.of(context).due_today} "),
+                    TextSpan(text: "${S.of(context).due_today}: "),
                     TextSpan(
                       text: "\$${widget.phonePlanViewModel.totalPrice}",
                       style: TextStyle(

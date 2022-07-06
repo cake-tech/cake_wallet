@@ -662,7 +662,7 @@ Future setup(
     ));
 
   getIt.registerFactory(() {
-    return AddBalancePage(buyViewModel: getIt.get<BuyViewModel>());
+    return AddBalancePage(/* Add balance view model */);
   });
 
   _isSetupFinished = true;
