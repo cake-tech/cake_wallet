@@ -5,11 +5,8 @@ import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
-import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
-import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
-import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
@@ -180,8 +177,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                               color: Theme.of(context).dividerColor,
                             ),
                           ),
-                          StandartListRow(
-                              title: '${S.current.transaction_details_transaction_id}:', value: 'item.value'),
+                          StandartListRow(title: '${S.current.transaction_details_transaction_id}:', value: ''),
                           StandartListRow(
                               title: '${S.current.view_in_block_explorer}:',
                               value: '${S.current.view_transaction_on} XMRChain.net'),
@@ -337,14 +333,31 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
               }),
             ),
             SizedBox(height: 8),
-            Text(S.of(context).settings_terms_and_conditions,
-                style: textMediumSemiBold(
-                  color: Theme.of(context).primaryTextTheme.body1.color,
-                ).copyWith(fontSize: 12)),
+            InkWell(
+              onTap: () => _showTermsAndCondition(context),
+              child: Text(S.of(context).settings_terms_and_conditions,
+                  style: textMediumSemiBold(
+                    color: Theme.of(context).primaryTextTheme.body1.color,
+                  ).copyWith(fontSize: 12)),
+            ),
             SizedBox(height: 16)
           ],
         ),
       ),
+    );
+  }
+
+  void _showTermsAndCondition(BuildContext context) {
+    showPopUp<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertWithOneAction(
+          alertTitle: '',
+          alertContent: merchant.termsAndConditions,
+          buttonText: S.of(context).agree,
+          buttonAction: () => Navigator.of(context).pop(),
+        );
+      },
     );
   }
 

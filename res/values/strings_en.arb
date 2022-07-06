@@ -618,5 +618,6 @@
   "mark_as_redeemed": "Mark As Redeemed",
   "more_options": "More Options",
   "awaiting_payment_confirmation": "Awaiting payment confirmation",
-  "transaction_sent_notice": "If the screen doesn’t proceed after 1 minute, check a block explorer and your email."
+  "transaction_sent_notice": "If the screen doesn’t proceed after 1 minute, check a block explorer and your email.",
+  "agree": "Agree"
 }
