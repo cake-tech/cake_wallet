@@ -3,6 +3,7 @@ import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ionia_purchase_merch_view_model.g.dart';
@@ -72,17 +73,15 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   }
 
   @action
-  void addTip(String tip) {
-    tipAmount = double.parse(tip);
+  void addTip(IoniaTip tip) {
+    tipAmount = tip.additionalAmount;
   }
 
   @action
   Future<void> createInvoice() async {
     try {
       invoiceCreationState = IsExecutingState();
-      invoice = await ioniaAnyPayService.purchase(
-        merchId: ioniaMerchant.id.toString(),
-        amount: giftCardAmount);
+      invoice = await ioniaAnyPayService.purchase(merchId: ioniaMerchant.id.toString(), amount: giftCardAmount);
       invoiceCreationState = ExecutedSuccessfullyState();
     } catch (e) {
       invoiceCreationState = FailureState(e.toString());

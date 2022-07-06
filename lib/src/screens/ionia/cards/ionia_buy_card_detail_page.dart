@@ -1,16 +1,21 @@
+import 'dart:ui';
+
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/screens/send/widgets/confirm_sending_alert.dart';
+import 'package:cake_wallet/src/screens/transaction_details/standart_list_item.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/store/settings_store.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
@@ -22,7 +27,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
-   IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel, this.merchant){
+  IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel, this.merchant) {
     ioniaPurchaseViewModel.setSelectedMerchant(merchant);
   }
 
@@ -77,22 +82,22 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final merchant =  ioniaPurchaseViewModel.ioniaMerchant;
+    final merchant = ioniaPurchaseViewModel.ioniaMerchant;
     final _backgroundColor = currentTheme.type == ThemeType.dark ? backgroundDarkColor : backgroundLightColor;
 
     reaction((_) => ioniaPurchaseViewModel.invoiceCreationState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).error,
-                  alertContent: state.error,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-          });
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        });
       }
     });
 
@@ -100,24 +105,95 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           showPopUp<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertWithOneAction(
-                  alertTitle: S.of(context).error,
-                  alertContent: state.error,
-                  buttonText: S.of(context).ok,
-                  buttonAction: () => Navigator.of(context).pop());
-            });
-          });
+              context: context,
+              builder: (BuildContext context) {
+                return AlertWithOneAction(
+                    alertTitle: S.of(context).error,
+                    alertContent: state.error,
+                    buttonText: S.of(context).ok,
+                    buttonAction: () => Navigator.of(context).pop());
+              });
+        });
       }
 
-       if (state is ExecutedSuccessfullyState) {
-        //WidgetsBinding.instance.addPostFrameCallback((_) {
-        //  showPopUp<void>(
-        //      context: context,
-        //      builder: (BuildContext context) {
-        //      });
-        //});
+      if (state is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          showDialog<void>(
+            context: context,
+            barrierDismissible: true,
+            barrierColor: PaletteDark.darkNightBlue.withOpacity(0.75),
+            builder: (BuildContext context) {
+              return Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  child: Container(
+                    width: 327,
+                    height: 340,
+                    color: Theme.of(context).accentTextTheme.title.decorationColor,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(40, 20, 40, 0),
+                            child: Text(
+                              S.of(context).awaiting_payment_confirmation,
+                              textAlign: TextAlign.center,
+                              style: textMediumSemiBold(
+                                color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 16, bottom: 8),
+                            child: Container(
+                              height: 1,
+                              color: Theme.of(context).dividerColor,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  S.of(context).transaction_sent,
+                                  style: textMedium(
+                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                  ).copyWith(fontWeight: FontWeight.w500),
+                                ),
+                                SizedBox(height: 20),
+                                Text(
+                                  S.of(context).transaction_sent_notice,
+                                  style: textMedium(
+                                    color: Theme.of(context).primaryTextTheme.title.color,
+                                  ).copyWith(fontWeight: FontWeight.w500),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 16, bottom: 8),
+                            child: Container(
+                              height: 1,
+                              color: Theme.of(context).dividerColor,
+                            ),
+                          ),
+                          StandartListRow(
+                              title: '${S.current.transaction_details_transaction_id}:', value: 'item.value'),
+                          StandartListRow(
+                              title: '${S.current.view_in_block_explorer}:',
+                              value: '${S.current.view_transaction_on} XMRChain.net'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        });
       }
     });
 
@@ -223,16 +299,12 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                     SizedBox(height: 4),
                     TipButtonGroup(
                       selectedTip: tipAmount,
-                      onSelect: (value) async {
-                        if (value == 'custom') {
-                         final tip = await Navigator.pushNamed(context, Routes.ioniaCustomTipPage, arguments: [amount, merchant]);
-                          if(tip != null) {
-                            ioniaPurchaseViewModel.addTip(tip as String);
-                          }
-                          return;
-                        }
-                        ioniaPurchaseViewModel.addTip(value);
-                      },
+                      tipsList: [
+                        IoniaTip(percentage: 0, originalAmount: double.parse(amount)),
+                        IoniaTip(percentage: 10, originalAmount: double.parse(amount)),
+                        IoniaTip(percentage: 20, originalAmount: double.parse(amount)),
+                      ],
+                      onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
                     )
                   ],
                 ),
@@ -253,15 +325,16 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
             Padding(
               padding: EdgeInsets.only(bottom: 12),
               child: Observer(builder: (_) {
-                  return LoadingPrimaryButton(
-                      isLoading: ioniaPurchaseViewModel.invoiceCreationState is IsExecutingState
-                        || ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
-                      isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
-                      onPressed: () => purchaseCard(context),
-                      text: S.of(context).purchase_gift_card,
-                      color: Theme.of(context).accentTextTheme.body2.color,
-                      textColor: Colors.white,
-                    );}),
+                return LoadingPrimaryButton(
+                  isLoading: ioniaPurchaseViewModel.invoiceCreationState is IsExecutingState ||
+                      ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
+                  isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
+                  onPressed: () => purchaseCard(context),
+                  text: S.of(context).purchase_gift_card,
+                  color: Theme.of(context).accentTextTheme.body2.color,
+                  textColor: Colors.white,
+                );
+              }),
             ),
             SizedBox(height: 8),
             Text(S.of(context).settings_terms_and_conditions,
@@ -279,11 +352,14 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
     await ioniaPurchaseViewModel.createInvoice();
 
     if (ioniaPurchaseViewModel.invoiceCreationState is ExecutedSuccessfullyState) {
-      await _presentSuccessfulInvoiceCreationPopup(context); 
+      await _presentSuccessfulInvoiceCreationPopup(context);
     }
   }
 
-  void _showHowToUseCard(BuildContext context, IoniaMerchant merchant,) {
+  void _showHowToUseCard(
+    BuildContext context,
+    IoniaMerchant merchant,
+  ) {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
@@ -360,64 +436,61 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
         return IoniaConfirmModal(
             alertTitle: S.of(context).confirm_sending,
             alertContent: Container(
-              height: 200,
-              padding: EdgeInsets.all(15),
-              child: Column(
-                children: [
-                Row(
-                  children: [
-                  Text(S.of(context).payment_id,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: PaletteDark.pigeonBlue,
-                      decoration: TextDecoration.none)),
-                  Text(ioniaPurchaseViewModel.invoice.paymentId,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: PaletteDark.pigeonBlue,
-                        decoration: TextDecoration.none))],
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween),
-                SizedBox(height: 10),
-                Row(
-                  children: [
-                  Text(S.of(context).amount,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: PaletteDark.pigeonBlue,
-                      decoration: TextDecoration.none)),
-                  Text('$amount ${ioniaPurchaseViewModel.invoice.chain}',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: PaletteDark.pigeonBlue,
-                        decoration: TextDecoration.none))],
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween),
-                SizedBox(height: 25),
-                Row(children: [
-                  Text(S.of(context).recipient_address,
+                height: 200,
+                padding: EdgeInsets.all(15),
+                child: Column(children: [
+                  Row(children: [
+                    Text(S.of(context).payment_id,
+                        textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: PaletteDark.pigeonBlue,
-                          decoration: TextDecoration.none))],
-                    mainAxisAlignment: MainAxisAlignment.center),
-                Expanded(child:
-                  ListView.builder(
-                    itemBuilder: (_, int index) {
-                      return Text(addresses[index],
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w400,
-                              color: PaletteDark.pigeonBlue,
-                              decoration: TextDecoration.none));
-                      },
-                    itemCount: addresses.length,
-                    physics: NeverScrollableScrollPhysics()))
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: PaletteDark.pigeonBlue,
+                            decoration: TextDecoration.none)),
+                    Text(ioniaPurchaseViewModel.invoice.paymentId,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: PaletteDark.pigeonBlue,
+                            decoration: TextDecoration.none))
+                  ], mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                  SizedBox(height: 10),
+                  Row(children: [
+                    Text(S.of(context).amount,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: PaletteDark.pigeonBlue,
+                            decoration: TextDecoration.none)),
+                    Text('$amount ${ioniaPurchaseViewModel.invoice.chain}',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: PaletteDark.pigeonBlue,
+                            decoration: TextDecoration.none))
+                  ], mainAxisAlignment: MainAxisAlignment.spaceBetween),
+                  SizedBox(height: 25),
+                  Row(children: [
+                    Text(S.of(context).recipient_address,
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: PaletteDark.pigeonBlue,
+                            decoration: TextDecoration.none))
+                  ], mainAxisAlignment: MainAxisAlignment.center),
+                  Expanded(
+                      child: ListView.builder(
+                          itemBuilder: (_, int index) {
+                            return Text(addresses[index],
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: PaletteDark.pigeonBlue,
+                                    decoration: TextDecoration.none));
+                          },
+                          itemCount: addresses.length,
+                          physics: NeverScrollableScrollPhysics()))
                 ])),
             rightButtonText: S.of(context).ok,
             leftButtonText: S.of(context).cancel,
@@ -428,8 +501,8 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
               await ioniaPurchaseViewModel.commitPaymentInvoice();
             },
             actionLeftButton: () => Navigator.of(context).pop());
-        },
-      );
+      },
+    );
   }
 }
 
@@ -438,22 +511,17 @@ class TipButtonGroup extends StatelessWidget {
     Key key,
     @required this.selectedTip,
     @required this.onSelect,
+    @required this.tipsList,
   }) : super(key: key);
 
-  final Function(String) onSelect;
+  final Function(IoniaTip) onSelect;
   final double selectedTip;
+  final List<IoniaTip> tipsList;
 
   bool _isSelected(String value) {
     final tip = selectedTip.round().toString();
-
-    if (value == 'custom' && !tipsList.contains(tip)) {
-      return true;
-    }
-
     return tip == value;
   }
-
-  static const tipsList = ['0', '10', '20'];
 
   @override
   Widget build(BuildContext context) {
@@ -462,19 +530,14 @@ class TipButtonGroup extends StatelessWidget {
         ...[
           for (var i = 0; i < tipsList.length; i++) ...[
             TipButton(
-              isSelected: _isSelected(tipsList[i]),
+              isSelected: _isSelected(tipsList[i].originalAmount.toString()),
               onTap: () => onSelect(tipsList[i]),
-              caption: '${tipsList[i]}%',
-              subTitle: '\$0.00',
+              caption: '${tipsList[i].percentage}%',
+              subTitle: '\$${tipsList[i].additionalAmount}',
             ),
             SizedBox(width: 4),
           ]
         ],
-        TipButton(
-          isSelected: _isSelected('custom'),
-          onTap: () => onSelect('custom'),
-          caption: S.of(context).custom,
-        ),
       ],
     );
   }

@@ -13,6 +13,7 @@ class IoniaConfirmModal extends StatelessWidget {
     @required this.actionRightButton,
     this.leftActionColor,
     this.rightActionColor,
+    this.hideActions = false,
   });
 
   final String alertTitle;
@@ -23,6 +24,7 @@ class IoniaConfirmModal extends StatelessWidget {
   final VoidCallback actionRightButton;
   final Color leftActionColor;
   final Color rightActionColor;
+  final bool hideActions;
 
   Widget actionButtons(BuildContext context) {
     return Row(

@@ -614,5 +614,9 @@
   "add_tip": "Add Tip",
   "percentageOf": "of ${amount}",
   "is_percentage": "is",
-  "search_category": "Search category"
+  "search_category": "Search category",
+  "mark_as_redeemed": "Mark As Redeemed",
+  "more_options": "More Options",
+  "awaiting_payment_confirmation": "Awaiting payment confirmation",
+  "transaction_sent_notice": "If the screen doesn’t proceed after 1 minute, check a block explorer and your email."
 }
