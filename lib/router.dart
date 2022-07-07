@@ -384,13 +384,13 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.numberSettings:
       return MaterialPageRoute<NumberSettingsPage>(
         settings: RouteSettings(name: Routes.numberSettings),
-        builder: (_) => getIt.get<NumberSettingsPage>(),
+        builder: (_) => getIt.get<NumberSettingsPage>(param1: settings.arguments as PhoneNumberService),
       );
 
     case Routes.autoRenewSettings:
       return MaterialPageRoute<AutoRenewSettingsPage>(
         settings: RouteSettings(name: Routes.autoRenewSettings),
-        builder: (_) => getIt.get<AutoRenewSettingsPage>(),
+        builder: (_) => getIt.get<AutoRenewSettingsPage>(param1: settings.arguments as PhoneNumberService),
       );
 
     case Routes.addBalance:

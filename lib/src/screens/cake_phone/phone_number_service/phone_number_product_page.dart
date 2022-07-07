@@ -6,6 +6,7 @@ import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/plan_card.dart';
+import 'package:cake_wallet/src/screens/cake_phone/widgets/receipt_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
 import 'package:cake_wallet/src/widgets/info_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
@@ -252,7 +253,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           children: [
                             GestureDetector(
                               onTap: () => widget.phonePlanViewModel.removeAdditionalSms(),
-                              child: icon(Icons.remove),
+                              child: quantityIcon(Icons.remove),
                             ),
                             Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -269,7 +270,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             ),
                             GestureDetector(
                               onTap: () => widget.phonePlanViewModel.addAdditionalSms(),
-                              child: icon(Icons.add),
+                              child: quantityIcon(Icons.add),
                             ),
                           ],
                         ),
@@ -318,8 +319,9 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              receiptRow(S.of(context).amount, amountText(widget.phonePlanViewModel.totalPrice)),
-                              receiptRow("${S.of(context).cake_pay_balance}: ", amountText(100)),
+                              ReceiptRow(
+                                  title: S.of(context).amount, value: amountText(widget.phonePlanViewModel.totalPrice)),
+                              ReceiptRow(title: "${S.of(context).cake_pay_balance}: ", value: amountText(100)),
                             ],
                           ),
                           isDividerExists: true,
@@ -355,17 +357,21 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           contentWidget: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              receiptRow(S.of(context).amount, cryptoAmount(widget.phonePlanViewModel.totalPrice)),
-                              receiptRow(
-                                  S.of(context).send_fee,
-                                  cryptoAmount(getIt
-                                      .get<AppStore>()
-                                      .wallet
-                                      .calculateEstimatedFee(
-                                        getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet.type],
-                                        widget.phonePlanViewModel.totalPrice.floor(),
-                                      )
-                                      .toDouble())),
+                              ReceiptRow(
+                                title: S.of(context).amount,
+                                value: cryptoAmount(widget.phonePlanViewModel.totalPrice),
+                              ),
+                              ReceiptRow(
+                                title: S.of(context).send_fee,
+                                value: cryptoAmount(getIt
+                                    .get<AppStore>()
+                                    .wallet
+                                    .calculateEstimatedFee(
+                                      getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet.type],
+                                      widget.phonePlanViewModel.totalPrice.floor(),
+                                    )
+                                    .toDouble()),
+                              ),
                               const SizedBox(height: 45),
                               Text(
                                 S.of(context).recipient_address,
@@ -410,7 +416,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
     );
   }
 
-  Widget icon(IconData icon) {
+  Widget quantityIcon(IconData icon) {
     if (widget.phoneNumberService == null) {
       return Container(
         padding: const EdgeInsets.all(8),
@@ -437,26 +443,6 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
             size: 15,
           ),
         ),
-      ),
-    );
-  }
-
-  Widget receiptRow(String title, Widget value) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).accentTextTheme.subhead.color,
-            ),
-          ),
-          value,
-        ],
       ),
     );
   }
