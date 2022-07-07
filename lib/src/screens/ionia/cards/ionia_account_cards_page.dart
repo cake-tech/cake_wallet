@@ -143,8 +143,8 @@ class _IoniaCardListView extends StatelessWidget {
             itemCount: merchList.length,
             itemBuilder: (context, index) {
               final merchant = merchList[index];
-              return  Padding(
-                padding: const EdgeInsets.all(24.0),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
                 child: CardItem(
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),

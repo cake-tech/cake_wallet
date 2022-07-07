@@ -29,7 +29,7 @@ abstract class IoniaAccountViewModelBase with Store {
   List<IoniaMerchant> get activeMechs => merchs.where((merch) => merch.isActive).toList();
 
   @computed
-  List<IoniaMerchant> get redeemedMerchs => merchs.where((merch) => merch.isActive).toList();
+  List<IoniaMerchant> get redeemedMerchs => merchs.where((merch) => !merch.isActive).toList();
 
   @action
   void logout() {
