@@ -27,6 +27,7 @@ import 'package:mobx/mobx.dart';
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
   IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel, this.merchant) {
     ioniaPurchaseViewModel.setSelectedMerchant(merchant);
+    ioniaPurchaseViewModel.onAmountChanged(amount);
   }
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
@@ -131,7 +132,6 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       }
     });
 
-    ioniaPurchaseViewModel.onAmountChanged(amount);
     return Scaffold(
       backgroundColor: _backgroundColor,
       body: ScrollableWithBottomSection(
@@ -231,14 +231,12 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 4),
-                    TipButtonGroup(
-                      selectedTip: tipAmount,
-                      tipsList: [
-                        IoniaTip(percentage: 0, originalAmount: double.parse(amount)),
-                        IoniaTip(percentage: 10, originalAmount: double.parse(amount)),
-                        IoniaTip(percentage: 20, originalAmount: double.parse(amount)),
-                      ],
-                      onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
+                    Observer(
+                      builder:(_)=> TipButtonGroup(
+                        selectedTip: ioniaPurchaseViewModel.selectedTip.percentage,
+                        tipsList: ioniaPurchaseViewModel.tips,
+                        onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
+                      ),
                     )
                   ],
                 ),
@@ -550,8 +548,8 @@ class TipButtonGroup extends StatelessWidget {
   final double selectedTip;
   final List<IoniaTip> tipsList;
 
-  bool _isSelected(String value) {
-    final tip = selectedTip.round().toString();
+  bool _isSelected(double value) {
+    final tip = selectedTip;
     return tip == value;
   }
 
@@ -562,7 +560,7 @@ class TipButtonGroup extends StatelessWidget {
         ...[
           for (var i = 0; i < tipsList.length; i++) ...[
             TipButton(
-              isSelected: _isSelected(tipsList[i].originalAmount.toString()),
+              isSelected: _isSelected(tipsList[i].percentage),
               onTap: () => onSelect(tipsList[i]),
               caption: '${tipsList[i].percentage}%',
               subTitle: '\$${tipsList[i].additionalAmount}',

@@ -16,7 +16,8 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaBuyGiftCardPage extends BasePage {
   IoniaBuyGiftCardPage(
-    this.ioniaPurchaseViewModel, this.merchant,
+    this.ioniaPurchaseViewModel,
+    this.merchant,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
     ioniaPurchaseViewModel.setSelectedMerchant(merchant);
@@ -27,7 +28,6 @@ class IoniaBuyGiftCardPage extends BasePage {
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
   final IoniaMerchant merchant;
-
 
   @override
   String get title => S.current.enter_amount;
@@ -164,17 +164,14 @@ class IoniaBuyGiftCardPage extends BasePage {
                     onPressed: () => Navigator.of(context).pushNamed(
                       Routes.ioniaBuyGiftCardDetailPage,
                       arguments: [
-                        ioniaPurchaseViewModel.amount,
+                        ioniaPurchaseViewModel.amount.toString(),
                         ioniaPurchaseViewModel.ioniaMerchant,
                       ],
                     ),
                     text: S.of(context).continue_text,
                     isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
                     color: Theme.of(context).accentTextTheme.body2.color,
-                      textColor:  Theme.of(context)
-                          .accentTextTheme
-                          .headline
-                          .decorationColor,
+                    textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
                   ),
                 );
               }),

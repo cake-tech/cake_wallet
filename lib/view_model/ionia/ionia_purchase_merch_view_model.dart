@@ -14,9 +14,21 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   IoniaMerchPurchaseViewModelBase(this.ioniaAnyPayService) {
     tipAmount = 0.0;
     percentage = 0.0;
-    amount = '';
+    amount = 0;
     enableCardPurchase = false;
+
+    selectedTip = tips.first;
   }
+
+  @computed
+  List<IoniaTip> get tips => <IoniaTip>[
+        IoniaTip(percentage: 0, originalAmount: amount),
+        IoniaTip(percentage: 10, originalAmount: amount),
+        IoniaTip(percentage: 20, originalAmount: amount),
+      ];
+
+  @observable
+  IoniaTip selectedTip;
 
   IoniaMerchant ioniaMerchant;
 
@@ -33,13 +45,13 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   ExecutionState invoiceCommittingState;
 
   @observable
-  String amount;
+  double amount;
 
   @observable
   double percentage;
 
   @computed
-  double get giftCardAmount => double.parse(amount) + tipAmount;
+  double get giftCardAmount => amount + tipAmount;
 
   @observable
   double tipAmount;
@@ -50,12 +62,11 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   @action
   void onAmountChanged(String input) {
     if (input.isEmpty) return;
-    amount = input;
-    final inputAmount = double.parse(input);
+    amount = double.parse(input);
     final min = ioniaMerchant.minimumCardPurchase;
     final max = ioniaMerchant.maximumCardPurchase;
 
-    enableCardPurchase = inputAmount >= min && inputAmount <= max;
+    enableCardPurchase = amount >= min && amount <= max;
   }
 
   void setSelectedMerchant(IoniaMerchant merchant) {
@@ -65,6 +76,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   @action
   void addTip(IoniaTip tip) {
     tipAmount = tip.additionalAmount;
+    selectedTip = tip;
   }
 
   @action
