@@ -39,6 +39,9 @@ class CakePhoneAuthBody extends StatefulWidget {
 
 class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
   final _emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  AutovalidateMode _autoValidate = AutovalidateMode.disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +49,23 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
       padding: EdgeInsets.only(top: 16),
       child: ScrollableWithBottomSection(
         contentPadding: EdgeInsets.fromLTRB(24, 100, 24, 20),
-        content: BaseTextFormField(
-          controller: _emailController,
-          keyboardType: TextInputType.emailAddress,
-          maxLines: 1,
-          hintText: S.of(context).email_address,
+        content: Form(
+          key: _formKey,
+          autovalidateMode: _autoValidate,
+          child: BaseTextFormField(
+            controller: _emailController,
+            keyboardType: TextInputType.emailAddress,
+            maxLines: 1,
+            hintText: S.of(context).email_address,
+            validator: (String text) {
+              text = text.trim();
+              if (text.isNotEmpty && RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(text)) {
+                return null;
+              }
+
+              return S.of(context).invalid_email;
+            },
+          ),
         ),
         bottomSectionPadding: EdgeInsets.only(bottom: 24, right: 24, left: 24),
         bottomSection: Column(
@@ -114,11 +129,23 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
 
   void _registerCakePhone() {
     // TODO: Add Registration logic
-    Navigator.pushNamed(context, Routes.cakePhoneVerification);
+    if (_formKey.currentState.validate()) {
+      Navigator.pushNamed(context, Routes.cakePhoneVerification);
+    } else {
+      setState(() {
+        _autoValidate = AutovalidateMode.always;
+      });
+    }
   }
 
   void _loginCakePhone() {
     // TODO: Add Login logic
-    Navigator.pushNamed(context, Routes.cakePhoneVerification);
+    if (_formKey.currentState.validate()) {
+      Navigator.pushNamed(context, Routes.cakePhoneVerification);
+    } else {
+      setState(() {
+        _autoValidate = AutovalidateMode.always;
+      });
+    }
   }
 }

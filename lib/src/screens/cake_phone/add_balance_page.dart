@@ -4,18 +4,26 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:keyboard_actions/keyboard_actions.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/view_model/cake_phone/add_balance_view_model.dart';
 
 class AddBalancePage extends BasePage {
-  AddBalancePage()
+  AddBalancePage({@required this.addBalanceViewModel})
       : _amountFocus = FocusNode(),
         _amountController = TextEditingController() {
-    _amountController.addListener(() {});
+    _amountController.addListener(() {
+      final amount = _amountController.text;
+
+      if (amount != addBalanceViewModel.buyAmountViewModel.amount) {
+        addBalanceViewModel.buyAmountViewModel.amount = amount;
+      }
+    });
   }
 
   static const _amountPattern = '^([0-9]+([.\,][0-9]{0,2})?|[.\,][0-9]{1,2})\$';
@@ -25,6 +33,7 @@ class AddBalancePage extends BasePage {
     "500 additional SMS",
   ];
 
+  final AddBalanceViewModel addBalanceViewModel;
   final FocusNode _amountFocus;
   final TextEditingController _amountController;
 
@@ -151,13 +160,19 @@ class AddBalancePage extends BasePage {
             ],
           ),
           bottomSectionPadding: EdgeInsets.only(left: 24, right: 24, bottom: 24),
-          bottomSection: LoadingPrimaryButton(
-            onPressed: () {},
-            text: S.of(context).buy,
-            color: Theme.of(context).accentTextTheme.body2.color,
-            textColor: Colors.white,
-            isLoading: false,
-            isDisabled: _amountController.text.isEmpty,
+          bottomSection: Observer(
+            builder: (_) {
+              return LoadingPrimaryButton(
+                onPressed: () {
+
+                },
+                text: S.of(context).buy,
+                color: Theme.of(context).accentTextTheme.body2.color,
+                textColor: Colors.white,
+                isLoading: false,
+                isDisabled: addBalanceViewModel.buyAmountViewModel.amount.isEmpty,
+              );
+            }
           ),
         ),
       ),

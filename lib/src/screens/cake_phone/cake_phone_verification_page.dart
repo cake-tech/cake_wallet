@@ -37,15 +37,30 @@ class CakePhoneVerificationBody extends StatefulWidget {
 
 class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
   final _codeController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  AutovalidateMode _autoValidate = AutovalidateMode.disabled;
 
   int resendCount = 0;
   int timeLeft = 0;
+
+  bool disabled = true;
 
   @override
   void initState() {
     super.initState();
 
     _startTimer();
+
+    _codeController.addListener(() {
+      if (_codeController.text.isEmpty) {
+        disabled = true;
+        setState(() {});
+      } else if (disabled) {
+        disabled = false;
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -70,29 +85,40 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 25),
-              child: BaseTextFormField(
-                controller: _codeController,
-                maxLines: 1,
-                hintText: S.of(context).verification_code,
-                suffixIcon: timeLeft > 0
-                    ? null
-                    : InkWell(
-                        onTap: _startTimer,
-                        child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                            margin: EdgeInsets.only(bottom: 12),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).accentTextTheme.caption.color,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              S.of(context).get_code,
-                              style: TextStyle(
-                                color: Theme.of(context).primaryTextTheme.title.color,
-                                fontWeight: FontWeight.w900,
+              child: Form(
+                key: _formKey,
+                autovalidateMode: _autoValidate,
+                child: BaseTextFormField(
+                  controller: _codeController,
+                  maxLines: 1,
+                  hintText: S.of(context).verification_code,
+                  suffixIcon: timeLeft > 0
+                      ? null
+                      : InkWell(
+                          onTap: _startTimer,
+                          child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                              margin: EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).accentTextTheme.caption.color,
+                                borderRadius: BorderRadius.circular(6),
                               ),
-                            )),
-                      ),
+                              child: Text(
+                                S.of(context).get_code,
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryTextTheme.title.color,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              )),
+                        ),
+                  validator: (String text) {
+                    // TODO: check and apply verification constraints with backend
+                    if (text.length < 4) {
+                      return S.of(context).invalid_verification_code;
+                    }
+                    return null;
+                  },
+                ),
               ),
             ),
             if (timeLeft > 0)
@@ -123,16 +149,22 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
           children: <Widget>[
             PrimaryButton(
               onPressed: () {
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  Routes.cakePhoneProducts,
-                  ModalRoute.withName(Routes.cakePhoneWelcome),
-                );
+                if (_formKey.currentState.validate()) {
+                  Navigator.pushNamedAndRemoveUntil(
+                    context,
+                    Routes.cakePhoneProducts,
+                    ModalRoute.withName(Routes.cakePhoneWelcome),
+                  );
+                } else {
+                  setState(() {
+                    _autoValidate = AutovalidateMode.always;
+                  });
+                }
               },
               text: S.of(context).continue_text,
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
-              isDisabled: _codeController.text.isEmpty,
+              isDisabled: disabled,
             ),
           ],
         ),

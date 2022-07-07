@@ -594,5 +594,7 @@
   "transaction_sent_popup_info": "Your transaction was sent. \n\nIf the screen doesn’t proceed after 1 minute, check a block explorer and your email.",
   "cake_phone_products_example": "Example independent uses",
   "add_balance": "Add Balance",
-  "forwards": "forwards"
+  "forwards": "forwards",
+  "invalid_email": "Invalid Email",
+  "invalid_verification_code": "Invalid verification code"
 }

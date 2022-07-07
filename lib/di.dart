@@ -8,6 +8,7 @@ import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/auto_renew_settings_page.dart';
 import 'package:cake_wallet/src/screens/cake_phone/phone_number_service/number_settings_page.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
+import 'package:cake_wallet/view_model/cake_phone/add_balance_view_model.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
@@ -662,7 +663,13 @@ Future setup(
     ));
 
   getIt.registerFactory(() {
-    return AddBalancePage(/* Add balance view model */);
+    final wallet = getIt.get<AppStore>().wallet;
+
+    return AddBalanceViewModel(getIt.get<BuyAmountViewModel>(), wallet: wallet);
+  });
+
+  getIt.registerFactory(() {
+    return AddBalancePage(addBalanceViewModel: getIt.get<AddBalanceViewModel>());
   });
 
   _isSetupFinished = true;
