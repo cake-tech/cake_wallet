@@ -316,9 +316,10 @@ class ExchangeCardState extends State<ExchangeCard> {
 
                       if (amountController.text.isNotEmpty) {
                         _showAmountPopup(context, paymentRequest);
-                      } else {
-                        amountController.text = paymentRequest.amount;
+                        return;
                       }
+                      widget.amountFocusNode.requestFocus();
+                        amountController.text = paymentRequest.amount;
                     },
                     placeholder: widget.hasRefundAddress
                         ? S.of(context).refund_address
@@ -465,6 +466,7 @@ class ExchangeCardState extends State<ExchangeCard> {
               rightButtonText: S.of(context).ok,
               leftButtonText: S.of(context).cancel,
               actionRightButton: () {
+                widget.amountFocusNode.requestFocus();
                 amountController.text = paymentRequest.amount;
                 Navigator.of(context).pop();
               },
