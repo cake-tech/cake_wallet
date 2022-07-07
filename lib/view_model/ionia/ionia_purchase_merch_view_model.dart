@@ -4,6 +4,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ionia_purchase_merch_view_model.g.dart';
@@ -11,16 +12,31 @@ part 'ionia_purchase_merch_view_model.g.dart';
 class IoniaMerchPurchaseViewModel = IoniaMerchPurchaseViewModelBase with _$IoniaMerchPurchaseViewModel;
 
 abstract class IoniaMerchPurchaseViewModelBase with Store {
-  IoniaMerchPurchaseViewModelBase(this.ioniaAnyPayService) {
+  IoniaMerchPurchaseViewModelBase({
+    @required this.ioniaAnyPayService,
+    @required this.amount,
+    @required this.ioniaMerchant,
+  }) {
     tipAmount = 0.0;
     percentage = 0.0;
-    amount = '';
-    enableCardPurchase = false;
+    tips = <IoniaTip>[
+      IoniaTip(percentage: 0, originalAmount: amount),
+      IoniaTip(percentage: 10, originalAmount: amount),
+      IoniaTip(percentage: 20, originalAmount: amount),
+    ];
+    selectedTip = tips.first;
   }
 
-  IoniaMerchant ioniaMerchant;
+  final double amount;
 
-  IoniaAnyPay ioniaAnyPayService;
+  List<IoniaTip> tips;
+
+  @observable
+  IoniaTip selectedTip;
+
+  final IoniaMerchant ioniaMerchant;
+
+  final IoniaAnyPay ioniaAnyPayService;
 
   AnyPayPayment invoice;
 
@@ -33,38 +49,18 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   ExecutionState invoiceCommittingState;
 
   @observable
-  String amount;
-
-  @observable
   double percentage;
 
   @computed
-  double get giftCardAmount => double.parse(amount) + tipAmount;
+  double get giftCardAmount => amount + tipAmount;
 
   @observable
   double tipAmount;
 
-  @observable
-  bool enableCardPurchase;
-
-  @action
-  void onAmountChanged(String input) {
-    if (input.isEmpty) return;
-    amount = input;
-    final inputAmount = double.parse(input);
-    final min = ioniaMerchant.minimumCardPurchase;
-    final max = ioniaMerchant.maximumCardPurchase;
-
-    enableCardPurchase = inputAmount >= min && inputAmount <= max;
-  }
-
-  void setSelectedMerchant(IoniaMerchant merchant) {
-    ioniaMerchant = merchant;
-  }
-
   @action
   void addTip(IoniaTip tip) {
     tipAmount = tip.additionalAmount;
+    selectedTip = tip;
   }
 
   @action

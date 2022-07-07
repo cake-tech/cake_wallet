@@ -16,20 +16,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 class IoniaCustomTipPage extends BasePage {
   IoniaCustomTipPage(
     this.ioniaPurchaseViewModel,
-    this.billAmount,
-    this.merchant,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
-    ioniaPurchaseViewModel.setSelectedMerchant(merchant);
-    ioniaPurchaseViewModel.onAmountChanged(billAmount);
     _amountController.addListener(() {
       // ioniaPurchaseViewModel.onTipChanged(_amountController.text);
     });
   }
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
-  final String billAmount;
-  final IoniaMerchant merchant;
+ 
 
   @override
   String get title => S.current.enter_amount;
@@ -135,7 +130,7 @@ class IoniaCustomTipPage extends BasePage {
                           children: [
                             TextSpan(text: ' ${S.of(context).is_percentage} '),
                             TextSpan(text: '${ioniaPurchaseViewModel.percentage}%'),
-                            TextSpan(text: ' ${S.of(context).percentageOf(billAmount)} '),
+                            TextSpan(text: ' ${S.of(context).percentageOf(ioniaPurchaseViewModel.amount.toString())} '),
                           ],
                         ),
                       );

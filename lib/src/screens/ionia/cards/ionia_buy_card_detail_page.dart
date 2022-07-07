@@ -25,15 +25,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 class IoniaBuyGiftCardDetailPage extends StatelessWidget {
-  IoniaBuyGiftCardDetailPage(this.amount, this.ioniaPurchaseViewModel, this.merchant) {
-    ioniaPurchaseViewModel.setSelectedMerchant(merchant);
-  }
+  IoniaBuyGiftCardDetailPage(this.ioniaPurchaseViewModel);
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
-
-  final IoniaMerchant merchant;
-
-  final String amount;
 
   ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
 
@@ -131,7 +125,6 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       }
     });
 
-    ioniaPurchaseViewModel.onAmountChanged(amount);
     return Scaffold(
       backgroundColor: _backgroundColor,
       body: ScrollableWithBottomSection(
@@ -192,7 +185,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '\$$amount',
+                                '\$${ioniaPurchaseViewModel.amount}',
                                 style: textLargeSemiBold(),
                               ),
                             ],
@@ -231,14 +224,12 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 4),
-                    TipButtonGroup(
-                      selectedTip: tipAmount,
-                      tipsList: [
-                        IoniaTip(percentage: 0, originalAmount: double.parse(amount)),
-                        IoniaTip(percentage: 10, originalAmount: double.parse(amount)),
-                        IoniaTip(percentage: 20, originalAmount: double.parse(amount)),
-                      ],
-                      onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
+                    Observer(
+                      builder: (_) => TipButtonGroup(
+                        selectedTip: ioniaPurchaseViewModel.selectedTip.percentage,
+                        tipsList: ioniaPurchaseViewModel.tips,
+                        onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
+                      ),
                     )
                   ],
                 ),
@@ -262,7 +253,6 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                 return LoadingPrimaryButton(
                   isLoading: ioniaPurchaseViewModel.invoiceCreationState is IsExecutingState ||
                       ioniaPurchaseViewModel.invoiceCommittingState is IsExecutingState,
-                  isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
                   onPressed: () => purchaseCard(context),
                   text: S.of(context).purchase_gift_card,
                   color: Theme.of(context).accentTextTheme.body2.color,
@@ -291,7 +281,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertWithOneAction(
           alertTitle: '',
-          alertContent: merchant.termsAndConditions,
+          alertContent: ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
           buttonText: S.of(context).agree,
           buttonAction: () => Navigator.of(context).pop(),
         );
@@ -550,10 +540,7 @@ class TipButtonGroup extends StatelessWidget {
   final double selectedTip;
   final List<IoniaTip> tipsList;
 
-  bool _isSelected(String value) {
-    final tip = selectedTip.round().toString();
-    return tip == value;
-  }
+  bool _isSelected(double value) => selectedTip == value;
 
   @override
   Widget build(BuildContext context) {
@@ -562,7 +549,7 @@ class TipButtonGroup extends StatelessWidget {
         ...[
           for (var i = 0; i < tipsList.length; i++) ...[
             TipButton(
-              isSelected: _isSelected(tipsList[i].originalAmount.toString()),
+              isSelected: _isSelected(tipsList[i].percentage),
               onTap: () => onSelect(tipsList[i]),
               caption: '${tipsList[i].percentage}%',
               subTitle: '\$${tipsList[i].additionalAmount}',

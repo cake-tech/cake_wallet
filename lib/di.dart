@@ -4,6 +4,7 @@ import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_api.dart';
@@ -671,7 +672,17 @@ Future setup(
 
   getIt.registerFactory(() => IoniaAuthViewModel(ioniaService: getIt.get<IoniaService>()));
 
-  getIt.registerFactory(() => IoniaMerchPurchaseViewModel(getIt.get<IoniaAnyPay>()));
+  getIt.registerFactoryParam<IoniaMerchPurchaseViewModel, double, IoniaMerchant>((double amount, merchant) {
+    return IoniaMerchPurchaseViewModel(
+      ioniaAnyPayService: getIt.get<IoniaAnyPay>(), 
+      amount: amount,
+      ioniaMerchant: merchant,
+    );
+  });
+
+   getIt.registerFactoryParam<IoniaBuyCardViewModel, IoniaMerchant, void>((IoniaMerchant merchant, _) {
+    return IoniaBuyCardViewModel(ioniaMerchant: merchant);
+  });
 
   getIt.registerFactory(() => IoniaAccountViewModel(ioniaService: getIt.get<IoniaService>()));
 
@@ -691,21 +702,20 @@ Future setup(
   getIt.registerFactoryParam<IoniaBuyGiftCardPage, List, void>((List args, _) {
     final merchant = args.first as IoniaMerchant;
 
-    return IoniaBuyGiftCardPage(getIt.get<IoniaMerchPurchaseViewModel>(), merchant);
+    return IoniaBuyGiftCardPage(getIt.get<IoniaBuyCardViewModel>(param1: merchant));
   });
 
   getIt.registerFactoryParam<IoniaBuyGiftCardDetailPage, List, void>((List args, _) {
-    final amount = args.first as String; 
+    final amount = args.first as double;
     final merchant = args.last as IoniaMerchant;
-
-    return IoniaBuyGiftCardDetailPage(amount, getIt.get<IoniaMerchPurchaseViewModel>(), merchant);
+     return IoniaBuyGiftCardDetailPage(getIt.get<IoniaMerchPurchaseViewModel>(param1: amount, param2: merchant));
   });
 
   getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {
     final amount = args.first as String;
     final merchant = args.last as IoniaMerchant;
 
-    return IoniaCustomTipPage(getIt.get<IoniaMerchPurchaseViewModel>(), amount, merchant);
+    return IoniaCustomTipPage(getIt.get<IoniaMerchPurchaseViewModel>(param1: amount, param2: merchant));
   });
 
   getIt.registerFactory(() => IoniaManageCardsPage(getIt.get<IoniaGiftCardsListViewModel>()));

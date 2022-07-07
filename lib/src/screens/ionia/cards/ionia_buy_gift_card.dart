@@ -7,6 +7,7 @@ import 'package:cake_wallet/src/widgets/keyboard_done_button.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -16,18 +17,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 
 class IoniaBuyGiftCardPage extends BasePage {
   IoniaBuyGiftCardPage(
-    this.ioniaPurchaseViewModel, this.merchant,
+    this.ioniaBuyCardViewModel,
   )   : _amountFieldFocus = FocusNode(),
         _amountController = TextEditingController() {
-    ioniaPurchaseViewModel.setSelectedMerchant(merchant);
     _amountController.addListener(() {
-      ioniaPurchaseViewModel.onAmountChanged(_amountController.text);
+      ioniaBuyCardViewModel.onAmountChanged(_amountController.text);
     });
   }
 
-  final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
-  final IoniaMerchant merchant;
-
+  final IoniaBuyCardViewModel ioniaBuyCardViewModel;
 
   @override
   String get title => S.current.enter_amount;
@@ -49,7 +47,7 @@ class IoniaBuyGiftCardPage extends BasePage {
   @override
   Widget body(BuildContext context) {
     final _width = MediaQuery.of(context).size.width;
-    final merchant = ioniaPurchaseViewModel.ioniaMerchant;
+    final merchant = ioniaBuyCardViewModel.ioniaMerchant;
     return KeyboardActions(
       disableScroll: true,
       config: KeyboardActionsConfig(
@@ -164,17 +162,14 @@ class IoniaBuyGiftCardPage extends BasePage {
                     onPressed: () => Navigator.of(context).pushNamed(
                       Routes.ioniaBuyGiftCardDetailPage,
                       arguments: [
-                        ioniaPurchaseViewModel.amount,
-                        ioniaPurchaseViewModel.ioniaMerchant,
+                        ioniaBuyCardViewModel.amount,
+                        ioniaBuyCardViewModel.ioniaMerchant,
                       ],
                     ),
                     text: S.of(context).continue_text,
-                    isDisabled: !ioniaPurchaseViewModel.enableCardPurchase,
+                    isDisabled: !ioniaBuyCardViewModel.isEnablePurchase,
                     color: Theme.of(context).accentTextTheme.body2.color,
-                      textColor:  Theme.of(context)
-                          .accentTextTheme
-                          .headline
-                          .decorationColor,
+                    textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
                   ),
                 );
               }),
