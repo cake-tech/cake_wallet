@@ -1,6 +1,7 @@
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 
 part 'ionia_account_view_model.g.dart';
 
@@ -20,16 +21,16 @@ abstract class IoniaAccountViewModelBase with Store {
   String email;
 
   @observable
-  List<IoniaMerchant> merchs;
+  List<IoniaGiftCard> merchs;
 
   @computed
   int get countOfMerch => merchs.where((merch) => merch.isActive).length;
 
   @computed
-  List<IoniaMerchant> get activeMechs => merchs.where((merch) => merch.isActive).toList();
+  List<IoniaGiftCard> get activeMechs => merchs.where((merch) => merch.isActive).toList();
 
   @computed
-  List<IoniaMerchant> get redeemedMerchs => merchs.where((merch) => !merch.isActive).toList();
+  List<IoniaGiftCard> get redeemedMerchs => merchs.where((merch) => !merch.isActive).toList();
 
   @action
   void logout() {

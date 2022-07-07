@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/ionia/ionia_api.dart';
+import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 
 class IoniaService {
@@ -114,7 +115,7 @@ class IoniaService {
 
 	// Get Current User Gift Card Summaries
 
-	Future<List<IoniaMerchant>> getCurrentUserGiftCardSummaries() async {
+	Future<List<IoniaGiftCard>> getCurrentUserGiftCardSummaries() async {
 		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
 		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
 		return ioniaApi.getCurrentUserGiftCardSummaries(username: username, password: password, clientId: clientId);

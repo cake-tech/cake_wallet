@@ -1,3 +1,4 @@
+import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
@@ -125,7 +126,7 @@ class _IoniaCardListView extends StatelessWidget {
   }) : super(key: key);
 
   final String emptyText;
-  final List<IoniaMerchant> merchList;
+  final List<IoniaGiftCard> merchList;
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +149,11 @@ class _IoniaCardListView extends StatelessWidget {
                 child: CardItem(
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
-                  discount: merchant.minimumDiscount,
+                  discount: 0,
                   discountBackground: AssetImage('assets/images/red_badge_discount.png'),
                   titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
                   subtitleColor: Theme.of(context).hintColor,
-                  subTitle:
-                      '${merchant.isOnline ? '${S.of(context).online}' ' && ${S.current.in_store}' : S.of(context).offline}',
+                  subTitle: '',
                   logoUrl: merchant.logoUrl,
                 ),
               );

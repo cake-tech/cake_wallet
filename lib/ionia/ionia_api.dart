@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'package:cake_wallet/ionia/ionia_user_credentials.dart';
 import 'package:cake_wallet/ionia/ionia_virtual_card.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
+import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 
 class IoniaApi {
 	static const baseUri = 'apidev.ionia.io';
@@ -17,6 +18,7 @@ class IoniaApi {
 	static final getMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchants');
 	static final getMerchantsByFilterUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchantsByFilter');
   	static final getPurchaseMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/PurchaseGiftCard');
+  	static final getCurrentUserGiftCardSummariesUrl = Uri.https(baseUri, '/$pathPrefix/GetCurrentUserGiftCardSummaries');
 
 	// Create user
 
@@ -245,7 +247,7 @@ class IoniaApi {
 
 	// Get Current User Gift Card Summaries
 
-	Future<List<IoniaMerchant>> getCurrentUserGiftCardSummaries({
+	Future<List<IoniaGiftCard>> getCurrentUserGiftCardSummaries({
 		@required String username,
 		@required String password,
 		@required String clientId}) async {
@@ -253,7 +255,7 @@ class IoniaApi {
 			'clientId': clientId,
 			'username': username,
 			'password': password};
-		final response = await post(getMerchantsUrl, headers: headers);
+		final response = await post(getCurrentUserGiftCardSummariesUrl, headers: headers);
 
 		if (response.statusCode != 200) {
 			return [];
@@ -269,7 +271,7 @@ class IoniaApi {
 		final data = decodedBody['Data'] as List<dynamic>;
 		return data.map((dynamic e) {
 			final element = e as Map<String, dynamic>;
-			return IoniaMerchant.fromJsonMap(element);
+			return IoniaGiftCard.fromJsonMap(element);
 		}).toList();
 	}
 }
