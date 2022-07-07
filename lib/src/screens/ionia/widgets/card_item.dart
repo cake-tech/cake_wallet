@@ -2,17 +2,16 @@ import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:flutter/material.dart';
 
 class CardItem extends StatelessWidget {
-
   CardItem({
     @required this.title,
     @required this.subTitle,
     @required this.backgroundColor,
     @required this.titleColor,
     @required this.subtitleColor,
+    this.discountBackground,
     this.onTap,
     this.logoUrl,
     this.discount,
-
   });
 
   final VoidCallback onTap;
@@ -23,6 +22,7 @@ class CardItem extends StatelessWidget {
   final Color backgroundColor;
   final Color titleColor;
   final Color subtitleColor;
+  final AssetImage discountBackground;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +70,7 @@ class CardItem extends StatelessWidget {
                         title,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color:  titleColor,
+                          color: titleColor,
                           fontSize: 20,
                           fontWeight: FontWeight.w900,
                         ),
@@ -80,9 +80,10 @@ class CardItem extends StatelessWidget {
                     Text(
                       subTitle,
                       style: TextStyle(
-                          color: subtitleColor,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Lato'),
+                        color: subtitleColor,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Lato',
+                      ),
                     )
                   ],
                 ),
@@ -94,7 +95,10 @@ class CardItem extends StatelessWidget {
               alignment: Alignment.topRight,
               child: Padding(
                 padding: const EdgeInsets.only(top: 20.0),
-                child: DiscountBadge(percentage: discount),
+                child: DiscountBadge(
+                  percentage: discount,
+                  discountBackground: discountBackground,
+                ),
               ),
             ),
         ],
@@ -104,7 +108,6 @@ class CardItem extends StatelessWidget {
 }
 
 class _PlaceholderContainer extends StatelessWidget {
-
   const _PlaceholderContainer({@required this.text});
 
   final String text;

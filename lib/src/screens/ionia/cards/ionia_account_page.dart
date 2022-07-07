@@ -26,7 +26,6 @@ class IoniaAccountPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    final deviceWidth = MediaQuery.of(context).size.width;
     return ScrollableWithBottomSection(
       contentPadding: EdgeInsets.all(24),
       content: Column(
@@ -35,18 +34,18 @@ class IoniaAccountPage extends BasePage {
             content: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Observer(builder: (_) =>
-                  RichText(
-                    text: TextSpan(
-                      text: '${ioniaAccountViewModel.countOfMerch}',
-                      style: textLargeSemiBold(),
-                      children: [
-                        TextSpan(
-                            text: ' ${S.of(context).active_cards}',
-                            style: textSmall(color: Colors.white.withOpacity(0.7))),
-                      ],
-                    ),
-                  )),
+                Observer(
+                    builder: (_) => RichText(
+                          text: TextSpan(
+                            text: '${ioniaAccountViewModel.countOfMerch}',
+                            style: textLargeSemiBold(),
+                            children: [
+                              TextSpan(
+                                  text: ' ${S.of(context).active_cards}',
+                                  style: textSmall(color: Colors.white.withOpacity(0.7))),
+                            ],
+                          ),
+                        )),
                 InkWell(
                   onTap: () => Navigator.pushNamed(context, Routes.ioniaAccountCardsPage),
                   child: Padding(
@@ -121,10 +120,9 @@ class IoniaAccountPage extends BasePage {
           //  ],
           //),
           SizedBox(height: 40),
-          Observer(builder: (_) =>
-             IoniaTile(
-              title: S.of(context).email_address,
-              subTitle: ioniaAccountViewModel.email)),
+          Observer(
+            builder: (_) => IoniaTile(title: S.of(context).email_address, subTitle: ioniaAccountViewModel.email),
+          ),
           Divider()
         ],
       ),

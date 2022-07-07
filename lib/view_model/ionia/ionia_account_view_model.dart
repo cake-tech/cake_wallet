@@ -7,14 +7,11 @@ part 'ionia_account_view_model.g.dart';
 class IoniaAccountViewModel = IoniaAccountViewModelBase with _$IoniaAccountViewModel;
 
 abstract class IoniaAccountViewModelBase with Store {
-
   IoniaAccountViewModelBase({this.ioniaService}) {
     email = '';
     merchs = [];
-    ioniaService.getUserEmail()
-      .then((email) => this.email = email);
-    ioniaService.getCurrentUserGiftCardSummaries()
-      .then((merchs) => this.merchs = merchs);
+    ioniaService.getUserEmail().then((email) => this.email = email);
+    ioniaService.getCurrentUserGiftCardSummaries().then((merchs) => this.merchs = merchs);
   }
 
   final IoniaService ioniaService;
@@ -28,9 +25,14 @@ abstract class IoniaAccountViewModelBase with Store {
   @computed
   int get countOfMerch => merchs.where((merch) => merch.isActive).length;
 
+  @computed
+  List<IoniaMerchant> get activeMechs => merchs.where((merch) => merch.isActive).toList();
+
+  @computed
+  List<IoniaMerchant> get redeemedMerchs => merchs.where((merch) => !merch.isActive).toList();
+
   @action
-  void logout(){
+  void logout() {
     ioniaService.logout();
   }
-
 }
