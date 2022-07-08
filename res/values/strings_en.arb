@@ -620,5 +620,5 @@
   "awaiting_payment_confirmation": "Awaiting payment confirmation",
   "transaction_sent_notice": "If the screen doesn’t proceed after 1 minute, check a block explorer and your email.",
   "agree": "Agree",
-  "in_store": "In Store"
+  "in_store": "In Store",
 }
