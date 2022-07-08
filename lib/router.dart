@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_details_page.dart';
 import 'package:cake_wallet/src/screens/unspent_coins/unspent_coins_list_page.dart';
+import 'package:cake_wallet/view_model/cake_phone/cake_phone_auth_view_model.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:cake_wallet/view_model/monero_account_list/account_list_item.dart';
 import 'package:flutter/cupertino.dart';
@@ -351,7 +352,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
       return MaterialPageRoute<CakePhoneWelcomePage>(
         settings: RouteSettings(name: Routes.cakePhoneAuth),
-        builder: (_) => CakePhoneAuthPage(isLogin: isLogin),
+        builder: (_) => CakePhoneAuthPage(
+          isLogin: isLogin,
+          cakePhoneAuthViewModel: getIt.get<CakePhoneAuthViewModel>(),
+        ),
       );
 
     case Routes.cakePhoneVerification:

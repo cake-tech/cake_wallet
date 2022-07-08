@@ -22,4 +22,5 @@ class PreferencesKey {
   static const bitcoinTransactionPriority = 'current_fee_priority_bitcoin';
   static const shouldShowReceiveWarning = 'should_show_receive_warning';
   static const shouldShowYatPopup = 'should_show_yat_popup';
+  static const cakePhoneTokenKey = 'cake_phone_token_key';
 }
