@@ -60,7 +60,7 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     });
   }
 
-  static const int _autoSaveInterval = 30;
+  static const int _autoSaveInterval = 63;
 
   @override
   late MoneroWalletAddresses walletAddresses;
@@ -111,8 +111,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
     }
 
-    _autoSaveTimer = Timer.periodic(
-        Duration(seconds: _autoSaveInterval), (_) async => await save());
+    _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveInterval),
+        (_) async => await save(prioritySave: true));
   }
 
   @override
@@ -251,10 +251,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
   }
 
   @override
-  Future<void> save() async {
+  Future<bool> save({bool prioritySave = false}) async {
+    print("save is called");
     await walletAddresses.updateAddressesInBox();
     await backupWalletFiles(name!);
-    await monero_wallet.store();
+    return await monero_wallet.store(prioritySave: prioritySave);
   }
 
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();

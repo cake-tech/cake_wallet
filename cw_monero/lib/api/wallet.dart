@@ -326,15 +326,20 @@ Future setupNode(
 
 int storeTime = 0;
 
-Future store() async {
-  print(DateTime.now().millisecondsSinceEpoch);
-  if (DateTime.now().millisecondsSinceEpoch < storeTime + 10000) {
+Future<bool> store({bool prioritySave = false}) async {
+  print("${DateTime.now().millisecondsSinceEpoch} $prioritySave");
+  if (DateTime.now().millisecondsSinceEpoch < storeTime + 60000 &&
+      prioritySave) {
     await Future.delayed(Duration(seconds: 1));
-    return store();
+    return store(prioritySave: prioritySave);
+  } else if (DateTime.now().millisecondsSinceEpoch < storeTime + 60000 &&
+      !prioritySave) {
+    return false;
   }
   print("released $storeTime");
   storeTime = DateTime.now().millisecondsSinceEpoch;
   await compute<int, void>(_storeSync, 0);
+  return true;
 }
 
 Future<bool> isConnected() => compute(_isConnected, 0);
