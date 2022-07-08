@@ -27,13 +27,10 @@ class AddOptionsTile extends StatelessWidget {
               color: Theme.of(context).primaryTextTheme.title.color,
             ),
             const SizedBox(width: 16),
-            Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Theme.of(context).primaryTextTheme.title.color,
-              ),
-              child: Icon(Icons.add, color: Colors.white, size: 15),
+            Icon(
+              Icons.add_circle,
+              color: Theme.of(context).primaryTextTheme.title.color,
+              size: 24,
             ),
           ],
         ),

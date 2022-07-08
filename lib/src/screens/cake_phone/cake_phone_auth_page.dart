@@ -1,3 +1,4 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -95,7 +96,7 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
                     TextSpan(
                       text: " ${S.of(context).settings_terms_and_conditions}",
                       style: TextStyle(
-                        color: Theme.of(context).accentTextTheme.display1.color,
+                        color: Palette.blueCraiola,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -105,7 +106,7 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
                     TextSpan(
                       text: "${S.of(context).privacy_policy} ",
                       style: TextStyle(
-                        color: Theme.of(context).accentTextTheme.display1.color,
+                        color: Palette.blueCraiola,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

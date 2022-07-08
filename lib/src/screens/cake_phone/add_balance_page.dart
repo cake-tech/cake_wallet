@@ -179,6 +179,7 @@ class AddBalancePage extends BasePage {
                           alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
                           contentWidget: Material(
+                            color: Colors.transparent,
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -296,6 +297,7 @@ class AddBalancePage extends BasePage {
             alertContent: Padding(
               padding: const EdgeInsets.only(top: 8, bottom: 32),
               child: Material(
+                color: Colors.transparent,
                 child: Column(
                   children: [
                     Padding(
