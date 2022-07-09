@@ -111,8 +111,8 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
       }
     }
 
-    _autoSaveTimer = Timer.periodic(Duration(seconds: _autoSaveInterval),
-        (_) async => await save(prioritySave: true));
+    // _autoSaveTimer = Timer.periodic(
+    //     Duration(seconds: _autoSaveInterval), (_) async => await save());
   }
 
   @override

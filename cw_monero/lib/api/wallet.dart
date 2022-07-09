@@ -325,12 +325,19 @@ Future setupNode(
     });
 
 int storeTime = 0;
+bool priorityInQueue = false;
 
 Future<bool> store({bool prioritySave = false}) async {
-  print("${DateTime.now().millisecondsSinceEpoch} $prioritySave");
+  if (priorityInQueue) {
+    return false;
+  }
+  print(
+      "${DateTime.now().millisecondsSinceEpoch} $prioritySave $priorityInQueue");
   if (DateTime.now().millisecondsSinceEpoch < storeTime + 60000 &&
       prioritySave) {
+    priorityInQueue = true;
     await Future.delayed(Duration(seconds: 1));
+    priorityInQueue = false;
     return store(prioritySave: prioritySave);
   } else if (DateTime.now().millisecondsSinceEpoch < storeTime + 60000 &&
       !prioritySave) {
