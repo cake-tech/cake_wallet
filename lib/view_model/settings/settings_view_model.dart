@@ -207,6 +207,31 @@ abstract class SettingsViewModelBase with Store {
                 setAllowBiometricalAuthentication(value);
               }
             }),
+        SwitcherListItem(
+            title: S.current.disable_fiat,
+            value: () => allowBiometricalAuthentication,
+            onValueChange: (BuildContext context, bool value) {
+              if (value) {
+                Navigator.of(context).pushNamed(Routes.auth, arguments:
+                    (bool isAuthenticatedSuccessfully,
+                    AuthPageState auth) async {
+                  if (isAuthenticatedSuccessfully) {
+                    if (await _biometricAuth.canCheckBiometrics() &&
+                        await _biometricAuth.isAuthenticated()) {
+                      setAllowBiometricalAuthentication(
+                          isAuthenticatedSuccessfully);
+                    }
+                  } else {
+                    setAllowBiometricalAuthentication(
+                        isAuthenticatedSuccessfully);
+                  }
+
+                  auth.close();
+                });
+              } else {
+                setAllowBiometricalAuthentication(value);
+              }
+            }),
         ChoicesListItem(
           title: S.current.color_theme,
           items: ThemeList.all,

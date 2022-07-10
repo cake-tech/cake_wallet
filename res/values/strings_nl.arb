@@ -534,5 +534,6 @@
   "search_currency": "Zoek valuta",
   "new_template" : "Nieuwe sjabloon",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
-  "wallet_name_exists": "Portemonnee met die naam bestaat al"
+  "wallet_name_exists": "Portemonnee met die naam bestaat al",
+  "disable_fiat": "Schakel fiat uit"
 }

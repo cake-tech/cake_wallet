@@ -532,5 +532,6 @@
   "search_currency": "Devise de recherche",
   "new_template" : "Nouveau Modèle",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner",
-  "wallet_name_exists": "Le portefeuille portant ce nom existe déjà"
+  "wallet_name_exists": "Le portefeuille portant ce nom existe déjà",
+  "disable_fiat": "Désactiver fiat"
 }

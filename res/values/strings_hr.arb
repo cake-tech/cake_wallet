@@ -534,5 +534,6 @@
   "search_currency": "Traži valutu",
   "new_template" : "novi predložak",
   "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek",
-  "wallet_name_exists": "Novčanik s tim nazivom već postoji"
+  "wallet_name_exists": "Novčanik s tim nazivom već postoji",
+  "disable_fiat": "िएट अक्षम करें"
 }

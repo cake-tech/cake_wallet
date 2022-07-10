@@ -534,5 +534,6 @@
   "search_currency": "통화 검색",
   "new_template" : "새 템플릿",
   "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다.",
-  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다."
+  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다.",
+  "disable_fiat": "법정화폐 비활성화"
 }

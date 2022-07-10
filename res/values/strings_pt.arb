@@ -534,5 +534,6 @@
   "search_currency": "Pesquisar moeda",
   "new_template" : "Novo modelo",
   "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
-  "wallet_name_exists": "A carteira com esse nome já existe"
+  "wallet_name_exists": "A carteira com esse nome já existe",
+  "disable_fiat": "Desativar fiat"
 }

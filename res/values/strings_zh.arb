@@ -532,5 +532,6 @@
   "search_currency": "搜索货币",
   "new_template" : "新模板",
   "electrum_address_disclaimer": "每次您使用一个地址时，我们都会生成新地址，但之前的地址仍然有效",
-  "wallet_name_exists": "同名的钱包已经存在"
+  "wallet_name_exists": "同名的钱包已经存在",
+  "disable_fiat": "禁用法令"
 }

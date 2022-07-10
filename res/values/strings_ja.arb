@@ -534,5 +534,6 @@
   "search_currency": "検索通貨",
   "new_template" : "新しいテンプレート",
   "electrum_address_disclaimer": "使用するたびに新しいアドレスが生成されますが、以前のアドレスは引き続き機能します",
-  "wallet_name_exists": "その名前のウォレットはすでに存在しています"
+  "wallet_name_exists": "その名前のウォレットはすでに存在しています",
+  "disable_fiat": "フィアットを無効にする"
 }
