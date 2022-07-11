@@ -449,7 +449,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
 
     case Routes.ioniaGiftCardDetailPage:
       final args = settings.arguments as List;
-      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args));
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
 
     default:
       return MaterialPageRoute<void>(

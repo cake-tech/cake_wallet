@@ -713,9 +713,8 @@ Future setup(
      return IoniaBuyGiftCardDetailPage(getIt.get<IoniaMerchPurchaseViewModel>(param1: amount, param2: merchant));
   });
 
-  getIt.registerFactoryParam<IoniaGiftCardDetailPage, List, void>((List args, _) {
-    final merchant = args.last as IoniaGiftCard;
-     return IoniaGiftCardDetailPage(merchant);
+  getIt.registerFactoryParam<IoniaGiftCardDetailPage, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
+     return IoniaGiftCardDetailPage(giftCard);
   });
 
   getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {
