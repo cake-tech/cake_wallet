@@ -72,5 +72,5 @@ class Routes {
   static const ioniaAccountPage = 'ionia_account_page';
   static const ioniaAccountCardsPage = 'ionia_account_cards_page';
   static const ioniaCustomTipPage = 'ionia_custom_tip_page';
-
+  static const ioniaGiftCardDetailPage = '/ionia_gift_card_detail_page';
 }

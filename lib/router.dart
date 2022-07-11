@@ -8,6 +8,7 @@ import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -445,6 +446,10 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaCustomTipPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) =>getIt.get<IoniaCustomTipPage>(param1: args));
+
+    case Routes.ioniaGiftCardDetailPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
 
     default:
       return MaterialPageRoute<void>(

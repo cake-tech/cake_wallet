@@ -1,5 +1,6 @@
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';
 import 'package:cake_wallet/typography.dart';
@@ -147,6 +148,11 @@ class _IoniaCardListView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: CardItem(
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    Routes.ioniaGiftCardDetailPage,
+                    arguments: [merchant],
+                  ),
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
                   discount: 0,
