@@ -1,11 +1,6 @@
-import 'package:cake_wallet/buy/buy_amount.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/entities/cake_phone_entities/phone_number_service.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/plan_card.dart';
-import 'package:cake_wallet/store/app_store.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -160,78 +155,6 @@ class AutoRenewSettingsBodyState extends State<AutoRenewSettingsBody> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget receiptRow(String title, Widget value) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Theme.of(context).accentTextTheme.subhead.color,
-            ),
-          ),
-          value,
-        ],
-      ),
-    );
-  }
-
-  Widget amountText(double amount) {
-    return Text(
-      "\$${amount.roundToDouble() == amount ? amount.round() : amount}",
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        color: Theme.of(context).primaryTextTheme.title.color,
-      ),
-    );
-  }
-
-  Widget cryptoAmount(double totalPrice) {
-    return FutureBuilder<BuyAmount>(
-      future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet)
-          .calculateAmount(totalPrice.toString(), FiatCurrency.usd.title),
-      builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
-        double sourceAmount;
-        double destAmount;
-
-        if (snapshot.hasData) {
-          sourceAmount = snapshot.data.sourceAmount;
-          destAmount = snapshot.data.destAmount;
-        } else {
-          sourceAmount = 0.0;
-          destAmount = 0.0;
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              "${sourceAmount} ${getIt.get<AppStore>().wallet.currency.toString()}",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).primaryTextTheme.title.color,
-              ),
-            ),
-            Text(
-              "${destAmount} ${FiatCurrency.usd.title}",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).accentTextTheme.subhead.color,
-              ),
-            ),
-          ],
-        );
-      },
     );
   }
 }
