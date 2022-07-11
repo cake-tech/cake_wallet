@@ -61,6 +61,7 @@ Future defaultSettingsMigration(
               PreferencesKey.currentBalanceDisplayModeKey,
               BalanceDisplayMode.availableBalance.raw);
           await sharedPreferences.setBool('save_recipient_address', true);
+          await sharedPreferences.setBool('disable_fiat', false);
           await resetToDefault(nodes);
           await changeMoneroCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);

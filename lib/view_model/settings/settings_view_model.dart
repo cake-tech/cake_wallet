@@ -208,30 +208,11 @@ abstract class SettingsViewModelBase with Store {
               }
             }),
         SwitcherListItem(
-            title: S.current.disable_fiat,
-            value: () => allowBiometricalAuthentication,
-            onValueChange: (BuildContext context, bool value) {
-              if (value) {
-                Navigator.of(context).pushNamed(Routes.auth, arguments:
-                    (bool isAuthenticatedSuccessfully,
-                    AuthPageState auth) async {
-                  if (isAuthenticatedSuccessfully) {
-                    if (await _biometricAuth.canCheckBiometrics() &&
-                        await _biometricAuth.isAuthenticated()) {
-                      setAllowBiometricalAuthentication(
-                          isAuthenticatedSuccessfully);
-                    }
-                  } else {
-                    setAllowBiometricalAuthentication(
-                        isAuthenticatedSuccessfully);
-                  }
-
-                  auth.close();
-                });
-              } else {
-                setAllowBiometricalAuthentication(value);
-              }
-            }),
+          title: S.current.disable_fiat,
+          value: () => shouldDisableFiat,
+          onValueChange: (_, bool value) =>
+              setShouldDisableFiat(value)
+        ),
         ChoicesListItem(
           title: S.current.color_theme,
           items: ThemeList.all,
@@ -293,6 +274,10 @@ abstract class SettingsViewModelBase with Store {
       _settingsStore.shouldSaveRecipientAddress;
 
   @computed
+  bool get shouldDisableFiat =>
+      _settingsStore.shouldDisableFiat;
+
+  @computed
   bool get allowBiometricalAuthentication =>
       _settingsStore.allowBiometricalAuthentication;
 
@@ -319,6 +304,10 @@ abstract class SettingsViewModelBase with Store {
   @action
   void setShouldSaveRecipientAddress(bool value) =>
       _settingsStore.shouldSaveRecipientAddress = value;
+
+  @action
+  void setShouldDisableFiat(bool value) =>
+      _settingsStore.shouldDisableFiat= value;
 
   @action
   void setAllowBiometricalAuthentication(bool value) =>
