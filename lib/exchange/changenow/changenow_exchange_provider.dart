@@ -240,33 +240,23 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
   }
  
   String networkFor(CryptoCurrency currency) {
-    const bnbTitle = 'bnb';
-
     switch (currency) {
       case CryptoCurrency.usdt:
         return CryptoCurrency.btc.title.toLowerCase();
-      case CryptoCurrency.usdterc20:
-        return CryptoCurrency.eth.title.toLowerCase();
-      case CryptoCurrency.bnb:
-        return bnbTitle;
-      case CryptoCurrency.dai:
-        return CryptoCurrency.eth.title.toLowerCase();
       default:
-        return currency.title.toLowerCase();
+        return currency.tag != null
+            ? currency.tag.toLowerCase()
+            : currency.title.toLowerCase();
+      }
     }
   }
 
-  static String normalizeCryptoCurrency(CryptoCurrency currency) {
-    const bnbTitle = 'bnb';
-
-    switch(currency) {
-      case CryptoCurrency.bnb:
-        return bnbTitle;
-      case CryptoCurrency.usdterc20:
-        return CryptoCurrency.usdt.title.toLowerCase();
+   String normalizeCryptoCurrency(CryptoCurrency currency) {
+   switch(currency) {
+      case CryptoCurrency.zec:
+        return 'zec';
       default:
         return currency.title.toLowerCase();
     }
 
   }
-}
