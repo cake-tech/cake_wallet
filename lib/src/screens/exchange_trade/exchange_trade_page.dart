@@ -73,9 +73,11 @@ class ExchangeTradePage extends BasePage {
 }
 
 class ExchangeTradeForm extends StatefulWidget {
-  ExchangeTradeForm(this.exchangeTradeViewModel);
+  ExchangeTradeForm(this.exchangeTradeViewModel)
+      : disableFiat = exchangeTradeViewModel.sendViewModel.balanceViewModel.disableFiat;
 
   final ExchangeTradeViewModel exchangeTradeViewModel;
+  final bool disableFiat;
 
   @override
   ExchangeTradeState createState() => ExchangeTradeState();
@@ -379,9 +381,11 @@ class ExchangeTradeState extends State<ExchangeTradeForm> {
                           });
                     },
                     actionLeftButton: () => Navigator.of(context).pop(),
-                    feeFiatAmount: widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmount
+                    feeFiatAmount: widget.disableFiat ? ''
+                        : widget.exchangeTradeViewModel.sendViewModel.pendingTransactionFeeFiatAmount
                         +  ' ' + widget.exchangeTradeViewModel.sendViewModel.fiat.title,
-                    fiatAmountValue: widget.exchangeTradeViewModel.sendViewModel
+                    fiatAmountValue: widget.disableFiat ? ''
+                        : widget.exchangeTradeViewModel.sendViewModel
                             .pendingTransactionFiatAmount +
                         ' ' +
                         widget.exchangeTradeViewModel.sendViewModel.fiat.title,
