@@ -25,7 +25,8 @@ Future<void> startFiatRateUpdate(AppStore appStore, SettingsStore settingsStore,
           if (appStore.wallet.type == WalletType.haven) {
             await updateHavenRate(fiatConversionStore);
           } else {
-            fiatConversionStore.prices[appStore.wallet.currency] = await FiatConversionService.fetchPrice(
+            fiatConversionStore.prices[appStore.wallet.currency] = settingsStore.shouldDisableFiat ? 0.0
+                : await FiatConversionService.fetchPrice(
               appStore.wallet.currency, settingsStore.fiatCurrency);
           }
         } catch(e) {
