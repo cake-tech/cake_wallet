@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/view_model/buy/buy_amount_view_model.dart';
 import 'package:cw_core/crypto_currency.dart';
 import 'package:cake_wallet/entities/fiat_currency.dart';
@@ -12,12 +13,17 @@ class AddBalanceViewModel = AddBalanceViewModelBase with _$AddBalanceViewModel;
 
 abstract class AddBalanceViewModelBase with Store {
   AddBalanceViewModelBase(this.buyAmountViewModel, {@required this.wallet}) {
+    state = InitialExecutionState();
+
     isRunning = false;
     isDisabled = true;
   }
 
   final BuyAmountViewModel buyAmountViewModel;
   final WalletBase wallet;
+
+  @observable
+  ExecutionState state;
 
   @observable
   bool isRunning;

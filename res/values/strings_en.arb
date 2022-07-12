@@ -596,5 +596,7 @@
   "add_balance": "Add Balance",
   "forwards": "forwards",
   "invalid_email": "Invalid Email",
-  "invalid_verification_code": "Invalid verification code"
+  "invalid_verification_code": "Invalid verification code",
+  "payment_failed": "Payment Failed, please try again later",
+  "loading": "Loading..."
 }

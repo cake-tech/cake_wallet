@@ -1,20 +1,20 @@
-import 'package:cake_wallet/buy/buy_amount.dart';
-import 'package:cake_wallet/buy/moonpay/moonpay_buy_provider.dart';
-import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/entities/cake_phone_entities/phone_number_service.dart';
-import 'package:cake_wallet/entities/fiat_currency.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/cake_phone_settings_tile.dart';
+import 'package:cake_wallet/src/screens/cake_phone/widgets/confirm_sending_content.dart';
+import 'package:cake_wallet/src/screens/cake_phone/widgets/confirmation_alert_content.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/plan_card.dart';
 import 'package:cake_wallet/src/screens/cake_phone/widgets/receipt_row.dart';
 import 'package:cake_wallet/src/widgets/alert_with_two_actions.dart';
-import 'package:cake_wallet/src/widgets/info_alert_dialog.dart';
 import 'package:cake_wallet/src/widgets/picker.dart';
-import 'package:cake_wallet/store/app_store.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/cake_phone/phone_plan_view_model.dart';
 import 'package:country_pickers/country.dart';
+import 'package:cw_core/crypto_currency.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:country_pickers/country_pickers.dart';
@@ -24,6 +24,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 class PhoneNumberProductPage extends BasePage {
   PhoneNumberProductPage(this.phonePlanViewModel, {this.phoneNumberService});
@@ -58,6 +59,55 @@ class PhoneNumberProductBody extends StatefulWidget {
 }
 
 class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
+  ReactionDisposer _reaction;
+  Flushbar<void> _progressBar;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _reaction ??= autorun((_) {
+      if (widget.phonePlanViewModel.payWithXMRState is ExecutedSuccessfullyState ||
+          widget.phonePlanViewModel.payWithCakeBalanceState is ExecutedSuccessfullyState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _progressBar?.dismiss();
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            Routes.cakePhoneActiveServices,
+            ModalRoute.withName(Routes.cakePhoneWelcome),
+          );
+        });
+      }
+
+      /// if its loading payment with xmr show the confirmation popup
+      if (widget.phonePlanViewModel.payWithXMRState is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // TODO: Replace with the transaction id
+          showPopUp<void>(
+              context: context,
+              builder: (dialogContext) {
+                return ConfirmationAlertContent("dsyf5ind7akwryewkmf5nf4eakdrm4infd4i8rm4fd8nrmsein");
+              });
+        });
+      }
+
+      /// if its loading payment with cake balance show loading bar
+      if (widget.phonePlanViewModel.payWithCakeBalanceState is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _progressBar = createBar<void>(S.of(context).loading, duration: null)..show(context);
+        });
+      }
+
+      if (widget.phonePlanViewModel.payWithXMRState is FailureState ||
+          widget.phonePlanViewModel.payWithCakeBalanceState is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _progressBar?.dismiss();
+          showBar<void>(context, S.of(context).payment_failed);
+        });
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -321,7 +371,9 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                             children: [
                               ReceiptRow(
                                   title: S.of(context).amount, value: amountText(widget.phonePlanViewModel.totalPrice)),
-                              ReceiptRow(title: "${S.of(context).cake_pay_balance}: ", value: amountText(100)),
+                              ReceiptRow(
+                                  title: "${S.of(context).cake_pay_balance}: ",
+                                  value: amountText(100)), // TODO: Remove hard coded balance
                             ],
                           ),
                           isDividerExists: true,
@@ -331,11 +383,12 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           leftActionButtonColor: Theme.of(context).primaryTextTheme.body2.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
-                            Navigator.pushNamedAndRemoveUntil(
-                              context,
-                              Routes.cakePhoneActiveServices,
-                              ModalRoute.withName(Routes.cakePhoneWelcome),
-                            );
+                            if (widget.phoneNumberService == null ||
+                                widget.phoneNumberService.planId != widget.phonePlanViewModel.selectedPlan.id) {
+                              widget.phonePlanViewModel.purchasePlan();
+                            } else {
+                              widget.phonePlanViewModel.buyAdditionalSMS();
+                            }
                           },
                           actionLeftButton: () => Navigator.of(dialogContext).pop());
                     });
@@ -354,46 +407,7 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           alertTitle: S.of(context).confirm_sending,
                           alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
                           alertContent: S.of(context).confirm_delete_template,
-                          contentWidget: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ReceiptRow(
-                                title: S.of(context).amount,
-                                value: cryptoAmount(widget.phonePlanViewModel.totalPrice),
-                              ),
-                              ReceiptRow(
-                                title: S.of(context).send_fee,
-                                value: cryptoAmount(getIt
-                                    .get<AppStore>()
-                                    .wallet
-                                    .calculateEstimatedFee(
-                                      getIt.get<AppStore>().settingsStore.priority[getIt.get<AppStore>().wallet.type],
-                                      widget.phonePlanViewModel.totalPrice.floor(),
-                                    )
-                                    .toDouble()),
-                              ),
-                              const SizedBox(height: 45),
-                              Text(
-                                S.of(context).recipient_address,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).primaryTextTheme.title.color,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                //TODO: remove static address if it will be generated everytime
-                                "4B6c5ApfayzRN8jYxXyprv9me1vttSjF21WAz4HQ8JvS13RgRbgfQg7PPgvm2QMA8N1ed7izqPFsnCKGWWwFoGyjTFstzXm",
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: Theme.of(context).accentTextTheme.subhead.color,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
+                          contentWidget: ConfirmSendingContent(widget.phonePlanViewModel.totalPrice),
                           isDividerExists: true,
                           rightButtonText: S.of(context).ok,
                           leftButtonText: S.of(context).cancel,
@@ -401,12 +415,11 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
                           leftActionButtonColor: Theme.of(context).primaryTextTheme.body2.backgroundColor,
                           actionRightButton: () {
                             Navigator.of(dialogContext).pop();
-                            showPaymentConfirmationPopup();
                           },
                           actionLeftButton: () => Navigator.of(dialogContext).pop());
                     });
               },
-              text: "${S.of(context).pay_with} ${getIt.get<AppStore>().wallet.currency.toString()}",
+              text: "${S.of(context).pay_with} ${CryptoCurrency.xmr.toString()}",
               color: Theme.of(context).accentTextTheme.body2.color,
               textColor: Colors.white,
             ),
@@ -456,131 +469,5 @@ class PhoneNumberProductBodyState extends State<PhoneNumberProductBody> {
         color: Theme.of(context).primaryTextTheme.title.color,
       ),
     );
-  }
-
-  Widget cryptoAmount(double totalPrice) {
-    return FutureBuilder<BuyAmount>(
-      future: MoonPayBuyProvider(wallet: getIt.get<AppStore>().wallet)
-          .calculateAmount(totalPrice.toString(), FiatCurrency.usd.title),
-      builder: (context, AsyncSnapshot<BuyAmount> snapshot) {
-        double sourceAmount;
-        double destAmount;
-
-        if (snapshot.hasData) {
-          sourceAmount = snapshot.data.sourceAmount;
-          destAmount = snapshot.data.destAmount;
-        } else {
-          sourceAmount = 0.0;
-          destAmount = 0.0;
-        }
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              "${sourceAmount} ${getIt.get<AppStore>().wallet.currency.toString()}",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Theme.of(context).primaryTextTheme.title.color,
-              ),
-            ),
-            Text(
-              "${destAmount} ${FiatCurrency.usd.title}",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).accentTextTheme.subhead.color,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void showPaymentConfirmationPopup() {
-    showPopUp<void>(
-        context: context,
-        builder: (dialogContext) {
-          return InfoAlertDialog(
-            alertTitle: S.of(context).awaiting_payment_confirmation,
-            alertTitleColor: Theme.of(context).primaryTextTheme.title.decorationColor,
-            alertContentPadding: EdgeInsets.zero,
-            alertContent: Padding(
-              padding: const EdgeInsets.only(top: 8, bottom: 32),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Text(
-                      S.of(context).transaction_sent_popup_info,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).primaryTextTheme.title.color,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: Container(
-                      height: 1,
-                      color: Theme.of(context).dividerColor,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${S.of(context).transaction_details_transaction_id}:",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.subhead.color,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4, bottom: 16),
-                          child: Text(
-                            // TODO: Replace with the transaction id
-                            "dsyf5ind7akwryewkmf5nf4eakdrm4infd4i8rm4fd8nrmsein",
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.title.color,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          "${S.of(context).view_in_block_explorer}:",
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).accentTextTheme.subhead.color,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: Text(
-                            // TODO: get it from transaction details view model
-                            S.of(context).view_transaction_on,
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Theme.of(context).primaryTextTheme.title.color,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 }
