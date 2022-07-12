@@ -15,3 +15,5 @@ class FailureState extends ExecutionState {
 
   final String error;
 }
+
+class GeneratingGiftCardState extends ExecutionState {}

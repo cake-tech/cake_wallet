@@ -621,4 +621,7 @@
   "transaction_sent_notice": "If the screen doesn’t proceed after 1 minute, check a block explorer and your email.",
   "agree": "Agree",
   "in_store": "In Store",
+  "generating_gift_card": "Generating Gift Card",
+  "payment_was_received": "Your payment was received.",
+  "proceed_after_one_minute": "If the screen doesn’t proceed after 1 minute, check your email."
 }

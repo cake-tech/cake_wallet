@@ -49,6 +49,9 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   ExecutionState invoiceCommittingState;
 
   @observable
+  ExecutionState confirmState;
+
+  @observable
   double percentage;
 
   @computed
@@ -83,5 +86,10 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
     } catch (e) {
       invoiceCommittingState = FailureState(e.toString());
     }
+  }
+
+  @action
+  void confirmPayment() {
+    confirmState = ExecutedSuccessfullyState();
   }
 }

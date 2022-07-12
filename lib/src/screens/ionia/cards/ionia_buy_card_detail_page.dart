@@ -4,9 +4,9 @@ import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
-import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/ionia_tip_button_group.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
@@ -93,18 +93,31 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       }
     });
 
-    reaction((_) => ioniaPurchaseViewModel.invoiceCommittingState, (ExecutionState state) {
-      if (state is FailureState) {
+    reaction((_) => ioniaPurchaseViewModel.confirmState, (ExecutionState state) {
+      if (state is GeneratingGiftCardState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showPopUp<void>(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertWithOneAction(
-                    alertTitle: S.of(context).error,
-                    alertContent: state.error,
-                    buttonText: S.of(context).ok,
-                    buttonAction: () => Navigator.of(context).pop());
-              });
+          showDialog<void>(
+            context: context,
+            barrierDismissible: true,
+            barrierColor: PaletteDark.darkNightBlue.withOpacity(0.75),
+            builder: (BuildContext context) {
+              return Center(
+                child: Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    width: 327,
+                    height: 200,
+                    margin: EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).backgroundColor,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: GeneratingCardAlert(),
+                  ),
+                ),
+              );
+            },
+          );
         });
       }
 
@@ -120,7 +133,9 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                 child: _IoniaTransactionCommitedAlert(transactionInfo: transactionInfo),
               );
             },
-          );
+          ).then((value) {
+            ioniaPurchaseViewModel.confirmState = GeneratingGiftCardState();
+          });
         });
       }
     });
@@ -225,7 +240,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Observer(
-                      builder: (_) => TipButtonGroup(
+                      builder: (_) => IoniaTipButtonGroup(
                         selectedTip: ioniaPurchaseViewModel.selectedTip.percentage,
                         tipsList: ioniaPurchaseViewModel.tips,
                         onSelect: (value) => ioniaPurchaseViewModel.addTip(value),
@@ -439,10 +454,64 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
             rightActionColor: Theme.of(context).accentTextTheme.body2.color,
             actionRightButton: () async {
               Navigator.of(context).pop();
-              await ioniaPurchaseViewModel.commitPaymentInvoice();
+              ioniaPurchaseViewModel.confirmPayment();
+              //await ioniaPurchaseViewModel.commitPaymentInvoice();
             },
             actionLeftButton: () => Navigator.of(context).pop());
       },
+    );
+  }
+}
+
+class GeneratingCardAlert extends StatelessWidget {
+  const GeneratingCardAlert({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(40, 28, 40, 0),
+          child: Text(
+            S.of(context).generating_gift_card,
+            textAlign: TextAlign.center,
+            style: textMediumSemiBold(
+              color: Theme.of(context).accentTextTheme.display4.backgroundColor,
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 24, bottom: 24),
+          child: Container(
+            height: 1,
+            color: Theme.of(context).dividerColor,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                S.of(context).payment_was_received,
+                style: textMedium(
+                  color: Theme.of(context).primaryTextTheme.title.color,
+                ).copyWith(fontWeight: FontWeight.w500),
+              ),
+              SizedBox(height: 20),
+              Text(
+                S.of(context).proceed_after_one_minute,
+                style: textMedium(
+                  color: Theme.of(context).primaryTextTheme.title.color,
+                ).copyWith(fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -515,107 +584,13 @@ class _IoniaTransactionCommitedAlert extends StatelessWidget {
               ),
               StandartListRow(
                 title: '${S.current.transaction_details_transaction_id}:',
-                value: transactionInfo.chain,
+                value: '',
               ),
               StandartListRow(
                   title: '${S.current.view_in_block_explorer}:',
                   value: '${S.current.view_transaction_on} XMRChain.net'),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class TipButtonGroup extends StatelessWidget {
-  const TipButtonGroup({
-    Key key,
-    @required this.selectedTip,
-    @required this.onSelect,
-    @required this.tipsList,
-  }) : super(key: key);
-
-  final Function(IoniaTip) onSelect;
-  final double selectedTip;
-  final List<IoniaTip> tipsList;
-
-  bool _isSelected(double value) => selectedTip == value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ...[
-          for (var i = 0; i < tipsList.length; i++) ...[
-            TipButton(
-              isSelected: _isSelected(tipsList[i].percentage),
-              onTap: () => onSelect(tipsList[i]),
-              caption: '${tipsList[i].percentage}%',
-              subTitle: '\$${tipsList[i].additionalAmount}',
-            ),
-            SizedBox(width: 4),
-          ]
-        ],
-      ],
-    );
-  }
-}
-
-class TipButton extends StatelessWidget {
-  const TipButton({
-    @required this.caption,
-    this.subTitle,
-    @required this.onTap,
-    this.isSelected = false,
-  });
-
-  final String caption;
-  final String subTitle;
-  final bool isSelected;
-  final void Function() onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        height: 49,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(caption,
-                style: textSmallSemiBold(
-                    color: isSelected
-                        ? Theme.of(context).accentTextTheme.title.color
-                        : Theme.of(context).primaryTextTheme.title.color)),
-            if (subTitle != null) ...[
-              SizedBox(height: 4),
-              Text(
-                subTitle,
-                style: textXxSmallSemiBold(
-                  color: isSelected
-                      ? Theme.of(context).accentTextTheme.title.color
-                      : Theme.of(context).primaryTextTheme.overline.color,
-                ),
-              ),
-            ]
-          ],
-        ),
-        padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-          color: Color.fromRGBO(242, 240, 250, 1),
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [
-                    Theme.of(context).primaryTextTheme.subhead.color,
-                    Theme.of(context).primaryTextTheme.subhead.decorationColor,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
         ),
       ),
     );
