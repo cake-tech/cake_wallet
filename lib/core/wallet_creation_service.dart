@@ -33,7 +33,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> create(WalletCredentials credentials) async {
-    final password = generateWalletPassword(type);
+    final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
@@ -41,7 +41,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials) async {
-    final password = generateWalletPassword(type);
+    final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
@@ -49,7 +49,7 @@ class WalletCreationService {
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
-    final password = generateWalletPassword(type);
+    final password = generateWalletPassword();
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
