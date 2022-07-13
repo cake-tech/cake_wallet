@@ -258,6 +258,11 @@ abstract class MoneroWalletBase extends WalletBase<MoneroBalance,
     await monero_wallet.store();
   }
 
+  @override
+  Future<void> changePassword(String password) async {
+    monero_wallet.setPasswordSync(password);
+  }
+
   Future<int> getNodeHeight() async => monero_wallet.getNodeHeight();
 
   Future<bool> isConnected() async => monero_wallet.isConnected();

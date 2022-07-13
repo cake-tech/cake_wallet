@@ -69,4 +69,6 @@ abstract class WalletBase<
   Future<void> rescan({int height});
 
   void close();
+
+  Future<void> changePassword(String password);
 }

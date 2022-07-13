@@ -109,7 +109,7 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
   BitcoinWalletKeys get keys => BitcoinWalletKeys(
       wif: hd.wif, privateKey: hd.privKey, publicKey: hd.pubKey);
 
-  final String _password;
+  String _password;
   List<BitcoinUnspent> unspentCoins;
   List<int> _feeRates;
   Map<String, BehaviorSubject<Object>> _scripthashesUpdateSubject;
@@ -390,6 +390,13 @@ abstract class ElectrumWalletBase extends WalletBase<ElectrumBalance,
     final path = await makePath();
     await write(path: path, password: _password, data: toJSON());
     await transactionHistory.save();
+  }
+
+  @override
+  Future<void> changePassword(String password) async {
+    _password = password;
+    await save();
+    await transactionHistory.changePassword(password);
   }
 
   bitcoin.ECPair keyPairFor({@required int index}) =>
