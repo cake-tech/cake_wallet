@@ -596,5 +596,9 @@
   "add_balance": "Add Balance",
   "forwards": "forwards",
   "invalid_email": "Invalid Email",
-  "invalid_verification_code": "Invalid verification code"
+  "invalid_verification_code": "Invalid verification code",
+  "unauthorized": "Un-Authorized access, Please login first then try again",
+  "page_not_found": "This page was temporary removed, Please check it later",
+  "server_failure": "Network Error, Please try again later",
+  "something_went_wrong": "Something went wrong, Please try again later"
 }

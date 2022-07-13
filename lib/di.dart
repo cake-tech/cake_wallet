@@ -674,7 +674,7 @@ Future setup(
     return AddBalancePage(addBalanceViewModel: getIt.get<AddBalanceViewModel>());
   });
 
-  getIt.registerFactory(() {
+  getIt.registerLazySingleton(() {
     return CakePhoneAuthViewModel(getIt.get<CakePhoneProvider>(), getIt.get<FlutterSecureStorage>());
   });
 

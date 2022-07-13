@@ -361,7 +361,7 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.cakePhoneVerification:
       return MaterialPageRoute<CakePhoneVerificationPage>(
         settings: RouteSettings(name: Routes.cakePhoneVerification),
-        builder: (_) => CakePhoneVerificationPage(),
+        builder: (_) => CakePhoneVerificationPage(getIt.get<CakePhoneAuthViewModel>()),
       );
 
     case Routes.cakePhoneProducts:

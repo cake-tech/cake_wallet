@@ -62,7 +62,7 @@ class CakePhoneAuthBodyState extends State<CakePhoneAuthBody> {
       if (state is ExecutedSuccessfullyState) {
         _authBar?.dismiss();
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pushNamed(context, Routes.cakePhoneVerification, arguments: _emailController.text);
+          Navigator.pushNamed(context, Routes.cakePhoneVerification);
         });
       }
 

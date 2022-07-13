@@ -1,6 +1,11 @@
 import 'dart:async';
 
+import 'package:cake_wallet/core/execution_state.dart';
+import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/src/widgets/base_text_form_field.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:cake_wallet/view_model/cake_phone/cake_phone_auth_view_model.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cake_wallet/routes.dart';
@@ -8,12 +13,15 @@ import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
+import 'package:mobx/mobx.dart';
 
 class CakePhoneVerificationPage extends BasePage {
-  CakePhoneVerificationPage();
+  CakePhoneVerificationPage(this.authViewModel);
+
+  final CakePhoneAuthViewModel authViewModel;
 
   @override
-  Widget body(BuildContext context) => CakePhoneVerificationBody();
+  Widget body(BuildContext context) => CakePhoneVerificationBody(authViewModel);
 
   @override
   Widget middle(BuildContext context) {
@@ -29,7 +37,9 @@ class CakePhoneVerificationPage extends BasePage {
 }
 
 class CakePhoneVerificationBody extends StatefulWidget {
-  CakePhoneVerificationBody();
+  CakePhoneVerificationBody(this.authViewModel);
+
+  final CakePhoneAuthViewModel authViewModel;
 
   @override
   CakePhoneVerificationBodyState createState() => CakePhoneVerificationBodyState();
@@ -46,6 +56,9 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
 
   bool disabled = true;
 
+  ReactionDisposer _reaction;
+  Flushbar<void> _authBar;
+
   @override
   void initState() {
     super.initState();
@@ -59,6 +72,35 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
       } else if (disabled) {
         disabled = false;
         setState(() {});
+      }
+    });
+
+    _reaction ??= reaction((_) => widget.authViewModel.state, (ExecutionState state) {
+      if (state is ExecutedSuccessfullyState) {
+        _authBar?.dismiss();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+        final userExists = state.payload as bool;
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            userExists ? Routes.cakePhoneActiveServices : Routes.cakePhoneProducts,
+            ModalRoute.withName(Routes.cakePhoneWelcome),
+          );
+          /// reset the authentication view model
+          getIt.resetLazySingleton<CakePhoneAuthViewModel>(instance: widget.authViewModel);
+        });
+      }
+
+      if (state is IsExecutingState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _authBar = createBar<void>(S.of(context).authentication, duration: null)..show(context);
+        });
+      }
+
+      if (state is FailureState) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _authBar?.dismiss();
+          showBar<void>(context, S.of(context).failed_authentication(state.error));
+        });
       }
     });
   }
@@ -150,11 +192,7 @@ class CakePhoneVerificationBodyState extends State<CakePhoneVerificationBody> {
             PrimaryButton(
               onPressed: () {
                 if (_formKey.currentState.validate()) {
-                  Navigator.pushNamedAndRemoveUntil(
-                    context,
-                    Routes.cakePhoneProducts,
-                    ModalRoute.withName(Routes.cakePhoneWelcome),
-                  );
+                  widget.authViewModel.verify(_codeController.text);
                 } else {
                   setState(() {
                     _autoValidate = AutovalidateMode.always;

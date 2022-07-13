@@ -20,28 +20,35 @@ abstract class CakePhoneAuthViewModelBase with Store {
   final CakePhoneProvider _cakePhoneProvider;
   final FlutterSecureStorage _secureStorage;
 
+  bool _userExists = false;
+  String _email = "";
+
   @action
   Future<void> auth(String email) async {
     state = IsExecutingState();
 
-    final isSuccessfullyAuthenticated = await _cakePhoneProvider.authenticate(email);
+    final result = await _cakePhoneProvider.authenticate(email);
 
-    if (isSuccessfullyAuthenticated) {
-      state = ExecutedSuccessfullyState();
-    } else {
-      state = FailureState("");
-    }
+    result.fold(
+      (failure) => state = FailureState(failure.errorMessage),
+      (userExists) {
+        _userExists = userExists;
+        _email = email;
+        state = ExecutedSuccessfullyState();
+      },
+    );
   }
 
   @action
-  Future<void> verify(String email, String code) async {
-    final String token = await _cakePhoneProvider.verifyEmail(email: email, code: code);
+  Future<void> verify(String code) async {
+    final result = await _cakePhoneProvider.verifyEmail(email: _email, code: code);
 
-    if (token != null) {
-      state = ExecutedSuccessfullyState();
-      await _secureStorage.write(key: PreferencesKey.cakePhoneTokenKey, value: token);
-    } else {
-      state = FailureState("");
-    }
+    result.fold(
+      (failure) => state = FailureState(failure.errorMessage),
+      (token) {
+        _secureStorage.write(key: PreferencesKey.cakePhoneTokenKey, value: token);
+        state = ExecutedSuccessfullyState(payload: _userExists);
+      },
+    );
   }
 }
