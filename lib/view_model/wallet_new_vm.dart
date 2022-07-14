@@ -17,18 +17,16 @@ part 'wallet_new_vm.g.dart';
 class WalletNewVM = WalletNewVMBase with _$WalletNewVM;
 
 abstract class WalletNewVMBase extends WalletCreationVM with Store {
-  WalletNewVMBase(AppStore appStore, this._walletCreationService,
+  WalletNewVMBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {@required WalletType type})
       : selectedMnemonicLanguage = '',
-        super(appStore, walletInfoSource, type: type, isRecovery: false);
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: false);
 
   @observable
   String selectedMnemonicLanguage;
 
   bool get hasLanguageSelector => type == WalletType.monero || type == WalletType.haven;
-
-  final WalletCreationService _walletCreationService;
 
   @override
   WalletCredentials getCredentials(dynamic options) {
@@ -50,7 +48,7 @@ abstract class WalletNewVMBase extends WalletCreationVM with Store {
 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
-    _walletCreationService.changeWalletType(type: type);
-    return _walletCreationService.create(credentials);
+    walletCreationService.changeWalletType(type: type);
+    return walletCreationService.create(credentials);
   }
 }

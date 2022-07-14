@@ -20,9 +20,9 @@ class WalletRestorationFromKeysVM = WalletRestorationFromKeysVMBase
 abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
     with Store {
   WalletRestorationFromKeysVMBase(AppStore appStore,
-      this._walletCreationService, Box<WalletInfo> walletInfoSource,
+      WalletCreationService walletCreationService, Box<WalletInfo> walletInfoSource,
       {@required WalletType type, @required this.language})
-      : super(appStore, walletInfoSource, type: type, isRecovery: true);
+      : super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true);
 
   @observable
   int height;
@@ -42,7 +42,6 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
   bool get hasRestorationHeight => type == WalletType.monero;
 
   final String language;
-  final WalletCreationService _walletCreationService;
 
   @override
   WalletCredentials getCredentials(dynamic options) {
@@ -68,5 +67,5 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
 
   @override
   Future<WalletBase> process(WalletCredentials credentials) async =>
-      _walletCreationService.restoreFromKeys(credentials);
+      walletCreationService.restoreFromKeys(credentials);
 }

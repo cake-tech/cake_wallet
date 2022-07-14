@@ -215,7 +215,8 @@ Future setup(
           initialType: type,
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
-          sharedPreferences: getIt.get<SharedPreferences>()));
+          sharedPreferences: getIt.get<SharedPreferences>(),
+          walletInfoSource: _walletInfoSource));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
       WalletNewVM(getIt.get<AppStore>(),

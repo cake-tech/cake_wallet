@@ -1,3 +1,4 @@
+import 'package:cake_wallet/core/wallet_creation_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:mobx/mobx.dart';
@@ -15,7 +16,7 @@ part 'wallet_creation_vm.g.dart';
 class WalletCreationVM = WalletCreationVMBase with _$WalletCreationVM;
 
 abstract class WalletCreationVMBase with Store {
-  WalletCreationVMBase(this._appStore, this._walletInfoSource,
+  WalletCreationVMBase(this._appStore, this._walletInfoSource, this.walletCreationService,
       {@required this.type, @required this.isRecovery}) {
     state = InitialExecutionState();
     name = '';
@@ -29,14 +30,12 @@ abstract class WalletCreationVMBase with Store {
 
   WalletType type;
   final bool isRecovery;
+  final WalletCreationService walletCreationService;
   final Box<WalletInfo> _walletInfoSource;
   final AppStore _appStore;
 
-  bool nameExists(String name) {
-    final walletNameList = _walletInfoSource.values.map((e) => e.name.toLowerCase()).toList();
-
-    return walletNameList.contains(name.toLowerCase());
-  }
+  bool nameExists(String name)
+    => walletCreationService.exists(name);
 
   Future<void> create({dynamic options}) async {
     try {
@@ -44,6 +43,8 @@ abstract class WalletCreationVMBase with Store {
       if (name?.isEmpty ?? true) {
             name = await generateName();
       }
+
+      walletCreationService.checkIfExists(name);
       final dirPath = await pathForWalletDir(name: name, type: type);
       final path = await pathForWallet(name: name, type: type);
       final credentials = getCredentials(options);
