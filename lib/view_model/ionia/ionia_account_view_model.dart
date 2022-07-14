@@ -24,13 +24,13 @@ abstract class IoniaAccountViewModelBase with Store {
   List<IoniaGiftCard> merchs;
 
   @computed
-  int get countOfMerch => merchs.where((merch) => merch.isActive).length;
+  int get countOfMerch => merchs.where((merch) => !merch.isEmpty).length;
 
   @computed
-  List<IoniaGiftCard> get activeMechs => merchs.where((merch) => merch.isActive).toList();
+  List<IoniaGiftCard> get activeMechs => merchs.where((merch) => !merch.isEmpty).toList();
 
   @computed
-  List<IoniaGiftCard> get redeemedMerchs => merchs.where((merch) => !merch.isActive).toList();
+  List<IoniaGiftCard> get redeemedMerchs => merchs.where((merch) => merch.isEmpty).toList();
 
   @action
   void logout() {
