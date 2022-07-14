@@ -1,4 +1,5 @@
 import 'package:cake_wallet/di.dart';
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,6 +28,8 @@ class WalletCreationService {
   final KeyService keyService;
   WalletService _service;
 
+  static const _isNewMoneroWalletPasswordUpdated = true;
+
   void changeWalletType({@required WalletType type}) {
     this.type = type;
     _service = getIt.get<WalletService>(param1: type);
@@ -37,7 +40,16 @@ class WalletCreationService {
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    return await _service.create(credentials);
+    final wallet =  await _service.create(credentials);
+
+    if (wallet.type == WalletType.monero) {
+      await sharedPreferences
+        .setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name),
+          _isNewMoneroWalletPasswordUpdated);
+    }
+
+    return wallet;
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials) async {
@@ -45,7 +57,16 @@ class WalletCreationService {
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    return await _service.restoreFromKeys(credentials);
+    final wallet = await _service.restoreFromKeys(credentials);
+
+    if (wallet.type == WalletType.monero) {
+      await sharedPreferences
+        .setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name),
+          _isNewMoneroWalletPasswordUpdated);
+    }
+
+    return wallet;
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
@@ -53,6 +74,15 @@ class WalletCreationService {
     credentials.password = password;
     await keyService.saveWalletPassword(
         password: password, walletName: credentials.name);
-    return await _service.restoreFromSeed(credentials);
+    final wallet = await _service.restoreFromSeed(credentials);
+
+    if (wallet.type == WalletType.monero) {
+      await sharedPreferences
+        .setBool(
+          PreferencesKey.moneroWalletUpdateV1Key(wallet.name),
+          _isNewMoneroWalletPasswordUpdated);
+    }
+
+    return wallet;
   }
 }
