@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
@@ -104,11 +106,23 @@ class _IoniaCardTabsState extends State<_IoniaCardTabs> with SingleTickerProvide
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_balance_note,
                     merchList: viewModel.activeMechs,
-                  ),
+                    onTap: (giftCard) {
+                      Navigator.pushNamed(
+                        context,
+                        Routes.ioniaGiftCardDetailPage,
+                        arguments: [giftCard])
+                      .then((_) => viewModel.updateUserGiftCards());
+                    }),
                   _IoniaCardListView(
                     emptyText: S.of(context).gift_card_redeemed_note,
                     merchList: viewModel.redeemedMerchs,
-                  ),
+                    onTap: (giftCard) {
+                      Navigator.pushNamed(
+                        context,
+                        Routes.ioniaGiftCardDetailPage,
+                        arguments: [giftCard])
+                      .then((_) => viewModel.updateUserGiftCards());
+                    }),
                 ],
               );
             }),
@@ -124,10 +138,12 @@ class _IoniaCardListView extends StatelessWidget {
     Key key,
     @required this.emptyText,
     @required this.merchList,
+    @required this.onTap,
   }) : super(key: key);
 
   final String emptyText;
   final List<IoniaGiftCard> merchList;
+  final void Function(IoniaGiftCard giftCard) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -148,11 +164,7 @@ class _IoniaCardListView extends StatelessWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: CardItem(
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    Routes.ioniaGiftCardDetailPage,
-                    arguments: [merchant],
-                  ),
+                  onTap: () => onTap?.call(merchant),
                   title: merchant.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
                   discount: 0,

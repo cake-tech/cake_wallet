@@ -10,9 +10,9 @@ class IoniaAccountViewModel = IoniaAccountViewModelBase with _$IoniaAccountViewM
 abstract class IoniaAccountViewModelBase with Store {
   IoniaAccountViewModelBase({this.ioniaService}) {
     email = '';
-    merchs = [];
+    giftCards = [];
     ioniaService.getUserEmail().then((email) => this.email = email);
-    ioniaService.getCurrentUserGiftCardSummaries().then((merchs) => this.merchs = merchs);
+    updateUserGiftCards();
   }
 
   final IoniaService ioniaService;
@@ -21,19 +21,24 @@ abstract class IoniaAccountViewModelBase with Store {
   String email;
 
   @observable
-  List<IoniaGiftCard> merchs;
+  List<IoniaGiftCard> giftCards;
 
   @computed
-  int get countOfMerch => merchs.where((merch) => !merch.isEmpty).length;
+  int get countOfMerch => giftCards.where((giftCard) => !giftCard.isEmpty).length;
 
   @computed
-  List<IoniaGiftCard> get activeMechs => merchs.where((merch) => !merch.isEmpty).toList();
+  List<IoniaGiftCard> get activeMechs => giftCards.where((giftCard) => !giftCard.isEmpty).toList();
 
   @computed
-  List<IoniaGiftCard> get redeemedMerchs => merchs.where((merch) => merch.isEmpty).toList();
+  List<IoniaGiftCard> get redeemedMerchs => giftCards.where((giftCard) => giftCard.isEmpty).toList();
 
   @action
   void logout() {
     ioniaService.logout();
+  }
+
+  @action
+  Future<void> updateUserGiftCards() async {
+    giftCards = await ioniaService.getCurrentUserGiftCardSummaries();
   }
 }

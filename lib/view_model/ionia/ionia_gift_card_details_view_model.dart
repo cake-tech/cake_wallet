@@ -24,7 +24,7 @@ abstract class IoniaGiftCardDetailsViewModelBase with Store {
   @action
   Future<void> redeem() async {
     try {
-      redeemState = InitialExecutionState();
+      redeemState = IsExecutingState();
       await ioniaService.redeem(giftCard);
       giftCard = await ioniaService.getGiftCard(id: giftCard.id);
       redeemState = ExecutedSuccessfullyState();
