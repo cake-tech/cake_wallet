@@ -47,6 +47,8 @@ typedef set_recovering_from_seed = Void Function(Int8);
 
 typedef store_c = Void Function(Pointer<Utf8>);
 
+typedef set_password = Int8 Function(Pointer<Utf8> password, Pointer<Utf8Box> error);
+
 typedef set_listener = Void Function();
 
 typedef get_syncing_height = Int64 Function();

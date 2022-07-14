@@ -51,6 +51,8 @@ typedef SetRecoveringFromSeed = void Function(int);
 
 typedef Store = void Function(Pointer<Utf8>);
 
+typedef SetPassword = int Function(Pointer<Utf8> password, Pointer<Utf8Box> error);
+
 typedef SetListener = void Function();
 
 typedef GetSyncingHeight = int Function();
