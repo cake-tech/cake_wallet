@@ -97,7 +97,7 @@ abstract class SettingsViewModelBase with Store {
     //}
 
 
-    sections = [
+    getSections = () => [
       [
         SwitcherListItem(
             title: S.current.settings_display_balance,
@@ -110,7 +110,7 @@ abstract class SettingsViewModelBase with Store {
               }
             },
         ),
-        if (!isHaven)
+        if (!isHaven && !shouldDisableFiat)
           PickerListItem(
               title: S.current.settings_currency,
               searchHintText: S.current.search_currency,
@@ -287,7 +287,7 @@ abstract class SettingsViewModelBase with Store {
   bool get isBitcoinBuyEnabled => _settingsStore.isBitcoinBuyEnabled;
 
   final Map<String, String> itemHeaders;
-  List<List<SettingsListItem>> sections;
+  List<List<SettingsListItem>> Function() getSections;
   final SettingsStore _settingsStore;
   final YatStore _yatStore;
   final WalletType _walletType;

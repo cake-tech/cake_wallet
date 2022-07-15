@@ -28,69 +28,73 @@ class SettingsPage extends BasePage {
 
   @override
   Widget body(BuildContext context) {
-    return SectionStandardList(
-        sectionCount: settingsViewModel.sections.length,
-        itemCounter: (int sectionIndex) {
-          if (sectionIndex < settingsViewModel.sections.length) {
-            return settingsViewModel.sections[sectionIndex].length;
-          }
+    return Observer(builder: (_) {
+      final sections = settingsViewModel.getSections();
+      return SectionStandardList(
+          sectionCount: sections.length,
+          itemCounter: (int sectionIndex) {
+            if (sectionIndex < sections.length) {
+              return sections[sectionIndex].length;
+            }
 
-          return 0;
-        },
-        itemBuilder: (_, sectionIndex, itemIndex) {
-          final item = settingsViewModel.sections[sectionIndex][itemIndex];
+            return 0;
+          },
+          itemBuilder: (_, sectionIndex, itemIndex) {
+            final item = sections[sectionIndex][itemIndex];
 
-          if (item is PickerListItem) {
-            return Observer(builder: (_) {
-              return SettingsPickerCell<dynamic>(
-                displayItem: item.displayItem,
-                title: item.title,
-                selectedItem: item.selectedItem(),
-                items: item.items,
-                onItemSelected: (dynamic value) => item.onItemSelected(value),
-                images: item.images,
-                searchHintText: item.searchHintText,
-                isGridView: item.isGridView,
-                matchingCriteria: (dynamic value, String searchText) => item.matchingCriteria(value, searchText),
-              );
-            });
-          }
-
-          if (item is SwitcherListItem) {
-            return Observer(builder: (_) {
-              return SettingsSwitcherCell(
+            if (item is PickerListItem) {
+              return Observer(builder: (_) {
+                return SettingsPickerCell<dynamic>(
+                  displayItem: item.displayItem,
                   title: item.title,
-                  value: item.value(),
-                  onValueChange: item.onValueChange);
-            });
-          }
+                  selectedItem: item.selectedItem(),
+                  items: item.items,
+                  onItemSelected: (dynamic value) => item.onItemSelected(value),
+                  images: item.images,
+                  searchHintText: item.searchHintText,
+                  isGridView: item.isGridView,
+                  matchingCriteria: (dynamic value, String searchText) =>
+                      item.matchingCriteria(value, searchText),
+                );
+              });
+            }
 
-          if (item is RegularListItem) {
-            return SettingsCellWithArrow(
-                title: item.title, handler: item.handler);
-          }
+            if (item is SwitcherListItem) {
+              return Observer(builder: (_) {
+                return SettingsSwitcherCell(
+                    title: item.title,
+                    value: item.value(),
+                    onValueChange: item.onValueChange);
+              });
+            }
 
-          if (item is LinkListItem) {
-            return SettingsLinkProviderCell(
-                title: item.title,
-                icon: item.icon,
-                link: item.link,
-                linkTitle: item.linkTitle);
-          }
+            if (item is RegularListItem) {
+              return SettingsCellWithArrow(
+                  title: item.title, handler: item.handler);
+            }
 
-          if (item is VersionListItem) {
-            return Observer(builder: (_) {
-              return SettingsVersionCell(
-                  title:
-                      S.of(context).version(settingsViewModel.currentVersion));
-            });
-          }
+            if (item is LinkListItem) {
+              return SettingsLinkProviderCell(
+                  title: item.title,
+                  icon: item.icon,
+                  link: item.link,
+                  linkTitle: item.linkTitle);
+            }
 
-          if (item is ChoicesListItem) {
-            return SettingsChoicesCell(item);
-          }
+            if (item is VersionListItem) {
+              return Observer(builder: (_) {
+                return SettingsVersionCell(
+                    title:
+                    S.of(context).version(settingsViewModel.currentVersion));
+              });
+            }
 
-          return Container();
-        });
+            if (item is ChoicesListItem) {
+              return SettingsChoicesCell(item);
+            }
+
+            return Container();
+          });
+    });
   }
 }
