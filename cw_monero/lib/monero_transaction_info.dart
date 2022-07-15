@@ -25,7 +25,7 @@ class MoneroTransactionInfo extends TransactionInfo {
             parseTransactionDirectionFromNumber(map['direction'] as String) ??
                 TransactionDirection.incoming,
         date = DateTime.fromMillisecondsSinceEpoch(
-            (int.parse(map['timestamp'] as String) ?? 0) * 1000),
+            (int.parse(map['timestamp'] as String)) * 1000),
         isPending = parseBoolFromString(map['isPending'] as String),
         amount = map['amount'] as int?,
         accountIndex = int.parse(map['accountIndex'] as String),

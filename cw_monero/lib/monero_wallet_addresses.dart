@@ -61,7 +61,7 @@ abstract class MoneroWalletAddressesBase extends WalletAddresses with Store {
 
   bool validate() {
     accountList.update();
-    final accountListLength = accountList.accounts?.length ?? 0;
+    final accountListLength = accountList.accounts.length;
 
     if (accountListLength <= 0) {
       return false;

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_libmonero/entities/secret_store_key.dart';
-import 'package:flutter_libmonero/entities/encrypt.dart';
 
 class KeyService {
   KeyService(this._secureStorage);
@@ -12,18 +11,16 @@ class KeyService {
   Future<String> getWalletPassword({String? walletName}) async {
     final key = generateStoreKeyFor(
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
-    final encodedPassword =
-        await (_secureStorage.read(key: key) as FutureOr<String?>);
+    final password = await (_secureStorage.read(key: key) as FutureOr<String?>);
 
-    return decodeWalletPassword(password: encodedPassword!);
+    return password!;
   }
 
   Future<void> saveWalletPassword(
       {String? walletName, required String password}) async {
     final key = generateStoreKeyFor(
         key: SecretStoreKey.moneroWalletPassword, walletName: walletName);
-    final encodedPassword = encodeWalletPassword(password: password);
 
-    await _secureStorage.write(key: key, value: encodedPassword);
+    await _secureStorage.write(key: key, value: password);
   }
 }

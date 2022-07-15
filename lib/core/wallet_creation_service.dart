@@ -4,10 +4,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_libmonero/core/key_service.dart';
 import 'package:cw_core/wallet_base.dart';
-import 'package:flutter_libmonero/core/generate_wallet_password.dart';
 import 'package:cw_core/wallet_credentials.dart';
 import 'package:cw_core/wallet_service.dart';
 import 'package:cw_core/wallet_type.dart';
+import 'package:stack_wallet_backup/generate_password.dart';
 
 class WalletCreationService {
   WalletService? walletService;
@@ -33,26 +33,26 @@ class WalletCreationService {
   }
 
   Future<WalletBase> create(WalletCredentials credentials) async {
-    final password = generateWalletPassword(type);
+    final password = generatePassword();
     credentials.password = password;
-    await keyService!.saveWalletPassword(
-        password: password, walletName: credentials.name);
+    await keyService!
+        .saveWalletPassword(password: password, walletName: credentials.name);
     return await _service!.create(credentials);
   }
 
   Future<WalletBase> restoreFromKeys(WalletCredentials credentials) async {
-    final password = generateWalletPassword(type);
+    final password = generatePassword();
     credentials.password = password;
-    await keyService!.saveWalletPassword(
-        password: password, walletName: credentials.name);
+    await keyService!
+        .saveWalletPassword(password: password, walletName: credentials.name);
     return await _service!.restoreFromKeys(credentials);
   }
 
   Future<WalletBase> restoreFromSeed(WalletCredentials credentials) async {
-    final password = generateWalletPassword(type);
+    final password = generatePassword();
     credentials.password = password;
-    await keyService!.saveWalletPassword(
-        password: password, walletName: credentials.name);
+    await keyService!
+        .saveWalletPassword(password: password, walletName: credentials.name);
     return await _service!.restoreFromSeed(credentials);
   }
 }

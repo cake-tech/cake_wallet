@@ -35,7 +35,7 @@ class ParsedAddress {
     required String address,
     required String name,
   }) {
-    if (address.isEmpty ?? true) {
+    if (address.isEmpty) {
       return ParsedAddress(addresses: [name]);
     }
     return ParsedAddress(

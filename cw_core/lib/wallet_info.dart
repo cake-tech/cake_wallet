@@ -39,7 +39,7 @@ class WalletInfo extends HiveObject {
         type,
         isRecovery,
         restoreHeight,
-        date.millisecondsSinceEpoch ?? 0,
+        date.millisecondsSinceEpoch,
         dirPath,
         path,
         address,

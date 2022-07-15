@@ -37,6 +37,11 @@ dependencies:
   cw_shared_external:
     path: ./cw_shared_external
 
+  stack_wallet_backup:
+    git:
+      url: https://github.com/cypherstack/stack_wallet_backup.git
+      ref: c30259e4539d66912f66862cd87d915660fca718
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -12,7 +12,6 @@ import 'dart:async';
 import 'dart:core' as core;
 
 import 'package:flutter/services.dart';
-import 'package:flutter_libmonero/core/generate_wallet_password.dart';
 import 'package:flutter_libmonero/core/key_service.dart';
 import 'package:flutter_libmonero/flutter_libmonero.dart';
 import 'package:flutter_libmonero/monero/monero.dart';
@@ -60,7 +59,7 @@ void main() async {
     Hive.registerAdapter(UnspentCoinsInfoAdapter());
   }
 
-  monero?.onStartup();
+  monero.onStartup();
   final _walletInfoSource = await Hive.openBox<WalletInfo>(WalletInfo.boxName);
   walletService = monero.createMoneroWalletService(_walletInfoSource);
   storage = FlutterSecureStorage();
@@ -75,14 +74,16 @@ void main() async {
     String name = "namee${Random().nextInt(10000000)}";
     final dirPath = await pathForWalletDir(name: name, type: WalletType.monero);
     final path = await pathForWallet(name: name, type: WalletType.monero);
-    final password = generateWalletPassword(WalletType.monero);
     credentials =
         // creating a new wallet
         // monero.createMoneroNewWalletCredentials(
         //     name: name, language: "English");
         // restoring a previous wallet
         monero.createMoneroRestoreWalletFromSeedCredentials(
-            name: name, height: 2580000, mnemonic: "", password: password);
+      name: name,
+      height: 2580000,
+      mnemonic: "",
+    );
     walletInfo = WalletInfo.external(
         id: WalletBase.idFor(name, WalletType.monero),
         name: name,
