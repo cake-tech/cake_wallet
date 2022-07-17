@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:cake_wallet/exchange/trade_not_found_exeption.dart';
-import 'package:cake_wallet/src/screens/exchange/widgets/currency_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
@@ -61,8 +60,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final params = <String, String>{
       'fromCurrency': normalizedFrom,
       'toCurrency': normalizedTo,
-      'fromNetwork': CurrencyUtils.networkForCurrency(from),
-      'toNetwork': CurrencyUtils.networkForCurrency(to),
+      'fromNetwork': networkFor(from),
+      'toNetwork': networkFor(to),
       'flow': flow};
     final uri = Uri.https(apiAuthority, rangePath, params);
     final response = await get(uri, headers: headers);
@@ -94,9 +93,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     final body = <String, String>{
       'fromCurrency': normalizeCryptoCurrency(_request.from),
       'toCurrency': normalizeCryptoCurrency(_request.to),
-      'fromNetwork': CurrencyUtils.networkForCurrency(
-          _request.from),
-      'toNetwork': CurrencyUtils.networkForCurrency(_request.to),
+      'fromNetwork': networkFor(_request.from),
+      'toNetwork': networkFor(_request.to),
       'fromAmount': _request.fromAmount,
       'toAmount': _request.toAmount,
       'address': _request.address,
@@ -212,8 +210,8 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       final params = <String, String>{
         'fromCurrency': isReverse ? normalizeCryptoCurrency(to) : normalizeCryptoCurrency(from),
         'toCurrency': isReverse ? normalizeCryptoCurrency(from) : normalizeCryptoCurrency(to),
-        'fromNetwork': isReverse ? CurrencyUtils.networkForCurrency(to) : CurrencyUtils.networkForCurrency(from),
-        'toNetwork': isReverse ? CurrencyUtils.networkForCurrency(from) : CurrencyUtils.networkForCurrency(to),
+        'fromNetwork': isReverse ? networkFor(to) : networkFor(from),
+        'toNetwork': isReverse ? networkFor(from) : networkFor(to),
         'type': type,
         'flow': flow};
 
