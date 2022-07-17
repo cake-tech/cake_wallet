@@ -77,6 +77,14 @@ class DarkTheme extends ThemeBase {
             decorationColor: PaletteDark.deepPurpleBlue, // menu background
           )
       ),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: MaterialStateProperty.all(PaletteDark.wildBlueGrey),
+        trackColor: MaterialStateProperty.all(PaletteDark.violetBlue),
+        radius: Radius.circular(3),
+        thickness: MaterialStateProperty.all(6),
+        isAlwaysShown: true,
+        crossAxisMargin: 6,
+      ),
       primaryTextTheme: TextTheme(
           title: TextStyle(
               color: Colors.white, // title color

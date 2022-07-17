@@ -22,7 +22,7 @@ class WalletRestoreViewModel = WalletRestoreViewModelBase
     with _$WalletRestoreViewModel;
 
 abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
-  WalletRestoreViewModelBase(AppStore appStore, this._walletCreationService,
+  WalletRestoreViewModelBase(AppStore appStore, WalletCreationService walletCreationService,
       Box<WalletInfo> walletInfoSource,
       {@required WalletType type})
       : availableModes = (type == WalletType.monero || type == WalletType.haven)
@@ -30,11 +30,11 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
             : [WalletRestoreMode.seed],
         hasSeedLanguageSelector = type == WalletType.monero || type == WalletType.haven,
         hasBlockchainHeightLanguageSelector = type == WalletType.monero || type == WalletType.haven,
-        super(appStore, walletInfoSource, type: type, isRecovery: true) {
+        super(appStore, walletInfoSource, walletCreationService, type: type, isRecovery: true) {
     isButtonEnabled =
         !hasSeedLanguageSelector && !hasBlockchainHeightLanguageSelector;
     mode = WalletRestoreMode.seed;
-    _walletCreationService.changeWalletType(type: type);
+    walletCreationService.changeWalletType(type: type);
   }
 
   static const moneroSeedMnemonicLength = 25;
@@ -44,7 +44,6 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   final List<WalletRestoreMode> availableModes;
   final bool hasSeedLanguageSelector;
   final bool hasBlockchainHeightLanguageSelector;
-  final WalletCreationService _walletCreationService;
 
   @observable
   WalletRestoreMode mode;
@@ -123,9 +122,9 @@ abstract class WalletRestoreViewModelBase extends WalletCreationVM with Store {
   @override
   Future<WalletBase> process(WalletCredentials credentials) async {
     if (mode == WalletRestoreMode.keys) {
-      return _walletCreationService.restoreFromKeys(credentials);
+      return walletCreationService.restoreFromKeys(credentials);
     }
 
-    return _walletCreationService.restoreFromSeed(credentials);
+    return walletCreationService.restoreFromSeed(credentials);
   }
 }

@@ -22,10 +22,11 @@
 * Select your own custom nodes/servers
 * Address book
 * Backup to external location or iCloud
-* OpenAlias and Unstoppable Domains
+* Send to OpenAlias, Unstoppable Domains, and Yats
 * Set custom fee levels
 * Store local transaction notes
 * Extremely simple user experience
+* Convenient exchange and sending templates for recurring payments
 
 ### Monero Specific Features
 

@@ -250,18 +250,15 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   String get title => 'SideShift';
 
   static String normalizeCryptoCurrency(CryptoCurrency currency) {
-    const bnbTitle = 'bsc';
-    const usdterc20 = 'usdtErc20';
-
     switch (currency) {
-      case CryptoCurrency.bnb:
-        return bnbTitle;
-      case CryptoCurrency.usdterc20:
-        return usdterc20;
-      case CryptoCurrency.zec:
-        return 'zec';
       case CryptoCurrency.zaddr:
         return 'zaddr';
+      case CryptoCurrency.zec:
+        return 'zec';
+      case CryptoCurrency.bnb:
+        return currency.tag.toLowerCase();
+      case CryptoCurrency.usdterc20:
+        return 'usdtErc20';
       default:
         return currency.title.toLowerCase();
     }

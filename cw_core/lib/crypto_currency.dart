@@ -5,77 +5,82 @@ part 'crypto_currency.g.dart';
 
 @HiveType(typeId: 0)
 class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
-  const CryptoCurrency({final String title, final int raw})
+  const CryptoCurrency({final String title, this.tag, this.name, this.iconPath, final int raw})
       : super(title: title, raw: raw);
+
+  final String tag;
+  final String name;
+  final String iconPath;
 
   static const all = [
     CryptoCurrency.xmr,
-    CryptoCurrency.btc,
-    CryptoCurrency.ltc,
-    CryptoCurrency.usdterc20,
-    CryptoCurrency.usdc,
     CryptoCurrency.ada,
-    CryptoCurrency.ape,
-    CryptoCurrency.avaxc,
     CryptoCurrency.bch,
     CryptoCurrency.bnb,
-    CryptoCurrency.btt,
-    CryptoCurrency.bttbsc,
+    CryptoCurrency.btc,
     CryptoCurrency.dai,
     CryptoCurrency.dash,
-    CryptoCurrency.doge,
     CryptoCurrency.eos,
     CryptoCurrency.eth,
-  	CryptoCurrency.firo,
-  	CryptoCurrency.hbar,
-  	CryptoCurrency.nano,
-  	CryptoCurrency.sc,
-  	CryptoCurrency.sol,
+    CryptoCurrency.ltc,
+    CryptoCurrency.nano,
     CryptoCurrency.trx,
-    CryptoCurrency.usdcsol,
     CryptoCurrency.usdt,
-  	CryptoCurrency.usdttrc20,
-  	CryptoCurrency.ust,
-  	CryptoCurrency.xhv,
+    CryptoCurrency.usdterc20,
     CryptoCurrency.xlm,
     CryptoCurrency.xrp,
-  	CryptoCurrency.xvg,
-  	CryptoCurrency.zaddr,
-  	CryptoCurrency.zec,
-  	CryptoCurrency.zen,
+    CryptoCurrency.xhv,
+    CryptoCurrency.ape,
+    CryptoCurrency.avaxc,
+    CryptoCurrency.btt,
+    CryptoCurrency.bttbsc,
+    CryptoCurrency.doge,
+    CryptoCurrency.firo,
+    CryptoCurrency.usdttrc20,
+    CryptoCurrency.hbar,
+    CryptoCurrency.sc,
+    CryptoCurrency.sol,
+    CryptoCurrency.usdc,
+    CryptoCurrency.usdcsol,
+    CryptoCurrency.ust,
+    CryptoCurrency.zaddr,
+    CryptoCurrency.zec,
+    CryptoCurrency.zen,
+    CryptoCurrency.xvg,
   ];
-  static const xmr = CryptoCurrency(title: 'XMR', raw: 0);
-  static const ada = CryptoCurrency(title: 'ADA', raw: 1);
-  static const bch = CryptoCurrency(title: 'BCH', raw: 2);
-  static const bnb = CryptoCurrency(title: 'BNB BEP2', raw: 3);
-  static const btc = CryptoCurrency(title: 'BTC', raw: 4);
-  static const dai = CryptoCurrency(title: 'DAI', raw: 5);
-  static const dash = CryptoCurrency(title: 'DASH', raw: 6);
-  static const eos = CryptoCurrency(title: 'EOS', raw: 7);
-  static const eth = CryptoCurrency(title: 'ETH', raw: 8);
-  static const ltc = CryptoCurrency(title: 'LTC', raw: 9);
+
+  static const xmr = CryptoCurrency(title: 'XMR', iconPath: 'assets/images/monero_icon.png', name: 'Monero',  raw: 0);
+  static const ada = CryptoCurrency(title: 'ADA', iconPath: 'assets/images/ada_icon.png', name: 'Cardano', raw: 1);
+  static const bch = CryptoCurrency(title: 'BCH', iconPath: 'assets/images/bch_icon.png',name: 'Bitcoin Cash', raw: 2);
+  static const bnb = CryptoCurrency(title: 'BNB', iconPath: 'assets/images/bnb_icon.png', tag: 'BSC', name: 'Binance Coin', raw: 3);
+  static const btc = CryptoCurrency(title: 'BTC', iconPath: 'assets/images/btc.png', name: 'Bitcoin', raw: 4);
+  static const dai = CryptoCurrency(title: 'DAI', iconPath: 'assets/images/dai_icon.png', tag: 'ETH', name: 'Dai', raw: 5);
+  static const dash = CryptoCurrency(title: 'DASH', iconPath: 'assets/images/dash_icon.png', name: 'Dash', raw: 6);
+  static const eos = CryptoCurrency(title: 'EOS', iconPath: 'assets/images/eos_icon.png', name: 'EOS', raw: 7);
+  static const eth = CryptoCurrency(title: 'ETH', iconPath: 'assets/images/eth_icon.png', name: 'Ethereum', raw: 8);
+  static const ltc = CryptoCurrency(title: 'LTC', iconPath: 'assets/images/litecoin-ltc_icon.png', name: 'Litecoin',raw: 9);
   static const nano = CryptoCurrency(title: 'NANO', raw: 10);
-  static const trx = CryptoCurrency(title: 'TRX', raw: 11);
-  static const usdt = CryptoCurrency(title: 'USDT', raw: 12);
-  static const usdterc20 = CryptoCurrency(title: 'USDTERC20', raw: 13);
-  static const xlm = CryptoCurrency(title: 'XLM', raw: 14);
-  static const xrp = CryptoCurrency(title: 'XRP', raw: 15);
-  static const xhv = CryptoCurrency(title: 'XHV', raw: 16);
-  
-  static const xag = CryptoCurrency(title: 'XAG', raw: 17);
-  static const xau = CryptoCurrency(title: 'XAU', raw: 18);
-  static const xaud = CryptoCurrency(title: 'XAUD', raw: 19);
-  static const xbtc = CryptoCurrency(title: 'XBTC', raw: 20);
-  static const xcad = CryptoCurrency(title: 'XCAD', raw: 21);
-  static const xchf = CryptoCurrency(title: 'XCHF', raw: 22);
-  static const xcny = CryptoCurrency(title: 'XCNY', raw: 23);
-  static const xeur = CryptoCurrency(title: 'XEUR', raw: 24);
-  static const xgbp = CryptoCurrency(title: 'XGBP', raw: 25);
-  static const xjpy = CryptoCurrency(title: 'XJPY', raw: 26);
-  static const xnok = CryptoCurrency(title: 'XNOK', raw: 27);
-  static const xnzd = CryptoCurrency(title: 'XNZD', raw: 28);
-  static const xusd = CryptoCurrency(title: 'XUSD', raw: 29);
-  
+  static const trx = CryptoCurrency(title: 'TRX', iconPath: 'assets/images/trx_icon.png', name: 'TRON', raw: 11);
+  static const usdt = CryptoCurrency(title: 'USDT', iconPath: 'assets/images/usdt_icon.png', tag: 'OMNI', name: 'USDT', raw: 12);
+  static const usdterc20 = CryptoCurrency(title: 'USDT', iconPath: 'assets/images/usdterc20_icon.png', tag: 'ETH', name: 'USDT', raw: 13);
+  static const xlm = CryptoCurrency(title: 'XLM', iconPath: 'assets/images/xlm_icon.png', name: 'Stellar', raw: 14);
+  static const xrp = CryptoCurrency(title: 'XRP', iconPath: 'assets/images/xrp_icon.png', name: 'Ripple', raw: 15);
+  static const xhv = CryptoCurrency(title: 'XHV', iconPath: 'assets/images/xhv_logo.png', name: 'Haven Protocol', raw: 16);
+
+  static const xag = CryptoCurrency(title: 'XAG', tag: 'XHV',  raw: 17);
+  static const xau = CryptoCurrency(title: 'XAU', tag: 'XHV', raw: 18);
+  static const xaud = CryptoCurrency(title: 'XAUD', tag: 'XHV', raw: 19);
+  static const xbtc = CryptoCurrency(title: 'XBTC', tag: 'XHV', raw: 20);
+  static const xcad = CryptoCurrency(title: 'XCAD', tag: 'XHV', raw: 21);
+  static const xchf = CryptoCurrency(title: 'XCHF', tag: 'XHV', raw: 22);
+  static const xcny = CryptoCurrency(title: 'XCNY', tag: 'XHV', raw: 23);
+  static const xeur = CryptoCurrency(title: 'XEUR', tag: 'XHV', raw: 24);
+  static const xgbp = CryptoCurrency(title: 'XGBP', tag: 'XHV', raw: 25);
+  static const xjpy = CryptoCurrency(title: 'XJPY', tag: 'XHV', raw: 26);
+  static const xnok = CryptoCurrency(title: 'XNOK', tag: 'XHV', raw: 27);
+  static const xnzd = CryptoCurrency(title: 'XNZD', tag: 'XHV', raw: 28);
+  static const xusd = CryptoCurrency(title: 'XUSD', tag: 'XHV', raw: 29);
+
   static const ape = CryptoCurrency(title: 'APE', raw: 30);
   static const avaxc = CryptoCurrency(title: 'AVAXC', raw: 31);
   static const btt = CryptoCurrency(title: 'BTT', raw: 32);
@@ -89,10 +94,13 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
   static const usdc = CryptoCurrency(title: 'USDC', raw: 40);
   static const usdcsol = CryptoCurrency(title: 'USDCSOL', raw: 41);
   static const ust = CryptoCurrency(title: 'UST', raw: 42);
-  static const zaddr = CryptoCurrency(title: 'ZZEC', raw: 43);
-  static const zec = CryptoCurrency(title: 'TZEC', raw: 44);
+  static const zaddr = CryptoCurrency(title: 'ZZEC', tag: 'ZEC', name: 'Shielded Zcash', iconPath: 'assets/images/zaddr_icon.png', raw: 43);
+  static const zec = CryptoCurrency(title: 'TZEC', tag: 'ZEC', name: 'Transparent Zcash', iconPath: 'assets/images/zec_icon.png', raw: 44);
   static const zen = CryptoCurrency(title: 'ZEN', raw: 45);
-  static const xvg = CryptoCurrency(title: 'XVG', raw: 46);
+  static const xvg = CryptoCurrency(title: 'XVG', name: 'Verge', raw: 46);
+
+
+
 
   static CryptoCurrency deserialize({int raw}) {
     switch (raw) {
@@ -156,40 +164,40 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xnzd;
       case 29:
         return CryptoCurrency.xusd;
-  	  case 30:
-  	    return CryptoCurrency.ape;
-  	  case 31:
-  	    return CryptoCurrency.avaxc;
-  	  case 32:
-  	    return CryptoCurrency.btt;
-  	  case 33:
-  	    return CryptoCurrency.bttbsc;
-  	  case 34:
-  	    return CryptoCurrency.doge;
-  	  case 35:
-  	    return CryptoCurrency.firo;
-  	  case 36:
-  	    return CryptoCurrency.usdttrc20;
-  	  case 37:
-  	    return CryptoCurrency.hbar;
-  	  case 38:
-  	    return CryptoCurrency.sc;
-  	  case 39:
-  	    return CryptoCurrency.sol;
-  	  case 40:
-  	    return CryptoCurrency.usdc;
-  	  case 41:
-  	    return CryptoCurrency.usdcsol;
-  	  case 42:
-  	    return CryptoCurrency.ust;
-  	  case 43:
-  	    return CryptoCurrency.zaddr;
-  	  case 44:
-  	    return CryptoCurrency.zec;
-  	  case 45:
-  	    return CryptoCurrency.zen;
-  	  case 46:
-  	    return CryptoCurrency.xvg;
+      case 30:
+        return CryptoCurrency.ape;
+      case 31:
+        return CryptoCurrency.avaxc;
+      case 32:
+        return CryptoCurrency.btt;
+      case 33:
+        return CryptoCurrency.bttbsc;
+      case 34:
+        return CryptoCurrency.doge;
+      case 35:
+        return CryptoCurrency.firo;
+      case 36:
+        return CryptoCurrency.usdttrc20;
+      case 37:
+        return CryptoCurrency.hbar;
+      case 38:
+        return CryptoCurrency.sc;
+      case 39:
+        return CryptoCurrency.sol;
+      case 40:
+        return CryptoCurrency.usdc;
+      case 41:
+        return CryptoCurrency.usdcsol;
+      case 42:
+        return CryptoCurrency.ust;
+      case 43:
+        return CryptoCurrency.zaddr;
+      case 44:
+        return CryptoCurrency.zec;
+      case 45:
+        return CryptoCurrency.zen;
+      case 46:
+        return CryptoCurrency.xvg;
       default:
         return null;
     }
@@ -201,56 +209,30 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xmr;
       case 'ada':
         return CryptoCurrency.ada;
-  	  case 'ape':
-        return CryptoCurrency.ape;
-  	  case 'avax':
-        return CryptoCurrency.avaxc;
       case 'bch':
         return CryptoCurrency.bch;
       case 'bnbmainnet':
         return CryptoCurrency.bnb;
       case 'btc':
         return CryptoCurrency.btc;
-  	  case 'btt':
-        return CryptoCurrency.btt;
-  	  case 'bttbsc':
-        return CryptoCurrency.bttbsc;
       case 'dai':
         return CryptoCurrency.dai;
       case 'dash':
         return CryptoCurrency.dash;
-  	  case 'doge':
-        return CryptoCurrency.doge;
       case 'eos':
         return CryptoCurrency.eos;
       case 'eth':
         return CryptoCurrency.eth;
-  	  case 'firo':
-        return CryptoCurrency.firo;
-  	  case 'hbar':
-        return CryptoCurrency.hbar;
       case 'ltc':
         return CryptoCurrency.ltc;
       case 'nano':
         return CryptoCurrency.nano;
-  	  case 'sc':
-        return CryptoCurrency.sc;
-  	  case 'sol':
-        return CryptoCurrency.sol;
       case 'trx':
         return CryptoCurrency.trx;
-  	  case 'usdc':
+      case 'usdc':
         return CryptoCurrency.usdc;
-  	  case 'usdcsol':
-        return CryptoCurrency.usdcsol;
-      case 'usdt':
-        return CryptoCurrency.usdt;
       case 'usdterc20':
         return CryptoCurrency.usdterc20;
-      case 'usdttrc20':
-        return CryptoCurrency.usdttrc20;
-      case 'ust':
-        return CryptoCurrency.ust;
       case 'xlm':
         return CryptoCurrency.xlm;
       case 'xrp':
@@ -283,14 +265,40 @@ class CryptoCurrency extends EnumerableItem<int> with Serializable<int> {
         return CryptoCurrency.xnzd;
       case 'xusd':
         return CryptoCurrency.xusd;
-  	  case 'xvg':
-        return CryptoCurrency.xvg;
-  	  case 'zaddr':
+      case 'ape':
+        return CryptoCurrency.ape;
+      case 'avax':
+        return CryptoCurrency.avaxc;
+      case 'btt':
+        return CryptoCurrency.btt;
+      case 'bttbsc':
+        return CryptoCurrency.bttbsc;
+      case 'doge':
+        return CryptoCurrency.doge;
+      case 'firo':
+        return CryptoCurrency.firo;
+      case 'usdttrc20':
+        return CryptoCurrency.usdttrc20;
+      case 'hbar':
+        return CryptoCurrency.hbar;
+      case 'sc':
+        return CryptoCurrency.sc;
+      case 'sol':
+        return CryptoCurrency.sol;
+      case 'usdt':
+        return CryptoCurrency.usdt;
+      case 'usdcsol':
+        return CryptoCurrency.usdcsol;
+      case 'ust':
+        return CryptoCurrency.ust;
+      case 'zaddr':
         return CryptoCurrency.zaddr;
-  	  case 'zec':
+      case 'zec':
         return CryptoCurrency.zec;
-  	  case 'zen':
+      case 'zen':
         return CryptoCurrency.zen;
+      case 'xvg':
+        return CryptoCurrency.xvg;
       default:
         return null;
     }

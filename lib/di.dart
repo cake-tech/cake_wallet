@@ -3,7 +3,6 @@ import 'package:cake_wallet/entities/parse_address_from_domain.dart';
 import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cw_core/unspent_coins_info.dart';
@@ -39,7 +38,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
-import 'package:cake_wallet/src/screens/settings/change_language.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
@@ -125,6 +123,7 @@ import 'package:cake_wallet/entities/template.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
 
 final getIt = GetIt.instance;
 
@@ -216,7 +215,8 @@ Future setup(
           initialType: type,
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
-          sharedPreferences: getIt.get<SharedPreferences>()));
+          sharedPreferences: getIt.get<SharedPreferences>(),
+          walletInfoSource: _walletInfoSource));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
       WalletNewVM(getIt.get<AppStore>(),
@@ -390,7 +390,7 @@ Future setup(
           AccountListItem, void>(
       (AccountListItem account, _) => MoneroAccountEditOrCreateViewModel(
           monero.getAccountList(getIt.get<AppStore>().wallet),
-          haven.getAccountList(getIt.get<AppStore>().wallet),
+          haven?.getAccountList(getIt.get<AppStore>().wallet),
           wallet: getIt.get<AppStore>().wallet,
           accountListItem: account));
 
@@ -506,8 +506,6 @@ Future setup(
   getIt.registerFactory(() => RescanPage(getIt.get<RescanViewModel>()));
 
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
-
-  getIt.registerFactory(() => LanguageListPage(getIt.get<SettingsStore>()));
 
   getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>(
       (type, _) => WalletRestoreViewModel(getIt.get<AppStore>(),
@@ -639,7 +637,11 @@ Future setup(
 
   getIt.registerFactory(() => YatService());
 
-  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
-  
+  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
+    walletType: getIt.get<AppStore>().wallet.type));
+
+  getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
+          (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
+
   _isSetupFinished = true;
 }

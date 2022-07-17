@@ -78,6 +78,14 @@ class LightTheme extends ThemeBase {
             decorationColor: Colors.white, // menu background
           )
       ),
+      scrollbarTheme: ScrollbarThemeData(
+        thumbColor: MaterialStateProperty.all(Palette.moderatePurpleBlue),
+        trackColor: MaterialStateProperty.all(Palette.periwinkleCraiola),
+        radius: Radius.circular(3),
+        thickness: MaterialStateProperty.all(6),
+        isAlwaysShown: true,
+        crossAxisMargin: 6,
+      ),
       primaryTextTheme: TextTheme(
           title: TextStyle(
               color: Palette.darkBlueCraiola, // title color

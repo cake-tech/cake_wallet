@@ -22,7 +22,7 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 const newCakeWalletMoneroUri = 'xmr-node.cakewallet.com:18081';
 const cakeWalletBitcoinElectrumUri = 'electrum.cakewallet.com:50002';
 const cakeWalletLitecoinElectrumUri = 'ltc-electrum.cakewallet.com:50002';
-const havenDefaultNodeUri = 'vault.havenprotocol.org:443';
+const havenDefaultNodeUri = 'nodes.havenprotocol.org:443';
 
 Future defaultSettingsMigration(
     {@required int version,
@@ -126,6 +126,10 @@ Future defaultSettingsMigration(
           await changeHavenCurrentNodeToDefault(
               sharedPreferences: sharedPreferences, nodes: nodes);
           await checkCurrentNodes(nodes, sharedPreferences);
+          break;
+
+        case 17:
+          await changeDefaultHavenNode(nodes);
           break;
 
         default:
@@ -451,4 +455,15 @@ Future<void> resetBitcoinElectrumServer(
   }
 
   await oldElectrumServer?.delete();
+}
+
+Future<void> changeDefaultHavenNode(
+    Box<Node> nodeSource) async {
+  const previousHavenDefaultNodeUri = 'vault.havenprotocol.org:443';
+  final havenNodes = nodeSource.values.where(
+      (node) => node.uriRaw == previousHavenDefaultNodeUri);
+  havenNodes.forEach((node) async {
+    node.uriRaw = havenDefaultNodeUri;
+    await node.save();
+  });
 }

@@ -66,7 +66,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'flow': flow};
     final uri = Uri.https(apiAuthority, rangePath, params);
     final response = await get(uri, headers: headers);
-    
+
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
@@ -92,13 +92,13 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       'Content-Type': 'application/json'};
     final flow = getFlow(isFixedRateMode);
     final body = <String, String>{
-      'fromCurrency': normalizeCryptoCurrency(_request.from), 
+      'fromCurrency': normalizeCryptoCurrency(_request.from),
       'toCurrency': normalizeCryptoCurrency(_request.to),
       'fromNetwork': CurrencyUtils.networkForCurrency(
           _request.from),
       'toNetwork': CurrencyUtils.networkForCurrency(_request.to),
-      'fromAmount': _request.fromAmount, 
-      'toAmount': _request.toAmount, 
+      'fromAmount': _request.fromAmount,
+      'toAmount': _request.toAmount,
       'address': _request.address,
       'flow': flow,
       'refundAddress': _request.refundAddress
@@ -110,7 +110,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
 
     final uri = Uri.https(apiAuthority, createTradePath);
     final response = await post(uri, headers: headers, body: json.encode(body));
-    
+
     if (response.statusCode == 400) {
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
       final error = responseJSON['error'] as String;
@@ -222,7 +222,7 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
       } else {
         params['fromAmount'] = amount.toString();
       }
-      
+
       final uri = Uri.https(apiAuthority, estimatedAmountPath, params);
       final response = await get(uri, headers: headers);
       final responseJSON = json.decode(response.body) as Map<String, dynamic>;
@@ -241,27 +241,23 @@ class ChangeNowExchangeProvider extends ExchangeProvider {
     }
   }
 
-  static String normalizeCryptoCurrency(CryptoCurrency currency) {
-
-    switch(currency) {
-      case CryptoCurrency.bnb:
-        return 'bnb';
-      case CryptoCurrency.bttbsc:
-        return 'btt';
-
-      case CryptoCurrency.usdterc20:
-      case CryptoCurrency.usdttrc20:
-        return 'usdt';
-
-      case CryptoCurrency.zec:
-        return 'zec';
-
-      case CryptoCurrency.avaxc:
-        return 'avax';
-
+  String networkFor(CryptoCurrency currency) {
+    switch (currency) {
+      case CryptoCurrency.usdt:
+        return CryptoCurrency.btc.title.toLowerCase();
       default:
-        return currency.title.toLowerCase();
+        return currency.tag != null
+            ? currency.tag.toLowerCase()
+            : currency.title.toLowerCase();
     }
+  }
+}
 
+String normalizeCryptoCurrency(CryptoCurrency currency) {
+  switch(currency) {
+    case CryptoCurrency.zec:
+      return 'zec';
+    default:
+      return currency.title.toLowerCase();
   }
 }

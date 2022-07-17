@@ -9,35 +9,42 @@ class YatService {
   static String get apiUrl =>
       YatService.isDevMode ? YatService.apiDevUrl : YatService.apiReleaseUrl;
   static const apiReleaseUrl = "https://a.y.at";
-  static const apiDevUrl = 'https://yat.fyi';
+  static const apiDevUrl = 'https://a.yat.fyi';
 
   static String lookupEmojiUrl(String emojiId) =>
       "$apiUrl/emoji_id/$emojiId/payment";
   
+  static const String MONERO_SUB_ADDRESS = '0x1002';
+  static const String MONERO_STD_ADDRESS = '0x1001';
   static const tags = {
-    'XMR': '0x1001,0x1002',
+    'XMR': "$MONERO_STD_ADDRESS,$MONERO_SUB_ADDRESS",
     'BTC': '0x1003',
-    'LTC': '0x3fff'
+    'LTC': '0x1019'
   };
 
   Future<List<YatRecord>> fetchYatAddress(String emojiId, String ticker) async {
     final formattedTicker = ticker.toUpperCase();
     final formattedEmojiId = emojiId.replaceAll(' ', '');
+    final tag = tags[formattedTicker];
     final uri = Uri.parse(lookupEmojiUrl(formattedEmojiId)).replace(
         queryParameters: <String, dynamic>{
-          "tags": tags[formattedTicker]
+          "tags": tag
         });
-
     final yatRecords = <YatRecord>[];
 
     try {
       final response = await get(uri);
       final resBody = json.decode(response.body) as Map<String, dynamic>;
-
       final results = resBody["result"] as Map<dynamic, dynamic>;
-      results.forEach((dynamic key, dynamic value) {
-        yatRecords.add(YatRecord.fromJson(value as Map<String, dynamic>));
-      });
+      // Favour a subaddress over a standard address.
+      final yatRecord = (
+        results[MONERO_SUB_ADDRESS] ??
+        results[MONERO_STD_ADDRESS] ??
+        results[tag]) as Map<String, dynamic>;
+
+      if (yatRecord != null) {
+        yatRecords.add(YatRecord.fromJson(yatRecord));
+      }
 
       return yatRecords;
     } catch (_) {
