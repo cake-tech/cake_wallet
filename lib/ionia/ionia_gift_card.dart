@@ -1,4 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+
+class IoniaGiftCardInstruction {
+    IoniaGiftCardInstruction(this.header, this.body);
+
+    factory IoniaGiftCardInstruction.fromJsonMap(Map<String, dynamic> element) {
+        return IoniaGiftCardInstruction(
+            element['header'] as String,
+            element['body'] as String);
+    }
+
+    final String header;
+    final String body;
+}
 
 class IoniaGiftCard {
     IoniaGiftCard({
@@ -26,6 +41,11 @@ class IoniaGiftCard {
         @required this.logoUrl});
 
     factory IoniaGiftCard.fromJsonMap(Map<String, dynamic> element) {
+        final decodedInstructions = json.decode(element['UsageInstructions'] as String) as Map<String, dynamic>;
+        final instruction = decodedInstructions['instruction'] as List<dynamic>;
+        final instructions = instruction
+                .map((dynamic e) =>IoniaGiftCardInstruction.fromJsonMap(e as Map<String, dynamic>))
+                .toList();
         return IoniaGiftCard(
             id: element['Id'] as int,
             merchantId: element['MerchantId'] as int,
@@ -44,7 +64,8 @@ class IoniaGiftCard {
             isEmpty: element['IsEmpty'] as bool,
             logoUrl: element['LogoUrl'] as String,
             createdDateFormatted: element['CreatedDate'] as String,
-            lastTransactionDateFormatted: element['LastTransactionDate'] as String);
+            lastTransactionDateFormatted: element['LastTransactionDate'] as String,
+            usageInstructions: instructions);
     }
 
     final int id;
@@ -54,7 +75,7 @@ class IoniaGiftCard {
     final String barcodeUrl;
     final String cardNumber;
     final String cardPin;
-    final Map<String, dynamic> usageInstructions;
+    final List<IoniaGiftCardInstruction> usageInstructions;
     final Map<String, dynamic> balanceInstructions;
     final Map<String, dynamic> paymentInstructions;
     final String cardImageUrl;

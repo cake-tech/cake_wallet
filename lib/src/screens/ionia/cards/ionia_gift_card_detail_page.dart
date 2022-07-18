@@ -157,15 +157,35 @@ class IoniaGiftCardDetailPage extends BasePage {
                             color: Theme.of(context).textTheme.body1.color,
                           ),
                         ),
-                        SizedBox(height: 24),
                         Align(
                           alignment: Alignment.bottomLeft,
-                          child: Text(
-                            '',
-                            style: textMedium(
-                              color: Theme.of(context).textTheme.display2.color,
-                            ),
-                          ),
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxHeight: MediaQuery.of(context).size.height * 0.5),
+                            child:  Expanded(
+                            child: ListView.builder(
+                              itemCount: viewModel.giftCard.usageInstructions.length,
+                              itemBuilder: (_, int index) {
+                                  final instruction = viewModel.giftCard.usageInstructions[index];
+                                  return Expanded(
+                                    child: Column(
+                                      children: [
+                                        Padding(
+                                          padding: EdgeInsets.all(10),
+                                          child: Text(
+                                          instruction.header,
+                                          style: textLargeSemiBold(
+                                            color: Theme.of(context).textTheme.display2.color,
+                                          ),
+                                        )),
+                                        Text(
+                                          instruction.body,
+                                          style: textMedium(
+                                            color: Theme.of(context).textTheme.display2.color,
+                                          ),
+                                        )
+                                      ]));
+                                })))
                         ),
                         SizedBox(height: 35),
                         PrimaryButton(
