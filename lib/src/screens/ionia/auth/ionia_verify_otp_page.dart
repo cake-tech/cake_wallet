@@ -143,5 +143,6 @@ class IoniaVerifyIoniaOtp extends BasePage {
   }
 
   void _onOtpSuccessful(BuildContext context) =>
-      Navigator.pushNamedAndRemoveUntil(context, Routes.ioniaManageCardsPage, ModalRoute.withName(Routes.dashboard));
+      Navigator.of(context)
+        .pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
 }
