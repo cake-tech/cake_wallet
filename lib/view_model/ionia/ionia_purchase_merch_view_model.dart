@@ -1,11 +1,12 @@
+import 'package:flutter/foundation.dart';
+import 'package:mobx/mobx.dart';
 import 'package:cake_wallet/anypay/any_pay_payment.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
-import 'package:flutter/foundation.dart';
-import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 
 part 'ionia_purchase_merch_view_model.g.dart';
 
@@ -38,7 +39,9 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
 
   final IoniaAnyPay ioniaAnyPayService;
 
-  AnyPayPayment invoice;
+  IoniaAnyPayPaymentInfo paymentInfo;
+
+  AnyPayPayment get invoice => paymentInfo?.anyPayPayment;
 
   AnyPayPaymentCommittedInfo committedInfo;
 
@@ -67,7 +70,7 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
   Future<void> createInvoice() async {
     try {
       invoiceCreationState = IsExecutingState();
-      invoice = await ioniaAnyPayService.purchase(merchId: ioniaMerchant.id.toString(), amount: giftCardAmount);
+      paymentInfo = await ioniaAnyPayService.purchase(merchId: ioniaMerchant.id.toString(), amount: giftCardAmount);
       invoiceCreationState = ExecutedSuccessfullyState();
     } catch (e) {
       invoiceCreationState = FailureState(e.toString());

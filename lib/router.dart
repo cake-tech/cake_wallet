@@ -75,6 +75,9 @@ import 'package:cake_wallet/wallet_type_utils.dart';
 import 'package:cake_wallet/wallet_types.g.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/ionia/ionia.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 
 RouteSettings currentRouteSettings;
 
@@ -450,6 +453,14 @@ Route<dynamic> createRoute(RouteSettings settings) {
     case Routes.ioniaGiftCardDetailPage:
       final args = settings.arguments as List;
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaGiftCardDetailPage>(param1: args.first));
+
+    case Routes.ioniaPaymentStatusPage:
+      final args = settings.arguments as List;
+      final paymentInfo = args.first as IoniaAnyPayPaymentInfo;
+      final commitedInfo = args[1] as AnyPayPaymentCommittedInfo;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaPaymentStatusPage>(
+        param1: paymentInfo,
+        param2: commitedInfo));
 
     default:
       return MaterialPageRoute<void>(

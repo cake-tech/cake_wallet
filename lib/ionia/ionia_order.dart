@@ -12,7 +12,7 @@ class IoniaOrder {
       uri: obj['uri'] as String,
       currency: obj['currency'] as String,
       amount: obj['amount'] as double,
-      paymentId: obj['payment_id'] as String);
+      paymentId: obj['paymentId'] as String);
   }
 
   final String id;

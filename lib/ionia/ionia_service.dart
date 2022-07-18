@@ -149,4 +149,14 @@ class IoniaService {
 		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
 		return ioniaApi.getGiftCard(username: username, password: password, clientId: clientId,id: id);
 	}
+
+	// Payment Status
+
+	Future<int> getPaymentStatus({
+		@required String orderId,
+		@required String paymentId}) async {
+		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
+		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		return ioniaApi.getPaymentStatus(username: username, password: password, clientId: clientId, orderId: orderId, paymentId: paymentId);
+	}
 }

@@ -21,6 +21,7 @@ class IoniaApi {
   	static final getCurrentUserGiftCardSummariesUrl = Uri.https(baseUri, '/$pathPrefix/GetCurrentUserGiftCardSummaries');
   	static final changeGiftCardUrl = Uri.https(baseUri, '/$pathPrefix/ChargeGiftCard');
   	static final getGiftCardUrl = Uri.https(baseUri, '/$pathPrefix/GetGiftCard');
+  	static final getPaymentStatusUrl = Uri.https(baseUri, '/$pathPrefix/PaymentStatus');
 
 	// Create user
 
@@ -354,5 +355,47 @@ class IoniaApi {
 
 		final data = decodedBody['Data'] as Map<String, dynamic>;
 		return IoniaGiftCard.fromJsonMap(data);
+	}
+
+	// Payment Status
+
+	Future<int> getPaymentStatus({
+		@required String username,
+		@required String password,
+		@required String clientId,
+		@required String orderId,
+		@required String paymentId}) async {
+		final headers = <String, String>{
+			'clientId': clientId,
+			'username': username,
+			'password': password,
+			'Content-Type': 'application/json'};
+		final body = <String, dynamic>{
+			'order_id': orderId,
+			'paymentId': paymentId};
+		final response = await post(
+			getPaymentStatusUrl,
+			headers: headers,
+			body: json.encode(body));
+
+		if (response.statusCode != 200) {
+			throw Exception('Failed to get Payment Status for order_id ${orderId} paymentId ${paymentId};Incorrect response status: ${response.statusCode};');
+		}
+
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final isSuccessful = decodedBody['Successful'] as bool ?? false;
+
+		if (!isSuccessful) {
+			final msg = decodedBody['ErrorMessage'] as String ?? '';
+
+			if (msg.isNotEmpty) {
+				throw Exception(msg);
+			}
+
+			throw Exception('Failed to get Payment Status for order_id ${orderId} paymentId ${paymentId}');
+		}
+
+		final data = decodedBody['Data'] as Map<String, dynamic>;
+		return data['gift_card_id'] as int;
 	}
 }

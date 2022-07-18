@@ -1,11 +1,11 @@
 import 'dart:ui';
-
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -109,18 +109,12 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       }
 
       if (state is ExecutedSuccessfullyState) {
-        final transactionInfo = state.payload as AnyPayPaymentCommittedInfo;
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          showDialog<void>(
-            context: context,
-            barrierDismissible: true,
-            barrierColor: PaletteDark.darkNightBlue.withOpacity(0.75),
-            builder: (BuildContext context) {
-              return Center(
-                child: _IoniaTransactionCommitedAlert(transactionInfo: transactionInfo),
-              );
-            },
-          );
+          Navigator.of(context).pushReplacementNamed(
+            Routes.ioniaPaymentStatusPage,
+            arguments: [
+              ioniaPurchaseViewModel.paymentInfo,
+              ioniaPurchaseViewModel.committedInfo]);
         });
       }
     });

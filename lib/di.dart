@@ -146,6 +146,10 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/ionia/ionia_token_service.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_payment_status_view_model.dart';
+import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
 
 final getIt = GetIt.instance;
 
@@ -740,6 +744,17 @@ Future setup(
   getIt.registerFactory(() => IoniaAccountPage(getIt.get<IoniaAccountViewModel>()));
 
   getIt.registerFactory(() => IoniaAccountCardsPage(getIt.get<IoniaAccountViewModel>()));
+
+  getIt.registerFactoryParam<IoniaPaymentStatusViewModel, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
+    (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)
+      => IoniaPaymentStatusViewModel(
+        getIt.get<IoniaService>(),
+        paymentInfo: paymentInfo,
+        committedInfo: committedInfo));
+
+  getIt.registerFactoryParam<IoniaPaymentStatusPage, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
+    (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)
+      => IoniaPaymentStatusPage(getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
 
   _isSetupFinished = true;
 }

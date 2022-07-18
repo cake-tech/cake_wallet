@@ -13,6 +13,8 @@ import 'package:cake_wallet/anypay/any_pay_trasnaction.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
+import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
+import 'package:cake_wallet/ionia/ionia_order.dart';
 
 class IoniaAnyPay {
 	IoniaAnyPay(this.ioniaService, this.anyPayApi, this.wallet);
@@ -21,14 +23,15 @@ class IoniaAnyPay {
 	final AnyPayApi anyPayApi;
 	final WalletBase wallet;
 
-	Future<AnyPayPayment> purchase({
+	Future<IoniaAnyPayPaymentInfo> purchase({
 		@required String merchId,
 		@required double amount}) async {
 		final invoice = await ioniaService.purchaseGiftCard(
 			merchId: merchId,
 			amount: amount,
 			currency: wallet.currency.title.toUpperCase());
-    	return anyPayApi.paymentRequest(invoice.uri);
+		final anypayPayment = await anyPayApi.paymentRequest(invoice.uri);
+		return IoniaAnyPayPaymentInfo(invoice, anypayPayment);
 	}
 
 	Future<AnyPayPaymentCommittedInfo> commitInvoice(AnyPayPayment payment) async {
