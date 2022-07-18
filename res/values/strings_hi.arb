@@ -566,7 +566,7 @@
   "agree_to": "खाता बनाकर आप इससे सहमत होते हैं ",
   "and": "और",
   "enter_code": "कोड दर्ज करें",
-  "congratulations: "बधाई!",
+  "congratulations":"बधाई!",
   "you_now_have_debit_card": "अब आपके पास डेबिट कार्ड है",
   "min_amount" : "न्यूनतम: ${value}",
   "max_amount" : "अधिकतम: ${value}",

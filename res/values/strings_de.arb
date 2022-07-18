@@ -566,7 +566,7 @@
   "agree_to": "Door een account aan te maken gaat u akkoord met de ",
   "and": "en",
   "enter_code": "Voer code in",
-  "congratulations": gefeliciteerd!",
+  "congratulations": "gefeliciteerd!",
   "you_now_have_debit_card": "Je hebt nu een debetkaart",
   "min_amount" : "Min: ${value}",
   "max_amount" : "Max: ${value}",
