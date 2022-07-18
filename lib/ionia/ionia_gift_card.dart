@@ -33,6 +33,7 @@ class IoniaGiftCard {
             systemName: element['SystemName'] as String,
             barcodeUrl: element['BarcodeUrl'] as String,
             cardNumber: element['CardNumber'] as String,
+            cardPin: element['CardPin'] as String,
             tip: element['Tip'] as double,
             purchaseAmount: element['PurchaseAmount'] as double,
             actualAmount: element['ActualAmount'] as double,

@@ -19,6 +19,8 @@ class IoniaApi {
 	static final getMerchantsByFilterUrl = Uri.https(baseUri, '/$pathPrefix/GetMerchantsByFilter');
   	static final getPurchaseMerchantsUrl = Uri.https(baseUri, '/$pathPrefix/PurchaseGiftCard');
   	static final getCurrentUserGiftCardSummariesUrl = Uri.https(baseUri, '/$pathPrefix/GetCurrentUserGiftCardSummaries');
+  	static final changeGiftCardUrl = Uri.https(baseUri, '/$pathPrefix/ChargeGiftCard');
+  	static final getGiftCardUrl = Uri.https(baseUri, '/$pathPrefix/GetGiftCard');
 
 	// Create user
 
@@ -273,5 +275,84 @@ class IoniaApi {
 			final element = e as Map<String, dynamic>;
 			return IoniaGiftCard.fromJsonMap(element);
 		}).toList();
+	}
+
+	// Charge Gift Card
+
+	Future<void> chargeGiftCard({
+		@required String username,
+		@required String password,
+		@required String clientId,
+		@required int giftCardId,
+		@required double amount}) async {
+		final headers = <String, String>{
+			'clientId': clientId,
+			'username': username,
+			'password': password,
+			'Content-Type': 'application/json'};
+		final body = <String, dynamic>{
+			'Id': giftCardId,
+			'Amount': amount};
+		final response = await post(
+			changeGiftCardUrl,
+			headers: headers,
+			body: json.encode(body));
+
+		if (response.statusCode != 200) {
+			throw Exception('Failed to update Gift Card with ID ${giftCardId};Incorrect response status: ${response.statusCode};');
+		}
+
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final isSuccessful = decodedBody['Successful'] as bool ?? false;
+
+		if (!isSuccessful) {
+			final data = decodedBody['Data'] as Map<String, dynamic>;
+			final msg = data['Message'] as String ?? '';
+
+			if (msg.isNotEmpty) {
+				throw Exception(msg);
+			}
+
+			throw Exception('Failed to update Gift Card with ID ${giftCardId};');
+		}
+	}
+
+	// Get Gift Card
+
+	Future<IoniaGiftCard> getGiftCard({
+		@required String username,
+		@required String password,
+		@required String clientId,
+		@required int id}) async {
+		final headers = <String, String>{
+			'clientId': clientId,
+			'username': username,
+			'password': password,
+			'Content-Type': 'application/json'};
+		final body = <String, dynamic>{'Id': id};
+		final response = await post(
+			getGiftCardUrl,
+			headers: headers,
+			body: json.encode(body));
+
+		if (response.statusCode != 200) {
+			throw Exception('Failed to get Gift Card with ID ${id};Incorrect response status: ${response.statusCode};');
+		}
+
+		final decodedBody = json.decode(response.body) as Map<String, dynamic>;
+		final isSuccessful = decodedBody['Successful'] as bool ?? false;
+
+		if (!isSuccessful) {
+			final msg = decodedBody['ErrorMessage'] as String ?? '';
+
+			if (msg.isNotEmpty) {
+				throw Exception(msg);
+			}
+
+			throw Exception('Failed to get Gift Card with ID ${id};');
+		}
+
+		final data = decodedBody['Data'] as Map<String, dynamic>;
+		return IoniaGiftCard.fromJsonMap(data);
 	}
 }

@@ -145,6 +145,7 @@ import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/ionia/ionia_token_service.dart';
 import 'package:cake_wallet/anypay/anypay_api.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
 
 final getIt = GetIt.instance;
 
@@ -713,8 +714,14 @@ Future setup(
      return IoniaBuyGiftCardDetailPage(getIt.get<IoniaMerchPurchaseViewModel>(param1: amount, param2: merchant));
   });
 
+  getIt.registerFactoryParam<IoniaGiftCardDetailsViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
+     return IoniaGiftCardDetailsViewModel(
+      ioniaService: getIt.get<IoniaService>(),
+      giftCard: giftCard);
+  });
+
   getIt.registerFactoryParam<IoniaGiftCardDetailPage, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
-     return IoniaGiftCardDetailPage(giftCard);
+     return IoniaGiftCardDetailPage(getIt.get<IoniaGiftCardDetailsViewModel>(param1: giftCard));
   });
 
   getIt.registerFactoryParam<IoniaCustomTipPage, List, void>((List args, _) {

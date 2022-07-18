@@ -120,4 +120,33 @@ class IoniaService {
 		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
 		return ioniaApi.getCurrentUserGiftCardSummaries(username: username, password: password, clientId: clientId);
 	}
+
+	// Charge Gift Card
+
+	Future<void> chargeGiftCard({
+		@required int giftCardId,
+		@required double amount}) async {
+		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
+		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		await ioniaApi.chargeGiftCard(
+			username: username,
+			password: password,
+			clientId: clientId,
+			giftCardId: giftCardId,
+			amount: amount);
+	}
+
+	// Redeem
+
+	Future<void> redeem(IoniaGiftCard giftCard) async {
+		await chargeGiftCard(giftCardId: giftCard.id, amount: giftCard.remainingAmount);
+	}
+
+	// Get Gift Card
+
+	Future<IoniaGiftCard> getGiftCard({@required int id}) async {
+		final username = await secureStorage.read(key: ioniaUsernameStorageKey);
+		final password = await secureStorage.read(key: ioniaPasswordStorageKey);
+		return ioniaApi.getGiftCard(username: username, password: password, clientId: clientId,id: id);
+	}
 }

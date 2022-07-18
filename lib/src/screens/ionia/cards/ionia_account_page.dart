@@ -47,7 +47,10 @@ class IoniaAccountPage extends BasePage {
                           ),
                         )),
                 InkWell(
-                  onTap: () => Navigator.pushNamed(context, Routes.ioniaAccountCardsPage),
+                  onTap: () {
+                    Navigator.pushNamed(context, Routes.ioniaAccountCardsPage)
+                    .then((_) => ioniaAccountViewModel.updateUserGiftCards());
+                  },
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
