@@ -8,9 +8,11 @@ import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
+import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_card_details_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -89,18 +91,21 @@ class IoniaGiftCardDetailPage extends BasePage {
               child: SizedBox(height: 96, width: double.infinity, child: Image.network(viewModel.giftCard.barcodeUrl)),
             ),
           SizedBox(height: 24),
-          IoniaTile(
+          buildIoniaTile(
+            context,
             title: S.of(context).gift_card_number,
             subTitle: viewModel.giftCard.cardNumber,
           ),
           Divider(height: 30),
-          IoniaTile(
+          buildIoniaTile(
+            context,
             title: S.of(context).pin_number,
             subTitle: viewModel.giftCard.cardPin ?? '',
           ),
           Divider(height: 30),
           Observer(builder: (_) =>
-            IoniaTile(
+            buildIoniaTile(
+              context,
               title: S.of(context).amount,
               subTitle: viewModel.giftCard.remainingAmount.toString() ?? '0',
             )),
@@ -126,6 +131,17 @@ class IoniaGiftCardDetailPage extends BasePage {
               return Container();
             })),
     );
+  }
+
+  Widget buildIoniaTile(BuildContext context, {@required String title, @required String subTitle}) {
+    return IoniaTile(
+      title: title,
+      subTitle: subTitle,
+      onTap: () {
+        Clipboard.setData(ClipboardData(text: subTitle));
+        showBar<void>(context,
+            S.of(context).transaction_details_copied(title));
+        });
   }
 
   void _showHowToUseCard(

@@ -6,18 +6,18 @@ class IoniaTile extends StatelessWidget {
     Key key,
     @required this.title,
     @required this.subTitle,
-    this.trailing,
-    this.onTapTrailing,
+    this.onTap,
   }) : super(key: key);
 
-  final Widget trailing;
-  final VoidCallback onTapTrailing;
+  final VoidCallback onTap;
   final String title;
   final String subTitle;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return GestureDetector(
+      onTap: () => onTap(),
+      child: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Column(
@@ -37,22 +37,8 @@ class IoniaTile extends StatelessWidget {
               ),
             ),
           ],
-        ),
-        trailing != null
-            ? InkWell(
-                onTap: () => onTapTrailing,
-                child: Center(
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(4)),
-                    child: trailing,
-                  ),
-                ),
-              )
-            : Offstage(),
+        )
       ],
-    );
+    ));
   }
 }
