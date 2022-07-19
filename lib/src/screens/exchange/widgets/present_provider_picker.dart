@@ -1,6 +1,3 @@
-import 'dart:convert';
-
-import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/check_box_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';

@@ -535,5 +535,7 @@
   "new_template" : "New Template",
   "electrum_address_disclaimer": "We generate new addresses each time you use one, but previous addresses continue to work",
   "wallet_name_exists": "Wallet with that name has already existed",
-  "automatic": "Automatic"
+  "automatic": "Automatic",
+  "fixed_pair_not_supported": "This fixed pair is not supported with the selected exchanges",
+  "variable_pair_not_supported": "This variable pair is not supported with the selected exchanges"
 }

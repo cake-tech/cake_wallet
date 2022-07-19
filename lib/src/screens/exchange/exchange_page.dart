@@ -279,8 +279,12 @@ class ExchangePage extends BasePage {
                     padding: EdgeInsets.only(bottom: 15),
                     child: Observer(builder: (_) {
                       final description = exchangeViewModel.isFixedRateMode
-                          ? S.of(context).amount_is_guaranteed
-                          : S.of(context).amount_is_estimate;
+                          ? exchangeViewModel.isAvailableInSelected
+                              ? S.of(context).amount_is_guaranteed
+                              : S.of(context).fixed_pair_not_supported
+                          : exchangeViewModel.isAvailableInSelected
+                              ? S.of(context).amount_is_estimate
+                              : S.of(context).variable_pair_not_supported;
                       return Center(
                         child: Text(
                           description,

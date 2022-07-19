@@ -492,4 +492,6 @@ abstract class ExchangeViewModelBase with Store {
       json.encode(exchangeProvidersSelection),
     );
   }
+
+  bool get isAvailableInSelected => selectedProviders.any((element) => element.isAvailable);
 }
