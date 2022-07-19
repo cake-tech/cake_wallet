@@ -124,6 +124,7 @@ import 'package:cake_wallet/exchange/exchange_template.dart';
 import 'package:cake_wallet/.secrets.g.dart' as secrets;
 import 'package:cake_wallet/src/screens/dashboard/widgets/address_page.dart';
 import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/core/wallet_loading_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -217,6 +218,12 @@ Future setup(
           secureStorage: getIt.get<FlutterSecureStorage>(),
           sharedPreferences: getIt.get<SharedPreferences>(),
           walletInfoSource: _walletInfoSource));
+
+  getIt.registerFactory<WalletLoadingService>(
+    () => WalletLoadingService(
+      getIt.get<SharedPreferences>(),
+      getIt.get<KeyService>(),
+      (WalletType type) => getIt.get<WalletService>(param1: type)));
 
   getIt.registerFactoryParam<WalletNewVM, WalletType, void>((type, _) =>
       WalletNewVM(getIt.get<AppStore>(),
@@ -352,7 +359,7 @@ Future setup(
   getIt.registerFactory(() => WalletListViewModel(
       _walletInfoSource,
       getIt.get<AppStore>(),
-      getIt.get<KeyService>()));
+      getIt.get<WalletLoadingService>()));
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));

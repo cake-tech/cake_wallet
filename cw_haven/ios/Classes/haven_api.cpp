@@ -565,6 +565,16 @@ extern "C"
         store_lock.unlock();
     }
 
+    bool set_password(char *password, Utf8Box &error) {
+        bool is_changed = get_current_wallet()->setPassword(std::string(password));
+
+        if (!is_changed) {
+            error = Utf8Box(strdup(get_current_wallet()->errorString().c_str()));
+        }
+
+        return is_changed;
+    }
+
     bool transaction_create(char *address, char *asset_type, char *payment_id, char *amount,
                                               uint8_t priority_raw, uint32_t subaddr_account, Utf8Box &error, PendingTransactionRaw &pendingTransaction)
     {

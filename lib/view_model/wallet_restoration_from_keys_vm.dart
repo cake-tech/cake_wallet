@@ -45,7 +45,7 @@ abstract class WalletRestorationFromKeysVMBase extends WalletCreationVM
 
   @override
   WalletCredentials getCredentials(dynamic options) {
-    final password = generateWalletPassword(type);
+    final password = generateWalletPassword();
 
     switch (type) {
       case WalletType.monero:

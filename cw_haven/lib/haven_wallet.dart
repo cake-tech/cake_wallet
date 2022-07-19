@@ -240,6 +240,11 @@ abstract class HavenWalletBase extends WalletBase<MoneroBalance,
     await haven_wallet.store();
   }
 
+  @override
+  Future<void> changePassword(String password) async {
+    haven_wallet.setPasswordSync(password);
+  }
+
   Future<int> getNodeHeight() async => haven_wallet.getNodeHeight();
 
   Future<bool> isConnected() async => haven_wallet.isConnected();
