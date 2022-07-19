@@ -529,9 +529,9 @@
 
   "new_template" : "Nouveau Modèle",
   "electrum_address_disclaimer": "Nous générons de nouvelles adresses à chaque fois que vous en utilisez une, mais les adresses précédentes continuent à fonctionner",
-  "market_place": "Place du marché",
-  "cake_pay_title": "Cartes cadeaux et cartes de débit",
-  "cake_pay_subtitle": "Achetez des cartes-cadeaux et rechargez des cartes de débit sans KYC",
+  "market_place": "Place de marché",
+  "cake_pay_title": "Cartes cadeaux Cake Pay",
+  "cake_pay_subtitle": "Achetez des cartes-cadeaux et échangez-les instantanément",
   "about_cake_pay": "CakePay vous permet d'acheter facilement des cartes-cadeaux et de charger des cartes de débit prépayées avec des crypto-monnaies, utilisables chez des millions de marchands aux États-Unis.",
   "cake_pay_account_note": "Créez un compte pour voir les cartes disponibles. Certaines sont même disponibles à prix réduit !",
   "already_have_account": "Vous avez déjà un compte ?",
