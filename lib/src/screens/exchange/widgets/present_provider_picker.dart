@@ -71,9 +71,9 @@ class PresentProviderPicker extends StatelessWidget {
                 return;
               }
               if (value) {
-                exchangeViewModel.selectedProviders.add(exchangeViewModel.providerList[index]);
+                exchangeViewModel.addExchangeProvider(exchangeViewModel.providerList[index]);
               } else {
-                exchangeViewModel.selectedProviders.remove(exchangeViewModel.providerList[index]);
+                exchangeViewModel.removeExchangeProvider(exchangeViewModel.providerList[index]);
               }
             }),
         context: context);

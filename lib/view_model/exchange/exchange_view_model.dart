@@ -79,11 +79,11 @@ abstract class ExchangeViewModelBase with Store {
     final Map<String, dynamic> exchangeProvidersSelection = json
         .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
 
-    selectedProviders = providerList.where(
+    selectedProviders = ObservableList.of(providerList.where(
             (element) => exchangeProvidersSelection[element.title] == null
                 ? element.isEnabled
                 : (exchangeProvidersSelection[element.title] as bool))
-        .toList();
+        .toList());
   }
 
   final WalletBase wallet;
@@ -96,7 +96,7 @@ abstract class ExchangeViewModelBase with Store {
   ExchangeProvider provider;
 
   @observable
-  List<ExchangeProvider> selectedProviders;
+  ObservableList<ExchangeProvider> selectedProviders;
 
   @observable
   List<ExchangeProvider> providerList;
@@ -476,6 +476,16 @@ abstract class ExchangeViewModelBase with Store {
     }*/
     //isReceiveAmountEditable = false;
     isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
+  }
+
+  @action
+  void addExchangeProvider(ExchangeProvider provider) {
+    selectedProviders.add(provider);
+  }
+
+  @action
+  void removeExchangeProvider(ExchangeProvider provider) {
+    selectedProviders.remove(provider);
   }
 
   void saveSelectedProviders() {
