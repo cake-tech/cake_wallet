@@ -581,7 +581,7 @@
   "add_fund_to_card": "Voeg prepaid tegoed toe aan de kaarten (tot ${value})",
   "use_card_info_two": "Tegoeden worden omgezet naar USD wanneer ze op de prepaid-rekening staan, niet in digitale valuta.",
   "use_card_info_three": "Gebruik de digitale kaart online of met contactloze betaalmethoden.",
-  "optioneel_order_card": "Optioneel een fysieke kaart bestellen.",
+  "optionally_order_card": "Optioneel een fysieke kaart bestellen.",
   "hide_details" : "Details verbergen", 
   "show_details" : "Toon details",
   "upto": "tot ${value}",

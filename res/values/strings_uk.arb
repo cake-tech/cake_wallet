@@ -583,7 +583,7 @@
   "optionally_order_card": "Необов'язково замовте фізичну картку.",
   "hide_details": "Приховати деталі",
   "show_details": "Показати деталі",
-  "do": "до ${value}",
+  "upto": "до ${value}",
   "discount": "Зекономте ${value}%",
   "gift_card_amount": "Сума подарункової картки",
   "bill_amount": "Сума рахунку",
