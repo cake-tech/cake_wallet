@@ -8,20 +8,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PresentProviderPicker extends StatelessWidget {
-  PresentProviderPicker({@required this.exchangeViewModel, @required this.sharedPreferences});
+  PresentProviderPicker({@required this.exchangeViewModel});
 
   final ExchangeViewModel exchangeViewModel;
-  final SharedPreferences sharedPreferences;
 
   @override
   Widget build(BuildContext context) {
-    final arrowBottom = Image.asset(
-        'assets/images/arrow_bottom_purple_icon.png',
-        color: Colors.white,
-        height: 6);
+    final arrowBottom = Image.asset('assets/images/arrow_bottom_purple_icon.png', color: Colors.white, height: 6);
 
     return FlatButton(
         onPressed: () => _presentProviderPicker(context),
@@ -38,11 +33,14 @@ class PresentProviderPicker extends StatelessWidget {
                 Text(S.of(context).exchange,
                     style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600, color: Colors.white)),
                 Observer(
-                    builder: (_) => Text('${exchangeViewModel.provider.title}',
-                        style: TextStyle(
-                            fontSize: 10.0,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).textTheme.headline.color)))
+                    builder: (_) => exchangeViewModel.selectedProviders.isNotEmpty
+                        ? Text(
+                            '${exchangeViewModel.selectedProviders.length > 1 ? S.of(context).automatic : exchangeViewModel.selectedProviders.first.title}',
+                            style: TextStyle(
+                                fontSize: 10.0,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).textTheme.headline.color))
+                        : const SizedBox())
               ],
             ),
             SizedBox(width: 5),
@@ -55,15 +53,12 @@ class PresentProviderPicker extends StatelessWidget {
   }
 
   void _presentProviderPicker(BuildContext context) async {
-    final Map<String, dynamic> exchangeProvidersSelection = json
-        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
-
     await showPopUp<void>(
         builder: (BuildContext popUpContext) => CheckBoxPicker(
             items: exchangeViewModel.providerList
                 .map((e) => CheckBoxItem(
                       e.title,
-                      (exchangeProvidersSelection[e.title] as bool) ?? e.isEnabled,
+                      exchangeViewModel.selectedProviders.contains(e),
                     ))
                 .toList(),
             title: S.of(context).change_exchange_provider,
@@ -78,13 +73,14 @@ class PresentProviderPicker extends StatelessWidget {
                     context: context);
                 return;
               }
-              exchangeProvidersSelection[exchangeViewModel.providerList[index].title] = value;
+              if (value) {
+                exchangeViewModel.selectedProviders.add(exchangeViewModel.providerList[index]);
+              } else {
+                exchangeViewModel.selectedProviders.remove(exchangeViewModel.providerList[index]);
+              }
             }),
         context: context);
 
-    await sharedPreferences.setString(
-      PreferencesKey.exchangeProvidersSelection,
-      json.encode(exchangeProvidersSelection),
-    );
+    exchangeViewModel.saveSelectedProviders();
   }
 }

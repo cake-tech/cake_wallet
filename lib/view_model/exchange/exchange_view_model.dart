@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_exchange_provider.dart';
 import 'package:cake_wallet/exchange/sideshift/sideshift_request.dart';
 import 'package:cw_core/wallet_base.dart';
@@ -25,6 +28,7 @@ import 'package:cake_wallet/exchange/morphtoken/morphtoken_exchange_provider.dar
 import 'package:cake_wallet/exchange/morphtoken/morphtoken_request.dart';
 import 'package:cake_wallet/store/templates/exchange_template_store.dart';
 import 'package:cake_wallet/exchange/exchange_template.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 part 'exchange_view_model.g.dart';
 
@@ -32,7 +36,7 @@ class ExchangeViewModel = ExchangeViewModelBase with _$ExchangeViewModel;
 
 abstract class ExchangeViewModelBase with Store {
   ExchangeViewModelBase(this.wallet, this.trades, this._exchangeTemplateStore,
-      this.tradesStore, this._settingsStore) {
+      this.tradesStore, this._settingsStore, this.sharedPreferences) {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
@@ -71,15 +75,28 @@ abstract class ExchangeViewModelBase with Store {
     reaction(
       (_) => isFixedRateMode,
       (Object _) => loadLimits());
+
+    final Map<String, dynamic> exchangeProvidersSelection = json
+        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
+
+    selectedProviders = providerList.where(
+            (element) => exchangeProvidersSelection[element.title] == null
+                ? element.isEnabled
+                : (exchangeProvidersSelection[element.title] as bool))
+        .toList();
   }
 
   final WalletBase wallet;
   final Box<Trade> trades;
   final ExchangeTemplateStore _exchangeTemplateStore;
   final TradesStore tradesStore;
+  final SharedPreferences sharedPreferences;
 
   @observable
   ExchangeProvider provider;
+
+  @observable
+  List<ExchangeProvider> selectedProviders;
 
   @observable
   List<ExchangeProvider> providerList;
@@ -127,8 +144,7 @@ abstract class ExchangeViewModelBase with Store {
   SyncStatus get status => wallet.syncStatus;
 
   @computed
-  ObservableList<ExchangeTemplate> get templates =>
-      _exchangeTemplateStore.templates;
+  ObservableList<ExchangeTemplate> get templates => _exchangeTemplateStore.templates;
 
   bool get hasAllAmount =>
       wallet.type == WalletType.bitcoin && depositCurrency == wallet.currency;
@@ -460,5 +476,20 @@ abstract class ExchangeViewModelBase with Store {
     }*/
     //isReceiveAmountEditable = false;
     isReceiveAmountEditable = provider is ChangeNowExchangeProvider;
+  }
+
+  void saveSelectedProviders() {
+    final Map<String, dynamic> exchangeProvidersSelection = json
+        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
+
+    exchangeProvidersSelection.updateAll((key, dynamic value) => false);
+    for (var provider in selectedProviders) {
+      exchangeProvidersSelection[provider.title] = true;
+    }
+
+    sharedPreferences.setString(
+      PreferencesKey.exchangeProvidersSelection,
+      json.encode(exchangeProvidersSelection),
+    );
   }
 }

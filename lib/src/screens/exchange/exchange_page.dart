@@ -33,13 +33,11 @@ import 'package:cake_wallet/core/address_validator.dart';
 import 'package:cake_wallet/core/amount_validator.dart';
 import 'package:cake_wallet/src/screens/exchange/widgets/present_provider_picker.dart';
 import 'package:cake_wallet/src/screens/dashboard/widgets/sync_indicator_icon.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class ExchangePage extends BasePage {
-  ExchangePage(this.exchangeViewModel, this.sharedPreferences);
+  ExchangePage(this.exchangeViewModel);
 
   final ExchangeViewModel exchangeViewModel;
-  final SharedPreferences sharedPreferences;
   final depositKey = GlobalKey<ExchangeCardState>();
   final receiveKey = GlobalKey<ExchangeCardState>();
   final checkBoxKey = GlobalKey<StandardCheckboxState>();
@@ -76,10 +74,7 @@ class ExchangePage extends BasePage {
               child: Observer(
                 builder: (_) => SyncIndicatorIcon(isSynced: exchangeViewModel.status is SyncedSyncStatus),
               )),
-          PresentProviderPicker(
-            exchangeViewModel: exchangeViewModel,
-            sharedPreferences: sharedPreferences,
-          ),
+          PresentProviderPicker(exchangeViewModel: exchangeViewModel),
         ],
       );
 
