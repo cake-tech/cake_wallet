@@ -22,7 +22,7 @@ abstract class IoniaBuyCardViewModelBase with Store {
   @action
   void onAmountChanged(String input) {
     if (input.isEmpty) return;
-    amount = double.parse(input);
+    amount = double.parse(input.replaceAll(',', '.'));
     final min = ioniaMerchant.minimumCardPurchase;
     final max = ioniaMerchant.maximumCardPurchase;
 
