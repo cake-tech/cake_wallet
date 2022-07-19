@@ -1,17 +1,20 @@
+import 'dart:convert';
+
+import 'package:cake_wallet/entities/preferences_key.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
+import 'package:cake_wallet/src/widgets/check_box_picker.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:flutter/material.dart';
-import 'package:cake_wallet/exchange/exchange_provider_description.dart';
-import 'package:cake_wallet/exchange/exchange_provider.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:cake_wallet/generated/i18n.dart';
-import 'package:cake_wallet/src/widgets/picker.dart';
 import 'package:cake_wallet/view_model/exchange/exchange_view_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PresentProviderPicker extends StatelessWidget {
-  PresentProviderPicker({@required this.exchangeViewModel});
+  PresentProviderPicker({@required this.exchangeViewModel, @required this.sharedPreferences});
 
   final ExchangeViewModel exchangeViewModel;
+  final SharedPreferences sharedPreferences;
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +36,7 @@ class PresentProviderPicker extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(S.of(context).exchange,
-                    style: TextStyle(
-                        fontSize: 16.0,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white)),
+                    style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600, color: Colors.white)),
                 Observer(
                     builder: (_) => Text('${exchangeViewModel.provider.title}',
                         style: TextStyle(
@@ -54,38 +54,21 @@ class PresentProviderPicker extends StatelessWidget {
         ));
   }
 
-  void _presentProviderPicker(BuildContext context) {
-    final items = exchangeViewModel.providersForCurrentPair();
-    final selectedItem = items.indexOf(exchangeViewModel.provider);
-    final images = <Image>[];
-    String description;
+  void _presentProviderPicker(BuildContext context) async {
+    final Map<String, dynamic> exchangeProvidersSelection = json
+        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
 
-    for (var provider in items) {
-      switch (provider.description) {
-        case ExchangeProviderDescription.xmrto:
-          images.add(Image.asset('assets/images/xmr_btc.png'));
-          break;
-        case ExchangeProviderDescription.changeNow:
-          images.add(Image.asset('assets/images/change_now.png'));
-          break;
-        case ExchangeProviderDescription.morphToken:
-          images.add(Image.asset('assets/images/morph_icon.png'));
-          break;
-        case ExchangeProviderDescription.sideShift:
-          images.add(Image.asset('assets/images/sideshift.png', width: 20));
-          break;
-      }
-    }
-
-    showPopUp<void>(
-        builder: (BuildContext popUpContext) => Picker(
-            items: items,
-            images: images,
-            selectedAtIndex: selectedItem,
+    await showPopUp<void>(
+        builder: (BuildContext popUpContext) => CheckBoxPicker(
+            items: exchangeViewModel.providerList
+                .map((e) => CheckBoxItem(
+                      e.title,
+                      (exchangeProvidersSelection[e.title] as bool) ?? e.isEnabled,
+                    ))
+                .toList(),
             title: S.of(context).change_exchange_provider,
-            description: description,
-            onItemSelected: (ExchangeProvider provider) {
-              if (!provider.isAvailable) {
+            onChanged: (int index, bool value) {
+              if (!exchangeViewModel.providerList[index].isAvailable) {
                 showPopUp<void>(
                     builder: (BuildContext popUpContext) => AlertWithOneAction(
                         alertTitle: 'Error',
@@ -95,8 +78,13 @@ class PresentProviderPicker extends StatelessWidget {
                     context: context);
                 return;
               }
-              exchangeViewModel.changeProvider(provider: provider);
+              exchangeProvidersSelection[exchangeViewModel.providerList[index].title] = value;
             }),
         context: context);
+
+    await sharedPreferences.setString(
+      PreferencesKey.exchangeProvidersSelection,
+      json.encode(exchangeProvidersSelection),
+    );
   }
 }

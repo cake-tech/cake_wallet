@@ -247,6 +247,9 @@ class SideShiftExchangeProvider extends ExchangeProvider {
   bool get isAvailable => true;
 
   @override
+  bool get isEnabled => true;
+
+  @override
   String get title => 'SideShift';
 
   static String normalizeCryptoCurrency(CryptoCurrency currency) {

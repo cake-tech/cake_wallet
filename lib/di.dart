@@ -470,7 +470,7 @@ Future setup(
       tradesStore: getIt.get<TradesStore>(),
       sendViewModel: getIt.get<SendViewModel>()));
 
-  getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>()));
+  getIt.registerFactory(() => ExchangePage(getIt.get<ExchangeViewModel>(), getIt.get<SharedPreferences>()));
 
   getIt.registerFactory(
       () => ExchangeConfirmPage(tradesStore: getIt.get<TradesStore>()));
