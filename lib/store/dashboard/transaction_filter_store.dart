@@ -9,7 +9,10 @@ class TransactionFilterStore = TransactionFilterStoreBase
 
 abstract class TransactionFilterStoreBase with Store {
   TransactionFilterStoreBase(
-      {this.displayIncoming = true, this.displayOutgoing = true});
+      {this.displayAllTransaction = true, this.displayIncoming = false, this.displayOutgoing = false});
+
+  @observable
+  bool displayAllTransaction;
 
   @observable
   bool displayIncoming;
@@ -24,10 +27,28 @@ abstract class TransactionFilterStoreBase with Store {
   DateTime endDate;
 
   @action
-  void toggleIncoming() => displayIncoming = !displayIncoming;
+  void showAllTransaction() {
+    displayAllTransaction = !displayAllTransaction;
+    if(displayAllTransaction){
+      displayIncoming = true;
+      displayOutgoing = true;
+      return;
+    }
+    displayIncoming = false;
+    displayOutgoing = false;
+  }
 
   @action
-  void toggleOutgoing() => displayOutgoing = !displayOutgoing;
+  void showIncoming() {
+    displayIncoming = true;
+    displayOutgoing = false;
+  }
+
+  @action
+  void showOutgoing() {
+    displayOutgoing = true;
+    displayIncoming = false;
+  }
 
   @action
   void changeStartDate(DateTime date) => startDate = date;

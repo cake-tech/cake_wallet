@@ -9,13 +9,17 @@ class TradeFilterStore = TradeFilterStoreBase with _$TradeFilterStore;
 
 abstract class TradeFilterStoreBase with Store {
   TradeFilterStoreBase(
-      {this.displayXMRTO = true,
-        this.displayChangeNow = true,
-        this.displaySideShift = true,
-        this.displayMorphToken = true});
+      {this.displayXMRTO = false,
+        this.displayAllTrades = true,
+        this.displayChangeNow = false,
+        this.displaySideShift = false,
+        this.displayMorphToken = false});
 
   @observable
   bool displayXMRTO;
+
+  @observable
+  bool displayAllTrades;
 
   @observable
   bool displayChangeNow;
@@ -40,6 +44,9 @@ abstract class TradeFilterStoreBase with Store {
         break;
       case ExchangeProviderDescription.morphToken:
         displayMorphToken = !displayMorphToken;
+        break;
+      case ExchangeProviderDescription.all:
+        displayAllTrades = true;
         break;
     }
   }
