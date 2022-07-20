@@ -15,6 +15,7 @@ import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/store/settings_store.dart';
+import 'package:cake_wallet/themes/dark_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
@@ -334,8 +335,8 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                         PrimaryButton(
                           onPressed: () => Navigator.pop(context),
                           text: S.of(context).send_got_it,
-                          color: Color.fromRGBO(233, 242, 252, 1),
-                          textColor: Theme.of(context).textTheme.display2.color,
+                          color: Theme.of(context).accentTextTheme.caption.color,
+                          textColor: Theme.of(context).primaryTextTheme.title.color,
                         ),
                         SizedBox(height: 21),
                       ],
@@ -569,6 +570,40 @@ class TipButton extends StatelessWidget {
   final bool isSelected;
   final void Function() onTap;
 
+  bool isDark(BuildContext context) => Theme.of(context).brightness == Brightness.dark;
+
+  Color captionTextColor(BuildContext context) {
+    if (isDark(context)) {
+      return Theme.of(context).primaryTextTheme.title.color;
+    }
+
+    return isSelected
+      ? Theme.of(context).accentTextTheme.title.color
+      : Theme.of(context).primaryTextTheme.title.color;
+  }
+
+  Color subTitleTextColor(BuildContext context) {
+    if (isDark(context)) {
+      return Theme.of(context).primaryTextTheme.title.color;
+    }
+
+    return isSelected
+      ? Theme.of(context).accentTextTheme.title.color
+      : Theme.of(context).primaryTextTheme.overline.color;
+  }
+
+  Color backgroundColor(BuildContext context) {
+    if (isDark(context)) {
+      return isSelected
+        ? null
+        : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.01);
+    }
+
+    return isSelected
+        ? null
+        : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1);
+  }
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -580,17 +615,13 @@ class TipButton extends StatelessWidget {
           children: [
             Text(caption,
                 style: textSmallSemiBold(
-                    color: isSelected
-                        ? Theme.of(context).accentTextTheme.title.color
-                        : Theme.of(context).primaryTextTheme.title.color)),
+                    color: captionTextColor(context))),
             if (subTitle != null) ...[
               SizedBox(height: 4),
               Text(
                 subTitle,
                 style: textXxSmallSemiBold(
-                  color: isSelected
-                      ? Theme.of(context).accentTextTheme.title.color
-                      : Theme.of(context).primaryTextTheme.overline.color,
+                  color: subTitleTextColor(context),
                 ),
               ),
             ]
@@ -599,7 +630,7 @@ class TipButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: 18, vertical: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: Color.fromRGBO(242, 240, 250, 1),
+          color: backgroundColor(context),
           gradient: isSelected
               ? LinearGradient(
                   colors: [
