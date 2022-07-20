@@ -22,7 +22,7 @@ class IoniaDebitCardPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.current.debit_card,
-      style: textLargeSemiBold(
+      style: textMediumSemiBold(
         color: Theme.of(context).accentTextTheme.display4.backgroundColor,
       ),
     );

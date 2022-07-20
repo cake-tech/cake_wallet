@@ -39,7 +39,7 @@ class IoniaCreateAccountPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.current.sign_up,
-      style: textLargeSemiBold(
+      style: textMediumSemiBold(
         color: Theme.of(context).accentTextTheme.display4.backgroundColor,
       ),
     );
