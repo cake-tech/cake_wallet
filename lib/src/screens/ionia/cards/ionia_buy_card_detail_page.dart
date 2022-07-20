@@ -111,11 +111,8 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
 
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushReplacementNamed(
-            Routes.ioniaPaymentStatusPage,
-            arguments: [
-              ioniaPurchaseViewModel.paymentInfo,
-              ioniaPurchaseViewModel.committedInfo]);
+          Navigator.of(context).pushReplacementNamed(Routes.ioniaPaymentStatusPage,
+              arguments: [ioniaPurchaseViewModel.paymentInfo, ioniaPurchaseViewModel.committedInfo]);
         });
       }
     });
@@ -134,9 +131,10 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                 children: [
                   leading(context),
                   middle(context),
-                  DiscountBadge(
-                    percentage: merchant.minimumDiscount,
-                  )
+                  if (merchant.minimumDiscount != 0)
+                    DiscountBadge(
+                      percentage: merchant.minimumDiscount,
+                    )
                 ],
               ),
               SizedBox(height: 36),
@@ -577,9 +575,7 @@ class TipButton extends StatelessWidget {
       return Theme.of(context).primaryTextTheme.title.color;
     }
 
-    return isSelected
-      ? Theme.of(context).accentTextTheme.title.color
-      : Theme.of(context).primaryTextTheme.title.color;
+    return isSelected ? Theme.of(context).accentTextTheme.title.color : Theme.of(context).primaryTextTheme.title.color;
   }
 
   Color subTitleTextColor(BuildContext context) {
@@ -588,20 +584,16 @@ class TipButton extends StatelessWidget {
     }
 
     return isSelected
-      ? Theme.of(context).accentTextTheme.title.color
-      : Theme.of(context).primaryTextTheme.overline.color;
+        ? Theme.of(context).accentTextTheme.title.color
+        : Theme.of(context).primaryTextTheme.overline.color;
   }
 
   Color backgroundColor(BuildContext context) {
     if (isDark(context)) {
-      return isSelected
-        ? null
-        : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.01);
+      return isSelected ? null : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.01);
     }
 
-    return isSelected
-        ? null
-        : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1);
+    return isSelected ? null : Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1);
   }
 
   @override
@@ -613,9 +605,7 @@ class TipButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(caption,
-                style: textSmallSemiBold(
-                    color: captionTextColor(context))),
+            Text(caption, style: textSmallSemiBold(color: captionTextColor(context))),
             if (subTitle != null) ...[
               SizedBox(height: 4),
               Text(

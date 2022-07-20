@@ -90,7 +90,7 @@ class IoniaManageCardsPage extends BasePage {
   @override
   Widget middle(BuildContext context) {
     return Text(
-      S.of(context).manage_cards,
+      S.of(context).gift_cards,
       style: textLargeSemiBold(
         color: Theme.of(context).accentTextTheme.display3.backgroundColor,
       ),
