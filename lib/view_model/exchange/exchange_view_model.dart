@@ -40,6 +40,16 @@ abstract class ExchangeViewModelBase with Store {
     const excludeDepositCurrencies = [CryptoCurrency.xhv];
     const excludeReceiveCurrencies = [CryptoCurrency.xlm, CryptoCurrency.xrp, CryptoCurrency.bnb, CryptoCurrency.xhv];
     providerList = [ChangeNowExchangeProvider(), SideShiftExchangeProvider()];
+
+    final Map<String, dynamic> exchangeProvidersSelection = json
+        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
+
+    selectedProviders = ObservableList.of(providerList.where(
+            (element) => exchangeProvidersSelection[element.title] == null
+            ? element.isEnabled
+            : (exchangeProvidersSelection[element.title] as bool))
+        .toList());
+
     _initialPairBasedOnWallet();
     isDepositAddressEnabled = !(depositCurrency == wallet.currency);
     isReceiveAddressEnabled = !(receiveCurrency == wallet.currency);
@@ -75,15 +85,6 @@ abstract class ExchangeViewModelBase with Store {
     reaction(
       (_) => isFixedRateMode,
       (Object _) => loadLimits());
-
-    final Map<String, dynamic> exchangeProvidersSelection = json
-        .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
-
-    selectedProviders = ObservableList.of(providerList.where(
-            (element) => exchangeProvidersSelection[element.title] == null
-                ? element.isEnabled
-                : (exchangeProvidersSelection[element.title] as bool))
-        .toList());
   }
 
   final WalletBase wallet;
@@ -246,6 +247,10 @@ abstract class ExchangeViewModelBase with Store {
 
   @action
   Future loadLimits() async {
+    if (selectedProviders.isEmpty) {
+      return;
+    }
+
     limitsState = LimitsIsLoading();
 
     try {
@@ -255,10 +260,29 @@ abstract class ExchangeViewModelBase with Store {
       final to = isFixedRateMode
         ? depositCurrency
         : receiveCurrency;
-      limits = await provider.fetchLimits(
+
+      limits = await selectedProviders.first.fetchLimits(
           from: from,
           to: to,
           isFixedRateMode: isFixedRateMode);
+
+      /// if the first provider limits is bounded then check with other providers
+      /// for the highest maximum limit
+      if (limits.max != null) {
+        for (int i = 1;i < selectedProviders.length;i++) {
+          final Limits tempLimits = await selectedProviders[i].fetchLimits(
+              from: from,
+              to: to,
+              isFixedRateMode: isFixedRateMode);
+
+          /// set the limits with the maximum provider limit
+          /// if there is a provider with null max then it's the maximum limit
+          if ((tempLimits.max ?? double.maxFinite) > limits.max) {
+            limits = tempLimits;
+          }
+        }
+      }
+
       limitsState = LimitsLoadedSuccessfully(limits: limits);
     } catch (e) {
       limitsState = LimitsLoadedFailure(error: e.toString());
@@ -489,6 +513,8 @@ abstract class ExchangeViewModelBase with Store {
   }
 
   void saveSelectedProviders() {
+    loadLimits();
+
     final Map<String, dynamic> exchangeProvidersSelection = json
         .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
 
