@@ -62,7 +62,9 @@ class CardItem extends StatelessWidget {
                   SizedBox(width: 5),
                 ],
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: (subTitle?.isEmpty ?? false)
+                    ? CrossAxisAlignment.center
+                    : CrossAxisAlignment.start,
                   children: [
                     SizedBox(
                       width: 200,
@@ -76,14 +78,15 @@ class CardItem extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 5),
-                    Text(
-                      subTitle,
-                      style: TextStyle(
-                        color: subtitleColor,
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'Lato',
-                      ),
+                    if (subTitle?.isNotEmpty ?? false)
+                      Padding(
+                        padding: EdgeInsets.only(top: 5),
+                        child: Text(
+                          subTitle,
+                          style: TextStyle(
+                            color: subtitleColor,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Lato')),
                     )
                   ],
                 ),

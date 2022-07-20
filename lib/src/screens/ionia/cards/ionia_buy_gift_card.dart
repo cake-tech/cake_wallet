@@ -124,13 +124,13 @@ class IoniaBuyGiftCardPage extends BasePage {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          S.of(context).min_amount(merchant.minimumCardPurchase.toString()),
+                          S.of(context).min_amount(merchant.minimumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
                         ),
                         Text(
-                          S.of(context).max_amount(merchant.maximumCardPurchase.toString()),
+                          S.of(context).max_amount(merchant.maximumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
@@ -171,7 +171,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                     text: S.of(context).continue_text,
                     isDisabled: !ioniaBuyCardViewModel.isEnablePurchase,
                     color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
+                    textColor: Colors.white,
                   ),
                 );
               }),
