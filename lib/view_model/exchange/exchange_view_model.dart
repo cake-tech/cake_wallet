@@ -205,18 +205,23 @@ abstract class ExchangeViewModelBase with Store {
 
     final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
 
-    provider
-        .calculateAmount(
-            from: receiveCurrency,
-            to: depositCurrency,
-            amount: _amount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: true)
-        .then((amount) => _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''))
-        .then((amount) => depositAmount = amount);
+    double tempAmount;
+    for (var provider in selectedProviders) {
+      provider
+          .calculateAmount(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: _amount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: true)
+          .then((amount) {
+        /// if the deposit amount for this provider is less than the others show this amount
+        if (tempAmount == null || tempAmount > amount) {
+          tempAmount = amount;
+        }
+        return _cryptoNumberFormat.format(tempAmount).toString().replaceAll(RegExp('\\,'), '');
+      }).then((amount) => depositAmount = amount);
+    }
   }
 
   @action
@@ -231,18 +236,24 @@ abstract class ExchangeViewModelBase with Store {
     }
 
     final _amount = double.parse(amount.replaceAll(',', '.')) ?? 0;
-    provider
-        .calculateAmount(
-            from: depositCurrency,
-            to: receiveCurrency,
-            amount: _amount,
-            isFixedRateMode: isFixedRateMode,
-            isReceiveAmount: false)
-        .then((amount) => _cryptoNumberFormat
-            .format(amount)
-            .toString()
-            .replaceAll(RegExp('\\,'), ''))
-        .then((amount) => receiveAmount = amount);
+
+    double tempAmount;
+    for (var provider in selectedProviders) {
+      provider
+          .calculateAmount(
+              from: depositCurrency,
+              to: receiveCurrency,
+              amount: _amount,
+              isFixedRateMode: isFixedRateMode,
+              isReceiveAmount: false)
+          .then((amount) {
+        /// if the receive amount for this provider is more than the others show this amount
+        if (tempAmount == null || tempAmount < amount) {
+          tempAmount = amount;
+        }
+        return _cryptoNumberFormat.format(tempAmount).toString().replaceAll(RegExp('\\,'), '');
+      }).then((amount) => receiveAmount = amount);
+    }
   }
 
   @action
