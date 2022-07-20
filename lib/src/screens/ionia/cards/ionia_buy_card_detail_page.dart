@@ -539,21 +539,22 @@ class TipButtonGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        ...[
-          for (var i = 0; i < tipsList.length; i++) ...[
-            TipButton(
-              isSelected: _isSelected(tipsList[i].percentage),
-              onTap: () => onSelect(tipsList[i]),
-              caption: '${tipsList[i].percentage}%',
-              subTitle: '\$${tipsList[i].additionalAmount}',
-            ),
-            SizedBox(width: 4),
-          ]
-        ],
-      ],
-    );
+    return Container(
+      height: 50,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: tipsList.length,
+        itemBuilder: (BuildContext context, int index) {
+          final tip = tipsList[index];
+          return Padding(
+            padding: EdgeInsets.only(right: 5),
+            child: TipButton(
+                isSelected: _isSelected(tip.percentage),
+                onTap: () => onSelect(tip),
+                caption: '${tip.percentage}%',
+                subTitle: '\$${tip.additionalAmount}',
+              ));
+        }));
   }
 }
 
