@@ -9,10 +9,12 @@ import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class IoniaCreateAccountPage extends BasePage {
   IoniaCreateAccountPage(this._authViewModel)
@@ -29,6 +31,9 @@ class IoniaCreateAccountPage extends BasePage {
 
   final FocusNode _emailFocus;
   final TextEditingController _emailController;
+
+  static const privacyPolicyUrl = 'https://ionia.docsend.com/view/jaqsmbq9w7dzvnqf';
+  static const termsAndConditionsUrl = 'https://ionia.docsend.com/view/hi9awnwxr6mqgiqj';
 
   @override
   Widget middle(BuildContext context) {
@@ -102,15 +107,22 @@ class IoniaCreateAccountPage extends BasePage {
                         color: Theme.of(context).accentTextTheme.body2.color,
                         fontWeight: FontWeight.w700,
                       ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () async {
+                          if (await canLaunch(termsAndConditionsUrl)) await launch(termsAndConditionsUrl);
+                        },
                     ),
                     TextSpan(text: ' ${S.of(context).and} '),
                     TextSpan(
-                      text: S.of(context).privacy_policy,
-                      style: TextStyle(
-                        color: Theme.of(context).accentTextTheme.body2.color,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+                        text: S.of(context).privacy_policy,
+                        style: TextStyle(
+                          color: Theme.of(context).accentTextTheme.body2.color,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () async {
+                            if (await canLaunch(privacyPolicyUrl)) await launch(privacyPolicyUrl);
+                          }),
                     TextSpan(text: ' ${S.of(context).by_cake_pay}'),
                   ],
                 ),
