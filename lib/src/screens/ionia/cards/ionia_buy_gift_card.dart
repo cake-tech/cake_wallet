@@ -85,7 +85,9 @@ class IoniaBuyGiftCardPage extends BasePage {
                       controller: _amountController,
                       focusNode: _amountFieldFocus,
                       keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
-                      inputFormatters: [FilteringTextInputFormatter.deny(RegExp('[\-|\ ]'))],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
+                        WhitelistingTextInputFormatter(RegExp(r'^\d+(\.|\,)?\d{0,2}'))],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
                         color: Theme.of(context).primaryTextTheme.headline.color,
