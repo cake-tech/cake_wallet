@@ -244,7 +244,7 @@
   "settings_only_transactions" : "Only transactions",
   "settings_none" : "None",
   "settings_support" : "Support",
-  "settings_terms_and_conditions" : "Terms and conditions",
+  "settings_terms_and_conditions" : "Terms and Conditions",
   "pin_is_incorrect" : "PIN is incorrect",
 
 
@@ -538,7 +538,7 @@
   "cake_pay_account_note": "Make an account to see the available cards. Some are even available at a discount!",
   "already_have_account": "Already have an account?",
   "create_account": "Create Account",
-  "privacy_policy": "Privacy policy",
+  "privacy_policy": "Privacy Policy",
   "welcome_to_cakepay": "Welcome to Cake Pay!",
   "sign_up": "Sign Up",
   "forgot_password": "Forgot Password",
@@ -591,7 +591,7 @@
   "you_pay": "You pay",
   "tip": "Tip:",
   "custom": "custom",
-  "by_cake_pay": "by CakePay",
+  "by_cake_pay": "by Cake Pay",
   "expires": "Expires",
   "mm": "MM",
   "yy": "YY",

@@ -242,7 +242,7 @@
   "settings_only_transactions" : "Seulement les transactions",
   "settings_none" : "Rien",
   "settings_support" : "Support",
-  "settings_terms_and_conditions" : "Termes et conditions",
+  "settings_terms_and_conditions" : "Termes et Conditions",
   "pin_is_incorrect" : "Le code PIN est incorrect",
 
 
@@ -589,7 +589,7 @@
   "you_pay": "Vous payez",
   "tip": "Astuce :",
   "custom": "personnalisé",
-  "by_cake_pay": "par CakePay",
+  "by_cake_pay": "par Cake Pay",
   "expire": "Expire",
   "mm": "MM",
   "yy": "AA",
