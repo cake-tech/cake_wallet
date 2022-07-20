@@ -172,7 +172,7 @@ class IoniaBuyGiftCardPage extends BasePage {
                     text: S.of(context).continue_text,
                     isDisabled: !ioniaBuyCardViewModel.isEnablePurchase,
                     color: Theme.of(context).accentTextTheme.body2.color,
-                    textColor: Theme.of(context).accentTextTheme.headline.decorationColor,
+                    textColor: Colors.white,
                   ),
                 );
               }),
