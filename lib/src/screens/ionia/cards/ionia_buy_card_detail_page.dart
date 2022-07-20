@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
-import 'package:cake_wallet/di.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
@@ -14,9 +13,6 @@ import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
 import 'package:cake_wallet/src/widgets/standart_list_row.dart';
-import 'package:cake_wallet/store/settings_store.dart';
-import 'package:cake_wallet/themes/dark_theme.dart';
-import 'package:cake_wallet/themes/theme_base.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
@@ -24,48 +20,14 @@ import 'package:flutter/material.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+import 'package:cake_wallet/src/screens/base_page.dart';
 
-class IoniaBuyGiftCardDetailPage extends StatelessWidget {
+class IoniaBuyGiftCardDetailPage extends BasePage {
   IoniaBuyGiftCardDetailPage(this.ioniaPurchaseViewModel);
 
   final IoniaMerchPurchaseViewModel ioniaPurchaseViewModel;
 
-  ThemeBase get currentTheme => getIt.get<SettingsStore>().currentTheme;
-
-  Color get backgroundLightColor => Colors.white;
-
-  Color get backgroundDarkColor => PaletteDark.backgroundColor;
-
-  void onClose(BuildContext context) => Navigator.of(context).pop();
-
-  Widget leading(BuildContext context) {
-    if (ModalRoute.of(context).isFirst) {
-      return null;
-    }
-
-    final _backButton = Icon(
-      Icons.arrow_back_ios,
-      color: Theme.of(context).primaryTextTheme.title.color,
-      size: 16,
-    );
-    return Padding(
-      padding: const EdgeInsets.only(left: 10.0),
-      child: SizedBox(
-        height: 37,
-        width: 37,
-        child: ButtonTheme(
-          minWidth: double.minPositive,
-          child: FlatButton(
-              highlightColor: Colors.transparent,
-              splashColor: Colors.transparent,
-              padding: EdgeInsets.all(0),
-              onPressed: () => onClose(context),
-              child: _backButton),
-        ),
-      ),
-    );
-  }
-
+  @override
   Widget middle(BuildContext context) {
     return Text(
       ioniaPurchaseViewModel.ioniaMerchant.legalName,
@@ -74,10 +36,13 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final merchant = ioniaPurchaseViewModel.ioniaMerchant;
-    final _backgroundColor = currentTheme.type == ThemeType.dark ? backgroundDarkColor : backgroundLightColor;
+  Widget trailing(BuildContext context)
+    => ioniaPurchaseViewModel.ioniaMerchant.minimumDiscount > 0
+      ? DiscountBadge(percentage: ioniaPurchaseViewModel.ioniaMerchant.minimumDiscount)
+      : null;
 
+  @override
+  Widget body(BuildContext context) {
     reaction((_) => ioniaPurchaseViewModel.invoiceCreationState, (ExecutionState state) {
       if (state is FailureState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -120,25 +85,12 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
       }
     });
 
-    return Scaffold(
-      backgroundColor: _backgroundColor,
-      body: ScrollableWithBottomSection(
+    return ScrollableWithBottomSection(
         contentPadding: EdgeInsets.zero,
         content: Observer(builder: (_) {
           final tipAmount = ioniaPurchaseViewModel.tipAmount;
           return Column(
             children: [
-              SizedBox(height: 60),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  leading(context),
-                  middle(context),
-                  DiscountBadge(
-                    percentage: merchant.minimumDiscount,
-                  )
-                ],
-              ),
               SizedBox(height: 36),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 24),
@@ -234,7 +186,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: TextIconButton(
                   label: S.of(context).how_to_use_card,
-                  onTap: () => _showHowToUseCard(context, merchant),
+                  onTap: () => _showHowToUseCard(context, ioniaPurchaseViewModel.ioniaMerchant),
                 ),
               ),
             ],
@@ -266,7 +218,6 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
             SizedBox(height: 16)
           ],
         ),
-      ),
     );
   }
 
