@@ -107,7 +107,7 @@ class IoniaGiftCardDetailPage extends BasePage {
             buildIoniaTile(
               context,
               title: S.of(context).amount,
-              subTitle: viewModel.giftCard.remainingAmount.toString() ?? '0',
+              subTitle: viewModel.giftCard.remainingAmount.toStringAsFixed(2) ?? '0.00',
             )),
           Divider(height: 50),
           TextIconButton(
@@ -174,41 +174,37 @@ class IoniaGiftCardDetailPage extends BasePage {
                           ),
                         ),
                         Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Container(
-                            constraints: BoxConstraints(
-                              maxHeight: MediaQuery.of(context).size.height * 0.5),
-                            child:  Expanded(
-                            child: ListView.builder(
-                              itemCount: viewModel.giftCard.usageInstructions.length,
-                              itemBuilder: (_, int index) {
-                                  final instruction = viewModel.giftCard.usageInstructions[index];
-                                  return Expanded(
-                                    child: Column(
-                                      children: [
-                                        Padding(
-                                          padding: EdgeInsets.all(10),
-                                          child: Text(
-                                          instruction.header,
-                                          style: textLargeSemiBold(
-                                            color: Theme.of(context).textTheme.display2.color,
-                                          ),
-                                        )),
-                                        Text(
-                                          instruction.body,
-                                          style: textMedium(
-                                            color: Theme.of(context).textTheme.display2.color,
-                                          ),
-                                        )
-                                      ]));
-                                })))
-                        ),
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                              constraints: BoxConstraints(
+                                maxHeight: MediaQuery.of(context).size.height * 0.5),
+                                child: SingleChildScrollView(
+                                    child: Column(children: viewModel.giftCard.usageInstructions.map((instruction) {
+                                      return [
+                                         Padding(
+                                            padding: EdgeInsets.all(10),
+                                            child: Text(
+                                            instruction.header,
+                                            style: textLargeSemiBold(
+                                              color: Theme.of(context).textTheme.display2.color,
+                                            ),
+                                          )),
+                                          Text(
+                                            instruction.body,
+                                            style: textMedium(
+                                              color: Theme.of(context).textTheme.display2.color,
+                                            ),
+                                          )
+                                      ];
+                                    }).expand((e) => e).toList())
+                              )
+                          )),
                         SizedBox(height: 35),
                         PrimaryButton(
                           onPressed: () => Navigator.pop(context),
                           text: S.of(context).send_got_it,
-                          color: Color.fromRGBO(233, 242, 252, 1),
-                          textColor: Theme.of(context).textTheme.display2.color,
+                          color: Theme.of(context).accentTextTheme.caption.color,
+                          textColor: Theme.of(context).primaryTextTheme.title.color,
                         ),
                         SizedBox(height: 21),
                       ],
