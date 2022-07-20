@@ -22,7 +22,8 @@ abstract class IoniaMerchPurchaseViewModelBase with Store {
     percentage = 0.0;
     tips = <IoniaTip>[
       IoniaTip(percentage: 0, originalAmount: amount),
-      IoniaTip(percentage: 10, originalAmount: amount),
+      IoniaTip(percentage: 15, originalAmount: amount),
+      IoniaTip(percentage: 18, originalAmount: amount),
       IoniaTip(percentage: 20, originalAmount: amount),
     ];
     selectedTip = tips.first;

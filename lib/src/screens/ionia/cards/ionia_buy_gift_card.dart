@@ -87,7 +87,8 @@ class IoniaBuyGiftCardPage extends BasePage {
                       keyboardType: TextInputType.numberWithOptions(signed: false, decimal: true),
                       inputFormatters: [
                         FilteringTextInputFormatter.deny(RegExp('[\-|\ ]')),
-                        WhitelistingTextInputFormatter(RegExp(r'^\d+(\.|\,)?\d{0,2}'))],
+                        WhitelistingTextInputFormatter(RegExp(r'^\d+(\.|\,)?\d{0,2}'))
+                      ],
                       hintText: '1000',
                       placeholderTextStyle: TextStyle(
                         color: Theme.of(context).primaryTextTheme.headline.color,
@@ -124,13 +125,13 @@ class IoniaBuyGiftCardPage extends BasePage {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          S.of(context).min_amount(merchant.minimumCardPurchase.toString()),
+                          S.of(context).min_amount(merchant.minimumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),
                         ),
                         Text(
-                          S.of(context).max_amount(merchant.maximumCardPurchase.toString()),
+                          S.of(context).max_amount(merchant.maximumCardPurchase.toStringAsFixed(2)),
                           style: TextStyle(
                             color: Theme.of(context).primaryTextTheme.headline.color,
                           ),

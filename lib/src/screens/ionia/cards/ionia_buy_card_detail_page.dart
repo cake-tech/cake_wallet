@@ -7,8 +7,8 @@ import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_modal.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
-import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
@@ -110,11 +110,8 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
 
       if (state is ExecutedSuccessfullyState) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(context).pushReplacementNamed(
-            Routes.ioniaPaymentStatusPage,
-            arguments: [
-              ioniaPurchaseViewModel.paymentInfo,
-              ioniaPurchaseViewModel.committedInfo]);
+          Navigator.of(context).pushReplacementNamed(Routes.ioniaPaymentStatusPage,
+              arguments: [ioniaPurchaseViewModel.paymentInfo, ioniaPurchaseViewModel.committedInfo]);
         });
       }
     });
@@ -161,7 +158,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '\$${ioniaPurchaseViewModel.giftCardAmount}',
+                      '\$${ioniaPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
                       style: textXLargeSemiBold(),
                     ),
                     SizedBox(height: 24),
@@ -179,7 +176,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '\$${ioniaPurchaseViewModel.amount}',
+                                '\$${ioniaPurchaseViewModel.amount.toStringAsFixed(2)}',
                                 style: textLargeSemiBold(),
                               ),
                             ],
@@ -193,7 +190,7 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '\$$tipAmount',
+                                '\$${tipAmount.toStringAsFixed(2)}',
                                 style: textLargeSemiBold(),
                               ),
                             ],
@@ -273,11 +270,10 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
     showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertWithOneAction(
-          alertTitle: '',
-          alertContent: ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
-          buttonText: S.of(context).agree,
-          buttonAction: () => Navigator.of(context).pop(),
+        return IoniaAlertModal(
+          title: '',
+          content: ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
+          actionTitle: S.of(context).agree,
         );
       },
     );
@@ -298,65 +294,10 @@ class IoniaBuyGiftCardDetailPage extends StatelessWidget {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
-          return AlertBackground(
-            child: Material(
-              color: Colors.transparent,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(height: 10),
-                  Container(
-                    padding: EdgeInsets.only(top: 24, left: 24, right: 24),
-                    margin: EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).backgroundColor,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          S.of(context).how_to_use_card,
-                          style: textLargeSemiBold(
-                            color: Theme.of(context).textTheme.body1.color,
-                          ),
-                        ),
-                        SizedBox(height: 24),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Text(
-                            merchant.usageInstructionsBak,
-                            style: textMedium(
-                              color: Theme.of(context).textTheme.display2.color,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 35),
-                        PrimaryButton(
-                          onPressed: () => Navigator.pop(context),
-                          text: S.of(context).send_got_it,
-                          color: Color.fromRGBO(233, 242, 252, 1),
-                          textColor: Theme.of(context).textTheme.display2.color,
-                        ),
-                        SizedBox(height: 21),
-                      ],
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 40),
-                      child: CircleAvatar(
-                        child: Icon(
-                          Icons.close,
-                          color: Colors.black,
-                        ),
-                        backgroundColor: Colors.white,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+          return IoniaAlertModal(
+            title: S.of(context).how_to_use_card,
+            content: merchant.usageInstructionsBak,
+            actionTitle: S.current.send_got_it,
           );
         });
   }
