@@ -41,7 +41,6 @@ class Routes {
   static const unlock = '/auth_not_closable';
   static const rescan = '/rescan';
   static const faq = '/faq';
-  static const changeLanguage = '/change_language';
   static const newWalletType = '/new_wallet_type';
   static const sendTemplate = '/send_template';
   static const exchangeTemplate = '/exchange_template';
@@ -60,6 +59,7 @@ class Routes {
   static const moneroRestoreWalletFromWelcome = '/monero_restore_wallet';
   static const moneroNewWalletFromWelcome = '/monero_new_wallet';
   static const addressPage = '/address_page';
+  static const fullscreenQR = '/fullscreen_qr';
   static const ioniaWelcomePage = '/cake_pay_welcome_page';
   static const ioniaCreateAccountPage = '/cake_pay_create_account_page';
   static const ioniaLoginPage = '/cake_pay_login_page';

@@ -24,7 +24,7 @@ abstract class ElectrumTransactionHistoryBase
   }
 
   final WalletInfo walletInfo;
-  final String _password;
+  String _password;
   int _height;
 
   Future<void> init() async => await _load();
@@ -49,6 +49,11 @@ abstract class ElectrumTransactionHistoryBase
     } catch (e) {
       print('Error while save bitcoin transaction history: ${e.toString()}');
     }
+  }
+
+  Future<void> changePassword(String password) async {
+    _password = password;
+    await save();
   }
 
   Future<Map<String, Object>> _read() async {

@@ -4,7 +4,7 @@ import 'package:cake_wallet/themes/light_theme.dart';
 import 'package:cake_wallet/themes/theme_base.dart';
 
 class ThemeList {
-  static final all = [lightTheme, brightTheme, darkTheme];
+  static final all = [brightTheme, lightTheme, darkTheme];
 
   static final lightTheme = LightTheme(raw: 0);
   static final brightTheme = BrightTheme(raw: 1);

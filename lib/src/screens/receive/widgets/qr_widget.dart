@@ -1,4 +1,6 @@
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
@@ -38,101 +40,134 @@ class QRWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Row(children: <Widget>[
-          Spacer(flex: 3),
-          Observer(
-              builder: (_) => Flexible(
-                  flex: 5,
-                  child: Center(
-                      child: AspectRatio(
-                          aspectRatio: 1.0,
-                          child: Container(
-                            padding: EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    width: 3,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor
-                                )
-                            ),
-                            child: QrImage(
-                              data: addressListViewModel.uri.toString(),
-                              backgroundColor: isLight ? Colors.transparent : Colors.black,
-                              foregroundColor: Theme.of(context).accentTextTheme.
-                              display3.backgroundColor,
-                            ),
-                          ))))),
-          Spacer(flex: 3)
-        ]),
-        if (isAmountFieldShow)
+        Column(
+          children: [
             Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                        child: Form(
-                            key: _formKey,
-                            child: BaseTextFormField(
-                                focusNode: amountTextFieldFocusNode,
-                                controller: amountController,
-                                keyboardType: TextInputType.numberWithOptions(
-                                    decimal: true),
-                                inputFormatters: [
-                                  BlacklistingTextInputFormatter(
-                                      RegExp('[\\-|\\ ]'))
-                                ],
-                                textAlign: TextAlign.center,
-                                hintText: S.of(context).receive_amount,
-                                textColor: Theme.of(context).accentTextTheme.
-                                display3.backgroundColor,
-                                borderColor: Theme.of(context)
-                                    .textTheme
-                                    .headline
-                                    .decorationColor,
-                                validator: AmountValidator(
-                                    type: addressListViewModel.type,
-                                    isAutovalidate: true),
-                                autovalidate: true,
-                                placeholderTextStyle: TextStyle(
-                                    color: Theme.of(context).hoverColor,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500))))
-                  ],
-                ),
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Text(
+                S.of(context).qr_fullscreen,
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Theme.of(context).accentTextTheme.display3.backgroundColor),
               ),
+            ),
+            Row(
+              children: <Widget>[
+                Spacer(flex: 3),
+                Observer(
+                  builder: (_) => Flexible(
+                    flex: 5,
+                    child: GestureDetector(
+                      onTap: () async {
+                        // Get the current brightness:
+                        final double brightness = await DeviceDisplayBrightness.getBrightness();
+
+                        // ignore: unawaited_futures
+                        DeviceDisplayBrightness.setBrightness(1.0);
+                        await Navigator.pushNamed(
+                          context,
+                          Routes.fullscreenQR,
+                          arguments: {
+                            'qrData': addressListViewModel.uri.toString(),
+                            'isLight': isLight,
+                          },
+                        );
+                        // ignore: unawaited_futures
+                        DeviceDisplayBrightness.setBrightness(brightness);
+                      },
+                      child: Hero(
+                        tag: Key(addressListViewModel.uri.toString()),
+                        child: Center(
+                          child: AspectRatio(
+                            aspectRatio: 1.0,
+                            child: Container(
+                              padding: EdgeInsets.all(5),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  width: 3,
+                                  color: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                                ),
+                              ),
+                              child: QrImage(
+                                data: addressListViewModel.uri.toString(),
+                                backgroundColor: isLight ? Colors.transparent : Colors.black,
+                                foregroundColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Spacer(flex: 3)
+              ],
+            ),
+          ],
+        ),
+        if (isAmountFieldShow)
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Form(
+                    key: _formKey,
+                    child: BaseTextFormField(
+                      focusNode: amountTextFieldFocusNode,
+                      controller: amountController,
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [BlacklistingTextInputFormatter(RegExp('[\\-|\\ ]'))],
+                      textAlign: TextAlign.center,
+                      hintText: S.of(context).receive_amount,
+                      textColor: Theme.of(context).accentTextTheme.display3.backgroundColor,
+                      borderColor: Theme.of(context).textTheme.headline.decorationColor,
+                      validator: AmountValidator(type: addressListViewModel.type, isAutovalidate: true),
+                      autovalidate: true,
+                      placeholderTextStyle: TextStyle(
+                        color: Theme.of(context).hoverColor,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         Padding(
           padding: EdgeInsets.only(top: 8, bottom: 8),
           child: Builder(
-              builder: (context) => Observer(
-                  builder: (context) => GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(
-                              text: addressListViewModel.address.address));
-                          showBar<void>(
-                              context, S.of(context).copied_to_clipboard);
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Expanded(
-                              child: Text(
-                                addressListViewModel.address.address,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).accentTextTheme.
-                                    display3.backgroundColor),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 12),
-                              child: copyImage,
-                            )
-                          ],
-                        ),
-                      ))),
+            builder: (context) => Observer(
+              builder: (context) => GestureDetector(
+                onTap: () {
+                  Clipboard.setData(ClipboardData(text: addressListViewModel.address.address));
+                  showBar<void>(context, S.of(context).copied_to_clipboard);
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        addressListViewModel.address.address,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).accentTextTheme.display3.backgroundColor),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 12),
+                      child: copyImage,
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ),
         )
       ],
     );

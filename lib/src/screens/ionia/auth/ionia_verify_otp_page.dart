@@ -39,7 +39,7 @@ class IoniaVerifyIoniaOtp extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       S.current.verification,
-      style: textLargeSemiBold(
+      style: textMediumSemiBold(
         color: Theme.of(context).accentTextTheme.display4.backgroundColor,
       ),
     );

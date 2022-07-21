@@ -1,4 +1,4 @@
-import 'package:cake_wallet/core/validator.dart';
+import 'package:cake_wallet/core/wallet_name_validator.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
