@@ -156,7 +156,8 @@ class IoniaCustomRedeemPage extends BasePage {
                 child: CardItem(
                   title: giftCard.legalName,
                   backgroundColor: Theme.of(context).accentTextTheme.display4.backgroundColor.withOpacity(0.1),
-                  discount: 0,
+                  discountText: '\$${giftCard.remainingAmount}',
+                  discountBackground: AssetImage('assets/images/red_badge_discount.png'),
                   titleColor: Theme.of(context).accentTextTheme.display4.backgroundColor,
                   subtitleColor: Theme.of(context).hintColor,
                   subTitle: '',

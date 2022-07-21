@@ -9,6 +9,7 @@ class CardItem extends StatelessWidget {
     @required this.titleColor,
     @required this.subtitleColor,
     this.discountBackground,
+    this.discountText,
     this.onTap,
     this.logoUrl,
     this.discount,
@@ -23,6 +24,7 @@ class CardItem extends StatelessWidget {
   final Color titleColor;
   final Color subtitleColor;
   final AssetImage discountBackground;
+  final String discountText;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +102,7 @@ class CardItem extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 20.0),
                 child: DiscountBadge(
                   percentage: discount,
+                  text: discountText,
                   discountBackground: discountBackground,
                 ),
               ),

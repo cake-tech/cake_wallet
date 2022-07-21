@@ -673,7 +673,6 @@ Future setup(
 
   getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
           (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
-  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
   getIt.registerFactory(() => IoniaApi());
 

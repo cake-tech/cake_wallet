@@ -4,10 +4,12 @@ import 'package:cake_wallet/generated/i18n.dart';
 class DiscountBadge extends StatelessWidget {
   const DiscountBadge({
     Key key,
+    this.text,
     @required this.percentage,
     this.discountBackground,
   }) : super(key: key);
 
+  final String text;
   final double percentage;
   final AssetImage discountBackground;
 
@@ -16,7 +18,7 @@ class DiscountBadge extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Text(
-        S.of(context).discount(percentage.toString()),
+       text ?? S.of(context).discount(percentage.toString()),
         style: TextStyle(
           color: Colors.white,
           fontSize: 12,
