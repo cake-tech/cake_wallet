@@ -627,5 +627,13 @@
   "order_id": "Bestell-ID",
   "gift_card_is_generated": "Geschenkkarte wird generiert",
   "open_gift_card": "Geschenkkarte öffnen",
-  "contact_support": "Support kontaktieren"
+  "contact_support": "Support kontaktieren",
+  "choose_from_available_options": "Wählen Sie aus den verfügbaren Optionen:",
+  "custom_redeem_amount": "Benutzerdefinierter Einlösungsbetrag",
+  "transfer": "übertragen",
+  "add_custom_redemption": "Benutzerdefinierte Einlösung hinzufügen",
+  "remaining": "verbleibend",
+  "transfer_card_redemption": "Übertragen Sie die Anweisungen zum Einlösen der Karte an eine E-Mail-Adresse Ihrer Wahl.",
+  "you_wont_be_able_to_use_card": "Sie können die Karte Ihrer aktuellen E-Mail-Adresse nicht mehr verwenden. Dieser Vorgang kann nicht rückgängig gemacht werden!",
+  "share": "Teilen"
 }

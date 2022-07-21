@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_tile.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
@@ -120,12 +121,26 @@ class IoniaGiftCardDetailPage extends BasePage {
           padding: EdgeInsets.only(bottom: 12),
           child: Observer(builder: (_) {
              if (!viewModel.giftCard.isEmpty) {
-              return LoadingPrimaryButton(
-                isLoading: viewModel.redeemState is IsExecutingState,
-                onPressed: () => viewModel.redeem(),
-                text: S.of(context).mark_as_redeemed,
-                color: Theme.of(context).accentTextTheme.body2.color,
-                textColor: Colors.white);
+              return Column(
+                children: [
+                  PrimaryButton(
+                    onPressed: () => Navigator.pushNamed(context, Routes.ioniaMoreOptionsPage, 
+                    arguments: [
+                      viewModel.giftCard
+                    ]), 
+                    text: S.of(context).more_options,    
+                    color: Theme.of(context).accentTextTheme.caption.color,
+                    textColor: Theme.of(context).primaryTextTheme.title.color,
+                  ),
+                  SizedBox(height: 12),
+                  LoadingPrimaryButton(
+                    isLoading: viewModel.redeemState is IsExecutingState,
+                    onPressed: () => viewModel.redeem(),
+                    text: S.of(context).mark_as_redeemed,
+                    color: Theme.of(context).accentTextTheme.body2.color,
+                    textColor: Colors.white),
+                ],
+              );
               }
 
               return Container();

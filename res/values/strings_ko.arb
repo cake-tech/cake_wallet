@@ -627,5 +627,13 @@
   "order_id": "주문 ID",
   "gift_card_is_generated": "기프트 카드가 생성되었습니다",
   "open_gift_card": "기프트 카드 열기",
-  "contact_support": "지원팀에 문의"
+  "contact_support": "지원팀에 문의",
+  "choose_from_available_options": "사용 가능한 옵션 중에서 선택하십시오.",
+  "custom_redeem_amount": "사용자 지정 상환 금액",
+  "transfer": "전송",
+  "add_custom_redemption": "사용자 지정 상환 추가",
+  "remaining": "남은",
+  "transfer_card_redemption": "카드 사용 지침을 선택한 이메일로 전송합니다.",
+  "you_wont_be_able_to_use_card": "현재 이메일의 카드를 더 이상 사용할 수 없습니다. 이 프로세스는 되돌릴 수 없습니다!",
+  "share": "공유"
 }

@@ -627,5 +627,13 @@
   "order_id": "ID ordine",
   "gift_card_is_generated": "Il buono regalo è stato generato",
   "open_gift_card": "Apri carta regalo",
-  "contact_support": "Contatta l'assistenza"
+  "contact_support": "Contatta l'assistenza",
+  "choose_from_available_options": "Scegli tra le opzioni disponibili:",
+  "custom_redeem_amount": "Importo di riscatto personalizzato",
+  "transfer": "Trasferimento",
+  "add_custom_redemption": "Aggiungi riscatto personalizzato",
+  "remaining": "rimanente",
+  "transfer_card_redemption": "Trasferisci le istruzioni per il riscatto della carta a un'e-mail di tua scelta.",
+  "you_wont_be_able_to_use_card": "Non potrai più utilizzare la carta dalla tua email attuale. Questo processo è irreversibile!",
+  "share": "Condividi"
 }

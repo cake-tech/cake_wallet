@@ -625,5 +625,13 @@
   "order_id": "Numéro de commande",
   "gift_card_is_generated": "La carte-cadeau est générée",
   "open_gift_card": "Ouvrir la carte-cadeau",
-  "contact_support": "Contacter l'assistance"
+  "contact_support": "Contacter l'assistance",
+  "choose_from_available_options": "Choisissez parmi les options disponibles:",
+  "custom_redeem_amount": "Montant d'échange personnalisé",
+  "transfer": "Transfert",
+  "add_custom_redemption": "Ajouter un échange personnalisé",
+  "transfer": "restant",
+  "transfer_card_redemption": "Transférez les instructions d'utilisation de la carte vers un e-mail de votre choix.",
+  "you_wont_be_able_to_use_card": "Vous ne pourrez plus utiliser la carte de votre adresse e-mail actuelle. Ce processus est irréversible !",
+  "share": "partage"
 }

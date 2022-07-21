@@ -627,5 +627,13 @@
   "order_id": "ID narudžbe",
   "gift_card_is_generated": "Poklon kartica je generirana",
   "open_gift_card": "Otvori darovnu karticu",
-  "contact_support": "Kontaktirajte podršku"
+  "contact_support": "Kontaktirajte podršku",
+  "choose_from_available_options": "Odaberite jednu od dostupnih opcija:",
+  "custom_redeem_amount": "Prilagođeni iznos otkupa",
+  "transfer": "Prijenos",
+  "add_custom_redemption": "Dodaj prilagođenu otkupnu ponudu",
+  "remaining": "preostalo",
+  "transfer_card_redemption": "Prenesite upute za preuzimanje kartice na e-mail po vašem izboru.",
+  "you_wont_be_able_to_use_card": "Više nećete moći koristiti karticu sa svoje trenutne e-pošte. Ovaj proces je nepovratan!",
+  "share": "Dijeli"
 }

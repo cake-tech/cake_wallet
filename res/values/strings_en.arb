@@ -627,5 +627,14 @@
   "order_id": "Order ID",
   "gift_card_is_generated": "Gift Card is generated",
   "open_gift_card": "Open Gift Card",
-  "contact_support": "Contact Support"
+  "contact_support": "Contact Support",
+  "choose_from_available_options": "Choose from the available options:",
+  "custom_redeem_amount": "Custom Redeem Amount",
+  "transfer": "Transfer",
+  "add_custom_redemption": "Add Custom Redemption",
+  "remaining": "remaining",
+  "transfer_card_redemption": "Transfer the card redemption instructions to an email of your choosing.",
+  "you_wont_be_able_to_use_card":  "You won’t be able to use the card from your current email anymore. This process is irreversible!",
+  "share": "Share",
+  "amount_error": "Amount above limit"
 }

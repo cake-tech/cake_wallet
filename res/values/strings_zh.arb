@@ -625,5 +625,13 @@
   "order_id": "订单编号",
   "gift_card_is_generated": "礼品卡生成",
   "open_gift_card": "打开礼品卡",
-  "contact_support": "联系支持"
+  "contact_support": "联系支持",
+  "choose_from_available_options": "从可用选项中选择:",
+  "custom_redeem_amount": "自定义兑换金额",
+   "transfer": "转让",
+   "add_custom_redemption": "添加自定义兑换",
+   "remaining": "剩余",
+   "transfer_card_redemption": "将卡兑换说明发送到您选择的电子邮件。",
+   "you_wont_be_able_to_use_card": "您将无法再使用当前电子邮件中的卡片。此过程不可逆转！",
+   "share": "分享"
 }

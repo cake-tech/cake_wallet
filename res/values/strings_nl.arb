@@ -627,5 +627,13 @@
   "order_id": "Order-ID",
   "gift_card_is_generated": "Cadeaukaart is gegenereerd",
   "open_gift_card": "Geschenkkaart openen",
-  "contact_support": "Contact opnemen met ondersteuning"
+  "contact_support": "Contact opnemen met ondersteuning",
+  "choose_from_available_options": "Kies uit de beschikbare opties:",
+  "custom_redeem_amount": "Aangepast inwisselbedrag",
+  "transfer": "Overdracht",
+  "add_custom_redemption": "Voeg aangepaste inwisseling toe",
+  "remaining": "resterend",
+  "transfer_card_redemption": "Stuur de instructies voor het inwisselen van de kaart over naar een e-mail naar keuze.",
+  "you_wont_be_able_to_use_card": "Je kunt de kaart van je huidige e-mail niet meer gebruiken. Dit proces is onomkeerbaar!",
+  "share": "deel"
 }

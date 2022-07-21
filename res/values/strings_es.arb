@@ -627,5 +627,13 @@
   "order_id": "Identificación del pedido",
   "gift_card_is_generated": "Se genera la tarjeta de regalo",
   "open_gift_card": "Abrir tarjeta de regalo",
-  "contact_support": "Contactar con Soporte"
+  "contact_support": "Contactar con Soporte",
+  "choose_from_available_options": "Elija entre las opciones disponibles:",
+  "custom_redeem_amount": "Cantidad de canje personalizada",
+  "transfer": "Transferir",
+  "add_custom_redemption": "Agregar canje personalizado",
+  "remaining": "restante",
+  "transfer_card_redemption": "Transfiere las instrucciones de canje de la tarjeta a un correo electrónico de tu elección.",
+  "you_wont_be_able_to_use_card": "Ya no podrás usar la tarjeta de tu correo electrónico actual. ¡Este proceso es irreversible!",
+  "share": "Comparte"
 }

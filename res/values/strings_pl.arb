@@ -630,5 +630,13 @@
   "order_id": "Identyfikator zamówienia",
   "gift_card_is_generated": "Karta podarunkowa jest generowana",
   "open_gift_card": "Otwórz kartę podarunkową",
-  "contact_support": "Skontaktuj się z pomocą techniczną"
+  "contact_support": "Skontaktuj się z pomocą techniczną",
+  "choose_from_available_options": "Wybierz spośród dostępnych opcji:",
+  "custom_redeem_amount": "Niestandardowa kwota wykorzystania",
+  "transfer": "przelew",
+  "add_custom_redemption": "Dodaj niestandardowe wykorzystanie",
+  "remaining": "pozostałe",
+  "transfer_card_redemption": "Przenieś instrukcje wykorzystania karty na wybrany przez siebie adres e-mail.",
+  "you_wont_be_able_to_use_card": "Nie będziesz już mógł korzystać z karty z obecnego adresu e-mail. Ten proces jest nieodwracalny!",
+  "share": "akcji"
 }

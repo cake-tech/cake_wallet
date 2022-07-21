@@ -10,11 +10,7 @@ abstract class IoniaAuthViewModelBase with Store {
 
   IoniaAuthViewModelBase({this.ioniaService}):
   createUserState = IoniaCreateStateSuccess(),
-        otpState = IoniaOtpSendDisabled(){
-    
-
-  }
-
+        otpState = IoniaOtpSendDisabled();
   final IoniaService ioniaService;
 
   @observable

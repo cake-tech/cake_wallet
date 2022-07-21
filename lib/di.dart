@@ -4,9 +4,13 @@ import 'package:cake_wallet/entities/wake_lock.dart';
 import 'package:cake_wallet/ionia/ionia_anypay.dart';
 import 'package:cake_wallet/ionia/ionia_category.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_transfer_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_auth_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_buy_card_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_custom_redeem_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_filter_view_model.dart';
 import 'package:cake_wallet/ionia/ionia_service.dart';
 import 'package:cake_wallet/ionia/ionia_api.dart';
@@ -23,6 +27,7 @@ import 'package:cake_wallet/src/screens/dashboard/widgets/balance_page.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_account_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_gift_cards_list_view_model.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
+import 'package:cake_wallet/view_model/ionia/ionia_transfer_view_model.dart';
 import 'package:cw_core/unspent_coins_info.dart';
 import 'package:cake_wallet/core/backup_service.dart';
 import 'package:cw_core/wallet_service.dart';
@@ -755,6 +760,29 @@ Future setup(
   getIt.registerFactoryParam<IoniaPaymentStatusPage, IoniaAnyPayPaymentInfo, AnyPayPaymentCommittedInfo>(
     (IoniaAnyPayPaymentInfo paymentInfo, AnyPayPaymentCommittedInfo committedInfo)
       => IoniaPaymentStatusPage(getIt.get<IoniaPaymentStatusViewModel>(param1: paymentInfo, param2: committedInfo)));
+  
+  getIt.registerFactoryParam<IoniaMoreOptionsPage, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
+     return IoniaMoreOptionsPage(giftCard);
+  });
+  
+  getIt.registerFactoryParam<IoniaCustomRedeemViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
+     return IoniaCustomRedeemViewModel(
+      giftCard: giftCard);
+  });
+
+  getIt.registerFactoryParam<IoniaCustomRedeemPage, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
+     return IoniaCustomRedeemPage(getIt.get<IoniaCustomRedeemViewModel>(param1: giftCard));
+  });
+
+  getIt.registerFactoryParam<IoniaTransferViewModel, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
+     return IoniaTransferViewModel(
+      ioniaService: getIt.get<IoniaService>(),
+      giftCard: giftCard);
+  });
+
+  getIt.registerFactoryParam<IoniaTransferPage, IoniaGiftCard, void>((IoniaGiftCard giftCard, _) {
+     return IoniaTransferPage(getIt.get<IoniaTransferViewModel>(param1: giftCard));
+  });
 
   _isSetupFinished = true;
 }

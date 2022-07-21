@@ -627,5 +627,13 @@
   "order_id": "ID do pedido",
   "gift_card_is_generated": "Cartão presente é gerado",
   "open_gift_card": "Abrir vale-presente",
-  "contact_support": "Contatar Suporte"
+  "contact_support": "Contatar Suporte",
+  "choose_from_available_options": "Escolha entre as opções disponíveis:",
+  "custom_redeem_amount": "Valor de resgate personalizado",
+  "transfer": "transferir",
+  "add_custom_redemption": "Adicionar resgate personalizado",
+  "remaining": "restante",
+  "transfer_card_redemption": "Transfira as instruções de resgate do cartão para um e-mail de sua escolha.",
+  "you_wont_be_able_to_use_card": "Você não poderá mais usar o cartão do seu e-mail atual. Este processo é irreversível!",
+  "share": "compartilhe"
 }

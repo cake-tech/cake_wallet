@@ -1,14 +1,18 @@
 import 'package:cake_wallet/entities/contact_record.dart';
 import 'package:cake_wallet/buy/order.dart';
 import 'package:cake_wallet/entities/transaction_description.dart';
+import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/src/screens/backup/backup_page.dart';
 import 'package:cake_wallet/src/screens/backup/edit_backup_password_page.dart';
 import 'package:cake_wallet/src/screens/buy/buy_webview_page.dart';
 import 'package:cake_wallet/src/screens/buy/pre_order_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_redeem_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_custom_tip_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_gift_card_detail_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_more_options_page.dart';
+import 'package:cake_wallet/src/screens/ionia/cards/ionia_transfer_page.dart';
 import 'package:cake_wallet/src/screens/order_details/order_details_page.dart';
 import 'package:cake_wallet/src/screens/pin_code/pin_code_widget.dart';
 import 'package:cake_wallet/src/screens/restore/restore_from_backup_page.dart';
@@ -461,6 +465,19 @@ Route<dynamic> createRoute(RouteSettings settings) {
       return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaPaymentStatusPage>(
         param1: paymentInfo,
         param2: commitedInfo));
+
+    case Routes.ioniaMoreOptionsPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaMoreOptionsPage>(
+        param1: args.first as IoniaGiftCard));
+    
+    case Routes.ioniaCustomRedeemPage:
+      final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaCustomRedeemPage>(param1: args.first));
+   
+    case Routes.ioniaTransferPage:
+     final args = settings.arguments as List;
+      return CupertinoPageRoute<void>(builder: (_) => getIt.get<IoniaTransferPage>(param1: args.first));
 
     default:
       return MaterialPageRoute<void>(

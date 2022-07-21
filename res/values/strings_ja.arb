@@ -627,5 +627,13 @@
   "order_id": "注文ID",
   "gift_card_is_generated": "ギフトカードが生成されます",
   "open_gift_card": "オープンギフトカード",
-  "contact_support": "サポートに連絡する"
+  "contact_support": "サポートに連絡する",
+  "choose_from_available_options": "利用可能なオプションから選択します。",
+  "custom_redeem_amount": "カスタム引き換え金額",
+   "transfer": "転送",
+   "add_custom_redemption": "カスタム償還の追加",
+   "remaining": "残り",
+   "transfer_card_redemption": "カードの引き換え手順を選択したメールに転送します。",
+   "you_wont_be_able_to_use_card": "現在のメールのカードは使用できなくなります。このプロセスは元に戻せません！",
+   "share": "共有"
 }

@@ -1,7 +1,4 @@
-import 'dart:ffi';
-
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
-import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/card_item.dart';

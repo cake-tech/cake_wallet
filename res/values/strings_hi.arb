@@ -627,5 +627,13 @@
   "order_id": "ऑर्डर आईडी",
   "gift_card_is_generated": "गिफ्ट कार्ड जनरेट हुआ",
   "open_gift_card": "गिफ्ट कार्ड खोलें",
-  "contact_support": "सहायता से संपर्क करें"
+  "contact_support": "सहायता से संपर्क करें",
+  "choose_from_available_options": "उपलब्ध विकल्पों में से चुनें:",
+  "custom_redeem_amount": "कस्टम रिडीम राशि",
+  "transfer": "स्थानांतरण",
+  "add_custom_redemption": "कस्टम रिडेम्पशन जोड़ें",
+  "remaining": "शेष",
+  "transfer_card_redemption": "कार्ड रिडेम्पशन निर्देशों को अपनी पसंद के ईमेल पर ट्रांसफर करें।",
+  "you_wont_be_able_to_use_card": "अब आप अपने वर्तमान ईमेल से कार्ड का उपयोग नहीं कर पाएंगे। यह प्रक्रिया अपरिवर्तनीय है!",
+  "share": "बाँट"
 }
