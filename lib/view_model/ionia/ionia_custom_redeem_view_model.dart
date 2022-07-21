@@ -27,8 +27,7 @@ abstract class IoniaCustomRedeemViewModelBase with Store {
 
   @action
   Future<void> onAmountChanged(String value) async {
-    if(value.isEmpty) return;
-    final parsedAmount = double.parse(value);
+    final parsedAmount = double.parse(value.isEmpty ? '0' : value);
     isAmountAboveRemaining = giftCard.remainingAmount < parsedAmount;
     amount = isAmountAboveRemaining ? 0 : parsedAmount;
 
