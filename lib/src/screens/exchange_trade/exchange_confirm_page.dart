@@ -56,7 +56,7 @@ class ExchangeConfirmPage extends BasePage {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: <Widget>[
                           Text(
-                            S.of(context).trade_id,
+                            "${trade.provider.title} ${S.of(context).trade_id}",
                             style: TextStyle(
                                 fontSize: 12.0,
                                 fontWeight: FontWeight.w500,

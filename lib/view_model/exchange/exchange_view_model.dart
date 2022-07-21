@@ -162,17 +162,7 @@ abstract class ExchangeViewModelBase with Store {
 
   NumberFormat _cryptoNumberFormat;
 
-  SettingsStore _settingsStore;
-
-  @action
-  void changeProvider({ExchangeProvider provider}) {
-    this.provider = provider;
-    depositAmount = '';
-    receiveAmount = '';
-    isFixedRateMode = false;
-    _defineIsReceiveAmountEditable();
-    loadLimits();
-  }
+  final SettingsStore _settingsStore;
 
   @action
   void changeDepositCurrency({CryptoCurrency currency}) {
@@ -217,6 +207,7 @@ abstract class ExchangeViewModelBase with Store {
           .then((amount) {
         /// if the deposit amount for this provider is less than the others show this amount
         if (tempAmount == null || tempAmount > amount) {
+          this.provider = provider;
           tempAmount = amount;
         }
         return _cryptoNumberFormat.format(tempAmount).toString().replaceAll(RegExp('\\,'), '');
@@ -249,6 +240,7 @@ abstract class ExchangeViewModelBase with Store {
           .then((amount) {
         /// if the receive amount for this provider is more than the others show this amount
         if (tempAmount == null || tempAmount < amount) {
+          this.provider = provider;
           tempAmount = amount;
         }
         return _cryptoNumberFormat.format(tempAmount).toString().replaceAll(RegExp('\\,'), '');
@@ -451,7 +443,7 @@ abstract class ExchangeViewModelBase with Store {
     final providers = providerList
         .where((provider) => provider.pairList
             .where((pair) =>
-                pair.from == depositCurrency && pair.to == receiveCurrency)
+                pair.from == (from ?? depositCurrency) && pair.to == (to ?? receiveCurrency))
             .isNotEmpty)
         .toList();
 
@@ -469,7 +461,7 @@ abstract class ExchangeViewModelBase with Store {
           _providerForPair(from: depositCurrency, to: receiveCurrency);
 
       if (provider != null) {
-        changeProvider(provider: provider);
+        // changeProvider(provider: provider);
       }
     } else {
       depositAmount = '';
@@ -523,7 +515,12 @@ abstract class ExchangeViewModelBase with Store {
     selectedProviders.remove(provider);
   }
 
+  @action
   void saveSelectedProviders() {
+    depositAmount = '';
+    receiveAmount = '';
+    isFixedRateMode = false;
+    _defineIsReceiveAmountEditable();
     loadLimits();
 
     final Map<String, dynamic> exchangeProvidersSelection = json
@@ -540,5 +537,8 @@ abstract class ExchangeViewModelBase with Store {
     );
   }
 
-  bool get isAvailableInSelected => selectedProviders.any((element) => element.isAvailable);
+  bool get isAvailableInSelected {
+    final providersForPair = providersForCurrentPair();
+    return selectedProviders.any((element) => element.isAvailable && providersForPair.contains(element));
+  }
 }
