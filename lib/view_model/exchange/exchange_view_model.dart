@@ -199,8 +199,8 @@ abstract class ExchangeViewModelBase with Store {
     for (var provider in selectedProviders) {
       provider
           .calculateAmount(
-              from: depositCurrency,
-              to: receiveCurrency,
+              from: receiveCurrency,
+              to: depositCurrency,
               amount: _amount,
               isFixedRateMode: isFixedRateMode,
               isReceiveAmount: true)
@@ -210,7 +210,10 @@ abstract class ExchangeViewModelBase with Store {
           this.provider = provider;
           tempAmount = amount;
         }
-        return _cryptoNumberFormat.format(tempAmount).toString().replaceAll(RegExp('\\,'), '');
+        return _cryptoNumberFormat
+            .format(tempAmount)
+            .toString()
+            .replaceAll(RegExp('\\,'), '');
       }).then((amount) => depositAmount = amount);
     }
   }
@@ -243,7 +246,10 @@ abstract class ExchangeViewModelBase with Store {
           this.provider = provider;
           tempAmount = amount;
         }
-        return _cryptoNumberFormat.format(tempAmount).toString().replaceAll(RegExp('\\,'), '');
+        return _cryptoNumberFormat
+            .format(tempAmount)
+            .toString()
+            .replaceAll(RegExp('\\,'), '');
       }).then((amount) => receiveAmount = amount);
     }
   }

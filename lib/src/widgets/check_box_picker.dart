@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -126,6 +127,10 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
         padding: EdgeInsets.only(left: 24, right: 24),
         child: CheckboxListTile(
           value: item.value,
+          activeColor: item.value
+              ? Palette.blueCraiola
+              : Theme.of(context).accentTextTheme.subhead.decorationColor,
+          checkColor: Colors.white,
           title: widget.displayItem?.call(item) ??
               Text(
                 item.title,
@@ -133,7 +138,9 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
                   fontSize: 14,
                   fontFamily: 'Lato',
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).primaryTextTheme.title.color,
+                  color: item.isDisabled
+                      ? Colors.grey.withOpacity(0.5)
+                      : Theme.of(context).primaryTextTheme.title.color,
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -150,8 +157,9 @@ class CheckBoxPickerState extends State<CheckBoxPicker> {
 }
 
 class CheckBoxItem {
-  CheckBoxItem(this.title, this.value);
+  CheckBoxItem(this.title, this.value, {this.isDisabled = false});
 
   final String title;
+  final bool isDisabled;
   bool value;
 }

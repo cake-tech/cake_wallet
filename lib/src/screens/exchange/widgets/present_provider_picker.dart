@@ -56,6 +56,7 @@ class PresentProviderPicker extends StatelessWidget {
                 .map((e) => CheckBoxItem(
                       e.title,
                       exchangeViewModel.selectedProviders.contains(e),
+                      isDisabled: exchangeViewModel.providersForCurrentPair().contains(e),
                     ))
                 .toList(),
             title: S.of(context).change_exchange_provider,
