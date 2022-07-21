@@ -56,7 +56,7 @@ class IoniaGiftCardDetailPage extends BasePage {
   Widget middle(BuildContext context) {
     return Text(
       viewModel.giftCard.legalName,
-      style: textLargeSemiBold(color: Theme.of(context).accentTextTheme.display4.backgroundColor),
+      style: textMediumSemiBold(color: Theme.of(context).accentTextTheme.display4.backgroundColor),
     );
   }
 
