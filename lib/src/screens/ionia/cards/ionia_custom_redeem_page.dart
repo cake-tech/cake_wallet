@@ -139,7 +139,7 @@ class IoniaCustomRedeemPage extends BasePage {
                             ),
                           if(!viewModel.isAmountAboveRemaining && viewModel.amount > 0)  
                           Text(
-                            "\$${viewModel.giftCard.remainingAmount} - \$${viewModel.amount} = \$${viewModel.remaining}",
+                            "\$${viewModel.giftCard.remainingAmount} - \$${viewModel.amount} = \$${viewModel.remaining} ' ' ${S.of(context).remaining}",
                             style: TextStyle(
                               color: Theme.of(context).primaryTextTheme.headline.color,
                             ),
@@ -173,7 +173,7 @@ class IoniaCustomRedeemPage extends BasePage {
                   child: PrimaryButton(
                     onPressed: () {},
                     text: S.of(context).add_custom_redemption,
-                    isDisabled: !viewModel.isAmountAboveRemaining,
+                    isDisabled: viewModel.isAmountAboveRemaining,
                     color: Theme.of(context).accentTextTheme.body2.color,
                     textColor: Colors.white,
                   ),
