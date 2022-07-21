@@ -1,3 +1,4 @@
+import 'package:cake_wallet/exchange/exchange_provider_description.dart';
 import 'package:cake_wallet/store/dashboard/trades_store.dart';
 import 'package:cake_wallet/utils/show_bar.dart';
 import 'package:flutter/material.dart';
@@ -101,7 +102,23 @@ class ExchangeConfirmPage extends BasePage {
                   ],
                 ),
               ),
-              Flexible(child: Offstage()),
+              Flexible(
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      (trade.provider.image?.isNotEmpty ?? false)
+                          ? Image.asset(trade.provider.image, height: 50)
+                          : const SizedBox(),
+                      if (!trade.provider.horizontalLogo)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(trade.provider.title),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
             ],
           )),
           PrimaryButton(

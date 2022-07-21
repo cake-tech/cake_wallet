@@ -44,6 +44,8 @@ abstract class ExchangeViewModelBase with Store {
     final Map<String, dynamic> exchangeProvidersSelection = json
         .decode(sharedPreferences.getString(PreferencesKey.exchangeProvidersSelection) ?? "{}") as Map<String, dynamic>;
 
+    /// if the provider is not in the user settings (user's first time or newly added provider)
+    /// then use its default value decided by us
     selectedProviders = ObservableList.of(providerList.where(
             (element) => exchangeProvidersSelection[element.title] == null
             ? element.isEnabled
