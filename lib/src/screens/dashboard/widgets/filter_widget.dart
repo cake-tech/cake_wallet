@@ -20,6 +20,12 @@ class FilterWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    final sectionDivider = Container(
+      height: 1,
+      color: Theme.of(context).accentTextTheme.subhead.backgroundColor,
+    );
+
     return AlertBackground(
       child: Stack(
         alignment: Alignment.center,
@@ -27,16 +33,6 @@ class FilterWidget extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
-              Text(
-                S.of(context).filters,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Lato',
-                  decoration: TextDecoration.none,
-                ),
-              ),
               Padding(
                 padding: EdgeInsets.only(
                   left: 24,
@@ -44,96 +40,102 @@ class FilterWidget extends StatelessWidget {
                   top: 24
                 ),
                 child: ClipRRect(
-                  borderRadius: BorderRadius.all(Radius.circular(14)),
+                  borderRadius: BorderRadius.all(Radius.circular(24)),
                   child: Container(
                     color: Theme.of(context).textTheme.body2.decorationColor,
-                    child: ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: dashboardViewModel.filterItems.length,
-                      separatorBuilder: (context, _) => Container(
-                        height: 1,
-                        color: Theme.of(context).accentTextTheme.subhead.backgroundColor,
-                      ),
-                      itemBuilder: (_, index1) {
-                        final title = dashboardViewModel.filterItems.keys.elementAt(index1);
-                        final section = dashboardViewModel.filterItems.values.elementAt(index1);
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(
-                                top: 20,
-                                left: 24,
-                                right: 24
-                              ),
-                              child: Text(
-                                title,
-                                style: TextStyle(
-                                    color: Theme.of(context).accentTextTheme.subhead.color,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Lato',
-                                    decoration: TextDecoration.none
-                                ),
+                    child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(24.0),
+                            child: Text(
+                              S.of(context).filters,
+                              style: TextStyle(
+                                color: Theme.of(context).accentTextTheme.subhead.color,
+                                fontSize: 16,
+                                fontFamily: 'Lato',
+                                decoration: TextDecoration.none,
                               ),
                             ),
-                            ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: section.length,
-                              separatorBuilder: (context, _) => Container(
-                                height: 1,
-                                padding: EdgeInsets.only(left: 24),
-                                color: Theme.of(context).textTheme.body2.decorationColor,
-                                child: Container(
-                                  height: 1,
-                                  color: Theme.of(context).accentTextTheme.subhead.backgroundColor,
-                                ),
-                              ),
-                              itemBuilder: (_, index2) {
+                          ),
+                          sectionDivider,
+                          ListView.separated(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: dashboardViewModel.filterItems.length,
+                            separatorBuilder: (context, _) => sectionDivider,
+                            itemBuilder: (_, index1) {
+                              final title = dashboardViewModel.filterItems.keys.elementAt(index1);
+                              final section = dashboardViewModel.filterItems.values.elementAt(index1);
 
-                                final item = section[index2];
-                                final content = item.onChanged != null
-                                    ? CheckboxWidget(
-                                    value: item.value(),
-                                    caption: item.caption,
-                                    onChanged: item.onChanged
-                                )
-                                    : GestureDetector(
-                                  onTap: () async {
-                                    final List<DateTime> picked =
-                                    await date_rage_picker.showDatePicker(
-                                        context: context,
-                                        initialFirstDate: DateTime.now()
-                                            .subtract(Duration(days: 1)),
-                                        initialLastDate: (DateTime.now()),
-                                        firstDate: DateTime(2015),
-                                        lastDate: DateTime.now()
-                                            .add(Duration(days: 1)));
-
-                                    if (picked != null && picked.length == 2) {
-                                      dashboardViewModel.transactionFilterStore
-                                          .changeStartDate(picked.first);
-                                      dashboardViewModel.transactionFilterStore
-                                          .changeEndDate(picked.last);
-                                    }
-                                  },
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 32),
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        top: 20,
+                                        left: 24,
+                                        right: 24
+                                    ),
                                     child: Text(
-                                      item.caption,
+                                      title,
                                       style: TextStyle(
-                                          color: Theme.of(context).primaryTextTheme.title.color,
-                                          fontSize: 18,
-                                          fontFamily: 'Lato',
+                                          color: Theme.of(context).accentTextTheme.subhead.color,
+                                          fontSize: 16,
                                           fontWeight: FontWeight.w500,
+                                          fontFamily: 'Lato',
                                           decoration: TextDecoration.none
                                       ),
                                     ),
                                   ),
-                                );
+                                  ListView.builder(
+                                    padding: EdgeInsets.zero,
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: section.length,
+                                    itemBuilder: (_, index2) {
+
+                                      final item = section[index2];
+                                      final content = item.onChanged != null
+                                          ? CheckboxWidget(
+                                          value: item.value(),
+                                          caption: item.caption,
+                                          onChanged: item.onChanged
+                                      )
+                                          : GestureDetector(
+                                        onTap: () async {
+                                          final List<DateTime> picked =
+                                          await date_rage_picker.showDatePicker(
+                                              context: context,
+                                              initialFirstDate: DateTime.now()
+                                                  .subtract(Duration(days: 1)),
+                                              initialLastDate: (DateTime.now()),
+                                              firstDate: DateTime(2015),
+                                              lastDate: DateTime.now()
+                                                  .add(Duration(days: 1)));
+
+                                          if (picked != null && picked.length == 2) {
+                                            dashboardViewModel.transactionFilterStore
+                                                .changeStartDate(picked.first);
+                                            dashboardViewModel.transactionFilterStore
+                                                .changeEndDate(picked.last);
+                                          }
+                                        },
+                                        child: Padding(
+                                          padding: EdgeInsets.only(left: 32),
+                                          child: Text(
+                                            item.caption,
+                                            style: TextStyle(
+                                                color: Theme.of(context).primaryTextTheme.title.color,
+                                                fontSize: 18,
+                                                fontFamily: 'Lato',
+                                                fontWeight: FontWeight.w500,
+                                                decoration: TextDecoration.none
+                                            ),
+                                          ),
+                                        ),
+                                      );
 
                                 return FilterTile(child: content);
                               },
@@ -141,7 +143,7 @@ class FilterWidget extends StatelessWidget {
                           ],
                         );
                       },
-                    ),
+                    ),]),
                   ),
                 ),
               ),
