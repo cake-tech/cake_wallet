@@ -13,7 +13,6 @@ import 'package:cake_wallet/ionia/ionia_api.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/monero/monero.dart';
 import 'package:cake_wallet/haven/haven.dart';
-import 'package:cake_wallet/haven/haven.dart';
 import 'package:cake_wallet/bitcoin/bitcoin.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_cards_page.dart';
 import 'package:cake_wallet/src/screens/ionia/cards/ionia_account_page.dart';
@@ -56,7 +55,6 @@ import 'package:cake_wallet/src/screens/restore/wallet_restore_page.dart';
 import 'package:cake_wallet/src/screens/seed/pre_seed_page.dart';
 import 'package:cake_wallet/src/screens/seed/wallet_seed_page.dart';
 import 'package:cake_wallet/src/screens/send/send_template_page.dart';
-import 'package:cake_wallet/src/screens/settings/change_language.dart';
 import 'package:cake_wallet/src/screens/settings/settings.dart';
 import 'package:cake_wallet/src/screens/setup_pin_code/setup_pin_code.dart';
 import 'package:cake_wallet/src/screens/support/support_page.dart';
@@ -150,6 +148,8 @@ import 'package:cake_wallet/src/screens/ionia/cards/ionia_payment_status_page.da
 import 'package:cake_wallet/view_model/ionia/ionia_payment_status_view_model.dart';
 import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/ionia/ionia_any_pay_payment_info.dart';
+import 'package:cake_wallet/src/screens/receive/fullscreen_qr_page.dart';
+import 'package:cake_wallet/core/wallet_loading_service.dart';
 
 final getIt = GetIt.instance;
 
@@ -241,7 +241,14 @@ Future setup(
           initialType: type,
           keyService: getIt.get<KeyService>(),
           secureStorage: getIt.get<FlutterSecureStorage>(),
-          sharedPreferences: getIt.get<SharedPreferences>()));
+          sharedPreferences: getIt.get<SharedPreferences>(),
+          walletInfoSource: _walletInfoSource));
+
+  getIt.registerFactory<WalletLoadingService>(
+    () => WalletLoadingService(
+      getIt.get<SharedPreferences>(),
+      getIt.get<KeyService>(),
+      (WalletType type) => getIt.get<WalletService>(param1: type)));
 
   getIt.registerFactory(() => IoniaTokenService(getIt.get<FlutterSecureStorage>()));
 
@@ -378,7 +385,7 @@ Future setup(
   getIt.registerFactory(() => WalletListViewModel(
       _walletInfoSource,
       getIt.get<AppStore>(),
-      getIt.get<KeyService>()));
+      getIt.get<WalletLoadingService>()));
 
   getIt.registerFactory(() =>
       WalletListPage(walletListViewModel: getIt.get<WalletListViewModel>()));
@@ -533,8 +540,6 @@ Future setup(
 
   getIt.registerFactory(() => FaqPage(getIt.get<SettingsStore>()));
 
-  getIt.registerFactory(() => LanguageListPage(getIt.get<SettingsStore>()));
-
   getIt.registerFactoryParam<WalletRestoreViewModel, WalletType, void>(
       (type, _) => WalletRestoreViewModel(getIt.get<AppStore>(),
           getIt.get<WalletCreationService>(param1: type), _walletInfoSource,
@@ -658,6 +663,11 @@ Future setup(
 
   getIt.registerFactory(() => YatService());
 
+  getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>(),
+    walletType: getIt.get<AppStore>().wallet.type));
+
+  getIt.registerFactoryParam<FullscreenQRPage, String, bool>(
+          (String qrData, bool isLight) => FullscreenQRPage(qrData: qrData, isLight: isLight,));
   getIt.registerFactory(() => AddressResolver(yatService: getIt.get<YatService>()));
   
   getIt.registerFactory(() => IoniaApi());

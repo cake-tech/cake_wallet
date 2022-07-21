@@ -1,4 +1,6 @@
+import 'package:cake_wallet/src/screens/settings/widgets/settings_choices_cell.dart';
 import 'package:cake_wallet/src/screens/settings/widgets/settings_version_cell.dart';
+import 'package:cake_wallet/view_model/settings/choices_list_item.dart';
 import 'package:cake_wallet/view_model/settings/version_list_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -46,6 +48,10 @@ class SettingsPage extends BasePage {
                 selectedItem: item.selectedItem(),
                 items: item.items,
                 onItemSelected: (dynamic value) => item.onItemSelected(value),
+                images: item.images,
+                searchHintText: item.searchHintText,
+                isGridView: item.isGridView,
+                matchingCriteria: (dynamic value, String searchText) => item.matchingCriteria(value, searchText),
               );
             });
           }
@@ -78,6 +84,10 @@ class SettingsPage extends BasePage {
                   title:
                       S.of(context).version(settingsViewModel.currentVersion));
             });
+          }
+
+          if (item is ChoicesListItem) {
+            return SettingsChoicesCell(item);
           }
 
           return Container();

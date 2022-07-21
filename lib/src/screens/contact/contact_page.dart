@@ -94,7 +94,10 @@ class ContactPage extends BasePage {
                 child: Observer(
                     builder: (_) => AddressTextField(
                       controller: _addressController,
-                      options: [AddressTextFieldOption.qrCode],
+                      options: [
+                        AddressTextFieldOption.paste,
+                        AddressTextFieldOption.qrCode,
+                      ],
                       buttonColor: Theme.of(context).accentTextTheme.display2.color,
                       iconColor: PaletteDark.gray,
                       borderColor: Theme.of(context).primaryTextTheme.title.backgroundColor,
@@ -147,6 +150,7 @@ class ContactPage extends BasePage {
                 contactViewModel.currencies.indexOf(contactViewModel.currency),
             items: contactViewModel.currencies,
             title: S.of(context).please_select,
+            hintText: S.of(context).search_currency,
             onItemSelected: (CryptoCurrency item) =>
                 contactViewModel.currency = item),
         context: context);

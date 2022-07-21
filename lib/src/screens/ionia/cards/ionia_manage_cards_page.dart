@@ -258,7 +258,7 @@ class _SearchWidget extends StatelessWidget {
     final searchIcon = Padding(
       padding: EdgeInsets.all(8),
       child: Image.asset(
-        'assets/images/search_icon.png',
+        'assets/images/mini_search_icon.png',
         color: Theme.of(context).textTheme.caption.decorationColor,
       ),
     );

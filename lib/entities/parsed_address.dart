@@ -2,7 +2,7 @@ import 'package:cake_wallet/entities/openalias_record.dart';
 import 'package:cake_wallet/entities/yat_record.dart';
 import 'package:flutter/material.dart';
 
-enum ParseFrom { unstoppableDomains, openAlias, yatRecord, notParsed }
+enum ParseFrom { unstoppableDomains, openAlias, yatRecord, fio, notParsed }
 
 class ParsedAddress {
   ParsedAddress({
@@ -57,5 +57,14 @@ class ParsedAddress {
         description: record.description,
         parseFrom: ParseFrom.openAlias,
       );
+  }
+
+  factory ParsedAddress.fetchFioAddress({@required String address, @required String name}){
+
+    return ParsedAddress(
+      addresses: [address],
+      name: name,
+      parseFrom: ParseFrom.fio,
+    );
   }
 }

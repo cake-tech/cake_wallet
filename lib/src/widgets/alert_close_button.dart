@@ -1,9 +1,15 @@
+import 'package:cake_wallet/palette.dart';
 import 'package:flutter/material.dart';
 
 class AlertCloseButton extends StatelessWidget {
-  AlertCloseButton({@required this.image});
+  AlertCloseButton({this.image});
 
   final Image image;
+
+  final closeButton = Image.asset(
+    'assets/images/close.png',
+    color: Palette.darkBlueCraiola,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +25,7 @@ class AlertCloseButton extends StatelessWidget {
               shape: BoxShape.circle
             ),
             child: Center(
-              child: image,
+              child: image ?? closeButton,
             ),
           ),
         )

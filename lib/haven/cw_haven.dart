@@ -297,9 +297,9 @@ class CWHaven extends Haven {
 	}
 
 	CryptoCurrency assetOfTransaction(TransactionInfo tx) {
-		 	final tx = transaction as HavenTransactionInfo;
-    	final asset = CryptoCurrency.fromString(tx.assetType);
-    	return asset;
+		final transaction = tx as HavenTransactionInfo;
+		final asset = CryptoCurrency.fromString(transaction.assetType);
+		return asset;
 	}
 
 	List<AssetRate> getAssetRate() 
