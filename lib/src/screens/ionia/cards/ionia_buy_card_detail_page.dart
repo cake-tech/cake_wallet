@@ -1,18 +1,16 @@
 import 'dart:ui';
-import 'package:cake_wallet/anypay/any_pay_payment_committed_info.dart';
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_merchant.dart';
 import 'package:cake_wallet/ionia/ionia_tip.dart';
 import 'package:cake_wallet/palette.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/confirm_modal.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_model.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
-import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_with_one_action.dart';
 import 'package:cake_wallet/src/widgets/discount_badge.dart';
 import 'package:cake_wallet/src/widgets/primary_button.dart';
 import 'package:cake_wallet/src/widgets/scollable_with_bottom_section.dart';
-import 'package:cake_wallet/src/widgets/standart_list_row.dart';
 import 'package:cake_wallet/typography.dart';
 import 'package:cake_wallet/utils/show_pop_up.dart';
 import 'package:cake_wallet/view_model/ionia/ionia_purchase_merch_view_model.dart';
@@ -225,14 +223,22 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
     showPopUp<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertWithOneAction(
-          alertTitle: '',
-          alertContent: ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
-          buttonText: S.of(context).agree,
-          buttonAction: () => Navigator.of(context).pop(),
+          return IoniaAlertModal(
+            title: S.of(context).settings_terms_and_conditions,
+            content: Align(
+            alignment: Alignment.bottomLeft,
+            child: Text(
+              ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
+              style: textMedium(
+                color: Theme.of(context).textTheme.display2.color,
+              ),
+            ),
+          ),
+          actionTitle: S.of(context).agree,
+          showCloseButton: false,
+          heightFactor: 0.6,
         );
-      },
-    );
+  }); 
   }
 
   Future<void> purchaseCard(BuildContext context) async {
@@ -249,68 +255,21 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
   ) {
     showPopUp<void>(
         context: context,
-        builder: (BuildContext context) {
-          return AlertBackground(
-            child: Material(
-              color: Colors.transparent,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(height: 10),
-                  Container(
-                    padding: EdgeInsets.only(top: 24, left: 24, right: 24),
-                    margin: EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).backgroundColor,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          S.of(context).how_to_use_card,
-                          style: textLargeSemiBold(
-                            color: Theme.of(context).textTheme.body1.color,
-                          ),
-                        ),
-                        SizedBox(height: 24),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Text(
-                            merchant.usageInstructionsBak,
-                            style: textMedium(
-                              color: Theme.of(context).textTheme.display2.color,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 35),
-                        PrimaryButton(
-                          onPressed: () => Navigator.pop(context),
-                          text: S.of(context).send_got_it,
-                          color: Theme.of(context).accentTextTheme.caption.color,
-                          textColor: Theme.of(context).primaryTextTheme.title.color,
-                        ),
-                        SizedBox(height: 21),
-                      ],
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 40),
-                      child: CircleAvatar(
-                        child: Icon(
-                          Icons.close,
-                          color: Colors.black,
-                        ),
-                        backgroundColor: Colors.white,
-                      ),
-                    ),
-                  )
-                ],
+          builder: (BuildContext context) {
+        return  IoniaAlertModal(
+          title: S.of(context).how_to_use_card,
+          content: Align(
+            alignment: Alignment.bottomLeft,
+            child: Text(
+              merchant.usageInstructionsBak,
+              style: textMedium(
+                color: Theme.of(context).textTheme.display2.color,
               ),
             ),
-          );
-        });
+          ), 
+          actionTitle: S.current.send_got_it,
+        ); 
+    });
   }
 
   Future<void> _presentSuccessfulInvoiceCreationPopup(BuildContext context) async {
@@ -389,87 +348,6 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
             },
             actionLeftButton: () => Navigator.of(context).pop());
       },
-    );
-  }
-}
-
-class _IoniaTransactionCommitedAlert extends StatelessWidget {
-  const _IoniaTransactionCommitedAlert({
-    Key key,
-    @required this.transactionInfo,
-  }) : super(key: key);
-
-  final AnyPayPaymentCommittedInfo transactionInfo;
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.all(Radius.circular(30)),
-      child: Container(
-        width: 327,
-        height: 340,
-        color: Theme.of(context).accentTextTheme.title.decorationColor,
-        child: Material(
-          color: Colors.transparent,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.fromLTRB(40, 20, 40, 0),
-                child: Text(
-                  S.of(context).awaiting_payment_confirmation,
-                  textAlign: TextAlign.center,
-                  style: textMediumSemiBold(
-                    color: Theme.of(context).accentTextTheme.display4.backgroundColor,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 16, bottom: 8),
-                child: Container(
-                  height: 1,
-                  color: Theme.of(context).dividerColor,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      S.of(context).transaction_sent,
-                      style: textMedium(
-                        color: Theme.of(context).primaryTextTheme.title.color,
-                      ).copyWith(fontWeight: FontWeight.w500),
-                    ),
-                    SizedBox(height: 20),
-                    Text(
-                      S.of(context).transaction_sent_notice,
-                      style: textMedium(
-                        color: Theme.of(context).primaryTextTheme.title.color,
-                      ).copyWith(fontWeight: FontWeight.w500),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.only(top: 16, bottom: 8),
-                child: Container(
-                  height: 1,
-                  color: Theme.of(context).dividerColor,
-                ),
-              ),
-              StandartListRow(
-                title: '${S.current.transaction_details_transaction_id}:',
-                value: transactionInfo.chain,
-              ),
-              StandartListRow(
-                  title: '${S.current.view_in_block_explorer}:',
-                  value: '${S.current.view_transaction_on} XMRChain.net'),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

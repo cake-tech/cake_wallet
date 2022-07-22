@@ -2,6 +2,7 @@ import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
 import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
+import 'package:cake_wallet/src/screens/ionia/widgets/ionia_alert_model.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_tile.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
@@ -154,82 +155,33 @@ class IoniaGiftCardDetailPage extends BasePage {
     showPopUp<void>(
         context: context,
         builder: (BuildContext context) {
-          return AlertBackground(
-            child: Material(
-              color: Colors.transparent,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(height: 10),
-                  Container(
-                    padding: EdgeInsets.only(top: 24, left: 24, right: 24),
-                    margin: EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).backgroundColor,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: Column(
-                      children: [
+           return IoniaAlertModal(
+            title: S.of(context).how_to_use_card,
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+                children: viewModel.giftCard.usageInstructions
+                    .map((instruction) {
+                      return [
+                        Padding(
+                            padding: EdgeInsets.all(10),
+                            child: Text(
+                              instruction.header,
+                              style: textLargeSemiBold(
+                                color: Theme.of(context).textTheme.display2.color,
+                              ),
+                            )),
                         Text(
-                          S.of(context).how_to_use_card,
-                          style: textLargeSemiBold(
-                            color: Theme.of(context).textTheme.body1.color,
+                          instruction.body,
+                          style: textMedium(
+                            color: Theme.of(context).textTheme.display2.color,
                           ),
-                        ),
-                        Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Container(
-                              constraints: BoxConstraints(
-                                maxHeight: MediaQuery.of(context).size.height * 0.5),
-                                child: SingleChildScrollView(
-                                    child: Column(children: viewModel.giftCard.usageInstructions.map((instruction) {
-                                      return [
-                                         Padding(
-                                            padding: EdgeInsets.all(10),
-                                            child: Text(
-                                            instruction.header,
-                                            style: textLargeSemiBold(
-                                              color: Theme.of(context).textTheme.display2.color,
-                                            ),
-                                          )),
-                                          Text(
-                                            instruction.body,
-                                            style: textMedium(
-                                              color: Theme.of(context).textTheme.display2.color,
-                                            ),
-                                          )
-                                      ];
-                                    }).expand((e) => e).toList())
-                              )
-                          )),
-                        SizedBox(height: 35),
-                        PrimaryButton(
-                          onPressed: () => Navigator.pop(context),
-                          text: S.of(context).send_got_it,
-                          color: Theme.of(context).accentTextTheme.caption.color,
-                          textColor: Theme.of(context).primaryTextTheme.title.color,
-                        ),
-                        SizedBox(height: 21),
-                      ],
-                    ),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      margin: EdgeInsets.only(bottom: 40),
-                      child: CircleAvatar(
-                        child: Icon(
-                          Icons.close,
-                          color: Colors.black,
-                        ),
-                        backgroundColor: Colors.white,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          );
+                        )
+                      ];
+                    })
+                    .expand((e) => e)
+                    .toList()),
+            actionTitle: S.of(context).send_got_it,
+           );
         });
   }
 }
