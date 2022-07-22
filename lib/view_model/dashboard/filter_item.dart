@@ -1,7 +1,9 @@
+import 'package:mobx/mobx.dart';
+
 class FilterItem {
   FilterItem({this.value, this.caption, this.onChanged});
 
-  bool Function() value;
+  Observable<bool> value;
   String caption;
-  Function(bool) onChanged;
+  Function onChanged;
 }

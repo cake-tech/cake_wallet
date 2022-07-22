@@ -9,6 +9,7 @@ import 'package:cake_wallet/src/widgets/alert_close_button.dart';
 import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class FilterWidget extends StatelessWidget {
   FilterWidget({@required this.dashboardViewModel});
@@ -63,11 +64,11 @@ class FilterWidget extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: dashboardViewModel.filterItems.length,
+                            itemCount: dashboardViewModel.transactionFilterStore.filterItems.length,
                             separatorBuilder: (context, _) => sectionDivider,
                             itemBuilder: (_, index1) {
-                              final title = dashboardViewModel.filterItems.keys.elementAt(index1);
-                              final section = dashboardViewModel.filterItems.values.elementAt(index1);
+                              final title = dashboardViewModel.transactionFilterStore.filterItems.keys.elementAt(index1);
+                              final section = dashboardViewModel.transactionFilterStore.filterItems.values.elementAt(index1);
 
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,11 +99,12 @@ class FilterWidget extends StatelessWidget {
 
                                       final item = section[index2];
                                       final content = item.onChanged != null
-                                          ? CheckboxWidget(
-                                          value: item.value(),
+                                          ? Observer(builder: (_) =>
+                                            CheckboxWidget(
+                                          value: item.value.value,
                                           caption: item.caption,
                                           onChanged: item.onChanged
-                                      )
+                                      ))
                                           : GestureDetector(
                                         onTap: () async {
                                           final List<DateTime> picked =
