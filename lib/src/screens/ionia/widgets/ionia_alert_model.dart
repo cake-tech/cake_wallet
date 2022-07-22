@@ -25,9 +25,9 @@ class IoniaAlertModal extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            SizedBox(height: 100),
+            Spacer(),
             Container(
               padding: EdgeInsets.only(top: 24, left: 24, right: 24),
               margin: EdgeInsets.all(24),
@@ -63,7 +63,7 @@ class IoniaAlertModal extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            Spacer(),
            if(showCloseButton)
             InkWell(
               onTap: () => Navigator.pop(context),
