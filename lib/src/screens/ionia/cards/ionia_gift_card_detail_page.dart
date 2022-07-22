@@ -111,6 +111,15 @@ class IoniaGiftCardDetailPage extends BasePage {
               title: S.of(context).amount,
               subTitle: viewModel.giftCard.remainingAmount.toStringAsFixed(2) ?? '0.00',
             )),
+          if(viewModel.giftCard.tip > 0)
+          ...[
+            Divider(height: 30),
+            buildIoniaTile(
+            context,
+            title: S.of(context).tip,
+            subTitle: viewModel.giftCard.tip.toStringAsFixed(2),
+          )],
+          
           Divider(height: 50),
           TextIconButton(
             label: S.of(context).how_to_use_card,
