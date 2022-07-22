@@ -14,7 +14,7 @@ class IoniaAlertModal extends StatelessWidget {
   }) : super(key: key);
 
   final String title;
-  final String content;
+  final Widget content;
   final String actionTitle;
   final bool showCloseButton;
   final double heightFactor;
@@ -27,7 +27,7 @@ class IoniaAlertModal extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            SizedBox(height: 10),
+            SizedBox(height: 100),
             Container(
               padding: EdgeInsets.only(top: 24, left: 24, right: 24),
               margin: EdgeInsets.all(24),
@@ -48,15 +48,7 @@ class IoniaAlertModal extends StatelessWidget {
                     constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * heightFactor),
                     child: ListView(
                       children: [
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Text(
-                            content,
-                            style: textMedium(
-                              color: Theme.of(context).textTheme.display2.color,
-                            ),
-                          ),
-                        ),
+                        content,
                         SizedBox(height: 35),
                       ],
                     ),
@@ -64,8 +56,8 @@ class IoniaAlertModal extends StatelessWidget {
                   PrimaryButton(
                     onPressed: () => Navigator.pop(context),
                     text: actionTitle,
-                      color: Theme.of(context).accentTextTheme.caption.color,
-                      textColor: Theme.of(context).primaryTextTheme.title.color,
+                    color: Theme.of(context).accentTextTheme.caption.color,
+                    textColor: Theme.of(context).primaryTextTheme.title.color,
                   ),
                   SizedBox(height: 21),
                 ],

@@ -225,13 +225,20 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
       builder: (BuildContext context) {
           return IoniaAlertModal(
             title: S.of(context).settings_terms_and_conditions,
-            content:ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
-            actionTitle: S.of(context).agree,
-            showCloseButton: false,
-            heightFactor: 0.6,
-          );
-      },
-    );
+            content: Align(
+            alignment: Alignment.bottomLeft,
+            child: Text(
+              ioniaPurchaseViewModel.ioniaMerchant.termsAndConditions,
+              style: textMedium(
+                color: Theme.of(context).textTheme.display2.color,
+              ),
+            ),
+          ),
+          actionTitle: S.of(context).agree,
+          showCloseButton: false,
+          heightFactor: 0.6,
+        );
+  }); 
   }
 
   Future<void> purchaseCard(BuildContext context) async {
@@ -249,12 +256,20 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
     showPopUp<void>(
         context: context,
           builder: (BuildContext context) {
-            return  IoniaAlertModal(
-              title: S.of(context).how_to_use_card,
-              content: merchant.usageInstructionsBak,
-              actionTitle: S.current.send_got_it,
-            ); 
-        });
+        return  IoniaAlertModal(
+          title: S.of(context).how_to_use_card,
+          content: Align(
+            alignment: Alignment.bottomLeft,
+            child: Text(
+              merchant.usageInstructionsBak,
+              style: textMedium(
+                color: Theme.of(context).textTheme.display2.color,
+              ),
+            ),
+          ), 
+          actionTitle: S.current.send_got_it,
+        ); 
+    });
   }
 
   Future<void> _presentSuccessfulInvoiceCreationPopup(BuildContext context) async {
