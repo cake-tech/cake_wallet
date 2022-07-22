@@ -1,5 +1,6 @@
 import 'package:cake_wallet/core/execution_state.dart';
 import 'package:cake_wallet/ionia/ionia_gift_card.dart';
+import 'package:cake_wallet/routes.dart';
 import 'package:cake_wallet/src/screens/base_page.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/ionia_tile.dart';
 import 'package:cake_wallet/src/screens/ionia/widgets/text_icon_button.dart';
@@ -122,7 +123,9 @@ class IoniaGiftCardDetailPage extends BasePage {
              if (!viewModel.giftCard.isEmpty) {
               return LoadingPrimaryButton(
                 isLoading: viewModel.redeemState is IsExecutingState,
-                onPressed: () => viewModel.redeem(),
+                onPressed: () => viewModel.redeem().then((_){
+                 Navigator.of(context).pushNamedAndRemoveUntil(Routes.ioniaManageCardsPage, (route) => route.isFirst);
+                }),
                 text: S.of(context).mark_as_redeemed,
                 color: Theme.of(context).accentTextTheme.body2.color,
                 textColor: Colors.white);

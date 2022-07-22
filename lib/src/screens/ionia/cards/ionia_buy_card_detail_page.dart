@@ -114,7 +114,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                     ),
                     SizedBox(height: 4),
                     Text(
-                      '\$${ioniaPurchaseViewModel.giftCardAmount}',
+                      '\$${ioniaPurchaseViewModel.giftCardAmount.toStringAsFixed(2)}',
                       style: textXLargeSemiBold(),
                     ),
                     SizedBox(height: 24),
@@ -132,7 +132,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '\$${ioniaPurchaseViewModel.amount}',
+                                '\$${ioniaPurchaseViewModel.amount.toStringAsFixed(2)}',
                                 style: textLargeSemiBold(),
                               ),
                             ],
@@ -146,7 +146,7 @@ class IoniaBuyGiftCardDetailPage extends BasePage {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                '\$$tipAmount',
+                                '\$${tipAmount.toStringAsFixed(2)}',
                                 style: textLargeSemiBold(),
                               ),
                             ],
