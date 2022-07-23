@@ -15,7 +15,7 @@ class FilterWidget extends StatelessWidget {
   FilterWidget({@required this.dashboardViewModel});
 
   final DashboardViewModel dashboardViewModel;
-  final backVector = Image.asset('assets/images/back_vector.png',
+  final backVector = Image.asset('assets/images/close.png',
     color: Palette.darkBlueCraiola
   );
 
@@ -82,16 +82,16 @@ class FilterWidget extends StatelessWidget {
                                     child: Text(
                                       title,
                                       style: TextStyle(
-                                          color: Theme.of(context).accentTextTheme.subhead.color,
+                                          color: Theme.of(context).primaryTextTheme.title.color,
                                           fontSize: 16,
-                                          fontWeight: FontWeight.w500,
+                                          fontWeight: FontWeight.bold,
                                           fontFamily: 'Lato',
                                           decoration: TextDecoration.none
                                       ),
                                     ),
                                   ),
                                   ListView.builder(
-                                    padding: EdgeInsets.zero,
+                                    padding: EdgeInsets.symmetric(vertical: 8.0),
                                     shrinkWrap: true,
                                     physics: const NeverScrollableScrollPhysics(),
                                     itemCount: section.length,
@@ -103,7 +103,8 @@ class FilterWidget extends StatelessWidget {
                                             CheckboxWidget(
                                           value: item.value.value,
                                           caption: item.caption,
-                                          onChanged: item.onChanged
+                                          onChanged: item.onChanged,
+                                          currentTheme: dashboardViewModel.settingsStore.currentTheme,
                                       ))
                                           : GestureDetector(
                                         onTap: () async {
