@@ -64,11 +64,11 @@ class FilterWidget extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: dashboardViewModel.transactionFilterStore.filterItems.length,
+                            itemCount: dashboardViewModel.filterItems.length,
                             separatorBuilder: (context, _) => sectionDivider,
                             itemBuilder: (_, index1) {
-                              final title = dashboardViewModel.transactionFilterStore.filterItems.keys.elementAt(index1);
-                              final section = dashboardViewModel.transactionFilterStore.filterItems.values.elementAt(index1);
+                              final title = dashboardViewModel.filterItems.keys.elementAt(index1);
+                              final section = dashboardViewModel.filterItems.values.elementAt(index1);
 
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,

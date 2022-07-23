@@ -47,44 +47,40 @@ abstract class DashboardViewModelBase with Store {
       this.settingsStore,
       this.yatStore,
       this.ordersStore}) {
-    // filterItems = {
-    //   S.current.transactions: [
-    //     FilterItem(
-    //         value: () => transactionFilterStore.displayAllTransaction,
-    //         caption: 'All transactions',
-    //         onChanged: (value) => transactionFilterStore.showAllTransaction()),
-    //     FilterItem(
-    //         value: () => transactionFilterStore.displayIncoming,
-    //         caption: S.current.incoming,
-    //         onChanged: (value) => transactionFilterStore.showIncoming()),
-    //     FilterItem(
-    //         value: () => transactionFilterStore.displayOutgoing,
-    //         caption: S.current.outgoing,
-    //         onChanged: (value) => transactionFilterStore.showOutgoing()),
-    //     // FilterItem(
-    //     //     value: () => false,
-    //     //     caption: S.current.transactions_by_date,
-    //     //     onChanged: null),
-    //   ],
-    //   S.current.trades: [
-    //     FilterItem(
-    //         value: () => tradeFilterStore.displayAllTrades,
-    //         caption: 'All trades',
-    //         onChanged: (value) => tradeFilterStore
-    //             .toggleDisplayExchange(ExchangeProviderDescription.all)),
-    //     FilterItem(
-    //         value: () => tradeFilterStore.displayChangeNow,
-    //         caption: 'Change.NOW',
-    //         onChanged: (value) => tradeFilterStore
-    //             .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
-    //     FilterItem(
-    //         value: () => tradeFilterStore.displaySideShift,
-    //         caption: 'SideShift',
-    //         onChanged: (value) => tradeFilterStore
-    //             .toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
-    //   ]
-    // };
-
+    filterItems = {
+      S.current.transactions: [
+        FilterItem(
+            value: transactionFilterStore.displayAll,
+            caption: 'S.current.All',
+            onChanged: () => transactionFilterStore.toggleIAll()),
+        FilterItem(
+            value: transactionFilterStore.displayIncoming,
+            caption: S.current.incoming,
+            onChanged: () => transactionFilterStore.toggleIncoming()),
+        FilterItem(
+            value: transactionFilterStore.displayOutgoing,
+            caption: S.current.outgoing,
+            onChanged: () => transactionFilterStore.toggleOutgoing()),
+      ],
+      S.current.trades: [
+        FilterItem(
+            value: tradeFilterStore.displayAllTrades,
+            caption: 'All trades',
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.all)),
+        FilterItem(
+            value: tradeFilterStore.displayChangeNow,
+            caption: 'Change.NOW',
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.changeNow)),
+        FilterItem(
+            value:  tradeFilterStore.displaySideShift,
+            caption: 'SideShift',
+            onChanged: () => tradeFilterStore
+                .toggleDisplayExchange(ExchangeProviderDescription.sideShift)),
+        ]
+    };
+    
     name = appStore.wallet?.name;
     wallet ??= appStore.wallet;
     type = wallet.type;

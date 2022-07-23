@@ -10,25 +10,7 @@ class TransactionFilterStore = TransactionFilterStoreBase
     with _$TransactionFilterStore;
 
 abstract class TransactionFilterStoreBase with Store {
-  TransactionFilterStoreBase() {
-    filterItems = {
-      'S.current.transactions': [
-        FilterItem(
-            value: displayAll,
-            caption: 'S.current.All',
-            onChanged: () => toggleIAll()),
-        FilterItem(
-            value: displayIncoming,
-            caption: 'S.current.incoming',
-            onChanged: () => toggleIncoming()),
-        FilterItem(
-            value: displayOutgoing,
-            caption: 'S.current.outgoing',
-            onChanged: () => toggleOutgoing()),
-      ]
-    };
-  }
-
+  TransactionFilterStoreBase();
 
   Observable<bool> displayAll = Observable(true);
   Observable<bool> displayIncoming = Observable(true);
