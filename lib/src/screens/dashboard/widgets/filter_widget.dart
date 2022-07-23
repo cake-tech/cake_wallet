@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cake_wallet/src/widgets/alert_background.dart';
 import 'package:cake_wallet/src/widgets/alert_close_button.dart';
-import 'package:cake_wallet/src/widgets/checkbox_widget.dart';
+import 'package:cake_wallet/src/widgets/rounded_checkbox.dart';
 import 'package:cake_wallet/generated/i18n.dart';
 import 'package:date_range_picker/date_range_picker.dart' as date_rage_picker;
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -100,7 +100,7 @@ class FilterWidget extends StatelessWidget {
                                       final item = section[index2];
                                       final content = item.onChanged != null
                                           ? Observer(builder: (_) =>
-                                            CheckboxWidget(
+                                          RoundedCheckboxWidget(
                                           value: item.value.value,
                                           caption: item.caption,
                                           onChanged: item.onChanged,

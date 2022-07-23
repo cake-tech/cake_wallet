@@ -1,0 +1,87 @@
+import 'package:cake_wallet/palette.dart';
+import 'package:flutter/material.dart';
+import 'package:cake_wallet/themes/theme_base.dart';
+
+class RoundedCheckboxWidget extends StatelessWidget {
+  RoundedCheckboxWidget(
+      {@required this.value,
+      @required this.caption,
+      @required this.onChanged,
+      this.currentTheme});
+
+  final bool value;
+  final String caption;
+  final Function onChanged;
+  final ThemeBase currentTheme;
+
+  @override
+  Widget build(BuildContext context) {
+    final darkTheme =
+        currentTheme != null && currentTheme.type == ThemeType.dark;
+
+    final baseGradient = LinearGradient(colors: [
+      Theme.of(context).primaryTextTheme.subtitle.color,
+      Theme.of(context).primaryTextTheme.subtitle.decorationColor,
+    ], begin: Alignment.centerLeft, end: Alignment.centerRight);
+
+    final darkThemeGradient = LinearGradient(colors: [
+      Palette.blueCraiola,
+      Palette.blueGreyCraiola,
+    ], begin: Alignment.topLeft, end: Alignment.bottomRight);
+
+    final gradient = darkTheme ? darkThemeGradient : baseGradient;
+
+    final uncheckedColor = darkTheme
+        ? Theme.of(context).accentTextTheme.subhead.decorationColor
+        : Colors.white;
+
+    final boxDecorationGradient =
+        BoxDecoration(shape: BoxShape.circle, gradient: gradient);
+
+    final boxDecoration = BoxDecoration(
+        shape: BoxShape.circle,
+        color: Theme.of(context).accentTextTheme.overline.color,
+        border: Border.all(
+          color: darkTheme
+              ? Theme.of(context).accentTextTheme.subtitle.backgroundColor
+              : Colors.transparent,
+        ));
+
+    return GestureDetector(
+      onTap: () => onChanged(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            height: 24.0,
+            width: 24.0,
+            child: DecoratedBox(
+              decoration: value ? boxDecorationGradient : boxDecoration,
+              child: Padding(
+                padding: EdgeInsets.all(value ? 4.0 : 1.0),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: value ? Colors.white : uncheckedColor),
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 16),
+            child: Text(
+              caption,
+              style: TextStyle(
+                  color: Theme.of(context).primaryTextTheme.title.color,
+                  fontSize: 18,
+                  fontFamily: 'Lato',
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.none),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
