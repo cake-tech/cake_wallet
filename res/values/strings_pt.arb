@@ -48,7 +48,7 @@
   "outgoing" : "Enviadas",
   "transactions_by_date" : "Transações por data",
   "trades" : "Trocas",
-  "filters" : "Filtro",
+  "filters" : "Filtrar por",
   "today" : "Hoje",
   "yesterday" : "Ontem",
   "received" : "Recebida",
@@ -534,5 +534,7 @@
   "search_currency": "Pesquisar moeda",
   "new_template" : "Novo modelo",
   "electrum_address_disclaimer": "Geramos novos endereços cada vez que você usa um, mas os endereços anteriores continuam funcionando",
-  "wallet_name_exists": "A carteira com esse nome já existe"
+  "wallet_name_exists": "A carteira com esse nome já existe",
+  "all_transactions": "Todas as transacções",
+  "all_trades": "Todas as negociações"
 }

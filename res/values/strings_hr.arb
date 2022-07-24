@@ -48,7 +48,7 @@
   "outgoing" : "Odlazno",
   "transactions_by_date" : "Transakcije prema datumu",
   "trades" : "Razmjene",
-  "filters" : "Filter",
+  "filters" : "Filtrirati po",
   "today" : "Danas",
   "yesterday" : "Jučer",
   "received" : "Primljeno",
@@ -534,5 +534,7 @@
   "search_currency": "Traži valutu",
   "new_template" : "novi predložak",
   "electrum_address_disclaimer": "Minden egyes alkalommal új címeket generálunk, de a korábbi címek továbbra is működnek",
-  "wallet_name_exists": "Novčanik s tim nazivom već postoji"
+  "wallet_name_exists": "Novčanik s tim nazivom već postoji",
+  "all_transactions": "Sve transakcije",
+  "all_trades": "Svi obrti"
 }

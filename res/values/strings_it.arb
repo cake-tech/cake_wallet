@@ -48,7 +48,7 @@
   "outgoing" : "In uscita",
   "transactions_by_date" : "Transazioni per data",
   "trades" : "Scambi",
-  "filters" : "Filtri",
+  "filters" : "Filtrirati po",
   "today" : "Oggi",
   "yesterday" : "Ieri",
   "received" : "Ricevuto",
@@ -534,5 +534,7 @@
   "search_currency": "Cerca valuta",
   "new_template" : "Nuovo modello",
   "electrum_address_disclaimer": "Generiamo nuovi indirizzi ogni volta che ne utilizzi uno, ma gli indirizzi precedenti continuano a funzionare",
-  "wallet_name_exists": "Il portafoglio con quel nome è già esistito"
+  "wallet_name_exists": "Il portafoglio con quel nome è già esistito",
+  "all_transactions": "Sve transakcije",
+  "all_trades": "Svi obrti"
 }

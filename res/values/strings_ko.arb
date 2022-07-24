@@ -48,7 +48,7 @@
   "outgoing" : "나가는",
   "transactions_by_date" : "날짜 별 거래",
   "trades" : "거래",
-  "filters" : "필터",
+  "filters" : "필터링 기준",
   "today" : "오늘",
   "yesterday" : "어제",
   "received" : "받았습니다",
@@ -534,5 +534,7 @@
   "search_currency": "통화 검색",
   "new_template" : "새 템플릿",
   "electrum_address_disclaimer": "사용할 때마다 새 주소가 생성되지만 이전 주소는 계속 작동합니다.",
-  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다."
+  "wallet_name_exists": "해당 이름의 지갑이 이미 존재합니다.",
+  "all_transactions": "모든 거래 창구",
+  "all_trades": "A모든 거래"
 }

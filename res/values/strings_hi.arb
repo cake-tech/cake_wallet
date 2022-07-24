@@ -48,7 +48,7 @@
   "outgoing" : "निवर्तमान",
   "transactions_by_date" : "तारीख से लेन-देन",
   "trades" : "ट्रेडों",
-  "filters" : "फ़िल्टर",
+  "filters" : "के द्वारा छनित",
   "today" : "आज",
   "yesterday" : "बिता कल",
   "received" : "प्राप्त किया",
@@ -534,5 +534,7 @@
   "search_currency": "मुद्रा खोजें",
   "new_template" : "नया टेम्पलेट",
   "electrum_address_disclaimer": "हर बार जब आप एक का उपयोग करते हैं तो हम नए पते उत्पन्न करते हैं, लेकिन पिछले पते काम करना जारी रखते हैं",
-  "wallet_name_exists": "उस नाम वाला वॉलेट पहले से मौजूद है"
+  "wallet_name_exists": "उस नाम वाला वॉलेट पहले से मौजूद है",
+  "all_transactions": "सभी लेन - देन",
+  "all_trades": "सभी व्यापार"
 }

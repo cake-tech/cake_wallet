@@ -48,7 +48,7 @@
   "outgoing" : "Saliente",
   "transactions_by_date" : "Transacciones por fecha",
   "trades" : "Cambios",
-  "filters" : "Filtrar",
+  "filters" : "Filtrado por",
   "today" : "Hoy",
   "yesterday" : "Ayer",
   "received" : "Recibido",
@@ -534,5 +534,7 @@
   "search_currency": "Moneda de búsqueda",
   "new_template" : "Nueva plantilla",
   "electrum_address_disclaimer": "Generamos nuevas direcciones cada vez que usa una, pero las direcciones anteriores siguen funcionando",
-  "wallet_name_exists": "Wallet con ese nombre ya ha existido"
+  "wallet_name_exists": "Wallet con ese nombre ya ha existido",
+  "all_transactions": "Todas las transacciones",
+  "all_trades": "Todos los oficios"
 }

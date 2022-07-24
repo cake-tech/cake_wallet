@@ -48,7 +48,7 @@
   "outgoing" : "Towarzyski",
   "transactions_by_date" : "Transakcje według daty",
   "trades" : "Transakcje",
-  "filters" : "Filtr",
+  "filters" : "Filtruj według",
   "today" : "Dzisiaj",
   "yesterday" : "Wczoraj",
   "received" : "Odebrane",
@@ -534,5 +534,7 @@
   "search_currency": "Wyszukaj walutę",
   "new_template" : "Nowy szablon",
   "electrum_address_disclaimer": "Za każdym razem, gdy korzystasz z jednego z nich, generujemy nowe adresy, ale poprzednie adresy nadal działają",
-  "wallet_name_exists": "Portfel o tej nazwie już istnieje"
+  "wallet_name_exists": "Portfel o tej nazwie już istnieje",
+  "all_transactions": "Wszystkie transakcje",
+  "all_trades": "Wszystkie operacje"
 }

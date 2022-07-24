@@ -35,17 +35,21 @@ class RoundedCheckboxWidget extends StatelessWidget {
         ? Theme.of(context).accentTextTheme.subhead.decorationColor
         : Colors.white;
 
-    final boxDecorationGradient =
-        BoxDecoration(shape: BoxShape.circle, gradient: gradient);
+    final borderColor = darkTheme
+        ? Theme.of(context).accentTextTheme.subtitle.backgroundColor
+        : Colors.transparent;
 
-    final boxDecoration = BoxDecoration(
+    final checkedOuterBoxDecoration =
+        BoxDecoration(shape: BoxShape.circle, gradient: gradient);
+    final outerBoxDecoration = BoxDecoration(
         shape: BoxShape.circle,
         color: Theme.of(context).accentTextTheme.overline.color,
-        border: Border.all(
-          color: darkTheme
-              ? Theme.of(context).accentTextTheme.subtitle.backgroundColor
-              : Colors.transparent,
-        ));
+        border: Border.all(color: borderColor));
+
+    final checkedInnerBoxDecoration =
+        BoxDecoration(shape: BoxShape.circle, color: Colors.white);
+    final innerBoxDecoration =
+        BoxDecoration(shape: BoxShape.circle, color: uncheckedColor);
 
     return GestureDetector(
       onTap: () => onChanged(),
@@ -57,13 +61,13 @@ class RoundedCheckboxWidget extends StatelessWidget {
             height: 24.0,
             width: 24.0,
             child: DecoratedBox(
-              decoration: value ? boxDecorationGradient : boxDecoration,
+              decoration:
+                  value ? checkedOuterBoxDecoration : outerBoxDecoration,
               child: Padding(
                 padding: EdgeInsets.all(value ? 4.0 : 1.0),
                 child: DecoratedBox(
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: value ? Colors.white : uncheckedColor),
+                  decoration:
+                      value ? checkedInnerBoxDecoration : innerBoxDecoration,
                 ),
               ),
             ),
