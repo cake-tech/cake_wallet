@@ -3,7 +3,7 @@ import 'package:cake_wallet/palette.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class CheckboxWidget extends StatelessWidget {
+class CheckboxWidget extends StatefulWidget {
   CheckboxWidget({
     @required this.value,
     @required this.caption,
@@ -11,13 +11,26 @@ class CheckboxWidget extends StatelessWidget {
 
   final bool value;
   final String caption;
-  final Function onChanged;
+  final Function(bool) onChanged;
+
+  @override
+  CheckboxWidgetState createState() => CheckboxWidgetState(value, caption, onChanged);
+}
+
+class CheckboxWidgetState extends State<CheckboxWidget> {
+  CheckboxWidgetState(this.value, this.caption, this.onChanged);
+
+  bool value;
+  String caption;
+  Function(bool) onChanged;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        onChanged();
+        value = !value;
+        onChanged(value);
+        setState(() {});
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
